@@ -172,7 +172,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/voice/build-voice.sh` (35L) — XEMS voice firmware → voice/xems-voice-sense.uf2 (XIAO nRF52840 Sense) and voice/xems-voice-sense-plus.uf2
 - `scripts/voice-sim/DfuSim.java` (92L) — Offline test of the USB update (wearable/voice/VoiceDfu): a simulated Adafruit nRF52 bootloader decodes every frame — S…
 - `scripts/voice-sim/run-dfu.sh` (29L) — Offline test of the module's USB update from XEMS (VoiceDfu) — needs the voice firmware built
-- `scripts/voice-sim/run.py` (84L) — Offline test of the XEMS voice recogniser: Bulgarian commands spoken by espeak-ng, recorded as examples, then said agai…
+- `scripts/voice-sim/run.py` (90L) — Offline test of the XEMS voice recogniser: Bulgarian commands spoken by espeak-ng, recorded as examples, then said agai…
 - `scripts/xbody/android/src/bg/xems/fleshka/BlockDev.java` (14L) — A disk as bytes: the SD card behind a USB reader (UsbDisk), an image file (FileDev), or either under an undo log.
 - `scripts/xbody/android/src/bg/xems/fleshka/CardUpdate.java` (163L) — The XBody unit's own SD card, updated from the phone: find its root partition (the ext one with /opt/xbody), put the mo…
 - `scripts/xbody/android/src/bg/xems/fleshka/Ext3.java` (812L) — Just enough ext2/3/4 to put the XEMS mod onto the XBody unit's own SD card from a phone — what build.py --img does with…
@@ -408,8 +408,8 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `VoiceDfu.java` (156L, compile:music-sync*,wearable) — Puts new firmware on the voice module from XEMS over its USB cable — pure Java, no Android (the offline test drives it …
 - `VoiceLink.java` (542L, compile:music-sync*,wearable) — The XEMS voice module (XIAO nRF52840 Sense, firmware voice/xems_voice — docs/xems-voice.md) over BLE: Nordic UART, one …
 - `VoiceRemote.java` (108L, compile:music-sync*,wearable) — A spoken command (VoiceLink "CMD …") onto whatever runs now — owner, 2026-10-27: "whatever suit or system".
-- `VoiceScreen.java` (695L, compile:music-sync*,wearable) — The "Глас" page (menu → Глас): the voice module, as easy as it gets (owner, 2026-10-28: "as few steps as possible, noth…
-- `VoiceUsb.java` (372L, compile:music-sync*,wearable) — The voice module's firmware from XEMS over a USB cable (owner, 2026-10-28: "programming through the interface, nothing …
+- `VoiceScreen.java` (717L, compile:music-sync*,wearable) — The "Глас" page (menu → Глас): the voice module, as easy as it gets (owner, 2026-10-28: "as few steps as possible, noth…
+- `VoiceUsb.java` (374L, compile:music-sync*,wearable) — The voice module's firmware from XEMS over a USB cable (owner, 2026-10-28: "programming through the interface, nothing …
 
 **wearable/vr/** (`branding/java/src/com/isaigu/gymapp/wearable/vr/`)
 - `VrBridge.java` (58L, compile:music-sync*,wearable) — Lifecycle of the Quest 3 haptic bridge (vr-bridge/): listening while the training screen is open (wearable/NotifyWearab…
@@ -1278,16 +1278,16 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L59 ## 6. Words
   - L64 ## 7. Checklist before shipping a screen
 
-`docs/xems-voice.md` (100L)
+`docs/xems-voice.md` (106L)
   - L1 # XEMS voice — Bulgarian command words on a XIAO nRF52840 Sense (Plus)
   - L12 ## Hardware
   - L17 ## Which recogniser, and why (research)
   - L31 ## Pipeline (`kws.h`)
-  - L52 ## Protocol (USB serial and BLE Nordic UART `6E400001-…`, name "XEMS Voice"; one text line each)
-  - L57 ## Offline test (2026-10-27, `scripts/voice-sim/run.py`)
-  - L72 ## Setting it up (owner, 2026-10-28: "programming only through the interface")
-  - L83 ## XEMS side (1.1.480-ai) — `wearable/voice/`
-  - L96 ## Phase 3 — learned model
+  - L56 ## Protocol (USB serial and BLE Nordic UART `6E400001-…`, name "XEMS Voice"; one text line each)
+  - L61 ## Offline test (2026-10-27, `scripts/voice-sim/run.py`)
+  - L78 ## Setting it up (owner, 2026-10-28: "programming only through the interface")
+  - L89 ## XEMS side (1.1.480-ai) — `wearable/voice/`
+  - L102 ## Phase 3 — learned model
 
 `docs/xems-wiems-app.md` (277L)
   - L1 # XEMS WiEMS — light tablet app for one WiEMS unit, XEMS or bodytech suit (wiems/app, v1.18)

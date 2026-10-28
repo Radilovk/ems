@@ -19,7 +19,7 @@
     .registers 1
 
     .prologue
-    .line 358
+    .line 360
     invoke-direct {p0}, Landroid/content/BroadcastReceiver;-><init>()V
 
     return-void
@@ -33,7 +33,7 @@
     .prologue
     const/4 v2, 0x0
 
-    .line 361
+    .line 363
     const-string v0, "com.isaigu.gymapp.XEMS_VOICE_USB"
 
     invoke-virtual {p2}, Landroid/content/Intent;->getAction()Ljava/lang/String;
@@ -50,12 +50,12 @@
 
     if-nez v0, :cond_12
 
-    .line 369
+    .line 371
     :cond_11
     :goto_11
     return-void
 
-    .line 364
+    .line 366
     :cond_12
     const-string v0, "permission"
 
@@ -65,7 +65,7 @@
 
     if-eqz v0, :cond_25
 
-    .line 365
+    .line 367
     sget-object v0, Lcom/isaigu/gymapp/wearable/voice/VoiceUsb;->main:Landroid/os/Handler;
 
     new-instance v1, Lcom/isaigu/gymapp/wearable/voice/VoiceUsb$Step;
@@ -76,7 +76,7 @@
 
     goto :goto_11
 
-    .line 367
+    .line 369
     :cond_25
     const/4 v0, 0x6
 

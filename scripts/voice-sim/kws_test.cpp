@@ -1,5 +1,6 @@
 // Offline test of the XEMS voice recogniser (voice/xems_voice/kws.h) — the chip's own code, fed from a plan:
 //   noise <rms>              background noise from here on (white, 16-bit units)
+//   noisevar <dB>            the noise level wanders ± this much every 50 ms (a real room: fan, hum, steps)
 //   sil <ms>                 silence (noise only)
 //   rec <action> <file.raw>  record an example: 16 kHz s16le mono
 //   play <file.raw> [gain]   audio, e.g. a command or running speech
@@ -8,11 +9,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 #include <vector>
 #include "../../voice/xems_voice/kws.h"
 
 static kws::Engine eng;
-static float noiseRms = 0;
+static float noiseRms = 0, noiseVar = 0, noiseGain = 1;
+static long fed = 0;
 static unsigned rng = 12345;
 
 static float gauss() {
@@ -24,7 +27,11 @@ static float gauss() {
   return s - 6;
 }
 static void feed(float v) {
-  v += noiseRms * gauss();
+  if (fed++ % 800 == 0 && noiseVar > 0) {           // every 50 ms a new level, ± noiseVar dB
+    rng = rng * 1103515245u + 12345u;
+    noiseGain = powf(10, ((rng >> 8 & 0xffff) / 65536.0f * 2 - 1) * noiseVar / 20);
+  }
+  v += noiseRms * noiseGain * gauss();
   if (v > 32767) v = 32767;
   if (v < -32768) v = -32768;
   eng.push((int16_t)v);
@@ -56,6 +63,7 @@ int main(int argc, char **argv) {
     int k = sscanf(line, "%63s %399s %f", a, b, &g);
     if (k < 1) continue;
     if (!strcmp(a, "noise")) noiseRms = atof(b);
+    else if (!strcmp(a, "noisevar")) noiseVar = atof(b);
     else if (!strcmp(a, "sil")) sil(atoi(b));
     else if (!strcmp(a, "play")) play(b, k >= 3 ? g : 1);
     else if (!strcmp(a, "mark")) printf("%u MARK %s", (unsigned)eng.nowMs(), line + 5);

@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 644
+    .line 666
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 645
+    .line 667
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Next;->p:Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;
 
-    .line 646
+    .line 668
     return-void
 .end method
 
@@ -42,7 +42,7 @@
     .registers 2
 
     .prologue
-    .line 650
+    .line 672
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Next;->p:Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;
 
     iget-boolean v0, v0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->closed:Z
@@ -55,12 +55,12 @@
 
     if-eqz v0, :cond_11
 
-    .line 651
+    .line 673
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Next;->p:Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->nextWord()V
 
-    .line 653
+    .line 675
     :cond_11
     return-void
 .end method

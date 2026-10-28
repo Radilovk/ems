@@ -140,19 +140,27 @@ class Front {
 };
 
 // ---------------------------------------------------------------- word finder
+// The noise floor is the MEDIAN of the last 1.5 s heard outside words, not their minimum (2026-10-28, the real mic:
+// a room's noise wanders ± 6–8 dB — measured from its quiet dips, ordinary noise looked like endless speech, no word
+// was ever closed, every example timed out with "say it louder").
 // IDLE → a frame ON_DB above the noise floor for 3 frames, after a quiet run of PRE_Q frames that ended at most
 // 200 ms earlier (soft consonants before the loud vowel) → IN → POST_Q quiet frames → the word, if its length and
 // loudness fit. Longer than MAXLEN = running speech, never a command: wait for the next pause.
 struct Finder {
   float ON_DB = 12, QUIET_DB = 6, OFF_DB = 8, LOUD_DB = 18;
   int PRE_Q = 20, POST_Q = 22, MINLEN = 16, MAXLEN = 150;
+  static const int NH = 150;  // idle frames the median is taken over (1.5 s)
+  float hist[NH];
+  int nh = 0, hi = 0;
+  bool lenient = false;       // recording an example: the word was asked for — no pause before it, softer is fine
 
   float ring[RING][RW];
   float noise[NMEL];  // steady noise of every band, from quiet frames
   uint32_t t = 0;
   float floorDb = 0;
   int state = 0;  // 0 idle, 1 in a word, 2 running speech (wait for quiet)
-  int quietRun = 0, lastQuietLen = 0, sinceQuiet = 1000, above = 0;
+  int quietRun = 0, above = 0;
+  int64_t qEnd = -1000;  // the frame after the last pause of PRE_Q quiet frames (still growing while it lasts)
   uint32_t s0 = 0, lastAct = 0;
   float peak = 0;
   // the last word found
@@ -169,35 +177,56 @@ struct Finder {
       floorDb = edb;
       memcpy(noise, bands, sizeof noise);
     }
-    bool quiet = edb < floorDb + QUIET_DB;
+    // the noise's history: never a word, never a loud frame between words (own speech made the floor swing and
+    // the thresholds jump after a few words); all of running sound, so music switched on cannot lock it out
+    if (state == 2 || state == 0 && (nh < 20 || edb < floorDb + (ON_DB > spread + 8 ? ON_DB : spread + 8))) {
+      hist[hi] = edb;
+      hi = (hi + 1) % NH;
+      if (nh < NH) nh++;
+      if (nh < 20) floorDb = floorDb < edb ? floorDb : edb;
+      else if (t % 10 == 0) stats();
+    }
+    // every threshold sits above the noise's own swing (its 90th percentile over the median), never below the base
+    float qDb = QUIET_DB > spread + 3 ? QUIET_DB : spread + 3;
+    float onDb = ON_DB > spread + 8 ? ON_DB : spread + 8;
+    float offDb = OFF_DB > spread + 4 ? OFF_DB : spread + 4;
+    float loudDb = LOUD_DB > spread + 12 ? LOUD_DB : spread + 12;
+    bool quiet = edb < floorDb + qDb;
     if (state != 1 && quiet)
       for (int j = 0; j < NMEL; j++) noise[j] += 0.05f * (bands[j] - noise[j]);
-    // the floor follows quiet fast and loud slowly (≈ 3 s; faster while it hears only running sound — music
-    // switched on must not lock the finder out), never inside a word
-    if (state != 1) floorDb += (edb < floorDb ? 0.1f : state == 2 ? 0.01f : 0.003f) * (edb - floorDb);
     if (state == 0) {
-      above = edb > floorDb + ON_DB ? above + 1 : 0;
-      if (above >= 3 && lastQuietLen >= PRE_Q && sinceQuiet <= 20 + 3) {
+      above = edb > floorDb + (lenient ? onDb - 3 : onDb) ? above + 1 : 0;
+      // the pause may lie up to 300 ms back: "старт" opens with a hiss and a closure before its loud vowel, and those
+      // short dips must not count as the pause the command came after
+      if (above >= 3 && (int64_t)t - qEnd <= 30) {
         state = 1;
-        s0 = t - (uint32_t)(sinceQuiet < 3 ? 3 : sinceQuiet) - 2;
+        int64_t b = qEnd - 2 < (int64_t)t - 5 ? qEnd - 2 : (int64_t)t - 5;
+        s0 = (uint32_t)(b > 0 ? b : 0);
         peak = edb;
         lastAct = t;
       }
     } else if (state == 1) {
       if (edb > peak) peak = edb;
-      float off = floorDb + OFF_DB;
+      float off = floorDb + offDb;
       if (peak - 35 > off) off = peak - 35;
       if (edb > off) lastAct = t;
       if (t - s0 > (uint32_t)MAXLEN + POST_Q) {
         state = 2;
+        skipLen = (int)(t - s0) * 10;
+        skipDb = (int)(peak - floorDb);
+        skipped = true;
       } else if (t - lastAct >= (uint32_t)POST_Q) {
         state = 0;
         above = 0;
         uint32_t e = lastAct + 3;
         int len = (int)(e - s0);
-        if (len >= MINLEN && len <= MAXLEN && peak > floorDb + LOUD_DB) {
+        if (len >= MINLEN && len <= MAXLEN && peak > floorDb + (lenient ? loudDb - 6 : loudDb)) {
           w0 = s0; w1 = e; wPeak = peak; wFloor = floorDb;
           out = true;
+        } else {
+          skipLen = len * 10;
+          skipDb = (int)(peak - floorDb);
+          skipped = true;
         }
       }
     } else if (state == 2 && quiet && quietRun >= POST_Q) {
@@ -206,14 +235,32 @@ struct Finder {
     }
     if (quiet) {
       quietRun++;
-      sinceQuiet = 0;
-      lastQuietLen = quietRun;
+      if (quietRun >= (lenient ? 5 : PRE_Q)) qEnd = (int64_t)t + 1;
     } else {
       quietRun = 0;
-      sinceQuiet++;
     }
     t++;
     return out;
+  }
+
+  // a sound that was not taken as a word: why (the tablet says it — "too short", "too long", "too soft")
+  bool skipped = false;
+  int skipLen = 0, skipDb = 0;
+
+  float spread = 0;  // how far the noise swings above its median (90th percentile − median), dB
+
+  void stats() {
+    static float c[NH];
+    memcpy(c, hist, sizeof(float) * nh);
+    for (int i = 1; i < nh; i++) {  // insertion sort, 150 values every 100 ms
+      float v = c[i];
+      int j = i - 1;
+      while (j >= 0 && c[j] > v) { c[j + 1] = c[j]; j--; }
+      c[j + 1] = v;
+    }
+    floorDb = c[nh / 2];
+    spread = c[nh * 9 / 10] - floorDb;
+    if (spread > 10) spread = 10;  // a floor that wild is not noise any more: keep the thresholds reachable
   }
 
   // The word as matched: 20 ms frames (pairs averaged); per band the noise taken out (× 1.5) and a floor 30 dB
@@ -315,7 +362,13 @@ class Engine {
   void push(int16_t s) {
     float bands[NMEL], edb;
     if (!front.push(s, bands, &edb)) return;
+    finder.lenient = recording >= 0;
     if (finder.frame(bands, edb)) onWord();
+    if (finder.skipped) {
+      finder.skipped = false;
+      int l = finder.skipLen, db = finder.skipDb;
+      say("SKIP %s len=%d db=%d", l > finder.MAXLEN * 10 ? "long" : l < finder.MINLEN * 10 ? "short" : "soft", l, db);
+    }
   }
   uint32_t nowMs() const { return finder.t * 10; }
 

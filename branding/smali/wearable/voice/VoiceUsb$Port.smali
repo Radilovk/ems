@@ -30,19 +30,19 @@
     .registers 4
 
     .prologue
-    .line 233
+    .line 235
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 234
+    .line 236
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceUsb$Port;->c:Landroid/hardware/usb/UsbDeviceConnection;
 
-    .line 235
+    .line 237
     iput-object p2, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceUsb$Port;->in:Landroid/hardware/usb/UsbEndpoint;
 
-    .line 236
+    .line 238
     iput-object p3, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceUsb$Port;->out:Landroid/hardware/usb/UsbEndpoint;
 
-    .line 237
+    .line 239
     return-void
 .end method
 
@@ -52,7 +52,7 @@
     .registers 6
 
     .prologue
-    .line 256
+    .line 258
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceUsb$Port;->c:Landroid/hardware/usb/UsbDeviceConnection;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceUsb$Port;->in:Landroid/hardware/usb/UsbEndpoint;
@@ -63,7 +63,7 @@
 
     move-result v0
 
-    .line 257
+    .line 259
     const/4 v1, 0x0
 
     invoke-static {v1, v0}, Ljava/lang/Math;->max(II)I
@@ -82,10 +82,10 @@
     .end annotation
 
     .prologue
-    .line 262
+    .line 264
     invoke-static {p1, p2}, Ljava/lang/Thread;->sleep(J)V
 
-    .line 263
+    .line 265
     return-void
 .end method
 
@@ -100,16 +100,16 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 241
+    .line 243
     move v0, v1
 
-    .line 242
+    .line 244
     :goto_2
     array-length v2, p1
 
     if-ge v0, v2, :cond_28
 
-    .line 243
+    .line 245
     const/16 v2, 0x1000
 
     array-length v3, p1
@@ -120,13 +120,13 @@
 
     move-result v2
 
-    .line 244
+    .line 246
     new-array v3, v2, [B
 
-    .line 245
+    .line 247
     invoke-static {p1, v0, v3, v1, v2}, Ljava/lang/System;->arraycopy(Ljava/lang/Object;ILjava/lang/Object;II)V
 
-    .line 246
+    .line 248
     iget-object v4, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceUsb$Port;->c:Landroid/hardware/usb/UsbDeviceConnection;
 
     iget-object v5, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceUsb$Port;->out:Landroid/hardware/usb/UsbEndpoint;
@@ -137,10 +137,10 @@
 
     move-result v2
 
-    .line 247
+    .line 249
     if-gtz v2, :cond_26
 
-    .line 248
+    .line 250
     new-instance v0, Ljava/lang/Exception;
 
     const-string v1, "usb write"
@@ -149,14 +149,14 @@
 
     throw v0
 
-    .line 250
+    .line 252
     :cond_26
     add-int/2addr v0, v2
 
-    .line 251
+    .line 253
     goto :goto_2
 
-    .line 252
+    .line 254
     :cond_28
     return-void
 .end method

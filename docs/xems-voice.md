@@ -32,10 +32,14 @@ the protocol.
 1. **Front end** — 16 kHz, 25 ms frames every 10 ms, Hamming, pre-emphasis 0.97, 512-point FFT, 26 mel bands
    100–7600 Hz. Energy is taken from the plain signal (DC out): pre-emphasis takes ~10 dB off a voiced vowel against
    hiss, and the finder missed "увеличи" in noise because of it.
-2. **Word finder** — the noise floor follows quiet fast and loud slowly (≈3 s; faster while only running sound is
-   heard, else music switched on locked it out). A word = ≥ 3 frames 12 dB over the floor, after a quiet run of
-   ≥ 200 ms that ended ≤ 200 ms before (soft consonants before the loud vowel), closed by 220 ms of quiet; length
-   160 ms – 1.5 s; its peak ≥ 18 dB over the floor. Longer = running speech, never a command: wait for the next pause.
+2. **Word finder** (v2, 2026-10-28 — v1 never closed a word on the real mic: its floor followed the room's quiet
+   dips, ordinary wandering noise looked like endless speech, every example timed out with "say it louder") — the
+   floor is the **median** of the last 1.5 s of noise (loud frames between words left out, running sound kept in, so
+   music switched on cannot lock it out); every threshold sits above the noise's own swing (90th percentile − median,
+   ≤ 10 dB). A word = ≥ 3 frames 12 dB over the floor, a pause of ≥ 200 ms that ended ≤ 300 ms before (the hiss and
+   closure of "старт" before its vowel do not cancel the pause), closed by 220 ms of quiet; 160 ms – 1.5 s; peak
+   ≥ 18 dB over the floor. Recording an example is lenient (pause 50 ms, 3 / 6 dB softer). A sound that is not a word
+   is reported (`SKIP short|long|soft`) and the learning page says what to change.
 3. **Features of the word** — the steady noise of every band (learned from quiet frames) taken out ×1.5, a floor
    30 dB under the word's loudest band (a word recorded in quiet and one said over noise then look alike), log,
    12 cepstra minus their mean + energy under the peak, 20 ms frames, int8.
@@ -64,6 +68,8 @@ minus, running speech at −8 dB, ten loud single non-commands (хайде, до
 | quiet | 7/7 commands right, 0 false (start without countdown → `NOCOUNT`) |
 | white noise, speech ≈ 29 dB above it | 7/7, 0 false |
 | white noise ≈ 21 dB | 4/7, 0 false (misses, never wrong) |
+| room: noise wandering ± 8 dB every 50 ms (v2) | 7/7, 0 false, 24/24 examples |
+| busy room: louder, ± 8 dB (v2) | 7/7, 0 false |
 | another voice (`bg+f2`) | 0/7, 0 false — speaker-dependent by design: each person who gives commands records |
 
 Commands land at d ≈ 300–1000 (noise up to 1370); non-commands at ≥ 1740 with ratio ≥ 0.72 to the next command.

@@ -43,6 +43,8 @@ public final class XemsIcon extends Drawable {
     public static final int PADS = 19;
     /** The Bluetooth rune: the link with the suit (focus board's top bar). */
     public static final int BLUETOOTH = 20;
+    /** A microphone: the voice commands. */
+    public static final int MIC = 21;
 
     private final Paint stroke = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint fill = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -95,6 +97,14 @@ public final class XemsIcon extends Drawable {
                 r.set(15f, 6f, 17.5f, 18f);
                 c.drawRoundRect(r, 1.2f, 1.2f, stroke);
                 c.drawLine(9f, 12f, 15f, 12f, stroke);
+                break;
+            case MIC:
+                r.set(9f, 2.5f, 15f, 14.5f);
+                c.drawRoundRect(r, 3f, 3f, stroke);
+                r.set(5.5f, 6f, 18.5f, 17.5f);
+                c.drawArc(r, 0f, 180f, false, stroke);
+                c.drawLine(12f, 17.5f, 12f, 21f, stroke);
+                c.drawLine(8.5f, 21f, 15.5f, 21f, stroke);
                 break;
             case BOLT:
                 path.reset();

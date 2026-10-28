@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 1563
+    .line 1585
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 1564
+    .line 1586
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$BackKey;->v:Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;
 
-    .line 1565
+    .line 1587
     return-void
 .end method
 
@@ -44,7 +44,7 @@
     .prologue
     const/4 v0, 0x1
 
-    .line 1569
+    .line 1591
     const/4 v1, 0x4
 
     if-ne p2, v1, :cond_14
@@ -65,16 +65,16 @@
 
     if-eqz v1, :cond_16
 
-    .line 1570
+    .line 1592
     :cond_14
     const/4 v0, 0x0
 
-    .line 1575
+    .line 1597
     :cond_15
     :goto_15
     return v0
 
-    .line 1572
+    .line 1594
     :cond_16
     invoke-virtual {p3}, Landroid/view/KeyEvent;->getAction()I
 
@@ -82,7 +82,7 @@
 
     if-ne v1, v0, :cond_15
 
-    .line 1573
+    .line 1595
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$BackKey;->v:Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;
 
     invoke-virtual {v1}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;->minimize()V

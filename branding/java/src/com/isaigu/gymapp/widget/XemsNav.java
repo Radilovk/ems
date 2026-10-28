@@ -172,6 +172,11 @@ public final class XemsNav {
         }
         mainRoot = root;
         currentPage = ID_TAB_FIRST;
+        try {
+            com.isaigu.gymapp.wearable.voice.VoiceLink.resume(c);   // back to the voice module, if there is one
+        } catch (Throwable t) {
+            XemsGuard.report("XemsNav.voice", t);
+        }
 
         LinearLayout parent = (LinearLayout) tabBar.getParent();
         View line = root.findViewById(ID_LINE);
@@ -215,6 +220,9 @@ public final class XemsNav {
     /** MASTOGO H-024B TENS / EMS unit (wearable/mastogo): a page of its own, apart from the suit (owner, 2026-10-27). */
     static final String K_MASTOGO = "mastogo";
     static final int MASTOGO_TINT = 0xFFA78BFA;
+    /** The voice module (wearable/voice): learn the trainer's words, then commands from any page (owner, 2026-10-28). */
+    static final String K_VOICE = "voice";
+    static final int VOICE_TINT = 0xFF38BDF8;
     private static final String PREFS = "xems_nav";
     private static final int BAR_MAX = 7;
     private static final int[] MOD_ORDER = {M_TIMER, M_MUSIC, M_PULSE, M_AUTO, M_AI, M_VR};
@@ -266,6 +274,7 @@ public final class XemsNav {
             out.add("page:" + i);
         }
         out.add(K_PROGRAMS);
+        out.add(K_VOICE);
         if (bluetensAllowed()) {
             out.add(K_BLUETENS);
             out.add(K_MASTOGO);
@@ -386,6 +395,11 @@ public final class XemsNav {
             label = "Bluetens";
             tint = BLUETENS_TINT;
             click = new BluetensClick();
+        } else if (K_VOICE.equals(k)) {
+            glyph = XemsIcon.MIC;
+            label = tr("Глас", "Voice");
+            tint = VOICE_TINT;
+            click = new VoiceClick();
         } else if (K_MASTOGO.equals(k)) {
             glyph = XemsIcon.BOLT;
             label = "Mastogo";
@@ -478,6 +492,8 @@ public final class XemsNav {
                 row = extraRow(c, XemsIcon.PADS, "Bluetens", BLUETENS_TINT, new BluetensClick());
             } else if (K_MASTOGO.equals(k)) {
                 row = extraRow(c, XemsIcon.BOLT, "Mastogo", MASTOGO_TINT, new MastogoClick());
+            } else if (K_VOICE.equals(k)) {
+                row = extraRow(c, XemsIcon.MIC, tr("Глас", "Voice"), VOICE_TINT, new VoiceClick());
             } else {
                 row = moduleRow(c, Integer.parseInt(k.substring(4)));
             }
@@ -1063,6 +1079,19 @@ public final class XemsNav {
             Activity a = com.isaigu.gymapp.ai.AiSession.activityOf(v);
             if (a != null) {
                 com.isaigu.gymapp.wearable.bluetens.BluetensScreen.open(a);
+            }
+        }
+    }
+
+    static final class VoiceClick implements View.OnClickListener {
+        @Override
+        public void onClick(View v) {
+            if (menu != null) {
+                menu.dismiss();
+            }
+            Activity a = com.isaigu.gymapp.ai.AiSession.activityOf(v);
+            if (a != null) {
+                com.isaigu.gymapp.wearable.voice.VoiceScreen.open(a);
             }
         }
     }

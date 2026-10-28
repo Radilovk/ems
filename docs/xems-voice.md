@@ -69,24 +69,26 @@ minus, running speech at −8 dB, ten loud single non-commands (хайде, до
 Commands land at d ≈ 300–1000 (noise up to 1370); non-commands at ≥ 1740 with ratio ≥ 0.72 to the next command.
 espeak is cleaner than a real voice: tune `sens` with the real mic (`HEARD` lines show d / thr).
 
-## Trying it now (no tablet change needed)
-1. Flash: double-tap RESET on the XIAO → the XIAO drive appears → copy `voice/xems-voice-sense-plus.uf2`.
-2. Phone app "Serial Bluetooth Terminal" (BLE device "XEMS Voice") or any USB serial terminal at 115200.
-3. `rec one`, say "едно"; again 3×. Same for `two three start pause stop plus minus`. `list` checks.
-   Record where you train, at training loudness, holding the module where it will be worn.
-4. Say the commands; watch `HEARD` / `CMD`. Too many misses → `sens 1.3`; something false → `sens 0.8`.
+## Setting it up (owner, 2026-10-28: "as few steps as possible")
+1. Flash once: double-tap RESET on the XIAO → the XIAO drive appears → copy `voice/xems-voice-sense-plus.uf2`.
+2. XEMS → menu → **Глас** → the tablet finds the module by itself (no pairing) → **▶ Научи гласа ми** → say each
+   word as it shows (3 times, the next comes by itself; "Не те чух" asks again). ≈ 1.5 min. Done.
+From then on XEMS links to it on every start (autoConnect to the kept address) and commands work from any page.
+A tap on a word records only that word again; "Строго / Нормално / Лесно" = `sens 0.8 / 1.0 / 1.3`.
+Without the tablet: any BLE / USB serial terminal speaks the same lines (`rec one`, `list`, …).
 
-## Phase 2 — XEMS (tablet) — not built yet
-XEMS is the hub that already drives every unit, so it executes; the module only recognises.
-- `wearable/voice/VoiceLink` — BLE client to "XEMS Voice" (NUS), reconnects, like `BluetensLink`.
-- `wearable/voice/VoiceRemote.onCommand(a)` — routes like `BandRemote`: MASTOGO page open → its start / pause / stop /
-  ± ; Bluetens page open → the same there; AI session → `AiSession.togglePause / stop / increase / reduce`;
-  else the training row → `XemsPanel.press(PRESS_START | PRESS_STOP | PRESS_PLUS | PRESS_MINUS)` (WiEMS rides the
-  row). `stop` always = the strongest stop of what runs. `plus` keeps every limit of `docs/xems-safety-limits.md`.
-- Settings → "Гласови команди": one card per command with ● record (3 dots fill), a live level bar (`meter 1`), the
-  last thing heard, sensitivity slider; countdown on screen and a short beep on every `CMD`.
-- The module can live on the trainer (lanyard / clip): the trainer gives the commands, the client's voice is not
-  enrolled, so the client's "стоп" does nothing — record the client too if they should be able to stop.
+## XEMS side (1.1.480-ai) — `wearable/voice/`
+- `VoiceLink` — one app-wide BLE link (Nordic UART): kept address + autoConnect from `XemsNav.attach`; scans for
+  "XEMS Voice" only while the page is open. On every link: `mute 0`, `meter 0` (a learning page that died never
+  leaves the module deaf), `ping`, `list`.
+- `VoiceRemote.onCommand` — MASTOGO page (`MastogoScreen.voice`), Bluetens page (`BluetensScreen.voice`), AI
+  session (`AiSession`), else the suit row (`XemsPanel.press`, `BandRemote.mainStep`; WiEMS rides the row).
+  start / pause act only when stopped / running (a repeated word never toggles back); plus / minus only while
+  running; a short tone confirms (stop / pause lower).
+- `VoiceScreen` (menu → Глас, `XemsNav.K_VOICE`, icon `XemsIcon.MIC`) — left: the word to say (huge, ●●○, level
+  bar) or what was heard / the countdown; right: the 8 words (tap = again), sensitivity. Learning sends `mute 1` +
+  `meter 1`, per word `del` then 3 × `rec` (timeout → again).
+- The module can live on the trainer (lanyard / clip): only enrolled voices act.
 
 ## Phase 3 — learned model
 `dump` of every word (16 kHz, ≤ 1.6 s) to the tablet → a labelled set from real sessions (gym noise, EMS breathing)

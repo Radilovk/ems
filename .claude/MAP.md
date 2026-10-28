@@ -111,7 +111,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/compile-interval-timer-java.sh` (103L, build:L113[BETA_MUSIC,SKIP_JAVA_RECOMPILE]) — Compile interval timer + block program classes from Java to smali.
 - `scripts/compile-music-sync-java.sh` (220L, build:L103[BETA_MUSIC,SKIP_JAVA_RECOMPILE]) — Compile BETA music-sync classes from Java to smali (avoids hand-written branch bugs).
 - `scripts/compile-softramp-java.sh` (44L, build:L83[SKIP_JAVA_RECOMPILE]) — Compile train/model/SoftRamp.java (the tablet-side ramp + the safety guard hook) to branding/smali/softramp/
-- `scripts/compile-wearable-java.sh` (269L, build:L118[BETA_MUSIC,SKIP_JAVA_RECOMPILE]) — Compile the wearable bridge + band UI, the Smart Session and the automatic mode (ai package) from Java to smali.
+- `scripts/compile-wearable-java.sh` (272L, build:L118[BETA_MUSIC,SKIP_JAVA_RECOMPILE]) — Compile the wearable bridge + band UI, the Smart Session and the automatic mode (ai package) from Java to smali.
 - `scripts/compile-xems-license-java.sh` (61L, build:L80[SKIP_JAVA_RECOMPILE]) — Compile XemsLicense*.java to branding/smali/widget/
 - `scripts/compile-xems-local-java.sh` (84L, build:L127[BETA_MUSIC,SKIP_JAVA_RECOMPILE]) — Compile XemsLocal*.java to branding/smali/widget/
 - `scripts/design-apply.sh` (96L) — Sync studio → validate → apply train design → optional APK build
@@ -152,7 +152,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/scale-sim/ScaleSim.java` (1122L) — Offline test of the scale protocol and body composition against real captures published by the two MIT projects (sacoma…
 - `scripts/scale-sim/run.sh` (14L) — Offline test of the body-composition scale (wearable/scale: protocol A + B, WLA25 body composition) on the JVM,
 - `scripts/serve-branding.sh` (15L) — Local web server for branding YAML maps and DEVELOPMENT.md reference.
-- `scripts/setup-android-toolchain.sh` (55L) — Java → smali toolchain without the Google Android SDK (cloud sessions: dl.google.com is blocked).
+- `scripts/setup-android-toolchain.sh` (57L) — Java → smali toolchain without the Google Android SDK (cloud sessions: dl.google.com is blocked).
 - `scripts/test-apk-safety.sh` (118L) — Automated safety test: BETA build must not change login-critical code vs baseline.
 - `scripts/toolchain/BakMain.java` (21L) — baksmali "d <dex> -o <dir>" on top of the baksmali library bundled in apktool.jar.
 - `scripts/ui-map.py` (126L, build:L67[DESIGN_PIPELINE]) — UI map utilities — validate layouts, explain structure, guide safe edits.
@@ -370,7 +370,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `BluetensProgram.java` (272L, compile:music-sync*,wearable) — A Bluetens program the trainer makes (owner, 2026-10-13: "I want control over the parameters, with programs I create — …
 - `BluetensPrograms.java` (156L, compile:music-sync*,wearable) — XEMS's own programs for the Bluetens pads — built here, never copied from the vendor (docs/xems-bluetens.md).
 - `BluetensScan.java` (99L, compile:music-sync*,wearable) — Finds Bluetens pads while the screen is open ({@link BluetensAdvert} tells a pad); results on the main thread.
-- `BluetensScreen.java` (1715L, compile:music-sync*,wearable) — The Bluetens page (dock → "Bluetens"): a tool of its own, apart from the suit and its training — owner, 2026-10-13.
+- `BluetensScreen.java` (1737L, compile:music-sync*,wearable) — The Bluetens page (dock → "Bluetens"): a tool of its own, apart from the suit and its training — owner, 2026-10-13.
 - `BluetensShell.java` (657L, compile:music-sync*,wearable) — The conversation with one Bluetens pad — pure Java, no Android (the BLE link only moves bytes; the offline test drives …
 - `BluetensStore.java` (78L, compile:music-sync*,wearable) — The trainer's own Bluetens programs on this tablet (prefs "xems_bluetens", key "progs": one line each).
 
@@ -378,7 +378,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `MastogoLink.java` (371L, compile:music-sync*,wearable) — One MASTOGO H-024B over BLE for as long as its page is open: service FFF0, notify on FFF4, write on FFF5 (the vendor ap…
 - `MastogoModes.java` (189L, compile:music-sync*,wearable) — The 26 firmware programs of the MASTOGO H- unit as the vendor's own DOMAS app (com.roblink.domas 3.1.1, device "Hawk TE…
 - `MastogoScan.java` (124L, compile:music-sync*,wearable) — Finds MASTOGO H- units (the vendor app's name prefix) while the page is open; results on the main thread.
-- `MastogoScreen.java` (2358L, compile:music-sync*,wearable) — The MASTOGO page (menu → "Mastogo"): the H-024B TENS / EMS unit, apart from the suit — owner, 2026-10-27 ("I want the m…
+- `MastogoScreen.java` (2381L, compile:music-sync*,wearable) — The MASTOGO page (menu → "Mastogo"): the H-024B TENS / EMS unit, apart from the suit — owner, 2026-10-27 ("I want the m…
 - `MastogoShell.java` (1630L, compile:music-sync*,wearable) — The conversation with one MASTOGO H-024B (DOMAS "Candy TENS 3S", board ZX-571C, SYD8811) — pure Java, no Android: the B…
 - `MastogoStore.java` (141L, compile:music-sync*) — The trainer's own MASTOGO combinations and program notes (owner, 2026-10-27: "combinations and notes") — pure Java, the…
 
@@ -400,6 +400,11 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `ScaleStore.java` (259L, compile:music-sync*,wearable) — The client's scale measurements on this tablet (prefs "xems_scale", key m&lt;userId&gt; = JSON array, oldest first, at …
 - `ScaleUploader.java` (238L, compile:music-sync*,wearable) — The client's scale measurements → the server, filed under the client's dossier id (XemsDossier.cidFor) like the trainin…
 - `ScaleViews.java` (2037L, compile:music-sync*,wearable) — The drawn parts of the scale's result page: the body figure painted by segment, the radar of the five segments against …
+
+**wearable/voice/** (`branding/java/src/com/isaigu/gymapp/wearable/voice/`)
+- `VoiceLink.java` (542L, compile:music-sync*,wearable) — The XEMS voice module (XIAO nRF52840 Sense, firmware voice/xems_voice — docs/xems-voice.md) over BLE: Nordic UART, one …
+- `VoiceRemote.java` (108L, compile:music-sync*,wearable) — A spoken command (VoiceLink "CMD …") onto whatever runs now — owner, 2026-10-27: "whatever suit or system".
+- `VoiceScreen.java` (617L, compile:music-sync*,wearable) — The "Глас" page (menu → Глас): the voice module, as easy as it gets (owner, 2026-10-28: "as few steps as possible, noth…
 
 **wearable/vr/** (`branding/java/src/com/isaigu/gymapp/wearable/vr/`)
 - `VrBridge.java` (58L, compile:music-sync*,wearable) — Lifecycle of the Quest 3 haptic bridge (vr-bridge/): listening while the training screen is open (wearable/NotifyWearab…
@@ -460,7 +465,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `XemsExercisePage.java` (134L, compile:music-sync*) — Settings → "Каталог с упражнения": the server's exercise selector (/admin/exercises) full screen inside the app, withou…
 - `XemsFullscreen.java` (109L, compile:music-sync*) — Full screen: status and navigation bars hidden; a swipe from the edge shows them for a moment ("sticky immersive"), the…
 - `XemsGuard.java` (108L, compile:music-sync*) — Safety net for XEMS add-on code called from the app (hooks, handlers, drawing).
-- `XemsIcon.java` (287L, compile:music-sync*) — Line icons drawn in code (one stroke weight, rounded caps) so the menu and the control panel look like one family and s…
+- `XemsIcon.java` (297L, compile:music-sync*) — Line icons drawn in code (one stroke weight, rounded caps) so the menu and the control panel look like one family and s…
 - `XemsLang.java` (114L, compile:music-sync*,xems-license,xems-local) — The app's own language (Settings → language: "bg" / "en", prefs setting_share/language), not the tablet's system langua…
 - `XemsLicense.java` (430L, compile:music-sync,xems-license) — Which XEMS modules this installation may use.
 - `XemsLicenseClient.java` (628L, compile:music-sync,xems-license) — Talks to the XEMS license / update server (HTTPS, JSON).
@@ -473,7 +478,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `XemsLocalStore.java` (1218L, compile:xems-local) — Local-only data layer: users, programs, training history and suits stay on the tablet.
 - `XemsLocalUserForm.java` (982L, compile:xems-local) — New / edit client form — one screen, mostly taps: name, sex, age / height / weight wheels, phone; goal, fitness and con…
 - `XemsModuleInfo.java` (488L, compile:music-sync*) — The "i" of every XEMS module: what it is, what it gives (value first), how to work with it.
-- `XemsNav.java` (1551L, compile:music-sync*) — Main navigation (v1.1.64).
+- `XemsNav.java` (1580L, compile:music-sync*) — Main navigation (v1.1.64).
 - `XemsPanel.java` (381L, compile:music-sync*) — The right control panel, redrawn: ■ Stop — square, top ▶ Start / ❚❚ — tall + — tall − — tall ⚙ Master — square, bottom …
 - `XemsSearch.java` (225L, compile:music-sync*,xems-local) — Client-list search (Потребители tab, the training picker).
 - `XemsUi.java` (889L, compile:music-sync*) — XEMS UI kit — one look for every module (interval timer, player, HR, AI).
@@ -1268,16 +1273,16 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L59 ## 6. Words
   - L64 ## 7. Checklist before shipping a screen
 
-`docs/xems-voice.md` (95L)
+`docs/xems-voice.md` (97L)
   - L1 # XEMS voice — Bulgarian command words on a XIAO nRF52840 Sense (Plus)
   - L12 ## Hardware
   - L17 ## Which recogniser, and why (research)
   - L31 ## Pipeline (`kws.h`)
   - L52 ## Protocol (USB serial and BLE Nordic UART `6E400001-…`, name "XEMS Voice"; one text line each)
   - L57 ## Offline test (2026-10-27, `scripts/voice-sim/run.py`)
-  - L72 ## Trying it now (no tablet change needed)
-  - L79 ## Phase 2 — XEMS (tablet) — not built yet
-  - L91 ## Phase 3 — learned model
+  - L72 ## Setting it up (owner, 2026-10-28: "as few steps as possible")
+  - L80 ## XEMS side (1.1.480-ai) — `wearable/voice/`
+  - L93 ## Phase 3 — learned model
 
 `docs/xems-wiems-app.md` (277L)
   - L1 # XEMS WiEMS — light tablet app for one WiEMS unit, XEMS or bodytech suit (wiems/app, v1.18)

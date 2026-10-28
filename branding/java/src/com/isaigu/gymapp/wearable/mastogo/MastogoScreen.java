@@ -84,6 +84,29 @@ public final class MastogoScreen {
         }
     }
 
+    /** A voice command (wearable/voice/VoiceRemote): true when this page is open with a unit and took it. */
+    public static boolean voice(String cmd) {
+        Page p = current;
+        MastogoShell sh = p != null && !p.closed ? p.sh() : null;
+        if (sh == null) {
+            return false;
+        }
+        if ("start".equals(cmd)) {
+            if (!sh.running) {
+                p.go();
+            }
+        } else if ("pause".equals(cmd) || "stop".equals(cmd)) {
+            if (sh.running) {
+                p.go();
+            }
+        } else if ("plus".equals(cmd)) {
+            p.step(1);
+        } else if ("minus".equals(cmd)) {
+            p.step(-1);
+        }
+        return true;
+    }
+
     static String tr(String bg, String en) {
         return XemsLang.tr(bg, en);
     }

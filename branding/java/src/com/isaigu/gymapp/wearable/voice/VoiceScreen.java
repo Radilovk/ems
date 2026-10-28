@@ -74,7 +74,7 @@ public final class VoiceScreen {
         return TINT;
     }
 
-    static final class Page implements VoiceLink.Listener {
+    static final class Page implements VoiceLink.Listener, VoiceUsb.Listener {
         final Activity a;
         final Handler main = new Handler(Looper.getMainLooper());
         XemsUi.Shell s;
@@ -94,6 +94,8 @@ public final class VoiceScreen {
         int heardColor;
         long heardMs;
         int level = -1, floor;
+        // firmware over the cable (VoiceUsb): its stage (−1 = none) and percent
+        int flash = -1, flashPct;
 
         TextView hero, sub, dots, status;
         View bar;
@@ -175,6 +177,10 @@ public final class VoiceScreen {
 
             s.dialog.setOnDismissListener(new Dismissed(this));
             VoiceLink.addListener(this);
+            if (VoiceUsb.busy()) {
+                VoiceUsb.listener = this;               // a load still running from a page closed meanwhile
+                flash = VoiceUsb.stage;
+            }
             render();
             s.dialog.show();
             WearableBlePermissions.ensureConnectPermission(a, new Find(this));
@@ -216,7 +222,10 @@ public final class VoiceScreen {
             micIcon.setColor(r ? TINT : XemsUi.HINT);
             mic.invalidate();
             barBox.setVisibility(learning != null ? View.VISIBLE : View.INVISIBLE);
-            if (!r) {
+            boolean flashing = flash >= 0 && (flash != VoiceUsb.DONE || !r);
+            if (flashing) {
+                renderFlash();
+            } else if (!r) {
                 hero.setText(tr("Включи чипа", "Switch the module on"));
                 hero.setTextSize(40);
                 hero.setTextColor(XemsUi.TEXT);
@@ -258,10 +267,14 @@ public final class VoiceScreen {
             }
             renderWords();
             renderSens();
-            if (!r) {
-                go.setText(tr("Търся чипа…", "Looking…"));
-                go.setEnabled(false);
-                go.setAlpha(0.45f);
+            if (flashing || !r) {
+                boolean working = VoiceUsb.busy() && flash != VoiceUsb.NO_CABLE;
+                go.setEnabled(!working);
+                go.setAlpha(working ? 0.45f : 1f);
+                go.setText(working ? tr("Зареждам…", "Loading…")
+                        : flash == VoiceUsb.FAILED || flash == VoiceUsb.NO_CABLE ? tr("↻ Пробвай пак", "↻ Try again")
+                        : flash == VoiceUsb.DONE ? tr("Търся чипа…", "Looking…")
+                        : tr("⚡ Зареди чипа с кабел", "⚡ Load the module (cable)"));
             } else {
                 go.setEnabled(true);
                 go.setAlpha(1f);
@@ -269,10 +282,69 @@ public final class VoiceScreen {
                         : allLearned() ? tr("↻ Научи наново", "↻ Learn again")
                         : tr("▶ Научи гласа ми", "▶ Learn my voice"));
             }
-            hint.setText(!r ? tr("Чипът мига синьо, когато е готов.", "The module blinks blue when ready.")
+            hint.setText(flashing ? "" : !r ? tr("Нов чип: включи го с кабел в таблета и натисни бутона. Зареден: "
+                    + "само го включи — намирам го сам.", "New module: plug it into the tablet and press the button. "
+                    + "Loaded: just switch it on — found by itself.")
                     : learning != null ? tr("Дума ", "Word ") + (indexOf(learning) + 1) + " / " + ORDER.length
                     : allLearned() ? tr("✓ Работи от всяка страница, с всеки костюм и апарат.",
                     "✓ Works from every page, with every suit and unit.") : "");
+        }
+
+        /** Loading the firmware over the cable: one sentence, big — what to do now. */
+        void renderFlash() {
+            String big, small = "";
+            int color = XemsUi.TEXT;
+            switch (flash) {
+                case VoiceUsb.NO_CABLE:
+                    big = tr("Включи чипа с кабел", "Plug the module in");
+                    small = tr("USB кабел към таблета — после натисни „Пробвай пак“",
+                            "USB cable to the tablet — then press Try again");
+                    break;
+                case VoiceUsb.ASK:
+                    big = tr("Натисни „OK“", "Press OK");
+                    small = tr("Таблетът пита дали XEMS може да ползва чипа", "The tablet asks to let XEMS use it");
+                    break;
+                case VoiceUsb.RESET:
+                    big = tr("Подготвям чипа…", "Preparing…");
+                    break;
+                case VoiceUsb.PRESS_RST:
+                    big = tr("Натисни RST два пъти", "Press RST twice");
+                    small = tr("Мъничкото копче до кабела — бързо, като двойно щракване. Продължавам сам.",
+                            "The tiny button by the cable — fast, like a double click. I go on by myself.");
+                    color = XemsUi.AMBER;
+                    break;
+                case VoiceUsb.WRITING:
+                    big = flashPct + " %";
+                    small = tr("Зареждам софтуера — не вади кабела", "Loading — keep the cable in");
+                    color = TINT;
+                    break;
+                case VoiceUsb.DONE:
+                    big = tr("Зареден ✓", "Loaded ✓");
+                    small = tr("Чипът се рестартира — намирам го сам", "Restarting — I find it by myself");
+                    color = XemsUi.GO_TEXT;
+                    break;
+                default:
+                    big = tr("Не стана", "Didn't work");
+                    small = tr("Провери кабела (за данни, не само за зареждане) и пробвай пак",
+                            "Check the cable (a data cable) and try again");
+                    color = XemsUi.DANGER;
+            }
+            hero.setText(big);
+            hero.setTextSize(big.length() > 14 ? 34 : 52);
+            hero.setTextColor(color);
+            dots.setText("");
+            sub.setText(small);
+            status.setText("");
+        }
+
+        @Override
+        public void onFlash(int stage, int percent) {
+            flash = stage;
+            flashPct = percent;
+            if (stage == VoiceUsb.DONE) {
+                VoiceLink.find(a);
+            }
+            render();
         }
 
         void renderWords() {
@@ -309,7 +381,10 @@ public final class VoiceScreen {
         // ------------------------------------------------------------------ actions
 
         void go() {
-            if (!ready()) {
+            if (!ready() || flash >= 0 && flash != VoiceUsb.DONE) {
+                if (!VoiceUsb.busy()) {
+                    VoiceUsb.start(a, this);           // a new module, or one that needs its firmware
+                }
                 return;
             }
             if (learning != null) {
@@ -400,6 +475,9 @@ public final class VoiceScreen {
             }
             if (state == VoiceLink.READY) {
                 VoiceLink.send("list");
+                if (flash == VoiceUsb.DONE || flash == VoiceUsb.FAILED || flash == VoiceUsb.NO_CABLE) {
+                    flash = -1;                         // it answers by Bluetooth: the cable part is over
+                }
             }
             render();
         }

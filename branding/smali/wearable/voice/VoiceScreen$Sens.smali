@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 524
+    .line 602
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 525
+    .line 603
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Sens;->p:Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;
 
-    .line 526
+    .line 604
     return-void
 .end method
 
@@ -42,11 +42,11 @@
     .registers 3
 
     .prologue
-    .line 530
+    .line 608
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Sens;->p:Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;
 
     invoke-virtual {v0, p1}, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->sens(I)V
 
-    .line 531
+    .line 609
     return-void
 .end method

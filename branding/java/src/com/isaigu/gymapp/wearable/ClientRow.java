@@ -101,6 +101,7 @@ public final class ClientRow {
                 np.width = ViewGroup.LayoutParams.MATCH_PARENT;
                 name.setLayoutParams(np);
                 name.setText(twoNames(u));
+                ClientSort.mark(name, u);              // ⏰ 10:30 — due now or soon (calendar)
             }
             TextView goal = (TextView) row.findViewWithTag(GOAL);
             if (goal != null) {

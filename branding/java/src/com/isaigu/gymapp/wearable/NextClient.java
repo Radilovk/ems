@@ -40,6 +40,8 @@ public final class NextClient {
     static final long READ_MS = 2 * MIN;
     /** A slot loaded for one appointment is not taken for another one this soon. */
     static final long HOLD_MS = 40 * MIN;
+    /** How far ahead a booked client is put on top of the client lists. */
+    static final long SOON_MS = 90 * MIN;
 
     private static long checkedAt;
     private static long readAt;
@@ -104,6 +106,37 @@ public final class NextClient {
         e.apply();
     }
 
+    /**
+     * The clients due now or soon — booked from {@link #LATE_MS} ago to {@link #SOON_MS} ahead, not yet trained or
+     * loaded for that appointment: client id → the appointment's start, earliest first. The client lists put them
+     * on top with "⏰ 10:30" (ClientSort) — owner, 2026-10-28: "the system must see the next client from the
+     * calendar and offer him first when a client is picked". Needs only calendar access, not the auto question.
+     */
+    public static Map<Long, Long> soon(Context c, long now) {
+        Map<Long, Long> out = new java.util.LinkedHashMap<Long, Long>();
+        try {
+            if (c == null || !Schedule.canRead(c)) {
+                return out;
+            }
+            if (now - readAt > READ_MS) {
+                readAt = now;
+                appts = Schedule.read(c, now - 3 * 3600000L, now + 14 * NextPlan.DAY);
+            }
+            for (int i = 0; i < appts.size(); i++) {
+                Schedule.Appt ap = appts.get(i);
+                if (ap.user == null || ap.begin < now - LATE_MS || ap.begin > now + SOON_MS
+                        || out.containsKey(ap.user.id) || done(c, ap)
+                        || trainedSince(c, ap.user.id, ap.begin - 45 * MIN)) {
+                    continue;
+                }
+                out.put(ap.user.id, ap.begin);
+            }
+        } catch (Throwable t) {
+            WearableBleDiagLog.log("next", "soon: " + t);
+        }
+        return out;
+    }
+
     /** The calendar changed or the settings did: read it again at the next check. */
     public static void invalidate() {
         readAt = 0;
@@ -138,7 +171,10 @@ public final class NextClient {
             readAt = now;
             appts = Schedule.read(app, now - 3 * 3600000L, now + 14 * NextPlan.DAY);
         }
-        if (items == null || openSessions > 0 || anyRunning(items) || assistBusy()) {
+        // Another suit training does not hold the question back any more (owner, 2026-10-28: "it loads the next
+        // client, but not on time"): with two suits the next client waited until every suit had stopped.
+        // pickSlot never takes a running suit; only a session of this suit or the AI / Auto screen waits.
+        if (items == null || assistBusy() || openSessions > 0 && !anyFree(items)) {
             return;
         }
         Activity a = WearableSyncHelper.resolveActivityForPermissions();
@@ -176,6 +212,16 @@ public final class NextClient {
         for (int i = 0; i < items.size(); i++) {
             TrainItem it = items.get(i);
             if (it != null && !it.isEmpty() && it.data != null && it.data.start) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean anyFree(List<TrainItem> items) {
+        for (int i = 0; i < items.size(); i++) {
+            TrainItem it = items.get(i);
+            if (it != null && !it.isEmpty() && it.data != null && !it.data.start) {
                 return true;
             }
         }

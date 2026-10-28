@@ -1,5 +1,11 @@
 # XEMS voice — Bulgarian command words on a XIAO nRF52840 Sense (Plus)
 
+> **Archived from the APK (owner, 2026-10-28, 1.1.487-ai): not in the app, kept in the repo.** The tablet side lives
+> in `voice/xems-app/java/…/wearable/voice/` (out of `branding/java/src`, so nothing compiles or ships it), its smali
+> is gone, `scripts/apply-voice-firmware.py` is out of build-apk.sh, the "Глас" menu item is gone from `XemsNav`.
+> To bring it back: move the package back, add the five files to compile-wearable-java.sh, the asset script to
+> build-apk.sh after apply-exercise-assets.py, and the K_VOICE item / VoiceLink.resume to XemsNav (git log 1.1.486).
+
 Owner, 2026-10-27: a small module with a microphone hears the trainer during any training, with any unit (suit,
 Bluetens, MASTOGO, WiEMS, …). It reacts to **"едно, две, три, старт"** (start), **"пауза"**, **"стоп"** (stops at once),
 **"увеличи импулса" / "намали импулса"** (one step up / down). Commands are said a little louder, after a short pause.
@@ -40,6 +46,15 @@ the protocol.
    closure of "старт" before its vowel do not cancel the pause), closed by 220 ms of quiet; 160 ms – 1.5 s; peak
    ≥ 18 dB over the floor. Recording an example is lenient (pause 50 ms, 3 / 6 dB softer). A sound that is not a word
    is reported (`SKIP short|long|soft`) and the learning page says what to change.
+   v3 (2026-10-28, the owner stuck at word 7, "увеличи импулса"): a word may last 2.5 s (it was 1.5 s — a slow
+   two-word phrase was thrown away as running speech); recording waits 450 ms of quiet before it closes (a breath
+   between the two words keeps one example); recognising joins a piece not taken with the next one ≤ 450 ms later
+   when the two together match better (`Engine.classify` on both).
+   v6 — **the root cause of "the bar fills, it says it can't hear me"** (v2–v5 on the real chip): the PDM mic gives
+   ~0.1 s of near silence while it settles; the floor was taken from it, the room then always sat above the floor,
+   loud frames never entered the floor's history → no pause, no word, forever. The sim always began with noise, so
+   it never saw it. Now the first 0.4 s are ignored, and a level that stays up 1 s joins the history (the floor can
+   never lock below the room). Test: `power-on` scenario + start-up silences 50–600 ms.
 3. **Features of the word** — the steady noise of every band (learned from quiet frames) taken out ×1.5, a floor
    30 dB under the word's loudest band (a word recorded in quiet and one said over noise then look alike), log,
    12 cepstra minus their mean + energy under the peak, 20 ms frames, int8.
@@ -70,6 +85,7 @@ minus, running speech at −8 dB, ten loud single non-commands (хайде, до
 | white noise ≈ 21 dB | 4/7, 0 false (misses, never wrong) |
 | room: noise wandering ± 8 dB every 50 ms (v2) | 7/7, 0 false, 24/24 examples |
 | busy room: louder, ± 8 dB (v2) | 7/7, 0 false |
+| slow trainer, "увеличи … импулса" with 300–420 ms between the words (v3) | 7/7, 0 false, whole phrases kept |
 | another voice (`bg+f2`) | 0/7, 0 false — speaker-dependent by design: each person who gives commands records |
 
 Commands land at d ≈ 300–1000 (noise up to 1370); non-commands at ≥ 1740 with ratio ≥ 0.72 to the next command.

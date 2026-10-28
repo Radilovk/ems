@@ -186,6 +186,32 @@ public final class DoubleImpulse {
         return null;
     }
 
+    /**
+     * Smart / Auto lead the impulse: there the 2nd impulse comes and goes cycle by cycle (approaches with and without
+     * it, the output zeroed between sets), and the button with the two 2nd-impulse index buttons followed every
+     * cycle — on, off, on (owner, 2026-10-28: "constant blinking of the double impulse button in auto"). While a
+     * session leads, they show the session's own double-impulse setting, steady. null = the trainer leads.
+     */
+    static Boolean ledDouble() {
+        try {
+            com.isaigu.gymapp.ai.AutoEngine ae = com.isaigu.gymapp.ai.AutoSession.getStage()
+                    != com.isaigu.gymapp.ai.AutoSession.Stage.IDLE ? com.isaigu.gymapp.ai.AutoSession.getEngine() : null;
+            if (ae != null) {
+                return ae.isDoublePulseOn();
+            }
+            com.isaigu.gymapp.ai.AiEngine e = com.isaigu.gymapp.ai.AiSession.getStage()
+                    != com.isaigu.gymapp.ai.AiSession.Stage.IDLE ? com.isaigu.gymapp.ai.AiSession.getEngine() : null;
+            if (e != null) {
+                return e.isActivePauseOn();
+            }
+            if (ManualDefaults.assisted()) {
+                return Boolean.FALSE;
+            }
+        } catch (Throwable ignored) {
+        }
+        return null;
+    }
+
     static boolean muscle(TrainItem it) {
         TrainProgram p = it != null ? it.getTrainProgram() : null;
         return p != null && p.useType == MUSCLE;
@@ -584,7 +610,8 @@ public final class DoubleImpulse {
             }
             boolean on = active(it);
             ProgramDataBean b = bean(it);
-            boolean dbl = b != null && b.activePause;           // the 2nd-impulse buttons: while it is on (1.1.385)
+            Boolean led = ledDouble();
+            boolean dbl = led != null ? led : b != null && b.activePause;   // the 2nd-impulse buttons: while it is on
             View pm = row.findViewById(idPauseMa);
             View ph = row.findViewById(idPauseHz);
             for (View x : new View[] {pm, ph}) {
@@ -654,7 +681,9 @@ public final class DoubleImpulse {
         }
         Face f = (Face) btn.getBackground();
         ProgramDataBean b = bean(it);
-        int mode = b == null || it.isEmpty() ? Face.OFF : muscle(it) ? Face.NONE : !b.activePause ? Face.OFF
+        Boolean led = ledDouble();
+        boolean dbl = led != null ? led : b != null && b.activePause;
+        int mode = b == null || it.isEmpty() ? Face.OFF : muscle(it) ? Face.NONE : !dbl ? Face.OFF
                 : active(it) ? Face.SETUP : Face.ON;
         float left = 0f;
         if (mode == Face.SETUP) {

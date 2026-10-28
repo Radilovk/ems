@@ -88,6 +88,8 @@ public final class VoiceScreen {
         String learning;
         int got;
         String note;
+        /** Why the last sound in this recording was not taken (SKIP), so the timeout can say it. */
+        String skipNote;
         int noteColor;
         // listening
         String heard;
@@ -123,19 +125,19 @@ public final class VoiceScreen {
             // left: the one thing now — the word to say, or what was heard
             LinearLayout left = XemsUi.card(a);
             left.setGravity(Gravity.CENTER);
-            left.setPadding(dp(24), dp(22), dp(24), dp(22));
+            left.setPadding(dp(18), dp(12), dp(18), dp(14));
             micIcon = new XemsIcon(XemsIcon.MIC, TINT);
             mic = new View(a);
             mic.setBackgroundDrawable(micIcon);
-            left.addView(mic, new LinearLayout.LayoutParams(dp(44), dp(44)));
-            hero = XemsUi.text(a, "", 56, XemsUi.TEXT, true);
+            left.addView(mic, new LinearLayout.LayoutParams(dp(28), dp(28)));
+            hero = XemsUi.text(a, "", 44, XemsUi.TEXT, true);
             hero.setGravity(Gravity.CENTER);
             hero.setTypeface(Typeface.DEFAULT_BOLD);
-            left.addView(hero, XemsUi.matchWrap(a, 8));
-            dots = XemsUi.text(a, "", 30, TINT, true);
+            left.addView(hero, XemsUi.matchWrap(a, 4));
+            dots = XemsUi.text(a, "", 22, TINT, true);
             dots.setGravity(Gravity.CENTER);
             left.addView(dots, XemsUi.matchWrap(a, 2));
-            sub = XemsUi.text(a, "", 16, XemsUi.MUTED, false);
+            sub = XemsUi.text(a, "", 14, XemsUi.MUTED, false);
             sub.setGravity(Gravity.CENTER);
             left.addView(sub, XemsUi.matchWrap(a, 6));
             barBox = new FrameLayout(a);
@@ -144,24 +146,24 @@ public final class VoiceScreen {
             bar.setBackgroundDrawable(XemsUi.rounded(TINT, dp(5), 0, 0));
             barBox.addView(bar, new FrameLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT));
             LinearLayout.LayoutParams bl = new LinearLayout.LayoutParams(dp(260), dp(10));
-            bl.topMargin = dp(14);
+            bl.topMargin = dp(10);
             left.addView(barBox, bl);
             status = XemsUi.text(a, "", 15, XemsUi.TEXT, true);
             status.setGravity(Gravity.CENTER);
-            left.addView(status, XemsUi.matchWrap(a, 12));
-            row.addView(left, new LinearLayout.LayoutParams(0, dp(330), 1.25f));
+            left.addView(status, XemsUi.matchWrap(a, 8));
+            row.addView(left, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1.25f));
 
             // right: the words (tap = record that one again) and how easily it accepts
             LinearLayout right = XemsUi.card(a);
-            right.setPadding(dp(18), dp(16), dp(18), dp(16));
+            right.setPadding(dp(16), dp(12), dp(16), dp(12));
             right.addView(XemsUi.label(a, tr("Думите · докосни, за да запишеш отново",
                     "Words · tap to record again")));
             words = XemsUi.vertical(a);
             right.addView(words, XemsUi.matchWrap(a, 8));
-            right.addView(XemsUi.label(a, tr("Колко лесно приема", "How easily it accepts")), XemsUi.matchWrap(a, 14));
+            right.addView(XemsUi.label(a, tr("Колко лесно приема", "How easily it accepts")), XemsUi.matchWrap(a, 10));
             sensRow = XemsUi.vertical(a);
             right.addView(sensRow, XemsUi.matchWrap(a, 6));
-            LinearLayout.LayoutParams rp = new LinearLayout.LayoutParams(0, dp(330), 1f);
+            LinearLayout.LayoutParams rp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
             rp.leftMargin = dp(16);
             row.addView(right, rp);
             s.body.addView(row, XemsUi.matchWrap(a, 4));
@@ -182,6 +184,7 @@ public final class VoiceScreen {
                 flash = VoiceUsb.stage;
             }
             render();
+            XemsUi.fitHeight(a, s, 0.94f);              // a short landscape screen scrolls, never cuts the word
             s.dialog.show();
             WearableBlePermissions.ensureConnectPermission(a, new Find(this));
             if (VoiceLink.state() == VoiceLink.READY) {
@@ -232,7 +235,7 @@ public final class VoiceScreen {
                 renderFlash();
             } else if (old()) {
                 hero.setText(tr("Обнови чипа", "Update the module"));
-                hero.setTextSize(44);
+                hero.setTextSize(34);
                 hero.setTextColor(XemsUi.AMBER);
                 dots.setText("");
                 sub.setText(tr("Има по-добър софтуер за него. Включи го с кабел в таблета и натисни бутона — "
@@ -241,7 +244,7 @@ public final class VoiceScreen {
                 status.setText("");
             } else if (!r) {
                 hero.setText(tr("Включи чипа", "Switch the module on"));
-                hero.setTextSize(40);
+                hero.setTextSize(32);
                 hero.setTextColor(XemsUi.TEXT);
                 dots.setText("");
                 sub.setText(VoiceLink.state() == VoiceLink.CONNECTING ? tr("Свързвам…", "Connecting…")
@@ -249,7 +252,7 @@ public final class VoiceScreen {
                 status.setText("");
             } else if (learning != null) {
                 hero.setText(word(learning).toUpperCase());
-                hero.setTextSize(word(learning).length() > 8 ? 44 : 60);
+                hero.setTextSize(word(learning).length() > 8 ? 36 : 48);
                 hero.setTextColor(colorOf(learning));
                 StringBuilder d = new StringBuilder();
                 for (int i = 0; i < TIMES; i++) {
@@ -260,9 +263,9 @@ public final class VoiceScreen {
                         "Say it clearly, a little louder, then pause"));
                 status.setText(note != null ? note : tr("Слушам…", "Listening…"));
                 status.setTextColor(note != null ? noteColor : XemsUi.MUTED);
-            } else if (!allLearned()) {
+            } else if (!allLearned() && (heard == null || System.currentTimeMillis() - heardMs >= 4000)) {
                 hero.setText(tr("Да научим гласа ти", "Let's learn your voice"));
-                hero.setTextSize(36);
+                hero.setTextSize(30);
                 hero.setTextColor(XemsUi.TEXT);
                 dots.setText("");
                 sub.setText(tr("8 думи по 3 пъти · около минута и половина", "8 words, 3 times each · about 90 s"));
@@ -270,7 +273,7 @@ public final class VoiceScreen {
             } else {
                 boolean fresh = heard != null && System.currentTimeMillis() - heardMs < 4000;
                 hero.setText(fresh ? heard : tr("Слушам", "Listening"));
-                hero.setTextSize(fresh ? 56 : 44);
+                hero.setTextSize(fresh ? 46 : 36);
                 hero.setTextColor(fresh ? heardColor : XemsUi.TEXT);
                 dots.setText("");
                 sub.setText(fresh ? "" : tr("Кажи: „едно, две, три, старт“ · „пауза“ · „стоп“",
@@ -345,7 +348,7 @@ public final class VoiceScreen {
                     color = XemsUi.DANGER;
             }
             hero.setText(big);
-            hero.setTextSize(big.length() > 14 ? 34 : 52);
+            hero.setTextSize(big.length() > 14 ? 30 : 44);
             hero.setTextColor(color);
             dots.setText("");
             sub.setText(small);
@@ -366,23 +369,28 @@ public final class VoiceScreen {
             words.removeAllViews();
             LinearLayout line = null;
             for (int i = 0; i < ORDER.length; i++) {
-                if (i % 2 == 0) {
+                if (i % 3 == 0) {                       // three a row: the page stays short in landscape
                     line = XemsUi.horizontal(a);
-                    words.addView(line, XemsUi.matchWrap(a, i == 0 ? 0 : 6));
+                    words.addView(line, XemsUi.matchWrap(a, i == 0 ? 0 : 5));
                 }
                 String w = ORDER[i];
                 boolean done = count[i] >= TIMES;
                 String marks = done ? "  ✓" : count[i] > 0 ? "  " + count[i] + "/" + TIMES : "";
                 TextView chip = XemsUi.chip(a, word(w) + marks, w.equals(learning) || done && listed,
                         w.equals(learning) ? colorOf(w) : XemsUi.GO);
-                chip.setTextSize(13.5f);
+                chip.setTextSize(13f);
                 chip.setSingleLine(true);
                 chip.setOnClickListener(new Redo(this, w));
-                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, dp(44), 1f);
-                if (i % 2 == 1) {
-                    lp.leftMargin = dp(8);
+                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, dp(40), 1f);
+                if (i % 3 != 0) {
+                    lp.leftMargin = dp(6);
                 }
                 line.addView(chip, lp);
+            }
+            for (int i = ORDER.length; i % 3 != 0; i++) {   // the last row keeps the same chip width
+                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, dp(40), 1f);
+                lp.leftMargin = dp(6);
+                line.addView(new View(a), lp);
             }
         }
 
@@ -459,6 +467,7 @@ public final class VoiceScreen {
 
         void rec() {
             if (learning != null && !closed) {
+                skipNote = null;
                 VoiceLink.send("rec " + learning);
             }
         }
@@ -529,7 +538,8 @@ public final class VoiceScreen {
                         main.postDelayed(new Rec(this), 700);
                     }
                 } else if ("timeout".equals(p[2])) {
-                    note = tr("Не те чух — кажи го пак, малко по-силно", "Didn't hear it — again, a little louder");
+                    note = skipNote != null ? skipNote
+                            : tr("Не те чух — кажи го пак, по-близо до чипа", "Didn't hear it — again, closer to it");
                     noteColor = XemsUi.AMBER;
                     main.postDelayed(new Rec(this), 300);
                 } else if ("listen".equals(p[2]) && got > 0) {
@@ -537,10 +547,11 @@ public final class VoiceScreen {
                 }
             } else if (line.startsWith("SKIP ") && learning != null && p.length > 1) {
                 // a sound that was not taken: say why, in the words of what to do
-                note = "long".equals(p[1]) ? tr("Чух дълъг звук — кажи само думата и замълчи",
-                        "A long sound — say just the word, then pause")
+                skipNote = "long".equals(p[1]) ? tr("Чух дълъг звук — кажи само думите и замълчи за миг",
+                        "A long sound — say just the words, then pause")
                         : "short".equals(p[1]) ? tr("Много кратко — кажи цялата дума", "Too short — the whole word")
                         : tr("Чух те, но тихо — малко по-силно", "Heard, but softly — a little louder");
+                note = skipNote;
                 noteColor = XemsUi.AMBER;
             } else if (line.startsWith("LVL ") && p.length > 2) {
                 level = VoiceLink.parse(p[1]);

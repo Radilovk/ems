@@ -47,7 +47,7 @@
     .registers 1
 
     .prologue
-    .line 1262
+    .line 1291
     new-instance v0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Note$Hide;
 
     invoke-direct {v0}, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Note$Hide;-><init>()V
@@ -61,7 +61,7 @@
     .registers 1
 
     .prologue
-    .line 1257
+    .line 1286
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -71,7 +71,7 @@
     .registers 1
 
     .prologue
-    .line 1257
+    .line 1286
     sput-boolean p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Note;->sticky:Z
 
     return p0
@@ -81,7 +81,7 @@
     .registers 1
 
     .prologue
-    .line 1257
+    .line 1286
     sget-object v0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Note;->HIDE:Lcom/isaigu/gymapp/wearable/DoubleImpulse$Note$Hide;
 
     return-object v0
@@ -93,12 +93,12 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 1361
+    .line 1390
     invoke-virtual {p0}, Landroid/view/View;->getRootView()Landroid/view/View;
 
     move-result-object v0
 
-    .line 1362
+    .line 1391
     if-eqz v0, :cond_15
 
     const v2, 0x1020002
@@ -107,7 +107,7 @@
 
     move-result-object v0
 
-    .line 1363
+    .line 1392
     :goto_e
     instance-of v2, v0, Landroid/widget/FrameLayout;
 
@@ -121,13 +121,13 @@
     :cond_15
     move-object v0, v1
 
-    .line 1362
+    .line 1391
     goto :goto_e
 
     :cond_17
     move-object v0, v1
 
-    .line 1363
+    .line 1392
     goto :goto_14
 .end method
 
@@ -135,7 +135,7 @@
     .registers 4
 
     .prologue
-    .line 1349
+    .line 1378
     # getter for: Lcom/isaigu/gymapp/wearable/DoubleImpulse;->MAIN:Landroid/os/Handler;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/DoubleImpulse;->access$000()Landroid/os/Handler;
 
@@ -145,7 +145,7 @@
 
     invoke-virtual {v0, v1}, Landroid/os/Handler;->removeCallbacks(Ljava/lang/Runnable;)V
 
-    .line 1350
+    .line 1379
     sget-object v0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Note;->box:Ljava/lang/ref/WeakReference;
 
     if-eqz v0, :cond_1e
@@ -158,7 +158,7 @@
 
     check-cast v0, Landroid/widget/LinearLayout;
 
-    .line 1351
+    .line 1380
     :goto_15
     if-eqz v0, :cond_1d
 
@@ -168,24 +168,24 @@
 
     if-nez v1, :cond_20
 
-    .line 1358
+    .line 1387
     :cond_1d
     :goto_1d
     return-void
 
-    .line 1350
+    .line 1379
     :cond_1e
     const/4 v0, 0x0
 
     goto :goto_15
 
-    .line 1354
+    .line 1383
     :cond_20
     sget-object v1, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Note;->HIDE:Lcom/isaigu/gymapp/wearable/DoubleImpulse$Note$Hide;
 
     invoke-virtual {v0, v1}, Landroid/widget/LinearLayout;->setTag(Ljava/lang/Object;)V
 
-    .line 1355
+    .line 1384
     invoke-virtual {v0}, Landroid/widget/LinearLayout;->getResources()Landroid/content/res/Resources;
 
     move-result-object v1
@@ -196,14 +196,14 @@
 
     iget v1, v1, Landroid/util/DisplayMetrics;->density:F
 
-    .line 1356
+    .line 1385
     invoke-virtual {v0}, Landroid/widget/LinearLayout;->animate()Landroid/view/ViewPropertyAnimator;
 
     move-result-object v2
 
     invoke-virtual {v2}, Landroid/view/ViewPropertyAnimator;->cancel()V
 
-    .line 1357
+    .line 1386
     invoke-virtual {v0}, Landroid/widget/LinearLayout;->animate()Landroid/view/ViewPropertyAnimator;
 
     move-result-object v2
@@ -245,20 +245,20 @@
     .registers 1
 
     .prologue
-    .line 1342
+    .line 1371
     sget-boolean v0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Note;->sticky:Z
 
     if-eqz v0, :cond_a
 
-    .line 1343
+    .line 1372
     const/4 v0, 0x0
 
     sput-boolean v0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Note;->sticky:Z
 
-    .line 1344
+    .line 1373
     invoke-static {}, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Note;->hide()V
 
-    .line 1346
+    .line 1375
     :cond_a
     return-void
 .end method
@@ -267,30 +267,30 @@
     .registers 14
 
     .prologue
-    .line 1272
+    .line 1301
     if-nez p0, :cond_3
 
-    .line 1338
+    .line 1367
     :cond_2
     :goto_2
     return-void
 
-    .line 1275
+    .line 1304
     :cond_3
     :try_start_3
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Note;->content(Landroid/view/View;)Landroid/widget/FrameLayout;
 
     move-result-object v2
 
-    .line 1276
+    .line 1305
     if-eqz v2, :cond_2
 
-    .line 1279
+    .line 1308
     invoke-virtual {p0}, Landroid/view/View;->getContext()Landroid/content/Context;
 
     move-result-object v3
 
-    .line 1280
+    .line 1309
     invoke-virtual {v3}, Landroid/content/Context;->getResources()Landroid/content/res/Resources;
 
     move-result-object v0
@@ -301,7 +301,7 @@
 
     iget v4, v0, Landroid/util/DisplayMetrics;->density:F
 
-    .line 1281
+    .line 1310
     sget-object v0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Note;->box:Ljava/lang/ref/WeakReference;
 
     if-eqz v0, :cond_19f
@@ -316,7 +316,7 @@
 
     move-object v1, v0
 
-    .line 1282
+    .line 1311
     :goto_24
     if-eqz v1, :cond_2c
 
@@ -326,7 +326,7 @@
 
     if-eq v0, v2, :cond_f9
 
-    .line 1283
+    .line 1312
     :cond_2c
     if-eqz v1, :cond_3f
 
@@ -338,7 +338,7 @@
 
     if-eqz v0, :cond_3f
 
-    .line 1284
+    .line 1313
     invoke-virtual {v1}, Landroid/widget/LinearLayout;->getParent()Landroid/view/ViewParent;
 
     move-result-object v0
@@ -347,23 +347,23 @@
 
     invoke-virtual {v0, v1}, Landroid/view/ViewGroup;->removeView(Landroid/view/View;)V
 
-    .line 1286
+    .line 1315
     :cond_3f
     new-instance v0, Landroid/widget/LinearLayout;
 
     invoke-direct {v0, v3}, Landroid/widget/LinearLayout;-><init>(Landroid/content/Context;)V
 
-    .line 1287
+    .line 1316
     const/4 v1, 0x1
 
     invoke-virtual {v0, v1}, Landroid/widget/LinearLayout;->setOrientation(I)V
 
-    .line 1288
+    .line 1317
     const/4 v1, 0x1
 
     invoke-virtual {v0, v1}, Landroid/widget/LinearLayout;->setGravity(I)V
 
-    .line 1289
+    .line 1318
     const/high16 v1, 0x41b00000    # 22.0f
 
     mul-float/2addr v1, v4
@@ -380,27 +380,27 @@
 
     move-result v5
 
-    .line 1290
+    .line 1319
     invoke-virtual {v0, v1, v5, v1, v5}, Landroid/widget/LinearLayout;->setPadding(IIII)V
 
-    .line 1291
+    .line 1320
     const/4 v1, 0x0
 
     invoke-virtual {v0, v1}, Landroid/widget/LinearLayout;->setClickable(Z)V
 
-    .line 1292
+    .line 1321
     const/4 v1, 0x0
 
     invoke-virtual {v0, v1}, Landroid/widget/LinearLayout;->setFocusable(Z)V
 
-    .line 1293
+    .line 1322
     new-instance v1, Landroid/widget/TextView;
 
     invoke-direct {v1, v3}, Landroid/widget/TextView;-><init>(Landroid/content/Context;)V
 
     sput-object v1, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Note;->titleView:Landroid/widget/TextView;
 
-    .line 1294
+    .line 1323
     sget-object v1, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Note;->titleView:Landroid/widget/TextView;
 
     const/4 v5, 0x2
@@ -409,28 +409,28 @@
 
     invoke-virtual {v1, v5, v6}, Landroid/widget/TextView;->setTextSize(IF)V
 
-    .line 1295
+    .line 1324
     sget-object v1, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Note;->titleView:Landroid/widget/TextView;
 
     sget-object v5, Landroid/graphics/Typeface;->DEFAULT_BOLD:Landroid/graphics/Typeface;
 
     invoke-virtual {v1, v5}, Landroid/widget/TextView;->setTypeface(Landroid/graphics/Typeface;)V
 
-    .line 1296
+    .line 1325
     sget-object v1, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Note;->titleView:Landroid/widget/TextView;
 
     const/16 v5, 0x11
 
     invoke-virtual {v1, v5}, Landroid/widget/TextView;->setGravity(I)V
 
-    .line 1297
+    .line 1326
     new-instance v1, Landroid/widget/TextView;
 
     invoke-direct {v1, v3}, Landroid/widget/TextView;-><init>(Landroid/content/Context;)V
 
     sput-object v1, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Note;->hintView:Landroid/widget/TextView;
 
-    .line 1298
+    .line 1327
     sget-object v1, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Note;->hintView:Landroid/widget/TextView;
 
     const/4 v3, 0x2
@@ -439,21 +439,21 @@
 
     invoke-virtual {v1, v3, v5}, Landroid/widget/TextView;->setTextSize(IF)V
 
-    .line 1299
+    .line 1328
     sget-object v1, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Note;->hintView:Landroid/widget/TextView;
 
     const v3, -0x19000001
 
     invoke-virtual {v1, v3}, Landroid/widget/TextView;->setTextColor(I)V
 
-    .line 1300
+    .line 1329
     sget-object v1, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Note;->hintView:Landroid/widget/TextView;
 
     const/16 v3, 0x11
 
     invoke-virtual {v1, v3}, Landroid/widget/TextView;->setGravity(I)V
 
-    .line 1301
+    .line 1330
     sget-object v1, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Note;->hintView:Landroid/widget/TextView;
 
     const/4 v3, 0x0
@@ -472,7 +472,7 @@
 
     invoke-virtual {v1, v3, v5, v6, v7}, Landroid/widget/TextView;->setPadding(IIII)V
 
-    .line 1302
+    .line 1331
     sget-object v1, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Note;->titleView:Landroid/widget/TextView;
 
     new-instance v3, Landroid/widget/LinearLayout$LayoutParams;
@@ -485,7 +485,7 @@
 
     invoke-virtual {v0, v1, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 1304
+    .line 1333
     sget-object v1, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Note;->hintView:Landroid/widget/TextView;
 
     new-instance v3, Landroid/widget/LinearLayout$LayoutParams;
@@ -498,7 +498,7 @@
 
     invoke-virtual {v0, v1, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 1306
+    .line 1335
     new-instance v1, Landroid/widget/FrameLayout$LayoutParams;
 
     const/4 v3, -0x2
@@ -509,7 +509,7 @@
 
     invoke-direct {v1, v3, v5, v6}, Landroid/widget/FrameLayout$LayoutParams;-><init>(III)V
 
-    .line 1308
+    .line 1337
     const/high16 v3, 0x41c00000    # 24.0f
 
     mul-float/2addr v3, v4
@@ -520,7 +520,7 @@
 
     iput v3, v1, Landroid/widget/FrameLayout$LayoutParams;->bottomMargin:I
 
-    .line 1309
+    .line 1338
     const/high16 v3, 0x41800000    # 16.0f
 
     mul-float/2addr v3, v4
@@ -529,28 +529,28 @@
 
     move-result v3
 
-    .line 1310
+    .line 1339
     iput v3, v1, Landroid/widget/FrameLayout$LayoutParams;->leftMargin:I
 
-    .line 1311
+    .line 1340
     iput v3, v1, Landroid/widget/FrameLayout$LayoutParams;->rightMargin:I
 
-    .line 1312
+    .line 1341
     invoke-virtual {v2, v0, v1}, Landroid/widget/FrameLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 1313
+    .line 1342
     const/4 v1, 0x0
 
     invoke-virtual {v0, v1}, Landroid/widget/LinearLayout;->setAlpha(F)V
 
-    .line 1314
+    .line 1343
     const/high16 v1, 0x41800000    # 16.0f
 
     mul-float/2addr v1, v4
 
     invoke-virtual {v0, v1}, Landroid/widget/LinearLayout;->setTranslationY(F)V
 
-    .line 1315
+    .line 1344
     new-instance v1, Ljava/lang/ref/WeakReference;
 
     invoke-direct {v1, v0}, Ljava/lang/ref/WeakReference;-><init>(Ljava/lang/Object;)V
@@ -559,25 +559,25 @@
 
     move-object v1, v0
 
-    .line 1317
+    .line 1346
     :cond_f9
     new-instance v0, Landroid/graphics/drawable/GradientDrawable;
 
     invoke-direct {v0}, Landroid/graphics/drawable/GradientDrawable;-><init>()V
 
-    .line 1318
+    .line 1347
     const v2, -0x26e7e7e8
 
     invoke-virtual {v0, v2}, Landroid/graphics/drawable/GradientDrawable;->setColor(I)V
 
-    .line 1319
+    .line 1348
     const/high16 v2, 0x41a00000    # 20.0f
 
     mul-float/2addr v2, v4
 
     invoke-virtual {v0, v2}, Landroid/graphics/drawable/GradientDrawable;->setCornerRadius(F)V
 
-    .line 1320
+    .line 1349
     const/high16 v2, 0x3fc00000    # 1.5f
 
     mul-float/2addr v2, v4
@@ -588,15 +588,15 @@
 
     invoke-virtual {v0, v2, p3}, Landroid/graphics/drawable/GradientDrawable;->setStroke(II)V
 
-    .line 1321
+    .line 1350
     invoke-virtual {v1, v0}, Landroid/widget/LinearLayout;->setBackground(Landroid/graphics/drawable/Drawable;)V
 
-    .line 1322
+    .line 1351
     sget-object v0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Note;->titleView:Landroid/widget/TextView;
 
     invoke-virtual {v0, p1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 1323
+    .line 1352
     sget-object v0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Note;->titleView:Landroid/widget/TextView;
 
     const v2, -0x4f413b
@@ -608,7 +608,7 @@
     :cond_124
     invoke-virtual {v0, p3}, Landroid/widget/TextView;->setTextColor(I)V
 
-    .line 1324
+    .line 1353
     sget-object v2, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Note;->hintView:Landroid/widget/TextView;
 
     if-eqz p2, :cond_1a2
@@ -618,7 +618,7 @@
     :goto_12c
     invoke-virtual {v2, v0}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 1325
+    .line 1354
     sget-object v2, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Note;->hintView:Landroid/widget/TextView;
 
     if-eqz p2, :cond_1a5
@@ -634,22 +634,22 @@
     :goto_13a
     invoke-virtual {v2, v0}, Landroid/widget/TextView;->setVisibility(I)V
 
-    .line 1326
+    .line 1355
     const/4 v0, 0x0
 
     invoke-virtual {v1, v0}, Landroid/widget/LinearLayout;->setTag(Ljava/lang/Object;)V
 
-    .line 1327
+    .line 1356
     invoke-virtual {v1}, Landroid/widget/LinearLayout;->bringToFront()V
 
-    .line 1328
+    .line 1357
     invoke-virtual {v1}, Landroid/widget/LinearLayout;->animate()Landroid/view/ViewPropertyAnimator;
 
     move-result-object v0
 
     invoke-virtual {v0}, Landroid/view/ViewPropertyAnimator;->cancel()V
 
-    .line 1329
+    .line 1358
     invoke-virtual {v1}, Landroid/widget/LinearLayout;->animate()Landroid/view/ViewPropertyAnimator;
 
     move-result-object v0
@@ -674,7 +674,7 @@
 
     invoke-virtual {v0}, Landroid/view/ViewPropertyAnimator;->start()V
 
-    .line 1330
+    .line 1359
     const-wide/16 v0, 0x0
 
     cmp-long v0, p4, v0
@@ -686,7 +686,7 @@
     :goto_16a
     sput-boolean v0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Note;->sticky:Z
 
-    .line 1331
+    .line 1360
     # getter for: Lcom/isaigu/gymapp/wearable/DoubleImpulse;->MAIN:Landroid/os/Handler;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/DoubleImpulse;->access$000()Landroid/os/Handler;
 
@@ -696,12 +696,12 @@
 
     invoke-virtual {v0, v1}, Landroid/os/Handler;->removeCallbacks(Ljava/lang/Runnable;)V
 
-    .line 1332
+    .line 1361
     sget-boolean v0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Note;->sticky:Z
 
     if-nez v0, :cond_2
 
-    .line 1333
+    .line 1362
     # getter for: Lcom/isaigu/gymapp/wearable/DoubleImpulse;->MAIN:Landroid/os/Handler;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/DoubleImpulse;->access$000()Landroid/os/Handler;
 
@@ -715,11 +715,11 @@
 
     goto/16 :goto_2
 
-    .line 1335
+    .line 1364
     :catch_184
     move-exception v0
 
-    .line 1336
+    .line 1365
     const-string v1, "index"
 
     new-instance v2, Ljava/lang/StringBuilder;
@@ -744,13 +744,13 @@
 
     goto/16 :goto_2
 
-    .line 1281
+    .line 1310
     :cond_19f
     const/4 v1, 0x0
 
     goto/16 :goto_24
 
-    .line 1324
+    .line 1353
     :cond_1a2
     :try_start_1a2
     const-string v0, ""
@@ -759,13 +759,13 @@
 
     goto :goto_12c
 
-    .line 1325
+    .line 1354
     :cond_1a5
     const/16 v0, 0x8
 
     goto :goto_13a
 
-    .line 1330
+    .line 1359
     :cond_1a8
     const/4 v0, 0x0
 
@@ -776,7 +776,7 @@
     .registers 2
 
     .prologue
-    .line 1265
+    .line 1294
     sget-object v0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Note;->box:Ljava/lang/ref/WeakReference;
 
     if-eqz v0, :cond_1c
@@ -789,7 +789,7 @@
 
     check-cast v0, Landroid/widget/LinearLayout;
 
-    .line 1266
+    .line 1295
     :goto_c
     if-eqz v0, :cond_1e
 
@@ -810,13 +810,13 @@
     :goto_1b
     return v0
 
-    .line 1265
+    .line 1294
     :cond_1c
     const/4 v0, 0x0
 
     goto :goto_c
 
-    .line 1266
+    .line 1295
     :cond_1e
     const/4 v0, 0x0
 

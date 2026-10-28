@@ -26,7 +26,7 @@
 #include <InternalFileSystem.h>
 #include "kws.h"
 
-#define VOICE_VER "2"   // = VoiceUsb.FW in XEMS: an older module is offered the update
+#define VOICE_VER "6"   // = VoiceUsb.FW in XEMS: an older module is offered the update
 #define STORE "/xems-voice.bin"
 #define REC_TIMEOUT_MS 8000
 
@@ -225,7 +225,9 @@ void loop() {
     linef("REC %s timeout", kws::ACT[eng.recording]);
     eng.recording = -1;
   }
-  if (dirty && now - dirtyAt > 2000) save();
+  // the flash write stalls the loop ≈ 0.5 s: never while an example is awaited or a word is being heard (v4 saved
+  // right as the next example was spoken — it was lost)
+  if (dirty && now - dirtyAt > 3000 && eng.recording < 0 && eng.finder.state == 0) save();
 
   static uint32_t lvlAt = 0;
   if (meter && now - lvlAt >= 100) {

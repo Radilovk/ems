@@ -8,6 +8,7 @@ import com.isaigu.gymapp.ai.AiSession;
 import com.isaigu.gymapp.wearable.BandRemote;
 import com.isaigu.gymapp.wearable.WearableBleDiagLog;
 import com.isaigu.gymapp.widget.XemsGuard;
+import com.isaigu.gymapp.widget.XemsLang;
 import com.isaigu.gymapp.widget.XemsPanel;
 
 /**
@@ -33,11 +34,15 @@ public final class VoiceRemote {
             }
             String where = route(a);
             WearableBleDiagLog.log("voice", "cmd " + a + " → " + where);
+            last = a;
+            lastMs = System.currentTimeMillis();
             if (where != null) {
-                last = a;
-                lastMs = System.currentTimeMillis();
                 beep("stop".equals(a) || "pause".equals(a));
             }
+            // seen on every page: taken, or why nothing happened (owner: "no sign the command was taken")
+            show(where != null ? "🎤 " + VoiceScreen.word(a).toUpperCase() + " ✓"
+                    : "🎤 " + VoiceScreen.word(a) + " — " + XemsLang.tr("няма пусната тренировка",
+                    "no training running"));
         } catch (Throwable t) {
             XemsGuard.report("VoiceRemote.onCommand", t);
         }
@@ -92,6 +97,20 @@ public final class VoiceRemote {
             return null;
         }
         return done ? "suit" : null;
+    }
+
+    /** "старт" without the countdown: say what is missing. */
+    public static void onNoCount() {
+        show("🎤 " + XemsLang.tr("старт — първо кажи „едно, две, три“", "start — say one, two, three first"));
+    }
+
+    static void show(String text) {
+        try {
+            if (VoiceLink.app != null) {
+                android.widget.Toast.makeText(VoiceLink.app, text, android.widget.Toast.LENGTH_SHORT).show();
+            }
+        } catch (Throwable ignored) {
+        }
     }
 
     /** A short tone: the trainer hears the word was taken without looking (stop / pause: lower, twice). */

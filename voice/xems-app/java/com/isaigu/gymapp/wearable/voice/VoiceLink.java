@@ -334,6 +334,8 @@ public final class VoiceLink {
             examples = p.length > 3 ? parse(p[3]) : -1;
         } else if (line.startsWith("CMD ")) {
             VoiceRemote.onCommand(line.split(" ")[1]);
+        } else if (line.startsWith("NOCOUNT")) {
+            VoiceRemote.onNoCount();
         }
         for (Listener l : new ArrayList<Listener>(listeners)) {
             try {

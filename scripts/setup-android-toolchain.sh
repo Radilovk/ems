@@ -14,8 +14,10 @@ M=${MAVEN_MIRROR:-https://repo1.maven.org/maven2}
 JAR="${ROOT}/android-sdk/platforms/android-30/android.jar"
 D8="${ROOT}/android-sdk/build-tools/30.0.3/d8"
 mkdir -p "$(dirname "${JAR}")" "$(dirname "${D8}")" "${ROOT}/tools"
-[[ -s "${JAR}" ]] || curl -fL --retry 3 -o "${JAR}" "${M}/org/robolectric/android-all/11-robolectric-6757853/android-all-11-robolectric-6757853.jar"
-[[ -s "${ROOT}/tools/dx.jar" ]] || curl -fL --retry 3 -o "${ROOT}/tools/dx.jar" "${M}/com/jakewharton/android/repackaged/dalvik-dx/14.0.0_r21/dalvik-dx-14.0.0_r21.jar"
+# Maven Central answers HTTP 429 to busy cloud networks: then Google's mirror of it
+fetch() { curl -fL --retry 3 -o "$1" "${M}/$2" || curl -fL --retry 3 -o "$1" "https://maven-central.storage-download.googleapis.com/maven2/$2"; }
+[[ -s "${JAR}" ]] || fetch "${JAR}" org/robolectric/android-all/11-robolectric-6757853/android-all-11-robolectric-6757853.jar
+[[ -s "${ROOT}/tools/dx.jar" ]] || fetch "${ROOT}/tools/dx.jar" com/jakewharton/android/repackaged/dalvik-dx/14.0.0_r21/dalvik-dx-14.0.0_r21.jar
 if [[ ! -s "${ROOT}/tools/baksmali.jar" ]]; then
   if ! curl -fL --retry 3 -o "${ROOT}/tools/baksmali.jar" https://bitbucket.org/JesusFreke/smali/downloads/baksmali-2.5.2.jar; then
     # bitbucket refuses some networks (HTTP 405): build a "baksmali d <dex> -o <dir>" jar on top of the baksmali

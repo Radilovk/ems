@@ -81,6 +81,28 @@ public final class BluetensScreen {
         }
     }
 
+    /** A voice command (wearable/voice/VoiceRemote): true when this page is open with pads and took it. */
+    public static boolean voice(String cmd) {
+        Page p = current;
+        if (p == null || p.closed || p.pads.isEmpty()) {
+            return false;
+        }
+        if ("start".equals(cmd)) {
+            if (!p.running) {
+                p.go();
+            }
+        } else if ("pause".equals(cmd) || "stop".equals(cmd)) {
+            if (p.running) {
+                p.stopAll();
+            }
+        } else if ("plus".equals(cmd) || "minus".equals(cmd)) {
+            for (Pad pad : p.pads) {
+                p.step(pad, "plus".equals(cmd) ? 1 : -1);
+            }
+        }
+        return true;
+    }
+
     static String tr(String bg, String en) {
         return XemsLang.tr(bg, en);
     }

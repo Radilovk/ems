@@ -1749,7 +1749,7 @@
     goto :goto_e
 .end method
 
-.method static mainStep(I)V
+.method public static mainStep(I)V
     .registers 5
 
     .prologue

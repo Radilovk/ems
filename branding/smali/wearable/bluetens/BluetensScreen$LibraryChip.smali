@@ -30,19 +30,19 @@
     .registers 4
 
     .prologue
-    .line 1640
+    .line 1662
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 1641
+    .line 1663
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$LibraryChip;->v:Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;
 
-    .line 1642
+    .line 1664
     iput-object p2, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$LibraryChip;->id:Ljava/lang/String;
 
-    .line 1643
+    .line 1665
     iput-boolean p3, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$LibraryChip;->part:Z
 
-    .line 1644
+    .line 1666
     return-void
 .end method
 
@@ -52,7 +52,7 @@
     .registers 5
 
     .prologue
-    .line 1648
+    .line 1670
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$LibraryChip;->v:Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$LibraryChip;->id:Ljava/lang/String;
@@ -61,6 +61,6 @@
 
     invoke-virtual {v0, v1, v2}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;->libraryChip(Ljava/lang/String;Z)V
 
-    .line 1649
+    .line 1671
     return-void
 .end method

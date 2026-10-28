@@ -276,7 +276,7 @@ public final class BandRemote implements XiaomiBandRemote.Listener,
      * whatever is selected on the tablet (its own + / − follows the trainer's selection: channels,
      * Hz, pause). Same calls as the app's main strength step; music sync keeps its ceiling.
      */
-    static void mainStep(int d) {
+    public static void mainStep(int d) {
         com.isaigu.gymapp.train.model.TrainItem item = leaderItem();
         if (item == null) {
             XemsPanel.press(d > 0 ? XemsPanel.PRESS_PLUS : XemsPanel.PRESS_MINUS);

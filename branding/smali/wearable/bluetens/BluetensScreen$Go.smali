@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 1307
+    .line 1329
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 1308
+    .line 1330
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Go;->v:Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;
 
-    .line 1309
+    .line 1331
     return-void
 .end method
 
@@ -42,14 +42,14 @@
     .registers 3
 
     .prologue
-    .line 1313
+    .line 1335
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsUi;->haptic(Landroid/view/View;)V
 
-    .line 1314
+    .line 1336
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Go;->v:Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;->go()V
 
-    .line 1315
+    .line 1337
     return-void
 .end method

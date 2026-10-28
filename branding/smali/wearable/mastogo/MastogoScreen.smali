@@ -105,10 +105,10 @@
     .registers 3
 
     .prologue
-    .line 105
+    .line 128
     packed-switch p0, :pswitch_data_1c
 
-    .line 109
+    .line 132
     const-string v0, "\u0416\u0435\u043d\u0441\u043a\u0438"
 
     const-string v1, "Female"
@@ -120,7 +120,7 @@
     :goto_b
     return-object v0
 
-    .line 106
+    .line 129
     :pswitch_c
     const-string v0, "\u041c\u0430\u0441\u0430\u0436"
 
@@ -132,19 +132,19 @@
 
     goto :goto_b
 
-    .line 107
+    .line 130
     :pswitch_15
     const-string v0, "TENS"
 
     goto :goto_b
 
-    .line 108
+    .line 131
     :pswitch_18
     const-string v0, "EMS"
 
     goto :goto_b
 
-    .line 105
+    .line 128
     nop
 
     :pswitch_data_1c
@@ -159,7 +159,7 @@
     .registers 2
 
     .prologue
-    .line 101
+    .line 124
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoModes;->group(I)I
 
     move-result v0
@@ -171,7 +171,7 @@
     .registers 4
 
     .prologue
-    .line 136
+    .line 159
     new-instance v0, Ljava/lang/StringBuilder;
 
     invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
@@ -223,7 +223,7 @@
     .registers 3
 
     .prologue
-    .line 97
+    .line 120
     if-gez p0, :cond_5
 
     const-string v0, "\u2014"
@@ -271,10 +271,10 @@
     .registers 3
 
     .prologue
-    .line 126
+    .line 149
     packed-switch p0, :pswitch_data_30
 
-    .line 131
+    .line 154
     const-string v0, "\u0438\u0437\u043a\u043b\u044e\u0447\u0438 \u0441\u0435"
 
     const-string v1, "switched off"
@@ -286,7 +286,7 @@
     :goto_b
     return-object v0
 
-    .line 127
+    .line 150
     :pswitch_c
     const-string v0, "\u0438\u0437\u043a\u043b\u044e\u0447\u0438 \u0441\u0435 \u2014 \u0434\u044a\u043b\u0433\u043e \u0431\u0435\u0437 \u0442\u043e\u043a"
 
@@ -298,7 +298,7 @@
 
     goto :goto_b
 
-    .line 128
+    .line 151
     :pswitch_15
     const-string v0, "\u0438\u0437\u043a\u043b\u044e\u0447\u0438 \u0441\u0435 \u2014 \u0442\u0432\u044a\u0440\u0434\u0435 \u0434\u044a\u043b\u0433\u043e \u0440\u0430\u0431\u043e\u0442\u0438"
 
@@ -310,7 +310,7 @@
 
     goto :goto_b
 
-    .line 129
+    .line 152
     :pswitch_1e
     const-string v0, "\u0438\u0437\u043a\u043b\u044e\u0447\u0438 \u0441\u0435 \u2014 \u0441\u043b\u0430\u0431\u0430 \u0431\u0430\u0442\u0435\u0440\u0438\u044f"
 
@@ -322,7 +322,7 @@
 
     goto :goto_b
 
-    .line 130
+    .line 153
     :pswitch_27
     const-string v0, "\u0438\u0437\u043a\u043b\u044e\u0447\u0435\u043d \u043e\u0442 \u0431\u0443\u0442\u043e\u043d\u0430"
 
@@ -334,7 +334,7 @@
 
     goto :goto_b
 
-    .line 126
+    .line 149
     :pswitch_data_30
     .packed-switch 0x0
         :pswitch_c
@@ -445,10 +445,10 @@
     .registers 3
 
     .prologue
-    .line 114
+    .line 137
     packed-switch p0, :pswitch_data_42
 
-    .line 121
+    .line 144
     const-string v0, "\u0412\u044a\u043b\u043d\u0430"
 
     const-string v1, "Wave"
@@ -460,7 +460,7 @@
     :goto_b
     return-object v0
 
-    .line 115
+    .line 138
     :pswitch_c
     const-string v0, "\u0421\u0432\u043e\u0439 \u0446\u0438\u043a\u044a\u043b"
 
@@ -472,7 +472,7 @@
 
     goto :goto_b
 
-    .line 116
+    .line 139
     :pswitch_15
     const-string v0, "\u0420\u0430\u0431\u043e\u0442\u0430 / \u041f\u0430\u0443\u0437\u0430"
 
@@ -484,7 +484,7 @@
 
     goto :goto_b
 
-    .line 117
+    .line 140
     :pswitch_1e
     const-string v0, "\u0418\u043c\u043f\u0443\u043b\u0441\u0438"
 
@@ -496,7 +496,7 @@
 
     goto :goto_b
 
-    .line 118
+    .line 141
     :pswitch_27
     const-string v0, "\u041d\u0430\u0440\u0430\u0441\u0442\u0432\u0430\u043d\u0435"
 
@@ -508,7 +508,7 @@
 
     goto :goto_b
 
-    .line 119
+    .line 142
     :pswitch_30
     const-string v0, "\u0422\u0440\u0438\u044a\u0433\u044a\u043b\u043d\u0438\u043a"
 
@@ -520,7 +520,7 @@
 
     goto :goto_b
 
-    .line 120
+    .line 143
     :pswitch_39
     const-string v0, "\u0421\u043b\u0443\u0447\u0430\u0439\u043d\u043e"
 
@@ -532,7 +532,7 @@
 
     goto :goto_b
 
-    .line 114
+    .line 137
     :pswitch_data_42
     .packed-switch 0x1
         :pswitch_1e
@@ -548,10 +548,130 @@
     .registers 3
 
     .prologue
-    .line 88
+    .line 111
     invoke-static {p0, p1}, Lcom/isaigu/gymapp/widget/XemsLang;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v0
 
     return-object v0
+.end method
+
+.method public static voice(Ljava/lang/String;)Z
+    .registers 5
+
+    .prologue
+    const/4 v0, 0x1
+
+    .line 89
+    sget-object v2, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen;->current:Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;
+
+    .line 90
+    if-eqz v2, :cond_11
+
+    iget-boolean v1, v2, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->closed:Z
+
+    if-nez v1, :cond_11
+
+    invoke-virtual {v2}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->sh()Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;
+
+    move-result-object v1
+
+    .line 91
+    :goto_d
+    if-nez v1, :cond_13
+
+    .line 92
+    const/4 v0, 0x0
+
+    .line 107
+    :cond_10
+    :goto_10
+    return v0
+
+    .line 90
+    :cond_11
+    const/4 v1, 0x0
+
+    goto :goto_d
+
+    .line 94
+    :cond_13
+    const-string v3, "start"
+
+    invoke-virtual {v3, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v3
+
+    if-eqz v3, :cond_23
+
+    .line 95
+    iget-boolean v1, v1, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->running:Z
+
+    if-nez v1, :cond_10
+
+    .line 96
+    invoke-virtual {v2}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->go()V
+
+    goto :goto_10
+
+    .line 98
+    :cond_23
+    const-string v3, "pause"
+
+    invoke-virtual {v3, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v3
+
+    if-nez v3, :cond_33
+
+    const-string v3, "stop"
+
+    invoke-virtual {v3, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v3
+
+    if-eqz v3, :cond_3b
+
+    .line 99
+    :cond_33
+    iget-boolean v1, v1, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->running:Z
+
+    if-eqz v1, :cond_10
+
+    .line 100
+    invoke-virtual {v2}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->go()V
+
+    goto :goto_10
+
+    .line 102
+    :cond_3b
+    const-string v1, "plus"
+
+    invoke-virtual {v1, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v1
+
+    if-eqz v1, :cond_47
+
+    .line 103
+    invoke-virtual {v2, v0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->step(I)V
+
+    goto :goto_10
+
+    .line 104
+    :cond_47
+    const-string v1, "minus"
+
+    invoke-virtual {v1, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v1
+
+    if-eqz v1, :cond_10
+
+    .line 105
+    const/4 v1, -0x1
+
+    invoke-virtual {v2, v1}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->step(I)V
+
+    goto :goto_10
 .end method

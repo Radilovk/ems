@@ -18,6 +18,7 @@
 //                                     CNT 1|2|3            (the countdown)
 //                                     CMD start|pause|stop|plus|minus <score>   ← the tablet acts on these
 //                                     NOCOUNT start        (start heard without the countdown)
+//                                     SKIP short|long|soft len=<ms> db=<over the floor>  (a sound, not a word)
 // Commands: start pause stop plus minus one two three (one/two/three = "едно", "две", "три").
 #include <bluefruit.h>
 #include <PDM.h>
@@ -25,7 +26,7 @@
 #include <InternalFileSystem.h>
 #include "kws.h"
 
-#define VOICE_VER "1"
+#define VOICE_VER "2"   // = VoiceUsb.FW in XEMS: an older module is offered the update
 #define STORE "/xems-voice.bin"
 #define REC_TIMEOUT_MS 8000
 

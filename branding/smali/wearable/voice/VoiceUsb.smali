@@ -27,6 +27,8 @@
 
 .field public static final FAILED:I = 0x6
 
+.field public static final FW:I = 0x2
+
 .field public static final NO_CABLE:I = 0x0
 
 .field public static final PRESS_RST:I = 0x3
@@ -68,7 +70,7 @@
 
     sput-object v0, Lcom/isaigu/gymapp/wearable/voice/VoiceUsb;->VIDS:[I
 
-    .line 42
+    .line 44
     new-instance v0, Landroid/os/Handler;
 
     invoke-static {}, Landroid/os/Looper;->getMainLooper()Landroid/os/Looper;
@@ -79,7 +81,7 @@
 
     sput-object v0, Lcom/isaigu/gymapp/wearable/voice/VoiceUsb;->main:Landroid/os/Handler;
 
-    .line 49
+    .line 51
     const/4 v0, -0x1
 
     sput v0, Lcom/isaigu/gymapp/wearable/voice/VoiceUsb;->stage:I
@@ -100,7 +102,7 @@
     .registers 1
 
     .prologue
-    .line 51
+    .line 53
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -115,7 +117,7 @@
     .end annotation
 
     .prologue
-    .line 214
+    .line 216
     sget-object v0, Lcom/isaigu/gymapp/wearable/voice/VoiceUsb;->app:Landroid/content/Context;
 
     invoke-virtual {v0}, Landroid/content/Context;->getAssets()Landroid/content/res/AssetManager;
@@ -144,18 +146,18 @@
 
     move-result-object v1
 
-    .line 216
+    .line 218
     :try_start_1d
     new-instance v0, Ljava/io/ByteArrayOutputStream;
 
     invoke-direct {v0}, Ljava/io/ByteArrayOutputStream;-><init>()V
 
-    .line 217
+    .line 219
     const/16 v2, 0x2000
 
     new-array v2, v2, [B
 
-    .line 219
+    .line 221
     :goto_26
     invoke-virtual {v1, v2}, Ljava/io/InputStream;->read([B)I
 
@@ -163,7 +165,7 @@
 
     if-lez v3, :cond_36
 
-    .line 220
+    .line 222
     const/4 v4, 0x0
 
     invoke-virtual {v0, v2, v4, v3}, Ljava/io/ByteArrayOutputStream;->write([BII)V
@@ -172,16 +174,16 @@
 
     goto :goto_26
 
-    .line 224
+    .line 226
     :catchall_31
     move-exception v0
 
     invoke-virtual {v1}, Ljava/io/InputStream;->close()V
 
-    .line 225
+    .line 227
     throw v0
 
-    .line 222
+    .line 224
     :cond_36
     :try_start_36
     invoke-virtual {v0}, Ljava/io/ByteArrayOutputStream;->toByteArray()[B
@@ -190,10 +192,10 @@
 
     move-result-object v0
 
-    .line 224
+    .line 226
     invoke-virtual {v1}, Ljava/io/InputStream;->close()V
 
-    .line 222
+    .line 224
     return-object v0
 .end method
 
@@ -201,7 +203,7 @@
     .registers 3
 
     .prologue
-    .line 113
+    .line 115
     invoke-virtual {p0}, Landroid/hardware/usb/UsbDevice;->getProductId()I
 
     move-result v0
@@ -227,7 +229,7 @@
     .registers 1
 
     .prologue
-    .line 58
+    .line 60
     sget-boolean v0, Lcom/isaigu/gymapp/wearable/voice/VoiceUsb;->busy:Z
 
     return v0
@@ -237,19 +239,19 @@
     .registers 2
 
     .prologue
-    .line 80
+    .line 82
     const/4 v0, 0x0
 
     sput-boolean v0, Lcom/isaigu/gymapp/wearable/voice/VoiceUsb;->busy:Z
 
-    .line 81
+    .line 83
     sget-object v0, Lcom/isaigu/gymapp/wearable/voice/VoiceUsb;->main:Landroid/os/Handler;
 
     const/4 v1, 0x0
 
     invoke-virtual {v0, v1}, Landroid/os/Handler;->removeCallbacksAndMessages(Ljava/lang/Object;)V
 
-    .line 82
+    .line 84
     return-void
 .end method
 
@@ -263,14 +265,14 @@
 
     const/4 v5, 0x0
 
-    .line 166
+    .line 168
     move v3, v4
 
     move-object v0, v5
 
     move-object v2, v5
 
-    .line 167
+    .line 169
     :goto_6
     invoke-virtual {p0}, Landroid/hardware/usb/UsbDevice;->getInterfaceCount()I
 
@@ -278,12 +280,12 @@
 
     if-ge v3, v1, :cond_29
 
-    .line 168
+    .line 170
     invoke-virtual {p0, v3}, Landroid/hardware/usb/UsbDevice;->getInterface(I)Landroid/hardware/usb/UsbInterface;
 
     move-result-object v1
 
-    .line 169
+    .line 171
     invoke-virtual {v1}, Landroid/hardware/usb/UsbInterface;->getInterfaceClass()I
 
     move-result v6
@@ -294,7 +296,7 @@
 
     move-object v2, v1
 
-    .line 167
+    .line 169
     :cond_19
     :goto_19
     add-int/lit8 v1, v3, 0x1
@@ -303,7 +305,7 @@
 
     goto :goto_6
 
-    .line 171
+    .line 173
     :cond_1d
     invoke-virtual {v1}, Landroid/hardware/usb/UsbInterface;->getInterfaceClass()I
 
@@ -317,10 +319,10 @@
 
     move-object v0, v1
 
-    .line 172
+    .line 174
     goto :goto_19
 
-    .line 175
+    .line 177
     :cond_29
     if-eqz v0, :cond_32
 
@@ -342,19 +344,19 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 99
+    .line 101
     sget-object v0, Lcom/isaigu/gymapp/wearable/voice/VoiceUsb;->um:Landroid/hardware/usb/UsbManager;
 
     if-nez v0, :cond_7
 
     move-object v0, v1
 
-    .line 109
+    .line 111
     :cond_6
     :goto_6
     return-object v0
 
-    .line 102
+    .line 104
     :cond_7
     sget-object v0, Lcom/isaigu/gymapp/wearable/voice/VoiceUsb;->um:Landroid/hardware/usb/UsbManager;
 
@@ -383,7 +385,7 @@
 
     check-cast v0, Landroid/hardware/usb/UsbDevice;
 
-    .line 103
+    .line 105
     sget-object v4, Lcom/isaigu/gymapp/wearable/voice/VoiceUsb;->VIDS:[I
 
     array-length v5, v4
@@ -395,7 +397,7 @@
 
     aget v6, v4, v2
 
-    .line 104
+    .line 106
     invoke-virtual {v0}, Landroid/hardware/usb/UsbDevice;->getVendorId()I
 
     move-result v7
@@ -408,7 +410,7 @@
 
     if-nez v6, :cond_6
 
-    .line 103
+    .line 105
     :cond_35
     add-int/lit8 v2, v2, 0x1
 
@@ -417,7 +419,7 @@
     :cond_38
     move-object v0, v1
 
-    .line 109
+    .line 111
     goto :goto_6
 .end method
 
@@ -427,7 +429,7 @@
     .prologue
     const/4 v3, 0x0
 
-    .line 179
+    .line 181
     const/4 v0, 0x7
 
     new-array v5, v0, [B
@@ -474,7 +476,7 @@
 
     aput-byte v1, v5, v0
 
-    .line 180
+    .line 182
     const/16 v1, 0x21
 
     const/16 v2, 0x20
@@ -489,7 +491,7 @@
 
     invoke-virtual/range {v0 .. v7}, Landroid/hardware/usb/UsbDeviceConnection;->controlTransfer(IIII[BII)I
 
-    .line 181
+    .line 183
     return-void
 .end method
 
@@ -499,7 +501,7 @@
     .prologue
     const/4 v6, 0x0
 
-    .line 184
+    .line 186
     const/16 v1, 0x21
 
     const/16 v2, 0x22
@@ -519,13 +521,13 @@
 
     invoke-virtual/range {v0 .. v7}, Landroid/hardware/usb/UsbDeviceConnection;->controlTransfer(IIII[BII)I
 
-    .line 185
+    .line 187
     return-void
 
     :cond_11
     move v3, v6
 
-    .line 184
+    .line 186
     goto :goto_8
 .end method
 
@@ -533,12 +535,12 @@
     .registers 2
 
     .prologue
-    .line 54
+    .line 56
     const-string v0, "voice-usb"
 
     invoke-static {v0, p0}, Lcom/isaigu/gymapp/wearable/WearableBleDiagLog;->log(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 55
+    .line 57
     return-void
 .end method
 
@@ -546,26 +548,26 @@
     .registers 6
 
     .prologue
-    .line 63
+    .line 65
     invoke-virtual {p0}, Landroid/content/Context;->getApplicationContext()Landroid/content/Context;
 
     move-result-object v0
 
     sput-object v0, Lcom/isaigu/gymapp/wearable/voice/VoiceUsb;->app:Landroid/content/Context;
 
-    .line 64
+    .line 66
     sput-object p1, Lcom/isaigu/gymapp/wearable/voice/VoiceUsb;->listener:Lcom/isaigu/gymapp/wearable/voice/VoiceUsb$Listener;
 
-    .line 65
+    .line 67
     sget-boolean v0, Lcom/isaigu/gymapp/wearable/voice/VoiceUsb;->busy:Z
 
     if-eqz v0, :cond_d
 
-    .line 77
+    .line 79
     :goto_c
     return-void
 
-    .line 68
+    .line 70
     :cond_d
     sget-object v0, Lcom/isaigu/gymapp/wearable/voice/VoiceUsb;->app:Landroid/content/Context;
 
@@ -579,19 +581,19 @@
 
     sput-object v0, Lcom/isaigu/gymapp/wearable/voice/VoiceUsb;->um:Landroid/hardware/usb/UsbManager;
 
-    .line 69
+    .line 71
     sget-object v0, Lcom/isaigu/gymapp/wearable/voice/VoiceUsb;->receiver:Lcom/isaigu/gymapp/wearable/voice/VoiceUsb$Receiver;
 
     if-nez v0, :cond_32
 
-    .line 70
+    .line 72
     new-instance v0, Lcom/isaigu/gymapp/wearable/voice/VoiceUsb$Receiver;
 
     invoke-direct {v0}, Lcom/isaigu/gymapp/wearable/voice/VoiceUsb$Receiver;-><init>()V
 
     sput-object v0, Lcom/isaigu/gymapp/wearable/voice/VoiceUsb;->receiver:Lcom/isaigu/gymapp/wearable/voice/VoiceUsb$Receiver;
 
-    .line 71
+    .line 73
     sget-object v0, Lcom/isaigu/gymapp/wearable/voice/VoiceUsb;->app:Landroid/content/Context;
 
     sget-object v1, Lcom/isaigu/gymapp/wearable/voice/VoiceUsb;->receiver:Lcom/isaigu/gymapp/wearable/voice/VoiceUsb$Receiver;
@@ -604,23 +606,23 @@
 
     invoke-virtual {v0, v1, v2}, Landroid/content/Context;->registerReceiver(Landroid/content/BroadcastReceiver;Landroid/content/IntentFilter;)Landroid/content/Intent;
 
-    .line 73
+    .line 75
     :cond_32
     const/4 v0, 0x1
 
     sput-boolean v0, Lcom/isaigu/gymapp/wearable/voice/VoiceUsb;->busy:Z
 
-    .line 74
+    .line 76
     const-wide/16 v0, 0x0
 
     sput-wide v0, Lcom/isaigu/gymapp/wearable/voice/VoiceUsb;->waitUntil:J
 
-    .line 75
+    .line 77
     const/4 v0, -0x1
 
     sput v0, Lcom/isaigu/gymapp/wearable/voice/VoiceUsb;->stage:I
 
-    .line 76
+    .line 78
     invoke-static {}, Lcom/isaigu/gymapp/wearable/voice/VoiceUsb;->step()V
 
     goto :goto_c
@@ -638,37 +640,37 @@
 
     const/4 v1, 0x0
 
-    .line 118
+    .line 120
     sget-boolean v0, Lcom/isaigu/gymapp/wearable/voice/VoiceUsb;->busy:Z
 
     if-nez v0, :cond_a
 
-    .line 160
+    .line 162
     :goto_9
     return-void
 
-    .line 121
+    .line 123
     :cond_a
     invoke-static {}, Lcom/isaigu/gymapp/wearable/voice/VoiceUsb;->find()Landroid/hardware/usb/UsbDevice;
 
     move-result-object v2
 
-    .line 122
+    .line 124
     invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
 
     move-result-wide v4
 
-    .line 123
+    .line 125
     if-nez v2, :cond_29
 
-    .line 124
+    .line 126
     sget-wide v2, Lcom/isaigu/gymapp/wearable/voice/VoiceUsb;->waitUntil:J
 
     cmp-long v0, v2, v4
 
     if-lez v0, :cond_25
 
-    .line 125
+    .line 127
     sget-object v0, Lcom/isaigu/gymapp/wearable/voice/VoiceUsb;->main:Landroid/os/Handler;
 
     new-instance v1, Lcom/isaigu/gymapp/wearable/voice/VoiceUsb$Step;
@@ -679,13 +681,13 @@
 
     goto :goto_9
 
-    .line 127
+    .line 129
     :cond_25
     invoke-static {v1, v1}, Lcom/isaigu/gymapp/wearable/voice/VoiceUsb;->tell(II)V
 
     goto :goto_9
 
-    .line 131
+    .line 133
     :cond_29
     sget-object v0, Lcom/isaigu/gymapp/wearable/voice/VoiceUsb;->um:Landroid/hardware/usb/UsbManager;
 
@@ -695,12 +697,12 @@
 
     if-nez v0, :cond_5b
 
-    .line 132
+    .line 134
     const/4 v0, 0x1
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/voice/VoiceUsb;->tell(II)V
 
-    .line 133
+    .line 135
     sget v0, Landroid/os/Build$VERSION;->SDK_INT:I
 
     const/16 v3, 0x1f
@@ -709,7 +711,7 @@
 
     const/high16 v0, 0x2000000
 
-    .line 134
+    .line 136
     :goto_3d
     new-instance v3, Landroid/content/Intent;
 
@@ -717,7 +719,7 @@
 
     invoke-direct {v3, v4}, Landroid/content/Intent;-><init>(Ljava/lang/String;)V
 
-    .line 135
+    .line 137
     sget-object v4, Lcom/isaigu/gymapp/wearable/voice/VoiceUsb;->app:Landroid/content/Context;
 
     invoke-virtual {v4}, Landroid/content/Context;->getPackageName()Ljava/lang/String;
@@ -726,7 +728,7 @@
 
     invoke-virtual {v3, v4}, Landroid/content/Intent;->setPackage(Ljava/lang/String;)Landroid/content/Intent;
 
-    .line 136
+    .line 138
     sget-object v4, Lcom/isaigu/gymapp/wearable/voice/VoiceUsb;->um:Landroid/hardware/usb/UsbManager;
 
     sget-object v5, Lcom/isaigu/gymapp/wearable/voice/VoiceUsb;->app:Landroid/content/Context;
@@ -742,10 +744,10 @@
     :cond_59
     move v0, v1
 
-    .line 133
+    .line 135
     goto :goto_3d
 
-    .line 139
+    .line 141
     :cond_5b
     invoke-static {v2}, Lcom/isaigu/gymapp/wearable/voice/VoiceUsb;->bootloader(Landroid/hardware/usb/UsbDevice;)Z
 
@@ -753,12 +755,12 @@
 
     if-eqz v0, :cond_75
 
-    .line 140
+    .line 142
     const/4 v0, 0x4
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/voice/VoiceUsb;->tell(II)V
 
-    .line 141
+    .line 143
     new-instance v0, Ljava/lang/Thread;
 
     new-instance v1, Lcom/isaigu/gymapp/wearable/voice/VoiceUsb$Flash;
@@ -773,7 +775,7 @@
 
     goto :goto_9
 
-    .line 144
+    .line 146
     :cond_75
     sget v0, Lcom/isaigu/gymapp/wearable/voice/VoiceUsb;->stage:I
 
@@ -783,7 +785,7 @@
 
     if-ne v0, v8, :cond_aa
 
-    .line 145
+    .line 147
     :cond_7d
     sget-wide v2, Lcom/isaigu/gymapp/wearable/voice/VoiceUsb;->waitUntil:J
 
@@ -791,14 +793,14 @@
 
     if-gez v0, :cond_88
 
-    .line 146
+    .line 148
     const/4 v0, 0x6
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/voice/VoiceUsb;->tell(II)V
 
     goto :goto_9
 
-    .line 149
+    .line 151
     :cond_88
     sget v0, Lcom/isaigu/gymapp/wearable/voice/VoiceUsb;->stage:I
 
@@ -814,17 +816,17 @@
 
     if-gez v0, :cond_9e
 
-    .line 150
+    .line 152
     invoke-static {v8, v1}, Lcom/isaigu/gymapp/wearable/voice/VoiceUsb;->tell(II)V
 
-    .line 151
+    .line 153
     const-wide/32 v0, 0xea60
 
     add-long/2addr v0, v4
 
     sput-wide v0, Lcom/isaigu/gymapp/wearable/voice/VoiceUsb;->waitUntil:J
 
-    .line 153
+    .line 155
     :cond_9e
     sget-object v0, Lcom/isaigu/gymapp/wearable/voice/VoiceUsb;->main:Landroid/os/Handler;
 
@@ -836,21 +838,21 @@
 
     goto/16 :goto_9
 
-    .line 156
+    .line 158
     :cond_aa
     invoke-static {v6, v1}, Lcom/isaigu/gymapp/wearable/voice/VoiceUsb;->tell(II)V
 
-    .line 157
+    .line 159
     invoke-static {v2}, Lcom/isaigu/gymapp/wearable/voice/VoiceUsb;->touch1200(Landroid/hardware/usb/UsbDevice;)V
 
-    .line 158
+    .line 160
     const-wide/16 v0, 0x2328
 
     add-long/2addr v0, v4
 
     sput-wide v0, Lcom/isaigu/gymapp/wearable/voice/VoiceUsb;->waitUntil:J
 
-    .line 159
+    .line 161
     sget-object v0, Lcom/isaigu/gymapp/wearable/voice/VoiceUsb;->main:Landroid/os/Handler;
 
     new-instance v1, Lcom/isaigu/gymapp/wearable/voice/VoiceUsb$Step;
@@ -868,10 +870,10 @@
     .registers 4
 
     .prologue
-    .line 85
+    .line 87
     sput p0, Lcom/isaigu/gymapp/wearable/voice/VoiceUsb;->stage:I
 
-    .line 86
+    .line 88
     const/4 v0, 0x5
 
     if-eq p0, v0, :cond_a
@@ -882,19 +884,19 @@
 
     if-nez p0, :cond_d
 
-    .line 87
+    .line 89
     :cond_a
     const/4 v0, 0x0
 
     sput-boolean v0, Lcom/isaigu/gymapp/wearable/voice/VoiceUsb;->busy:Z
 
-    .line 89
+    .line 91
     :cond_d
     sget-object v0, Lcom/isaigu/gymapp/wearable/voice/VoiceUsb;->listener:Lcom/isaigu/gymapp/wearable/voice/VoiceUsb$Listener;
 
     if-eqz v0, :cond_16
 
-    .line 91
+    .line 93
     :try_start_11
     sget-object v0, Lcom/isaigu/gymapp/wearable/voice/VoiceUsb;->listener:Lcom/isaigu/gymapp/wearable/voice/VoiceUsb$Listener;
 
@@ -902,16 +904,16 @@
     :try_end_16
     .catch Ljava/lang/Throwable; {:try_start_11 .. :try_end_16} :catch_17
 
-    .line 96
+    .line 98
     :cond_16
     :goto_16
     return-void
 
-    .line 92
+    .line 94
     :catch_17
     move-exception v0
 
-    .line 93
+    .line 95
     const-string v1, "VoiceUsb.tell"
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V
@@ -925,23 +927,23 @@
     .prologue
     const/4 v0, 0x0
 
-    .line 188
+    .line 190
     const/4 v1, 0x0
 
-    .line 190
+    .line 192
     :try_start_2
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/voice/VoiceUsb;->cdc(Landroid/hardware/usb/UsbDevice;)[Landroid/hardware/usb/UsbInterface;
 
     move-result-object v2
 
-    .line 191
+    .line 193
     sget-object v3, Lcom/isaigu/gymapp/wearable/voice/VoiceUsb;->um:Landroid/hardware/usb/UsbManager;
 
     invoke-virtual {v3, p0}, Landroid/hardware/usb/UsbManager;->openDevice(Landroid/hardware/usb/UsbDevice;)Landroid/hardware/usb/UsbDeviceConnection;
 
     move-result-object v1
 
-    .line 192
+    .line 194
     const/4 v3, 0x0
 
     aget-object v3, v2, v3
@@ -956,7 +958,7 @@
 
     move-result v0
 
-    .line 193
+    .line 195
     :cond_18
     const/4 v3, 0x0
 
@@ -964,7 +966,7 @@
 
     if-eqz v3, :cond_24
 
-    .line 194
+    .line 196
     const/4 v3, 0x0
 
     aget-object v2, v2, v3
@@ -973,28 +975,28 @@
 
     invoke-virtual {v1, v2, v3}, Landroid/hardware/usb/UsbDeviceConnection;->claimInterface(Landroid/hardware/usb/UsbInterface;Z)Z
 
-    .line 196
+    .line 198
     :cond_24
     const/16 v2, 0x4b0
 
     invoke-static {v1, v0, v2}, Lcom/isaigu/gymapp/wearable/voice/VoiceUsb;->lineCoding(Landroid/hardware/usb/UsbDeviceConnection;II)V
 
-    .line 197
+    .line 199
     const/4 v2, 0x1
 
     invoke-static {v1, v0, v2}, Lcom/isaigu/gymapp/wearable/voice/VoiceUsb;->lines(Landroid/hardware/usb/UsbDeviceConnection;IZ)V
 
-    .line 198
+    .line 200
     const-wide/16 v2, 0x64
 
     invoke-static {v2, v3}, Ljava/lang/Thread;->sleep(J)V
 
-    .line 199
+    .line 201
     const/4 v2, 0x0
 
     invoke-static {v1, v0, v2}, Lcom/isaigu/gymapp/wearable/voice/VoiceUsb;->lines(Landroid/hardware/usb/UsbDeviceConnection;IZ)V
 
-    .line 200
+    .line 202
     const-string v0, "touch 1200 sent"
 
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/voice/VoiceUsb;->log(Ljava/lang/String;)V
@@ -1002,25 +1004,25 @@
     .catch Ljava/lang/Throwable; {:try_start_2 .. :try_end_3b} :catch_41
     .catchall {:try_start_2 .. :try_end_3b} :catchall_60
 
-    .line 204
+    .line 206
     if-eqz v1, :cond_40
 
-    .line 206
+    .line 208
     :try_start_3d
     invoke-virtual {v1}, Landroid/hardware/usb/UsbDeviceConnection;->close()V
     :try_end_40
     .catch Ljava/lang/Throwable; {:try_start_3d .. :try_end_40} :catch_67
 
-    .line 211
+    .line 213
     :cond_40
     :goto_40
     return-void
 
-    .line 201
+    .line 203
     :catch_41
     move-exception v0
 
-    .line 202
+    .line 204
     :try_start_42
     new-instance v2, Ljava/lang/StringBuilder;
 
@@ -1044,10 +1046,10 @@
     :try_end_58
     .catchall {:try_start_42 .. :try_end_58} :catchall_60
 
-    .line 204
+    .line 206
     if-eqz v1, :cond_40
 
-    .line 206
+    .line 208
     :try_start_5a
     invoke-virtual {v1}, Landroid/hardware/usb/UsbDeviceConnection;->close()V
     :try_end_5d
@@ -1055,30 +1057,30 @@
 
     goto :goto_40
 
-    .line 207
+    .line 209
     :catch_5e
     move-exception v0
 
     goto :goto_40
 
-    .line 204
+    .line 206
     :catchall_60
     move-exception v0
 
     if-eqz v1, :cond_66
 
-    .line 206
+    .line 208
     :try_start_63
     invoke-virtual {v1}, Landroid/hardware/usb/UsbDeviceConnection;->close()V
     :try_end_66
     .catch Ljava/lang/Throwable; {:try_start_63 .. :try_end_66} :catch_69
 
-    .line 210
+    .line 212
     :cond_66
     :goto_66
     throw v0
 
-    .line 207
+    .line 209
     :catch_67
     move-exception v0
 

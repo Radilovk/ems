@@ -154,7 +154,7 @@
     .prologue
     const/4 v0, 0x0
 
-    .line 198
+    .line 203
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->count:[I
 
     array-length v3, v2
@@ -166,22 +166,22 @@
 
     aget v4, v2, v1
 
-    .line 199
+    .line 204
     const/4 v5, 0x3
 
     if-ge v4, v5, :cond_d
 
-    .line 203
+    .line 208
     :goto_c
     return v0
 
-    .line 198
+    .line 203
     :cond_d
     add-int/lit8 v1, v1, 0x1
 
     goto :goto_5
 
-    .line 203
+    .line 208
     :cond_10
     const/4 v0, 0x1
 
@@ -194,38 +194,38 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 556
+    .line 578
     const/4 v0, 0x1
 
     iput-boolean v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->closed:Z
 
-    .line 557
+    .line 579
     sput-object v1, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen;->current:Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;
 
-    .line 558
+    .line 580
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->main:Landroid/os/Handler;
 
     invoke-virtual {v0, v1}, Landroid/os/Handler;->removeCallbacksAndMessages(Ljava/lang/Object;)V
 
-    .line 559
+    .line 581
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/voice/VoiceLink;->removeListener(Lcom/isaigu/gymapp/wearable/voice/VoiceLink$Listener;)V
 
-    .line 560
+    .line 582
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->learning:Ljava/lang/String;
 
     if-eqz v0, :cond_1c
 
-    .line 561
+    .line 583
     const-string v0, "meter 0"
 
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/voice/VoiceLink;->send(Ljava/lang/String;)V
 
-    .line 562
+    .line 584
     const-string v0, "mute 0"
 
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/voice/VoiceLink;->send(Ljava/lang/String;)V
 
-    .line 564
+    .line 586
     :cond_1c
     return-void
 .end method
@@ -248,96 +248,103 @@
     .registers 6
 
     .prologue
-    .line 384
+    .line 399
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->ready()Z
 
     move-result v0
 
-    if-eqz v0, :cond_f
+    if-eqz v0, :cond_15
 
     iget v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->flash:I
 
-    if-ltz v0, :cond_1b
+    if-ltz v0, :cond_f
 
     iget v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->flash:I
 
     const/4 v1, 0x5
 
-    if-eq v0, v1, :cond_1b
+    if-ne v0, v1, :cond_15
 
-    .line 385
     :cond_f
+    invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->old()Z
+
+    move-result v0
+
+    if-eqz v0, :cond_21
+
+    .line 400
+    :cond_15
     invoke-static {}, Lcom/isaigu/gymapp/wearable/voice/VoiceUsb;->busy()Z
 
     move-result v0
 
-    if-nez v0, :cond_1a
+    if-nez v0, :cond_20
 
-    .line 386
+    .line 401
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->a:Landroid/app/Activity;
 
     invoke-static {v0, p0}, Lcom/isaigu/gymapp/wearable/voice/VoiceUsb;->start(Landroid/content/Context;Lcom/isaigu/gymapp/wearable/voice/VoiceUsb$Listener;)V
 
-    .line 400
-    :cond_1a
-    :goto_1a
+    .line 415
+    :cond_20
+    :goto_20
     return-void
 
-    .line 390
-    :cond_1b
+    .line 405
+    :cond_21
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->learning:Ljava/lang/String;
 
-    if-eqz v0, :cond_26
+    if-eqz v0, :cond_2c
 
-    .line 391
+    .line 406
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->stopLearning()V
 
-    .line 399
-    :goto_22
+    .line 414
+    :goto_28
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->render()V
 
-    goto :goto_1a
+    goto :goto_20
 
-    .line 393
-    :cond_26
+    .line 408
+    :cond_2c
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->queue:Ljava/util/List;
 
     invoke-interface {v0}, Ljava/util/List;->clear()V
 
-    .line 394
+    .line 409
     sget-object v1, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen;->ORDER:[Ljava/lang/String;
 
     array-length v2, v1
 
     const/4 v0, 0x0
 
-    :goto_2f
-    if-ge v0, v2, :cond_3b
+    :goto_35
+    if-ge v0, v2, :cond_41
 
     aget-object v3, v1, v0
 
-    .line 395
+    .line 410
     iget-object v4, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->queue:Ljava/util/List;
 
     invoke-interface {v4, v3}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    .line 394
+    .line 409
     add-int/lit8 v0, v0, 0x1
 
-    goto :goto_2f
+    goto :goto_35
 
-    .line 397
-    :cond_3b
+    .line 412
+    :cond_41
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->startLearning()V
 
-    goto :goto_22
+    goto :goto_28
 .end method
 
 .method indexOf(Ljava/lang/String;)I
     .registers 4
 
     .prologue
-    .line 207
+    .line 212
     const/4 v0, 0x0
 
     :goto_1
@@ -347,7 +354,7 @@
 
     if-ge v0, v1, :cond_14
 
-    .line 208
+    .line 213
     sget-object v1, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen;->ORDER:[Ljava/lang/String;
 
     aget-object v1, v1, v0
@@ -358,17 +365,17 @@
 
     if-eqz v1, :cond_11
 
-    .line 212
+    .line 217
     :goto_10
     return v0
 
-    .line 207
+    .line 212
     :cond_11
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_1
 
-    .line 212
+    .line 217
     :cond_14
     const/4 v0, -0x1
 
@@ -383,7 +390,7 @@
 
     const/4 v2, 0x0
 
-    .line 422
+    .line 437
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->queue:Ljava/util/List;
 
     invoke-interface {v0}, Ljava/util/List;->isEmpty()Z
@@ -392,25 +399,25 @@
 
     if-eqz v0, :cond_33
 
-    .line 423
+    .line 438
     iput-object v1, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->learning:Ljava/lang/String;
 
-    .line 424
+    .line 439
     const-string v0, "meter 0"
 
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/voice/VoiceLink;->send(Ljava/lang/String;)V
 
-    .line 425
+    .line 440
     const-string v0, "mute 0"
 
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/voice/VoiceLink;->send(Ljava/lang/String;)V
 
-    .line 426
+    .line 441
     const-string v0, "list"
 
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/voice/VoiceLink;->send(Ljava/lang/String;)V
 
-    .line 427
+    .line 442
     const-string v0, "\u0413\u043e\u0442\u043e\u0432\u043e \u2713"
 
     const-string v1, "Done \u2713"
@@ -421,26 +428,26 @@
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->heard:Ljava/lang/String;
 
-    .line 428
+    .line 443
     sget v0, Lcom/isaigu/gymapp/widget/XemsUi;->GO_TEXT:I
 
     iput v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->heardColor:I
 
-    .line 429
+    .line 444
     invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
 
     move-result-wide v0
 
     iput-wide v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->heardMs:J
 
-    .line 430
+    .line 445
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->render()V
 
-    .line 443
+    .line 458
     :goto_32
     return-void
 
-    .line 433
+    .line 448
     :cond_33
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->queue:Ljava/util/List;
 
@@ -452,28 +459,28 @@
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->learning:Ljava/lang/String;
 
-    .line 434
+    .line 449
     iput v2, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->got:I
 
-    .line 435
+    .line 450
     iput-object v1, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->note:Ljava/lang/String;
 
-    .line 436
+    .line 451
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->learning:Ljava/lang/String;
 
     invoke-virtual {p0, v0}, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->indexOf(Ljava/lang/String;)I
 
     move-result v0
 
-    .line 437
+    .line 452
     if-ltz v0, :cond_4d
 
-    .line 438
+    .line 453
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->count:[I
 
     aput v2, v1, v0
 
-    .line 440
+    .line 455
     :cond_4d
     new-instance v0, Ljava/lang/StringBuilder;
 
@@ -497,7 +504,7 @@
 
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/voice/VoiceLink;->send(Ljava/lang/String;)V
 
-    .line 441
+    .line 456
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->main:Landroid/os/Handler;
 
     new-instance v1, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Rec;
@@ -508,37 +515,73 @@
 
     invoke-virtual {v0, v1, v2, v3}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
 
-    .line 442
+    .line 457
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->render()V
 
     goto :goto_32
+.end method
+
+.method old()Z
+    .registers 3
+
+    .prologue
+    .line 199
+    invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->ready()Z
+
+    move-result v0
+
+    if-eqz v0, :cond_15
+
+    sget v0, Lcom/isaigu/gymapp/wearable/voice/VoiceLink;->version:I
+
+    if-ltz v0, :cond_15
+
+    sget v0, Lcom/isaigu/gymapp/wearable/voice/VoiceLink;->version:I
+
+    const/4 v1, 0x2
+
+    if-ge v0, v1, :cond_15
+
+    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->learning:Ljava/lang/String;
+
+    if-nez v0, :cond_15
+
+    const/4 v0, 0x1
+
+    :goto_14
+    return v0
+
+    :cond_15
+    const/4 v0, 0x0
+
+    goto :goto_14
 .end method
 
 .method public onFlash(II)V
     .registers 4
 
     .prologue
-    .line 342
+    .line 357
     iput p1, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->flash:I
 
-    .line 343
+    .line 358
     iput p2, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->flashPct:I
 
-    .line 344
+    .line 359
     const/4 v0, 0x5
 
     if-ne p1, v0, :cond_c
 
-    .line 345
+    .line 360
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->a:Landroid/app/Activity;
 
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/voice/VoiceLink;->find(Landroid/content/Context;)V
 
-    .line 347
+    .line 362
     :cond_c
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->render()V
 
-    .line 348
+    .line 363
     return-void
 .end method
 
@@ -554,14 +597,14 @@
 
     const/4 v1, 0x1
 
-    .line 487
+    .line 502
     const-string v0, " "
 
     invoke-virtual {p1, v0}, Ljava/lang/String;->split(Ljava/lang/String;)[Ljava/lang/String;
 
     move-result-object v2
 
-    .line 488
+    .line 503
     const-string v0, "LIST "
 
     invoke-virtual {p1, v0}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
@@ -572,13 +615,13 @@
 
     move v0, v1
 
-    .line 489
+    .line 504
     :goto_14
     array-length v3, v2
 
     if-ge v0, v3, :cond_58
 
-    .line 490
+    .line 505
     aget-object v3, v2, v0
 
     const/16 v4, 0x3a
@@ -587,10 +630,10 @@
 
     move-result v3
 
-    .line 491
+    .line 506
     if-lez v3, :cond_40
 
-    .line 492
+    .line 507
     aget-object v4, v2, v0
 
     invoke-virtual {v4, v7, v3}, Ljava/lang/String;->substring(II)Ljava/lang/String;
@@ -601,10 +644,10 @@
 
     move-result v4
 
-    .line 493
+    .line 508
     if-ltz v4, :cond_3d
 
-    .line 494
+    .line 509
     iget-object v5, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->count:[I
 
     aget-object v6, v2, v0
@@ -621,14 +664,14 @@
 
     aput v3, v5, v4
 
-    .line 489
+    .line 504
     :cond_3d
     :goto_3d
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_14
 
-    .line 496
+    .line 511
     :cond_40
     aget-object v3, v2, v0
 
@@ -640,7 +683,7 @@
 
     if-eqz v3, :cond_3d
 
-    .line 497
+    .line 512
     aget-object v3, v2, v0
 
     const/4 v4, 0x5
@@ -657,21 +700,21 @@
 
     goto :goto_3d
 
-    .line 500
+    .line 515
     :cond_58
     iput-boolean v1, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->listed:Z
 
-    .line 552
+    .line 574
     :cond_5a
     :goto_5a
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->render()V
 
-    .line 553
+    .line 575
     :cond_5d
     :goto_5d
     return-void
 
-    .line 501
+    .line 516
     :cond_5e
     const-string v0, "REC "
 
@@ -695,7 +738,7 @@
 
     if-eqz v0, :cond_10b
 
-    .line 502
+    .line 517
     const-string v0, "ok"
 
     aget-object v1, v2, v4
@@ -706,31 +749,31 @@
 
     if-eqz v0, :cond_d2
 
-    .line 503
+    .line 518
     iget v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->got:I
 
     add-int/lit8 v0, v0, 0x1
 
     iput v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->got:I
 
-    .line 504
+    .line 519
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->learning:Ljava/lang/String;
 
     invoke-virtual {p0, v0}, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->indexOf(Ljava/lang/String;)I
 
     move-result v0
 
-    .line 505
+    .line 520
     if-ltz v0, :cond_91
 
-    .line 506
+    .line 521
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->count:[I
 
     iget v2, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->got:I
 
     aput v2, v1, v0
 
-    .line 508
+    .line 523
     :cond_91
     new-instance v0, Ljava/lang/StringBuilder;
 
@@ -760,24 +803,24 @@
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->note:Ljava/lang/String;
 
-    .line 509
+    .line 524
     sget v0, Lcom/isaigu/gymapp/widget/XemsUi;->GO_TEXT:I
 
     iput v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->noteColor:I
 
-    .line 510
+    .line 525
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->hero:Landroid/widget/TextView;
 
     invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsUi;->haptic(Landroid/view/View;)V
 
-    .line 511
+    .line 526
     iget v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->got:I
 
     const/4 v1, 0x3
 
     if-lt v0, v1, :cond_c7
 
-    .line 512
+    .line 527
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->main:Landroid/os/Handler;
 
     new-instance v1, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Next;
@@ -788,7 +831,7 @@
 
     goto :goto_5a
 
-    .line 514
+    .line 529
     :cond_c7
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->main:Landroid/os/Handler;
 
@@ -800,7 +843,7 @@
 
     goto :goto_5a
 
-    .line 516
+    .line 531
     :cond_d2
     const-string v0, "timeout"
 
@@ -812,7 +855,7 @@
 
     if-eqz v0, :cond_f8
 
-    .line 517
+    .line 532
     const-string v0, "\u041d\u0435 \u0442\u0435 \u0447\u0443\u0445 \u2014 \u043a\u0430\u0436\u0438 \u0433\u043e \u043f\u0430\u043a, \u043c\u0430\u043b\u043a\u043e \u043f\u043e-\u0441\u0438\u043b\u043d\u043e"
 
     const-string v1, "Didn\'t hear it \u2014 again, a little louder"
@@ -823,12 +866,12 @@
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->note:Ljava/lang/String;
 
-    .line 518
+    .line 533
     sget v0, Lcom/isaigu/gymapp/widget/XemsUi;->AMBER:I
 
     iput v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->noteColor:I
 
-    .line 519
+    .line 534
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->main:Landroid/os/Handler;
 
     new-instance v1, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Rec;
@@ -841,7 +884,7 @@
 
     goto/16 :goto_5a
 
-    .line 520
+    .line 535
     :cond_f8
     const-string v0, "listen"
 
@@ -857,28 +900,110 @@
 
     if-lez v0, :cond_5a
 
-    .line 521
+    .line 536
     const/4 v0, 0x0
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->note:Ljava/lang/String;
 
     goto/16 :goto_5a
 
-    .line 523
+    .line 538
     :cond_10b
+    const-string v0, "SKIP "
+
+    invoke-virtual {p1, v0}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
+
+    move-result v0
+
+    if-eqz v0, :cond_150
+
+    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->learning:Ljava/lang/String;
+
+    if-eqz v0, :cond_150
+
+    array-length v0, v2
+
+    if-le v0, v1, :cond_150
+
+    .line 540
+    const-string v0, "long"
+
+    aget-object v3, v2, v1
+
+    invoke-virtual {v0, v3}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v0
+
+    if-eqz v0, :cond_134
+
+    const-string v0, "\u0427\u0443\u0445 \u0434\u044a\u043b\u044a\u0433 \u0437\u0432\u0443\u043a \u2014 \u043a\u0430\u0436\u0438 \u0441\u0430\u043c\u043e \u0434\u0443\u043c\u0430\u0442\u0430 \u0438 \u0437\u0430\u043c\u044a\u043b\u0447\u0438"
+
+    const-string v1, "A long sound \u2014 say just the word, then pause"
+
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
+
+    .line 543
+    :goto_12c
+    iput-object v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->note:Ljava/lang/String;
+
+    .line 544
+    sget v0, Lcom/isaigu/gymapp/widget/XemsUi;->AMBER:I
+
+    iput v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->noteColor:I
+
+    goto/16 :goto_5a
+
+    .line 542
+    :cond_134
+    const-string v0, "short"
+
+    aget-object v1, v2, v1
+
+    invoke-virtual {v0, v1}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v0
+
+    if-eqz v0, :cond_147
+
+    const-string v0, "\u041c\u043d\u043e\u0433\u043e \u043a\u0440\u0430\u0442\u043a\u043e \u2014 \u043a\u0430\u0436\u0438 \u0446\u044f\u043b\u0430\u0442\u0430 \u0434\u0443\u043c\u0430"
+
+    const-string v1, "Too short \u2014 the whole word"
+
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
+
+    goto :goto_12c
+
+    .line 543
+    :cond_147
+    const-string v0, "\u0427\u0443\u0445 \u0442\u0435, \u043d\u043e \u0442\u0438\u0445\u043e \u2014 \u043c\u0430\u043b\u043a\u043e \u043f\u043e-\u0441\u0438\u043b\u043d\u043e"
+
+    const-string v1, "Heard, but softly \u2014 a little louder"
+
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
+
+    goto :goto_12c
+
+    .line 545
+    :cond_150
     const-string v0, "LVL "
 
     invoke-virtual {p1, v0}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
 
     move-result v0
 
-    if-eqz v0, :cond_14b
+    if-eqz v0, :cond_190
 
     array-length v0, v2
 
-    if-le v0, v4, :cond_14b
+    if-le v0, v4, :cond_190
 
-    .line 524
+    .line 546
     aget-object v0, v2, v1
 
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/voice/VoiceLink;->parse(Ljava/lang/String;)I
@@ -887,7 +1012,7 @@
 
     iput v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->level:I
 
-    .line 525
+    .line 547
     aget-object v0, v2, v4
 
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/voice/VoiceLink;->parse(Ljava/lang/String;)I
@@ -896,14 +1021,14 @@
 
     iput v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->floor:I
 
-    .line 526
+    .line 548
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->barBox:Landroid/widget/FrameLayout;
 
     invoke-virtual {v0}, Landroid/widget/FrameLayout;->getWidth()I
 
     move-result v0
 
-    .line 527
+    .line 549
     iget v1, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->level:I
 
     iget v2, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->floor:I
@@ -922,90 +1047,90 @@
 
     move-result v0
 
-    .line 528
+    .line 550
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->bar:Landroid/view/View;
 
     invoke-virtual {v1}, Landroid/view/View;->getLayoutParams()Landroid/view/ViewGroup$LayoutParams;
 
     move-result-object v1
 
-    .line 529
+    .line 551
     iput v0, v1, Landroid/view/ViewGroup$LayoutParams;->width:I
 
-    .line 530
+    .line 552
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->bar:Landroid/view/View;
 
     invoke-virtual {v0, v1}, Landroid/view/View;->setLayoutParams(Landroid/view/ViewGroup$LayoutParams;)V
 
     goto/16 :goto_5d
 
-    .line 532
-    :cond_14b
+    .line 554
+    :cond_190
     const-string v0, "CNT "
 
     invoke-virtual {p1, v0}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
 
     move-result v0
 
-    if-eqz v0, :cond_187
+    if-eqz v0, :cond_1cc
 
     array-length v0, v2
 
-    if-le v0, v1, :cond_187
+    if-le v0, v1, :cond_1cc
 
-    .line 533
+    .line 555
     aget-object v0, v2, v1
 
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/voice/VoiceLink;->parse(Ljava/lang/String;)I
 
     move-result v2
 
-    .line 534
+    .line 556
     new-instance v3, Ljava/lang/StringBuilder;
 
     invoke-direct {v3}, Ljava/lang/StringBuilder;-><init>()V
 
-    .line 535
-    :goto_161
-    if-gt v1, v2, :cond_174
+    .line 557
+    :goto_1a6
+    if-gt v1, v2, :cond_1b9
 
-    .line 536
+    .line 558
     invoke-virtual {v3, v1}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
 
     move-result-object v4
 
-    if-ge v1, v2, :cond_171
+    if-ge v1, v2, :cond_1b6
 
     const-string v0, " \u00b7 "
 
-    :goto_16b
+    :goto_1b0
     invoke-virtual {v4, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 535
+    .line 557
     add-int/lit8 v1, v1, 0x1
 
-    goto :goto_161
+    goto :goto_1a6
 
-    .line 536
-    :cond_171
+    .line 558
+    :cond_1b6
     const-string v0, ""
 
-    goto :goto_16b
+    goto :goto_1b0
 
-    .line 538
-    :cond_174
+    .line 560
+    :cond_1b9
     invoke-virtual {v3}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
     move-result-object v0
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->heard:Ljava/lang/String;
 
-    .line 539
+    .line 561
     const v0, -0xc74208
 
     iput v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->heardColor:I
 
-    .line 540
+    .line 562
     invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
 
     move-result-wide v0
@@ -1014,21 +1139,21 @@
 
     goto/16 :goto_5a
 
-    .line 541
-    :cond_187
+    .line 563
+    :cond_1cc
     const-string v0, "CMD "
 
     invoke-virtual {p1, v0}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
 
     move-result v0
 
-    if-eqz v0, :cond_1c1
+    if-eqz v0, :cond_206
 
     array-length v0, v2
 
-    if-le v0, v1, :cond_1c1
+    if-le v0, v1, :cond_206
 
-    .line 542
+    .line 564
     new-instance v0, Ljava/lang/StringBuilder;
 
     invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
@@ -1059,7 +1184,7 @@
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->heard:Ljava/lang/String;
 
-    .line 543
+    .line 565
     aget-object v0, v2, v1
 
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen;->colorOf(Ljava/lang/String;)I
@@ -1068,7 +1193,7 @@
 
     iput v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->heardColor:I
 
-    .line 544
+    .line 566
     invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
 
     move-result-wide v0
@@ -1077,8 +1202,8 @@
 
     goto/16 :goto_5a
 
-    .line 545
-    :cond_1c1
+    .line 567
+    :cond_206
     const-string v0, "NOCOUNT"
 
     invoke-virtual {p1, v0}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
@@ -1087,7 +1212,7 @@
 
     if-eqz v0, :cond_5d
 
-    .line 546
+    .line 568
     const-string v0, "\u041f\u044a\u0440\u0432\u043e: \u0435\u0434\u043d\u043e, \u0434\u0432\u0435, \u0442\u0440\u0438"
 
     const-string v1, "First: one, two, three"
@@ -1098,12 +1223,12 @@
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->heard:Ljava/lang/String;
 
-    .line 547
+    .line 569
     sget v0, Lcom/isaigu/gymapp/widget/XemsUi;->AMBER:I
 
     iput v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->heardColor:I
 
-    .line 548
+    .line 570
     invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
 
     move-result-wide v0
@@ -1119,33 +1244,33 @@
     .prologue
     const/4 v1, 0x3
 
-    .line 472
+    .line 487
     if-eq p1, v1, :cond_f
 
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->learning:Ljava/lang/String;
 
     if-eqz v0, :cond_f
 
-    .line 473
+    .line 488
     const/4 v0, 0x0
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->learning:Ljava/lang/String;
 
-    .line 474
+    .line 489
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->queue:Ljava/util/List;
 
     invoke-interface {v0}, Ljava/util/List;->clear()V
 
-    .line 476
+    .line 491
     :cond_f
     if-ne p1, v1, :cond_27
 
-    .line 477
+    .line 492
     const-string v0, "list"
 
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/voice/VoiceLink;->send(Ljava/lang/String;)V
 
-    .line 478
+    .line 493
     iget v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->flash:I
 
     const/4 v1, 0x5
@@ -1162,17 +1287,17 @@
 
     if-nez v0, :cond_27
 
-    .line 479
+    .line 494
     :cond_24
     const/4 v0, -0x1
 
     iput v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->flash:I
 
-    .line 482
+    .line 497
     :cond_27
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->render()V
 
-    .line 483
+    .line 498
     return-void
 .end method
 
@@ -1204,7 +1329,7 @@
     .registers 3
 
     .prologue
-    .line 446
+    .line 461
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->learning:Ljava/lang/String;
 
     if-eqz v0, :cond_20
@@ -1213,7 +1338,7 @@
 
     if-nez v0, :cond_20
 
-    .line 447
+    .line 462
     new-instance v0, Ljava/lang/StringBuilder;
 
     invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
@@ -1236,7 +1361,7 @@
 
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/voice/VoiceLink;->send(Ljava/lang/String;)V
 
-    .line 449
+    .line 464
     :cond_20
     return-void
 .end method
@@ -1245,41 +1370,41 @@
     .registers 3
 
     .prologue
-    .line 403
+    .line 418
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->ready()Z
 
     move-result v0
 
     if-nez v0, :cond_7
 
-    .line 413
+    .line 428
     :goto_6
     return-void
 
-    .line 406
+    .line 421
     :cond_7
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->learning:Ljava/lang/String;
 
     if-eqz v0, :cond_e
 
-    .line 407
+    .line 422
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->stopLearning()V
 
-    .line 409
+    .line 424
     :cond_e
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->queue:Ljava/util/List;
 
     invoke-interface {v0}, Ljava/util/List;->clear()V
 
-    .line 410
+    .line 425
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->queue:Ljava/util/List;
 
     invoke-interface {v0, p1}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    .line 411
+    .line 426
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->startLearning()V
 
-    .line 412
+    .line 427
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->render()V
 
     goto :goto_6
@@ -1291,60 +1416,60 @@
     .prologue
     const/4 v9, 0x2
 
-    const/high16 v2, 0x42300000    # 44.0f
-
     const/high16 v5, 0x3f800000    # 1.0f
+
+    const/high16 v2, 0x42300000    # 44.0f
 
     const/4 v3, 0x1
 
     const/4 v1, 0x0
 
-    .line 218
+    .line 223
     iget-boolean v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->closed:Z
 
     if-eqz v0, :cond_c
 
-    .line 291
+    .line 306
     :goto_b
     return-void
 
-    .line 221
+    .line 226
     :cond_c
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->ready()Z
 
     move-result v7
 
-    .line 222
+    .line 227
     iget-object v4, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->micIcon:Lcom/isaigu/gymapp/widget/XemsIcon;
 
-    if-eqz v7, :cond_79
+    if-eqz v7, :cond_7f
 
     const v0, -0xc74208
 
     :goto_17
     invoke-virtual {v4, v0}, Lcom/isaigu/gymapp/widget/XemsIcon;->setColor(I)V
 
-    .line 223
+    .line 228
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->mic:Landroid/view/View;
 
     invoke-virtual {v0}, Landroid/view/View;->invalidate()V
 
-    .line 224
+    .line 229
     iget-object v4, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->barBox:Landroid/widget/FrameLayout;
 
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->learning:Ljava/lang/String;
 
-    if-eqz v0, :cond_7c
+    if-eqz v0, :cond_82
 
     move v0, v1
 
     :goto_26
     invoke-virtual {v4, v0}, Landroid/widget/FrameLayout;->setVisibility(I)V
 
-    .line 225
+    .line 230
     iget v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->flash:I
 
-    if-ltz v0, :cond_7e
+    if-ltz v0, :cond_84
 
     iget v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->flash:I
 
@@ -1352,67 +1477,73 @@
 
     if-ne v0, v4, :cond_34
 
-    if-nez v7, :cond_7e
+    if-nez v7, :cond_84
 
     :cond_34
     move v6, v3
 
-    .line 226
+    .line 231
     :goto_35
-    if-eqz v6, :cond_80
+    if-eqz v6, :cond_86
 
-    .line 227
+    .line 232
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->renderFlash()V
 
-    .line 268
+    .line 282
     :goto_3a
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->renderWords()V
 
-    .line 269
+    .line 283
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->renderSens()V
 
-    .line 270
-    if-nez v6, :cond_44
+    .line 284
+    if-nez v6, :cond_4a
 
-    if-nez v7, :cond_25d
+    if-eqz v7, :cond_4a
 
-    .line 271
-    :cond_44
+    invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->old()Z
+
+    move-result v0
+
+    if-eqz v0, :cond_2af
+
+    .line 285
+    :cond_4a
     invoke-static {}, Lcom/isaigu/gymapp/wearable/voice/VoiceUsb;->busy()Z
 
     move-result v0
 
-    if-eqz v0, :cond_228
+    if-eqz v0, :cond_26a
 
     iget v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->flash:I
 
-    if-eqz v0, :cond_228
+    if-eqz v0, :cond_26a
 
     move v0, v3
 
-    .line 272
-    :goto_4f
+    .line 286
+    :goto_55
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->go:Landroid/widget/TextView;
 
-    if-nez v0, :cond_22b
+    if-nez v0, :cond_26d
 
-    :goto_53
+    :goto_59
     invoke-virtual {v2, v3}, Landroid/widget/TextView;->setEnabled(Z)V
 
-    .line 273
+    .line 287
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->go:Landroid/widget/TextView;
 
-    if-eqz v0, :cond_22e
+    if-eqz v0, :cond_270
 
     const v1, 0x3ee66666    # 0.45f
 
-    :goto_5d
+    :goto_63
     invoke-virtual {v2, v1}, Landroid/widget/TextView;->setAlpha(F)V
 
-    .line 274
+    .line 288
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->go:Landroid/widget/TextView;
 
-    if-eqz v0, :cond_231
+    if-eqz v0, :cond_273
 
     const-string v0, "\u0417\u0430\u0440\u0435\u0436\u0434\u0430\u043c\u2026"
 
@@ -1422,45 +1553,107 @@
 
     move-result-object v0
 
-    :goto_6c
+    :goto_72
     invoke-virtual {v1, v0}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 285
-    :goto_6f
+    .line 300
+    :goto_75
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->hint:Landroid/widget/TextView;
 
-    if-eqz v6, :cond_292
+    if-eqz v6, :cond_2e4
 
     const-string v0, ""
 
-    :goto_75
+    :goto_7b
     invoke-virtual {v1, v0}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
     goto :goto_b
 
-    .line 222
-    :cond_79
+    .line 227
+    :cond_7f
     sget v0, Lcom/isaigu/gymapp/widget/XemsUi;->HINT:I
 
     goto :goto_17
 
-    .line 224
-    :cond_7c
+    .line 229
+    :cond_82
     const/4 v0, 0x4
 
     goto :goto_26
 
-    :cond_7e
+    :cond_84
     move v6, v1
 
-    .line 225
+    .line 230
     goto :goto_35
 
-    .line 228
-    :cond_80
-    if-nez v7, :cond_c9
+    .line 233
+    :cond_86
+    invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->old()Z
 
-    .line 229
+    move-result v0
+
+    if-eqz v0, :cond_c2
+
+    .line 234
+    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->hero:Landroid/widget/TextView;
+
+    const-string v4, "\u041e\u0431\u043d\u043e\u0432\u0438 \u0447\u0438\u043f\u0430"
+
+    const-string v8, "Update the module"
+
+    invoke-static {v4, v8}, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v4
+
+    invoke-virtual {v0, v4}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
+
+    .line 235
+    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->hero:Landroid/widget/TextView;
+
+    invoke-virtual {v0, v2}, Landroid/widget/TextView;->setTextSize(F)V
+
+    .line 236
+    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->hero:Landroid/widget/TextView;
+
+    sget v2, Lcom/isaigu/gymapp/widget/XemsUi;->AMBER:I
+
+    invoke-virtual {v0, v2}, Landroid/widget/TextView;->setTextColor(I)V
+
+    .line 237
+    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->dots:Landroid/widget/TextView;
+
+    const-string v2, ""
+
+    invoke-virtual {v0, v2}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
+
+    .line 238
+    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->sub:Landroid/widget/TextView;
+
+    const-string v2, "\u0418\u043c\u0430 \u043f\u043e-\u0434\u043e\u0431\u044a\u0440 \u0441\u043e\u0444\u0442\u0443\u0435\u0440 \u0437\u0430 \u043d\u0435\u0433\u043e. \u0412\u043a\u043b\u044e\u0447\u0438 \u0433\u043e \u0441 \u043a\u0430\u0431\u0435\u043b \u0432 \u0442\u0430\u0431\u043b\u0435\u0442\u0430 \u0438 \u043d\u0430\u0442\u0438\u0441\u043d\u0438 \u0431\u0443\u0442\u043e\u043d\u0430 \u2014 \u043e\u043a\u043e\u043b\u043e 10 \u0441\u0435\u043a\u0443\u043d\u0434\u0438."
+
+    const-string v4, "Better software is here. Plug it into the tablet and press the button \u2014 about 10 seconds."
+
+    invoke-static {v2, v4}, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v2
+
+    invoke-virtual {v0, v2}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
+
+    .line 241
+    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->status:Landroid/widget/TextView;
+
+    const-string v2, ""
+
+    invoke-virtual {v0, v2}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
+
+    goto/16 :goto_3a
+
+    .line 242
+    :cond_c2
+    if-nez v7, :cond_10b
+
+    .line 243
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->hero:Landroid/widget/TextView;
 
     const-string v2, "\u0412\u043a\u043b\u044e\u0447\u0438 \u0447\u0438\u043f\u0430"
@@ -1473,35 +1666,35 @@
 
     invoke-virtual {v0, v2}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 230
+    .line 244
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->hero:Landroid/widget/TextView;
 
     const/high16 v2, 0x42200000    # 40.0f
 
     invoke-virtual {v0, v2}, Landroid/widget/TextView;->setTextSize(F)V
 
-    .line 231
+    .line 245
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->hero:Landroid/widget/TextView;
 
     sget v2, Lcom/isaigu/gymapp/widget/XemsUi;->TEXT:I
 
     invoke-virtual {v0, v2}, Landroid/widget/TextView;->setTextColor(I)V
 
-    .line 232
+    .line 246
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->dots:Landroid/widget/TextView;
 
     const-string v2, ""
 
     invoke-virtual {v0, v2}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 233
+    .line 247
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->sub:Landroid/widget/TextView;
 
     invoke-static {}, Lcom/isaigu/gymapp/wearable/voice/VoiceLink;->state()I
 
     move-result v0
 
-    if-ne v0, v9, :cond_c0
+    if-ne v0, v9, :cond_102
 
     const-string v0, "\u0421\u0432\u044a\u0440\u0437\u0432\u0430\u043c\u2026"
 
@@ -1511,10 +1704,10 @@
 
     move-result-object v0
 
-    :goto_b4
+    :goto_f6
     invoke-virtual {v2, v0}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 235
+    .line 249
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->status:Landroid/widget/TextView;
 
     const-string v2, ""
@@ -1523,8 +1716,8 @@
 
     goto/16 :goto_3a
 
-    .line 234
-    :cond_c0
+    .line 248
+    :cond_102
     const-string v0, "\u0422\u044a\u0440\u0441\u044f \u0433\u043e \u043d\u0430\u0431\u043b\u0438\u0437\u043e \u2014 \u043d\u0438\u0449\u043e \u043d\u0435 \u0442\u0440\u044f\u0431\u0432\u0430 \u0434\u0430 \u043d\u0430\u0442\u0438\u0441\u043a\u0430\u0448"
 
     const-string v4, "Looking for it \u2014 nothing to press"
@@ -1533,15 +1726,15 @@
 
     move-result-object v0
 
-    goto :goto_b4
+    goto :goto_f6
 
-    .line 236
-    :cond_c9
+    .line 250
+    :cond_10b
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->learning:Ljava/lang/String;
 
-    if-eqz v0, :cond_15c
+    if-eqz v0, :cond_19e
 
-    .line 237
+    .line 251
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->hero:Landroid/widget/TextView;
 
     iget-object v4, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->learning:Ljava/lang/String;
@@ -1556,7 +1749,7 @@
 
     invoke-virtual {v0, v4}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 238
+    .line 252
     iget-object v4, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->hero:Landroid/widget/TextView;
 
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->learning:Ljava/lang/String;
@@ -1571,14 +1764,14 @@
 
     const/16 v8, 0x8
 
-    if-le v0, v8, :cond_119
+    if-le v0, v8, :cond_15b
 
     move v0, v2
 
-    :goto_ed
+    :goto_12f
     invoke-virtual {v4, v0}, Landroid/widget/TextView;->setTextSize(F)V
 
-    .line 239
+    .line 253
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->hero:Landroid/widget/TextView;
 
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->learning:Ljava/lang/String;
@@ -1589,64 +1782,64 @@
 
     invoke-virtual {v0, v2}, Landroid/widget/TextView;->setTextColor(I)V
 
-    .line 240
+    .line 254
     new-instance v4, Ljava/lang/StringBuilder;
 
     invoke-direct {v4}, Ljava/lang/StringBuilder;-><init>()V
 
     move v2, v1
 
-    .line 241
-    :goto_101
+    .line 255
+    :goto_143
     const/4 v0, 0x3
 
-    if-ge v2, v0, :cond_122
+    if-ge v2, v0, :cond_164
 
-    .line 242
+    .line 256
     iget v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->got:I
 
-    if-ge v2, v0, :cond_11c
+    if-ge v2, v0, :cond_15e
 
     const-string v0, "\u25cf"
 
-    :goto_10a
+    :goto_14c
     invoke-virtual {v4, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     move-result-object v8
 
-    if-ge v2, v9, :cond_11f
+    if-ge v2, v9, :cond_161
 
     const-string v0, "  "
 
-    :goto_112
+    :goto_154
     invoke-virtual {v8, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 241
+    .line 255
     add-int/lit8 v0, v2, 0x1
 
     move v2, v0
 
-    goto :goto_101
+    goto :goto_143
 
-    .line 238
-    :cond_119
+    .line 252
+    :cond_15b
     const/high16 v0, 0x42700000    # 60.0f
 
-    goto :goto_ed
+    goto :goto_12f
 
-    .line 242
-    :cond_11c
+    .line 256
+    :cond_15e
     const-string v0, "\u25cb"
 
-    goto :goto_10a
+    goto :goto_14c
 
-    :cond_11f
+    :cond_161
     const-string v0, ""
 
-    goto :goto_112
+    goto :goto_154
 
-    .line 244
-    :cond_122
+    .line 258
+    :cond_164
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->dots:Landroid/widget/TextView;
 
     invoke-virtual {v4}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
@@ -1655,7 +1848,7 @@
 
     invoke-virtual {v0, v2}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 245
+    .line 259
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->sub:Landroid/widget/TextView;
 
     const-string v2, "\u041a\u0430\u0436\u0438 \u0433\u043e \u044f\u0441\u043d\u043e, \u043c\u0430\u043b\u043a\u043e \u043f\u043e-\u0441\u0438\u043b\u043d\u043e, \u0438 \u0437\u0430\u043c\u044a\u043b\u0447\u0438 \u0437\u0430 \u043c\u0438\u0433"
@@ -1668,34 +1861,34 @@
 
     invoke-virtual {v0, v2}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 247
+    .line 261
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->status:Landroid/widget/TextView;
 
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->note:Ljava/lang/String;
 
-    if-eqz v0, :cond_150
+    if-eqz v0, :cond_192
 
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->note:Ljava/lang/String;
 
-    :goto_140
+    :goto_182
     invoke-virtual {v2, v0}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 248
+    .line 262
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->status:Landroid/widget/TextView;
 
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->note:Ljava/lang/String;
 
-    if-eqz v0, :cond_159
+    if-eqz v0, :cond_19b
 
     iget v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->noteColor:I
 
-    :goto_14b
+    :goto_18d
     invoke-virtual {v2, v0}, Landroid/widget/TextView;->setTextColor(I)V
 
     goto/16 :goto_3a
 
-    .line 247
-    :cond_150
+    .line 261
+    :cond_192
     const-string v0, "\u0421\u043b\u0443\u0448\u0430\u043c\u2026"
 
     const-string v4, "Listening\u2026"
@@ -1704,23 +1897,23 @@
 
     move-result-object v0
 
-    goto :goto_140
+    goto :goto_182
 
-    .line 248
-    :cond_159
+    .line 262
+    :cond_19b
     sget v0, Lcom/isaigu/gymapp/widget/XemsUi;->MUTED:I
 
-    goto :goto_14b
+    goto :goto_18d
 
-    .line 249
-    :cond_15c
+    .line 263
+    :cond_19e
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->allLearned()Z
 
     move-result v0
 
-    if-nez v0, :cond_19a
+    if-nez v0, :cond_1dc
 
-    .line 250
+    .line 264
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->hero:Landroid/widget/TextView;
 
     const-string v2, "\u0414\u0430 \u043d\u0430\u0443\u0447\u0438\u043c \u0433\u043b\u0430\u0441\u0430 \u0442\u0438"
@@ -1733,28 +1926,28 @@
 
     invoke-virtual {v0, v2}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 251
+    .line 265
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->hero:Landroid/widget/TextView;
 
     const/high16 v2, 0x42100000    # 36.0f
 
     invoke-virtual {v0, v2}, Landroid/widget/TextView;->setTextSize(F)V
 
-    .line 252
+    .line 266
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->hero:Landroid/widget/TextView;
 
     sget v2, Lcom/isaigu/gymapp/widget/XemsUi;->TEXT:I
 
     invoke-virtual {v0, v2}, Landroid/widget/TextView;->setTextColor(I)V
 
-    .line 253
+    .line 267
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->dots:Landroid/widget/TextView;
 
     const-string v2, ""
 
     invoke-virtual {v0, v2}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 254
+    .line 268
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->sub:Landroid/widget/TextView;
 
     const-string v2, "8 \u0434\u0443\u043c\u0438 \u043f\u043e 3 \u043f\u044a\u0442\u0438 \u00b7 \u043e\u043a\u043e\u043b\u043e \u043c\u0438\u043d\u0443\u0442\u0430 \u0438 \u043f\u043e\u043b\u043e\u0432\u0438\u043d\u0430"
@@ -1767,7 +1960,7 @@
 
     invoke-virtual {v0, v2}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 255
+    .line 269
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->status:Landroid/widget/TextView;
 
     const-string v2, ""
@@ -1776,11 +1969,11 @@
 
     goto/16 :goto_3a
 
-    .line 257
-    :cond_19a
+    .line 271
+    :cond_1dc
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->heard:Ljava/lang/String;
 
-    if-eqz v0, :cond_20e
+    if-eqz v0, :cond_250
 
     invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
 
@@ -1794,59 +1987,59 @@
 
     cmp-long v0, v8, v10
 
-    if-gez v0, :cond_20e
+    if-gez v0, :cond_250
 
     move v0, v3
 
-    .line 258
-    :goto_1ac
+    .line 272
+    :goto_1ee
     iget-object v8, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->hero:Landroid/widget/TextView;
 
-    if-eqz v0, :cond_210
+    if-eqz v0, :cond_252
 
     iget-object v4, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->heard:Ljava/lang/String;
 
-    :goto_1b2
+    :goto_1f4
     invoke-virtual {v8, v4}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 259
+    .line 273
     iget-object v4, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->hero:Landroid/widget/TextView;
 
-    if-eqz v0, :cond_1bb
+    if-eqz v0, :cond_1fd
 
     const/high16 v2, 0x42600000    # 56.0f
 
-    :cond_1bb
+    :cond_1fd
     invoke-virtual {v4, v2}, Landroid/widget/TextView;->setTextSize(F)V
 
-    .line 260
+    .line 274
     iget-object v4, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->hero:Landroid/widget/TextView;
 
-    if-eqz v0, :cond_219
+    if-eqz v0, :cond_25b
 
     iget v2, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->heardColor:I
 
-    :goto_1c4
+    :goto_206
     invoke-virtual {v4, v2}, Landroid/widget/TextView;->setTextColor(I)V
 
-    .line 261
+    .line 275
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->dots:Landroid/widget/TextView;
 
     const-string v4, ""
 
     invoke-virtual {v2, v4}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 262
+    .line 276
     iget-object v4, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->sub:Landroid/widget/TextView;
 
-    if-eqz v0, :cond_21c
+    if-eqz v0, :cond_25e
 
     const-string v2, ""
 
-    :goto_1d4
+    :goto_216
     invoke-virtual {v4, v2}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 264
+    .line 278
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->status:Landroid/widget/TextView;
 
     sget-object v4, Lcom/isaigu/gymapp/wearable/voice/VoiceRemote;->last:Ljava/lang/String;
@@ -1855,11 +2048,11 @@
 
     move-result v4
 
-    if-lez v4, :cond_225
+    if-lez v4, :cond_267
 
-    if-nez v0, :cond_225
+    if-nez v0, :cond_267
 
-    .line 265
+    .line 279
     new-instance v0, Ljava/lang/StringBuilder;
 
     invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
@@ -1890,11 +2083,11 @@
 
     move-result-object v0
 
-    .line 264
-    :goto_202
+    .line 278
+    :goto_244
     invoke-virtual {v2, v0}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 266
+    .line 280
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->status:Landroid/widget/TextView;
 
     sget v2, Lcom/isaigu/gymapp/widget/XemsUi;->MUTED:I
@@ -1903,14 +2096,14 @@
 
     goto/16 :goto_3a
 
-    :cond_20e
+    :cond_250
     move v0, v1
 
-    .line 257
-    goto :goto_1ac
+    .line 271
+    goto :goto_1ee
 
-    .line 258
-    :cond_210
+    .line 272
+    :cond_252
     const-string v4, "\u0421\u043b\u0443\u0448\u0430\u043c"
 
     const-string v9, "Listening"
@@ -1919,16 +2112,16 @@
 
     move-result-object v4
 
-    goto :goto_1b2
+    goto :goto_1f4
 
-    .line 260
-    :cond_219
+    .line 274
+    :cond_25b
     sget v2, Lcom/isaigu/gymapp/widget/XemsUi;->TEXT:I
 
-    goto :goto_1c4
+    goto :goto_206
 
-    .line 262
-    :cond_21c
+    .line 276
+    :cond_25e
     const-string v2, "\u041a\u0430\u0436\u0438: \u201e\u0435\u0434\u043d\u043e, \u0434\u0432\u0435, \u0442\u0440\u0438, \u0441\u0442\u0430\u0440\u0442\u201c \u00b7 \u201e\u043f\u0430\u0443\u0437\u0430\u201c \u00b7 \u201e\u0441\u0442\u043e\u043f\u201c"
 
     const-string v8, "Say: one, two, three, start \u00b7 pause \u00b7 stop"
@@ -1937,45 +2130,45 @@
 
     move-result-object v2
 
-    goto :goto_1d4
+    goto :goto_216
 
-    .line 265
-    :cond_225
+    .line 279
+    :cond_267
     const-string v0, ""
 
-    goto :goto_202
+    goto :goto_244
 
-    :cond_228
+    :cond_26a
     move v0, v1
 
-    .line 271
-    goto/16 :goto_4f
+    .line 285
+    goto/16 :goto_55
 
-    :cond_22b
+    :cond_26d
     move v3, v1
 
-    .line 272
-    goto/16 :goto_53
+    .line 286
+    goto/16 :goto_59
 
-    :cond_22e
+    :cond_270
     move v1, v5
 
-    .line 273
-    goto/16 :goto_5d
+    .line 287
+    goto/16 :goto_63
 
-    .line 275
-    :cond_231
+    .line 289
+    :cond_273
     iget v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->flash:I
 
     const/4 v2, 0x6
 
-    if-eq v0, v2, :cond_23a
+    if-eq v0, v2, :cond_27c
 
     iget v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->flash:I
 
-    if-nez v0, :cond_244
+    if-nez v0, :cond_286
 
-    :cond_23a
+    :cond_27c
     const-string v0, "\u21bb \u041f\u0440\u043e\u0431\u0432\u0430\u0439 \u043f\u0430\u043a"
 
     const-string v2, "\u21bb Try again"
@@ -1984,15 +2177,15 @@
 
     move-result-object v0
 
-    goto/16 :goto_6c
+    goto/16 :goto_72
 
-    .line 276
-    :cond_244
+    .line 290
+    :cond_286
     iget v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->flash:I
 
     const/4 v2, 0x5
 
-    if-ne v0, v2, :cond_253
+    if-ne v0, v2, :cond_295
 
     const-string v0, "\u0422\u044a\u0440\u0441\u044f \u0447\u0438\u043f\u0430\u2026"
 
@@ -2002,10 +2195,28 @@
 
     move-result-object v0
 
-    goto/16 :goto_6c
+    goto/16 :goto_72
 
-    .line 277
-    :cond_253
+    .line 291
+    :cond_295
+    invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->old()Z
+
+    move-result v0
+
+    if-eqz v0, :cond_2a5
+
+    const-string v0, "\u26a1 \u041e\u0431\u043d\u043e\u0432\u0438 \u0447\u0438\u043f\u0430"
+
+    const-string v2, "\u26a1 Update the module"
+
+    invoke-static {v0, v2}, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
+
+    goto/16 :goto_72
+
+    .line 292
+    :cond_2a5
     const-string v0, "\u26a1 \u0417\u0430\u0440\u0435\u0434\u0438 \u0447\u0438\u043f\u0430 \u0441 \u043a\u0430\u0431\u0435\u043b"
 
     const-string v2, "\u26a1 Load the module (cable)"
@@ -2014,25 +2225,25 @@
 
     move-result-object v0
 
-    goto/16 :goto_6c
+    goto/16 :goto_72
 
-    .line 279
-    :cond_25d
+    .line 294
+    :cond_2af
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->go:Landroid/widget/TextView;
 
     invoke-virtual {v0, v3}, Landroid/widget/TextView;->setEnabled(Z)V
 
-    .line 280
+    .line 295
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->go:Landroid/widget/TextView;
 
     invoke-virtual {v0, v5}, Landroid/widget/TextView;->setAlpha(F)V
 
-    .line 281
+    .line 296
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->go:Landroid/widget/TextView;
 
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->learning:Ljava/lang/String;
 
-    if-eqz v0, :cond_27a
+    if-eqz v0, :cond_2cc
 
     const-string v0, "\u25a0 \u0421\u043f\u0440\u0438 \u0437\u0430\u043f\u0438\u0441\u0430"
 
@@ -2042,18 +2253,18 @@
 
     move-result-object v0
 
-    :goto_275
+    :goto_2c7
     invoke-virtual {v1, v0}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    goto/16 :goto_6f
+    goto/16 :goto_75
 
-    .line 282
-    :cond_27a
+    .line 297
+    :cond_2cc
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->allLearned()Z
 
     move-result v0
 
-    if-eqz v0, :cond_289
+    if-eqz v0, :cond_2db
 
     const-string v0, "\u21bb \u041d\u0430\u0443\u0447\u0438 \u043d\u0430\u043d\u043e\u0432\u043e"
 
@@ -2063,10 +2274,10 @@
 
     move-result-object v0
 
-    goto :goto_275
+    goto :goto_2c7
 
-    .line 283
-    :cond_289
+    .line 298
+    :cond_2db
     const-string v0, "\u25b6 \u041d\u0430\u0443\u0447\u0438 \u0433\u043b\u0430\u0441\u0430 \u043c\u0438"
 
     const-string v2, "\u25b6 Learn my voice"
@@ -2075,11 +2286,11 @@
 
     move-result-object v0
 
-    goto :goto_275
+    goto :goto_2c7
 
-    .line 285
-    :cond_292
-    if-nez v7, :cond_29e
+    .line 300
+    :cond_2e4
+    if-nez v7, :cond_2f0
 
     const-string v0, "\u041d\u043e\u0432 \u0447\u0438\u043f: \u0432\u043a\u043b\u044e\u0447\u0438 \u0433\u043e \u0441 \u043a\u0430\u0431\u0435\u043b \u0432 \u0442\u0430\u0431\u043b\u0435\u0442\u0430 \u0438 \u043d\u0430\u0442\u0438\u0441\u043d\u0438 \u0431\u0443\u0442\u043e\u043d\u0430. \u0417\u0430\u0440\u0435\u0434\u0435\u043d: \u0441\u0430\u043c\u043e \u0433\u043e \u0432\u043a\u043b\u044e\u0447\u0438 \u2014 \u043d\u0430\u043c\u0438\u0440\u0430\u043c \u0433\u043e \u0441\u0430\u043c."
 
@@ -2089,13 +2300,13 @@
 
     move-result-object v0
 
-    goto/16 :goto_75
+    goto/16 :goto_7b
 
-    .line 288
-    :cond_29e
+    .line 303
+    :cond_2f0
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->learning:Ljava/lang/String;
 
-    if-eqz v0, :cond_2d2
+    if-eqz v0, :cond_324
 
     new-instance v0, Ljava/lang/StringBuilder;
 
@@ -2143,15 +2354,15 @@
 
     move-result-object v0
 
-    goto/16 :goto_75
+    goto/16 :goto_7b
 
-    .line 289
-    :cond_2d2
+    .line 304
+    :cond_324
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->allLearned()Z
 
     move-result v0
 
-    if-eqz v0, :cond_2e2
+    if-eqz v0, :cond_334
 
     const-string v0, "\u2713 \u0420\u0430\u0431\u043e\u0442\u0438 \u043e\u0442 \u0432\u0441\u044f\u043a\u0430 \u0441\u0442\u0440\u0430\u043d\u0438\u0446\u0430, \u0441 \u0432\u0441\u0435\u043a\u0438 \u043a\u043e\u0441\u0442\u044e\u043c \u0438 \u0430\u043f\u0430\u0440\u0430\u0442."
 
@@ -2161,31 +2372,31 @@
 
     move-result-object v0
 
-    goto/16 :goto_75
+    goto/16 :goto_7b
 
-    .line 290
-    :cond_2e2
+    .line 305
+    :cond_334
     const-string v0, ""
 
-    goto/16 :goto_75
+    goto/16 :goto_7b
 .end method
 
 .method renderFlash()V
     .registers 6
 
     .prologue
-    .line 295
+    .line 310
     const-string v1, ""
 
-    .line 296
+    .line 311
     sget v0, Lcom/isaigu/gymapp/widget/XemsUi;->TEXT:I
 
-    .line 297
+    .line 312
     iget v2, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->flash:I
 
     packed-switch v2, :pswitch_data_c0
 
-    .line 327
+    .line 342
     const-string v0, "\u041d\u0435 \u0441\u0442\u0430\u043d\u0430"
 
     const-string v1, "Didn\'t work"
@@ -2194,7 +2405,7 @@
 
     move-result-object v2
 
-    .line 328
+    .line 343
     const-string v0, "\u041f\u0440\u043e\u0432\u0435\u0440\u0438 \u043a\u0430\u0431\u0435\u043b\u0430 (\u0437\u0430 \u0434\u0430\u043d\u043d\u0438, \u043d\u0435 \u0441\u0430\u043c\u043e \u0437\u0430 \u0437\u0430\u0440\u0435\u0436\u0434\u0430\u043d\u0435) \u0438 \u043f\u0440\u043e\u0431\u0432\u0430\u0439 \u043f\u0430\u043a"
 
     const-string v1, "Check the cable (a data cable) and try again"
@@ -2203,16 +2414,16 @@
 
     move-result-object v1
 
-    .line 330
+    .line 345
     sget v0, Lcom/isaigu/gymapp/widget/XemsUi;->DANGER:I
 
-    .line 332
+    .line 347
     :goto_1b
     iget-object v3, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->hero:Landroid/widget/TextView;
 
     invoke-virtual {v3, v2}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 333
+    .line 348
     iget-object v3, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->hero:Landroid/widget/TextView;
 
     invoke-virtual {v2}, Ljava/lang/String;->length()I
@@ -2228,34 +2439,34 @@
     :goto_2c
     invoke-virtual {v3, v2}, Landroid/widget/TextView;->setTextSize(F)V
 
-    .line 334
+    .line 349
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->hero:Landroid/widget/TextView;
 
     invoke-virtual {v2, v0}, Landroid/widget/TextView;->setTextColor(I)V
 
-    .line 335
+    .line 350
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->dots:Landroid/widget/TextView;
 
     const-string v2, ""
 
     invoke-virtual {v0, v2}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 336
+    .line 351
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->sub:Landroid/widget/TextView;
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 337
+    .line 352
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->status:Landroid/widget/TextView;
 
     const-string v1, ""
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 338
+    .line 353
     return-void
 
-    .line 299
+    .line 314
     :pswitch_48
     const-string v1, "\u0412\u043a\u043b\u044e\u0447\u0438 \u0447\u0438\u043f\u0430 \u0441 \u043a\u0430\u0431\u0435\u043b"
 
@@ -2265,7 +2476,7 @@
 
     move-result-object v2
 
-    .line 300
+    .line 315
     const-string v1, "USB \u043a\u0430\u0431\u0435\u043b \u043a\u044a\u043c \u0442\u0430\u0431\u043b\u0435\u0442\u0430 \u2014 \u043f\u043e\u0441\u043b\u0435 \u043d\u0430\u0442\u0438\u0441\u043d\u0438 \u201e\u041f\u0440\u043e\u0431\u0432\u0430\u0439 \u043f\u0430\u043a\u201c"
 
     const-string v3, "USB cable to the tablet \u2014 then press Try again"
@@ -2276,7 +2487,7 @@
 
     goto :goto_1b
 
-    .line 304
+    .line 319
     :pswitch_59
     const-string v1, "\u041d\u0430\u0442\u0438\u0441\u043d\u0438 \u201eOK\u201c"
 
@@ -2286,7 +2497,7 @@
 
     move-result-object v2
 
-    .line 305
+    .line 320
     const-string v1, "\u0422\u0430\u0431\u043b\u0435\u0442\u044a\u0442 \u043f\u0438\u0442\u0430 \u0434\u0430\u043b\u0438 XEMS \u043c\u043e\u0436\u0435 \u0434\u0430 \u043f\u043e\u043b\u0437\u0432\u0430 \u0447\u0438\u043f\u0430"
 
     const-string v3, "The tablet asks to let XEMS use it"
@@ -2297,7 +2508,7 @@
 
     goto :goto_1b
 
-    .line 308
+    .line 323
     :pswitch_6a
     const-string v2, "\u041f\u043e\u0434\u0433\u043e\u0442\u0432\u044f\u043c \u0447\u0438\u043f\u0430\u2026"
 
@@ -2309,7 +2520,7 @@
 
     goto :goto_1b
 
-    .line 311
+    .line 326
     :pswitch_73
     const-string v0, "\u041d\u0430\u0442\u0438\u0441\u043d\u0438 RST \u0434\u0432\u0430 \u043f\u044a\u0442\u0438"
 
@@ -2319,7 +2530,7 @@
 
     move-result-object v2
 
-    .line 312
+    .line 327
     const-string v0, "\u041c\u044a\u043d\u0438\u0447\u043a\u043e\u0442\u043e \u043a\u043e\u043f\u0447\u0435 \u0434\u043e \u043a\u0430\u0431\u0435\u043b\u0430 \u2014 \u0431\u044a\u0440\u0437\u043e, \u043a\u0430\u0442\u043e \u0434\u0432\u043e\u0439\u043d\u043e \u0449\u0440\u0430\u043a\u0432\u0430\u043d\u0435. \u041f\u0440\u043e\u0434\u044a\u043b\u0436\u0430\u0432\u0430\u043c \u0441\u0430\u043c."
 
     const-string v1, "The tiny button by the cable \u2014 fast, like a double click. I go on by myself."
@@ -2328,12 +2539,12 @@
 
     move-result-object v1
 
-    .line 314
+    .line 329
     sget v0, Lcom/isaigu/gymapp/widget/XemsUi;->AMBER:I
 
     goto :goto_1b
 
-    .line 317
+    .line 332
     :pswitch_86
     new-instance v0, Ljava/lang/StringBuilder;
 
@@ -2355,7 +2566,7 @@
 
     move-result-object v2
 
-    .line 318
+    .line 333
     const-string v0, "\u0417\u0430\u0440\u0435\u0436\u0434\u0430\u043c \u0441\u043e\u0444\u0442\u0443\u0435\u0440\u0430 \u2014 \u043d\u0435 \u0432\u0430\u0434\u0438 \u043a\u0430\u0431\u0435\u043b\u0430"
 
     const-string v1, "Loading \u2014 keep the cable in"
@@ -2364,13 +2575,13 @@
 
     move-result-object v1
 
-    .line 319
+    .line 334
     const v0, -0xc74208
 
-    .line 320
+    .line 335
     goto/16 :goto_1b
 
-    .line 322
+    .line 337
     :pswitch_a8
     const-string v0, "\u0417\u0430\u0440\u0435\u0434\u0435\u043d \u2713"
 
@@ -2380,7 +2591,7 @@
 
     move-result-object v2
 
-    .line 323
+    .line 338
     const-string v0, "\u0427\u0438\u043f\u044a\u0442 \u0441\u0435 \u0440\u0435\u0441\u0442\u0430\u0440\u0442\u0438\u0440\u0430 \u2014 \u043d\u0430\u043c\u0438\u0440\u0430\u043c \u0433\u043e \u0441\u0430\u043c"
 
     const-string v1, "Restarting \u2014 I find it by myself"
@@ -2389,18 +2600,18 @@
 
     move-result-object v1
 
-    .line 324
+    .line 339
     sget v0, Lcom/isaigu/gymapp/widget/XemsUi;->GO_TEXT:I
 
     goto/16 :goto_1b
 
-    .line 333
+    .line 348
     :cond_bc
     const/high16 v2, 0x42500000    # 52.0f
 
     goto/16 :goto_2c
 
-    .line 297
+    .line 312
     :pswitch_data_c0
     .packed-switch 0x0
         :pswitch_48
@@ -2422,12 +2633,12 @@
 
     const/4 v0, 0x0
 
-    .line 375
+    .line 390
     iget-object v3, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->sensRow:Landroid/widget/LinearLayout;
 
     invoke-virtual {v3}, Landroid/widget/LinearLayout;->removeAllViews()V
 
-    .line 376
+    .line 391
     const/4 v3, 0x3
 
     new-array v3, v3, [Ljava/lang/String;
@@ -2462,14 +2673,14 @@
 
     aput-object v4, v3, v1
 
-    .line 377
+    .line 392
     iget v4, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->sens:I
 
     const/16 v5, 0x5a
 
     if-ge v4, v5, :cond_40
 
-    .line 378
+    .line 393
     :goto_2f
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->sensRow:Landroid/widget/LinearLayout;
 
@@ -2485,10 +2696,10 @@
 
     invoke-virtual {v1, v0}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
-    .line 379
+    .line 394
     return-void
 
-    .line 377
+    .line 392
     :cond_40
     iget v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->sens:I
 
@@ -2516,17 +2727,17 @@
 
     const/4 v1, 0x0
 
-    .line 351
+    .line 366
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->words:Landroid/widget/LinearLayout;
 
     invoke-virtual {v0}, Landroid/widget/LinearLayout;->removeAllViews()V
 
-    .line 352
+    .line 367
     const/4 v0, 0x0
 
     move v5, v1
 
-    .line 353
+    .line 368
     :goto_a
     sget-object v2, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen;->ORDER:[Ljava/lang/String;
 
@@ -2534,19 +2745,19 @@
 
     if-ge v5, v2, :cond_d4
 
-    .line 354
+    .line 369
     rem-int/lit8 v2, v5, 0x2
 
     if-nez v2, :cond_28
 
-    .line 355
+    .line 370
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->a:Landroid/app/Activity;
 
     invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsUi;->horizontal(Landroid/content/Context;)Landroid/widget/LinearLayout;
 
     move-result-object v2
 
-    .line 356
+    .line 371
     iget-object v4, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->words:Landroid/widget/LinearLayout;
 
     iget-object v6, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->a:Landroid/app/Activity;
@@ -2564,13 +2775,13 @@
 
     move-object v0, v2
 
-    .line 358
+    .line 373
     :cond_28
     sget-object v2, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen;->ORDER:[Ljava/lang/String;
 
     aget-object v6, v2, v5
 
-    .line 359
+    .line 374
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->count:[I
 
     aget v2, v2, v5
@@ -2579,13 +2790,13 @@
 
     move v4, v3
 
-    .line 360
+    .line 375
     :goto_33
     if-eqz v4, :cond_a2
 
     const-string v2, "  \u2713"
 
-    .line 361
+    .line 376
     :goto_37
     iget-object v7, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->a:Landroid/app/Activity;
 
@@ -2626,7 +2837,7 @@
     :cond_5c
     move v2, v3
 
-    .line 362
+    .line 377
     :goto_5d
     iget-object v4, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->learning:Ljava/lang/String;
 
@@ -2640,28 +2851,28 @@
 
     move-result v4
 
-    .line 361
+    .line 376
     :goto_69
     invoke-static {v7, v8, v2, v4}, Lcom/isaigu/gymapp/widget/XemsUi;->chip(Landroid/content/Context;Ljava/lang/String;ZI)Landroid/widget/TextView;
 
     move-result-object v2
 
-    .line 363
+    .line 378
     const/high16 v4, 0x41580000    # 13.5f
 
     invoke-virtual {v2, v4}, Landroid/widget/TextView;->setTextSize(F)V
 
-    .line 364
+    .line 379
     invoke-virtual {v2, v3}, Landroid/widget/TextView;->setSingleLine(Z)V
 
-    .line 365
+    .line 380
     new-instance v4, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Redo;
 
     invoke-direct {v4, p0, v6}, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Redo;-><init>(Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;Ljava/lang/String;)V
 
     invoke-virtual {v2, v4}, Landroid/widget/TextView;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
-    .line 366
+    .line 381
     new-instance v4, Landroid/widget/LinearLayout$LayoutParams;
 
     const/high16 v6, 0x42300000    # 44.0f
@@ -2674,12 +2885,12 @@
 
     invoke-direct {v4, v1, v6, v7}, Landroid/widget/LinearLayout$LayoutParams;-><init>(IIF)V
 
-    .line 367
+    .line 382
     rem-int/lit8 v6, v5, 0x2
 
     if-ne v6, v3, :cond_96
 
-    .line 368
+    .line 383
     const/high16 v6, 0x41000000    # 8.0f
 
     invoke-virtual {p0, v6}, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->dp(F)I
@@ -2688,18 +2899,18 @@
 
     iput v6, v4, Landroid/widget/LinearLayout$LayoutParams;->leftMargin:I
 
-    .line 370
+    .line 385
     :cond_96
     invoke-virtual {v0, v2, v4}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 353
+    .line 368
     add-int/lit8 v2, v5, 0x1
 
     move v5, v2
 
     goto/16 :goto_a
 
-    .line 356
+    .line 371
     :cond_9e
     const/4 v0, 0x6
 
@@ -2708,10 +2919,10 @@
     :cond_a0
     move v4, v1
 
-    .line 359
+    .line 374
     goto :goto_33
 
-    .line 360
+    .line 375
     :cond_a2
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->count:[I
 
@@ -2761,16 +2972,16 @@
     :cond_cf
     move v2, v1
 
-    .line 361
+    .line 376
     goto :goto_5d
 
-    .line 362
+    .line 377
     :cond_d1
     sget v4, Lcom/isaigu/gymapp/widget/XemsUi;->GO:I
 
     goto :goto_69
 
-    .line 372
+    .line 387
     :cond_d4
     return-void
 .end method
@@ -2781,14 +2992,14 @@
     .prologue
     const/4 v2, 0x2
 
-    .line 462
+    .line 477
     if-nez p1, :cond_26
 
     const-string v0, "0.8"
 
     move-object v1, v0
 
-    .line 463
+    .line 478
     :goto_6
     if-nez p1, :cond_30
 
@@ -2797,7 +3008,7 @@
     :goto_a
     iput v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->sens:I
 
-    .line 464
+    .line 479
     new-instance v0, Ljava/lang/StringBuilder;
 
     invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
@@ -2818,13 +3029,13 @@
 
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/voice/VoiceLink;->send(Ljava/lang/String;)V
 
-    .line 465
+    .line 480
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->render()V
 
-    .line 466
+    .line 481
     return-void
 
-    .line 462
+    .line 477
     :cond_26
     if-ne p1, v2, :cond_2c
 
@@ -2841,7 +3052,7 @@
 
     goto :goto_6
 
-    .line 463
+    .line 478
     :cond_30
     if-ne p1, v2, :cond_35
 
@@ -3580,20 +3791,20 @@
     .registers 2
 
     .prologue
-    .line 416
+    .line 431
     const-string v0, "mute 1"
 
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/voice/VoiceLink;->send(Ljava/lang/String;)V
 
-    .line 417
+    .line 432
     const-string v0, "meter 1"
 
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/voice/VoiceLink;->send(Ljava/lang/String;)V
 
-    .line 418
+    .line 433
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->nextWord()V
 
-    .line 419
+    .line 434
     return-void
 .end method
 
@@ -3603,20 +3814,20 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 452
+    .line 467
     iput-object v1, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->learning:Ljava/lang/String;
 
-    .line 453
+    .line 468
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->queue:Ljava/util/List;
 
     invoke-interface {v0}, Ljava/util/List;->clear()V
 
-    .line 454
+    .line 469
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->main:Landroid/os/Handler;
 
     invoke-virtual {v0, v1}, Landroid/os/Handler;->removeCallbacksAndMessages(Ljava/lang/Object;)V
 
-    .line 455
+    .line 470
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->main:Landroid/os/Handler;
 
     new-instance v1, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Tick;
@@ -3627,21 +3838,21 @@
 
     invoke-virtual {v0, v1, v2, v3}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
 
-    .line 456
+    .line 471
     const-string v0, "meter 0"
 
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/voice/VoiceLink;->send(Ljava/lang/String;)V
 
-    .line 457
+    .line 472
     const-string v0, "mute 0"
 
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/voice/VoiceLink;->send(Ljava/lang/String;)V
 
-    .line 458
+    .line 473
     const-string v0, "list"
 
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/voice/VoiceLink;->send(Ljava/lang/String;)V
 
-    .line 459
+    .line 474
     return-void
 .end method

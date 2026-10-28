@@ -25,16 +25,16 @@ def say(text, voice, speed, pitch, name):
     return raw
 
 
-def scenario(voice, noise, tag):
+def scenario(voice, noise, var=0):
     """the plan for one run and the commands it must produce, in order"""
-    plan = ['noise %d' % noise]
+    plan = ['noise %d' % noise, 'noisevar %d' % var]
     v = lambda w, s, p: say(WORDS[w], voice, s, p, '%s_%s_%d_%d' % (voice, w, s, p))
     seq = [('one', 0.4), ('two', 0.4), ('three', 0.4), ('start', 1.5), ('plus', 1.5), ('plus', 1.5), ('pause', 1.5),
            ('talk0', 1.0), ('start', 1.5),
            ('one', 0.4), ('two', 0.4), ('three', 0.4), ('start', 1.5), ('minus', 1.5), ('talk1', 1.0)]
     seq += [('other%d' % i, 1.2) for i in range(len(OTHER))] + [('stop', 1.5)]
     want = ['start', 'plus', 'plus', 'pause', 'start', 'minus', 'stop']
-    plan.append('sil 1500')
+    plan.append('sil 3000')                           # the room's noise is there before the first word
     for i, (w, gap) in enumerate(seq):
         if w.startswith('other'):
             plan.append('mark %s' % w)
@@ -55,16 +55,22 @@ def main():
     exe = os.path.join(OUT, 'kws_test')
     subprocess.run(['g++', '-O2', '-Wall', '-o', exe, os.path.join(HERE, 'kws_test.cpp')], check=True)
     enroll_voice = 'bg+m3'
-    rec = ['noise 4', 'sil 1000']
+    rec = ['sil 1000']
     for w in WORDS:
         for s, p in ((150, 50), (165, 45), (135, 55)):
             rec.append('rec %s %s' % (w, say(WORDS[w], enroll_voice, s, p, '%s_%s_%d_%d' % (enroll_voice, w, s, p))))
     fails = 0
-    for voice, noise, tag, must in ((enroll_voice, 0, 'clean', True), (enroll_voice, 250, 'noise', True),
-                                    (enroll_voice, 600, 'loud noise', False), ('bg+f2', 0, 'other voice', False)):
-        plan, want = scenario(voice, noise, tag)
+    # (voice, noise, ± dB it wanders, noise while recording the examples, label, must pass)
+    for voice, noise, var, rn, tag, must in ((enroll_voice, 0, 0, 4, 'clean', True),
+                                             (enroll_voice, 250, 0, 4, 'noise', True),
+                                             (enroll_voice, 80, 8, 80, 'room', True),
+                                             (enroll_voice, 250, 8, 250, 'busy room', True),
+                                             (enroll_voice, 600, 0, 4, 'loud noise', False),
+                                             ('bg+f2', 0, 0, 4, 'other voice', False)):
+        plan, want = scenario(voice, noise, var)
+        plan = ['noise %d' % rn, 'noisevar %d' % var] + rec + plan
         pf = os.path.join(OUT, 'plan.txt')
-        open(pf, 'w').write('\n'.join(rec + plan) + '\n')
+        open(pf, 'w').write('\n'.join(plan) + '\n')
         lines = subprocess.run([exe, pf], check=True, capture_output=True, text=True).stdout.splitlines()
         got = [l.split()[2] for l in lines if l.split()[1] == 'CMD']
         recs = [l for l in lines if ' REC ' in l and ' ok ' in l]

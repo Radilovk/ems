@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 346
+    .line 348
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,21 +34,21 @@
     .registers 4
 
     .prologue
-    .line 350
+    .line 352
     :try_start_0
     invoke-static {}, Lcom/isaigu/gymapp/wearable/voice/VoiceUsb;->step()V
     :try_end_3
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_3} :catch_4
 
-    .line 355
+    .line 357
     :goto_3
     return-void
 
-    .line 351
+    .line 353
     :catch_4
     move-exception v0
 
-    .line 352
+    .line 354
     new-instance v1, Ljava/lang/StringBuilder;
 
     invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
@@ -69,7 +69,7 @@
 
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/voice/VoiceUsb;->log(Ljava/lang/String;)V
 
-    .line 353
+    .line 355
     const/4 v0, 0x6
 
     const/4 v1, 0x0

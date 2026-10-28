@@ -194,6 +194,11 @@ public final class VoiceScreen {
             return VoiceLink.state() == VoiceLink.READY;
         }
 
+        /** Linked, but its firmware is older than the one in this APK: the cable update comes first. */
+        boolean old() {
+            return ready() && VoiceLink.version >= 0 && VoiceLink.version < VoiceUsb.FW && learning == null;
+        }
+
         boolean allLearned() {
             for (int c : count) {
                 if (c < TIMES) {
@@ -225,6 +230,15 @@ public final class VoiceScreen {
             boolean flashing = flash >= 0 && (flash != VoiceUsb.DONE || !r);
             if (flashing) {
                 renderFlash();
+            } else if (old()) {
+                hero.setText(tr("Обнови чипа", "Update the module"));
+                hero.setTextSize(44);
+                hero.setTextColor(XemsUi.AMBER);
+                dots.setText("");
+                sub.setText(tr("Има по-добър софтуер за него. Включи го с кабел в таблета и натисни бутона — "
+                        + "около 10 секунди.", "Better software is here. Plug it into the tablet and press the button "
+                        + "— about 10 seconds."));
+                status.setText("");
             } else if (!r) {
                 hero.setText(tr("Включи чипа", "Switch the module on"));
                 hero.setTextSize(40);
@@ -267,13 +281,14 @@ public final class VoiceScreen {
             }
             renderWords();
             renderSens();
-            if (flashing || !r) {
+            if (flashing || !r || old()) {
                 boolean working = VoiceUsb.busy() && flash != VoiceUsb.NO_CABLE;
                 go.setEnabled(!working);
                 go.setAlpha(working ? 0.45f : 1f);
                 go.setText(working ? tr("Зареждам…", "Loading…")
                         : flash == VoiceUsb.FAILED || flash == VoiceUsb.NO_CABLE ? tr("↻ Пробвай пак", "↻ Try again")
                         : flash == VoiceUsb.DONE ? tr("Търся чипа…", "Looking…")
+                        : old() ? tr("⚡ Обнови чипа", "⚡ Update the module")
                         : tr("⚡ Зареди чипа с кабел", "⚡ Load the module (cable)"));
             } else {
                 go.setEnabled(true);
@@ -381,7 +396,7 @@ public final class VoiceScreen {
         // ------------------------------------------------------------------ actions
 
         void go() {
-            if (!ready() || flash >= 0 && flash != VoiceUsb.DONE) {
+            if (!ready() || flash >= 0 && flash != VoiceUsb.DONE || old()) {
                 if (!VoiceUsb.busy()) {
                     VoiceUsb.start(a, this);           // a new module, or one that needs its firmware
                 }
@@ -520,6 +535,13 @@ public final class VoiceScreen {
                 } else if ("listen".equals(p[2]) && got > 0) {
                     note = null;
                 }
+            } else if (line.startsWith("SKIP ") && learning != null && p.length > 1) {
+                // a sound that was not taken: say why, in the words of what to do
+                note = "long".equals(p[1]) ? tr("Чух дълъг звук — кажи само думата и замълчи",
+                        "A long sound — say just the word, then pause")
+                        : "short".equals(p[1]) ? tr("Много кратко — кажи цялата дума", "Too short — the whole word")
+                        : tr("Чух те, но тихо — малко по-силно", "Heard, but softly — a little louder");
+                noteColor = XemsUi.AMBER;
             } else if (line.startsWith("LVL ") && p.length > 2) {
                 level = VoiceLink.parse(p[1]);
                 floor = VoiceLink.parse(p[2]);

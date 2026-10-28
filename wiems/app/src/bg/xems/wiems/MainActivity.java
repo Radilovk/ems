@@ -36,6 +36,8 @@ public final class MainActivity extends Activity implements Ble.Listener, Host {
     Trace trace;
     /** The zones (per body part, XBody's order) and strength as last set: kept across sessions and restarts (owner). */
     final int[] savedZones = new int[Channels.PARTS];
+    /** The saved zones were moved to the 1.19 WiEMS scale: say so once, on the next link. */
+    private boolean scaleMoved;
     int savedStrength = 100;
     /** The suit's connector standard (owner: both, switchable): false XBody, true XEMS. */
     private long zonesSavedMs;
@@ -379,6 +381,10 @@ public final class MainActivity extends Activity implements Ble.Listener, Host {
         if (!back) {                  // the zones and strength as left last time (owner: they stay as set)
             for (int z = 0; z < session.zones(); z++) session.setZone(z, savedZones[session.part(z)]);
             session.setStrength(savedStrength);
+            if (scaleMoved && linkingKind == Dev.WIEMS) {
+                setNote("Нова скала: досегашните 100 % са вече 65 % — силата може да расте до 100 %", true);
+                scaleMoved = false;
+            }
         }
         trace("LINKED " + linkingMac + (back ? " (the same unit back: the training goes on)" : ""));
         session.linked();             // whatever the unit does now: 0 and stopped
@@ -563,6 +569,11 @@ public final class MainActivity extends Activity implements Ble.Listener, Host {
         // per body part (v1.15); 1.14 kept them per WiEMS zone ("zone0".."zone9", the screen's order)
         for (int z = 0; z < Session.ZONES; z++) savedZones[Session.ZONE_PART[z]] = p.getInt("zone" + z, 0);
         for (int q = 0; q < Channels.PARTS; q++) savedZones[q] = p.getInt("part" + q, savedZones[q]);
+        // 1.19: the WiEMS scale 100 % = byte 31 (was 20) — saved zones of a WiEMS unit move so it gives what it gave
+        if (p.getInt("wi_scale", 20) != Session.UNIT_MAX && p.getInt("last_kind", Dev.WIEMS) == Dev.WIEMS) {
+            for (int q = 0; q < Channels.PARTS; q++) savedZones[q] = (savedZones[q] * 20 + Session.UNIT_MAX / 2) / Session.UNIT_MAX;
+            scaleMoved = true;
+        }
         lastKind = p.getInt("last_kind", Dev.WIEMS);
         dark = p.getBoolean("dark", false);
         savedStrength = p.getInt("strength", 100);
@@ -571,6 +582,7 @@ public final class MainActivity extends Activity implements Ble.Listener, Host {
         else if (p.getBoolean("wiring_xems", false)) channels.suit = Channels.XEMS;   // the switch of app 1.12–1.13
         channels.setDev(lastKind);  // the maps of the kind used last (a held / reconnecting unit is that one)
         Safe.apply(prog, age60);    // a saved value goes through the limits too
+        if (scaleMoved) save();     // moved once, not again at the next start
     }
 
     void save() {
@@ -578,7 +590,7 @@ public final class MainActivity extends Activity implements Ble.Listener, Host {
                 .putInt("on", prog.onS).putInt("off", prog.offS).putInt("total", prog.totalS).putInt("ramp", prog.rampMs)
                 .putInt("us", prog.us).putBoolean("dbl", prog.dbl).putInt("dbl_hz", prog.dblHz).putInt("dbl_pct", prog.dblPct)
                 .putBoolean("age60", age60).putBoolean("female", female).putString("channels", channels.save()).putInt("strength", savedStrength)
-                .putInt("last_kind", lastKind).putBoolean("dark", dark)
+                .putInt("last_kind", lastKind).putInt("wi_scale", Session.UNIT_MAX).putBoolean("dark", dark)
                 .putInt("part0", savedZones[0]).putInt("part1", savedZones[1]).putInt("part2", savedZones[2])
                 .putInt("part3", savedZones[3]).putInt("part4", savedZones[4]).putInt("part5", savedZones[5])
                 .putInt("part6", savedZones[6]).putInt("part7", savedZones[7]).putInt("part8", savedZones[8])

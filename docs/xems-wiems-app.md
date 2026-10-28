@@ -264,8 +264,19 @@ order — once the service mode has checked both suits, port the two maps (the `
   downscale, lossless WebP. `BodyFig` only loads them — the run-time stretch / 3×3 blur / hard-mask rim of 1.15–1.17 on
   the 640-px lossy copies made the stair steps and the smear.
 
-## v1.19 — pulse width for every kind and mode (owner: "no pulse depth in the settings, the WiEMS current is weak")
-- **Cause.** WiEMS got one fixed widths write (0x001c) — the vendor's bytes from capture 1, `7f 7f 6d 49 7f 7f 64 52
+## v1.19 — the weak WiEMS current: strength capped at 20, no pulse width (owner: clients say it is very weak)
+- **Main cause — the strength cap.** Every WiEMS strength went out as `WiProto.unit`: 100 % → byte 20. The 20 is not a
+  known limit of the unit: it is the highest value the owner set in capture 1 (`wiems/logs`, max 0x14), written down
+  in 1.5 as "the vendor's top (94 % → 18)" — no capture or log in the repo has those percentages. 1.5 brought the
+  scale down while the "86" stops were blamed on big values; 1.11 found the stops were the missing check bits, and the
+  cap stayed. The check is the 5-bit XOR of the values (bit 7 of ch 3..7), so the field is 5 bits: **top = 31**.
+  Now `Session.UNIT_MAX` 31, `Session.wiCurrents` (WiProto's frame without its clamp at 20): 100 % gives 1.55× the
+  old top. Saved zones of a WiEMS unit move once (× 20 / 31, prefs `wi_scale`) so nothing gets stronger by itself;
+  a note on the next link says the old 100 % is now 65 %. The XEMS APK (`WiProto.unit`, `WiTranslator`) and the XBody
+  panel (`wiproto.h` UNIT_MAX) still cap at 20 — port once the unit has run above 20 with this app.
+- **Unproven until tried on the unit:** that it takes 21..31 (likely: the 5-bit check covers them, the vendor shows no
+  smaller cap) and what it does above 31 (bits 5–6 outside the check — not sent).
+- **Pulse width.** WiEMS got one fixed widths write (0x001c) — the vendor's bytes from capture 1, `7f 7f 6d 49 7f 7f 64 52
   7f 52`, per **unit channel**. On the measured XBody map they are a per-muscle profile (big muscles 0x7F, Трапец 0x49,
   Ръце / Прасец 0x52, Гърди 0x64, Кръст 0x6D); on any other map (Костюм XEMS, a service-mode swap) the narrow ones
   landed on big muscles — Седалище 0x49 (57 %), Задно бедро 0x52 (65 %). No program (Relax) could change it either.
@@ -275,8 +286,7 @@ order — once the service mode has checked both suits, port the two maps (the `
   WiEMS: `Session.wiWidths` = per **body part** `WI_PART_WIDTH` (the vendor's profile) × width / 350 µs, capped at
   0x7F, written to the part's unit channel — 350 µs on the XBody map = the vendor's exact bytes.
 - **Not known yet:** the unit's µs per width step and whether it takes more than 0x7F. With the XBody suit the big
-  muscles were already at 0x7F (the vendor's top), so there a weak feel is not the width — check the strength scale
-  (`WiProto.UNIT_MAX` 20 = the vendor's 100 %) with the vendor app side by side.
+  muscles were already at 0x7F (the vendor's bytes), so there the width was not the weak current — the cap was.
 
 ## Build / test
 ```

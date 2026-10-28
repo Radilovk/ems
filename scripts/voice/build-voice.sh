@@ -15,8 +15,11 @@ if [ ! -d "$T/arduino/packages/Seeeduino/hardware/nrf52/1.1.13" ]; then
 	"$T/arduino-cli" core update-index --additional-urls "$URL"
 	"$T/arduino-cli" core install Seeeduino:nrf52@1.1.13 --additional-urls "$URL"
 fi
-# The core's post-build step wants adafruit-nrfutil (DFU zip); only the .hex is used.
+# The core's post-build step wants adafruit-nrfutil; a stub there, the real one (venv) makes the Bluetooth update zips
 printf '#!/bin/sh\nexit 0\n' > "$T/fakebin/adafruit-nrfutil"; chmod +x "$T/fakebin/adafruit-nrfutil"
+if [ ! -x "$T/nrfu/bin/adafruit-nrfutil" ]; then
+	python3 -m venv "$T/nrfu" && "$T/nrfu/bin/pip" install -q adafruit-nrfutil
+fi
 for B in Sense:sense SensePlus:sense-plus; do
 	FQBN=Seeeduino:nrf52:xiaonRF52840${B%%:*}
 	OUT=$REPO/build/xvoice/${B#*:}
@@ -24,4 +27,8 @@ for B in Sense:sense SensePlus:sense-plus; do
 		| grep -E 'Sketch uses|Global'
 	python3 "$T/arduino/packages/Seeeduino/hardware/nrf52/1.1.13/tools/uf2conv/uf2conv.py" -f 0xADA52840 -c \
 		-o "$REPO/voice/xems-voice-${B#*:}.uf2" "$OUT/xems_voice.ino.hex" 2>/dev/null | tail -1
+	# over Bluetooth from a phone (nRF Device Firmware Update / nRF Connect): S140 7.3.0 = sd-req 0x0123
+	"$T/nrfu/bin/adafruit-nrfutil" dfu genpkg --dev-type 0x0052 --sd-req 0x0123 \
+		--application "$OUT/xems_voice.ino.hex" "$REPO/voice/xems-voice-${B#*:}-ota.zip" >/dev/null
+	echo "OTA zip: voice/xems-voice-${B#*:}-ota.zip"
 done

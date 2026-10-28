@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 537
+    .line 615
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 538
+    .line 616
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Find;->p:Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;
 
-    .line 539
+    .line 617
     return-void
 .end method
 
@@ -42,26 +42,26 @@
     .registers 2
 
     .prologue
-    .line 543
+    .line 621
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Find;->p:Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;
 
     iget-boolean v0, v0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->closed:Z
 
     if-nez v0, :cond_12
 
-    .line 544
+    .line 622
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Find;->p:Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->a:Landroid/app/Activity;
 
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/voice/VoiceLink;->find(Landroid/content/Context;)V
 
-    .line 545
+    .line 623
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Find;->p:Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->render()V
 
-    .line 547
+    .line 625
     :cond_12
     return-void
 .end method

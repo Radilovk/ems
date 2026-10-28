@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 582
+    .line 660
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 583
+    .line 661
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Tick;->p:Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;
 
-    .line 584
+    .line 662
     return-void
 .end method
 
@@ -42,18 +42,18 @@
     .registers 5
 
     .prologue
-    .line 588
+    .line 666
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Tick;->p:Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;
 
     iget-boolean v0, v0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->closed:Z
 
     if-eqz v0, :cond_7
 
-    .line 601
+    .line 679
     :goto_6
     return-void
 
-    .line 591
+    .line 669
     :cond_7
     invoke-static {}, Lcom/isaigu/gymapp/wearable/voice/VoiceLink;->state()I
 
@@ -61,14 +61,14 @@
 
     if-nez v0, :cond_14
 
-    .line 592
+    .line 670
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Tick;->p:Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->a:Landroid/app/Activity;
 
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/voice/VoiceLink;->find(Landroid/content/Context;)V
 
-    .line 594
+    .line 672
     :cond_14
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Tick;->p:Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;
 
@@ -98,19 +98,19 @@
 
     if-ltz v0, :cond_43
 
-    .line 595
+    .line 673
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Tick;->p:Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;
 
     const/4 v1, 0x0
 
     iput-object v1, v0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->heard:Ljava/lang/String;
 
-    .line 596
+    .line 674
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Tick;->p:Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->render()V
 
-    .line 600
+    .line 678
     :cond_39
     :goto_39
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Tick;->p:Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;
@@ -123,7 +123,7 @@
 
     goto :goto_6
 
-    .line 597
+    .line 675
     :cond_43
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Tick;->p:Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;
 
@@ -139,7 +139,7 @@
 
     if-nez v0, :cond_39
 
-    .line 598
+    .line 676
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Tick;->p:Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/voice/VoiceScreen$Page;->render()V

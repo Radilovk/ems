@@ -69,13 +69,16 @@ minus, running speech at −8 dB, ten loud single non-commands (хайде, до
 Commands land at d ≈ 300–1000 (noise up to 1370); non-commands at ≥ 1740 with ratio ≥ 0.72 to the next command.
 espeak is cleaner than a real voice: tune `sens` with the real mic (`HEARD` lines show d / thr).
 
-## Setting it up (owner, 2026-10-28: "as few steps as possible")
-1. Flash once: double-tap RESET on the XIAO → the XIAO drive appears → copy `voice/xems-voice-sense-plus.uf2`.
-2. XEMS → menu → **Глас** → the tablet finds the module by itself (no pairing) → **▶ Научи гласа ми** → say each
-   word as it shows (3 times, the next comes by itself; "Не те чух" asks again). ≈ 1.5 min. Done.
-From then on XEMS links to it on every start (autoConnect to the kept address) and commands work from any page.
-A tap on a word records only that word again; "Строго / Нормално / Лесно" = `sens 0.8 / 1.0 / 1.3`.
-Without the tablet: any BLE / USB serial terminal speaks the same lines (`rec one`, `list`, …).
+## Setting it up (owner, 2026-10-28: "programming only through the interface")
+1. XEMS → menu → **Глас** → plug the XIAO into the tablet with a USB data cable → **⚡ Зареди чипа с кабел** →
+   Android asks to allow → OK. XEMS sends the module to its bootloader (1200 bps touch) and writes the firmware
+   (`VoiceUsb` + `VoiceDfu`, ≈ 10 s). Only a module whose current firmware ignores the touch (a factory demo) asks
+   "Натисни RST два пъти" — XEMS waits and goes on by itself. Unplug: the tablet finds the module over Bluetooth.
+2. **▶ Научи гласа ми** → say each word as it shows (3 times, the next comes by itself). ≈ 1.5 min. Done.
+From then on XEMS links to it on every start and commands work from any page. A tap on a word records only that
+word again; "Строго / Нормално / Лесно" = `sens 0.8 / 1.0 / 1.3`.
+Firmware in the APK: `scripts/apply-voice-firmware.py` (OTA zip → `assets/xems/voice/app.bin|dat`); the update
+protocol is checked byte-for-byte against adafruit-nrfutil by `sh scripts/voice-sim/run-dfu.sh`.
 
 ## XEMS side (1.1.480-ai) — `wearable/voice/`
 - `VoiceLink` — one app-wide BLE link (Nordic UART): kept address + autoConnect from `XemsNav.attach`; scans for

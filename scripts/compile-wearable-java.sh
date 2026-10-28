@@ -146,6 +146,8 @@ WEARABLE_JAVA=(
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/mastogo/MastogoScan.java"
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/mastogo/MastogoLink.java"
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/mastogo/MastogoScreen.java"
+  "${JAVA_SRC}/com/isaigu/gymapp/wearable/voice/VoiceDfu.java"
+  "${JAVA_SRC}/com/isaigu/gymapp/wearable/voice/VoiceUsb.java"
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/voice/VoiceLink.java"
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/voice/VoiceRemote.java"
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/voice/VoiceScreen.java"

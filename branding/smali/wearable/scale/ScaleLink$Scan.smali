@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 930
+    .line 933
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 931
+    .line 934
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink$Scan;->link:Lcom/isaigu/gymapp/wearable/scale/ScaleLink;
 
-    .line 932
+    .line 935
     return-void
 .end method
 
@@ -42,16 +42,16 @@
     .registers 7
 
     .prologue
-    .line 937
+    .line 940
     if-eqz p1, :cond_7
 
-    .line 938
+    .line 941
     :try_start_2
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink$Scan;->link:Lcom/isaigu/gymapp/wearable/scale/ScaleLink;
 
     invoke-virtual {v0, p1, p2, p3}, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->saw(Landroid/bluetooth/BluetoothDevice;I[B)V
 
-    .line 940
+    .line 943
     :cond_7
     if-eqz p1, :cond_1f
 
@@ -63,7 +63,7 @@
 
     if-eqz v0, :cond_1f
 
-    .line 941
+    .line 944
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink$Scan;->link:Lcom/isaigu/gymapp/wearable/scale/ScaleLink;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->main:Landroid/os/Handler;
@@ -78,12 +78,12 @@
     :try_end_1f
     .catch Ljava/lang/Throwable; {:try_start_2 .. :try_end_1f} :catch_20
 
-    .line 945
+    .line 948
     :cond_1f
     :goto_1f
     return-void
 
-    .line 943
+    .line 946
     :catch_20
     move-exception v0
 

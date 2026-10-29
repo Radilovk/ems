@@ -86,6 +86,7 @@ final class ScaleStage {
 
     ScaleStage(Activity a, boolean female) {
         this.a = a;
+        WearableBleDiagLog.init(a);
         this.female = female;
         root = XemsUi.horizontal(a);
         root.setGravity(Gravity.TOP);

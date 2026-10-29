@@ -17,6 +17,11 @@ the check; live state 04 = locked; FFB0 is also found in 128-bit lists and servi
 FG20… / FI20…; the first 200 frames of every ICOMON connection are logged (`rx FFB2 …`). **Next:** one weigh-in →
 `scale` log, to confirm the A3 layout of this model.
 
+**Name "F8" (1.1.491-ai).** Fitdays → device sharing shows the owner's P1 as **"F8"**, MAC 80:F4:16:5C:3D:D8 — none
+of the scale-like names; `looksLikeScale` now takes the iComon short model names `f\d{1,2}[a-z]{0,2}` (F8, F4P).
+The "no scale record" log: `WearableBleDiagLog` wrote its file only after the band had opened it — the scale page
+and link now `init` it themselves, and the share falls back to the in-memory ring.
+
 **Still not found on the owner's tablet (1.1.490-ai).** The app targets API 30, so Android returns BLE scan
 results only with the location permission **and** the location switch on — a tablet whose suits connect by saved
 MAC can have it off and the scan hears nothing. `ScaleLink` now checks it every 2 s (`NO_LOCATION` state → stage

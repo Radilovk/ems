@@ -113,6 +113,7 @@ public final class ScaleLink {
 
     public ScaleLink(Context c, long clientId, boolean male, int age, int heightCm, double lastKg, Listener l) {
         this.app = c.getApplicationContext();
+        WearableBleDiagLog.init(app);     // the file log was opened only by the band: without one the scale wrote nothing
         this.clientId = clientId;
         this.male = male;
         this.age = age;
@@ -344,7 +345,9 @@ public final class ScaleLink {
         String n = name.toLowerCase(Locale.ROOT).trim();
         return n.contains("lescale") || n.contains("lepulse") || n.startsWith("le-p") || n.contains("scale")
                 || n.contains("fitdays") || n.contains("icomon") || n.contains("runstar") || n.contains("starfit")
-                || n.startsWith("fg20") || n.startsWith("fi20") || n.startsWith("e.volve") || n.contains("sacoma")
+                || n.startsWith("fg20") || n.startsWith("fi20")
+                // iComon / Fitdays short model names: the owner's P1 (FG2001ULB) shows itself as "F8"; Lescale F4P
+                || n.matches("f\\d{1,2}[a-z]{0,2}") || n.startsWith("e.volve") || n.contains("sacoma")
                 || n.equals("p1") || n.startsWith("p1 ") || n.startsWith("p1-");
     }
 

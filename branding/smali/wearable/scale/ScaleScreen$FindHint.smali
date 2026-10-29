@@ -28,16 +28,16 @@
     .registers 3
 
     .prologue
-    .line 2130
+    .line 2137
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 2131
+    .line 2138
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$FindHint;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;
 
-    .line 2132
+    .line 2139
     iput p2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$FindHint;->token:I
 
-    .line 2133
+    .line 2140
     return-void
 .end method
 
@@ -47,7 +47,7 @@
     .registers 5
 
     .prologue
-    .line 2137
+    .line 2144
     iget v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$FindHint;->token:I
 
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$FindHint;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;
@@ -86,12 +86,12 @@
 
     if-lez v0, :cond_26
 
-    .line 2145
+    .line 2152
     :cond_25
     :goto_25
     return-void
 
-    .line 2141
+    .line 2148
     :cond_26
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$FindHint;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;
 
@@ -107,7 +107,7 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 2142
+    .line 2149
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$FindHint;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;->find:Landroid/widget/TextView;
@@ -116,7 +116,7 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setVisibility(I)V
 
-    .line 2143
+    .line 2150
     new-instance v0, Ljava/lang/StringBuilder;
 
     invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V

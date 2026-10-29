@@ -11,8 +11,8 @@
         Lcom/isaigu/gymapp/wearable/scale/ScaleLink$Retry;,
         Lcom/isaigu/gymapp/wearable/scale/ScaleLink$Gatt;,
         Lcom/isaigu/gymapp/wearable/scale/ScaleLink$Op;,
-        Lcom/isaigu/gymapp/wearable/scale/ScaleLink$Unprompted;,
         Lcom/isaigu/gymapp/wearable/scale/ScaleLink$Beat;,
+        Lcom/isaigu/gymapp/wearable/scale/ScaleLink$Unprompted;,
         Lcom/isaigu/gymapp/wearable/scale/ScaleLink$OpTimeout;,
         Lcom/isaigu/gymapp/wearable/scale/ScaleLink$Event;,
         Lcom/isaigu/gymapp/wearable/scale/ScaleLink$Found;
@@ -269,7 +269,7 @@
     .prologue
     const/4 v0, 0x0
 
-    .line 216
+    .line 228
     const/4 v1, 0x0
 
     :goto_2
@@ -281,20 +281,20 @@
 
     if-ge v2, v3, :cond_f
 
-    .line 217
+    .line 229
     aget-byte v2, p0, v1
 
     and-int/lit16 v2, v2, 0xff
 
-    .line 218
+    .line 230
     if-nez v2, :cond_10
 
-    .line 231
+    .line 243
     :cond_f
     :goto_f
     return-object v0
 
-    .line 221
+    .line 233
     :cond_10
     add-int/lit8 v3, v1, 0x1
 
@@ -302,7 +302,7 @@
 
     and-int/lit16 v3, v3, 0xff
 
-    .line 222
+    .line 234
     const/16 v4, 0x8
 
     if-eq v3, v4, :cond_1e
@@ -320,7 +320,7 @@
 
     if-gt v3, v4, :cond_3c
 
-    .line 224
+    .line 236
     :try_start_24
     new-instance v3, Ljava/lang/String;
 
@@ -348,16 +348,16 @@
 
     goto :goto_f
 
-    .line 229
+    .line 241
     :cond_3c
     add-int/lit8 v2, v2, 0x1
 
     add-int/2addr v1, v2
 
-    .line 230
+    .line 242
     goto :goto_2
 
-    .line 225
+    .line 237
     :catch_40
     move-exception v1
 
@@ -365,84 +365,192 @@
 .end method
 
 .method static advertisesFfb0([B)Z
-    .registers 7
+    .registers 10
 
     .prologue
-    const/4 v0, 0x0
+    const/4 v8, 0x3
 
-    .line 197
-    move v2, v0
+    const/4 v1, 0x0
 
-    :goto_2
-    if-eqz p0, :cond_16
+    const v7, 0xffb0
 
-    add-int/lit8 v1, v2, 0x1
-
-    array-length v3, p0
-
-    if-ge v1, v3, :cond_16
+    const/4 v0, 0x1
 
     .line 198
-    aget-byte v1, p0, v2
+    move v3, v1
 
-    and-int/lit16 v3, v1, 0xff
+    :goto_7
+    if-eqz p0, :cond_1b
 
-    .line 199
-    if-eqz v3, :cond_16
-
-    add-int v1, v2, v3
+    add-int/lit8 v2, v3, 0x1
 
     array-length v4, p0
 
-    add-int/lit8 v4, v4, 0x1
+    if-ge v2, v4, :cond_1b
 
-    if-lt v1, v4, :cond_17
+    .line 199
+    aget-byte v2, p0, v3
 
-    .line 212
-    :cond_16
-    :goto_16
-    return v0
+    and-int/lit16 v4, v2, 0xff
 
-    .line 202
-    :cond_17
-    add-int/lit8 v1, v2, 0x1
+    .line 200
+    if-eqz v4, :cond_1b
 
-    aget-byte v1, p0, v1
-
-    and-int/lit16 v1, v1, 0xff
-
-    .line 203
-    const/4 v4, 0x2
-
-    if-eq v1, v4, :cond_23
-
-    const/4 v4, 0x3
-
-    if-ne v1, v4, :cond_47
-
-    .line 204
-    :cond_23
-    add-int/lit8 v1, v2, 0x2
-
-    :goto_25
-    add-int/lit8 v4, v1, 0x1
-
-    add-int v5, v2, v3
-
-    if-gt v4, v5, :cond_47
-
-    .line 205
-    add-int/lit8 v4, v1, 0x1
+    add-int v2, v3, v4
 
     array-length v5, p0
 
-    if-ge v4, v5, :cond_44
+    add-int/lit8 v5, v5, 0x1
 
-    aget-byte v4, p0, v1
+    if-lt v2, v5, :cond_1d
 
-    and-int/lit16 v4, v4, 0xff
+    :cond_1b
+    move v0, v1
 
-    add-int/lit8 v5, v1, 0x1
+    .line 224
+    :cond_1c
+    return v0
+
+    .line 203
+    :cond_1d
+    add-int/lit8 v2, v3, 0x1
+
+    aget-byte v2, p0, v2
+
+    and-int/lit16 v2, v2, 0xff
+
+    .line 204
+    const/4 v5, 0x2
+
+    if-eq v2, v5, :cond_28
+
+    if-ne v2, v8, :cond_47
+
+    .line 205
+    :cond_28
+    add-int/lit8 v2, v3, 0x2
+
+    :goto_2a
+    add-int/lit8 v5, v2, 0x1
+
+    add-int v6, v3, v4
+
+    if-gt v5, v6, :cond_96
+
+    .line 206
+    add-int/lit8 v5, v2, 0x1
+
+    array-length v6, p0
+
+    if-ge v5, v6, :cond_44
+
+    aget-byte v5, p0, v2
+
+    and-int/lit16 v5, v5, 0xff
+
+    add-int/lit8 v6, v2, 0x1
+
+    aget-byte v6, p0, v6
+
+    and-int/lit16 v6, v6, 0xff
+
+    shl-int/lit8 v6, v6, 0x8
+
+    or-int/2addr v5, v6
+
+    if-eq v5, v7, :cond_1c
+
+    .line 205
+    :cond_44
+    add-int/lit8 v2, v2, 0x2
+
+    goto :goto_2a
+
+    .line 210
+    :cond_47
+    const/4 v5, 0x6
+
+    if-eq v2, v5, :cond_4d
+
+    const/4 v5, 0x7
+
+    if-ne v2, v5, :cond_7a
+
+    .line 212
+    :cond_4d
+    add-int/lit8 v2, v3, 0x2
+
+    :goto_4f
+    add-int/lit8 v5, v2, 0xf
+
+    add-int v6, v3, v4
+
+    if-gt v5, v6, :cond_96
+
+    .line 213
+    add-int/lit8 v5, v2, 0xd
+
+    array-length v6, p0
+
+    if-ge v5, v6, :cond_77
+
+    add-int/lit8 v5, v2, 0xc
+
+    aget-byte v5, p0, v5
+
+    and-int/lit16 v5, v5, 0xff
+
+    add-int/lit8 v6, v2, 0xd
+
+    aget-byte v6, p0, v6
+
+    and-int/lit16 v6, v6, 0xff
+
+    shl-int/lit8 v6, v6, 0x8
+
+    or-int/2addr v5, v6
+
+    if-ne v5, v7, :cond_77
+
+    add-int/lit8 v5, v2, 0xe
+
+    aget-byte v5, p0, v5
+
+    if-nez v5, :cond_77
+
+    add-int/lit8 v5, v2, 0xf
+
+    aget-byte v5, p0, v5
+
+    if-eqz v5, :cond_1c
+
+    .line 212
+    :cond_77
+    add-int/lit8 v2, v2, 0x10
+
+    goto :goto_4f
+
+    .line 218
+    :cond_7a
+    const/16 v5, 0x16
+
+    if-ne v2, v5, :cond_96
+
+    if-lt v4, v8, :cond_96
+
+    add-int/lit8 v2, v3, 0x3
+
+    array-length v5, p0
+
+    if-ge v2, v5, :cond_96
+
+    add-int/lit8 v2, v3, 0x2
+
+    aget-byte v2, p0, v2
+
+    and-int/lit16 v2, v2, 0xff
+
+    add-int/lit8 v5, v3, 0x3
 
     aget-byte v5, p0, v5
 
@@ -450,33 +558,20 @@
 
     shl-int/lit8 v5, v5, 0x8
 
-    or-int/2addr v4, v5
+    or-int/2addr v2, v5
 
-    const v5, 0xffb0
+    if-eq v2, v7, :cond_1c
 
-    if-ne v4, v5, :cond_44
+    .line 222
+    :cond_96
+    add-int/lit8 v2, v4, 0x1
 
-    .line 206
-    const/4 v0, 0x1
+    add-int/2addr v2, v3
 
-    goto :goto_16
+    move v3, v2
 
-    .line 204
-    :cond_44
-    add-int/lit8 v1, v1, 0x2
-
-    goto :goto_25
-
-    .line 210
-    :cond_47
-    add-int/lit8 v1, v3, 0x1
-
-    add-int/2addr v1, v2
-
-    move v2, v1
-
-    .line 211
-    goto :goto_2
+    .line 223
+    goto/16 :goto_7
 .end method
 
 .method static hex([B)Ljava/lang/String;
@@ -485,14 +580,14 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 639
+    .line 660
     new-instance v2, Ljava/lang/StringBuilder;
 
     invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
 
     move v0, v1
 
-    .line 640
+    .line 661
     :goto_7
     array-length v3, p0
 
@@ -502,7 +597,7 @@
 
     if-ge v0, v3, :cond_29
 
-    .line 641
+    .line 662
     sget-object v3, Ljava/util/Locale;->US:Ljava/util/Locale;
 
     const-string v4, "%02x"
@@ -527,12 +622,12 @@
 
     invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 640
+    .line 661
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_7
 
-    .line 643
+    .line 664
     :cond_29
     invoke-virtual {v2}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
@@ -547,20 +642,20 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 647
+    .line 668
     new-instance v3, Ljava/lang/StringBuilder;
 
     invoke-direct {v3}, Ljava/lang/StringBuilder;-><init>()V
 
     move v0, v1
 
-    .line 648
+    .line 669
     :goto_7
     array-length v2, p0
 
     if-ge v0, v2, :cond_2a
 
-    .line 649
+    .line 670
     sget-object v4, Ljava/util/Locale;->US:Ljava/util/Locale;
 
     if-nez v0, :cond_27
@@ -588,18 +683,18 @@
 
     invoke-virtual {v3, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 648
+    .line 669
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_7
 
-    .line 649
+    .line 670
     :cond_27
     const-string v2, " %02x"
 
     goto :goto_10
 
-    .line 651
+    .line 672
     :cond_2a
     invoke-virtual {v3}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
@@ -654,7 +749,7 @@
 
     move-result v2
 
-    if-nez v2, :cond_66
+    if-nez v2, :cond_86
 
     const-string v2, "lepulse"
 
@@ -662,7 +757,7 @@
 
     move-result v2
 
-    if-nez v2, :cond_66
+    if-nez v2, :cond_86
 
     const-string v2, "le-p"
 
@@ -670,7 +765,7 @@
 
     move-result v2
 
-    if-nez v2, :cond_66
+    if-nez v2, :cond_86
 
     const-string v2, "scale"
 
@@ -678,7 +773,7 @@
 
     move-result v2
 
-    if-nez v2, :cond_66
+    if-nez v2, :cond_86
 
     const-string v2, "fitdays"
 
@@ -687,7 +782,7 @@
 
     move-result v2
 
-    if-nez v2, :cond_66
+    if-nez v2, :cond_86
 
     const-string v2, "icomon"
 
@@ -695,7 +790,40 @@
 
     move-result v2
 
-    if-nez v2, :cond_66
+    if-nez v2, :cond_86
+
+    const-string v2, "runstar"
+
+    invoke-virtual {v1, v2}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
+
+    move-result v2
+
+    if-nez v2, :cond_86
+
+    const-string v2, "starfit"
+
+    invoke-virtual {v1, v2}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
+
+    move-result v2
+
+    if-nez v2, :cond_86
+
+    const-string v2, "fg20"
+
+    .line 192
+    invoke-virtual {v1, v2}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
+
+    move-result v2
+
+    if-nez v2, :cond_86
+
+    const-string v2, "fi20"
+
+    invoke-virtual {v1, v2}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
+
+    move-result v2
+
+    if-nez v2, :cond_86
 
     const-string v2, "e.volve"
 
@@ -703,7 +831,7 @@
 
     move-result v2
 
-    if-nez v2, :cond_66
+    if-nez v2, :cond_86
 
     const-string v2, "sacoma"
 
@@ -711,16 +839,16 @@
 
     move-result v2
 
-    if-nez v2, :cond_66
+    if-nez v2, :cond_86
 
     const-string v2, "p1"
 
-    .line 192
+    .line 193
     invoke-virtual {v1, v2}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v2
 
-    if-nez v2, :cond_66
+    if-nez v2, :cond_86
 
     const-string v2, "p1 "
 
@@ -728,7 +856,7 @@
 
     move-result v2
 
-    if-nez v2, :cond_66
+    if-nez v2, :cond_86
 
     const-string v2, "p1-"
 
@@ -738,17 +866,17 @@
 
     if-eqz v1, :cond_3
 
-    :cond_66
+    :cond_86
     const/4 v0, 0x1
 
-    goto :goto_3
+    goto/16 :goto_3
 .end method
 
 .method static utcOffsetMin()I
     .registers 4
 
     .prologue
-    .line 446
+    .line 467
     invoke-static {}, Ljava/util/TimeZone;->getDefault()Ljava/util/TimeZone;
 
     move-result-object v0
@@ -776,7 +904,7 @@
     .prologue
     const-wide/16 v0, 0x0
 
-    .line 523
+    .line 544
     iget v2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->beatToken:I
 
     if-ne p1, v2, :cond_14
@@ -795,12 +923,12 @@
 
     if-eq v2, v3, :cond_15
 
-    .line 536
+    .line 557
     :cond_14
     :goto_14
     return-void
 
-    .line 526
+    .line 547
     :cond_15
     iget-wide v2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->liveKg:D
 
@@ -810,13 +938,13 @@
 
     iget-wide v5, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->liveKg:D
 
-    .line 527
+    .line 548
     :goto_1d
     cmpl-double v0, v5, v0
 
     if-lez v0, :cond_5a
 
-    .line 528
+    .line 549
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->unixNow()J
 
     move-result-wide v0
@@ -841,17 +969,17 @@
 
     invoke-virtual {p0, v0}, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->sendB([B)V
 
-    .line 529
+    .line 550
     iget-boolean v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->usersSent:Z
 
     if-nez v0, :cond_5a
 
-    .line 530
+    .line 551
     const/4 v0, 0x1
 
     iput-boolean v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->usersSent:Z
 
-    .line 531
+    .line 552
     iget-wide v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->clientId:J
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol;->uidLong(J)J
@@ -870,14 +998,14 @@
 
     invoke-virtual {p0, v0}, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->sendB([B)V
 
-    .line 532
+    .line 553
     invoke-static {}, Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol;->otherB()[B
 
     move-result-object v0
 
     invoke-virtual {p0, v0}, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->sendB([B)V
 
-    .line 535
+    .line 556
     :cond_5a
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->main:Landroid/os/Handler;
 
@@ -894,7 +1022,7 @@
     :cond_67
     move-wide v5, v0
 
-    .line 526
+    .line 547
     goto :goto_1d
 .end method
 
@@ -902,25 +1030,25 @@
     .registers 3
 
     .prologue
-    .line 663
+    .line 684
     const/4 v0, 0x1
 
     iput-boolean v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->closed:Z
 
-    .line 664
+    .line 685
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->stopScan()V
 
-    .line 665
+    .line 686
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->closeGatt()V
 
-    .line 666
+    .line 687
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->main:Landroid/os/Handler;
 
     const/4 v1, 0x0
 
     invoke-virtual {v0, v1}, Landroid/os/Handler;->removeCallbacksAndMessages(Ljava/lang/Object;)V
 
-    .line 667
+    .line 688
     return-void
 .end method
 
@@ -930,53 +1058,53 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 670
+    .line 691
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->gatt:Landroid/bluetooth/BluetoothGatt;
 
-    .line 671
+    .line 692
     iput-object v1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->gatt:Landroid/bluetooth/BluetoothGatt;
 
-    .line 672
+    .line 693
     iput-object v1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->write:Landroid/bluetooth/BluetoothGattCharacteristic;
 
-    .line 673
+    .line 694
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->ops:Ljava/util/List;
 
     invoke-interface {v1}, Ljava/util/List;->clear()V
 
-    .line 674
+    .line 695
     const/4 v1, 0x0
 
     iput-boolean v1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->busy:Z
 
-    .line 675
+    .line 696
     if-eqz v0, :cond_17
 
-    .line 677
+    .line 698
     :try_start_11
     invoke-virtual {v0}, Landroid/bluetooth/BluetoothGatt;->disconnect()V
     :try_end_14
     .catch Ljava/lang/Throwable; {:try_start_11 .. :try_end_14} :catch_18
 
-    .line 681
+    .line 702
     :goto_14
     :try_start_14
     invoke-virtual {v0}, Landroid/bluetooth/BluetoothGatt;->close()V
     :try_end_17
     .catch Ljava/lang/Throwable; {:try_start_14 .. :try_end_17} :catch_1a
 
-    .line 685
+    .line 706
     :cond_17
     :goto_17
     return-void
 
-    .line 678
+    .line 699
     :catch_18
     move-exception v1
 
     goto :goto_14
 
-    .line 682
+    .line 703
     :catch_1a
     move-exception v0
 
@@ -987,14 +1115,14 @@
     .registers 6
 
     .prologue
-    .line 632
+    .line 653
     iget v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->results:I
 
     add-int/lit8 v0, v0, 0x1
 
     iput v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->results:I
 
-    .line 633
+    .line 654
     new-instance v0, Ljava/lang/StringBuilder;
 
     invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
@@ -1045,17 +1173,17 @@
 
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->log(Ljava/lang/String;)V
 
-    .line 634
+    .line 655
     const/4 v0, 0x5
 
     invoke-virtual {p0, v0}, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->setState(I)V
 
-    .line 635
+    .line 656
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->listener:Lcom/isaigu/gymapp/wearable/scale/ScaleLink$Listener;
 
     invoke-interface {v0, p1}, Lcom/isaigu/gymapp/wearable/scale/ScaleLink$Listener;->onResult(Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol$Reading;)V
 
-    .line 636
+    .line 657
     return-void
 .end method
 
@@ -1069,7 +1197,7 @@
 
     const/4 v5, 0x0
 
-    .line 235
+    .line 247
     iget-boolean v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->closed:Z
 
     if-nez v0, :cond_b
@@ -1078,16 +1206,16 @@
 
     if-eqz v0, :cond_c
 
-    .line 255
+    .line 267
     :cond_b
     :goto_b
     return-void
 
-    .line 238
+    .line 250
     :cond_c
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->stopScan()V
 
-    .line 239
+    .line 251
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->xsSeen:Ljava/util/Map;
 
     invoke-virtual {p1}, Landroid/bluetooth/BluetoothDevice;->getAddress()Ljava/lang/String;
@@ -1112,7 +1240,7 @@
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->xs:[I
 
-    .line 240
+    .line 252
     new-instance v0, Ljava/lang/StringBuilder;
 
     invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
@@ -1148,13 +1276,13 @@
 
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->log(Ljava/lang/String;)V
 
-    .line 242
+    .line 254
     invoke-virtual {p0, v7}, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->setState(I)V
 
-    .line 243
+    .line 255
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->resetSession()V
 
-    .line 245
+    .line 257
     :try_start_51
     sget v0, Landroid/os/Build$VERSION;->SDK_INT:I
 
@@ -1162,7 +1290,7 @@
 
     if-lt v0, v1, :cond_c0
 
-    .line 246
+    .line 258
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->app:Landroid/content/Context;
 
     const/4 v1, 0x0
@@ -1183,11 +1311,11 @@
 
     goto :goto_b
 
-    .line 250
+    .line 262
     :catch_67
     move-exception v0
 
-    .line 251
+    .line 263
     new-instance v1, Ljava/lang/StringBuilder;
 
     invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
@@ -1208,12 +1336,12 @@
 
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->log(Ljava/lang/String;)V
 
-    .line 252
+    .line 264
     const/4 v0, 0x0
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->gatt:Landroid/bluetooth/BluetoothGatt;
 
-    .line 253
+    .line 265
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->main:Landroid/os/Handler;
 
     new-instance v1, Lcom/isaigu/gymapp/wearable/scale/ScaleLink$Retry;
@@ -1226,7 +1354,7 @@
 
     goto/16 :goto_b
 
-    .line 240
+    .line 252
     :cond_8f
     sget-object v2, Ljava/util/Locale;->US:Ljava/util/Locale;
 
@@ -1240,7 +1368,7 @@
 
     aget v0, v0, v5
 
-    .line 241
+    .line 253
     invoke-static {v0}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
 
     move-result-object v0
@@ -1272,20 +1400,20 @@
     :goto_b6
     aput-object v0, v4, v7
 
-    .line 240
+    .line 252
     invoke-static {v2, v3, v4}, Ljava/lang/String;->format(Ljava/util/Locale;Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
 
     move-result-object v0
 
     goto :goto_40
 
-    .line 241
+    .line 253
     :cond_bd
     const-string v0, ""
 
     goto :goto_b6
 
-    .line 248
+    .line 260
     :cond_c0
     :try_start_c0
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->app:Landroid/content/Context;
@@ -1313,20 +1441,20 @@
     .prologue
     const/4 v12, 0x1
 
-    .line 450
+    .line 471
     iget-boolean v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->handshakeSent:Z
 
     if-eqz v0, :cond_6
 
-    .line 460
+    .line 481
     :cond_5
     return-void
 
-    .line 453
+    .line 474
     :cond_6
     iput-boolean v12, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->handshakeSent:Z
 
-    .line 454
+    .line 475
     iget v1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->seq:I
 
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->unixNow()J
@@ -1347,17 +1475,17 @@
 
     iget-wide v10, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->clientId:J
 
-    .line 455
+    .line 476
     invoke-static {v10, v11}, Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol;->uidBytes(J)[B
 
     move-result-object v10
 
-    .line 454
+    .line 475
     invoke-static/range {v1 .. v10}, Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol;->handshakeA(IJIIDZI[B)Ljava/util/List;
 
     move-result-object v0
 
-    .line 456
+    .line 477
     iget v1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->seq:I
 
     invoke-interface {v0}, Ljava/util/List;->size()I
@@ -1368,7 +1496,7 @@
 
     iput v1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->seq:I
 
-    .line 457
+    .line 478
     invoke-interface {v0}, Ljava/util/List;->iterator()Ljava/util/Iterator;
 
     move-result-object v1
@@ -1386,7 +1514,7 @@
 
     check-cast v0, [B
 
-    .line 458
+    .line 479
     invoke-virtual {p0, v0, v12}, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->send([BZ)V
 
     goto :goto_31
@@ -1529,13 +1657,13 @@
 
     const/4 v2, 0x4
 
-    .line 620
+    .line 641
     iput-wide p1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->liveKg:D
 
-    .line 621
+    .line 642
     iput-boolean p3, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->liveStable:Z
 
-    .line 622
+    .line 643
     iget v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->state:I
 
     if-eq v0, v2, :cond_1d
@@ -1550,20 +1678,20 @@
 
     if-lez v0, :cond_1d
 
-    .line 623
+    .line 644
     invoke-virtual {p0, v2}, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->setState(I)V
 
-    .line 627
+    .line 648
     :cond_17
     :goto_17
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->listener:Lcom/isaigu/gymapp/wearable/scale/ScaleLink$Listener;
 
     invoke-interface {v0, p1, p2, p3}, Lcom/isaigu/gymapp/wearable/scale/ScaleLink$Listener;->onLive(DZ)V
 
-    .line 628
+    .line 649
     return-void
 
-    .line 624
+    .line 645
     :cond_1d
     iget v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->state:I
 
@@ -1575,7 +1703,7 @@
 
     if-gez v0, :cond_17
 
-    .line 625
+    .line 646
     const/4 v0, 0x3
 
     invoke-virtual {p0, v0}, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->setState(I)V
@@ -1587,7 +1715,7 @@
     .registers 8
 
     .prologue
-    .line 368
+    .line 380
     :try_start_0
     invoke-virtual {p1}, Landroid/bluetooth/BluetoothGatt;->getServices()Ljava/util/List;
 
@@ -1610,7 +1738,7 @@
 
     check-cast v0, Landroid/bluetooth/BluetoothGattService;
 
-    .line 369
+    .line 381
     new-instance v2, Ljava/lang/StringBuilder;
 
     const-string v3, "svc "
@@ -1625,7 +1753,7 @@
 
     move-result-object v2
 
-    .line 370
+    .line 382
     invoke-virtual {v0}, Landroid/bluetooth/BluetoothGattService;->getCharacteristics()Ljava/util/List;
 
     move-result-object v0
@@ -1647,7 +1775,7 @@
 
     check-cast v0, Landroid/bluetooth/BluetoothGattCharacteristic;
 
-    .line 371
+    .line 383
     const-string v4, "\n  chr "
 
     invoke-virtual {v2, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
@@ -1668,7 +1796,7 @@
 
     move-result-object v4
 
-    .line 372
+    .line 384
     invoke-virtual {v0}, Landroid/bluetooth/BluetoothGattCharacteristic;->getProperties()I
 
     move-result v0
@@ -1683,11 +1811,11 @@
 
     goto :goto_2b
 
-    .line 376
+    .line 388
     :catch_57
     move-exception v0
 
-    .line 377
+    .line 389
     new-instance v1, Ljava/lang/StringBuilder;
 
     invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
@@ -1708,11 +1836,11 @@
 
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->log(Ljava/lang/String;)V
 
-    .line 379
+    .line 391
     :cond_6e
     return-void
 
-    .line 374
+    .line 386
     :cond_6f
     :try_start_6f
     invoke-virtual {v2}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
@@ -1727,66 +1855,51 @@
 .end method
 
 .method onChanged(Ljava/util/UUID;[B)V
-    .registers 7
+    .registers 12
 
     .prologue
-    .line 400
-    if-nez p2, :cond_3
+    const/16 v8, 0x58
 
-    .line 415
-    :cond_2
-    :goto_2
+    const/16 v7, 0x53
+
+    const/16 v6, 0x41
+
+    const/16 v5, 0x8
+
+    const/4 v4, 0x4
+
+    .line 412
+    if-nez p2, :cond_c
+
+    .line 436
+    :cond_b
+    :goto_b
     return-void
 
-    .line 403
-    :cond_3
+    .line 415
+    :cond_c
     iget-char v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->gen:C
 
-    const/16 v1, 0x41
+    if-eq v0, v7, :cond_4c
 
-    if-ne v0, v1, :cond_d
-
-    .line 404
-    invoke-virtual {p0, p1, p2}, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->onFrameA(Ljava/util/UUID;[B)V
-
-    goto :goto_2
-
-    .line 405
-    :cond_d
     iget-char v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->gen:C
 
-    const/16 v1, 0x53
+    if-eq v0, v8, :cond_4c
 
-    if-ne v0, v1, :cond_17
-
-    .line 406
-    invoke-virtual {p0, p1, p2}, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->onFrameS(Ljava/util/UUID;[B)V
-
-    goto :goto_2
-
-    .line 407
-    :cond_17
-    iget-char v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->gen:C
-
-    const/16 v1, 0x58
-
-    if-ne v0, v1, :cond_59
-
-    .line 408
     iget v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->rawLogged:I
 
-    const/16 v1, 0x190
+    const/16 v1, 0xc8
 
-    if-ge v0, v1, :cond_2
+    if-ge v0, v1, :cond_4c
 
-    .line 409
+    .line 416
     iget v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->rawLogged:I
 
     add-int/lit8 v0, v0, 0x1
 
     iput v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->rawLogged:I
 
-    .line 410
+    .line 417
     new-instance v0, Ljava/lang/StringBuilder;
 
     invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
@@ -1801,11 +1914,7 @@
 
     move-result-object v1
 
-    const/4 v2, 0x4
-
-    const/16 v3, 0x8
-
-    invoke-virtual {v1, v2, v3}, Ljava/lang/String;->substring(II)Ljava/lang/String;
+    invoke-virtual {v1, v4, v5}, Ljava/lang/String;->substring(II)Ljava/lang/String;
 
     move-result-object v1
 
@@ -1833,13 +1942,141 @@
 
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->log(Ljava/lang/String;)V
 
-    goto :goto_2
+    .line 419
+    :cond_4c
+    iget-char v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->gen:C
 
-    .line 413
-    :cond_59
+    if-ne v0, v6, :cond_75
+
+    iget-boolean v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->heard:Z
+
+    if-nez v0, :cond_75
+
+    invoke-static {p2}, Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol;->looksLikeB([B)Z
+
+    move-result v0
+
+    if-eqz v0, :cond_75
+
+    .line 420
+    const/16 v0, 0x42
+
+    iput-char v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->gen:C
+
+    .line 421
+    const-string v0, "gen A -> B by the first frame"
+
+    invoke-static {v0}, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->log(Ljava/lang/String;)V
+
+    .line 422
+    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->main:Landroid/os/Handler;
+
+    new-instance v1, Lcom/isaigu/gymapp/wearable/scale/ScaleLink$Beat;
+
+    iget v2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->beatToken:I
+
+    add-int/lit8 v2, v2, 0x1
+
+    iput v2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->beatToken:I
+
+    invoke-direct {v1, p0, v2}, Lcom/isaigu/gymapp/wearable/scale/ScaleLink$Beat;-><init>(Lcom/isaigu/gymapp/wearable/scale/ScaleLink;I)V
+
+    const-wide/16 v2, 0x190
+
+    invoke-virtual {v0, v1, v2, v3}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
+
+    .line 424
+    :cond_75
+    iget-char v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->gen:C
+
+    if-ne v0, v6, :cond_7d
+
+    .line 425
+    invoke-virtual {p0, p1, p2}, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->onFrameA(Ljava/util/UUID;[B)V
+
+    goto :goto_b
+
+    .line 426
+    :cond_7d
+    iget-char v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->gen:C
+
+    if-ne v0, v7, :cond_85
+
+    .line 427
+    invoke-virtual {p0, p1, p2}, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->onFrameS(Ljava/util/UUID;[B)V
+
+    goto :goto_b
+
+    .line 428
+    :cond_85
+    iget-char v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->gen:C
+
+    if-ne v0, v8, :cond_c3
+
+    .line 429
+    iget v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->rawLogged:I
+
+    const/16 v1, 0x190
+
+    if-ge v0, v1, :cond_b
+
+    .line 430
+    iget v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->rawLogged:I
+
+    add-int/lit8 v0, v0, 0x1
+
+    iput v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->rawLogged:I
+
+    .line 431
+    new-instance v0, Ljava/lang/StringBuilder;
+
+    invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v1, "rx "
+
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    invoke-virtual {p1}, Ljava/util/UUID;->toString()Ljava/lang/String;
+
+    move-result-object v1
+
+    invoke-virtual {v1, v4, v5}, Ljava/lang/String;->substring(II)Ljava/lang/String;
+
+    move-result-object v1
+
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    const-string v1, " "
+
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    invoke-static {p2}, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->hexAll([B)Ljava/lang/String;
+
+    move-result-object v1
+
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v0
+
+    invoke-static {v0}, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->log(Ljava/lang/String;)V
+
+    goto/16 :goto_b
+
+    .line 434
+    :cond_c3
     invoke-virtual {p0, p1, p2}, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->onFrameB(Ljava/util/UUID;[B)V
 
-    goto :goto_2
+    goto/16 :goto_b
 .end method
 
 .method onClassicS([B)V
@@ -1848,28 +2085,28 @@
     .prologue
     const/4 v3, 0x1
 
-    .line 597
+    .line 618
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->senssun:Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun$Reader;
 
     invoke-virtual {v0, p1}, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun$Reader;->add([B)I
 
     move-result v0
 
-    .line 598
+    .line 619
     if-nez v0, :cond_a
 
-    .line 615
+    .line 636
     :goto_9
     return-void
 
-    .line 601
+    .line 622
     :cond_a
     iput-boolean v3, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->heard:Z
 
-    .line 602
+    .line 623
     if-ne v0, v3, :cond_17
 
-    .line 603
+    .line 624
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->senssun:Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun$Reader;
 
     iget-wide v0, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun$Reader;->kg:D
@@ -1880,20 +2117,20 @@
 
     goto :goto_9
 
-    .line 604
+    .line 625
     :cond_17
     const/4 v1, 0x2
 
     if-ne v0, v1, :cond_2f
 
-    .line 605
+    .line 626
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->senssun:Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun$Reader;
 
     iget-wide v0, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun$Reader;->kg:D
 
     invoke-virtual {p0, v0, v1, v3}, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->live(DZ)V
 
-    .line 606
+    .line 627
     iget-boolean v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->male:Z
 
     iget v1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->age:I
@@ -1908,18 +2145,18 @@
 
     goto :goto_9
 
-    .line 608
+    .line 629
     :cond_2f
     const/4 v1, 0x4
 
     if-ne v0, v1, :cond_37
 
-    .line 609
+    .line 630
     const-string v0, "S: fat test failed (contact) \u2014 weight only"
 
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->log(Ljava/lang/String;)V
 
-    .line 611
+    .line 632
     :cond_37
     new-instance v0, Ljava/lang/StringBuilder;
 
@@ -2015,7 +2252,7 @@
 
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->log(Ljava/lang/String;)V
 
-    .line 613
+    .line 634
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->senssun:Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun$Reader;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun$Reader;->reading()Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol$Reading;
@@ -2031,28 +2268,28 @@
     .registers 8
 
     .prologue
-    .line 279
+    .line 291
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->gatt:Landroid/bluetooth/BluetoothGatt;
 
     if-eq p1, v0, :cond_5
 
-    .line 296
+    .line 308
     :cond_4
     :goto_4
     return-void
 
-    .line 282
+    .line 294
     :cond_5
     const/4 v0, 0x2
 
     if-ne p3, v0, :cond_29
 
-    .line 283
+    .line 295
     const-string v0, "connected"
 
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->log(Ljava/lang/String;)V
 
-    .line 285
+    .line 297
     :try_start_d
     invoke-virtual {p1}, Landroid/bluetooth/BluetoothGatt;->discoverServices()Z
     :try_end_10
@@ -2060,11 +2297,11 @@
 
     goto :goto_4
 
-    .line 286
+    .line 298
     :catch_11
     move-exception v0
 
-    .line 287
+    .line 299
     new-instance v1, Ljava/lang/StringBuilder;
 
     invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
@@ -2087,11 +2324,11 @@
 
     goto :goto_4
 
-    .line 289
+    .line 301
     :cond_29
     if-nez p3, :cond_4
 
-    .line 290
+    .line 302
     new-instance v0, Ljava/lang/StringBuilder;
 
     invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
@@ -2112,15 +2349,15 @@
 
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->log(Ljava/lang/String;)V
 
-    .line 291
+    .line 303
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->closeGatt()V
 
-    .line 292
+    .line 304
     iget-boolean v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->closed:Z
 
     if-nez v0, :cond_4
 
-    .line 293
+    .line 305
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->main:Landroid/os/Handler;
 
     new-instance v1, Lcom/isaigu/gymapp/wearable/scale/ScaleLink$Retry;
@@ -2144,7 +2381,7 @@
 
     const/4 v3, 0x1
 
-    .line 463
+    .line 484
     sget-object v0, Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol;->LIVE:Ljava/util/UUID;
 
     invoke-virtual {v0, p1}, Ljava/util/UUID;->equals(Ljava/lang/Object;)Z
@@ -2153,25 +2390,25 @@
 
     if-eqz v0, :cond_5a
 
-    .line 464
+    .line 485
     invoke-static {p2}, Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol;->liveWeightA([B)D
 
     move-result-wide v0
 
-    .line 465
+    .line 486
     cmpl-double v2, v0, v4
 
     if-lez v2, :cond_18
 
-    .line 466
+    .line 487
     invoke-virtual {p0, v0, v1, v6}, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->live(DZ)V
 
-    .line 490
+    .line 511
     :cond_17
     :goto_17
     return-void
 
-    .line 467
+    .line 488
     :cond_18
     invoke-static {v0, v1}, Ljava/lang/Double;->isNaN(D)Z
 
@@ -2183,10 +2420,10 @@
 
     if-nez v2, :cond_4a
 
-    .line 468
+    .line 489
     iput-boolean v3, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->oddLive:Z
 
-    .line 469
+    .line 490
     new-instance v0, Ljava/lang/StringBuilder;
 
     invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
@@ -2225,7 +2462,7 @@
 
     goto :goto_17
 
-    .line 470
+    .line 491
     :cond_4a
     cmpl-double v0, v0, v4
 
@@ -2239,31 +2476,31 @@
 
     if-lez v0, :cond_17
 
-    .line 471
+    .line 492
     invoke-virtual {p0, v4, v5, v6}, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->live(DZ)V
 
     goto :goto_17
 
-    .line 475
+    .line 496
     :cond_5a
     invoke-static {p2}, Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol;->parseA([B)Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol$FrameA;
 
     move-result-object v0
 
-    .line 476
+    .line 497
     if-eqz v0, :cond_17
 
-    .line 479
+    .line 500
     iput-boolean v3, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->heard:Z
 
-    .line 480
+    .line 501
     iget v1, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol$FrameA;->type:I
 
     const/16 v2, 0xaa
 
     if-ne v1, v2, :cond_7b
 
-    .line 481
+    .line 502
     iget v1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->seq:I
 
     add-int/lit8 v2, v1, 0x1
@@ -2278,12 +2515,12 @@
 
     invoke-virtual {p0, v0, v3}, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->send([BZ)V
 
-    .line 482
+    .line 503
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->handshakeA()V
 
     goto :goto_17
 
-    .line 483
+    .line 504
     :cond_7b
     iget v1, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol$FrameA;->type:I
 
@@ -2297,7 +2534,7 @@
 
     if-ne v1, v2, :cond_17
 
-    .line 484
+    .line 505
     :cond_87
     iget v1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->seq:I
 
@@ -2313,19 +2550,19 @@
 
     invoke-virtual {p0, v1, v3}, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->send([BZ)V
 
-    .line 485
+    .line 506
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol;->decodeA(Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol$FrameA;)Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol$Reading;
 
     move-result-object v0
 
-    .line 486
+    .line 507
     if-eqz v0, :cond_17
 
     iget-boolean v1, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol$Reading;->stored:Z
 
     if-nez v1, :cond_17
 
-    .line 487
+    .line 508
     invoke-virtual {p0, v0}, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->finish(Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol$Reading;)V
 
     goto/16 :goto_17
@@ -2339,7 +2576,7 @@
 
     const/4 v1, 0x1
 
-    .line 495
+    .line 516
     array-length v0, p2
 
     const/16 v2, 0x14
@@ -2369,7 +2606,7 @@
 
     if-nez v0, :cond_4b
 
-    .line 496
+    .line 517
     invoke-static {p2}, Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol;->validB([B)Z
 
     move-result v0
@@ -2378,7 +2615,7 @@
 
     move v0, v1
 
-    .line 497
+    .line 518
     :goto_23
     sget-object v2, Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol;->LIVE:Ljava/util/UUID;
 
@@ -2395,10 +2632,10 @@
 
     move-result-object v2
 
-    .line 498
+    .line 519
     if-eqz v0, :cond_44
 
-    .line 499
+    .line 520
     iget v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->replyIndex:I
 
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol;->ackB(I)[B
@@ -2407,7 +2644,7 @@
 
     invoke-virtual {p0, v0}, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->sendB([B)V
 
-    .line 500
+    .line 521
     iget v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->replyIndex:I
 
     add-int/lit8 v0, v0, 0x1
@@ -2416,47 +2653,47 @@
 
     iput v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->replyIndex:I
 
-    .line 502
+    .line 523
     :cond_44
     invoke-static {v2}, Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol;->decodeB([B)Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol$Reading;
 
     move-result-object v0
 
-    .line 503
+    .line 524
     if-nez v0, :cond_50
 
-    .line 512
+    .line 533
     :cond_4a
     :goto_4a
     return-void
 
-    .line 496
+    .line 517
     :cond_4b
     const/4 v0, 0x0
 
     goto :goto_23
 
-    .line 497
+    .line 518
     :cond_4d
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->asmFrames:Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol$AssemblerB;
 
     goto :goto_2d
 
-    .line 506
+    .line 527
     :cond_50
     iput-boolean v1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->heard:Z
 
-    .line 507
+    .line 528
     iget-boolean v1, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol$Reading;->result:Z
 
     if-eqz v1, :cond_5a
 
-    .line 508
+    .line 529
     invoke-virtual {p0, v0}, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->finish(Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol$Reading;)V
 
     goto :goto_4a
 
-    .line 509
+    .line 530
     :cond_5a
     iget-wide v2, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol$Reading;->weightKg:D
 
@@ -2474,7 +2711,7 @@
 
     if-lez v1, :cond_4a
 
-    .line 510
+    .line 531
     :cond_6a
     iget-wide v2, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol$Reading;->weightKg:D
 
@@ -2495,21 +2732,21 @@
 
     const/4 v1, 0x1
 
-    .line 543
+    .line 564
     iget v2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->rawLogged:I
 
     const/16 v3, 0xc8
 
     if-ge v2, v3, :cond_29
 
-    .line 544
+    .line 565
     iget v2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->rawLogged:I
 
     add-int/lit8 v2, v2, 0x1
 
     iput v2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->rawLogged:I
 
-    .line 545
+    .line 566
     new-instance v2, Ljava/lang/StringBuilder;
 
     invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
@@ -2534,7 +2771,7 @@
 
     invoke-static {v2}, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->log(Ljava/lang/String;)V
 
-    .line 547
+    .line 568
     :cond_29
     array-length v2, p2
 
@@ -2556,15 +2793,15 @@
 
     if-ne v2, v3, :cond_40
 
-    .line 548
+    .line 569
     invoke-virtual {p0, p2}, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->onClassicS([B)V
 
-    .line 578
+    .line 599
     :cond_3f
     :goto_3f
     return-void
 
-    .line 551
+    .line 572
     :cond_40
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->xsAsm:Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun$Assembler;
 
@@ -2572,20 +2809,20 @@
 
     move-result-object v2
 
-    .line 552
+    .line 573
     if-eqz v2, :cond_3f
 
-    .line 555
+    .line 576
     invoke-static {v2}, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun;->parseXs([B)Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun$XsFrame;
 
     move-result-object v3
 
-    .line 556
+    .line 577
     iget-boolean v4, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->xsHelloSent:Z
 
     if-nez v4, :cond_5d
 
-    .line 558
+    .line 579
     const/4 v4, -0x1
 
     aget-byte v5, v2, v0
@@ -2601,13 +2838,13 @@
     :cond_5a
     invoke-virtual {p0, v4, v0}, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->xsHello(IZ)V
 
-    .line 560
+    .line 581
     :cond_5d
     iget v0, v3, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun$XsFrame;->kind:I
 
     if-nez v0, :cond_8b
 
-    .line 561
+    .line 582
     new-instance v0, Ljava/lang/StringBuilder;
 
     invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
@@ -2648,13 +2885,13 @@
 
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->log(Ljava/lang/String;)V
 
-    .line 563
+    .line 584
     :cond_8b
     iget-boolean v0, v3, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun$XsFrame;->ackWanted:Z
 
     if-eqz v0, :cond_9c
 
-    .line 564
+    .line 585
     iget v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->xsSn:I
 
     add-int/lit8 v4, v0, 0x1
@@ -2667,16 +2904,16 @@
 
     invoke-virtual {p0, v0, v1}, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->send([BZ)V
 
-    .line 566
+    .line 587
     :cond_9c
     iget v0, v3, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun$XsFrame;->kind:I
 
     if-ne v0, v1, :cond_aa
 
-    .line 567
+    .line 588
     iput-boolean v1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->heard:Z
 
-    .line 568
+    .line 589
     iget-wide v0, v3, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun$XsFrame;->kg:D
 
     iget-boolean v2, v3, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun$XsFrame;->stable:Z
@@ -2685,7 +2922,7 @@
 
     goto :goto_3f
 
-    .line 569
+    .line 590
     :cond_aa
     iget v0, v3, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun$XsFrame;->kind:I
 
@@ -2701,7 +2938,7 @@
 
     if-eqz v0, :cond_d8
 
-    .line 570
+    .line 591
     new-instance v0, Ljava/lang/StringBuilder;
 
     invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
@@ -2732,7 +2969,7 @@
 
     goto/16 :goto_3f
 
-    .line 571
+    .line 592
     :cond_d8
     iget v0, v3, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun$XsFrame;->kind:I
 
@@ -2742,10 +2979,10 @@
 
     if-nez v0, :cond_3f
 
-    .line 572
+    .line 593
     iput-boolean v1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->heard:Z
 
-    .line 573
+    .line 594
     new-instance v0, Ljava/lang/StringBuilder;
 
     invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
@@ -2798,7 +3035,7 @@
 
     iget-object v2, v3, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun$XsFrame;->z100:[D
 
-    .line 574
+    .line 595
     invoke-static {v2}, Ljava/util/Arrays;->toString([D)Ljava/lang/String;
 
     move-result-object v2
@@ -2811,15 +3048,15 @@
 
     move-result-object v0
 
-    .line 573
+    .line 594
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->log(Ljava/lang/String;)V
 
-    .line 575
+    .line 596
     iget-wide v4, v3, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun$XsFrame;->kg:D
 
     invoke-virtual {p0, v4, v5, v1}, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->live(DZ)V
 
-    .line 576
+    .line 597
     invoke-static {v3}, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun;->reading(Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun$XsFrame;)Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol$Reading;
 
     move-result-object v0
@@ -2839,19 +3076,19 @@
 
     const/4 v1, 0x0
 
-    .line 418
+    .line 439
     const/4 v2, 0x3
 
     invoke-virtual {p0, v2}, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->setState(I)V
 
-    .line 419
+    .line 440
     iget-char v2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->gen:C
 
     const/16 v3, 0x41
 
     if-ne v2, v3, :cond_1b
 
-    .line 420
+    .line 441
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->main:Landroid/os/Handler;
 
     new-instance v1, Lcom/isaigu/gymapp/wearable/scale/ScaleLink$Unprompted;
@@ -2862,12 +3099,12 @@
 
     invoke-virtual {v0, v1, v2, v3}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
 
-    .line 437
+    .line 458
     :cond_1a
     :goto_1a
     return-void
 
-    .line 421
+    .line 442
     :cond_1b
     iget-char v2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->gen:C
 
@@ -2877,7 +3114,7 @@
 
     if-eqz v2, :cond_43
 
-    .line 422
+    .line 443
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->xs:[I
 
     aget v2, v2, v1
@@ -2886,14 +3123,14 @@
 
     if-ne v2, v3, :cond_31
 
-    .line 423
+    .line 444
     const-string v0, "XS v30 (encrypted) \u2014 not supported, frames logged"
 
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->log(Ljava/lang/String;)V
 
     goto :goto_1a
 
-    .line 425
+    .line 446
     :cond_31
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->xs:[I
 
@@ -2917,18 +3154,18 @@
 
     goto :goto_3d
 
-    .line 427
+    .line 448
     :cond_43
     iget-char v1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->gen:C
 
     if-ne v1, v4, :cond_75
 
-    .line 428
+    .line 449
     invoke-static {}, Ljava/util/Calendar;->getInstance()Ljava/util/Calendar;
 
     move-result-object v1
 
-    .line 429
+    .line 450
     invoke-virtual {v1, v0}, Ljava/util/Calendar;->get(I)I
 
     move-result v2
@@ -2945,7 +3182,7 @@
 
     invoke-virtual {p0, v2, v0}, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->send([BZ)V
 
-    .line 430
+    .line 451
     const/16 v2, 0xb
 
     invoke-virtual {v1, v2}, Ljava/util/Calendar;->get(I)I
@@ -2960,12 +3197,12 @@
 
     const/16 v4, 0xd
 
-    .line 431
+    .line 452
     invoke-virtual {v1, v4}, Ljava/util/Calendar;->get(I)I
 
     move-result v1
 
-    .line 430
+    .line 451
     invoke-static {v2, v3, v1}, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun;->time(III)[B
 
     move-result-object v1
@@ -2974,7 +3211,7 @@
 
     goto :goto_1a
 
-    .line 432
+    .line 453
     :cond_75
     iget-char v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->gen:C
 
@@ -2982,7 +3219,7 @@
 
     if-eq v0, v1, :cond_1a
 
-    .line 435
+    .line 456
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->main:Landroid/os/Handler;
 
     new-instance v1, Lcom/isaigu/gymapp/wearable/scale/ScaleLink$Beat;
@@ -3010,16 +3247,16 @@
 
     const/4 v2, 0x0
 
-    .line 299
+    .line 311
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->gatt:Landroid/bluetooth/BluetoothGatt;
 
     if-eq p1, v0, :cond_7
 
-    .line 363
+    .line 375
     :goto_6
     return-void
 
-    .line 302
+    .line 314
     :cond_7
     invoke-virtual {p1}, Landroid/bluetooth/BluetoothGatt;->getDevice()Landroid/bluetooth/BluetoothDevice;
 
@@ -3029,14 +3266,14 @@
 
     move-result-object v5
 
-    .line 303
+    .line 315
     sget-object v0, Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol;->SERVICE:Ljava/util/UUID;
 
     invoke-virtual {p1, v0}, Landroid/bluetooth/BluetoothGatt;->getService(Ljava/util/UUID;)Landroid/bluetooth/BluetoothGattService;
 
     move-result-object v1
 
-    .line 304
+    .line 316
     if-eqz v1, :cond_73
 
     sget-object v0, Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol;->WRITE:Ljava/util/UUID;
@@ -3047,12 +3284,12 @@
 
     if-eqz v0, :cond_73
 
-    .line 305
+    .line 317
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->app:Landroid/content/Context;
 
     invoke-static {v0, v5}, Lcom/isaigu/gymapp/wearable/scale/ScaleStore;->setMac(Landroid/content/Context;Ljava/lang/String;)V
 
-    .line 306
+    .line 318
     sget-object v0, Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol;->WRITE:Ljava/util/UUID;
 
     invoke-virtual {v1, v0}, Landroid/bluetooth/BluetoothGattService;->getCharacteristic(Ljava/util/UUID;)Landroid/bluetooth/BluetoothGattCharacteristic;
@@ -3061,7 +3298,7 @@
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->write:Landroid/bluetooth/BluetoothGattCharacteristic;
 
-    .line 307
+    .line 319
     sget-object v0, Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol;->NAME_IMAGE:Ljava/util/UUID;
 
     invoke-virtual {v1, v0}, Landroid/bluetooth/BluetoothGattService;->getCharacteristic(Ljava/util/UUID;)Landroid/bluetooth/BluetoothGattCharacteristic;
@@ -3075,7 +3312,7 @@
     :goto_36
     iput-char v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->gen:C
 
-    .line 308
+    .line 320
     new-instance v0, Ljava/lang/StringBuilder;
 
     invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
@@ -3098,7 +3335,7 @@
 
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->log(Ljava/lang/String;)V
 
-    .line 309
+    .line 321
     sget-object v0, Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol;->LIVE:Ljava/util/UUID;
 
     invoke-virtual {v1, v0}, Landroid/bluetooth/BluetoothGattService;->getCharacteristic(Ljava/util/UUID;)Landroid/bluetooth/BluetoothGattCharacteristic;
@@ -3107,7 +3344,7 @@
 
     invoke-virtual {p0, p1, v0}, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->subscribe(Landroid/bluetooth/BluetoothGatt;Landroid/bluetooth/BluetoothGattCharacteristic;)V
 
-    .line 310
+    .line 322
     sget-object v0, Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol;->FRAMES:Ljava/util/UUID;
 
     invoke-virtual {v1, v0}, Landroid/bluetooth/BluetoothGattService;->getCharacteristic(Ljava/util/UUID;)Landroid/bluetooth/BluetoothGattCharacteristic;
@@ -3116,7 +3353,7 @@
 
     invoke-virtual {p0, p1, v0}, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->subscribe(Landroid/bluetooth/BluetoothGatt;Landroid/bluetooth/BluetoothGattCharacteristic;)V
 
-    .line 311
+    .line 323
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->ops:Ljava/util/List;
 
     new-instance v1, Lcom/isaigu/gymapp/wearable/scale/ScaleLink$Op;
@@ -3125,18 +3362,18 @@
 
     invoke-interface {v0, v1}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    .line 312
+    .line 324
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->pump()V
 
     goto :goto_6
 
-    .line 307
+    .line 319
     :cond_70
     const/16 v0, 0x42
 
     goto :goto_36
 
-    .line 316
+    .line 328
     :cond_73
     sget-object v0, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun;->SERVICE_A:Ljava/util/UUID;
 
@@ -3144,7 +3381,7 @@
 
     move-result-object v6
 
-    .line 317
+    .line 329
     if-eqz v6, :cond_107
 
     sget-object v0, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun;->NOTIFY_A:Ljava/util/UUID;
@@ -3157,21 +3394,21 @@
 
     sget-object v0, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun;->WRITE_A:Ljava/util/UUID;
 
-    .line 318
+    .line 330
     invoke-virtual {v6, v0}, Landroid/bluetooth/BluetoothGattService;->getCharacteristic(Ljava/util/UUID;)Landroid/bluetooth/BluetoothGattCharacteristic;
 
     move-result-object v0
 
     if-eqz v0, :cond_107
 
-    .line 319
+    .line 331
     sget-object v0, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun;->NOTIFY_A:Ljava/util/UUID;
 
     invoke-virtual {v6, v0}, Landroid/bluetooth/BluetoothGattService;->getCharacteristic(Ljava/util/UUID;)Landroid/bluetooth/BluetoothGattCharacteristic;
 
     move-result-object v1
 
-    .line 320
+    .line 332
     sget-object v0, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun;->WRITE_A:Ljava/util/UUID;
 
     invoke-virtual {v6, v0}, Landroid/bluetooth/BluetoothGattService;->getCharacteristic(Ljava/util/UUID;)Landroid/bluetooth/BluetoothGattCharacteristic;
@@ -3180,7 +3417,7 @@
 
     move-object v3, v1
 
-    .line 326
+    .line 338
     :goto_98
     :try_start_98
     invoke-virtual {p1}, Landroid/bluetooth/BluetoothGatt;->getDevice()Landroid/bluetooth/BluetoothDevice;
@@ -3193,7 +3430,7 @@
 
     move-result-object v1
 
-    .line 329
+    .line 341
     :goto_a0
     invoke-static {v1}, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->looksLikeScale(Ljava/lang/String;)Z
 
@@ -3222,7 +3459,7 @@
     :cond_b8
     const/4 v4, 0x1
 
-    .line 331
+    .line 343
     :goto_b9
     if-eqz v3, :cond_123
 
@@ -3234,21 +3471,21 @@
 
     if-eqz v7, :cond_123
 
-    .line 332
+    .line 344
     :cond_c3
     iget-object v4, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->app:Landroid/content/Context;
 
     invoke-static {v4, v5}, Lcom/isaigu/gymapp/wearable/scale/ScaleStore;->setMac(Landroid/content/Context;Ljava/lang/String;)V
 
-    .line 333
+    .line 345
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->write:Landroid/bluetooth/BluetoothGattCharacteristic;
 
-    .line 334
+    .line 346
     const/16 v0, 0x53
 
     iput-char v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->gen:C
 
-    .line 335
+    .line 347
     new-instance v0, Ljava/lang/StringBuilder;
 
     invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
@@ -3284,13 +3521,13 @@
 
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->log(Ljava/lang/String;)V
 
-    .line 336
+    .line 348
     invoke-virtual {p0, p1}, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->logServices(Landroid/bluetooth/BluetoothGatt;)V
 
-    .line 337
+    .line 349
     invoke-virtual {p0, p1, v3}, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->subscribe(Landroid/bluetooth/BluetoothGatt;Landroid/bluetooth/BluetoothGattCharacteristic;)V
 
-    .line 338
+    .line 350
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->ops:Ljava/util/List;
 
     new-instance v1, Lcom/isaigu/gymapp/wearable/scale/ScaleLink$Op;
@@ -3299,12 +3536,12 @@
 
     invoke-interface {v0, v1}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    .line 339
+    .line 351
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->pump()V
 
     goto/16 :goto_6
 
-    .line 321
+    .line 333
     :cond_107
     if-eqz v1, :cond_1ca
 
@@ -3316,7 +3553,7 @@
 
     if-eqz v0, :cond_1ca
 
-    .line 322
+    .line 334
     sget-object v0, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun;->CHAR_B:Ljava/util/UUID;
 
     invoke-virtual {v1, v0}, Landroid/bluetooth/BluetoothGattService;->getCharacteristic(Ljava/util/UUID;)Landroid/bluetooth/BluetoothGattCharacteristic;
@@ -3329,7 +3566,7 @@
 
     goto/16 :goto_98
 
-    .line 327
+    .line 339
     :catch_11b
     move-exception v1
 
@@ -3337,33 +3574,33 @@
 
     goto :goto_a0
 
-    .line 329
+    .line 341
     :cond_11e
     const/4 v4, 0x0
 
     goto :goto_b9
 
-    .line 335
+    .line 347
     :cond_120
     const-string v0, "FFB0"
 
     goto :goto_dd
 
-    .line 342
+    .line 354
     :cond_123
     if-eqz v4, :cond_194
 
-    .line 343
+    .line 355
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->app:Landroid/content/Context;
 
     invoke-static {v0, v5}, Lcom/isaigu/gymapp/wearable/scale/ScaleStore;->setMac(Landroid/content/Context;Ljava/lang/String;)V
 
-    .line 344
+    .line 356
     const/16 v0, 0x58
 
     iput-char v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->gen:C
 
-    .line 345
+    .line 357
     new-instance v0, Ljava/lang/StringBuilder;
 
     invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
@@ -3394,10 +3631,10 @@
 
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->log(Ljava/lang/String;)V
 
-    .line 346
+    .line 358
     invoke-virtual {p0, p1}, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->logServices(Landroid/bluetooth/BluetoothGatt;)V
 
-    .line 347
+    .line 359
     invoke-virtual {p1}, Landroid/bluetooth/BluetoothGatt;->getServices()Ljava/util/List;
 
     move-result-object v0
@@ -3419,7 +3656,7 @@
 
     check-cast v0, Landroid/bluetooth/BluetoothGattService;
 
-    .line 348
+    .line 360
     invoke-virtual {v0}, Landroid/bluetooth/BluetoothGattService;->getCharacteristics()Ljava/util/List;
 
     move-result-object v0
@@ -3442,7 +3679,7 @@
 
     check-cast v0, Landroid/bluetooth/BluetoothGattCharacteristic;
 
-    .line 349
+    .line 361
     invoke-virtual {v0}, Landroid/bluetooth/BluetoothGattCharacteristic;->getProperties()I
 
     move-result v4
@@ -3451,12 +3688,12 @@
 
     if-eqz v4, :cond_16d
 
-    .line 351
+    .line 363
     invoke-virtual {p0, p1, v0}, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->subscribe(Landroid/bluetooth/BluetoothGatt;Landroid/bluetooth/BluetoothGattCharacteristic;)V
 
     goto :goto_16d
 
-    .line 355
+    .line 367
     :cond_185
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->ops:Ljava/util/List;
 
@@ -3466,12 +3703,12 @@
 
     invoke-interface {v0, v1}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    .line 356
+    .line 368
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->pump()V
 
     goto/16 :goto_6
 
-    .line 359
+    .line 371
     :cond_194
     new-instance v0, Ljava/lang/StringBuilder;
 
@@ -3503,15 +3740,15 @@
 
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->log(Ljava/lang/String;)V
 
-    .line 360
+    .line 372
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->notScales:Ljava/util/Set;
 
     invoke-interface {v0, v5}, Ljava/util/Set;->add(Ljava/lang/Object;)Z
 
-    .line 361
+    .line 373
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->closeGatt()V
 
-    .line 362
+    .line 374
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->main:Landroid/os/Handler;
 
     new-instance v1, Lcom/isaigu/gymapp/wearable/scale/ScaleLink$Retry;
@@ -3536,22 +3773,22 @@
     .registers 2
 
     .prologue
-    .line 731
+    .line 752
     const/4 v0, 0x0
 
     iput-boolean v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->busy:Z
 
-    .line 732
+    .line 753
     iget v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->opToken:I
 
     add-int/lit8 v0, v0, 0x1
 
     iput v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->opToken:I
 
-    .line 733
+    .line 754
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->pump()V
 
-    .line 734
+    .line 755
     return-void
 .end method
 
@@ -3565,7 +3802,7 @@
 
     const/4 v4, 0x1
 
-    .line 698
+    .line 719
     iget-boolean v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->busy:Z
 
     if-nez v0, :cond_b
@@ -3574,12 +3811,12 @@
 
     if-nez v0, :cond_c
 
-    .line 728
+    .line 749
     :cond_b
     :goto_b
     return-void
 
-    .line 701
+    .line 722
     :cond_c
     :goto_c
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->ops:Ljava/util/List;
@@ -3590,7 +3827,7 @@
 
     if-nez v0, :cond_b
 
-    .line 702
+    .line 723
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->ops:Ljava/util/List;
 
     invoke-interface {v0, v1}, Ljava/util/List;->remove(I)Ljava/lang/Object;
@@ -3599,7 +3836,7 @@
 
     check-cast v0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink$Op;
 
-    .line 705
+    .line 726
     :try_start_1c
     iget v2, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink$Op;->kind:I
 
@@ -3607,18 +3844,18 @@
 
     if-ne v2, v5, :cond_54
 
-    .line 706
+    .line 727
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->onReady()V
     :try_end_24
     .catch Ljava/lang/Throwable; {:try_start_1c .. :try_end_24} :catch_25
 
     goto :goto_c
 
-    .line 719
+    .line 740
     :catch_25
     move-exception v0
 
-    .line 720
+    .line 741
     new-instance v2, Ljava/lang/StringBuilder;
 
     invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
@@ -3641,14 +3878,14 @@
 
     move v0, v1
 
-    .line 722
+    .line 743
     :goto_3d
     if-eqz v0, :cond_c
 
-    .line 723
+    .line 744
     iput-boolean v4, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->busy:Z
 
-    .line 724
+    .line 745
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->main:Landroid/os/Handler;
 
     new-instance v1, Lcom/isaigu/gymapp/wearable/scale/ScaleLink$OpTimeout;
@@ -3667,21 +3904,21 @@
 
     goto :goto_b
 
-    .line 708
+    .line 729
     :cond_54
     :try_start_54
     iget v2, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink$Op;->kind:I
 
     if-ne v2, v4, :cond_68
 
-    .line 709
+    .line 730
     iget-object v2, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink$Op;->desc:Landroid/bluetooth/BluetoothGattDescriptor;
 
     iget-object v5, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink$Op;->data:[B
 
     invoke-virtual {v2, v5}, Landroid/bluetooth/BluetoothGattDescriptor;->setValue([B)Z
 
-    .line 710
+    .line 731
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->gatt:Landroid/bluetooth/BluetoothGatt;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink$Op;->desc:Landroid/bluetooth/BluetoothGattDescriptor;
@@ -3692,11 +3929,11 @@
 
     goto :goto_3d
 
-    .line 712
+    .line 733
     :cond_68
     iget-object v5, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->write:Landroid/bluetooth/BluetoothGattCharacteristic;
 
-    .line 713
+    .line 734
     iget v2, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink$Op;->kind:I
 
     if-ne v2, v3, :cond_8c
@@ -3713,18 +3950,18 @@
 
     move v2, v3
 
-    .line 712
+    .line 733
     :goto_79
     invoke-virtual {v5, v2}, Landroid/bluetooth/BluetoothGattCharacteristic;->setWriteType(I)V
 
-    .line 716
+    .line 737
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->write:Landroid/bluetooth/BluetoothGattCharacteristic;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink$Op;->data:[B
 
     invoke-virtual {v2, v0}, Landroid/bluetooth/BluetoothGattCharacteristic;->setValue([B)Z
 
-    .line 717
+    .line 738
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->gatt:Landroid/bluetooth/BluetoothGatt;
 
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->write:Landroid/bluetooth/BluetoothGattCharacteristic;
@@ -3740,7 +3977,7 @@
     :cond_8c
     move v2, v4
 
-    .line 715
+    .line 736
     goto :goto_79
 .end method
 
@@ -3750,63 +3987,63 @@
     .prologue
     const/4 v2, 0x0
 
-    .line 258
+    .line 270
     iput-char v2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->gen:C
 
-    .line 259
+    .line 271
     iput v2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->seq:I
 
-    .line 260
+    .line 272
     iput-boolean v2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->handshakeSent:Z
 
-    .line 261
+    .line 273
     iput-boolean v2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->heard:Z
 
-    .line 262
+    .line 274
     iput v2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->replyIndex:I
 
-    .line 263
+    .line 275
     iput-boolean v2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->usersSent:Z
 
-    .line 264
+    .line 276
     const-wide/16 v0, 0x0
 
     iput-wide v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->liveKg:D
 
-    .line 265
+    .line 277
     iput-boolean v2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->liveStable:Z
 
-    .line 266
+    .line 278
     iput v2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->results:I
 
-    .line 267
+    .line 279
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->senssun:Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun$Reader;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun$Reader;->reset()V
 
-    .line 268
+    .line 280
     iput v2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->rawLogged:I
 
-    .line 269
+    .line 281
     iput v2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->xsSn:I
 
-    .line 270
+    .line 282
     iput-boolean v2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->xsHelloSent:Z
 
-    .line 271
+    .line 283
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->ops:Ljava/util/List;
 
     invoke-interface {v0}, Ljava/util/List;->clear()V
 
-    .line 272
+    .line 284
     iput-boolean v2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->busy:Z
 
-    .line 273
+    .line 285
     const/4 v0, 0x0
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->write:Landroid/bluetooth/BluetoothGattCharacteristic;
 
-    .line 274
+    .line 286
     return-void
 .end method
 
@@ -3814,16 +4051,16 @@
     .registers 7
 
     .prologue
-    .line 690
+    .line 711
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->write:Landroid/bluetooth/BluetoothGattCharacteristic;
 
     if-nez v0, :cond_5
 
-    .line 695
+    .line 716
     :goto_4
     return-void
 
-    .line 693
+    .line 714
     :cond_5
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->ops:Ljava/util/List;
 
@@ -3840,12 +4077,12 @@
 
     invoke-interface {v1, v2}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    .line 694
+    .line 715
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->pump()V
 
     goto :goto_4
 
-    .line 693
+    .line 714
     :cond_17
     const/4 v0, 0x3
 
@@ -3856,7 +4093,7 @@
     .registers 5
 
     .prologue
-    .line 515
+    .line 536
     iget v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->seq:I
 
     invoke-static {v0, p1}, Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol;->framesB(I[B)Ljava/util/List;
@@ -3880,14 +4117,14 @@
 
     check-cast v0, [B
 
-    .line 516
+    .line 537
     const/4 v2, 0x0
 
     invoke-virtual {p0, v0, v2}, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->send([BZ)V
 
     goto :goto_a
 
-    .line 518
+    .line 539
     :cond_1b
     iget v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->seq:I
 
@@ -3897,7 +4134,7 @@
 
     iput v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->seq:I
 
-    .line 519
+    .line 540
     return-void
 .end method
 
@@ -3905,20 +4142,20 @@
     .registers 3
 
     .prologue
-    .line 655
+    .line 676
     iget v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->state:I
 
     if-eq v0, p1, :cond_b
 
-    .line 656
+    .line 677
     iput p1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->state:I
 
-    .line 657
+    .line 678
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->listener:Lcom/isaigu/gymapp/wearable/scale/ScaleLink$Listener;
 
     invoke-interface {v0, p1}, Lcom/isaigu/gymapp/wearable/scale/ScaleLink$Listener;->onState(I)V
 
-    .line 659
+    .line 680
     :cond_b
     return-void
 .end method
@@ -4116,15 +4353,15 @@
     .prologue
     const/4 v1, 0x1
 
-    .line 382
+    .line 394
     if-nez p2, :cond_4
 
-    .line 397
+    .line 409
     :cond_3
     :goto_3
     return-void
 
-    .line 386
+    .line 398
     :cond_4
     const/4 v0, 0x1
 
@@ -4133,7 +4370,7 @@
     :try_end_8
     .catch Ljava/lang/Throwable; {:try_start_5 .. :try_end_8} :catch_30
 
-    .line 390
+    .line 402
     :goto_8
     sget-object v0, Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol;->CCCD:Ljava/util/UUID;
 
@@ -4141,10 +4378,10 @@
 
     move-result-object v2
 
-    .line 391
+    .line 403
     if-eqz v2, :cond_3
 
-    .line 392
+    .line 404
     invoke-virtual {p2}, Landroid/bluetooth/BluetoothGattCharacteristic;->getProperties()I
 
     move-result v0
@@ -4153,7 +4390,7 @@
 
     if-eqz v0, :cond_48
 
-    .line 393
+    .line 405
     invoke-virtual {p2}, Landroid/bluetooth/BluetoothGattCharacteristic;->getProperties()I
 
     move-result v0
@@ -4164,7 +4401,7 @@
 
     move v0, v1
 
-    .line 394
+    .line 406
     :goto_21
     iget-object v3, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->ops:Ljava/util/List;
 
@@ -4174,20 +4411,20 @@
 
     sget-object v0, Landroid/bluetooth/BluetoothGattDescriptor;->ENABLE_INDICATION_VALUE:[B
 
-    .line 395
+    .line 407
     :goto_29
     invoke-direct {v4, v1, v2, v0}, Lcom/isaigu/gymapp/wearable/scale/ScaleLink$Op;-><init>(ILandroid/bluetooth/BluetoothGattDescriptor;[B)V
 
-    .line 394
+    .line 406
     invoke-interface {v3, v4}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
     goto :goto_3
 
-    .line 387
+    .line 399
     :catch_30
     move-exception v0
 
-    .line 388
+    .line 400
     new-instance v2, Ljava/lang/StringBuilder;
 
     invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
@@ -4210,13 +4447,13 @@
 
     goto :goto_8
 
-    .line 393
+    .line 405
     :cond_48
     const/4 v0, 0x0
 
     goto :goto_21
 
-    .line 395
+    .line 407
     :cond_4a
     sget-object v0, Landroid/bluetooth/BluetoothGattDescriptor;->ENABLE_NOTIFICATION_VALUE:[B
 
@@ -4227,7 +4464,7 @@
     .registers 5
 
     .prologue
-    .line 442
+    .line 463
     invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
 
     move-result-wide v0
@@ -4245,10 +4482,10 @@
     .prologue
     const/4 v12, 0x1
 
-    .line 584
+    .line 605
     iput-boolean v12, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->xsHelloSent:Z
 
-    .line 585
+    .line 606
     iget v2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->xsSn:I
 
     invoke-static {}, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->utcOffsetMin()I
@@ -4265,7 +4502,7 @@
 
     iget v8, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->age:I
 
-    .line 586
+    .line 607
     iget-wide v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->liveKg:D
 
     const-wide/high16 v10, 0x4014000000000000L    # 5.0
@@ -4281,12 +4518,12 @@
 
     move v1, p2
 
-    .line 585
+    .line 606
     invoke-static/range {v0 .. v10}, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun;->hello(IZIIJZIID)Ljava/util/List;
 
     move-result-object v1
 
-    .line 587
+    .line 608
     iget v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->xsSn:I
 
     invoke-interface {v1}, Ljava/util/List;->size()I
@@ -4297,7 +4534,7 @@
 
     iput v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->xsSn:I
 
-    .line 588
+    .line 609
     new-instance v0, Ljava/lang/StringBuilder;
 
     invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
@@ -4325,7 +4562,7 @@
 
     move-result-object v0
 
-    .line 589
+    .line 610
     invoke-interface {v1}, Ljava/util/List;->size()I
 
     move-result v2
@@ -4344,10 +4581,10 @@
 
     move-result-object v0
 
-    .line 588
+    .line 609
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->log(Ljava/lang/String;)V
 
-    .line 590
+    .line 611
     invoke-interface {v1}, Ljava/util/List;->iterator()Ljava/util/Iterator;
 
     move-result-object v1
@@ -4365,18 +4602,18 @@
 
     check-cast v0, [B
 
-    .line 591
+    .line 612
     invoke-virtual {p0, v0, v12}, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->send([BZ)V
 
     goto :goto_60
 
-    .line 586
+    .line 607
     :cond_70
     iget-wide v9, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->lastKg:D
 
     goto :goto_1d
 
-    .line 588
+    .line 609
     :cond_73
     const-string v0, "1-family"
 
@@ -4389,7 +4626,7 @@
 
     goto :goto_3d
 
-    .line 593
+    .line 614
     :cond_7b
     return-void
 .end method

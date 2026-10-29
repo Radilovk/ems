@@ -1098,6 +1098,24 @@ public final class ScaleSim {
         ok("XS advert, MAC backwards", ScaleSenssun.xsAdvert(adv, "A1:B2:C3:D4:E5:F6") != null);
     }
 
+    /**
+     * The 20-byte family behind FFB4 (FG2001ULB / Lescale P1; openScale RunstarR6 captures of the Lescale F4P):
+     * the trailer's top bits are flags (0x20 = lb), state 04 = locked, and such frames switch A → B.
+     */
+    static void genB20() {
+        byte[] lb = hex("ff0700a20100011f4e000000000000000000003" + "1");
+        ok("B20 lb-flag frame valid", ScaleProtocol.validB(lb));
+        ok("B20 looks like B", ScaleProtocol.looksLikeB(lb));
+        ScaleProtocol.Reading w = ScaleProtocol.decodeB(new ScaleProtocol.AssemblerB().add(lb));
+        eq("B20 live kg", w == null ? Double.NaN : w.weightKg, 73.55, 0.001);
+        byte[] locked = hex("ff0700a20400011f4e0000000000000000000014");
+        w = ScaleProtocol.decodeB(new ScaleProtocol.AssemblerB().add(locked));
+        ok("B20 state 04 stable", w != null && w.stable);
+        ok("B20 bad check rejected", !ScaleProtocol.validB(hex("ff0700a20400011f4e0000000000000000000015")));
+        byte[] a = ScaleProtocol.frameA(1, ScaleProtocol.A_HELLO, new byte[14]);
+        ok("A frame is not B", !ScaleProtocol.looksLikeB(a));
+    }
+
     public static void main(String[] a) throws Exception {
         xsCommands();
         xs();
@@ -1111,6 +1129,7 @@ public final class ScaleSim {
         bodyType();
         genB();
         genA();
+        genB20();
         misc();
         insight();
         System.out.println((fails == 0 ? "OK" : "FAILED") + " scale-sim: " + (checks - fails) + "/" + checks);

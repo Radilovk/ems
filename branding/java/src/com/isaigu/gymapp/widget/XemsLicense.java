@@ -137,7 +137,7 @@ public final class XemsLicense {
         armsDiv = v;
     }
 
-    /** Admin setup: the arms at normal strength (1:1) or reduced; kept after the setup is finished. */
+    /** The arms at normal strength (1:1) or reduced — Settings, admin and user mode alike; kept on the tablet. */
     public static void setArmsMode(String mode) {
         String m = "full".equals(mode) || "reduced".equals(mode) ? mode : "";
         prefs().edit().putString(K_ARMS, m).apply();

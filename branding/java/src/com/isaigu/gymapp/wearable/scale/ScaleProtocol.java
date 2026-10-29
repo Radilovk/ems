@@ -238,8 +238,24 @@ public final class ScaleProtocol {
         return s & 0x1F;
     }
 
+    /**
+     * The check is the low five bits of the trailer; the top three are flags (0x20 = the scale shows lb — Lescale
+     * F4P / openScale RunstarR6, 2026), so a scale set to pounds is not dropped as noise.
+     */
     public static boolean validB(byte[] f) {
-        return f != null && f.length == 20 && (f[19] & 0xFF) == checkB(f);
+        return f != null && f.length == 20 && (f[19] & 0x1F) == checkB(f);
+    }
+
+    /**
+     * A notification that is a B frame and not an A frame: a scale with FFB4 (the A marker) that speaks B — the
+     * newer iComon 20-byte family (FG2001ULB, Renpho MorphoScan R-MSC01, Lescale F4P all have FFB4 / FFB5 too).
+     */
+    public static boolean looksLikeB(byte[] f) {
+        if (!validB(f) || parseA(f) != null) {
+            return false;
+        }
+        int t = f[3] & 0xFF;
+        return f[2] != 0 || (t >= B_COUNTER && t <= 0xA4);
     }
 
     /** One message → 20-byte frames ({@code len} = the whole payload length in every fragment). */
@@ -348,7 +364,7 @@ public final class ScaleProtocol {
         Reading r = new Reading();
         if (type == B_WEIGHT) {
             r.weightKg = ((m[3] & 0xFF) << 16 | (m[4] & 0xFF) << 8 | (m[5] & 0xFF)) / 1000.0;
-            r.stable = m[1] == 0x02 || m[1] == 0x03;
+            r.stable = m[1] == 0x02 || m[1] == 0x03 || m[1] == 0x04;     // 04 = locked (F4P: BIA running)
             return r;
         }
         if (type == B_RESULT && m.length >= 26) {

@@ -31,7 +31,7 @@
     .end annotation
 
     .prologue
-    .line 106
+    .line 107
     iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLocalSection$2;->val$a:Landroid/app/Activity;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -45,12 +45,12 @@
     .registers 3
 
     .prologue
-    .line 108
+    .line 109
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalSection$2;->val$a:Landroid/app/Activity;
 
     # invokes: Lcom/isaigu/gymapp/widget/XemsLocalSection;->startImport(Landroid/app/Activity;)V
     invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsLocalSection;->access$100(Landroid/app/Activity;)V
 
-    .line 109
+    .line 110
     return-void
 .end method

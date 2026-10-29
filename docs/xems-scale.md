@@ -7,6 +7,16 @@ The tablet reads the scale itself, stores the measurement per client on the tabl
 card shows a "Тяло" block from `GET /v1/history/<cardId>` → `body` (see `xems-client-sync.md`) and a fresh measurement replaces the
 Deurenberg body-fat estimate in `AutoEngine.fatPct()` (and the record's weight in `AiProfile`).
 
+**Owner's unit = FG2001ULB (1.1.488-ai).** The label of the owner's P1: model FI2001ULB, FCC 2AP3Q-FG2001ULB
+(Welland) — not the FG2305ULB that generation A was written from, and it did not connect. Like the Renpho
+MorphoScan R-MSC01 and the Lescale F4P (openScale `RunstarR6Handler`, PR #1563) it most likely has FFB4 / FFB5
+next to FFB1–3 but speaks the **20-byte B frames**, so FFB4 alone no longer decides: while nothing is heard, a
+notification that is a valid B frame and not an A frame (`ScaleProtocol.looksLikeB`) switches the link A → B
+(log `gen A -> B by the first frame`). Also: the B trailer's top 3 bits are flags (0x20 = lb), only the low 5 are
+the check; live state 04 = locked; FFB0 is also found in 128-bit lists and service data; names Runstar / Starfit /
+FG20… / FI20…; the first 200 frames of every ICOMON connection are logged (`rx FFB2 …`). **Next:** one weigh-in →
+`scale` log, to confirm the A3 layout of this model.
+
 ## Code (`branding/java/src/com/isaigu/gymapp/wearable/scale/`, compile:wearable)
 | Class | What |
 |---|---|

@@ -25,7 +25,7 @@
     .registers 1
 
     .prologue
-    .line 265
+    .line 281
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -45,19 +45,19 @@
 
     const/4 v0, 0x0
 
-    .line 271
+    .line 287
     invoke-static {p1}, Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol;->validB([B)Z
 
     move-result v1
 
     if-nez v1, :cond_c
 
-    .line 294
+    .line 310
     :cond_b
     :goto_b
     return-object v0
 
-    .line 274
+    .line 290
     :cond_c
     const/4 v1, 0x1
 
@@ -65,34 +65,34 @@
 
     and-int/lit16 v1, v1, 0xff
 
-    .line 275
+    .line 291
     const/4 v2, 0x2
 
     aget-byte v2, p1, v2
 
     if-nez v2, :cond_47
 
-    .line 276
+    .line 292
     if-gt v1, v5, :cond_1e
 
-    .line 277
+    .line 293
     new-array v0, v1, [B
 
-    .line 278
+    .line 294
     invoke-static {p1, v4, v0, v3, v1}, Ljava/lang/System;->arraycopy(Ljava/lang/Object;ILjava/lang/Object;II)V
 
     goto :goto_b
 
-    .line 281
+    .line 297
     :cond_1e
     new-array v1, v1, [B
 
     iput-object v1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol$AssemblerB;->buf:[B
 
-    .line 282
+    .line 298
     iput v3, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol$AssemblerB;->have:I
 
-    .line 286
+    .line 302
     :cond_24
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol$AssemblerB;->buf:[B
 
@@ -106,21 +106,21 @@
 
     move-result v1
 
-    .line 287
+    .line 303
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol$AssemblerB;->buf:[B
 
     iget v3, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol$AssemblerB;->have:I
 
     invoke-static {p1, v4, v2, v3, v1}, Ljava/lang/System;->arraycopy(Ljava/lang/Object;ILjava/lang/Object;II)V
 
-    .line 288
+    .line 304
     iget v2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol$AssemblerB;->have:I
 
     add-int/2addr v1, v2
 
     iput v1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol$AssemblerB;->have:I
 
-    .line 289
+    .line 305
     iget v1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol$AssemblerB;->have:I
 
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol$AssemblerB;->buf:[B
@@ -129,18 +129,18 @@
 
     if-lt v1, v2, :cond_b
 
-    .line 290
+    .line 306
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol$AssemblerB;->buf:[B
 
-    .line 291
+    .line 307
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol$AssemblerB;->buf:[B
 
     move-object v0, v1
 
-    .line 292
+    .line 308
     goto :goto_b
 
-    .line 283
+    .line 299
     :cond_47
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol$AssemblerB;->buf:[B
 

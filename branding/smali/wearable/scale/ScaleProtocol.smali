@@ -163,7 +163,7 @@
     .prologue
     const/4 v3, 0x0
 
-    .line 335
+    .line 351
     const/4 v0, 0x3
 
     new-array v0, v0, [B
@@ -655,9 +655,9 @@
     .registers 11
 
     .prologue
-    const/4 v7, 0x2
-
     const-wide v8, 0x408f400000000000L    # 1000.0
+
+    const/4 v7, 0x4
 
     const/4 v6, 0x3
 
@@ -665,7 +665,7 @@
 
     const/4 v1, 0x1
 
-    .line 344
+    .line 360
     if-eqz p0, :cond_f
 
     array-length v2, p0
@@ -674,40 +674,38 @@
 
     if-ge v2, v3, :cond_11
 
-    .line 345
+    .line 361
     :cond_f
     const/4 v0, 0x0
 
-    .line 369
+    .line 385
     :goto_10
     return-object v0
 
-    .line 347
+    .line 363
     :cond_11
     aget-byte v2, p0, v0
 
     and-int/lit16 v3, v2, 0xff
 
-    .line 348
+    .line 364
     new-instance v2, Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol$Reading;
 
     invoke-direct {v2}, Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol$Reading;-><init>()V
 
-    .line 349
+    .line 365
     const/16 v4, 0xa2
 
-    if-ne v3, v4, :cond_43
+    if-ne v3, v4, :cond_47
 
-    .line 350
+    .line 366
     aget-byte v3, p0, v6
 
     and-int/lit16 v3, v3, 0xff
 
     shl-int/lit8 v3, v3, 0x10
 
-    const/4 v4, 0x4
-
-    aget-byte v4, p0, v4
+    aget-byte v4, p0, v7
 
     and-int/lit16 v4, v4, 0xff
 
@@ -729,40 +727,48 @@
 
     iput-wide v4, v2, Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol$Reading;->weightKg:D
 
-    .line 351
+    .line 367
     aget-byte v3, p0, v1
 
-    if-eq v3, v7, :cond_3e
+    const/4 v4, 0x2
+
+    if-eq v3, v4, :cond_42
 
     aget-byte v3, p0, v1
 
-    if-ne v3, v6, :cond_3f
+    if-eq v3, v6, :cond_42
 
-    :cond_3e
+    aget-byte v3, p0, v1
+
+    if-ne v3, v7, :cond_43
+
+    :cond_42
     move v0, v1
 
-    :cond_3f
+    :cond_43
     iput-boolean v0, v2, Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol$Reading;->stable:Z
 
     move-object v0, v2
 
-    .line 352
+    .line 368
     goto :goto_10
 
-    .line 354
-    :cond_43
+    .line 370
+    :cond_47
     const/16 v4, 0xa3
 
-    if-ne v3, v4, :cond_96
+    if-ne v3, v4, :cond_9a
 
     array-length v3, p0
 
     const/16 v4, 0x1a
 
-    if-lt v3, v4, :cond_96
+    if-lt v3, v4, :cond_9a
 
-    .line 355
-    aget-byte v3, p0, v7
+    .line 371
+    const/4 v3, 0x2
+
+    aget-byte v3, p0, v3
 
     and-int/lit16 v3, v3, 0xff
 
@@ -776,9 +782,7 @@
 
     or-int/2addr v3, v4
 
-    const/4 v4, 0x4
-
-    aget-byte v4, p0, v4
+    aget-byte v4, p0, v7
 
     and-int/lit16 v4, v4, 0xff
 
@@ -790,19 +794,19 @@
 
     iput-wide v4, v2, Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol$Reading;->weightKg:D
 
-    .line 356
+    .line 372
     iput-boolean v1, v2, Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol$Reading;->result:Z
 
-    .line 357
+    .line 373
     iput-boolean v1, v2, Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol$Reading;->stable:Z
 
-    .line 359
-    :goto_67
+    .line 375
+    :goto_6b
     const/16 v1, 0xa
 
-    if-ge v0, v1, :cond_93
+    if-ge v0, v1, :cond_97
 
-    .line 360
+    .line 376
     mul-int/lit8 v1, v0, 0x2
 
     add-int/lit8 v1, v1, 0x6
@@ -829,40 +833,40 @@
 
     div-double/2addr v4, v6
 
-    .line 361
+    .line 377
     const/4 v1, 0x5
 
-    if-ge v0, v1, :cond_8c
+    if-ge v0, v1, :cond_90
 
-    .line 362
+    .line 378
     iget-object v1, v2, Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol$Reading;->z20:[D
 
     aput-wide v4, v1, v0
 
-    .line 359
-    :goto_89
+    .line 375
+    :goto_8d
     add-int/lit8 v0, v0, 0x1
 
-    goto :goto_67
+    goto :goto_6b
 
-    .line 364
-    :cond_8c
+    .line 380
+    :cond_90
     iget-object v1, v2, Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol$Reading;->z100:[D
 
     add-int/lit8 v3, v0, -0x5
 
     aput-wide v4, v1, v3
 
-    goto :goto_89
+    goto :goto_8d
 
-    :cond_93
+    :cond_97
     move-object v0, v2
 
-    .line 367
+    .line 383
     goto/16 :goto_10
 
-    .line 369
-    :cond_96
+    .line 385
+    :cond_9a
     const/4 v0, 0x0
 
     goto/16 :goto_10
@@ -964,7 +968,7 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 247
+    .line 263
     new-instance v3, Ljava/util/ArrayList;
 
     invoke-direct {v3}, Ljava/util/ArrayList;-><init>()V
@@ -973,18 +977,18 @@
 
     move v2, v1
 
-    .line 251
+    .line 267
     :cond_8
     const/16 v4, 0x14
 
     new-array v4, v4, [B
 
-    .line 252
+    .line 268
     int-to-byte v5, p0
 
     aput-byte v5, v4, v1
 
-    .line 253
+    .line 269
     const/4 v5, 0x1
 
     array-length v6, p1
@@ -993,14 +997,14 @@
 
     aput-byte v6, v4, v5
 
-    .line 254
+    .line 270
     const/4 v5, 0x2
 
     int-to-byte v6, v2
 
     aput-byte v6, v4, v5
 
-    .line 255
+    .line 271
     const/4 v5, 0x3
 
     const/16 v6, 0x10
@@ -1015,7 +1019,7 @@
 
     invoke-static {p1, v0, v4, v5, v6}, Ljava/lang/System;->arraycopy(Ljava/lang/Object;ILjava/lang/Object;II)V
 
-    .line 256
+    .line 272
     const/16 v5, 0x13
 
     invoke-static {v4}, Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol;->checkB([B)I
@@ -1026,21 +1030,21 @@
 
     aput-byte v6, v4, v5
 
-    .line 257
+    .line 273
     invoke-interface {v3, v4}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    .line 258
+    .line 274
     add-int/lit8 v0, v0, 0x10
 
-    .line 259
+    .line 275
     add-int/lit8 v2, v2, 0x1
 
-    .line 260
+    .line 276
     array-length v4, p1
 
     if-lt v0, v4, :cond_8
 
-    .line 261
+    .line 277
     return-object v3
 .end method
 
@@ -1297,6 +1301,59 @@
     goto :goto_9
 .end method
 
+.method public static looksLikeB([B)Z
+    .registers 4
+
+    .prologue
+    const/4 v0, 0x0
+
+    .line 254
+    invoke-static {p0}, Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol;->validB([B)Z
+
+    move-result v1
+
+    if-eqz v1, :cond_d
+
+    invoke-static {p0}, Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol;->parseA([B)Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol$FrameA;
+
+    move-result-object v1
+
+    if-eqz v1, :cond_e
+
+    .line 258
+    :cond_d
+    :goto_d
+    return v0
+
+    .line 257
+    :cond_e
+    const/4 v1, 0x3
+
+    aget-byte v1, p0, v1
+
+    and-int/lit16 v1, v1, 0xff
+
+    .line 258
+    const/4 v2, 0x2
+
+    aget-byte v2, p0, v2
+
+    if-nez v2, :cond_20
+
+    const/16 v2, 0xa0
+
+    if-lt v1, v2, :cond_d
+
+    const/16 v2, 0xa4
+
+    if-gt v1, v2, :cond_d
+
+    :cond_20
+    const/4 v0, 0x1
+
+    goto :goto_d
+.end method
+
 .method static ohmLE([BI)D
     .registers 6
 
@@ -1329,7 +1386,7 @@
     .registers 1
 
     .prologue
-    .line 339
+    .line 355
     const/4 v0, 0x2
 
     new-array v0, v0, [B
@@ -1796,7 +1853,7 @@
     .prologue
     const/16 v6, 0x8
 
-    .line 299
+    .line 315
     const-wide/16 v0, 0x0
 
     invoke-static {v0, v1, p3, p4}, Ljava/lang/Math;->max(DD)D
@@ -1815,15 +1872,15 @@
 
     and-int/lit16 v0, v0, 0x7fff
 
-    .line 300
+    .line 316
     if-eqz v0, :cond_18
 
-    .line 301
+    .line 317
     const v1, 0x8000
 
     or-int/2addr v0, v1
 
-    .line 303
+    .line 319
     :cond_18
     new-array v1, v6, [B
 
@@ -1893,7 +1950,7 @@
 
     const/4 v0, 0x7
 
-    .line 304
+    .line 320
     invoke-static {p5, p6}, Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol;->sexAge(ZI)I
 
     move-result v2
@@ -1902,7 +1959,7 @@
 
     aput-byte v2, v1, v0
 
-    .line 303
+    .line 319
     return-object v1
 .end method
 
@@ -1942,24 +1999,24 @@
     .registers 16
 
     .prologue
-    .line 310
+    .line 326
     invoke-static/range {p2 .. p8}, Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol;->recordB(JIDZI)[B
 
     move-result-object v0
 
-    .line 311
+    .line 327
     const/16 v1, 0x10
 
     new-array v1, v1, [B
 
-    .line 312
+    .line 328
     const/4 v2, 0x0
 
     const/16 v3, -0x46
 
     aput-byte v3, v1, v2
 
-    .line 313
+    .line 329
     const/4 v2, 0x1
 
     const/16 v3, 0x18
@@ -1972,7 +2029,7 @@
 
     aput-byte v3, v1, v2
 
-    .line 314
+    .line 330
     const/4 v2, 0x2
 
     const/16 v3, 0x10
@@ -1985,7 +2042,7 @@
 
     aput-byte v3, v1, v2
 
-    .line 315
+    .line 331
     const/4 v2, 0x3
 
     const/16 v3, 0x8
@@ -1998,7 +2055,7 @@
 
     aput-byte v3, v1, v2
 
-    .line 316
+    .line 332
     const/4 v2, 0x4
 
     long-to-int v3, p0
@@ -2007,21 +2064,21 @@
 
     aput-byte v3, v1, v2
 
-    .line 317
+    .line 333
     const/4 v2, 0x5
 
     const/4 v3, 0x0
 
     aput-byte v3, v1, v2
 
-    .line 318
+    .line 334
     const/4 v2, 0x6
 
     const/16 v3, 0x78
 
     aput-byte v3, v1, v2
 
-    .line 319
+    .line 335
     const/4 v2, 0x0
 
     const/4 v3, 0x7
@@ -2030,7 +2087,7 @@
 
     invoke-static {v0, v2, v1, v3, v4}, Ljava/lang/System;->arraycopy(Ljava/lang/Object;ILjava/lang/Object;II)V
 
-    .line 320
+    .line 336
     const/16 v2, 0xf
 
     if-eqz p9, :cond_47
@@ -2042,10 +2099,10 @@
 
     aput-byte v0, v1, v2
 
-    .line 321
+    .line 337
     return-object v1
 
-    .line 320
+    .line 336
     :cond_47
     const/16 v0, 0x2f
 
@@ -2056,7 +2113,7 @@
     .registers 6
 
     .prologue
-    .line 374
+    .line 390
     const-wide v0, -0x61c8864680b583ebL
 
     mul-long/2addr v0, p0
@@ -2065,21 +2122,21 @@
 
     add-long/2addr v0, v2
 
-    .line 375
+    .line 391
     const/16 v2, 0x1d
 
     ushr-long v2, v0, v2
 
     xor-long/2addr v0, v2
 
-    .line 376
+    .line 392
     long-to-int v0, v0
 
     const/high16 v1, 0x1000000
 
     or-int/2addr v0, v1
 
-    .line 377
+    .line 393
     const/4 v1, 0x4
 
     new-array v1, v1, [B
@@ -2121,12 +2178,12 @@
     .registers 8
 
     .prologue
-    .line 381
+    .line 397
     invoke-static {p0, p1}, Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol;->uidBytes(J)[B
 
     move-result-object v0
 
-    .line 382
+    .line 398
     const/4 v1, 0x0
 
     aget-byte v1, v0, v1
@@ -2234,32 +2291,32 @@
 
     const/4 v4, 0x0
 
-    .line 326
+    .line 342
     invoke-static/range {p0 .. p6}, Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol;->recordB(JIDZI)[B
 
     move-result-object v0
 
-    .line 327
+    .line 343
     const/16 v1, 0xa
 
     new-array v1, v1, [B
 
-    .line 328
+    .line 344
     const/16 v2, -0x45
 
     aput-byte v2, v1, v4
 
-    .line 329
+    .line 345
     aput-byte v3, v1, v3
 
-    .line 330
+    .line 346
     const/4 v2, 0x2
 
     const/16 v3, 0x8
 
     invoke-static {v0, v4, v1, v2, v3}, Ljava/lang/System;->arraycopy(Ljava/lang/Object;ILjava/lang/Object;II)V
 
-    .line 331
+    .line 347
     return-object v1
 .end method
 
@@ -2297,7 +2354,7 @@
     .registers 3
 
     .prologue
-    .line 242
+    .line 246
     if-eqz p0, :cond_15
 
     array-length v0, p0
@@ -2310,7 +2367,7 @@
 
     aget-byte v0, p0, v0
 
-    and-int/lit16 v0, v0, 0xff
+    and-int/lit8 v0, v0, 0x1f
 
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol;->checkB([B)I
 

@@ -188,11 +188,12 @@ public final class ScaleLink {
         }
         String n = name.toLowerCase(Locale.ROOT).trim();
         return n.contains("lescale") || n.contains("lepulse") || n.startsWith("le-p") || n.contains("scale")
-                || n.contains("fitdays") || n.contains("icomon") || n.startsWith("e.volve") || n.contains("sacoma")
+                || n.contains("fitdays") || n.contains("icomon") || n.contains("runstar") || n.contains("starfit")
+                || n.startsWith("fg20") || n.startsWith("fi20") || n.startsWith("e.volve") || n.contains("sacoma")
                 || n.equals("p1") || n.startsWith("p1 ") || n.startsWith("p1-");
     }
 
-    /** A 16-bit service UUID list (AD 0x02 / 0x03) with 0xFFB0. */
+    /** FFB0 in the advert: a 16-bit (AD 0x02 / 0x03) or 128-bit (0x06 / 0x07) service list, or service data (0x16). */
     static boolean advertisesFfb0(byte[] adv) {
         for (int i = 0; adv != null && i + 1 < adv.length; ) {
             int len = adv[i] & 0xFF;
@@ -206,6 +207,17 @@ public final class ScaleLink {
                         return true;
                     }
                 }
+            } else if (type == 0x06 || type == 0x07) {
+                // base UUID little-endian: bytes 12..13 of each 16-byte entry are the 16-bit part
+                for (int j = i + 2; j + 15 <= i + len; j += 16) {
+                    if (j + 13 < adv.length && ((adv[j + 12] & 0xFF) | (adv[j + 13] & 0xFF) << 8) == 0xFFB0
+                            && adv[j + 14] == 0 && adv[j + 15] == 0) {
+                        return true;
+                    }
+                }
+            } else if (type == 0x16 && len >= 3 && i + 3 < adv.length
+                    && ((adv[i + 2] & 0xFF) | (adv[i + 3] & 0xFF) << 8) == 0xFFB0) {
+                return true;
             }
             i += len + 1;
         }
@@ -399,6 +411,15 @@ public final class ScaleLink {
     void onChanged(java.util.UUID uuid, byte[] data) {
         if (data == null) {
             return;
+        }
+        if (gen != 'S' && gen != 'X' && rawLogged < RAW_S) {
+            rawLogged++;      // the first frames of every ICOMON connection: a real P1 capture to check the decode
+            log("rx " + uuid.toString().substring(4, 8) + " " + hexAll(data));
+        }
+        if (gen == 'A' && !heard && ScaleProtocol.looksLikeB(data)) {
+            gen = 'B';        // FFB4 is there but the scale speaks the 20-byte family (FG2001ULB / Lescale P1)
+            log("gen A -> B by the first frame");
+            main.postDelayed(new Beat(this, ++beatToken), BEAT_MS);
         }
         if (gen == 'A') {
             onFrameA(uuid, data);

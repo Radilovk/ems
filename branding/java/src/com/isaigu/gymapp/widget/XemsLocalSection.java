@@ -18,8 +18,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 /**
- * Settings card "Tablet and data": the mode (admin setup / user), the profile key, the suits,
- * export / import of the tablet's data and the one-way "Finish setup".
+ * Settings card "Tablet and data": the mode (admin setup / user), the profile key, the suits, the arms channel
+ * (reduced / 1:1 and the divider — in user mode too), export / import of the tablet's data and the one-way
+ * "Finish setup".
  */
 public final class XemsLocalSection {
     private static final String TAG = "xems_local_section";
@@ -126,8 +127,8 @@ public final class XemsLocalSection {
         }
         card.addView(row, matchWrap(a, 0));
 
-        if (setup) {
-            // The arms channel of this tablet (kept after the setup): reduced impulse or 1:1
+        {
+            // The arms channel of this tablet, admin and user mode alike (owner): reduced impulse or 1:1 + the divider
             String arms = XemsLicense.armsMode();
             TextView armsLabel = text(a, tr("Ръце", "Arms"), 15, true);
             card.addView(armsLabel, matchWrap(a, 16));
@@ -135,8 +136,8 @@ public final class XemsLocalSection {
                     ? tr("1:1 — каналът за ръцете с нормална сила, като другите.", "1:1 — the arms channel at normal strength, like the others.")
                     : "reduced".equals(arms)
                     ? armsReducedText(XemsLicense.armsDivider())
-                    : tr("Не е избрано — след заключване решава ключът. Избери веднъж и остава за таблета.",
-                            "Not chosen — after the lock the key decides. Choose once and it stays for this tablet."), 12, false);
+                    : tr("Не е избрано — решава ключът. Избери и остава за таблета.",
+                            "Not chosen — the key decides. Choose and it stays for this tablet."), 12, false);
             armsHint.setTextColor(0xFFB0B0B0);
             card.addView(armsHint, matchWrap(a, 2));
             LinearLayout armsRow = new LinearLayout(a);
@@ -170,7 +171,9 @@ public final class XemsLocalSection {
                 divRow.addView(div, new LinearLayout.LayoutParams(dp(a, 110), ViewGroup.LayoutParams.WRAP_CONTENT));
                 card.addView(divRow, matchWrap(a, 8));
             }
+        }
 
+        if (setup) {
             Button lock = button(a, tr("Край на настройката", "Finish setup"), 0xFFE53935);
             lock.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {

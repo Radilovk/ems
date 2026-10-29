@@ -46,7 +46,7 @@ import java.util.List;
  * Driven by ScaleScreen (link state, live weight, sweeps). Pure UI.
  */
 final class ScaleStage {
-    static final int P_WAIT = 0, P_LINK = 1, P_SETTLE = 2, P_SCAN = 3, P_DONE = 4, P_NO_BT = 5;
+    static final int P_WAIT = 0, P_LINK = 1, P_SETTLE = 2, P_SCAN = 3, P_DONE = 4, P_NO_BT = 5, P_NO_LOC = 6;
     /** The scale's impedance sweep after the weight settles, about this long. */
     static final double SCAN_S = 9;
     /** Steadiness seen here too: generation A sends no "stable" flag with the live weight. */
@@ -173,7 +173,7 @@ final class ScaleStage {
     void linkState(int st) {
         switch (st) {
             case ScaleLink.SEARCHING:
-                if (phase == P_NO_BT || phase == P_LINK) {
+                if (phase == P_NO_BT || phase == P_NO_LOC || phase == P_LINK) {
                     phase(P_WAIT);
                 }
                 break;
@@ -186,6 +186,11 @@ final class ScaleStage {
                 break;
             case ScaleLink.NO_BLUETOOTH:
                 phase(P_NO_BT);
+                break;
+            case ScaleLink.NO_LOCATION:
+                if (phase == P_WAIT || phase == P_NO_BT) {
+                    phase(P_NO_LOC);
+                }
                 break;
             default:
                 break;
@@ -332,6 +337,14 @@ final class ScaleStage {
                 c = tr("ГОТОВО", "DONE");
                 cc = 0xFF22C55E;
                 steps.at(4);
+                break;
+            case P_NO_LOC:
+                title.setText(tr("Включете местоположението", "Turn location on"));
+                sub.setText(tr("Android показва кантара само при включено местоположение. Бутонът долу го включва.",
+                        "Android shows the scale only with location on. The button below turns it on."));
+                c = tr("МЕСТОПОЛОЖЕНИЕ", "LOCATION");
+                cc = 0xFFEF4444;
+                steps.at(0);
                 break;
             default:
                 title.setText(tr("Включете Bluetooth", "Turn Bluetooth on"));

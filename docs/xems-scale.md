@@ -17,6 +17,15 @@ the check; live state 04 = locked; FFB0 is also found in 128-bit lists and servi
 FG20… / FI20…; the first 200 frames of every ICOMON connection are logged (`rx FFB2 …`). **Next:** one weigh-in →
 `scale` log, to confirm the A3 layout of this model.
 
+**Still not found on the owner's tablet (1.1.490-ai).** The app targets API 30, so Android returns BLE scan
+results only with the location permission **and** the location switch on — a tablet whose suits connect by saved
+MAC can have it off and the scan hears nothing. `ScaleLink` now checks it every 2 s (`NO_LOCATION` state → stage
+"Включете местоположението", footer button asks for the permission / opens the switch). After 10 s with nothing
+found (and nothing measured on the page) the footer offers **"Не го намира? Избери кантара"**: every device heard,
+strongest first (★ = FFB0 in the advert), one tap saves its MAC as the scale (a saved MAC that speaks no known
+protocol is captured as gen X). Log: `start: saved … location …`, `seen MAC rssi "name" FFB0 adv …` per device,
+`not found in 10 s: N adverts, M devices near`, `picked MAC`.
+
 ## Code (`branding/java/src/com/isaigu/gymapp/wearable/scale/`, compile:wearable)
 | Class | What |
 |---|---|

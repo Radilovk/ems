@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 2152
+    .line 2159
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 2153
+    .line 2160
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Find;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;
 
-    .line 2154
+    .line 2161
     return-void
 .end method
 
@@ -44,32 +44,32 @@
     .prologue
     const/4 v2, 0x0
 
-    .line 2158
+    .line 2165
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsUi;->haptic(Landroid/view/View;)V
 
-    .line 2159
+    .line 2166
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Find;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;->a:Landroid/app/Activity;
 
-    .line 2160
+    .line 2167
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Find;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;
 
     iget-object v1, v1, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;->link:Lcom/isaigu/gymapp/wearable/scale/ScaleLink;
 
     if-nez v1, :cond_f
 
-    .line 2199
+    .line 2206
     :goto_e
     return-void
 
-    .line 2163
+    .line 2170
     :cond_f
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->locationState(Landroid/content/Context;)Ljava/lang/String;
 
     move-result-object v1
 
-    .line 2164
+    .line 2171
     const-string v3, "no permission"
 
     invoke-virtual {v3, v1}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
@@ -84,7 +84,7 @@
 
     if-lt v3, v4, :cond_33
 
-    .line 2165
+    .line 2172
     const/4 v1, 0x2
 
     new-array v1, v1, [Ljava/lang/String;
@@ -105,7 +105,7 @@
 
     goto :goto_e
 
-    .line 2169
+    .line 2176
     :cond_33
     const-string v3, "switched off"
 
@@ -115,7 +115,7 @@
 
     if-eqz v1, :cond_48
 
-    .line 2171
+    .line 2178
     :try_start_3b
     new-instance v1, Landroid/content/Intent;
 
@@ -129,13 +129,13 @@
 
     goto :goto_e
 
-    .line 2173
+    .line 2180
     :catch_46
     move-exception v0
 
     goto :goto_e
 
-    .line 2177
+    .line 2184
     :cond_48
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Find;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;
 
@@ -145,12 +145,12 @@
 
     move-result-object v5
 
-    .line 2178
+    .line 2185
     new-instance v6, Landroid/app/AlertDialog$Builder;
 
     invoke-direct {v6, v0}, Landroid/app/AlertDialog$Builder;-><init>(Landroid/content/Context;)V
 
-    .line 2179
+    .line 2186
     const-string v0, "\u041a\u043e\u0439 \u0435 \u043a\u0430\u043d\u0442\u0430\u0440\u044a\u0442?"
 
     const-string v1, "Which one is the scale?"
@@ -161,14 +161,14 @@
 
     invoke-virtual {v6, v0}, Landroid/app/AlertDialog$Builder;->setTitle(Ljava/lang/CharSequence;)Landroid/app/AlertDialog$Builder;
 
-    .line 2180
+    .line 2187
     invoke-interface {v5}, Ljava/util/List;->isEmpty()Z
 
     move-result v0
 
     if-eqz v0, :cond_92
 
-    .line 2181
+    .line 2188
     const-string v0, "\u0422\u0430\u0431\u043b\u0435\u0442\u044a\u0442 \u043d\u0435 \u0447\u0443\u0432\u0430 \u043d\u0438\u0449\u043e \u043f\u043e Bluetooth. \u0421\u0442\u044a\u043f\u0435\u0442\u0435 \u043d\u0430 \u043a\u0430\u043d\u0442\u0430\u0440\u0430, \u0437\u0430 \u0434\u0430 \u0441\u0435 \u0441\u044a\u0431\u0443\u0434\u0438, \u0438 \u043d\u0430\u0442\u0438\u0441\u043d\u0435\u0442\u0435 \u201e\u041e\u0431\u043d\u043e\u0432\u0438\u201c."
 
     const-string v1, "The tablet hears nothing over Bluetooth. Step on the scale to wake it, then tap Refresh."
@@ -179,7 +179,7 @@
 
     invoke-virtual {v6, v0}, Landroid/app/AlertDialog$Builder;->setMessage(Ljava/lang/CharSequence;)Landroid/app/AlertDialog$Builder;
 
-    .line 2196
+    .line 2203
     :goto_71
     const-string v0, "\u041e\u0431\u043d\u043e\u0432\u0438"
 
@@ -195,7 +195,7 @@
 
     invoke-virtual {v6, v0, v1}, Landroid/app/AlertDialog$Builder;->setNeutralButton(Ljava/lang/CharSequence;Landroid/content/DialogInterface$OnClickListener;)Landroid/app/AlertDialog$Builder;
 
-    .line 2197
+    .line 2204
     const-string v0, "\u0417\u0430\u0442\u0432\u043e\u0440\u0438"
 
     const-string v1, "Close"
@@ -208,12 +208,12 @@
 
     invoke-virtual {v6, v0, v1}, Landroid/app/AlertDialog$Builder;->setNegativeButton(Ljava/lang/CharSequence;Landroid/content/DialogInterface$OnClickListener;)Landroid/app/AlertDialog$Builder;
 
-    .line 2198
+    .line 2205
     invoke-virtual {v6}, Landroid/app/AlertDialog$Builder;->show()Landroid/app/AlertDialog;
 
     goto/16 :goto_e
 
-    .line 2184
+    .line 2191
     :cond_92
     invoke-interface {v5}, Ljava/util/List;->size()I
 
@@ -221,7 +221,7 @@
 
     new-array v7, v0, [Ljava/lang/String;
 
-    .line 2185
+    .line 2192
     invoke-interface {v5}, Ljava/util/List;->size()I
 
     move-result v0
@@ -230,25 +230,25 @@
 
     move v1, v2
 
-    .line 2186
+    .line 2193
     :goto_9f
     array-length v0, v7
 
     if-ge v1, v0, :cond_127
 
-    .line 2187
+    .line 2194
     invoke-interface {v5, v1}, Ljava/util/List;->get(I)Ljava/lang/Object;
 
     move-result-object v0
 
     check-cast v0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink$Seen;
 
-    .line 2188
+    .line 2195
     iget-object v3, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink$Seen;->mac:Ljava/lang/String;
 
     aput-object v3, v8, v1
 
-    .line 2189
+    .line 2196
     iget v3, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink$Seen;->rssi:I
 
     const/16 v4, -0x3c
@@ -263,7 +263,7 @@
 
     move-result-object v3
 
-    .line 2191
+    .line 2198
     :goto_ba
     new-instance v9, Ljava/lang/StringBuilder;
 
@@ -311,7 +311,7 @@
 
     iget-object v0, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink$Seen;->mac:Ljava/lang/String;
 
-    .line 2192
+    .line 2199
     invoke-virtual {v0}, Ljava/lang/String;->length()I
 
     move-result v0
@@ -336,14 +336,14 @@
 
     aput-object v0, v7, v1
 
-    .line 2186
+    .line 2193
     add-int/lit8 v0, v1, 0x1
 
     move v1, v0
 
     goto :goto_9f
 
-    .line 2189
+    .line 2196
     :cond_103
     iget v3, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink$Seen;->rssi:I
 
@@ -351,7 +351,7 @@
 
     if-le v3, v4, :cond_112
 
-    .line 2190
+    .line 2197
     const-string v3, "\u0431\u043b\u0438\u0437\u043e"
 
     const-string v4, "close"
@@ -373,7 +373,7 @@
 
     goto :goto_ba
 
-    .line 2191
+    .line 2198
     :cond_11b
     const-string v4, ""
 
@@ -390,7 +390,7 @@
 
     goto :goto_cf
 
-    .line 2194
+    .line 2201
     :cond_127
     new-instance v0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Picked;
 

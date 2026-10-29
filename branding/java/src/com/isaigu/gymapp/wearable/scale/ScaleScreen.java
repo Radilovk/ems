@@ -2101,7 +2101,14 @@ public final class ScaleScreen {
         @Override
         public boolean onLongClick(View v) {
             XemsUi.haptic(v);
+            com.isaigu.gymapp.wearable.WearableBleDiagLog.init(a);
             String all = com.isaigu.gymapp.wearable.WearableBleDiagLog.readTail(a, "wearable-ble.log", 200000);
+            if (all == null || !all.contains("[scale]")) {
+                all = com.isaigu.gymapp.wearable.WearableBleDiagLog.getRecentText();   // the file is empty: the memory
+            }
+            if (all == null) {
+                all = "";
+            }
             StringBuilder b = new StringBuilder();
             for (String line : all.split("\n")) {
                 if (line.contains("scale")) {

@@ -1114,6 +1114,11 @@ public final class ScaleSim {
         ok("B20 bad check rejected", !ScaleProtocol.validB(hex("ff0700a20400011f4e0000000000000000000015")));
         byte[] a = ScaleProtocol.frameA(1, ScaleProtocol.A_HELLO, new byte[14]);
         ok("A frame is not B", !ScaleProtocol.looksLikeB(a));
+        ok("name F8 (owner's P1 in Fitdays) is a scale", ScaleLink.looksLikeScale("F8"));
+        ok("name Lescale F4P is a scale", ScaleLink.looksLikeScale("Lescale F4P"));
+        ok("name F4P is a scale", ScaleLink.looksLikeScale("F4P"));
+        ok("name Fenix 7 is not a scale", !ScaleLink.looksLikeScale("Fenix 7"));
+        ok("name F123 is not a scale", !ScaleLink.looksLikeScale("F123"));
     }
 
     public static void main(String[] a) throws Exception {

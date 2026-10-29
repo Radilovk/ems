@@ -30,19 +30,19 @@
     .registers 4
 
     .prologue
-    .line 2831
+    .line 2836
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 2832
+    .line 2837
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$ShareHtml;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;
 
-    .line 2833
+    .line 2838
     iput-object p2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$ShareHtml;->name:Ljava/lang/String;
 
-    .line 2834
+    .line 2839
     iput-boolean p3, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$ShareHtml;->full:Z
 
-    .line 2835
+    .line 2840
     return-void
 .end method
 
@@ -52,38 +52,38 @@
     .registers 11
 
     .prologue
-    .line 2839
+    .line 2844
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsUi;->haptic(Landroid/view/View;)V
 
-    .line 2841
+    .line 2846
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$ShareHtml;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;->boardPicture()Landroid/graphics/Bitmap;
 
     move-result-object v7
 
-    .line 2842
+    .line 2847
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$ShareHtml;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;->exportPop:Landroid/widget/PopupWindow;
 
     if-eqz v0, :cond_1b
 
-    .line 2843
+    .line 2848
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$ShareHtml;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;->exportPop:Landroid/widget/PopupWindow;
 
     invoke-virtual {v0}, Landroid/widget/PopupWindow;->dismiss()V
 
-    .line 2844
+    .line 2849
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$ShareHtml;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;
 
     const/4 v1, 0x0
 
     iput-object v1, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;->exportPop:Landroid/widget/PopupWindow;
 
-    .line 2846
+    .line 2851
     :cond_1b
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$ShareHtml;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;
 
@@ -115,6 +115,6 @@
 
     invoke-static/range {v0 .. v8}, Lcom/isaigu/gymapp/wearable/scale/ScaleShare;->html(Landroid/app/Activity;Ljava/lang/String;Lorg/json/JSONArray;IZIILandroid/graphics/Bitmap;Z)V
 
-    .line 2847
+    .line 2852
     return-void
 .end method

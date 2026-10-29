@@ -30,19 +30,19 @@
     .registers 4
 
     .prologue
-    .line 2809
+    .line 2814
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 2810
+    .line 2815
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$ShareImage;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;
 
-    .line 2811
+    .line 2816
     iput-object p2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$ShareImage;->name:Ljava/lang/String;
 
-    .line 2812
+    .line 2817
     iput-boolean p3, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$ShareImage;->full:Z
 
-    .line 2813
+    .line 2818
     return-void
 .end method
 
@@ -52,31 +52,31 @@
     .registers 5
 
     .prologue
-    .line 2817
+    .line 2822
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsUi;->haptic(Landroid/view/View;)V
 
-    .line 2818
+    .line 2823
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$ShareImage;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;->exportPop:Landroid/widget/PopupWindow;
 
     if-eqz v0, :cond_15
 
-    .line 2819
+    .line 2824
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$ShareImage;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;->exportPop:Landroid/widget/PopupWindow;
 
     invoke-virtual {v0}, Landroid/widget/PopupWindow;->dismiss()V
 
-    .line 2820
+    .line 2825
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$ShareImage;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;
 
     const/4 v1, 0x0
 
     iput-object v1, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;->exportPop:Landroid/widget/PopupWindow;
 
-    .line 2822
+    .line 2827
     :cond_15
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$ShareImage;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;
 
@@ -86,6 +86,6 @@
 
     invoke-virtual {v0, v1, v2}, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;->exportImage(ZLjava/lang/String;)V
 
-    .line 2823
+    .line 2828
     return-void
 .end method

@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 933
+    .line 965
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 934
+    .line 966
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink$Scan;->link:Lcom/isaigu/gymapp/wearable/scale/ScaleLink;
 
-    .line 935
+    .line 967
     return-void
 .end method
 
@@ -42,28 +42,28 @@
     .registers 7
 
     .prologue
-    .line 940
+    .line 972
     if-eqz p1, :cond_7
 
-    .line 941
+    .line 973
     :try_start_2
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink$Scan;->link:Lcom/isaigu/gymapp/wearable/scale/ScaleLink;
 
     invoke-virtual {v0, p1, p2, p3}, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->saw(Landroid/bluetooth/BluetoothDevice;I[B)V
 
-    .line 943
+    .line 975
     :cond_7
     if-eqz p1, :cond_1f
 
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink$Scan;->link:Lcom/isaigu/gymapp/wearable/scale/ScaleLink;
 
-    invoke-virtual {v0, p1, p3}, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->isScale(Landroid/bluetooth/BluetoothDevice;[B)Z
+    invoke-virtual {v0, p1, p3, p2}, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->isScale(Landroid/bluetooth/BluetoothDevice;[BI)Z
 
     move-result v0
 
     if-eqz v0, :cond_1f
 
-    .line 944
+    .line 976
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink$Scan;->link:Lcom/isaigu/gymapp/wearable/scale/ScaleLink;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->main:Landroid/os/Handler;
@@ -78,12 +78,12 @@
     :try_end_1f
     .catch Ljava/lang/Throwable; {:try_start_2 .. :try_end_1f} :catch_20
 
-    .line 948
+    .line 980
     :cond_1f
     :goto_1f
     return-void
 
-    .line 946
+    .line 978
     :catch_20
     move-exception v0
 

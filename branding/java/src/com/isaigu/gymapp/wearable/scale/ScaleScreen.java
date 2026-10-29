@@ -2147,6 +2147,11 @@ public final class ScaleScreen {
             }
             v.find.setText(tr("Не го намира? Избери кантара", "Not found? Choose the scale"));
             v.find.setVisibility(View.VISIBLE);
+            if (v.link.savedSilent()) {
+                // the saved scale says nothing: it sleeps until someone stands on it, or the phone holds it
+                v.say(tr("Кантарът мълчи — стъпете на него. Ако Fitdays е отворен на телефон, затворете го.",
+                        "The scale is silent — step on it. If Fitdays is open on a phone, close it."), XemsUi.AMBER);
+            }
             ScaleLink.log("not found in 10 s: " + v.link.adverts() + " adverts, " + v.link.nearby().size()
                     + " devices near");
         }

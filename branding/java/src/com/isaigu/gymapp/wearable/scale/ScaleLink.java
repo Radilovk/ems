@@ -46,6 +46,12 @@ public final class ScaleLink {
     static final long HELLO_WAIT_MS = 1500;
     static final long BEAT_MS = 400;
     static final long OP_TIMEOUT_MS = 1500;
+    /** No link this long after connectGatt → give up and listen again (Android's own wait is ~30 s, scan stopped). */
+    static final long CONNECT_TIMEOUT_MS = 10000;
+    /** A device that did not answer a connect is skipped this long (a far scale must not block the client's). */
+    static final long BACKOFF_MS = 120000;
+    /** With a saved scale, another scale is taken only from this close (someone standing on it). */
+    static final int OTHER_SCALE_RSSI = -70;
 
     final Context app;
     final Listener listener;
@@ -61,6 +67,11 @@ public final class ScaleLink {
     BluetoothGatt gatt;
     BluetoothGattCharacteristic write;
     final Set<String> notScales = new HashSet<String>();
+    /** MAC → until when it is skipped (did not answer a connect). Written on main, read by the scan thread. */
+    final java.util.Map<String, Long> backoff = java.util.Collections.synchronizedMap(new java.util.HashMap<String, Long>());
+    /** The GATT link of the current attempt came up (onConnection CONNECTED). */
+    boolean linked;
+    int connectToken;
     boolean closed;
     /** Results delivered on this connection. */
     int results;
@@ -282,6 +293,13 @@ public final class ScaleLink {
         return adverts;
     }
 
+    /** A scale is saved but has not been heard on this page (asleep, or held by the phone's Fitdays). */
+    public boolean savedSilent() {
+        String saved = ScaleStore.mac(app);
+        return saved != null && saved.length() > 0 && !nearby.containsKey(saved.toUpperCase(Locale.ROOT))
+                && !nearby.containsKey(saved);
+    }
+
     void startScan() {
         if (closed) {
             return;
@@ -311,13 +329,21 @@ public final class ScaleLink {
     }
 
     /** The scale: the address it had last time, its FFB0 service in the advert, or a scale-like name (either family). */
-    boolean isScale(BluetoothDevice d, byte[] adv) {
+    boolean isScale(BluetoothDevice d, byte[] adv, int rssi) {
         String mac = d.getAddress();
         if (mac == null || notScales.contains(mac)) {
             return false;
         }
-        if (mac.equalsIgnoreCase(ScaleStore.mac(app))) {
+        String saved = ScaleStore.mac(app);
+        if (mac.equalsIgnoreCase(saved)) {
             return true;
+        }
+        Long until = backoff.get(mac);
+        if (until != null && System.currentTimeMillis() < until.longValue()) {
+            return false;
+        }
+        if (saved != null && saved.length() > 0 && rssi < OTHER_SCALE_RSSI) {
+            return false;         // the client's scale is known: a far one (the neighbour's, another room) is not it
         }
         if (advertisesFfb0(adv)) {
             return true;
@@ -411,6 +437,8 @@ public final class ScaleLink {
                 " XS v%02X model %04X%s", xs[0], xs[1], ScaleSenssun.pro(xs[1]) ? " (8 electrodes)" : "")));
         setState(CONNECTING);
         resetSession();
+        linked = false;
+        main.postDelayed(new ConnectTimeout(this, ++connectToken, d.getAddress()), CONNECT_TIMEOUT_MS);
         try {
             if (Build.VERSION.SDK_INT >= 23) {
                 gatt = d.connectGatt(app, false, new Gatt(this), BluetoothDevice.TRANSPORT_LE);
@@ -450,6 +478,7 @@ public final class ScaleLink {
             return;
         }
         if (newState == BluetoothProfile.STATE_CONNECTED) {
+            linked = true;
             log("connected");
             try {
                 g.discoverServices();
@@ -458,6 +487,9 @@ public final class ScaleLink {
             }
         } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
             log("disconnected " + status);
+            if (!linked) {
+                skip(g.getDevice().getAddress(), "no link (" + status + ")");
+            }
             closeGatt();
             if (!closed) {
                 main.postDelayed(new Retry(this), 600);      // the scale sleeps between weigh-ins: listen again
@@ -940,7 +972,7 @@ public final class ScaleLink {
                 if (device != null) {
                     link.saw(device, rssi, scanRecord);
                 }
-                if (device != null && link.isScale(device, scanRecord)) {
+                if (device != null && link.isScale(device, scanRecord, rssi)) {
                     link.main.post(new Found(link, device));
                 }
             } catch (Throwable ignored) {
@@ -1055,6 +1087,42 @@ public final class ScaleLink {
                 log("op timeout");
                 link.opDone();
             }
+        }
+    }
+
+    /** A device that did not let us connect: skipped for a while — unless it is the saved scale. */
+    void skip(String mac, String why) {
+        if (mac == null || mac.equalsIgnoreCase(ScaleStore.mac(app))) {
+            return;
+        }
+        backoff.put(mac, Long.valueOf(System.currentTimeMillis() + BACKOFF_MS));
+        log("skip " + mac + " for " + BACKOFF_MS / 1000 + " s: " + why);
+    }
+
+    void connectTimeout(int token, String mac) {
+        if (token != connectToken || closed || gatt == null || linked) {
+            return;
+        }
+        log("connect timeout " + mac);
+        skip(mac, "connect timeout");
+        closeGatt();
+        main.postDelayed(new Retry(this), 300);
+    }
+
+    static final class ConnectTimeout implements Runnable {
+        final ScaleLink link;
+        final int token;
+        final String mac;
+
+        ConnectTimeout(ScaleLink link, int token, String mac) {
+            this.link = link;
+            this.token = token;
+            this.mac = mac;
+        }
+
+        @Override
+        public void run() {
+            link.connectTimeout(token, mac);
         }
     }
 

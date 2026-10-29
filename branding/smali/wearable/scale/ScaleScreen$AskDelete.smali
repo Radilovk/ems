@@ -28,16 +28,16 @@
     .registers 4
 
     .prologue
-    .line 2568
+    .line 2573
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 2569
+    .line 2574
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$AskDelete;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;
 
-    .line 2570
+    .line 2575
     iput-wide p2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$AskDelete;->t:J
 
-    .line 2571
+    .line 2576
     return-void
 .end method
 
@@ -47,16 +47,16 @@
     .registers 6
 
     .prologue
-    .line 2575
+    .line 2580
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsUi;->haptic(Landroid/view/View;)V
 
-    .line 2576
+    .line 2581
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$AskDelete;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;
 
     iget-wide v2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$AskDelete;->t:J
 
     invoke-virtual {v0, v2, v3}, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;->askDelete(J)V
 
-    .line 2577
+    .line 2582
     return-void
 .end method

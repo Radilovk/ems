@@ -28,16 +28,16 @@
     .registers 3
 
     .prologue
-    .line 2213
+    .line 2218
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 2214
+    .line 2219
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Picked;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;
 
-    .line 2215
+    .line 2220
     iput-object p2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Picked;->macs:[Ljava/lang/String;
 
-    .line 2216
+    .line 2221
     return-void
 .end method
 
@@ -47,7 +47,7 @@
     .registers 6
 
     .prologue
-    .line 2220
+    .line 2225
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Picked;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;->link:Lcom/isaigu/gymapp/wearable/scale/ScaleLink;
@@ -62,7 +62,7 @@
 
     if-ge p2, v0, :cond_35
 
-    .line 2221
+    .line 2226
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Picked;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;->link:Lcom/isaigu/gymapp/wearable/scale/ScaleLink;
@@ -73,7 +73,7 @@
 
     invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->pick(Ljava/lang/String;)V
 
-    .line 2222
+    .line 2227
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Picked;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;->find:Landroid/widget/TextView;
@@ -82,7 +82,7 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setVisibility(I)V
 
-    .line 2223
+    .line 2228
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Picked;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;->a:Landroid/app/Activity;
@@ -101,10 +101,10 @@
 
     move-result-object v0
 
-    .line 2224
+    .line 2229
     invoke-virtual {v0}, Landroid/widget/Toast;->show()V
 
-    .line 2226
+    .line 2231
     :cond_35
     return-void
 .end method

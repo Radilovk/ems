@@ -17,6 +17,12 @@ the check; live state 04 = locked; FFB0 is also found in 128-bit lists and servi
 FG20… / FI20…; the first 200 frames of every ICOMON connection are logged (`rx FFB2 …`). **Next:** one weigh-in →
 `scale` log, to confirm the A3 layout of this model.
 
+**A far scale blocked the client's (1.1.492-ai, owner's log).** Saved F8 never heard, while a Senssun XS advert
+at −84 dBm (54:3A:D6:…) was grabbed again and again: each connect hung ~30 s (status 133) with the scan stopped, so
+the F8's short wake window was missed. Now: the saved scale always wins; with one saved, another scale is taken only
+at ≥ −70 dBm (someone on it); a connect with no link in 10 s is dropped; a device that gave no link is skipped 2 min
+(`skip MAC …`); the saved scale silent after 10 s → "Кантарът мълчи — стъпете на него… затворете Fitdays".
+
 **Name "F8" (1.1.491-ai).** Fitdays → device sharing shows the owner's P1 as **"F8"**, MAC 80:F4:16:5C:3D:D8 — none
 of the scale-like names; `looksLikeScale` now takes the iComon short model names `f\d{1,2}[a-z]{0,2}` (F8, F4P).
 The "no scale record" log: `WearableBleDiagLog` wrote its file only after the band had opened it — the scale page

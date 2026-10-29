@@ -86,7 +86,7 @@
 
     if-lez v0, :cond_26
 
-    .line 2152
+    .line 2157
     :cond_25
     :goto_25
     return-void
@@ -117,6 +117,33 @@
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setVisibility(I)V
 
     .line 2150
+    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$FindHint;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;
+
+    iget-object v0, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;->link:Lcom/isaigu/gymapp/wearable/scale/ScaleLink;
+
+    invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->savedSilent()Z
+
+    move-result v0
+
+    if-eqz v0, :cond_56
+
+    .line 2152
+    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$FindHint;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;
+
+    const-string v1, "\u041a\u0430\u043d\u0442\u0430\u0440\u044a\u0442 \u043c\u044a\u043b\u0447\u0438 \u2014 \u0441\u0442\u044a\u043f\u0435\u0442\u0435 \u043d\u0430 \u043d\u0435\u0433\u043e. \u0410\u043a\u043e Fitdays \u0435 \u043e\u0442\u0432\u043e\u0440\u0435\u043d \u043d\u0430 \u0442\u0435\u043b\u0435\u0444\u043e\u043d, \u0437\u0430\u0442\u0432\u043e\u0440\u0435\u0442\u0435 \u0433\u043e."
+
+    const-string v2, "The scale is silent \u2014 step on it. If Fitdays is open on a phone, close it."
+
+    invoke-static {v1, v2}, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v1
+
+    sget v2, Lcom/isaigu/gymapp/widget/XemsUi;->AMBER:I
+
+    invoke-virtual {v0, v1, v2}, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$Page;->say(Ljava/lang/String;I)V
+
+    .line 2155
+    :cond_56
     new-instance v0, Ljava/lang/StringBuilder;
 
     invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V

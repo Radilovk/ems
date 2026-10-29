@@ -22,6 +22,8 @@
 
 .field static final P_NO_BT:I = 0x5
 
+.field static final P_NO_LOC:I = 0x6
+
 .field static final P_SCAN:I = 0x3
 
 .field static final P_SETTLE:I = 0x2
@@ -124,7 +126,7 @@
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->tick:Lcom/isaigu/gymapp/wearable/scale/ScaleStage$Tick;
 
-    .line 391
+    .line 404
     new-instance v0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$Breather;
 
     invoke-direct {v0, p0}, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$Breather;-><init>(Lcom/isaigu/gymapp/wearable/scale/ScaleStage;)V
@@ -801,7 +803,7 @@
     .registers 4
 
     .prologue
-    .line 399
+    .line 412
     :try_start_0
     invoke-virtual {p0}, Landroid/content/Context;->getAssets()Landroid/content/res/AssetManager;
 
@@ -813,7 +815,7 @@
 
     move-result-object v1
 
-    .line 401
+    .line 414
     :try_start_8
     invoke-static {v1}, Landroid/graphics/BitmapFactory;->decodeStream(Ljava/io/InputStream;)Landroid/graphics/Bitmap;
     :try_end_b
@@ -821,30 +823,30 @@
 
     move-result-object v0
 
-    .line 403
+    .line 416
     :try_start_c
     invoke-virtual {v1}, Ljava/io/InputStream;->close()V
 
-    .line 406
+    .line 419
     :goto_f
     return-object v0
 
-    .line 403
+    .line 416
     :catchall_10
     move-exception v0
 
     invoke-virtual {v1}, Ljava/io/InputStream;->close()V
 
-    .line 404
+    .line 417
     throw v0
     :try_end_15
     .catch Ljava/lang/Throwable; {:try_start_c .. :try_end_15} :catch_15
 
-    .line 405
+    .line 418
     :catch_15
     move-exception v0
 
-    .line 406
+    .line 419
     const/4 v0, 0x0
 
     goto :goto_f
@@ -885,7 +887,7 @@
     .registers 4
 
     .prologue
-    .line 414
+    .line 427
     invoke-static {}, Landroid/os/SystemClock;->uptimeMillis()J
 
     move-result-wide v0
@@ -927,12 +929,12 @@
 
     const/high16 v5, 0x40a00000    # 5.0f
 
-    .line 246
+    .line 251
     if-eqz p2, :cond_71
 
     const v0, -0xdd3aa2
 
-    .line 247
+    .line 252
     :goto_a
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->a:Landroid/app/Activity;
 
@@ -965,7 +967,7 @@
 
     move-result-object v1
 
-    .line 248
+    .line 253
     invoke-virtual {p0, v6}, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->dp(F)I
 
     move-result v2
@@ -984,7 +986,7 @@
 
     invoke-virtual {v1, v2, v3, v4, v5}, Landroid/widget/TextView;->setPadding(IIII)V
 
-    .line 249
+    .line 254
     const/16 v2, 0x1e
 
     invoke-static {v0, v2}, Lcom/isaigu/gymapp/widget/XemsUi;->alpha(II)I
@@ -1017,12 +1019,12 @@
 
     invoke-virtual {v1, v0}, Landroid/widget/TextView;->setBackgroundDrawable(Landroid/graphics/drawable/Drawable;)V
 
-    .line 250
+    .line 255
     new-instance v0, Landroid/widget/LinearLayout$LayoutParams;
 
     invoke-direct {v0, v7, v7}, Landroid/widget/LinearLayout$LayoutParams;-><init>(II)V
 
-    .line 252
+    .line 257
     const/high16 v2, 0x40c00000    # 6.0f
 
     invoke-virtual {p0, v2}, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->dp(F)I
@@ -1031,24 +1033,24 @@
 
     iput v2, v0, Landroid/widget/LinearLayout$LayoutParams;->leftMargin:I
 
-    .line 253
+    .line 258
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->quality:Landroid/widget/LinearLayout;
 
     invoke-virtual {v2, v1, v0}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 254
+    .line 259
     invoke-static {v1}, Lcom/isaigu/gymapp/widget/XemsUi;->enter(Landroid/view/View;)V
 
-    .line 255
+    .line 260
     return-void
 
-    .line 246
+    .line 251
     :cond_71
     const v0, -0xa61f5
 
     goto :goto_a
 
-    .line 247
+    .line 252
     :cond_75
     const-string v1, "! "
 
@@ -1061,34 +1063,34 @@
     .prologue
     const/high16 v2, 0x3f800000    # 1.0f
 
-    .line 382
+    .line 395
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->main:Landroid/os/Handler;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->breather:Ljava/lang/Runnable;
 
     invoke-virtual {v0, v1}, Landroid/os/Handler;->removeCallbacks(Ljava/lang/Runnable;)V
 
-    .line 383
+    .line 396
     if-eqz p1, :cond_13
 
-    .line 384
+    .line 397
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->main:Landroid/os/Handler;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->breather:Ljava/lang/Runnable;
 
     invoke-virtual {v0, v1}, Landroid/os/Handler;->post(Ljava/lang/Runnable;)Z
 
-    .line 389
+    .line 402
     :goto_12
     return-void
 
-    .line 386
+    .line 399
     :cond_13
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->hero:Landroid/widget/ImageView;
 
     invoke-virtual {v0, v2}, Landroid/widget/ImageView;->setScaleX(F)V
 
-    .line 387
+    .line 400
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->hero:Landroid/widget/ImageView;
 
     invoke-virtual {v0, v2}, Landroid/widget/ImageView;->setScaleY(F)V
@@ -1114,15 +1116,15 @@
     .registers 6
 
     .prologue
-    .line 262
+    .line 267
     const/4 v0, 0x4
 
     invoke-virtual {p0, v0}, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->phase(I)V
 
-    .line 263
+    .line 268
     if-eqz p2, :cond_19
 
-    .line 264
+    .line 269
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->title:Landroid/widget/TextView;
 
     const-string v1, "\u0413\u043e\u0442\u043e\u0432\u043e"
@@ -1135,16 +1137,16 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 265
+    .line 270
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->sub:Landroid/widget/TextView;
 
     invoke-virtual {v0, p1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 272
+    .line 277
     :goto_18
     return-void
 
-    .line 267
+    .line 272
     :cond_19
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->title:Landroid/widget/TextView;
 
@@ -1158,7 +1160,7 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 268
+    .line 273
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->sub:Landroid/widget/TextView;
 
     const-string v1, "\u041d\u044f\u043c\u0430 \u043a\u043e\u043d\u0442\u0430\u043a\u0442 \u0441 \u0434\u0440\u044a\u0436\u043a\u0430\u0442\u0430. \u0425\u0432\u0430\u043d\u0435\u0442\u0435 \u044f \u0441 \u0446\u0435\u043b\u0438 \u0434\u043b\u0430\u043d\u0438 \u0438 \u043e\u0441\u0442\u0430\u043d\u0435\u0442\u0435 \u043d\u0430 \u043a\u0430\u043d\u0442\u0430\u0440\u0430 \u0438\u043b\u0438 \u0437\u0430\u043f\u043e\u0447\u043d\u0435\u0442\u0435 \u043d\u043e\u0432\u043e \u0438\u0437\u043c\u0435\u0440\u0432\u0430\u043d\u0435."
@@ -1175,73 +1177,94 @@
 .end method
 
 .method linkState(I)V
-    .registers 5
+    .registers 6
 
     .prologue
+    const/4 v3, 0x6
+
     const/4 v2, 0x1
 
     const/4 v1, 0x5
 
     .line 174
-    packed-switch p1, :pswitch_data_24
+    packed-switch p1, :pswitch_data_34
 
-    .line 193
-    :cond_5
-    :goto_5
-    :pswitch_5
+    .line 198
+    :cond_6
+    :goto_6
+    :pswitch_6
     return-void
 
     .line 176
-    :pswitch_6
+    :pswitch_7
     iget v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->phase:I
 
-    if-eq v0, v1, :cond_e
+    if-eq v0, v1, :cond_13
 
     iget v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->phase:I
 
-    if-ne v0, v2, :cond_5
+    if-eq v0, v3, :cond_13
+
+    iget v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->phase:I
+
+    if-ne v0, v2, :cond_6
 
     .line 177
-    :cond_e
+    :cond_13
     const/4 v0, 0x0
 
     invoke-virtual {p0, v0}, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->phase(I)V
 
-    goto :goto_5
+    goto :goto_6
 
     .line 183
-    :pswitch_13
+    :pswitch_18
     iget v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->phase:I
 
-    if-eqz v0, :cond_1b
+    if-eqz v0, :cond_20
 
     iget v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->phase:I
 
-    if-ne v0, v1, :cond_5
+    if-ne v0, v1, :cond_6
 
     .line 184
-    :cond_1b
+    :cond_20
     invoke-virtual {p0, v2}, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->phase(I)V
 
-    goto :goto_5
+    goto :goto_6
 
     .line 188
-    :pswitch_1f
+    :pswitch_24
     invoke-virtual {p0, v1}, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->phase(I)V
 
-    goto :goto_5
+    goto :goto_6
+
+    .line 191
+    :pswitch_28
+    iget v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->phase:I
+
+    if-eqz v0, :cond_30
+
+    iget v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->phase:I
+
+    if-ne v0, v1, :cond_6
+
+    .line 192
+    :cond_30
+    invoke-virtual {p0, v3}, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->phase(I)V
+
+    goto :goto_6
 
     .line 174
-    nop
-
-    :pswitch_data_24
+    :pswitch_data_34
     .packed-switch 0x1
+        :pswitch_7
+        :pswitch_18
+        :pswitch_18
+        :pswitch_18
         :pswitch_6
-        :pswitch_13
-        :pswitch_13
-        :pswitch_13
-        :pswitch_5
-        :pswitch_1f
+        :pswitch_24
+        :pswitch_28
     .end packed-switch
 .end method
 
@@ -1259,7 +1282,7 @@
 
     const-wide/high16 v12, 0x4014000000000000L    # 5.0
 
-    .line 196
+    .line 201
     move-object/from16 v0, p0
 
     iget v4, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->phase:I
@@ -1268,12 +1291,12 @@
 
     if-ne v4, v6, :cond_26
 
-    .line 197
+    .line 202
     cmpl-double v4, p1, v12
 
     if-ltz v4, :cond_25
 
-    .line 198
+    .line 203
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->weight:Landroid/widget/TextView;
@@ -1294,12 +1317,12 @@
 
     invoke-virtual {v4, v5}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 227
+    .line 232
     :cond_25
     :goto_25
     return-void
 
-    .line 202
+    .line 207
     :cond_26
     move-object/from16 v0, p0
 
@@ -1326,7 +1349,7 @@
     :goto_3a
     invoke-virtual {v6, v4}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 203
+    .line 208
     move-object/from16 v0, p0
 
     iget-object v6, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->weight:Landroid/widget/TextView;
@@ -1338,12 +1361,12 @@
     :goto_45
     invoke-virtual {v6, v4}, Landroid/widget/TextView;->setTextColor(I)V
 
-    .line 204
+    .line 209
     cmpl-double v4, p1, v12
 
     if-ltz v4, :cond_57
 
-    .line 205
+    .line 210
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->live:Lcom/isaigu/gymapp/wearable/scale/ScaleStage$Live;
@@ -1354,13 +1377,13 @@
 
     invoke-virtual {v4, v0, v1, v2}, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$Live;->add(DZ)V
 
-    .line 207
+    .line 212
     :cond_57
     invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
 
     move-result-wide v6
 
-    .line 208
+    .line 213
     move-object/from16 v0, p0
 
     iget-wide v8, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->anchorKg:D
@@ -1377,26 +1400,26 @@
 
     if-lez v4, :cond_94
 
-    .line 209
+    .line 214
     move-wide/from16 v0, p1
 
     move-object/from16 v2, p0
 
     iput-wide v0, v2, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->anchorKg:D
 
-    .line 210
+    .line 215
     move-object/from16 v0, p0
 
     iput-wide v6, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->anchorT:J
 
-    .line 214
+    .line 219
     :cond_78
     :goto_78
     cmpg-double v4, p1, v12
 
     if-gez v4, :cond_a6
 
-    .line 215
+    .line 220
     move-object/from16 v0, p0
 
     iget v4, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->phase:I
@@ -1409,7 +1432,7 @@
 
     if-ne v4, v14, :cond_25
 
-    .line 216
+    .line 221
     :cond_88
     move-object/from16 v0, p0
 
@@ -1417,19 +1440,19 @@
 
     goto :goto_25
 
-    .line 202
+    .line 207
     :cond_8e
     const-string v4, "\u2014"
 
     goto :goto_3a
 
-    .line 203
+    .line 208
     :cond_91
     sget v4, Lcom/isaigu/gymapp/widget/XemsUi;->MUTED:I
 
     goto :goto_45
 
-    .line 211
+    .line 216
     :cond_94
     cmpl-double v4, p1, v12
 
@@ -1449,28 +1472,28 @@
 
     move/from16 p3, v5
 
-    .line 212
+    .line 217
     goto :goto_78
 
-    .line 220
+    .line 225
     :cond_a6
     if-eqz p3, :cond_b5
 
-    .line 221
+    .line 226
     move-object/from16 v0, p0
 
     iget v4, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->phase:I
 
     if-eq v4, v14, :cond_25
 
-    .line 222
+    .line 227
     move-object/from16 v0, p0
 
     invoke-virtual {v0, v14}, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->phase(I)V
 
     goto/16 :goto_25
 
-    .line 224
+    .line 229
     :cond_b5
     move-object/from16 v0, p0
 
@@ -1484,7 +1507,7 @@
 
     if-eq v4, v14, :cond_25
 
-    .line 225
+    .line 230
     move-object/from16 v0, p0
 
     invoke-virtual {v0, v15}, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->phase(I)V
@@ -1502,39 +1525,40 @@
 
     const/4 v3, 0x1
 
-    const/4 v2, 0x0
-
     const/4 v10, 0x4
 
-    .line 288
+    const/4 v2, 0x0
+
+    .line 293
     iget v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->phase:I
 
     if-ne p1, v0, :cond_a
 
-    .line 358
+    .line 371
     :cond_9
     :goto_9
     return-void
 
-    .line 291
+    .line 296
     :cond_a
     iget v6, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->phase:I
 
-    .line 292
+    .line 297
     iput p1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->phase:I
 
-    .line 293
+    .line 298
     iget-boolean v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->female:Z
 
     if-eqz v0, :cond_99
 
     const v0, -0xc138
 
-    .line 296
+    .line 301
     :goto_15
-    packed-switch p1, :pswitch_data_18a
+    packed-switch p1, :pswitch_data_1b6
 
-    .line 337
+    .line 350
+    :pswitch_18
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->title:Landroid/widget/TextView;
 
     const-string v1, "\u0412\u043a\u043b\u044e\u0447\u0435\u0442\u0435 Bluetooth"
@@ -1547,7 +1571,7 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 338
+    .line 351
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->sub:Landroid/widget/TextView;
 
     const-string v1, "Bluetooth \u0435 \u043d\u0443\u0436\u0435\u043d \u0437\u0430 \u0432\u0440\u044a\u0437\u043a\u0430 \u0441 \u043a\u0430\u043d\u0442\u0430\u0440\u0430."
@@ -1560,24 +1584,24 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 339
+    .line 352
     const-string v1, "BLUETOOTH"
 
-    .line 340
+    .line 353
     const v0, -0x10bbbc
 
-    .line 341
+    .line 354
     iget-object v7, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->steps:Lcom/isaigu/gymapp/wearable/scale/ScaleStage$StepsBar;
 
     invoke-virtual {v7, v2}, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$StepsBar;->at(I)V
 
-    .line 344
+    .line 357
     :goto_3c
     iget-object v7, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->chip:Landroid/widget/TextView;
 
     invoke-virtual {v7, v1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 345
+    .line 358
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->chip:Landroid/widget/TextView;
 
     const/16 v7, 0x46
@@ -1612,78 +1636,78 @@
 
     invoke-virtual {v1, v0}, Landroid/widget/TextView;->setBackgroundDrawable(Landroid/graphics/drawable/Drawable;)V
 
-    .line 346
+    .line 359
     invoke-virtual {p0, p1}, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->stable(I)V
 
-    .line 348
+    .line 361
     if-eq p1, v3, :cond_6e
 
     if-eq p1, v5, :cond_6e
 
     if-eq p1, v4, :cond_6e
 
-    if-ne p1, v10, :cond_171
+    if-ne p1, v10, :cond_19d
 
     :cond_6e
     move v0, v3
 
-    .line 349
+    .line 362
     :goto_6f
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->fx:Lcom/isaigu/gymapp/wearable/scale/ScaleStage$ScanFx;
 
-    if-nez p1, :cond_174
+    if-nez p1, :cond_1a0
 
     :goto_73
     invoke-virtual {v1, v3}, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$ScanFx;->mode(I)V
 
-    .line 350
+    .line 363
     invoke-virtual {p0, v0}, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->breath(Z)V
 
-    .line 351
+    .line 364
     if-eq p1, v4, :cond_90
 
-    .line 352
+    .line 365
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->main:Landroid/os/Handler;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->tick:Lcom/isaigu/gymapp/wearable/scale/ScaleStage$Tick;
 
     invoke-virtual {v0, v1}, Landroid/os/Handler;->removeCallbacks(Ljava/lang/Runnable;)V
 
-    .line 353
+    .line 366
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->live:Lcom/isaigu/gymapp/wearable/scale/ScaleStage$Live;
 
-    if-ne p1, v10, :cond_181
+    if-ne p1, v10, :cond_1ad
 
     const/high16 v0, 0x3f800000    # 1.0f
 
     move v1, v0
 
     :goto_89
-    if-ne p1, v10, :cond_185
+    if-ne p1, v10, :cond_1b1
 
     const-string v0, "\u2713"
 
     :goto_8d
     invoke-virtual {v2, v1, v0}, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$Live;->ring(FLjava/lang/String;)V
 
-    .line 355
+    .line 368
     :cond_90
     if-eq v6, p1, :cond_9
 
-    .line 356
+    .line 369
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->title:Landroid/widget/TextView;
 
     invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsUi;->enter(Landroid/view/View;)V
 
     goto/16 :goto_9
 
-    .line 293
+    .line 298
     :cond_99
     const v0, -0xc74208
 
     goto/16 :goto_15
 
-    .line 298
+    .line 303
     :pswitch_9e
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->title:Landroid/widget/TextView;
 
@@ -1697,7 +1721,7 @@
 
     invoke-virtual {v1, v7}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 299
+    .line 304
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->sub:Landroid/widget/TextView;
 
     const-string v7, "\u041f\u0435\u0442\u0438\u0442\u0435 \u0432\u044a\u0440\u0445\u0443 \u0437\u0430\u0434\u043d\u0438\u0442\u0435 \u0435\u043b\u0435\u043a\u0442\u0440\u043e\u0434\u0438, \u0434\u0432\u0435\u0442\u0435 \u0440\u044a\u0446\u0435 \u043d\u0430 \u0434\u0440\u044a\u0436\u043a\u0430\u0442\u0430, \u0440\u044a\u0446\u0435\u0442\u0435 \u0438\u0437\u043f\u044a\u043d\u0430\u0442\u0438 \u043d\u0430\u0434\u043e\u043b\u0443."
@@ -1710,7 +1734,7 @@
 
     invoke-virtual {v1, v7}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 301
+    .line 306
     const-string v1, "\u0418\u0417\u0427\u0410\u041a\u0412\u0410\u041d\u0415"
 
     const-string v7, "WAITING"
@@ -1719,14 +1743,14 @@
 
     move-result-object v1
 
-    .line 303
+    .line 308
     iget-object v7, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->steps:Lcom/isaigu/gymapp/wearable/scale/ScaleStage$StepsBar;
 
     invoke-virtual {v7, v2}, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$StepsBar;->at(I)V
 
     goto/16 :goto_3c
 
-    .line 306
+    .line 311
     :pswitch_c7
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->title:Landroid/widget/TextView;
 
@@ -1740,7 +1764,7 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 307
+    .line 312
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->sub:Landroid/widget/TextView;
 
     const-string v1, "\u0425\u0432\u0430\u043d\u0435\u0442\u0435 \u0434\u0440\u044a\u0436\u043a\u0430\u0442\u0430 \u0441 \u0446\u0435\u043b\u0438 \u0434\u043b\u0430\u043d\u0438 \u0438 \u0441\u0442\u043e\u0439\u0442\u0435 \u043d\u0435\u043f\u043e\u0434\u0432\u0438\u0436\u043d\u043e."
@@ -1753,7 +1777,7 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 309
+    .line 314
     const-string v0, "\u0412\u0420\u042a\u0417\u041a\u0410"
 
     const-string v1, "LINK"
@@ -1762,17 +1786,17 @@
 
     move-result-object v1
 
-    .line 310
+    .line 315
     const v0, -0x6b5c48
 
-    .line 311
+    .line 316
     iget-object v7, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->steps:Lcom/isaigu/gymapp/wearable/scale/ScaleStage$StepsBar;
 
     invoke-virtual {v7, v3}, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$StepsBar;->at(I)V
 
     goto/16 :goto_3c
 
-    .line 314
+    .line 319
     :pswitch_f3
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->title:Landroid/widget/TextView;
 
@@ -1786,7 +1810,7 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 315
+    .line 320
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->sub:Landroid/widget/TextView;
 
     const-string v1, "\u0422\u0435\u0433\u043b\u043e\u0442\u043e \u0441\u0435 \u0441\u0442\u0430\u0431\u0438\u043b\u0438\u0437\u0438\u0440\u0430."
@@ -1799,7 +1823,7 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 316
+    .line 321
     const-string v0, "\u0422\u0415\u0413\u041b\u041e"
 
     const-string v1, "WEIGHT"
@@ -1808,17 +1832,17 @@
 
     move-result-object v1
 
-    .line 317
+    .line 322
     const v0, -0xa61f5
 
-    .line 318
+    .line 323
     iget-object v7, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->steps:Lcom/isaigu/gymapp/wearable/scale/ScaleStage$StepsBar;
 
     invoke-virtual {v7, v5}, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$StepsBar;->at(I)V
 
     goto/16 :goto_3c
 
-    .line 321
+    .line 326
     :pswitch_11f
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->title:Landroid/widget/TextView;
 
@@ -1832,7 +1856,7 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 322
+    .line 327
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->sub:Landroid/widget/TextView;
 
     const-string v1, "\u041d\u0435 \u043f\u0443\u0441\u043a\u0430\u0439\u0442\u0435 \u0434\u0440\u044a\u0436\u043a\u0430\u0442\u0430. \u0418\u0437\u043c\u0435\u0440\u0432\u0430\u0442\u0435\u043b\u043d\u0438\u044f\u0442 \u0442\u043e\u043a \u043d\u0435 \u0441\u0435 \u0443\u0441\u0435\u0449\u0430."
@@ -1845,7 +1869,7 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 324
+    .line 329
     const-string v0, "\u0410\u041d\u0410\u041b\u0418\u0417"
 
     const-string v1, "ANALYSIS"
@@ -1854,29 +1878,29 @@
 
     move-result-object v1
 
-    .line 325
+    .line 330
     const v0, -0xdd3aa2
 
-    .line 326
+    .line 331
     iget-object v7, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->steps:Lcom/isaigu/gymapp/wearable/scale/ScaleStage$StepsBar;
 
     invoke-virtual {v7, v4}, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$StepsBar;->at(I)V
 
-    .line 327
+    .line 332
     invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
 
     move-result-wide v8
 
     iput-wide v8, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->scanStart:J
 
-    .line 328
+    .line 333
     iget-object v7, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->main:Landroid/os/Handler;
 
     iget-object v8, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->tick:Lcom/isaigu/gymapp/wearable/scale/ScaleStage$Tick;
 
     invoke-virtual {v7, v8}, Landroid/os/Handler;->removeCallbacks(Ljava/lang/Runnable;)V
 
-    .line 329
+    .line 334
     iget-object v7, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->main:Landroid/os/Handler;
 
     iget-object v8, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->tick:Lcom/isaigu/gymapp/wearable/scale/ScaleStage$Tick;
@@ -1885,7 +1909,7 @@
 
     goto/16 :goto_3c
 
-    .line 332
+    .line 337
     :pswitch_15f
     const-string v0, "\u0413\u041e\u0422\u041e\u0412\u041e"
 
@@ -1895,65 +1919,113 @@
 
     move-result-object v1
 
-    .line 333
+    .line 338
     const v0, -0xdd3aa2
 
-    .line 334
+    .line 339
     iget-object v7, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->steps:Lcom/isaigu/gymapp/wearable/scale/ScaleStage$StepsBar;
 
     invoke-virtual {v7, v10}, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$StepsBar;->at(I)V
 
     goto/16 :goto_3c
 
-    :cond_171
+    .line 342
+    :pswitch_171
+    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->title:Landroid/widget/TextView;
+
+    const-string v1, "\u0412\u043a\u043b\u044e\u0447\u0435\u0442\u0435 \u043c\u0435\u0441\u0442\u043e\u043f\u043e\u043b\u043e\u0436\u0435\u043d\u0438\u0435\u0442\u043e"
+
+    const-string v7, "Turn location on"
+
+    invoke-static {v1, v7}, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v1
+
+    invoke-virtual {v0, v1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
+
+    .line 343
+    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->sub:Landroid/widget/TextView;
+
+    const-string v1, "Android \u043f\u043e\u043a\u0430\u0437\u0432\u0430 \u043a\u0430\u043d\u0442\u0430\u0440\u0430 \u0441\u0430\u043c\u043e \u043f\u0440\u0438 \u0432\u043a\u043b\u044e\u0447\u0435\u043d\u043e \u043c\u0435\u0441\u0442\u043e\u043f\u043e\u043b\u043e\u0436\u0435\u043d\u0438\u0435. \u0411\u0443\u0442\u043e\u043d\u044a\u0442 \u0434\u043e\u043b\u0443 \u0433\u043e \u0432\u043a\u043b\u044e\u0447\u0432\u0430."
+
+    const-string v7, "Android shows the scale only with location on. The button below turns it on."
+
+    invoke-static {v1, v7}, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v1
+
+    invoke-virtual {v0, v1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
+
+    .line 345
+    const-string v0, "\u041c\u0415\u0421\u0422\u041e\u041f\u041e\u041b\u041e\u0416\u0415\u041d\u0418\u0415"
+
+    const-string v1, "LOCATION"
+
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v1
+
+    .line 346
+    const v0, -0x10bbbc
+
+    .line 347
+    iget-object v7, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->steps:Lcom/isaigu/gymapp/wearable/scale/ScaleStage$StepsBar;
+
+    invoke-virtual {v7, v2}, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$StepsBar;->at(I)V
+
+    goto/16 :goto_3c
+
+    :cond_19d
     move v0, v2
 
-    .line 348
+    .line 361
     goto/16 :goto_6f
 
-    .line 349
-    :cond_174
-    if-ne p1, v10, :cond_179
+    .line 362
+    :cond_1a0
+    if-ne p1, v10, :cond_1a5
 
     move v3, v4
 
     goto/16 :goto_73
 
-    :cond_179
-    if-eqz v0, :cond_17e
+    :cond_1a5
+    if-eqz v0, :cond_1aa
 
     move v3, v5
 
     goto/16 :goto_73
 
-    :cond_17e
+    :cond_1aa
     move v3, v2
 
     goto/16 :goto_73
 
-    .line 353
-    :cond_181
+    .line 366
+    :cond_1ad
     const/4 v0, 0x0
 
     move v1, v0
 
     goto/16 :goto_89
 
-    :cond_185
+    :cond_1b1
     const-string v0, ""
 
     goto/16 :goto_8d
 
-    .line 296
+    .line 301
     nop
 
-    :pswitch_data_18a
+    :pswitch_data_1b6
     .packed-switch 0x0
         :pswitch_9e
         :pswitch_c7
         :pswitch_f3
         :pswitch_11f
         :pswitch_15f
+        :pswitch_18
+        :pswitch_171
     .end packed-switch
 .end method
 
@@ -1961,14 +2033,14 @@
     .registers 3
 
     .prologue
-    .line 394
+    .line 407
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->main:Landroid/os/Handler;
 
     const/4 v1, 0x0
 
     invoke-virtual {v0, v1}, Landroid/os/Handler;->removeCallbacksAndMessages(Ljava/lang/Object;)V
 
-    .line 395
+    .line 408
     return-void
 .end method
 
@@ -1976,46 +2048,46 @@
     .registers 3
 
     .prologue
-    .line 276
+    .line 281
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->quality:Landroid/widget/LinearLayout;
 
     invoke-virtual {v0}, Landroid/widget/LinearLayout;->removeAllViews()V
 
-    .line 277
+    .line 282
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->round:Landroid/widget/TextView;
 
     const-string v1, ""
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 278
+    .line 283
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->live:Lcom/isaigu/gymapp/wearable/scale/ScaleStage$Live;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$Live;->clear()V
 
-    .line 279
+    .line 284
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->weight:Landroid/widget/TextView;
 
     const-string v1, "\u2014"
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 280
+    .line 285
     const-wide/16 v0, 0x0
 
     iput-wide v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->anchorKg:D
 
-    .line 281
+    .line 286
     const/4 v0, -0x1
 
     iput v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->phase:I
 
-    .line 282
+    .line 287
     const/4 v0, 0x0
 
     invoke-virtual {p0, v0}, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->phase(I)V
 
-    .line 283
+    .line 288
     return-void
 .end method
 
@@ -2023,7 +2095,7 @@
     .registers 11
 
     .prologue
-    .line 373
+    .line 386
     invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
 
     move-result-wide v0
@@ -2038,7 +2110,7 @@
 
     div-double/2addr v0, v2
 
-    .line 374
+    .line 387
     const-wide v2, 0x3fee666666666666L    # 0.95
 
     const-wide/high16 v4, 0x3ff0000000000000L    # 1.0
@@ -2061,7 +2133,7 @@
 
     double-to-float v2, v2
 
-    .line 375
+    .line 388
     iget-object v3, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->live:Lcom/isaigu/gymapp/wearable/scale/ScaleStage$Live;
 
     new-instance v4, Ljava/lang/StringBuilder;
@@ -2104,7 +2176,7 @@
 
     invoke-virtual {v3, v2, v0}, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$Live;->ring(FLjava/lang/String;)V
 
-    .line 376
+    .line 389
     return-void
 .end method
 
@@ -2112,12 +2184,12 @@
     .registers 5
 
     .prologue
-    .line 361
+    .line 374
     const/4 v0, 0x2
 
     if-ne p1, v0, :cond_19
 
-    .line 362
+    .line 375
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->stableChip:Landroid/widget/TextView;
 
     const-string v1, "\u25cf \u0441\u0442\u0430\u0431\u0438\u043b\u0438\u0437\u0438\u0440\u0430\u043d\u0435"
@@ -2130,18 +2202,18 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 363
+    .line 376
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->stableChip:Landroid/widget/TextView;
 
     const v1, -0xa61f5
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setTextColor(I)V
 
-    .line 370
+    .line 383
     :goto_18
     return-void
 
-    .line 364
+    .line 377
     :cond_19
     const/4 v0, 0x3
 
@@ -2151,7 +2223,7 @@
 
     if-ne p1, v0, :cond_35
 
-    .line 365
+    .line 378
     :cond_1f
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->stableChip:Landroid/widget/TextView;
 
@@ -2165,7 +2237,7 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 366
+    .line 379
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->stableChip:Landroid/widget/TextView;
 
     const v1, -0xdd3aa2
@@ -2174,7 +2246,7 @@
 
     goto :goto_18
 
-    .line 368
+    .line 381
     :cond_35
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->stableChip:Landroid/widget/TextView;
 
@@ -2195,7 +2267,7 @@
 
     const/4 v1, 0x1
 
-    .line 231
+    .line 236
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->weight:Landroid/widget/TextView;
 
     iget-wide v4, p1, Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol$Reading;->weightKg:D
@@ -2216,29 +2288,29 @@
 
     invoke-virtual {v0, v3}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 232
+    .line 237
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->weight:Landroid/widget/TextView;
 
     sget v3, Lcom/isaigu/gymapp/widget/XemsUi;->TEXT:I
 
     invoke-virtual {v0, v3}, Landroid/widget/TextView;->setTextColor(I)V
 
-    .line 233
+    .line 238
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->live:Lcom/isaigu/gymapp/wearable/scale/ScaleStage$Live;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$Live;->done()V
 
-    .line 234
+    .line 239
     invoke-virtual {p2}, Lcom/isaigu/gymapp/wearable/scale/ScaleSession;->lastQuality()Lcom/isaigu/gymapp/wearable/scale/ScaleSession$Quality;
 
     move-result-object v3
 
-    .line 235
+    .line 240
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->quality:Landroid/widget/LinearLayout;
 
     invoke-virtual {v0}, Landroid/widget/LinearLayout;->removeAllViews()V
 
-    .line 236
+    .line 241
     const-string v0, "\u0420\u044a\u0446\u0435"
 
     const-string v4, "Hands"
@@ -2262,7 +2334,7 @@
     :goto_3e
     invoke-virtual {p0, v4, v0}, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->addQ(Ljava/lang/String;Z)V
 
-    .line 237
+    .line 242
     const-string v0, "\u041a\u0440\u0430\u043a\u0430"
 
     const-string v4, "Feet"
@@ -2286,14 +2358,14 @@
     :goto_54
     invoke-virtual {p0, v4, v0}, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->addQ(Ljava/lang/String;Z)V
 
-    .line 238
+    .line 243
     invoke-virtual {p1}, Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol$Reading;->hasTrunk()Z
 
     move-result v0
 
     if-eqz v0, :cond_73
 
-    .line 239
+    .line 244
     const-string v0, "\u0422\u044f\u043b\u043e"
 
     const-string v4, "Trunk"
@@ -2317,13 +2389,13 @@
     :cond_70
     invoke-virtual {p0, v0, v2}, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->addQ(Ljava/lang/String;Z)V
 
-    .line 241
+    .line 246
     :cond_73
     invoke-virtual {p2}, Lcom/isaigu/gymapp/wearable/scale/ScaleSession;->count()I
 
     move-result v0
 
-    .line 242
+    .line 247
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->round:Landroid/widget/TextView;
 
     if-gt v0, v1, :cond_85
@@ -2333,22 +2405,22 @@
     :goto_7d
     invoke-virtual {v2, v0}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 243
+    .line 248
     return-void
 
     :cond_81
     move v0, v2
 
-    .line 236
+    .line 241
     goto :goto_3e
 
     :cond_83
     move v0, v2
 
-    .line 237
+    .line 242
     goto :goto_54
 
-    .line 242
+    .line 247
     :cond_85
     new-instance v1, Ljava/lang/StringBuilder;
 

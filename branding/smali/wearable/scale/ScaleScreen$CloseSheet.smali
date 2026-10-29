@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 2706
+    .line 2846
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 2707
+    .line 2847
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$CloseSheet;->sh:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
 
-    .line 2708
+    .line 2848
     return-void
 .end method
 
@@ -42,10 +42,10 @@
     .registers 3
 
     .prologue
-    .line 2712
+    .line 2852
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsUi;->haptic(Landroid/view/View;)V
 
-    .line 2714
+    .line 2854
     :try_start_3
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleScreen$CloseSheet;->sh:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
 
@@ -55,11 +55,11 @@
     :try_end_a
     .catch Ljava/lang/Throwable; {:try_start_3 .. :try_end_a} :catch_b
 
-    .line 2717
+    .line 2857
     :goto_a
     return-void
 
-    .line 2715
+    .line 2855
     :catch_b
     move-exception v0
 

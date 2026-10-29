@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 775
+    .line 930
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 776
+    .line 931
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink$Scan;->link:Lcom/isaigu/gymapp/wearable/scale/ScaleLink;
 
-    .line 777
+    .line 932
     return-void
 .end method
 
@@ -42,19 +42,28 @@
     .registers 7
 
     .prologue
-    .line 782
-    if-eqz p1, :cond_18
+    .line 937
+    if-eqz p1, :cond_7
 
+    .line 938
     :try_start_2
+    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink$Scan;->link:Lcom/isaigu/gymapp/wearable/scale/ScaleLink;
+
+    invoke-virtual {v0, p1, p2, p3}, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->saw(Landroid/bluetooth/BluetoothDevice;I[B)V
+
+    .line 940
+    :cond_7
+    if-eqz p1, :cond_1f
+
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink$Scan;->link:Lcom/isaigu/gymapp/wearable/scale/ScaleLink;
 
     invoke-virtual {v0, p1, p3}, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->isScale(Landroid/bluetooth/BluetoothDevice;[B)Z
 
     move-result v0
 
-    if-eqz v0, :cond_18
+    if-eqz v0, :cond_1f
 
-    .line 783
+    .line 941
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink$Scan;->link:Lcom/isaigu/gymapp/wearable/scale/ScaleLink;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->main:Landroid/os/Handler;
@@ -66,17 +75,17 @@
     invoke-direct {v1, v2, p1}, Lcom/isaigu/gymapp/wearable/scale/ScaleLink$Found;-><init>(Lcom/isaigu/gymapp/wearable/scale/ScaleLink;Landroid/bluetooth/BluetoothDevice;)V
 
     invoke-virtual {v0, v1}, Landroid/os/Handler;->post(Ljava/lang/Runnable;)Z
-    :try_end_18
-    .catch Ljava/lang/Throwable; {:try_start_2 .. :try_end_18} :catch_19
+    :try_end_1f
+    .catch Ljava/lang/Throwable; {:try_start_2 .. :try_end_1f} :catch_20
 
-    .line 787
-    :cond_18
-    :goto_18
+    .line 945
+    :cond_1f
+    :goto_1f
     return-void
 
-    .line 785
-    :catch_19
+    .line 943
+    :catch_20
     move-exception v0
 
-    goto :goto_18
+    goto :goto_1f
 .end method

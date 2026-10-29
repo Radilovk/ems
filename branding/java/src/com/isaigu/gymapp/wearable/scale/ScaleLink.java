@@ -40,7 +40,8 @@ public final class ScaleLink {
         void onResult(ScaleProtocol.Reading r);
     }
 
-    public static final int SEARCHING = 1, CONNECTING = 2, READY = 3, MEASURING = 4, DONE = 5, NO_BLUETOOTH = 6;
+    public static final int SEARCHING = 1, CONNECTING = 2, READY = 3, MEASURING = 4, DONE = 5, NO_BLUETOOTH = 6,
+            NO_LOCATION = 7;
 
     static final long HELLO_WAIT_MS = 1500;
     static final long BEAT_MS = 400;
@@ -96,6 +97,16 @@ public final class ScaleLink {
     /** Raw frames logged on this connection (S: the first ones, to check the decode; X: up to the cap). */
     int rawLogged;
 
+    /**
+     * Every device heard while searching (MAC → what it said), for the "choose the scale" list when nothing is found
+     * by itself — a model whose advert carries neither FFB0 nor a scale-like name. Written by the scan thread.
+     */
+    final java.util.Map<String, Seen> nearby = java.util.Collections.synchronizedMap(
+            new java.util.LinkedHashMap<String, Seen>());
+    /** Adverts heard since the page opened (0 after seconds of scanning = the radio sees nothing at all). */
+    volatile int adverts;
+    boolean locationOk = true;
+
     final List<Op> ops = new ArrayList<Op>();
     boolean busy;
     int opToken;
@@ -123,7 +134,151 @@ public final class ScaleLink {
             setState(NO_BLUETOOTH);
             return;
         }
+        log("start: saved " + ScaleStore.mac(app) + ", location " + locationState(app));
         startScan();
+        main.postDelayed(new LocCheck(this), 1500);
+    }
+
+    /**
+     * The app targets API 30: Android hands out BLE scan results only with the location permission granted and the
+     * location switch on — otherwise the scan runs and hears nothing, and the scale is never found.
+     */
+    public static boolean locationOn(Context c) {
+        return locationState(c).equals("ok");
+    }
+
+    /** "ok", "no permission" or "switched off". */
+    public static String locationState(Context c) {
+        try {
+            if (Build.VERSION.SDK_INT >= 23 && c.checkSelfPermission(
+                    android.Manifest.permission.ACCESS_FINE_LOCATION) != android.content.pm.PackageManager.PERMISSION_GRANTED
+                    && c.checkSelfPermission(android.Manifest.permission.ACCESS_COARSE_LOCATION)
+                    != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+                return "no permission";
+            }
+            android.location.LocationManager lm = (android.location.LocationManager) c.getSystemService(
+                    Context.LOCATION_SERVICE);
+            if (lm == null || Build.VERSION.SDK_INT < 23) {
+                return "ok";
+            }
+            boolean on = Build.VERSION.SDK_INT >= 28 ? lm.isLocationEnabled()
+                    : lm.isProviderEnabled(android.location.LocationManager.GPS_PROVIDER)
+                    || lm.isProviderEnabled(android.location.LocationManager.NETWORK_PROVIDER);
+            return on ? "ok" : "switched off";
+        } catch (Throwable t) {
+            return "ok";
+        }
+    }
+
+    /** Every 2 s while searching: location state in, and a note in the log of how much the radio hears. */
+    void locCheck() {
+        if (closed) {
+            return;
+        }
+        boolean ok = locationOn(app);
+        if (ok != locationOk) {
+            locationOk = ok;
+            log("location " + locationState(app) + ", adverts so far " + adverts);
+            if (ok) {
+                startScan();          // switched on: scan afresh (some stacks keep a scan started without it deaf)
+            }
+        }
+        if (gatt == null && (state == SEARCHING || state == NO_LOCATION)) {
+            setState(ok ? SEARCHING : NO_LOCATION);
+        }
+        main.postDelayed(new LocCheck(this), 2000);
+    }
+
+    /** One device heard while searching. */
+    public static final class Seen {
+        public String mac;
+        public String name;
+        public int rssi;
+        public boolean ffb0;
+        public long t;
+    }
+
+    void saw(BluetoothDevice d, int rssi, byte[] adv) {
+        adverts++;
+        String mac = d.getAddress();
+        if (mac == null) {
+            return;
+        }
+        Seen s = nearby.get(mac);
+        boolean fresh = s == null;
+        if (fresh) {
+            if (nearby.size() >= 120) {
+                return;
+            }
+            s = new Seen();
+            s.mac = mac;
+            nearby.put(mac, s);
+        }
+        String name = null;
+        try {
+            name = d.getName();
+        } catch (Throwable ignored) {
+        }
+        if (name == null || name.length() == 0) {
+            name = advName(adv);
+        }
+        if (name != null && name.length() > 0) {
+            s.name = name;
+        }
+        s.rssi = rssi;
+        s.ffb0 = s.ffb0 || advertisesFfb0(adv);
+        s.t = System.currentTimeMillis();
+        if (fresh) {
+            log("seen " + mac + " " + rssi + " dBm " + (s.name == null ? "-" : "\"" + s.name + "\"")
+                    + (s.ffb0 ? " FFB0" : "") + " adv " + hexAll(trimAdv(adv)));
+        }
+    }
+
+    static byte[] trimAdv(byte[] adv) {
+        if (adv == null) {
+            return new byte[0];
+        }
+        int n = 0;
+        while (n < adv.length && (adv[n] & 0xFF) != 0) {
+            n += (adv[n] & 0xFF) + 1;
+        }
+        return java.util.Arrays.copyOf(adv, Math.min(n, adv.length));
+    }
+
+    /** Devices heard in the last 20 s, strongest first (the scale under the client's feet is the closest). */
+    public List<Seen> nearby() {
+        List<Seen> out = new ArrayList<Seen>();
+        long now = System.currentTimeMillis();
+        synchronized (nearby) {
+            for (Seen s : nearby.values()) {
+                if (now - s.t < 20000) {
+                    out.add(s);
+                }
+            }
+        }
+        java.util.Collections.sort(out, new ByRssi());
+        return out;
+    }
+
+    static final class ByRssi implements java.util.Comparator<Seen> {
+        @Override
+        public int compare(Seen x, Seen y) {
+            return y.rssi - x.rssi;
+        }
+    }
+
+    /** The trainer chose this device as the scale: saved, and the next advert from it connects. */
+    public void pick(String mac) {
+        log("picked " + mac);
+        notScales.remove(mac);
+        ScaleStore.setMac(app, mac);
+        if (gatt == null) {
+            startScan();
+        }
+    }
+
+    public int adverts() {
+        return adverts;
     }
 
     void startScan() {
@@ -779,6 +934,9 @@ public final class ScaleLink {
         @Override
         public void onLeScan(BluetoothDevice device, int rssi, byte[] scanRecord) {
             try {
+                if (device != null) {
+                    link.saw(device, rssi, scanRecord);
+                }
                 if (device != null && link.isScale(device, scanRecord)) {
                     link.main.post(new Found(link, device));
                 }
@@ -909,6 +1067,19 @@ public final class ScaleLink {
             if (link.gatt == null) {
                 link.startScan();
             }
+        }
+    }
+
+    static final class LocCheck implements Runnable {
+        final ScaleLink link;
+
+        LocCheck(ScaleLink link) {
+            this.link = link;
+        }
+
+        @Override
+        public void run() {
+            link.locCheck();
         }
     }
 

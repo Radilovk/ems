@@ -104,6 +104,10 @@ public final class ScaleScreen {
         LinearLayout barChips;
         TextView readyNote;
         TextView again;
+        /** "Choose the scale" — after 10 s of searching with nothing found, or "Turn location on" without location. */
+        TextView find;
+        int linkState;
+        int searchToken;
         ScaleLink link;
         android.widget.PopupWindow infoPop;
         LinearLayout barTop;
@@ -227,6 +231,12 @@ public final class ScaleScreen {
             again.setOnClickListener(new Again(this));
             again.setVisibility(View.INVISIBLE);
             s.footer.addView(again, new LinearLayout.LayoutParams(dp(220), dp(56)));
+            find = XemsUi.button(a, tr("Избери кантара", "Choose the scale"), XemsUi.SECONDARY);
+            find.setOnClickListener(new Find(this));
+            find.setVisibility(View.GONE);
+            LinearLayout.LayoutParams fl = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, dp(56));
+            fl.leftMargin = dp(12);
+            s.footer.addView(find, fl);
             s.footer.addView(XemsUi.spacer(a));
             TextView done = XemsUi.button(a, tr("Готово", "Done"), XemsUi.PRIMARY);
             done.setOnClickListener(new Done(this));
@@ -1828,7 +1838,25 @@ public final class ScaleScreen {
             if (staging) {
                 stage.linkState(st);
             }
+            int was = linkState;
+            linkState = st;
+            if (st == ScaleLink.NO_LOCATION) {
+                find.setText(tr("Включи местоположението", "Turn location on"));
+                find.setVisibility(View.VISIBLE);
+            } else if (st == ScaleLink.SEARCHING) {
+                if (was != ScaleLink.SEARCHING) {
+                    find.setVisibility(View.GONE);
+                    main.postDelayed(new FindHint(this, ++searchToken), 10000);
+                }
+            } else {
+                searchToken++;
+                find.setVisibility(View.GONE);
+            }
             switch (st) {
+                case ScaleLink.NO_LOCATION:
+                    say(tr("Включете местоположението — без него таблетът не вижда кантара",
+                            "Turn location on — without it the tablet cannot see the scale"), XemsUi.DANGER);
+                    break;
                 case ScaleLink.SEARCHING:
                     if (session != null) {
                         off = true;       // the scale slept: whoever steps on next is a new measurement
@@ -2091,6 +2119,118 @@ public final class ScaleScreen {
             } catch (Throwable ignored) {
             }
             return true;
+        }
+    }
+
+    /** 10 s of searching and nothing found: offer the list of nearby devices. */
+    static final class FindHint implements Runnable {
+        final Page v;
+        final int token;
+
+        FindHint(Page v, int token) {
+            this.v = v;
+            this.token = token;
+        }
+
+        @Override
+        public void run() {
+            if (token != v.searchToken || v.linkState != ScaleLink.SEARCHING || v.link == null
+                    || v.lastSweep != null || v.sessionT > 0) {      // it has measured on this page: it only sleeps
+                return;
+            }
+            v.find.setText(tr("Не го намира? Избери кантара", "Not found? Choose the scale"));
+            v.find.setVisibility(View.VISIBLE);
+            ScaleLink.log("not found in 10 s: " + v.link.adverts() + " adverts, " + v.link.nearby().size()
+                    + " devices near");
+        }
+    }
+
+    /** No location → ask for it / open its switch; otherwise the nearby devices, strongest first, one tap = the scale. */
+    static final class Find implements View.OnClickListener {
+        final Page v;
+
+        Find(Page v) {
+            this.v = v;
+        }
+
+        @Override
+        public void onClick(View b) {
+            XemsUi.haptic(b);
+            Activity a = v.a;
+            if (v.link == null) {
+                return;
+            }
+            String loc = ScaleLink.locationState(a);
+            if ("no permission".equals(loc) && android.os.Build.VERSION.SDK_INT >= 23) {
+                a.requestPermissions(new String[] {android.Manifest.permission.ACCESS_FINE_LOCATION,
+                        android.Manifest.permission.ACCESS_COARSE_LOCATION}, 0x5C41);
+                return;
+            }
+            if ("switched off".equals(loc)) {
+                try {
+                    a.startActivity(new android.content.Intent(
+                            android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+                } catch (Throwable ignored) {
+                }
+                return;
+            }
+            java.util.List<ScaleLink.Seen> near = v.link.nearby();
+            android.app.AlertDialog.Builder d = new android.app.AlertDialog.Builder(a);
+            d.setTitle(tr("Кой е кантарът?", "Which one is the scale?"));
+            if (near.isEmpty()) {
+                d.setMessage(tr("Таблетът не чува нищо по Bluetooth. Стъпете на кантара, за да се събуди, и натиснете „Обнови“.",
+                        "The tablet hears nothing over Bluetooth. Step on the scale to wake it, then tap Refresh."));
+            } else {
+                String[] items = new String[near.size()];
+                String[] macs = new String[near.size()];
+                for (int i = 0; i < items.length; i++) {
+                    ScaleLink.Seen s = near.get(i);
+                    macs[i] = s.mac;
+                    String sig = s.rssi > -60 ? tr("съвсем близо", "very close") : s.rssi > -75
+                            ? tr("близо", "close") : tr("далеч", "far");
+                    items[i] = (s.ffb0 ? "★ " : "") + (s.name != null ? s.name : tr("без име", "no name"))
+                            + "  ·  " + sig + "  ·  " + s.mac.substring(Math.max(0, s.mac.length() - 5));
+                }
+                d.setItems(items, new Picked(v, macs));
+            }
+            d.setNeutralButton(tr("Обнови", "Refresh"), new Refresh(this, b));
+            d.setNegativeButton(tr("Затвори", "Close"), null);
+            d.show();
+        }
+    }
+
+    static final class Picked implements android.content.DialogInterface.OnClickListener {
+        final Page v;
+        final String[] macs;
+
+        Picked(Page v, String[] macs) {
+            this.v = v;
+            this.macs = macs;
+        }
+
+        @Override
+        public void onClick(android.content.DialogInterface d, int which) {
+            if (v.link != null && which >= 0 && which < macs.length) {
+                v.link.pick(macs[which]);
+                v.find.setVisibility(View.GONE);
+                android.widget.Toast.makeText(v.a, tr("Запомних го. Стъпете на кантара.",
+                        "Saved. Step on the scale."), android.widget.Toast.LENGTH_LONG).show();
+            }
+        }
+    }
+
+    static final class Refresh implements android.content.DialogInterface.OnClickListener {
+        final Find f;
+        final View b;
+
+        Refresh(Find f, View b) {
+            this.f = f;
+            this.b = b;
+        }
+
+        @Override
+        public void onClick(android.content.DialogInterface d, int which) {
+            f.onClick(b);
         }
     }
 

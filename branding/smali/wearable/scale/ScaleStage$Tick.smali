@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 724
+    .line 737
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 725
+    .line 738
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$Tick;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleStage;
 
-    .line 726
+    .line 739
     return-void
 .end method
 
@@ -42,7 +42,7 @@
     .registers 5
 
     .prologue
-    .line 730
+    .line 743
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$Tick;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleStage;
 
     iget v0, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->phase:I
@@ -51,17 +51,17 @@
 
     if-eq v0, v1, :cond_8
 
-    .line 735
+    .line 748
     :goto_7
     return-void
 
-    .line 733
+    .line 746
     :cond_8
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$Tick;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleStage;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->scanTick()V
 
-    .line 734
+    .line 747
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage$Tick;->v:Lcom/isaigu/gymapp/wearable/scale/ScaleStage;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleStage;->main:Landroid/os/Handler;

@@ -23,13 +23,13 @@
     .registers 2
 
     .prologue
-    .line 808
+    .line 966
     invoke-direct {p0}, Landroid/bluetooth/BluetoothGattCallback;-><init>()V
 
-    .line 809
+    .line 967
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink$Gatt;->link:Lcom/isaigu/gymapp/wearable/scale/ScaleLink;
 
-    .line 810
+    .line 968
     return-void
 .end method
 
@@ -41,12 +41,12 @@
     .prologue
     const/4 v4, 0x0
 
-    .line 824
+    .line 982
     invoke-virtual {p2}, Landroid/bluetooth/BluetoothGattCharacteristic;->getValue()[B
 
     move-result-object v3
 
-    .line 825
+    .line 983
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink$Gatt;->link:Lcom/isaigu/gymapp/wearable/scale/ScaleLink;
 
     iget-object v8, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->main:Landroid/os/Handler;
@@ -80,10 +80,10 @@
 
     invoke-virtual {v8, v0}, Landroid/os/Handler;->post(Ljava/lang/Runnable;)Z
 
-    .line 826
+    .line 984
     return-void
 
-    .line 825
+    .line 983
     :cond_24
     const/4 v7, 0x0
 
@@ -96,7 +96,7 @@
     .prologue
     const/4 v6, 0x0
 
-    .line 830
+    .line 988
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink$Gatt;->link:Lcom/isaigu/gymapp/wearable/scale/ScaleLink;
 
     iget-object v8, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->main:Landroid/os/Handler;
@@ -119,7 +119,7 @@
 
     invoke-virtual {v8, v0}, Landroid/os/Handler;->post(Ljava/lang/Runnable;)Z
 
-    .line 831
+    .line 989
     return-void
 .end method
 
@@ -129,7 +129,7 @@
     .prologue
     const/4 v6, 0x0
 
-    .line 814
+    .line 972
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink$Gatt;->link:Lcom/isaigu/gymapp/wearable/scale/ScaleLink;
 
     iget-object v8, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->main:Landroid/os/Handler;
@@ -152,7 +152,7 @@
 
     invoke-virtual {v8, v0}, Landroid/os/Handler;->post(Ljava/lang/Runnable;)Z
 
-    .line 815
+    .line 973
     return-void
 .end method
 
@@ -162,7 +162,7 @@
     .prologue
     const/4 v6, 0x0
 
-    .line 835
+    .line 993
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink$Gatt;->link:Lcom/isaigu/gymapp/wearable/scale/ScaleLink;
 
     iget-object v8, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->main:Landroid/os/Handler;
@@ -185,7 +185,7 @@
 
     invoke-virtual {v8, v0}, Landroid/os/Handler;->post(Ljava/lang/Runnable;)Z
 
-    .line 836
+    .line 994
     return-void
 .end method
 
@@ -195,7 +195,7 @@
     .prologue
     const/4 v6, 0x0
 
-    .line 819
+    .line 977
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink$Gatt;->link:Lcom/isaigu/gymapp/wearable/scale/ScaleLink;
 
     iget-object v8, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->main:Landroid/os/Handler;
@@ -218,6 +218,6 @@
 
     invoke-virtual {v8, v0}, Landroid/os/Handler;->post(Ljava/lang/Runnable;)Z
 
-    .line 820
+    .line 978
     return-void
 .end method

@@ -1119,6 +1119,23 @@ public final class ScaleSim {
         ok("name F4P is a scale", ScaleLink.looksLikeScale("F4P"));
         ok("name Fenix 7 is not a scale", !ScaleLink.looksLikeScale("Fenix 7"));
         ok("name F123 is not a scale", !ScaleLink.looksLikeScale("F123"));
+        // iComon SDK (ScaleIcomon): impedances already trunk, LA, RA, LL, RL; five per frequency
+        java.util.List<Double> ten = java.util.Arrays.asList(19.5, 236.0, 241.0, 220.0, 224.0,
+                22.0, 270.0, 275.0, 250.0, 255.0);      // the 100 kHz five first: the reader sorts them out
+        ScaleProtocol.Reading ir = ScaleIcomon.reading(81.4, ten, 8);
+        ok("iComon 10 imps read", ir != null && !ir.single);
+        eq("iComon z20 trunk = the higher five", ir == null ? Double.NaN : ir.z20[0], 22.0, 1e-9);
+        eq("iComon z100 left arm", ir == null ? Double.NaN : ir.z100[1], 236.0, 1e-9);
+        ScaleProtocol.Reading one = ScaleIcomon.reading(81.4, java.util.Arrays.asList(21.0, 250.0, 255.0, 230.0, 235.0), 8);
+        ok("iComon 5 imps = one frequency", one != null && one.single);
+        ok("iComon 4-electrode = weight only", ScaleIcomon.reading(81.4, java.util.Arrays.asList(500.0), 4) == null);
+        ok("iComon one zero segment = weight only",
+                ScaleIcomon.reading(81.4, java.util.Arrays.asList(21.0, 0.0, 255.0, 230.0, 235.0), 8) == null);
+        ok("iComon advert AC", ScaleLink.icomonAdvert(hex("020106" + "0bffac2880f4165c3dd80000")));
+        ok("not iComon: Samsung", !ScaleLink.icomonAdvert(hex("1bff7500420401806654")));
+        // owner's log 1.1.492: a Samsung advert (company 0x0075) carries its MAC like a Senssun XS — not a scale
+        ok("Samsung is not Senssun XS", ScaleSenssun.xsAdvert(hex(
+                "1bff750042040180665" + "43ad62a83d4563ad62a83d301000000000000"), "54:3A:D6:2A:83:D4") == null);
     }
 
     public static void main(String[] a) throws Exception {

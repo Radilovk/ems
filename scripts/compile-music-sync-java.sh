@@ -55,9 +55,12 @@ fi
 echo "Compiling ${#JAVA_FILES[@]} music-sync source files..."
 rm -rf "${CLASSES_DIR}"
 mkdir -p "${CLASSES_DIR}"
+# iComon's SDK jars (wearable/scale/ScaleIcomon) — classpath only; the SDK ships as branding/smali/icomon-sdk
+bash "${ROOT}/scripts/icomon-sdk-jars.sh"
+ICOMON_CP="$(ls "${ROOT}"/build/icomon-sdk/jars/*.jar | tr '\n' ':')"
 javac \
   --release 8 \
-  -classpath "${ANDROID_JAR}:${JAVA_STUBS}:${LICENSE_CLASSES}" \
+  -classpath "${ANDROID_JAR}:${JAVA_STUBS}:${LICENSE_CLASSES}:${ICOMON_CP}" \
   -d "${CLASSES_DIR}" \
   "${STUB_FILES[@]}" \
   "${JAVA_FILES[@]}"

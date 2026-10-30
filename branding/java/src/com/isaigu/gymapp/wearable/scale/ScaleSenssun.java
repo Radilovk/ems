@@ -248,7 +248,10 @@ public final class ScaleSenssun {
             }
             int type = adv[i + 1] & 0xFF;
             int v = i + 4;                 // value after the 2-byte company id
-            if (type == 0xFF && len >= 3 + 11 && v + 11 <= adv.length) {
+            int company = (adv[i + 2] & 0xFF) | (adv[i + 3] & 0xFF) << 8;
+            // phones and TVs also carry their MAC there: Samsung 0x0075 (owner's log, 1.1.493), Apple, Microsoft, Google
+            boolean phone = company == 0x0075 || company == 0x004C || company == 0x0006 || company == 0x00E0;
+            if (type == 0xFF && !phone && len >= 3 + 11 && v + 11 <= adv.length) {
                 boolean same = true, back = true;
                 for (int k = 0; k < 6; k++) {
                     same &= adv[v + 5 + k] == m[k];

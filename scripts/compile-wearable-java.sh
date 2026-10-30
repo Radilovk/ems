@@ -114,6 +114,7 @@ WEARABLE_JAVA=(
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/ClientSort.java"
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/scale/ScaleProtocol.java"
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/scale/ScaleSenssun.java"
+  "${JAVA_SRC}/com/isaigu/gymapp/wearable/scale/ScaleIcomon.java"
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/scale/ScaleBody.java"
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/scale/ScaleModel.java"
   "${JAVA_SRC}/com/isaigu/gymapp/wearable/scale/ScaleDetail.java"
@@ -216,12 +217,16 @@ bash "${ROOT}/scripts/compile-interval-timer-java.sh"
 
 mapfile -t STUB_FILES < <(find "${JAVA_STUBS}" -name '*.java' | sort)
 
+# iComon's SDK (ScaleIcomon): its jars on the classpath only — the SDK itself ships as branding/smali/icomon-sdk
+bash "${ROOT}/scripts/icomon-sdk-jars.sh"
+ICOMON_CP="$(ls "${ROOT}"/build/icomon-sdk/jars/*.jar | tr '\n' ':')"
+
 echo "Compiling wearable bridge + sync UI classes..."
 rm -rf "${CLASSES_DIR}"
 mkdir -p "${CLASSES_DIR}"
 javac \
   --release 8 \
-  -classpath "${ANDROID_JAR}:${JAVA_STUBS}:${LICENSE_CLASSES}:${MUSIC_CLASSES}:${INTERVAL_CLASSES}" \
+  -classpath "${ANDROID_JAR}:${JAVA_STUBS}:${LICENSE_CLASSES}:${MUSIC_CLASSES}:${INTERVAL_CLASSES}:${ICOMON_CP}" \
   -d "${CLASSES_DIR}" \
   "${STUB_FILES[@]}" \
   "${WEARABLE_JAVA[@]}"

@@ -1,0 +1,263 @@
+.class public final enum Lcn/icomon/icdevicemanager/notify/ble/model/ICBleUploadEvent$ICBleUploadEventType;
+.super Ljava/lang/Enum;
+.source "ICBleUploadEvent.java"
+
+
+# annotations
+.annotation system Ldalvik/annotation/EnclosingClass;
+    value = Lcn/icomon/icdevicemanager/notify/ble/model/ICBleUploadEvent;
+.end annotation
+
+.annotation system Ldalvik/annotation/InnerClass;
+    accessFlags = 0x4019
+    name = "ICBleUploadEventType"
+.end annotation
+
+.annotation system Ldalvik/annotation/Signature;
+    value = {
+        "Ljava/lang/Enum<",
+        "Lcn/icomon/icdevicemanager/notify/ble/model/ICBleUploadEvent$ICBleUploadEventType;",
+        ">;"
+    }
+.end annotation
+
+
+# static fields
+.field private static final synthetic $VALUES:[Lcn/icomon/icdevicemanager/notify/ble/model/ICBleUploadEvent$ICBleUploadEventType;
+
+.field public static final enum ICBleUploadEventTypeConnectChanged:Lcn/icomon/icdevicemanager/notify/ble/model/ICBleUploadEvent$ICBleUploadEventType;
+
+.field public static final enum ICBleUploadEventTypeDiscoverCharacteristic:Lcn/icomon/icdevicemanager/notify/ble/model/ICBleUploadEvent$ICBleUploadEventType;
+
+.field public static final enum ICBleUploadEventTypeDiscoverService:Lcn/icomon/icdevicemanager/notify/ble/model/ICBleUploadEvent$ICBleUploadEventType;
+
+.field public static final enum ICBleUploadEventTypeMTUChanged:Lcn/icomon/icdevicemanager/notify/ble/model/ICBleUploadEvent$ICBleUploadEventType;
+
+.field public static final enum ICBleUploadEventTypeReadData:Lcn/icomon/icdevicemanager/notify/ble/model/ICBleUploadEvent$ICBleUploadEventType;
+
+.field public static final enum ICBleUploadEventTypeReadRSSI:Lcn/icomon/icdevicemanager/notify/ble/model/ICBleUploadEvent$ICBleUploadEventType;
+
+.field public static final enum ICBleUploadEventTypeScanDevice:Lcn/icomon/icdevicemanager/notify/ble/model/ICBleUploadEvent$ICBleUploadEventType;
+
+.field public static final enum ICBleUploadEventTypeSearch:Lcn/icomon/icdevicemanager/notify/ble/model/ICBleUploadEvent$ICBleUploadEventType;
+
+.field public static final enum ICBleUploadEventTypeSetNotify:Lcn/icomon/icdevicemanager/notify/ble/model/ICBleUploadEvent$ICBleUploadEventType;
+
+.field public static final enum ICBleUploadEventTypeStateChanged:Lcn/icomon/icdevicemanager/notify/ble/model/ICBleUploadEvent$ICBleUploadEventType;
+
+.field public static final enum ICBleUploadEventTypeWriteData:Lcn/icomon/icdevicemanager/notify/ble/model/ICBleUploadEvent$ICBleUploadEventType;
+
+
+# direct methods
+.method static constructor <clinit>()V
+    .registers 16
+
+    .line 19
+    new-instance v0, Lcn/icomon/icdevicemanager/notify/ble/model/ICBleUploadEvent$ICBleUploadEventType;
+
+    const-string v1, "ICBleUploadEventTypeStateChanged"
+
+    const/4 v2, 0x0
+
+    invoke-direct {v0, v1, v2}, Lcn/icomon/icdevicemanager/notify/ble/model/ICBleUploadEvent$ICBleUploadEventType;-><init>(Ljava/lang/String;I)V
+
+    sput-object v0, Lcn/icomon/icdevicemanager/notify/ble/model/ICBleUploadEvent$ICBleUploadEventType;->ICBleUploadEventTypeStateChanged:Lcn/icomon/icdevicemanager/notify/ble/model/ICBleUploadEvent$ICBleUploadEventType;
+
+    .line 24
+    new-instance v1, Lcn/icomon/icdevicemanager/notify/ble/model/ICBleUploadEvent$ICBleUploadEventType;
+
+    const-string v3, "ICBleUploadEventTypeScanDevice"
+
+    const/4 v4, 0x1
+
+    invoke-direct {v1, v3, v4}, Lcn/icomon/icdevicemanager/notify/ble/model/ICBleUploadEvent$ICBleUploadEventType;-><init>(Ljava/lang/String;I)V
+
+    sput-object v1, Lcn/icomon/icdevicemanager/notify/ble/model/ICBleUploadEvent$ICBleUploadEventType;->ICBleUploadEventTypeScanDevice:Lcn/icomon/icdevicemanager/notify/ble/model/ICBleUploadEvent$ICBleUploadEventType;
+
+    .line 29
+    new-instance v3, Lcn/icomon/icdevicemanager/notify/ble/model/ICBleUploadEvent$ICBleUploadEventType;
+
+    const-string v5, "ICBleUploadEventTypeSearch"
+
+    const/4 v6, 0x2
+
+    invoke-direct {v3, v5, v6}, Lcn/icomon/icdevicemanager/notify/ble/model/ICBleUploadEvent$ICBleUploadEventType;-><init>(Ljava/lang/String;I)V
+
+    sput-object v3, Lcn/icomon/icdevicemanager/notify/ble/model/ICBleUploadEvent$ICBleUploadEventType;->ICBleUploadEventTypeSearch:Lcn/icomon/icdevicemanager/notify/ble/model/ICBleUploadEvent$ICBleUploadEventType;
+
+    .line 34
+    new-instance v5, Lcn/icomon/icdevicemanager/notify/ble/model/ICBleUploadEvent$ICBleUploadEventType;
+
+    const-string v7, "ICBleUploadEventTypeConnectChanged"
+
+    const/4 v8, 0x3
+
+    invoke-direct {v5, v7, v8}, Lcn/icomon/icdevicemanager/notify/ble/model/ICBleUploadEvent$ICBleUploadEventType;-><init>(Ljava/lang/String;I)V
+
+    sput-object v5, Lcn/icomon/icdevicemanager/notify/ble/model/ICBleUploadEvent$ICBleUploadEventType;->ICBleUploadEventTypeConnectChanged:Lcn/icomon/icdevicemanager/notify/ble/model/ICBleUploadEvent$ICBleUploadEventType;
+
+    .line 39
+    new-instance v7, Lcn/icomon/icdevicemanager/notify/ble/model/ICBleUploadEvent$ICBleUploadEventType;
+
+    const-string v9, "ICBleUploadEventTypeDiscoverService"
+
+    const/4 v10, 0x4
+
+    invoke-direct {v7, v9, v10}, Lcn/icomon/icdevicemanager/notify/ble/model/ICBleUploadEvent$ICBleUploadEventType;-><init>(Ljava/lang/String;I)V
+
+    sput-object v7, Lcn/icomon/icdevicemanager/notify/ble/model/ICBleUploadEvent$ICBleUploadEventType;->ICBleUploadEventTypeDiscoverService:Lcn/icomon/icdevicemanager/notify/ble/model/ICBleUploadEvent$ICBleUploadEventType;
+
+    .line 44
+    new-instance v9, Lcn/icomon/icdevicemanager/notify/ble/model/ICBleUploadEvent$ICBleUploadEventType;
+
+    const-string v11, "ICBleUploadEventTypeDiscoverCharacteristic"
+
+    const/4 v12, 0x5
+
+    invoke-direct {v9, v11, v12}, Lcn/icomon/icdevicemanager/notify/ble/model/ICBleUploadEvent$ICBleUploadEventType;-><init>(Ljava/lang/String;I)V
+
+    sput-object v9, Lcn/icomon/icdevicemanager/notify/ble/model/ICBleUploadEvent$ICBleUploadEventType;->ICBleUploadEventTypeDiscoverCharacteristic:Lcn/icomon/icdevicemanager/notify/ble/model/ICBleUploadEvent$ICBleUploadEventType;
+
+    .line 49
+    new-instance v11, Lcn/icomon/icdevicemanager/notify/ble/model/ICBleUploadEvent$ICBleUploadEventType;
+
+    const-string v13, "ICBleUploadEventTypeSetNotify"
+
+    const/4 v14, 0x6
+
+    invoke-direct {v11, v13, v14}, Lcn/icomon/icdevicemanager/notify/ble/model/ICBleUploadEvent$ICBleUploadEventType;-><init>(Ljava/lang/String;I)V
+
+    sput-object v11, Lcn/icomon/icdevicemanager/notify/ble/model/ICBleUploadEvent$ICBleUploadEventType;->ICBleUploadEventTypeSetNotify:Lcn/icomon/icdevicemanager/notify/ble/model/ICBleUploadEvent$ICBleUploadEventType;
+
+    .line 54
+    new-instance v13, Lcn/icomon/icdevicemanager/notify/ble/model/ICBleUploadEvent$ICBleUploadEventType;
+
+    const-string v15, "ICBleUploadEventTypeReadData"
+
+    const/4 v14, 0x7
+
+    invoke-direct {v13, v15, v14}, Lcn/icomon/icdevicemanager/notify/ble/model/ICBleUploadEvent$ICBleUploadEventType;-><init>(Ljava/lang/String;I)V
+
+    sput-object v13, Lcn/icomon/icdevicemanager/notify/ble/model/ICBleUploadEvent$ICBleUploadEventType;->ICBleUploadEventTypeReadData:Lcn/icomon/icdevicemanager/notify/ble/model/ICBleUploadEvent$ICBleUploadEventType;
+
+    .line 59
+    new-instance v15, Lcn/icomon/icdevicemanager/notify/ble/model/ICBleUploadEvent$ICBleUploadEventType;
+
+    const-string v14, "ICBleUploadEventTypeWriteData"
+
+    const/16 v12, 0x8
+
+    invoke-direct {v15, v14, v12}, Lcn/icomon/icdevicemanager/notify/ble/model/ICBleUploadEvent$ICBleUploadEventType;-><init>(Ljava/lang/String;I)V
+
+    sput-object v15, Lcn/icomon/icdevicemanager/notify/ble/model/ICBleUploadEvent$ICBleUploadEventType;->ICBleUploadEventTypeWriteData:Lcn/icomon/icdevicemanager/notify/ble/model/ICBleUploadEvent$ICBleUploadEventType;
+
+    .line 64
+    new-instance v14, Lcn/icomon/icdevicemanager/notify/ble/model/ICBleUploadEvent$ICBleUploadEventType;
+
+    const-string v12, "ICBleUploadEventTypeReadRSSI"
+
+    const/16 v10, 0x9
+
+    invoke-direct {v14, v12, v10}, Lcn/icomon/icdevicemanager/notify/ble/model/ICBleUploadEvent$ICBleUploadEventType;-><init>(Ljava/lang/String;I)V
+
+    sput-object v14, Lcn/icomon/icdevicemanager/notify/ble/model/ICBleUploadEvent$ICBleUploadEventType;->ICBleUploadEventTypeReadRSSI:Lcn/icomon/icdevicemanager/notify/ble/model/ICBleUploadEvent$ICBleUploadEventType;
+
+    .line 69
+    new-instance v12, Lcn/icomon/icdevicemanager/notify/ble/model/ICBleUploadEvent$ICBleUploadEventType;
+
+    const-string v10, "ICBleUploadEventTypeMTUChanged"
+
+    const/16 v8, 0xa
+
+    invoke-direct {v12, v10, v8}, Lcn/icomon/icdevicemanager/notify/ble/model/ICBleUploadEvent$ICBleUploadEventType;-><init>(Ljava/lang/String;I)V
+
+    sput-object v12, Lcn/icomon/icdevicemanager/notify/ble/model/ICBleUploadEvent$ICBleUploadEventType;->ICBleUploadEventTypeMTUChanged:Lcn/icomon/icdevicemanager/notify/ble/model/ICBleUploadEvent$ICBleUploadEventType;
+
+    const/16 v10, 0xb
+
+    new-array v10, v10, [Lcn/icomon/icdevicemanager/notify/ble/model/ICBleUploadEvent$ICBleUploadEventType;
+
+    aput-object v0, v10, v2
+
+    aput-object v1, v10, v4
+
+    aput-object v3, v10, v6
+
+    const/4 v0, 0x3
+
+    aput-object v5, v10, v0
+
+    const/4 v0, 0x4
+
+    aput-object v7, v10, v0
+
+    const/4 v0, 0x5
+
+    aput-object v9, v10, v0
+
+    const/4 v0, 0x6
+
+    aput-object v11, v10, v0
+
+    const/4 v0, 0x7
+
+    aput-object v13, v10, v0
+
+    const/16 v0, 0x8
+
+    aput-object v15, v10, v0
+
+    const/16 v0, 0x9
+
+    aput-object v14, v10, v0
+
+    aput-object v12, v10, v8
+
+    sput-object v10, Lcn/icomon/icdevicemanager/notify/ble/model/ICBleUploadEvent$ICBleUploadEventType;->$VALUES:[Lcn/icomon/icdevicemanager/notify/ble/model/ICBleUploadEvent$ICBleUploadEventType;
+
+    return-void
+.end method
+
+.method private constructor <init>(Ljava/lang/String;I)V
+    .registers 3
+    .annotation system Ldalvik/annotation/Signature;
+        value = {
+            "()V"
+        }
+    .end annotation
+
+    .line 14
+    invoke-direct {p0, p1, p2}, Ljava/lang/Enum;-><init>(Ljava/lang/String;I)V
+
+    return-void
+.end method
+
+.method public static valueOf(Ljava/lang/String;)Lcn/icomon/icdevicemanager/notify/ble/model/ICBleUploadEvent$ICBleUploadEventType;
+    .registers 2
+
+    const-class v0, Lcn/icomon/icdevicemanager/notify/ble/model/ICBleUploadEvent$ICBleUploadEventType;
+
+    .line 14
+    invoke-static {v0, p0}, Ljava/lang/Enum;->valueOf(Ljava/lang/Class;Ljava/lang/String;)Ljava/lang/Enum;
+
+    move-result-object p0
+
+    check-cast p0, Lcn/icomon/icdevicemanager/notify/ble/model/ICBleUploadEvent$ICBleUploadEventType;
+
+    return-object p0
+.end method
+
+.method public static values()[Lcn/icomon/icdevicemanager/notify/ble/model/ICBleUploadEvent$ICBleUploadEventType;
+    .registers 1
+
+    sget-object v0, Lcn/icomon/icdevicemanager/notify/ble/model/ICBleUploadEvent$ICBleUploadEventType;->$VALUES:[Lcn/icomon/icdevicemanager/notify/ble/model/ICBleUploadEvent$ICBleUploadEventType;
+
+    .line 14
+    invoke-virtual {v0}, [Lcn/icomon/icdevicemanager/notify/ble/model/ICBleUploadEvent$ICBleUploadEventType;->clone()Ljava/lang/Object;
+
+    move-result-object v0
+
+    check-cast v0, [Lcn/icomon/icdevicemanager/notify/ble/model/ICBleUploadEvent$ICBleUploadEventType;
+
+    return-object v0
+.end method

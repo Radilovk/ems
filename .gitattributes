@@ -12,3 +12,4 @@ branding/smali/** -diff linguist-generated=true
 # Windows stick tool: CRLF and BOM bytes exactly as written
 scripts/xbody/stick/*.cmd -text
 scripts/xbody/stick/*.ps1 -text
+*.aar binary

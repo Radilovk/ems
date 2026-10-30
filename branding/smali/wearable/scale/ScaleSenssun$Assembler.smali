@@ -27,7 +27,7 @@
     .registers 1
 
     .prologue
-    .line 288
+    .line 291
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -47,19 +47,19 @@
 
     const/4 v4, 0x0
 
-    .line 293
+    .line 296
     if-eqz p1, :cond_9
 
     array-length v0, p1
 
     if-nez v0, :cond_a
 
-    .line 316
+    .line 319
     :cond_9
     :goto_9
     return-object v4
 
-    .line 296
+    .line 299
     :cond_a
     invoke-static {p1}, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun;->isXs([B)Z
 
@@ -67,7 +67,7 @@
 
     if-eqz v0, :cond_6b
 
-    .line 297
+    .line 300
     invoke-static {p1}, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun;->headV11([B)Z
 
     move-result v0
@@ -81,19 +81,19 @@
     :goto_1a
     iput v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun$Assembler;->need:I
 
-    .line 298
+    .line 301
     iget v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun$Assembler;->need:I
 
     const/4 v3, 0x6
 
     if-ge v0, v3, :cond_29
 
-    .line 299
+    .line 302
     iput-object v4, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun$Assembler;->buf:[B
 
     goto :goto_9
 
-    .line 297
+    .line 300
     :cond_24
     aget-byte v0, p1, v2
 
@@ -101,7 +101,7 @@
 
     goto :goto_1a
 
-    .line 302
+    .line 305
     :cond_29
     iget v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun$Assembler;->need:I
 
@@ -109,10 +109,10 @@
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun$Assembler;->buf:[B
 
-    .line 303
+    .line 306
     iput v6, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun$Assembler;->have:I
 
-    .line 307
+    .line 310
     :cond_31
     array-length v0, p1
 
@@ -126,39 +126,39 @@
 
     move-result v0
 
-    .line 308
+    .line 311
     iget-object v3, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun$Assembler;->buf:[B
 
     iget v5, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun$Assembler;->have:I
 
     invoke-static {p1, v6, v3, v5, v0}, Ljava/lang/System;->arraycopy(Ljava/lang/Object;ILjava/lang/Object;II)V
 
-    .line 309
+    .line 312
     iget v3, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun$Assembler;->have:I
 
     add-int/2addr v0, v3
 
     iput v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun$Assembler;->have:I
 
-    .line 310
+    .line 313
     iget v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun$Assembler;->have:I
 
     iget v3, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun$Assembler;->need:I
 
     if-lt v0, v3, :cond_9
 
-    .line 313
+    .line 316
     iget-object v3, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun$Assembler;->buf:[B
 
-    .line 314
+    .line 317
     iput-object v4, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun$Assembler;->buf:[B
 
-    .line 315
+    .line 318
     invoke-static {v3}, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun;->headV11([B)Z
 
     move-result v0
 
-    .line 316
+    .line 319
     if-eqz v0, :cond_70
 
     move v0, v1
@@ -189,7 +189,7 @@
 
     goto :goto_9
 
-    .line 304
+    .line 307
     :cond_6b
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun$Assembler;->buf:[B
 
@@ -200,7 +200,7 @@
     :cond_70
     move v0, v2
 
-    .line 316
+    .line 319
     goto :goto_58
 
     :cond_72

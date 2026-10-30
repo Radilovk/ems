@@ -116,8 +116,10 @@ if [[ "${BETA_MUSIC:-1}" != "0" ]]; then
   python3 "${ROOT}/scripts/apply-music-training-sync.py"
   if [[ "${SKIP_JAVA_RECOMPILE:-0}" != "1" ]]; then
     bash "${ROOT}/scripts/compile-wearable-java.sh"
+    bash "${ROOT}/scripts/compile-icomon-sdk.sh"
   fi
   python3 "${ROOT}/scripts/apply-wearable-bridge.py"
+  python3 "${ROOT}/scripts/apply-icomon-sdk.py"
   python3 "${ROOT}/scripts/apply-wearable-permissions.py"
   python3 "${ROOT}/scripts/apply-vr-bridge.py"
   python3 "${ROOT}/scripts/apply-pulse-cycle-hook.py"

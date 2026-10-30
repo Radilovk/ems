@@ -32,7 +32,7 @@
     .registers 1
 
     .prologue
-    .line 275
+    .line 280
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -44,7 +44,7 @@
     .registers 5
 
     .prologue
-    .line 278
+    .line 283
     iget v0, p2, Lcom/isaigu/gymapp/wearable/scale/ScaleLink$Seen;->rssi:I
 
     iget v1, p1, Lcom/isaigu/gymapp/wearable/scale/ScaleLink$Seen;->rssi:I
@@ -58,7 +58,7 @@
     .registers 4
 
     .prologue
-    .line 275
+    .line 280
     check-cast p1, Lcom/isaigu/gymapp/wearable/scale/ScaleLink$Seen;
 
     check-cast p2, Lcom/isaigu/gymapp/wearable/scale/ScaleLink$Seen;

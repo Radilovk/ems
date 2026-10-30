@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 1147
+    .line 1218
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 1148
+    .line 1219
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink$LocCheck;->link:Lcom/isaigu/gymapp/wearable/scale/ScaleLink;
 
-    .line 1149
+    .line 1220
     return-void
 .end method
 
@@ -42,11 +42,11 @@
     .registers 2
 
     .prologue
-    .line 1153
+    .line 1224
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink$LocCheck;->link:Lcom/isaigu/gymapp/wearable/scale/ScaleLink;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->locCheck()V
 
-    .line 1154
+    .line 1225
     return-void
 .end method

@@ -117,6 +117,10 @@ public final class ScaleLink {
     /** Adverts heard since the page opened (0 after seconds of scanning = the radio sees nothing at all). */
     volatile int adverts;
     boolean locationOk = true;
+    /** iComon's SDK for every iComon scale ({@link ScaleIcomon}); null = not available, own protocols only. */
+    ScaleIcomon icomon;
+    /** The SDK has a scale and runs the link: the own scan pauses its connects. */
+    boolean icomonBusy;
 
     final List<Op> ops = new ArrayList<Op>();
     boolean busy;
@@ -147,6 +151,7 @@ public final class ScaleLink {
             return;
         }
         log("start: saved " + ScaleStore.mac(app) + ", location " + locationState(app));
+        icomon = ScaleIcomon.start(app, this);
         startScan();
         main.postDelayed(new LocCheck(this), 1500);
     }
@@ -279,11 +284,70 @@ public final class ScaleLink {
         }
     }
 
+    /** iComon's mark in the advert: manufacturer data starting 0xAC or 0xCA (the SDK's ICBleHandler test). */
+    static boolean icomonAdvert(byte[] adv) {
+        for (int i = 0; adv != null && i + 2 < adv.length; ) {
+            int len = adv[i] & 0xFF;
+            if (len == 0) {
+                break;
+            }
+            if ((adv[i + 1] & 0xFF) == 0xFF && len >= 2) {
+                int b = adv[i + 2] & 0xFF;
+                if (b == 0xAC || b == 0xCA) {
+                    return true;
+                }
+            }
+            i += len + 1;
+        }
+        return false;
+    }
+
+    /** The SDK may take this scale: the saved one always; with one saved, another only from close by. */
+    boolean acceptIcomon(String mac, int rssi) {
+        String saved = ScaleStore.mac(app);
+        if (saved == null || saved.length() == 0 || mac.equalsIgnoreCase(saved)) {
+            return true;
+        }
+        return rssi >= OTHER_SCALE_RSSI;
+    }
+
+    /** The SDK found its scale and connects it. */
+    void icomonFound(String mac) {
+        icomonBusy = true;
+        if (gatt == null) {
+            stopScan();
+        }
+        setState(CONNECTING);
+    }
+
+    /** The SDK gave up on that scale: the own scan listens again. */
+    void icomonLost() {
+        icomonBusy = false;
+        if (gatt == null) {
+            startScan();
+        }
+    }
+
+    /** The SDK's link came up / went down (the scale sleeps between weigh-ins; the SDK reconnects by itself). */
+    void icomonLink(boolean on) {
+        if (on) {
+            resetSession();
+            setState(READY);
+        } else {
+            setState(SEARCHING);
+        }
+    }
+
     /** The trainer chose this device as the scale: saved, and the next advert from it connects. */
     public void pick(String mac) {
         log("picked " + mac);
         notScales.remove(mac);
         ScaleStore.setMac(app, mac);
+        if (icomon != null && icomonBusy && !icomon.owns(mac)) {
+            icomon.removeDevice();        // the trainer picked another one: the SDK looks again
+            icomonLost();
+            icomon.scan();
+        }
         if (gatt == null) {
             startScan();
         }
@@ -333,6 +397,9 @@ public final class ScaleLink {
         String mac = d.getAddress();
         if (mac == null || notScales.contains(mac)) {
             return false;
+        }
+        if (icomon != null && !ScaleIcomon.broken && (icomonBusy || icomon.owns(mac) || icomonAdvert(adv))) {
+            return false;         // iComon's SDK runs every iComon scale; the own scan is for the others
         }
         String saved = ScaleStore.mac(app);
         if (mac.equalsIgnoreCase(saved)) {
@@ -874,6 +941,10 @@ public final class ScaleLink {
         closed = true;
         stopScan();
         closeGatt();
+        if (icomon != null) {
+            icomon.close();
+            icomon = null;
+        }
         main.removeCallbacksAndMessages(null);
     }
 

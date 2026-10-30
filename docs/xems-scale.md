@@ -17,6 +17,29 @@ the check; live state 04 = locked; FFB0 is also found in 128-bit lists and servi
 FG20… / FI20…; the first 200 frames of every ICOMON connection are logged (`rx FFB2 …`). **Next:** one weigh-in →
 `scale` log, to confirm the A3 layout of this model.
 
+## iComon SDK — every iComon scale (1.1.493-ai)
+Owner: "any scale with handles from this maker must just work". Lepulse, Fitdays, Runstar, Renpho MorphoScan,
+SACOMA … are all **iComon (Guangdong Welland)** scales, and iComon publishes its own Android SDK
+(`ICDeviceManager.aar`, `github.com/WELLAND-OPEN/ICDeviceManager-Android-Demo`, no app key) — see
+`branding/vendor/icomon/README.md`. It finds a scale by the advert's **manufacturer data starting 0xAC / 0xCA**
+(not by name), chooses that model's protocol in its native `libICBleProtocol.so` (Scale, A4, New, New2,
+WeightGeneral, General V2, V3, InBody H20, Migu, BM15 broadcast, …) and returns weight + impedances already in our
+order (trunk, LA, RA, LL, RL; 5 per frequency; 6 raw 4-point readings are converted by the SDK).
+- `ScaleIcomon` (delegate + scan delegate): init once per process (the app's uncaught-exception handler is kept),
+  `updateUserInfo` (sex, age, height, last kg), scan → the saved MAC, or any scale ≥ −70 dBm when another is saved
+  → `addDevice` (the SDK then reconnects by itself each time the scale wakes). No link in 25 s → removed, skipped,
+  scan again. Data: not stabilized → live weight; stabilized with 10 imps → z20 = the higher five, z100 = the lower
+  (impedance falls with frequency, so the SDK's order does not matter); 5 imps → one frequency (50 kHz,
+  `ScaleModel.single`); 1 imp (4 electrodes) → weight only. The scale's own fat % is kept as `scaleFatPct`.
+- `ScaleLink` starts it first; its own scan then skips every iComon advert / the SDK's MAC and stays for Senssun /
+  MovingLife and as the fallback when the native library cannot load (`ScaleIcomon.broken`).
+- Build: `compile-icomon-sdk.sh` (R8's D8 from Google Maven — the SDK is Java 11 with nestmates, dx cannot) →
+  `branding/smali/icomon-sdk/` (committed) → `apply-icomon-sdk.py` (new `smali_classesN`, `lib/arm64-v8a` +
+  `lib/armeabi-v7a`). javac sees the jars via `icomon-sdk-jars.sh` (music-sync + wearable compiles, scale-sim).
+- Log tag `scale`, lines `iComon …`: init, seen (name, type, sub-type), add, connected, every weight with imps.
+Also 1.1.493: the "far Senssun" of the owner's log was a **Samsung** advert (company 0x0075 carries its MAC like an
+XS scale) — `xsAdvert` now ignores Samsung / Apple / Microsoft / Google manufacturer data.
+
 **A far scale blocked the client's (1.1.492-ai, owner's log).** Saved F8 never heard, while a Senssun XS advert
 at −84 dBm (54:3A:D6:…) was grabbed again and again: each connect hung ~30 s (status 133) with the scan stopped, so
 the F8's short wake window was missed. Now: the saved scale always wins; with one saved, another scale is taken only

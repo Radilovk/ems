@@ -7,6 +7,8 @@ D="$(cd "$(dirname "$0")" && pwd)"; ROOT="$(cd "${D}/../.." && pwd)"
 JAR="${ROOT}/android-sdk/platforms/android-30/android.jar"
 [[ -f "${JAR}" ]] || { echo "android.jar missing — run scripts/setup-android-toolchain.sh"; exit 1; }
 OUT="$(mktemp -d)"; trap 'rm -rf "${OUT}"' EXIT
+bash "${ROOT}/scripts/icomon-sdk-jars.sh"      # ScaleIcomon compiles against iComon's SDK
+JAR="${JAR}:$(ls "${ROOT}"/build/icomon-sdk/jars/*.jar | tr '\n' ':')"
 javac -nowarn -source 8 -target 8 -d "${OUT}" -cp "${JAR}" \
   -sourcepath "${ROOT}/branding/java/src:${ROOT}/branding/java-stubs" \
   "${D}/ScaleSim.java" 2>&1 | grep -v "Picked up\|bootstrap\|warning\|^Note:" || true

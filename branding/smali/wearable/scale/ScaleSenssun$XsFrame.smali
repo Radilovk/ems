@@ -51,22 +51,22 @@
     .registers 3
 
     .prologue
-    .line 321
+    .line 324
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 325
+    .line 328
     const-wide/high16 v0, 0x7ff8000000000000L    # Double.NaN
 
     iput-wide v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun$XsFrame;->kg:D
 
-    .line 332
+    .line 335
     invoke-static {}, Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol$Reading;->nan5()[D
 
     move-result-object v0
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun$XsFrame;->z20:[D
 
-    .line 333
+    .line 336
     invoke-static {}, Lcom/isaigu/gymapp/wearable/scale/ScaleProtocol$Reading;->nan5()[D
 
     move-result-object v0
@@ -84,7 +84,7 @@
     .prologue
     const/4 v0, 0x1
 
-    .line 341
+    .line 344
     move v1, v0
 
     :goto_2
@@ -92,7 +92,7 @@
 
     if-ge v1, v2, :cond_10
 
-    .line 342
+    .line 345
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun$XsFrame;->z20:[D
 
     aget-wide v2, v2, v1
@@ -103,14 +103,14 @@
 
     if-gtz v2, :cond_11
 
-    .line 343
+    .line 346
     const/4 v0, 0x0
 
-    .line 346
+    .line 349
     :cond_10
     return v0
 
-    .line 341
+    .line 344
     :cond_11
     add-int/lit8 v1, v1, 0x1
 
@@ -123,7 +123,7 @@
     .prologue
     const/4 v0, 0x0
 
-    .line 351
+    .line 354
     move v1, v0
 
     :goto_2
@@ -131,7 +131,7 @@
 
     if-ge v1, v2, :cond_13
 
-    .line 352
+    .line 355
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleSenssun$XsFrame;->z100:[D
 
     aget-wide v2, v2, v1
@@ -142,17 +142,17 @@
 
     if-lez v2, :cond_10
 
-    .line 356
+    .line 359
     :goto_f
     return v0
 
-    .line 351
+    .line 354
     :cond_10
     add-int/lit8 v1, v1, 0x1
 
     goto :goto_2
 
-    .line 356
+    .line 359
     :cond_13
     const/4 v0, 0x1
 

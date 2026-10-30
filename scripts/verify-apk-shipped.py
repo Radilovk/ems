@@ -115,6 +115,8 @@ def check_smali_matches_java(files: list[str], base: str = "origin/main") -> lis
     smali_root = ROOT / "branding" / "smali"
     by_outer: dict[str, list[str]] = {}
     for p in smali_root.rglob("*.smali"):
+        if p.is_relative_to(smali_root / "icomon-sdk"):
+            continue          # iComon's SDK: compiled from branding/vendor/icomon/ICDeviceManager.aar, no Java of ours
         by_outer.setdefault(p.stem.split("$")[0], []).append(p.relative_to(ROOT).as_posix())
     java = java_sources()
     orphans = sorted(o for o in by_outer if o not in java and o not in SMALI_WITHOUT_JAVA)

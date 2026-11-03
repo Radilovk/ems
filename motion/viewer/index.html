@@ -63,9 +63,9 @@ td.v { text-align:right; font-variant-numeric:tabular-nums; font-weight:600; } t
   </div>
 </div>
 <div class="card" id="stage"><canvas id="gl"></canvas><canvas id="cv"></canvas><div id="empty"></div>
-  <div id="view"><button id="style" title="човек / робот">Робот</button><button id="ghost" title="оранжево: истинското движение на човека (демо)">Истина</button><button data-v="front">Отпред</button><button data-v="side">Отстрани</button><button data-v="free">3D</button></div>
+  <div id="view"><button id="style" title="андроид / манекен с мускулните зони">Манекен</button><button id="ghost" title="оранжево: истинското движение на човека (демо)">Истина</button><button data-v="front">Отпред</button><button data-v="side">Отстрани</button><button data-v="free">3D</button></div>
   <div id="demotitle"></div><div id="demos"></div>
-  <div id="credit">Робот: по Android robot на Google (CC BY 3.0) · движения: CMU Graphics Lab Motion Capture Database</div>
+  <div id="credit">Модел: „White Android Robot“ — Cedric Ricci, CC BY 4.0 · движения: CMU Graphics Lab Motion Capture Database</div>
   <div id="hint">Влачи — завърти · два пръста — приближи</div></div>
 <div class="col">
   <div class="card" id="reps"><div class="n" id="rn">0</div><div class="k" id="rk">повторения</div><div class="ph" id="rp">в покой</div></div>
@@ -74,6 +74,8 @@ td.v { text-align:right; font-variant-numeric:tabular-nums; font-weight:600; } t
 <div id="wiz"><div class="box"><div class="big" id="wn">1</div><div><h2 id="wt"></h2><p id="wp"></p><div class="res" id="wr"></div>
   <div class="row" style="margin-top:12px"><button id="wcancel">Отказ</button><button id="wok" class="main" style="display:none">Готово</button></div></div></div></div>
 <script src="vendor/three-r158.min.js"></script>
+<script src="vendor/gltf-loader-r158.js"></script>
+<script src="models/android.js"></script>
 <script src="motion-core.js"></script>
 <script src="body3d.js"></script>
 <script src="../mocap/cmu.js"></script>
@@ -376,7 +378,7 @@ function capsule(a, b, r, side) {
 // ---------- the 3-D body (WebGL); the flat drawing above stays as the fallback
 let b3 = null;
 try { b3 = new XemsBody3D.Body3D($('gl')); $('cv').style.display = 'none'; } catch (e) { $('gl').style.display = 'none'; }
-$('style').onclick = () => { if (!b3) return; const r = b3.style === 'human'; b3.setStyle(r ? 'robot' : 'human', body.dim.H); $('style').textContent = r ? 'Човек' : 'Робот'; litSensors(); };
+$('style').onclick = () => { if (!b3) return; const a = b3.style === 'android'; b3.setStyle(a ? 'human' : 'android', body.dim.H); $('style').textContent = a ? 'Андроид' : 'Манекен'; litSensors(); };
 const LEDHEX = { white: '#ffffff', red: '#ff3b30', green: '#30d158', magenta: '#d63af9', cyan: '#00c7d4' };
 function litSensors() {
   if (!b3 || !body.cal) return;

@@ -184,6 +184,92 @@
     }
   }
 
+
+  // ---------- the XEMS VR coach: "White Android Robot" by Cedric Ricci (CC BY 4.0), models/android.js. A real rigged
+  // model (UE bone names, arms-down rest pose = our zero pose, faces +Z, left = +X). Every bone gets its world rotation
+  // = (segment rotation since the zero pose) · (its rest world rotation); positions stay the model's own, the pelvis
+  // goes where the solver puts it and the feet stand on the floor.
+  let GLB = null;
+  function glbBuffer() {
+    if (GLB) return GLB;
+    const b64 = root.XEMS_ANDROID_GLB; if (!b64) return null;
+    const bin = atob(b64), u = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i);
+    return (GLB = u.buffer);
+  }
+  const ORDER = ['pelvis', 'spine_01', 'spine_02', 'spine_03', 'neck_01', 'head', 'clavicle_l', 'upperarm_l', 'lowerarm_l', 'hand_l',
+    'clavicle_r', 'upperarm_r', 'lowerarm_r', 'hand_r', 'thigh_l', 'calf_l', 'foot_l', 'ball_l', 'thigh_r', 'calf_r', 'foot_r', 'ball_r'];
+  class RiggedFigure {
+    constructor(style, H, onReady) {
+      this.style = style; this.k = (H || 1.75) / 1.75; this.zones = {}; this.ready = false;
+      this.root = new T3.Group();
+      const buf = glbBuffer();
+      if (!buf || !T3.GLTFLoader) throw new Error('no model');
+      new T3.GLTFLoader().parse(buf.slice(0), '', (gltf) => {
+        const sc = gltf.scene;
+        this.root.add(sc);
+        this.H0 = 1.62;                                  // the model's height (top of the head)
+        const s = (H || 1.75) / this.H0;
+        this.root.scale.setScalar(s); this.scale = s;
+        sc.traverse((o) => {
+          if (o.isMesh) {
+            o.frustumCulled = false; o.castShadow = style !== 'ghost';
+            if (style === 'ghost') o.material = new T3.MeshStandardMaterial({ color: 0xff9f0a, transparent: true, opacity: 0.3, depthWrite: false });
+            else if (o.material) { o.material.roughness = Math.min(0.8, (o.material.roughness || 0.6)); }
+          }
+        });
+        this.root.updateMatrixWorld(true);
+        this.bones = {}; this.rest = {}; this.restPos = {};
+        for (const n of ORDER) {
+          const b = sc.getObjectByName(n); if (!b) continue;
+          this.bones[n] = b; this.rest[n] = b.getWorldQuaternion(new T3.Quaternion());
+          this.restPos[n] = b.getWorldPosition(new T3.Vector3());
+        }
+        this.armQ = this.bones.pelvis.parent.getWorldQuaternion(new T3.Quaternion());
+        this.ready = true; if (onReady) onReady();
+      }, (e) => { console.error('android model', e); });
+    }
+    set(pose, feet) {
+      if (!this.ready) return;
+      const R = pose.R, J = pose.J, Tr = q3(R.trunk), I = new T3.Quaternion();
+      const part = (k) => I.clone().slerp(Tr, k);
+      const yawQ = (Sh) => { const y = Math.atan2(-Sh[1], Sh[4]); return new T3.Quaternion().setFromAxisAngle(new T3.Vector3(0, 1, 0), y); };
+      const seg = { pelvis: part(0.5), spine_01: part(0.65), spine_02: part(0.85), spine_03: Tr, neck_01: Tr, head: q3(R.head || R.trunk),
+        clavicle_l: Tr, clavicle_r: Tr };
+      for (const s of ['l', 'r']) {
+        seg['thigh_' + s] = q3(R[s + 'thigh']); seg['calf_' + s] = q3(R[s + 'shank']);
+        const fy = yawQ(R[s + 'shank']);
+        // a foot on the floor stays flat; a foot in the air follows its shank
+        seg['foot_' + s] = feet && feet[s] && feet[s].air ? q3(R[s + 'shank']) : fy; seg['ball_' + s] = seg['foot_' + s];
+        seg['upperarm_' + s] = q3(R[s + 'upper']); seg['lowerarm_' + s] = q3(R[s + 'fore']); seg['hand_' + s] = q3(R[s + 'fore']);
+      }
+      const world = {};
+      for (const n of ORDER) {
+        const b = this.bones[n]; if (!b) continue;
+        world[n] = seg[n].clone().multiply(this.rest[n]);
+        const pq = b.parent === this.bones.pelvis.parent ? this.armQ : world[b.parent.name] || b.parent.getWorldQuaternion(new T3.Quaternion());
+        b.quaternion.copy(pq.clone().invert().multiply(world[n]));
+      }
+      // the pelvis where the solver has it (horizontally), the feet on the floor (vertically)
+      this.root.position.set(0, 0, 0); this.root.updateMatrixWorld(true);
+      const pel = this.bones.pelvis.getWorldPosition(new T3.Vector3()), want = v3(J.pelvis);
+      this.root.position.x += want.x - pel.x; this.root.position.z += want.z - pel.z;
+      this.root.updateMatrixWorld(true);
+      let low = Infinity;
+      for (const s of ['l', 'r']) {
+        if (feet && feet[s] && feet[s].air) continue;
+        for (const n of ['foot_' + s, 'ball_' + s]) {
+          const y = this.bones[n].getWorldPosition(new T3.Vector3()).y - this.restPos[n].y * this.scale;
+          low = Math.min(low, y);
+        }
+      }
+      if (!isFinite(low)) low = this.bones.foot_l.getWorldPosition(new T3.Vector3()).y - this.restPos.foot_l.y * this.scale;
+      this.root.position.y -= low;
+    }
+    setChannels() {}
+    lightSensors() {}
+  }
+
   class Body3D {
     constructor(canvas) {
       this.canvas = canvas;
@@ -204,18 +290,25 @@
       this.floor.rotation.x = -Math.PI / 2; this.floor.receiveShadow = true; this.scene.add(this.floor);
       this.grid = new T3.GridHelper(6, 24, 0x9aa3af, 0xc9ced6); this.grid.material.transparent = true; this.grid.material.opacity = 0.45;
       this.scene.add(this.grid);
-      this.style = 'human'; this.H = 1.75;
-      this.fig = new Figure('human', this.H); this.scene.add(this.fig.root);
-      this.ghost = new Figure('ghost', this.H); this.scene.add(this.ghost.root); this.ghost.root.visible = false;
+      this.H = 1.75;
+      this.style = root.XEMS_ANDROID_GLB && T3.GLTFLoader ? 'android' : 'human';
+      this.build();
       this.channels = {};
       this.bindControls();
+    }
+    build() {
+      if (this.fig) this.scene.remove(this.fig.root);
+      if (this.ghost) this.scene.remove(this.ghost.root);
+      const make = (st) => st === 'android' ? new RiggedFigure(st, this.H) : new Figure(st, this.H);
+      this.fig = make(this.style);
+      this.ghost = this.style === 'android' ? new RiggedFigure('ghost', this.H) : new Figure('ghost', this.H);
+      this.scene.add(this.fig.root); this.scene.add(this.ghost.root); this.ghost.root.visible = false;
+      this.fig.setChannels(this.channels || {});
     }
     setStyle(style, H) {
       if (style === this.style && (H || this.H) === this.H) return;
       this.style = style; this.H = H || this.H;
-      this.scene.remove(this.fig.root); this.fig = new Figure(style, this.H); this.scene.add(this.fig.root);
-      this.scene.remove(this.ghost.root); this.ghost = new Figure('ghost', this.H); this.scene.add(this.ghost.root); this.ghost.root.visible = false;
-      this.fig.setChannels(this.channels);
+      this.build();
     }
     setChannels(map) { this.channels = map || {}; this.fig.setChannels(this.channels); }
     bindControls() {
@@ -238,7 +331,7 @@
         // stand the figure on the floor: its lowest ankle at ankle height
         const floor = Math.min(pose.J.lankle[2], pose.J.rankle[2]) - 0.07 * this.fig.k;
         const sh = (P) => { const out = {}; for (const n in P.J) out[n] = [P.J[n][0], P.J[n][1], P.J[n][2] - floor]; return { J: out, R: P.R }; };
-        this.fig.root.visible = true; this.fig.set(sh(pose));
+        this.fig.root.visible = true; this.fig.set(sh(pose), pose.feet);
         const pel = v3(pose.J.pelvis);
         this.target.lerp(new T3.Vector3(pel.x, Math.max(0.6, pel.y - floor - 0.02), pel.z), 0.08);
         if (truth) {
@@ -247,7 +340,7 @@
           const dx = (pose.J.lankle[0] + pose.J.rankle[0] - truth.J.lankle[0] - truth.J.rankle[0]) / 2;
           const dy = (pose.J.lankle[1] + pose.J.rankle[1] - truth.J.lankle[1] - truth.J.rankle[1]) / 2;
           const out = {}; for (const n in truth.J) out[n] = [truth.J[n][0] + dx, truth.J[n][1] + dy, truth.J[n][2] - tf];
-          this.ghost.root.visible = true; this.ghost.set({ J: out, R: truth.R });
+          this.ghost.root.visible = true; this.ghost.set({ J: out, R: truth.R }, null);
         } else this.ghost.root.visible = false;
       } else { this.fig.root.visible = false; this.ghost.root.visible = false; }
       const { yaw, pitch, dist } = this.view;
@@ -257,5 +350,5 @@
       this.renderer.render(this.scene, this.camera);
     }
   }
-  root.XemsBody3D = { Body3D, Figure };
+  root.XemsBody3D = { Body3D, Figure, RiggedFigure };
 })(typeof self !== 'undefined' ? self : this);

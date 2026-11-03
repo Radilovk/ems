@@ -1087,19 +1087,20 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L95 ## Left out on purpose
   - L103 ## Safety
 
-`docs/xems-motion.md` (185L)
+`docs/xems-motion.md` (200L)
   - L1 # XEMS Motion — body pose from five XIAO nRF52840 Sense sensors
-  - L20 ## Design in one picture
-  - L33 ## Hardware and placement
-  - L43 ## Sensor firmware (`fusion.h`, `xems_motion.ino`)
-  - L54 ## Calibration (≈ 6 s, one tap) — finds places, headings, zero
-  - L68 ## Pose solver (`Body.solve`, per back-sensor sample, < 1 ms)
-  - L87 ## Offline test (`sh scripts/motion-sim/run.sh`, ≈ 10 s)
-  - L104 ## Real movements — CMU motion capture (owner 2026-11-03: "precise movement templates")
-  - L143 ## The 3-D body (owner 2026-11-03: "a 3-D model that moves in sync with the body")
-  - L160 ## Precision today — what to trust (5 sensors)
-  - L167 ## Limits with five sensors (honest)
-  - L176 ## Roadmap
+  - L21 ## Design in one picture
+  - L34 ## Hardware and placement
+  - L44 ## Sensor firmware (`fusion.h`, `xems_motion.ino`)
+  - L55 ## Calibration (≈ 6 s, one tap) — finds places, headings, zero
+  - L69 ## Pose solver (`Body.solve`, per back-sensor sample, < 1 ms)
+  - L88 ## Offline test (`sh scripts/motion-sim/run.sh`, ≈ 10 s)
+  - L105 ## Real movements — CMU motion capture (owner 2026-11-03: "precise movement templates")
+  - L144 ## The figure: the VR workout's android (owner 2026-11-03: "use the model we had, don't make a new one")
+  - L158 ## The 3-D body (owner 2026-11-03: "a 3-D model that moves in sync with the body")
+  - L175 ## Precision today — what to trust (5 sensors)
+  - L182 ## Limits with five sensors (honest)
+  - L191 ## Roadmap
 
 `docs/xems-part-strength.md` (212L)
   - L1 # Избрани мускулни групи: сила на импулсите само за тях (v1.1.85, двата импулса поотделно от 1.1.366)
@@ -1442,6 +1443,9 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L282 ## 9a. Интерфейс (от v1.1.55-ble)
   - L300 ## 10. Сглобяване
   - L317 ## 11. Референции
+
+`motion/viewer/models/CREDITS.md` (8L)
+  - L1 # Models and data used by the XEMS Motion test page
 
 `server/CLAUDE.md` (11L)
   - L1 # server — XEMS license server (Cloudflare Worker + D1)

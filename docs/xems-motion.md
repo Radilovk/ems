@@ -14,6 +14,7 @@ Status: **phase 1 built and tested offline** — firmware, host core, test bench
 | Host core: calibration, identification, pose, reps (JS, no deps) | `motion/viewer/motion-core.js` |
 | Test bench (Chrome, Web Bluetooth, demo person) | `motion/viewer/index.html` |
 | 3-D body (three.js r158 vendored, MIT), muscle zones = XEMS channels | `motion/viewer/body3d.js`, `motion/viewer/vendor/three-r158.min.js` |
+| The VR workout's android (rigged), default figure | `motion/viewer/models/android.js` (credits: `motion/viewer/models/CREDITS.md`) |
 | Offline end-to-end test | `sh scripts/motion-sim/run.sh` (scripted, pass/fail) · `sh scripts/motion-sim/run.sh mocap` (real people) |
 | Real movements (CMU mocap, 9 clips, 80 s) | `motion/mocap/cmu.js` ← `python3 scripts/motion/cmu2json.py <dir with .asf/.amc>` |
 
@@ -139,6 +140,20 @@ that. What the real data changed in the solver (2026-11-03):
 - Arms: the upper arm follows the forearm step by step (no wrap past 180° overhead); the shoulder share k is fitted
   on the wrist's **velocity** (integrated from rest), far less noisy than its acceleration.
 - `logm` fixed for tiny rotations (< 0.06° returned garbage — hit slow arm movements).
+
+## The figure: the VR workout's android (owner 2026-11-03: "use the model we had, don't make a new one")
+The XEMS VR workout's coach — **"White Android Robot - ModelAI3D vs SupaVoxel" by Cedric Ricci, CC BY 4.0**
+(Sketchfab) — taken back from git history (`vr-workout/assets/coaches/android.glb`, commit fb827d3e: 1.5 M → 45 k
+triangles, 1 K textures, rigged by `vr-workout/convert/autorig.py`; removed from the VR app in 68ceae06; the 300 k /
+4 K version of 5c73cef6 is 42 MB, too heavy for the tablet page). Packed as `models/android.js` (the .glb in base64,
+5.8 MB) and read with three.js's GLTFLoader turned into a classic script (`vendor/gltf-loader-r158.js`, generated:
+file:// pages cannot load ES modules or fetch files). Its rest pose is our zero pose (upright, arms down, faces +Z,
+left = +X), so every bone simply gets `segment rotation since the zero pose × its rest world rotation`
+(`RiggedFigure`): thigh / calf / upper arm / forearm from the solver, pelvis and spine share the trunk's turn
+(50 / 65 / 85 / 100 %), a foot on the floor stays flat, a lifted one follows its shank; the pelvis goes where the solver
+has it and the feet stand on the floor. In "Демо" a second, translucent orange android is the real person. The
+mannequin with the XEMS muscle zones ("Манекен") stays as the second style — the zones are what the impulse sync will
+light up.
 
 ## The 3-D body (owner 2026-11-03: "a 3-D model that moves in sync with the body")
 `body3d.js` — WebGL (three.js r158, vendored so the tablet needs no internet; `three.min.js` works from file://, ES

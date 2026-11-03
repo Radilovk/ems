@@ -36,10 +36,9 @@
   const rx = (a) => rot([1, 0, 0], a), ry = (a) => rot([0, 1, 0], a), rz = (a) => rot([0, 0, 1], a);
   function logm(R) {        // → rotation vector (axis × angle)
     const c = Math.max(-1, Math.min(1, (R[0] + R[4] + R[8] - 1) / 2)), ang = Math.acos(c);
-    if (ang < 1e-6) return [0, 0, 0];
     let v = [R[7] - R[5], R[2] - R[6], R[3] - R[1]];
-    const s = Math.sin(ang);
-    if (s > 1e-3) return sc(v, ang / (2 * s));
+    if (ang < 1e-4) return sc(v, 0.5);                  // tiny turn: θ/(2 sin θ) → ½
+    if (ang < Math.PI - 1e-3) return sc(v, ang / (2 * Math.sin(ang)));
     // near 180°: axis from the diagonal
     const ax = unit([Math.sqrt(Math.max(0, (R[0] + 1) / 2)), Math.sqrt(Math.max(0, (R[4] + 1) / 2)) * (R[1] >= 0 ? 1 : -1), Math.sqrt(Math.max(0, (R[8] + 1) / 2)) * (R[2] >= 0 ? 1 : -1)]);
     return sc(ax, ang);
@@ -199,6 +198,7 @@
       this.arm = { l: this.newArm(), r: this.newArm() };
       this.foot = { l: this.newFoot(1), r: this.newFoot(-1) };
       this.kappa = { l: 0, r: 0 };
+      this.height = { z: 0, v: 0, calm: 0, t: 0, ok: false };
       this.reps = new RepCounter();
     }
     feed(id, smp) { this.last[id] = smp; }
@@ -223,10 +223,11 @@
       const shanks = { l: S.lshank ? S.lshank.R : I3(), r: S.rshank ? S.rshank.R : I3() };
       // feet: ankle point tracked with zero-velocity updates
       for (const side of ['l', 'r']) if (S[side + 'shank']) this.trackFoot(side, S[side + 'shank'], dt, t);
+      if (S.back) this.trackHeight(S.back, dt);
       // legs: knee flexion κ (thigh hinged to the shank) from chain closure at the pelvis + balance
       const armsR = {};
       for (const side of ['l', 'r']) armsR[side] = this.armStep(side, S[side === 'l' ? 'lwrist' : 'rwrist'], S.back, Tr, dt);
-      const leg = this.solveLegs(Tr, shanks, armsR);
+      const leg = this.solveLegs(Tr, shanks, armsR, true);
       // assemble the skeleton
       const P = leg.P;
       const up = (R, L) => mv(R, [0, 0, L]);
@@ -291,29 +292,59 @@
 
     // foot: the ankle point (sensor ~8 cm above it, on the shank) integrated between still moments, velocity reset
     // when still, the drift of that velocity taken out of the step afterwards. Gives step-outs (lunge), lifted feet.
+    // how far the back sensor has gone up or down since the zero pose: vertical acceleration integrated, velocity set
+    // to zero whenever the trunk is still (top and bottom of a squat), its leftover taken out as drift. Vertical is
+    // the accurate direction of a tilt-corrected IMU (gravity removal error ∝ 1 − cos(tilt error)). It fixes the depth
+    // of a squat directly — the balance model alone has two answers at the bottom, and people rise onto their toes.
+    trackHeight(b, dt) {
+      const h = this.height, a = b.a[2], a0 = h.a == null ? a : h.a, v0 = h.v;
+      h.v += (a + a0) / 2 * dt;                       // trapezoid: 52 Hz is coarse for a fast bend
+      h.z += (h.v + v0) / 2 * dt;
+      h.a = a;
+      h.t += dt;
+      const calm = Math.abs(b.a[2]) < 0.25 && norm(b.w) < 0.25;
+      h.calm = calm ? h.calm + 1 : 0;
+      // still = calm and slow (a slow, smooth descent is calm too, but it has speed); calm for 1 s at "speed" = drift
+      if (h.t > 0.2 && ((h.calm * dt > 0.15 && Math.abs(h.v) < 0.12) || h.calm * dt > 1)) {
+        h.z -= h.v * Math.min(h.t, 6) / 2; h.v = 0; h.t = 0;
+      } else if (h.t > 15) { h.v = 0; h.t = 0; }      // never still for 15 s: stop the drift growing
+      // standing upright and still (legs and trunk as in the zero pose): that is height 0 again
+      const A = this.prevPose && this.prevPose.A;
+      if (h.calm * dt > 1 && A && Math.abs(A.trunkLean) < 12 && A.lShank < 8 && A.rShank < 8 && A.lKnee < 12 &&
+          A.rKnee < 12 && !this.foot.l.air && !this.foot.r.air) h.z *= Math.exp(-dt / 1.5);
+      h.ok = true;
+    }
+
     trackFoot(side, s, dt, t) {
-      const f = this.foot[side], d = this.dim;
-      const r = mv(s.R, [0, 0, -d.sensShank]);
-      // ankle acceleration = sensor's + the rotation term from the sensor to the ankle (α×r + ω×(ω×r)); the sensor's sideways offset lies
-      // on the knee axis, so a squat (rotation about that axis) leaves the ankle still
+      const f = this.foot[side], d = this.dim, sgn = side === 'l' ? 1 : -1;
+      // sensor → ankle: down the shank and in from the outer side of the leg
+      const r = mv(s.R, [0, -sgn * 0.045, -d.sensShank]);
+      // ankle acceleration = the sensor's + the rotation term from the sensor to the ankle (α×r + ω×(ω×r)), so a
+      // squat (the shank turning about a still ankle) leaves it ~0
       const al = f.prevW ? sc(sub(s.w, f.prevW), 1 / dt) : [0, 0, 0];
       f.prevW = s.w;
       const aA = add(s.a, add(cross(al, r), cross(s.w, cross(s.w, r))));
+      const aPrevKeep = f.aLast; f.aLast = aA; f.aPrev = aPrevKeep;
       f.aLp = f.aLp == null ? norm(aA) : f.aLp + (norm(aA) - f.aLp) * Math.min(1, dt / 0.06);
-      const calm = f.aLp < 0.5 && norm(f.v) < 0.2;
-      f.calmN = calm ? f.calmN + 1 : 0;
+      f.calmN = f.aLp < 0.6 ? f.calmN + 1 : 0;
       if (!f.moving) {
-        if (f.aLp > 0.8) { f.moving = true; f.v = [0, 0, 0]; f.vMax = 0; f.pStart = f.p.slice(); f.t0 = t; f.calmN = 0; }
+        if (f.aLp > 1.0) { f.moving = true; f.v = [0, 0, 0]; f.vMax = 0; f.pi = f.p.slice(); f.pStart = f.p.slice(); f.t0 = t; f.calmN = 0; }
         else return;
       }
-      f.v = add(f.v, sc(aA, dt));
-      f.p = add(f.p, sc(f.v, dt));
+      const v0 = f.v, a0 = f.aPrev || aA;
+      f.v = add(f.v, sc(add(aA, a0), dt / 2));
+      f.pi = add(f.pi, sc(add(f.v, v0), dt / 2));
       f.vMax = Math.max(f.vMax, norm(f.v));
-      if (f.calmN * dt > 0.12 || t - f.t0 > 4) {
-        // stop: the leftover velocity is drift — its share of the travelled path goes
-        const Tm = t - f.t0;
-        f.p = sub(f.p, sc(f.v, Tm / 2));
-        if (t - f.t0 > 4 || f.vMax < 0.25 || norm(sub(f.p, f.pStart)) < 0.1) f.p = f.pStart;   // too long / too small: no step
+      // shown while moving only if it looks like a foot (≤ 0.8 m away, ≤ 0.7 m up); else the foot stays put
+      const dp = sub(f.pi, f.pStart);
+      f.p = norm(dp) < 0.8 && f.pi[2] > -0.05 && f.pi[2] < 0.7 ? f.pi.slice() : f.pStart.slice();
+      const Tm = t - f.t0;
+      // a foot at speed is never calm for long: calm + slow = landed; calm for 0.5 s at "speed" = that speed is drift
+      if ((f.calmN * dt > 0.12 && norm(f.v) < 0.25) || f.calmN * dt > 0.5 || Tm > 2.5) {
+        // stop: the leftover velocity is drift — its share of the travelled path goes; then is it a real step?
+        const end = sub(f.pi, sc(f.v, Tm / 2)), move = norm(sub(end, f.pStart));
+        const real = Tm <= 2.5 && f.vMax > 0.25 && move > 0.1 && move < 0.9 && norm(f.v) < 0.6 && end[2] > -0.05 && end[2] < 0.7;
+        f.p = real ? end : f.pStart;
         f.v = [0, 0, 0]; f.moving = false;
         f.air = f.p[2] > 0.08;
         if (!f.air) f.p[2] = 0;
@@ -340,7 +371,7 @@
       const wRel = Sb ? sub(Sf.w, Sb.w) : Sf.w, spin = norm(wRel);
       if (!a.prevF) { a.prevF = F; return F; }
       if (!a.moving) {
-        if (spin > 0.6) { a.moving = true; a.F0 = a.prevF; a.U0 = a.U; a.buf = []; a.calm = 0; }
+        if (spin > 0.6) { a.moving = true; a.U0 = a.U; a.buf = []; a.calm = 0; }
         else {
           // resting with the forearm hanging: the arm is straight
           const fTr = mv(T(Tr), mv(F, [0, 0, -1]));
@@ -348,32 +379,40 @@
         }
       }
       if (a.moving) {
-        a.buf.push({ F, acc, spin });
-        if (a.buf.length > 60) a.buf.shift();
-        const n = a.buf.length;
-        const Lf = d.fore - 0.03;
-        if (n >= 5) {
-          const lo = Math.max(1, n - 16);
-          let ex = 0; for (let i = lo; i < n - 1; i++) ex += a.buf[i].spin;
-          if (ex / (n - 1 - lo) > 1.0) {
-            const logs = [];
-            for (let i = lo - 1; i < n; i++) logs.push(logm(mul(a.buf[i].F, T(a.F0))));
-            let bestK = a.k, bestE = Infinity, worstE = 0;
-            for (let k = 0; k <= 1.0001; k += 0.1) {
-              const X = logs.map((lg, j) => add(mv(mul(expm(sc(lg, k)), a.U0), [0, 0, -d.upper]), mv(a.buf[lo - 1 + j].F, [0, 0, -Lf])));
-              let e = 0;
-              for (let j = 1; j < X.length - 1; j++) {
-                const pa = sc(add(sub(X[j + 1], X[j]), sub(X[j - 1], X[j])), 1 / (dt * dt));
-                const r = sub(pa, a.buf[lo - 1 + j].acc);
-                e += dot(r, r);
-              }
-              if (e < bestE) { bestE = e; bestK = k; }
-              worstE = Math.max(worstE, e);
-            }
-            if (worstE > 1.5 * bestE) a.k += (bestK - a.k) * Math.min(1, dt * 12);
-          }
+        // the forearm's turn since the last sample (small: no wrap-around however far the arm goes overall)
+        // the wrist's velocity relative to the shoulder, integrated from rest (it was 0 when the movement began)
+        a.vm = a.buf.length ? add(a.vm, sc(acc, dt)) : sc(acc, dt);
+        a.buf.push({ F, acc, spin, vm: a.vm, lg: logm(mul(F, T(a.prevF))) });
+        if (a.buf.length > 150) {                   // a 3-s movement: fold the oldest step in for good
+          const o = a.buf.shift(); a.U0 = mul(expm(sc(o.lg, a.k)), a.U0);
         }
-        a.U = mul(expm(sc(logm(mul(F, T(a.F0))), a.k)), a.U0);
+        const n = a.buf.length, Lf = d.fore - 0.03;
+        const upperAt = (k) => {                    // upper arm after every step for share k
+          const out = []; let U = a.U0;
+          for (const st of a.buf) { U = mul(expm(sc(st.lg, k)), U); out.push(U); }
+          return out;
+        };
+        // every share k predicts a path of the wrist around the shoulder; its velocity must match the measured one
+        // (velocity: integrated, so far less noisy than the acceleration itself; drift over 1–3 s is small)
+        let ex = 0; for (const st of a.buf) ex += st.spin;
+        if (n >= 6 && ex / n > 0.8) {
+          let bestK = a.k, bestE = Infinity, worstE = 0;
+          for (let k = 0; k <= 1.0001; k += 0.1) {
+            const Us = upperAt(k);
+            const X = Us.map((U, j) => add(mv(U, [0, 0, -d.upper]), mv(a.buf[j].F, [0, 0, -Lf])));
+            let e = 0;
+            for (let j = 1; j < n - 1; j++) {
+              const pv = sc(sub(X[j + 1], X[j - 1]), 1 / (2 * dt));
+              const r = sub(sub(pv, a.buf[j].vm), sub([0, 0, 0], [0, 0, 0]));
+              e += dot(r, r);
+            }
+            if (e < bestE) { bestE = e; bestK = k; }
+            worstE = Math.max(worstE, e);
+          }
+          if (worstE > 1.3 * bestE) a.k += (bestK - a.k) * Math.min(1, dt * 8);
+        }
+        const Us = upperAt(a.k);
+        a.U = Us[Us.length - 1];
         a.calm = spin < 0.3 ? a.calm + 1 : 0;
         if (a.calm * dt > 0.25) a.moving = false;
       }
@@ -388,7 +427,13 @@
     // legs: unknown knee flexions κl, κr. Each foot's chain (ankle → shank (measured) → thigh (hinged on the knee axis
     // of the shank, angle κ) → hip) must meet the other at the pelvis, and the body's centre of mass must stand over
     // the feet that carry it. Grid + refine (≈3 k evaluations, < 1 ms).
-    solveLegs(Tr, Sh, armsR) {
+    // pelvis height at zero travel of the back sensor for this trunk lean (standing pelvis height + lean geometry)
+    pelvisZ0(Tr) {
+      const d = this.dim, off = (R) => mv(R, [-0.08, 0, d.trunk - 0.06])[2];
+      return d.ankleH + d.shank + d.thigh + off(I3()) - off(Tr);
+    }
+
+    solveLegs(Tr, Sh, armsR, useHeight) {
       const d = this.dim, hipOff = (s) => mv(Tr, [0, s * d.hipW, 0]);
       const fl = this.foot.l, fr = this.foot.r;
       const base = (side) => {
@@ -406,6 +451,8 @@
       const armVec = (side) => add(mv(Tr, [0, (side === 'l' ? 1 : -1) * d.shW, d.trunk]), add(sc(mv(this.arm[side].U, [0, 0, -d.upper]), 0.5), sc(mv(armsR[side], [0, 0, -d.fore]), 0.3)));
       const armOff = add(sc(armVec('l'), 0.05), sc(armVec('r'), 0.05));
       const prev = this.kappa;
+      // pelvis height measured: standing pelvis height + the back sensor's vertical travel − what the trunk's lean took
+      const zP = useHeight && this.height.ok ? this.pelvisZ0(Tr) + this.height.z : null;
       const cost = (kl, kr) => {
         const tl = thigh('l', kl), tr = thigh('r', kr);
         const Pl = sub(add(Kl, tl), hipOff(1)), Pr = sub(add(Kr, tr), hipOff(-1));
@@ -421,6 +468,7 @@
         }
         // two thigh angles balance the same: the one with the hip above the knee is the real one (a thigh pointing
         // down-and-back from the knee happens only at the very bottom of a deep squat)
+        if (zP != null) c += 4 * (P[2] - zP) ** 2;      // pelvis height from the back sensor's own travel
         c += 0.02 * (Math.max(0, -tl[2] / d.thigh) ** 2 + Math.max(0, -tr[2] / d.thigh) ** 2);
         c += 2e-5 * ((kl - prev.l) ** 2 + (kr - prev.r) ** 2) + 1e-6 * (kl * kl + kr * kr);
         return { c, P };
@@ -615,38 +663,204 @@
     return rig;
   }
   // segment rotation and sensor position of one role at time t
-  function simSegment(b, role, d) {
-    const side = role[0] === 'l' ? 'l' : 'r';
-    if (role === 'back') {
-      const neck = add(b.P, mv(b.Tr, [0, 0, d.trunk]));
-      return { R: b.Tr, p: add(neck, mv(b.Tr, [-0.08, 0, -0.06])) };
+  // ---------- one pose, whatever made it (the scripted person or a real mocap recording): segment rotations in W
+  // (identity in the zero pose; z = towards the body / up) and joint points. Sensors, truth and the "ghost" use it.
+  function scriptFrame(b, d) {
+    const R = { trunk: b.Tr, pelvis: b.Tr }, J = {};
+    J.pelvis = b.P; J.neck = add(b.P, mv(b.Tr, [0, 0, d.trunk])); J.head = add(J.neck, mv(b.Tr, [0, 0, d.neck + d.head * 0.6]));
+    for (const s of ['l', 'r']) {
+      const sgn = s === 'l' ? 1 : -1, L = b.legs[s];
+      R[s + 'thigh'] = L.Th; R[s + 'shank'] = L.Sh; R[s + 'upper'] = b.arms[s].U; R[s + 'fore'] = b.arms[s].F;
+      J[s + 'hip'] = L.H; J[s + 'knee'] = L.K; J[s + 'ankle'] = L.A; J[s + 'toe'] = add(L.A, [0.13 * d.H / 1.75, 0, -d.ankleH]);
+      J[s + 'sh'] = add(J.neck, mv(b.Tr, [0, sgn * d.shW, -0.03 * d.H]));
+      J[s + 'elbow'] = add(J[s + 'sh'], mv(b.arms[s].U, [0, 0, -d.upper]));
+      J[s + 'wrist'] = add(J[s + 'elbow'], mv(b.arms[s].F, [0, 0, -d.fore]));
+      J[s + 'hand'] = add(J[s + 'wrist'], mv(b.arms[s].F, [0, 0, -d.hand * 0.7]));
     }
-    if (role.endsWith('wrist')) {
-      const sgn = side === 'l' ? 1 : -1;
-      const sh = add(add(b.P, mv(b.Tr, [0, 0, d.trunk])), mv(b.Tr, [0, sgn * d.shW, -0.03 * d.H]));
-      const el = add(sh, mv(b.arms[side].U, [0, 0, -d.upper]));
-      const wr = add(el, mv(b.arms[side].F, [0, 0, -d.fore + 0.03]));
-      return { R: b.arms[side].F, p: add(wr, mv(b.arms[side].F, [0, sgn * 0.03, 0])) };
-    }
-    const L = b.legs[side];
-    return { R: L.Sh, p: add(L.A, mv(L.Sh, [0, (side === 'l' ? 1 : -1) * 0.05, d.sensShank])) };
+    return { R, J };
   }
+  function blendFrames(A, B, w) {
+    const R = {}, J = {};
+    for (const k in A.R) R[k] = B.R[k] ? slerpM(A.R[k], B.R[k], w) : A.R[k];
+    for (const k in A.J) J[k] = B.J[k] ? add(sc(A.J[k], 1 - w), sc(B.J[k], w)) : A.J[k];
+    return { R, J };
+  }
+  // where each sensor sits on a frame (and which segment carries it)
+  function sensorOnFrame(f, role) {
+    const s = role[0] === 'l' ? 'l' : 'r', sgn = s === 'l' ? 1 : -1;
+    if (role === 'back') return { R: f.R.trunk, p: add(f.J.neck, mv(f.R.trunk, [-0.08, 0, -0.06])) };
+    if (role.endsWith('wrist')) return { R: f.R[s + 'fore'], p: add(f.J[s + 'wrist'], mv(f.R[s + 'fore'], [0, sgn * 0.03, 0.03])) };
+    return { R: f.R[s + 'shank'], p: add(f.J[s + 'ankle'], mv(f.R[s + 'shank'], [0, sgn * 0.05, 0.08])) };
+  }
+  // the angles a coach reads, from a true frame (same definitions as Body.solve)
+  function truthAngles(f) {
+    const A = {}, Tr = f.R.trunk, up = mv(Tr, [0, 0, 1]);
+    A.trunkLean = Math.atan2(dot(up, mv(rz(yawOf(Tr)), [1, 0, 0])), up[2]) * R2D;
+    A.trunkTwist = wrapDeg((yawOf(Tr) - (yawOf(f.R.lshank) + yawOf(f.R.rshank)) / 2) * R2D);
+    for (const s of ['l', 'r']) {
+      A[s + 'Knee'] = angBetween(mv(f.R[s + 'thigh'], [0, 0, 1]), mv(f.R[s + 'shank'], [0, 0, 1])) * R2D;
+      A[s + 'Elbow'] = angBetween(mv(f.R[s + 'upper'], [0, 0, -1]), mv(f.R[s + 'fore'], [0, 0, -1])) * R2D;
+      A[s + 'ShElev'] = angBetween(mv(T(Tr), mv(f.R[s + 'upper'], [0, 0, -1])), [0, 0, -1]) * R2D;
+    }
+    return A;
+  }
+
+  // ---------- real movements: CMU Graphics Lab Motion Capture (motion/mocap/cmu.js, scripts/motion/cmu2json.py)
+  // ASF/AMC forward kinematics: G(bone) = G(parent)·C·E(rx,ry,rz)·C⁻¹, end = parent end + len·G·dir (CMU axes y up).
+  const KEEP = ['root', 'lowerback', 'upperback', 'thorax', 'lowerneck', 'upperneck', 'head', 'lhipjoint', 'lfemur',
+    'ltibia', 'lfoot', 'rhipjoint', 'rfemur', 'rtibia', 'rfoot', 'lclavicle', 'lhumerus', 'lradius', 'lwrist', 'rclavicle',
+    'rhumerus', 'rradius', 'rwrist'];
+  const CMU2W = [0, 0, 1, 1, 0, 0, 0, 1, 0];            // CMU (x left, y up, z forward) → W (x fwd, y left, z up)
+  const eulXYZ = (x, y, z) => mul(rz(z * D2R), mul(ry(y * D2R), rx(x * D2R)));
+  class Mocap {
+    constructor(data, clipIdx) {
+      const c = data.clips[clipIdx], bones = data.skeletons[c.subject];
+      this.title = c.title; this.what = c.what; this.fps = c.fps; this.n = c.frames;
+      this.len = (c.frames - 1) / c.fps;
+      const bin = typeof atob === 'function' ? Uint8Array.from(atob(c.data), (ch) => ch.charCodeAt(0)) : Buffer.from(c.data, 'base64');
+      this.vals = new Int16Array(bin.buffer, bin.byteOffset, bin.byteLength / 2);
+      this.bones = bones.map((b) => ({ ...b, C: eulXYZ(...b.axis), Ci: T(eulXYZ(...b.axis)), d: mv(CMU2W, b.dir) }));
+      this.stride = bones.reduce((s, b) => s + b.dof.length, 0);
+      const by = {}; for (const b of this.bones) by[b.name] = b;
+      this.by = by;
+      // the subject's size → solver proportions
+      this.legLen = by.lfemur.len + by.ltibia.len;
+      this.height = this.legLen / 0.491;
+      // segment frame in the CMU base pose (limbs: z towards the body; spine: z up), turned into W
+      const base = (b, spine) => {
+        const z = spine ? unit(b.d) : sc(unit(b.d), -1);
+        let x = sub([1, 0, 0], sc(z, z[0])); if (norm(x) < 0.2) x = sub([0, 0, -1], sc(z, -z[2]));
+        x = unit(x); const y = cross(z, x);
+        return [x[0], y[0], z[0], x[1], y[1], z[1], x[2], y[2], z[2]];
+      };
+      this.seg = { trunk: ['thorax', true], pelvis: ['root', true], head: ['head', true] };
+      for (const s of ['l', 'r']) Object.assign(this.seg, { [s + 'thigh']: [s + 'femur'], [s + 'shank']: [s + 'tibia'], [s + 'upper']: [s + 'humerus'], [s + 'fore']: [s + 'radius'] });
+      this.base = {};
+      for (const k in this.seg) this.base[k] = k === 'pelvis' ? I3() : base(by[this.seg[k][0]], this.seg[k][1]);
+      this.cache = new Map();
+      // place the clip: start facing +x, feet centred on the origin, the floor at z = 0
+      this.fix = { R: I3(), o: [0, 0, 0] };
+      const f0 = this.raw(0);
+      const yaw = yawOf(f0.R.pelvis);
+      this.fix.R = rz(-yaw);
+      let floor = Infinity;
+      for (let i = 0; i < this.n; i += 5) { const f = this.raw(i); floor = Math.min(floor, f.J.lankle[2], f.J.rankle[2]); }
+      const g = this.raw(0), mid = sc(add(g.J.lankle, g.J.rankle), 0.5);
+      this.fix.o = [mid[0], mid[1], floor - 0.07];
+      this.cache.clear();
+    }
+    raw(i) {
+      if (this.cache.has(i)) return this.cache.get(i);
+      let o = i * this.stride;
+      const G = {}, P = {};
+      for (const b of this.bones) {
+        const v = this.vals;
+        if (b.name === 'root') {
+          const pos = [v[o] / 1000, v[o + 1] / 1000, v[o + 2] / 1000];
+          G.root = mul(b.C, mul(eulXYZ(v[o + 3] / 50, v[o + 4] / 50, v[o + 5] / 50), b.Ci));
+          P.root = mv(CMU2W, pos); o += 6;
+        } else {
+          const r = { rx: 0, ry: 0, rz: 0 };
+          for (const dn of b.dof) r[dn] = v[o++] / 50;
+          G[b.name] = mul(G[b.parent], mul(b.C, mul(eulXYZ(r.rx, r.ry, r.rz), b.Ci)));
+          P[b.name] = add(P[b.parent], sc(mv(mul(CMU2W, mul(G[b.name], T(CMU2W))), b.d), b.len));
+        }
+      }
+      const W = (Rc) => mul(this.fix.R, mul(mul(CMU2W, mul(Rc, T(CMU2W))), I3()));
+      const at = (p) => mv(this.fix.R, sub(p, this.fix.o));
+      const R = {};
+      for (const k in this.seg) R[k] = mul(W(G[this.seg[k][0]]), this.base[k]);
+      const J = { pelvis: at(P.root), neck: at(P.thorax), head: at(P.head) };
+      for (const s of ['l', 'r']) {
+        J[s + 'hip'] = at(P[s + 'hipjoint']); J[s + 'knee'] = at(P[s + 'femur']); J[s + 'ankle'] = at(P[s + 'tibia']);
+        J[s + 'toe'] = at(P[s + 'foot']); J[s + 'sh'] = at(P[s + 'clavicle']); J[s + 'elbow'] = at(P[s + 'humerus']);
+        J[s + 'wrist'] = at(P[s + 'radius']); J[s + 'hand'] = at(P[s + 'wrist']);
+      }
+      const f = { R, J };
+      if (this.cache.size > 20000) this.cache.clear();
+      this.cache.set(i, f);
+      return f;
+    }
+    // marker noise out (Gaussian σ = 2 frames ≈ 33 ms, keeps < ~5 Hz: all of human exercise), then a cubic B-spline
+    // between the 60 fps frames — continuous acceleration, as a real accelerometer sees a real body
+    smooth(i) {
+      i = Math.max(0, Math.min(this.n - 1, i));
+      const key = 's' + i;
+      if (this.cache.has(key)) return this.cache.get(key);
+      const c = this.raw(i), R = {}, J = {};
+      let wsum = 0; const ws = [];
+      for (let k = -4; k <= 4; k++) { const w = Math.exp(-(k * k) / 8); ws.push([Math.max(0, Math.min(this.n - 1, i + k)), w]); wsum += w; }
+      for (const n in c.R) {
+        let v = [0, 0, 0];
+        for (const [j, w] of ws) v = add(v, sc(logm(mul(T(c.R[n]), this.raw(j).R[n])), w / wsum));
+        R[n] = mul(c.R[n], expm(v));
+      }
+      for (const n in c.J) { let v = [0, 0, 0]; for (const [j, w] of ws) v = add(v, sc(this.raw(j).J[n], w / wsum)); J[n] = v; }
+      const f = { R, J };
+      this.cache.set(key, f);
+      return f;
+    }
+    frame(t) {
+      const x = Math.max(0, Math.min(this.n - 1, t * this.fps)), i = Math.floor(x), u = x - i;
+      const b = [(1 - u) ** 3 / 6, (3 * u ** 3 - 6 * u * u + 4) / 6, (-3 * u ** 3 + 3 * u * u + 3 * u + 1) / 6, u ** 3 / 6];
+      const F = [this.smooth(i - 1), this.smooth(i), this.smooth(i + 1), this.smooth(i + 2)], c = F[1], R = {}, J = {};
+      // rotations: cumulative B-spline on SO(3) (Kim, Kim & Shin 1995) — C2 like the positions, so the gyro and the
+      // accelerometer of a sensor riding on the segment see no jumps at the frame boundaries
+      const B = [(5 + 3 * u - 3 * u * u + u ** 3) / 6, (1 + 3 * u + 3 * u * u - 2 * u ** 3) / 6, u ** 3 / 6];
+      for (const n in c.R) {
+        let r = F[0].R[n];
+        for (let j = 1; j <= 3; j++) r = mul(r, expm(sc(logm(mul(T(F[j - 1].R[n]), F[j].R[n])), B[j - 1])));
+        R[n] = r;
+      }
+      for (const n in c.J) { let v = [0, 0, 0]; for (let k = 0; k < 4; k++) v = add(v, sc(F[k].J[n], b[k])); J[n] = v; }
+      return { R, J };
+    }
+  }
+
+  // a session: the scripted calibration (zero pose + squat with the arms forward) in the clip person's size, then
+  // clips one after another, 1.5 s blends in between
+  class Timeline {
+    constructor(parts, dim) {
+      this.dim = dim; this.parts = []; let t = 0;
+      for (const p of parts) { this.parts.push({ ...p, t0: t }); t += p.len; }
+      this.len = t;
+    }
+    frame(t) {
+      let i = this.parts.findIndex((p) => t < p.t0 + p.len);
+      if (i < 0) i = this.parts.length - 1;
+      const p = this.parts[i], u = t - p.t0;
+      const own = (q, uu) => q.kind === 'script' ? scriptFrame(simBody(q.from + Math.max(0, Math.min(q.len, uu)), this.dim, q.script), this.dim) : q.clip.frame(Math.max(0, Math.min(q.len, uu)));
+      if (p.kind === 'blend') return blendFrames(own(this.parts[i - 1], 1e9), own(this.parts[i + 1], -1), sm(u / p.len));
+      return own(p, u);
+    }
+    nameAt(t) { const p = this.parts.find((q) => t < q.t0 + q.len) || this.parts[this.parts.length - 1]; return p.name; }
+    static session(data, clips, opt) {
+      opt = opt || {};
+      const mocaps = clips.map((i) => new Mocap(data, i));
+      const H = mocaps.length ? mocaps[0].height : 1.75, dim = bodyDims(H);
+      const parts = [{ kind: 'script', name: 'calib', from: 0, len: 10, script: SCRIPT }];
+      for (const m of mocaps) { parts.push({ kind: 'blend', name: 'blend', len: 1.5 }); parts.push({ kind: 'clip', name: m.what, title: m.title, clip: m, len: m.len }); }
+      const tl = new Timeline(parts, dim);
+      tl.height = H;
+      return tl;
+    }
+    static script(dim) { return new Timeline([{ kind: 'script', name: 'script', from: 0, len: scriptLength(), script: SCRIPT }], dim); }
+  }
+
   // ideal 6-axis sensor output at t (orientation in its own gravity frame, gyro °/s, accel g — sensor frame)
-  function simSample(t, rig, id, d, script, h) {
+  function simSample(t, rig, id, src, h) {
     h = h || 0.004;
     const r = rig[id];
-    const at = (tt) => { const b = simBody(tt, d, script); const s = simSegment(b, r.role, d); return { R: mul(s.R, r.M), p: s.p }; };
+    const at = (tt) => { const s = sensorOnFrame(src.frame(tt), r.role); return { R: mul(s.R, r.M), p: s.p }; };
     const a = at(t - h), m = at(t), c = at(t + h);
-    const dR = mul(T(m.R), sc3(sub9(c.R, a.R), 1 / (2 * h)));
+    const dR = mul(T(m.R), c.R.map((x, i) => (x - a.R[i]) / (2 * h)));
     const w = [(dR[7] - dR[5]) / 2, (dR[2] - dR[6]) / 2, (dR[3] - dR[1]) / 2];
     const acc = add(sc(add(sub(c.p, m.p), sub(a.p, m.p)), 1 / (h * h)), [0, 0, G]);
     return { t, R: m.R, q: mToQ(mul(rz(r.psi), m.R)), gyro: sc(w, R2D), acc: sc(mv(T(m.R), acc), 1 / G), still: false };
   }
-  const sub9 = (a, b) => a.map((x, i) => x - b[i]);
-  const sc3 = (a, s) => a.map((x) => x * s);
 
   const api = { ROLES, ROLE_BG, ROLE_LED, Calibration, Body, RepCounter, decodeFrame, bodyDims,
-    sim: { SCRIPT, scriptAt, scriptLength, simBody, makeRig, simSample, simSegment, ikLeg },
+    sim: { SCRIPT, scriptAt, scriptLength, simBody, makeRig, simSample, ikLeg, scriptFrame, blendFrames, sensorOnFrame, truthAngles, Mocap, Timeline },
     m: { mul, T, mv, rot, rx, ry, rz, logm, expm, qToM, mToQ, yawOf, angBetween, add, sub, sc, dot, cross, norm, unit, D2R, R2D } };
   if (typeof module !== 'undefined' && module.exports) module.exports = api; else root.XemsMotion = api;
 })(typeof self !== 'undefined' ? self : this);

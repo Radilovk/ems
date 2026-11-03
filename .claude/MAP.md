@@ -135,7 +135,8 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/mastogo/MastogoSim.java` (600L) — Offline test of the MASTOGO module: the real MastogoShell talks to a simulated H-024B that answers the way the vendor a…
 - `scripts/mastogo/run.sh` (12L) — Offline test of the MASTOGO H-024B module: the real MastogoShell against a simulated unit (no unit, no tablet).
 - `scripts/motion/build-motion.sh` (33L) — XEMS Motion sensor firmware → motion/xems-motion-sense.uf2 and motion/xems-motion-sense-plus.uf2 (XIAO nRF52840
-- `scripts/motion-sim/run.sh` (15L) — Offline end-to-end test of the XEMS Motion module (docs/xems-motion.md): scripted person → raw IMU (bias, drift,
+- `scripts/motion/cmu2json.py` (160L) — CMU Graphics Lab Motion Capture (mocap.cs.cmu.edu, free for any use) ASF/AMC → motion/mocap/cmu.js, the real human move…
+- `scripts/motion-sim/run.sh` (35L) — Offline end-to-end test of the XEMS Motion module (docs/xems-motion.md): a person → raw IMU (bias, drift, noise) →
 - `scripts/music-sim/MusicAutoTuneSim.java` (163L) — JVM checks for music → impulse auto-tune.
 - `scripts/music-sim/run.sh` (12L) — Auto-tune checks on the JVM. No Android.
 - `scripts/part-sim/AllMarked.java` (36L) — Owner's scenario (1.1.449): a training starts, every muscle is marked (1st tap), Интензитет 1 goes up with the double i…
@@ -1086,16 +1087,18 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L95 ## Left out on purpose
   - L103 ## Safety
 
-`docs/xems-motion.md` (120L)
+`docs/xems-motion.md` (167L)
   - L1 # XEMS Motion — body pose from five XIAO nRF52840 Sense sensors
-  - L18 ## Design in one picture
-  - L31 ## Hardware and placement
-  - L41 ## Sensor firmware (`fusion.h`, `xems_motion.ino`)
-  - L52 ## Calibration (≈ 6 s, one tap) — finds places, headings, zero
-  - L66 ## Pose solver (`Body.solve`, per back-sensor sample, < 1 ms)
-  - L85 ## Offline test (`sh scripts/motion-sim/run.sh`, ≈ 10 s)
-  - L102 ## Limits with five sensors (honest)
-  - L111 ## Roadmap
+  - L19 ## Design in one picture
+  - L32 ## Hardware and placement
+  - L42 ## Sensor firmware (`fusion.h`, `xems_motion.ino`)
+  - L53 ## Calibration (≈ 6 s, one tap) — finds places, headings, zero
+  - L67 ## Pose solver (`Body.solve`, per back-sensor sample, < 1 ms)
+  - L86 ## Offline test (`sh scripts/motion-sim/run.sh`, ≈ 10 s)
+  - L103 ## Real movements — CMU motion capture (owner 2026-11-03: "precise movement templates")
+  - L142 ## The figure (test page)
+  - L149 ## Limits with five sensors (honest)
+  - L158 ## Roadmap
 
 `docs/xems-part-strength.md` (212L)
   - L1 # Избрани мускулни групи: сила на импулсите само за тях (v1.1.85, двата импулса поотделно от 1.1.366)

@@ -31,6 +31,12 @@ button.main { background:var(--acc); color:#fff; font-weight:600; font-size:16px
 #stage { position:relative; min-height:0; padding:0; overflow:hidden; }
 canvas { width:100%; height:100%; display:block; touch-action:none; }
 #hint { position:absolute; left:12px; bottom:10px; color:var(--mute); font-size:12px; }
+#credit { position:absolute; right:12px; bottom:10px; color:var(--mute); font-size:11px; opacity:.8; }
+#demotitle { position:absolute; left:14px; top:12px; font-weight:600; font-size:15px; }
+#demos { position:absolute; left:10px; right:10px; top:54px; display:none; flex-wrap:wrap; gap:8px; padding:10px; background:var(--card);
+  border:1px solid var(--line); border-radius:14px; box-shadow:0 8px 30px rgba(0,0,0,.15); z-index:2; }
+#demos button { padding:9px 12px; font-size:14px; }
+#ghost.on { background:var(--acc); color:#fff; }
 #view { position:absolute; right:10px; top:10px; display:flex; gap:6px; } #view button { padding:6px 10px; font-size:13px; }
 #reps { text-align:center; } #reps .n { font-size:64px; font-weight:700; line-height:1; } #reps .k { color:var(--mute); }
 #reps .ph { display:inline-block; margin-top:6px; padding:3px 10px; border-radius:20px; background:var(--bg); font-size:13px; }
@@ -56,7 +62,9 @@ td.v { text-align:right; font-variant-numeric:tabular-nums; font-weight:600; } t
   </div>
 </div>
 <div class="card" id="stage"><canvas id="cv"></canvas>
-  <div id="view"><button data-v="front">Отпред</button><button data-v="side">Отстрани</button><button data-v="free">3D</button></div>
+  <div id="view"><button id="ghost" title="оранжево: истинското движение на човека (демо)">Истина</button><button data-v="front">Отпред</button><button data-v="side">Отстрани</button><button data-v="free">3D</button></div>
+  <div id="demotitle"></div><div id="demos"></div>
+  <div id="credit">Робот: по Android robot на Google (CC BY 3.0) · движения: CMU Graphics Lab Motion Capture Database</div>
   <div id="hint">Влачи за завъртане</div></div>
 <div class="col">
   <div class="card" id="reps"><div class="n" id="rn">0</div><div class="k" id="rk">повторения</div><div class="ph" id="rp">в покой</div></div>
@@ -65,14 +73,15 @@ td.v { text-align:right; font-variant-numeric:tabular-nums; font-weight:600; } t
 <div id="wiz"><div class="box"><div class="big" id="wn">1</div><div><h2 id="wt"></h2><p id="wp"></p><div class="res" id="wr"></div>
   <div class="row" style="margin-top:12px"><button id="wcancel">Отказ</button><button id="wok" class="main" style="display:none">Готово</button></div></div></div></div>
 <script src="motion-core.js"></script>
+<script src="../mocap/cmu.js"></script>
 <script>
 'use strict';
 const X = XemsMotion, $ = (id) => document.getElementById(id);
 const DATA_SVC = '6e400101-b5a3-f393-e0a9-e50e24dcca9e', DATA_CHR = '6e400102-b5a3-f393-e0a9-e50e24dcca9e';
 const NUS = '6e400001-b5a3-f393-e0a9-e50e24dcca9e', NUS_RX = '6e400002-b5a3-f393-e0a9-e50e24dcca9e', NUS_TX = '6e400003-b5a3-f393-e0a9-e50e24dcca9e';
 const sensors = {};             // id → { name, dev, rx, last, bat, n, rate }
-const body = new X.Body({ height: 1.75 });
-let cal = null, demo = null, pose = null, rec = null, view = { yaw: -0.6, pitch: 0.25, mode: 'free' };
+let body = new X.Body({ height: 1.75 });
+let cal = null, demo = null, pose = null, rec = null, ghost = true, view = { yaw: -0.6, pitch: 0.18, mode: 'free' };
 
 // ---------- Bluetooth
 $('add').onclick = async () => {
@@ -131,21 +140,45 @@ function step(t) {
   if (rec && pose) rec.push([t.toFixed(3), ...ANG.map(([k]) => (pose.A[k] || 0).toFixed(1)), pose.rep.count].join(','));
 }
 
-// ---------- demo: the scripted person of motion-core.js, live
+// ---------- demo: a person wearing the five sensors — the scripted one, or real people (CMU motion capture)
+const MOCAP = self.XEMS_MOCAP;
 $('demo').onclick = () => {
-  if (demo) { clearInterval(demo.timer); for (const id in demo.rig) delete sensors[id]; demo = null; $('demo').textContent = 'Демо'; drawSensors(); return; }
-  const rig = X.sim.makeRig(Math.floor(Math.random() * 1e6) + 1), dim = X.bodyDims(1.75);
-  demo = { rig, t0: performance.now() / 1000, len: X.sim.scriptLength() };
+  if (demo) { stopDemo(); return; }
+  const box = $('demos');
+  box.innerHTML = '<button data-c="s">Сценарий XEMS</button>' + (MOCAP ? MOCAP.clips.map((c, i) => `<button data-c="${i}">${c.title}</button>`).join('') +
+    '<button data-c="all">Всички подред</button>' : '');
+  box.style.display = 'flex';
+  box.querySelectorAll('button').forEach((b) => b.onclick = () => { box.style.display = 'none'; startDemo(b.dataset.c); });
+};
+function stopDemo() {
+  clearInterval(demo.timer); for (const id in demo.rig) delete sensors[id];
+  demo = null; pose = null; body = new X.Body({ height: 1.75 }); $('demo').textContent = 'Демо'; $('demotitle').textContent = ''; drawSensors();
+}
+function startDemo(which) {
+  if (demo) { clearInterval(demo.timer); for (const id in demo.rig) delete sensors[id]; }
+  let tl;
+  if (which === 's') { tl = X.sim.Timeline.script(X.bodyDims(1.75)); tl.height = 1.75; }
+  else if (which === 'all') tl = X.sim.Timeline.session(MOCAP, MOCAP.clips.map((c, i) => i));
+  else tl = X.sim.Timeline.session(MOCAP, [+which, +which, +which]);          // the clip three times over
+  const rig = X.sim.makeRig(Math.floor(Math.random() * 1e6) + 1);
+  body = new X.Body({ height: tl.height }); pose = null;
+  demo = { rig, tl, t0: performance.now() / 1000 };
   for (const id in rig) sensors[id] = { name: 'Демо ' + id, n: 0, state: 'демо', bat: 100 };
   demo.timer = setInterval(() => {
     const now = performance.now() / 1000;
     let t = now - demo.t0;
-    if (t > demo.len) { demo.t0 = now - 10; t = 10; }      // loop over the exercises, keep the calibration
-    for (const id in rig) { const s = X.sim.simSample(t, rig, id, dim); s.t = now; onSample(id, s); }
+    if (t > tl.len - 0.05) { startDemo(which); return; }                  // round again (with its calibration)
+    demo.t = t;
+    for (const id in rig) { const s = X.sim.simSample(t, rig, id, tl); s.t = now; onSample(id, s); }
   }, 1000 / 50);
   $('demo').textContent = 'Спри демо'; $('cal').disabled = false; drawSensors();
-  setTimeout(() => startCal(true), 300);
-};
+  setTimeout(() => startCal(true), 100);
+}
+function demoTitle() {
+  if (!demo || demo.t == null) return '';
+  const p = demo.tl.parts.find((q) => demo.t < q.t0 + q.len);
+  return !p ? '' : p.kind === 'clip' ? p.title + ' · истински човек (CMU)' : p.kind === 'script' && p.name === 'calib' ? 'калибрация' : p.kind === 'script' ? 'сценарий XEMS' : '';
+}
 
 // ---------- calibration wizard: zero pose → slow squat with the arms forward
 let wiz = null;
@@ -227,53 +260,113 @@ function drawPanels() {
   if (r.last && r.last.out > 0.1) $("rk").textContent += ` · ${r.last.rom.toFixed(0)}° · ${r.last.out.toFixed(1)} + ${r.last.back.toFixed(1)} s`;
 }
 
-// ---------- 3-D stick figure (no library: a rotating camera and a painter's sort)
+// ---------- 3-D robot (no library: a rotating camera, capsules and a painter's sort). In the style of the Android
+// robot (Google, CC BY 3.0): a green body, a dome head with antennae, limbs as separate rounded capsules.
 const cv = $('cv'), ctx = cv.getContext('2d');
 let drag = null;
 cv.onpointerdown = (e) => { drag = { x: e.clientX, y: e.clientY, yaw: view.yaw, pitch: view.pitch }; cv.setPointerCapture(e.pointerId); };
 cv.onpointermove = (e) => { if (!drag) return; view.mode = 'free'; view.yaw = drag.yaw + (e.clientX - drag.x) / 150; view.pitch = Math.max(-0.2, Math.min(1.2, drag.pitch + (e.clientY - drag.y) / 200)); };
 cv.onpointerup = () => drag = null;
-const BONES = [['pelvis', 'neck', 0], ['neck', 'head', 0], ['lhip', 'rhip', 0], ['lsh', 'rsh', 0],
-  ['lhip', 'lknee', 'l'], ['lknee', 'lankle', 'l'], ['lankle', 'ltoe', 'l'], ['rhip', 'rknee', 'r'], ['rknee', 'rankle', 'r'], ['rankle', 'rtoe', 'r'],
-  ['lsh', 'lelbow', 'l'], ['lelbow', 'lwrist', 'l'], ['lwrist', 'lhand', 'l'], ['rsh', 'relbow', 'r'], ['relbow', 'rwrist', 'r'], ['rwrist', 'rhand', 'r']];
+$('ghost').onclick = () => { ghost = !ghost; $('ghost').classList.toggle('on', ghost); };
+$('ghost').classList.toggle('on', ghost);
+const GREEN = '#3ddc84', GREEN_D = '#28b46a', GREEN_L = '#8ff0b8';
+const LIMBS = [['lsh', 'lelbow', 'l', 0.085], ['lelbow', 'lhand', 'l', 0.08], ['rsh', 'relbow', 'r', 0.085], ['relbow', 'rhand', 'r', 0.08],
+  ['lhip', 'lknee', 'l', 0.12], ['lknee', 'lankle', 'l', 0.11], ['rhip', 'rknee', 'r', 0.12], ['rknee', 'rankle', 'r', 0.11]];
+const V = { add: (a, b) => [a[0] + b[0], a[1] + b[1], a[2] + b[2]], sub: (a, b) => [a[0] - b[0], a[1] - b[1], a[2] - b[2]],
+  sc: (a, k) => [a[0] * k, a[1] * k, a[2] * k], mid: (a, b) => [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2, (a[2] + b[2]) / 2] };
 function render() {
   const w = cv.clientWidth, h = cv.clientHeight, dpr = devicePixelRatio || 1;
   if (cv.width !== w * dpr) { cv.width = w * dpr; cv.height = h * dpr; }
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, w, h);
   const css = getComputedStyle(document.documentElement), C = (n) => css.getPropertyValue(n).trim();
+  $('demotitle').textContent = demoTitle();
   const J = pose ? pose.J : null;
-  // camera: centre between the feet, the figure faces the viewer when the trunk turns
   const c0 = J ? [(J.lankle[0] + J.rankle[0]) / 2, (J.lankle[1] + J.rankle[1]) / 2, 0] : [0, 0, 0];
   const floor = J ? Math.min(J.lankle[2], J.rankle[2]) - body.dim.ankleH : 0;
-  const yaw = view.yaw + (pose && body.faceForward ? -pose.yaw * Math.PI / 180 * 0 : 0);
-  const cy = Math.cos(yaw), sy = Math.sin(yaw), cp = Math.cos(view.pitch), sp = Math.sin(view.pitch);
-  const S = Math.min(w, h) / 2.3;
+  const cy = Math.cos(view.yaw), sy = Math.sin(view.yaw), cp = Math.cos(view.pitch), sp = Math.sin(view.pitch);
+  const S = Math.min(w, h) / 2.4;
   const P = (p) => {
     const x = p[0] - c0[0], y = p[1] - c0[1], z = p[2] - floor - 0.9;
     const X1 = -x * sy - y * cy, D = x * cy - y * sy;                 // camera looks along +x at yaw 0 (front view)
     const Y1 = z * cp - D * sp, Z1 = D * cp + z * sp;
-    return [w / 2 + X1 * S, h * 0.52 - Y1 * S, Z1];
+    return [w / 2 + X1 * S, h * 0.54 - Y1 * S, Z1];
   };
-  // floor grid
+  // floor
   ctx.strokeStyle = C('--floor'); ctx.lineWidth = 1;
-  for (let i = -5; i <= 5; i++) {
-    const a = P([c0[0] + i * 0.25, c0[1] - 1.25, floor]), b = P([c0[0] + i * 0.25, c0[1] + 1.25, floor]);
-    const c = P([c0[0] - 1.25, c0[1] + i * 0.25, floor]), d = P([c0[0] + 1.25, c0[1] + i * 0.25, floor]);
+  for (let i = -6; i <= 6; i++) {
+    const a = P([c0[0] + i * 0.25, c0[1] - 1.5, floor]), b = P([c0[0] + i * 0.25, c0[1] + 1.5, floor]);
+    const c = P([c0[0] - 1.5, c0[1] + i * 0.25, floor]), d = P([c0[0] + 1.5, c0[1] + i * 0.25, floor]);
     ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.moveTo(c[0], c[1]); ctx.lineTo(d[0], d[1]); ctx.stroke();
   }
   if (!J) { ctx.fillStyle = C('--mute'); ctx.font = '15px system-ui'; ctx.textAlign = 'center';
     ctx.fillText(Object.keys(sensors).length ? 'Калибрирай, за да се появи фигурата' : 'Свържи сензорите или пусни демо', w / 2, h / 2); return; }
-  const segs = BONES.map(([a, b, s]) => { const A = P(J[a]), B = P(J[b]); return { A, B, s, z: (A[2] + B[2]) / 2 }; }).sort((u, v) => v.z - u.z);
-  ctx.lineCap = 'round';
-  for (const g of segs) {
-    ctx.strokeStyle = g.s === 'l' ? C('--l') : g.s === 'r' ? C('--r') : C('--bone');
-    ctx.lineWidth = Math.max(4, 11 - g.z * 3);
-    ctx.beginPath(); ctx.moveTo(g.A[0], g.A[1]); ctx.lineTo(g.B[0], g.B[1]); ctx.stroke();
+  // feet shadows: which foot carries the weight
+  for (const s of ['l', 'r']) { const f = pose.feet[s], p = P([f.p[0], f.p[1], floor]);
+    if (!f.air) { ctx.fillStyle = C('--floor'); ctx.beginPath(); ctx.ellipse(p[0], p[1], S * 0.07, S * 0.025, 0, 0, 7); ctx.fill(); } }
+  const Tr = body.seg('back') ? body.seg('back').R : [1, 0, 0, 0, 1, 0, 0, 0, 1];
+  const ax = (v) => [Tr[0] * v[0] + Tr[1] * v[1] + Tr[2] * v[2], Tr[3] * v[0] + Tr[4] * v[1] + Tr[5] * v[2], Tr[6] * v[0] + Tr[7] * v[1] + Tr[8] * v[2]];
+  const H = body.dim.H / 1.75;
+  const items = [];
+  // limbs: capsules from the joint a bit away from the body (the Android robot's limbs float beside the torso)
+  for (const [a, b, side, r] of LIMBS) {
+    let A = J[a], B = J[b];
+    if (a.endsWith('sh')) A = V.add(A, ax([0, (side === 'l' ? 1 : -1) * 0.07 * H, -0.03 * H]));
+    if (a.endsWith('hip')) A = V.add(A, ax([0, 0, -0.06 * H]));
+    const pa = P(A), pb = P(B);
+    items.push({ z: (pa[2] + pb[2]) / 2, draw: () => capsule(pa, pb, r * H * S, side) });
   }
-  const H = P(J.head); ctx.fillStyle = C('--bone'); ctx.beginPath(); ctx.arc(H[0], H[1], S * 0.1, 0, 7); ctx.fill();
-  // feet shadows show which foot carries the weight
-  for (const s of ['l', 'r']) { const f = pose.feet[s]; const p = P([f.p[0], f.p[1], floor]);
-    ctx.fillStyle = f.air ? 'transparent' : C('--floor'); ctx.beginPath(); ctx.ellipse(p[0], p[1], 14, 5, 0, 0, 7); ctx.fill(); }
+  // torso: a rounded box between the shoulders and the hips
+  const up = ax([0, 0, 1]), sideV = ax([0, 1, 0]);
+  const top = V.add(J.neck, ax([0, 0, -0.02 * H])), bot = V.add(J.pelvis, ax([0, 0, -0.07 * H]));
+  const half = 0.16 * H, fwd = ax([1, 0, 0]);
+  const corners = [V.add(top, V.sc(sideV, half)), V.add(top, V.sc(sideV, -half)), V.add(bot, V.sc(sideV, -half)), V.add(bot, V.sc(sideV, half))].map(P);
+  const tz = P(V.mid(top, bot))[2];
+  items.push({ z: tz, draw: () => {
+    ctx.lineJoin = 'round'; ctx.lineWidth = S * 0.09 * H;
+    ctx.fillStyle = GREEN; ctx.strokeStyle = GREEN;
+    ctx.beginPath(); corners.forEach((c, i) => i ? ctx.lineTo(c[0], c[1]) : ctx.moveTo(c[0], c[1])); ctx.closePath(); ctx.fill(); ctx.stroke();
+    // a lighter band where the light falls (front-left)
+    const g = ctx.createLinearGradient(corners[0][0], corners[0][1], corners[2][0], corners[2][1]);
+    g.addColorStop(0, 'rgba(255,255,255,.18)'); g.addColorStop(1, 'rgba(0,0,0,.10)');
+    ctx.fillStyle = g; ctx.beginPath(); corners.forEach((c, i) => i ? ctx.lineTo(c[0], c[1]) : ctx.moveTo(c[0], c[1])); ctx.closePath(); ctx.fill();
+  } });
+  // head: a dome over a small gap, two antennae, two eyes looking where the chest faces
+  const hc = V.add(J.neck, ax([0, 0, 0.06 * H])), hr = 0.15 * H;
+  const phc = P(hc), pupS = P(V.add(hc, V.sc(up, hr)));
+  const dirUp = Math.atan2(pupS[1] - phc[1], pupS[0] - phc[0]);
+  items.push({ z: phc[2] - 0.01, draw: () => {
+    const R = hr * S;
+    ctx.fillStyle = GREEN; ctx.beginPath(); ctx.arc(phc[0], phc[1], R, dirUp - Math.PI / 2, dirUp + Math.PI / 2); ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = GREEN; ctx.lineCap = 'round'; ctx.lineWidth = Math.max(2, S * 0.018 * H);
+    for (const s of [-1, 1]) {
+      const a0 = V.add(hc, V.add(V.sc(up, hr * 0.8), V.sc(sideV, s * hr * 0.55))), a1 = V.add(a0, V.add(V.sc(up, hr * 0.45), V.sc(sideV, s * hr * 0.25)));
+      const p0 = P(a0), p1 = P(a1); ctx.beginPath(); ctx.moveTo(p0[0], p0[1]); ctx.lineTo(p1[0], p1[1]); ctx.stroke();
+    }
+    // eyes: only on the side that faces the viewer
+    const eye = (s) => P(V.add(hc, V.add(V.add(V.sc(fwd, hr * 0.85), V.sc(sideV, s * hr * 0.45)), V.sc(up, hr * 0.4))));
+    if (eye(1)[2] < phc[2]) for (const s of [-1, 1]) { const e = eye(s); ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(e[0], e[1], Math.max(2, S * 0.018 * H), 0, 7); ctx.fill(); }
+  } });
+  items.sort((u, v) => v.z - u.z).forEach((it) => it.draw());
+  // the truth (demo): a thin orange skeleton over the robot — what the person really did
+  if (ghost && demo && demo.t != null) {
+    const f = demo.tl.frame(demo.t), G = f.J, gf = Math.min(G.lankle[2], G.rankle[2]) - 0.07;
+    const Q = (p) => P([p[0], p[1], p[2] - gf + floor]);
+    ctx.strokeStyle = C('--warn'); ctx.globalAlpha = 0.9; ctx.lineWidth = 2.5; ctx.lineCap = 'round';
+    for (const [a, b] of [['pelvis', 'neck'], ['neck', 'head'], ['lhip', 'rhip'], ['lsh', 'rsh'], ['lhip', 'lknee'], ['lknee', 'lankle'], ['rhip', 'rknee'], ['rknee', 'rankle'],
+      ['lsh', 'lelbow'], ['lelbow', 'lwrist'], ['rsh', 'relbow'], ['relbow', 'rwrist'], ['neck', 'lsh'], ['neck', 'rsh'], ['pelvis', 'lhip'], ['pelvis', 'rhip']]) {
+      const A = Q(G[a]), B = Q(G[b]); ctx.beginPath(); ctx.moveTo(A[0], A[1]); ctx.lineTo(B[0], B[1]); ctx.stroke();
+    }
+    ctx.globalAlpha = 1;
+  }
+}
+function capsule(a, b, r, side) {
+  ctx.lineCap = 'round';
+  ctx.strokeStyle = GREEN_D; ctx.lineWidth = r + 3; ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.stroke();
+  ctx.strokeStyle = side === 'r' ? '#33cc7a' : GREEN; ctx.lineWidth = r; ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.stroke();
+  // highlight along the upper-left edge
+  const dx = b[0] - a[0], dy = b[1] - a[1], L = Math.hypot(dx, dy) || 1, nx = -dy / L, ny = dx / L, o = (nx + ny < 0 ? 1 : -1) * r * 0.22;
+  ctx.strokeStyle = GREEN_L; ctx.globalAlpha = 0.55; ctx.lineWidth = r * 0.22;
+  ctx.beginPath(); ctx.moveTo(a[0] + nx * o, a[1] + ny * o); ctx.lineTo(b[0] + nx * o, b[1] + ny * o); ctx.stroke(); ctx.globalAlpha = 1;
 }
 function loop() { wizTick(); render(); drawPanels(); requestAnimationFrame(loop); }
 drawSensors(); loop();

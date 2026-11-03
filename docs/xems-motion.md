@@ -13,7 +13,8 @@ Status: **phase 1 built and tested offline** — firmware, host core, test bench
 | Build → `.uf2` + Bluetooth OTA zips | `sh scripts/motion/build-motion.sh` → `motion/xems-motion-sense*.uf2` |
 | Host core: calibration, identification, pose, reps (JS, no deps) | `motion/viewer/motion-core.js` |
 | Test bench (Chrome, Web Bluetooth, demo person) | `motion/viewer/index.html` |
-| Offline end-to-end test | `sh scripts/motion-sim/run.sh` |
+| Offline end-to-end test | `sh scripts/motion-sim/run.sh` (scripted, pass/fail) · `sh scripts/motion-sim/run.sh mocap` (real people) |
+| Real movements (CMU mocap, 9 clips, 80 s) | `motion/mocap/cmu.js` ← `python3 scripts/motion/cmu2json.py <dir with .asf/.amc>` |
 
 ## Design in one picture
 ```
@@ -99,6 +100,52 @@ Result 2026-11-03 (mean error):
 All five places found, all repetitions counted. Weak spot found: static bent-arm holds entered together with a trunk
 twist (the arm guess has no movement to learn from) — the hanging-straight reset fixes it at the next rest.
 
+## Real movements — CMU motion capture (owner 2026-11-03: "precise movement templates")
+Source: **CMU Graphics Lab Motion Capture Database** (mocap.cs.cmu.edu, optical, 120 fps, free for any use; NSF
+EIA-0196217). `cmu2json.py` cuts the exercise parts (subjects 13, 14, 86): squats with arms forward, deep squats,
+overhead raises, jumping jacks, trunk twists, toe touches, punches, squat jumps, knee-to-elbow — keeps the body bones,
+60 fps, int16 → `motion/mocap/cmu.js` (650 KB, a script so the page works from file://).
+`motion-core.js` `Mocap` replays it with the ASF/AMC forward kinematics (CMU y-up → W), every segment in the same
+frame convention as the solver, the floor at 0, facing +x. Marker noise out (Gaussian σ 33 ms) and a C2 cubic B-spline
+between frames (positions; rotations: cumulative B-spline on SO(3)) — so the simulated accelerometer sees a real
+body's smooth acceleration, not frame-boundary spikes. `Timeline` = the scripted calibration in the clip person's size
+→ 1.5 s blend → the clip.
+
+Test (`run.sh mocap`, each clip after its own calibration, firmware fusion, noise and bias as above), mean error:
+
+| clip | knee | elbow | shoulder | trunk | reps found / true |
+|---|---|---|---|---|---|
+| squats, arms forward | 3.9° | 17.9° | 21.7° | 0.8° | 3 / 2 |
+| deep squats (to 155°, onto the toes) | 8.1° | 4.4° | 3.8° | 0.4° | 1 / 2 |
+| overhead raises | 5.2° | 14.8° | 11.7° | 0.6° | 4 / 4 |
+| jumping jacks | 9.1° | 13.8° | 14.8° | 1.4° | 3 / 3 |
+| trunk twists | 13.9° | 20.2° | 14.6° | 0.4° | 3 / 4 |
+| toe touches (trunk 110°) | 15.1° | 24.6° | 29.3° | 0.9° | 5 / 5 |
+| punches | 10.2° | 43.4° | 24.9° | 1.0° | 1 / 3 |
+| squat jumps | 22.8° | 18.1° | 17.1° | 0.9° | 4 / 4 |
+| knee to elbow | 25.9° | 13.3° | 12.5° | 0.3° | 3 / 3 |
+
+Read it as: **trunk ≈ exact everywhere; knees good in squat-type work; arms ±15–25° (inferred, no upper-arm
+sensor) and weak for fast punches; single-leg / airborne moves (knee-to-elbow, squat jumps) the weakest.** The CMU
+people stand relaxed (knees ~25° bent, elbows ~30°) while the solver's zero pose is straight — part of the error is
+that. What the real data changed in the solver (2026-11-03):
+- **Pelvis height from the back sensor**: its vertical travel, integrated per movement with zero velocity at rest
+  (`trackHeight`) — vertical is the accurate axis of a tilt-corrected IMU. Squat depth no longer rests on balance
+  alone (balance has two answers at the bottom, people rise onto their toes): scripted squat knee 5° → 2°, CMU
+  squats 14° → 4°, toe touches 74° → 15°.
+- Feet: the sensor's sideways offset in the lever arm, a "step" must look like one (≤ 0.9 m, ≤ 2.5 s, ends slow),
+  provisional position shown only while plausible.
+- Arms: the upper arm follows the forearm step by step (no wrap past 180° overhead); the shoulder share k is fitted
+  on the wrist's **velocity** (integrated from rest), far less noisy than its acceleration.
+- `logm` fixed for tiny rotations (< 0.06° returned garbage — hit slow arm movements).
+
+## The figure (test page)
+A robot in the style of the **Android robot** (Google, CC BY 3.0 — attribution on the page): green capsule limbs
+beside a rounded torso, dome head with antennae and eyes that face where the chest faces; drawn on a plain canvas
+(no library), painter-sorted, light highlight per capsule. In "Демо" the real person's skeleton is drawn over it in
+orange ("Истина") — the robot is what the five sensors say, the orange lines what the person really did.
+"Демо" offers the XEMS script or any CMU clip (played three times, each round recalibrated) or all in a row.
+
 ## Limits with five sensors (honest)
 - **No pelvis sensor**: trunk and pelvis are one segment; lumbar flexion and hip flexion are not separated, hip
   angles come from the leg solve. **A 6th sensor on the sacrum (suit belt) is the single best addition** — it makes
@@ -110,7 +157,7 @@ twist (the arm guess has no movement to learn from) — the hanging-straight res
 
 ## Roadmap
 1. **Now — test bench**: flash five XIAOs, open `motion/viewer/index.html` in Chrome (tablet or laptop), "＋ Сензор" ×5
-   (or "Демо" without hardware), "Калибрирай", train; "● Запис" saves a CSV of all angles for analysis.
+   (or "Демо": the XEMS script or real CMU people, the robot vs. the truth), "Калибрирай", train; "● Запис" saves a CSV of all angles for analysis.
 2. **Hub**: the back sensor also becomes BLE central for the four limb sensors (nRF52840 does both roles) → one link
    to the tablet, one clock for all five, solver ported to C on it (the core is plain math, written for that).
 3. **XEMS integration** (Java port of `motion-core.js`, dx-safe): pose on the training screen, reps and ROM in the

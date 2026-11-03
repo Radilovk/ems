@@ -135,6 +135,9 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/install_interval_timer_smali.py` (65L) — Install interval timer stack smali (helper, presets) into decompiled APK (the block program is gone, 1.1.331).
 - `scripts/mastogo/MastogoSim.java` (600L) — Offline test of the MASTOGO module: the real MastogoShell talks to a simulated H-024B that answers the way the vendor a…
 - `scripts/mastogo/run.sh` (12L) — Offline test of the MASTOGO H-024B module: the real MastogoShell against a simulated unit (no unit, no tablet).
+- `scripts/motion/build-motion.sh` (33L) — XEMS Motion sensor firmware → motion/xems-motion-sense.uf2 and motion/xems-motion-sense-plus.uf2 (XIAO nRF52840
+- `scripts/motion/cmu2json.py` (165L) — CMU Graphics Lab Motion Capture (mocap.cs.cmu.edu, free for any use) ASF/AMC → motion/mocap/cmu.js, the real human move…
+- `scripts/motion-sim/run.sh` (35L) — Offline end-to-end test of the XEMS Motion module (docs/xems-motion.md): a person → raw IMU (bias, drift, noise) →
 - `scripts/music-sim/MusicAutoTuneSim.java` (163L) — JVM checks for music → impulse auto-tune.
 - `scripts/music-sim/run.sh` (12L) — Auto-tune checks on the JVM. No Android.
 - `scripts/part-sim/AllMarked.java` (36L) — Owner's scenario (1.1.449): a training starts, every muscle is marked (1st tap), Интензитет 1 goes up with the double i…
@@ -584,14 +587,14 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 `AGENTS.md` (5L)
   - L1 # Agents
 
-`CLAUDE.md` (107L)
+`CLAUDE.md` (108L)
   - L1 # XEMS — agent guide
   - L8 ## Token protocol — always
   - L26 ## How it fits together
   - L43 ## Invariants (breaking one = broken release)
   - L58 ## UI standard (owner's requirement — every screen, every level: tablet, band, report, card, PWA)
   - L72 ## Deeper context (read only the section you need — headings/lines are in MAP)
-  - L104 ## Keeping the map true
+  - L105 ## Keeping the map true
 
 `PORTFOLIO.md` (353L)
   - L1 # XEMS Pro — продажбено портфолио и техническа визия
@@ -1086,6 +1089,23 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L95 ## Left out on purpose
   - L103 ## Safety
 
+`docs/xems-motion.md` (230L)
+  - L1 # XEMS Motion — body pose from five XIAO nRF52840 Sense sensors
+  - L21 ## Design in one picture
+  - L34 ## Hardware and placement
+  - L44 ## Sensor firmware (`fusion.h`, `xems_motion.ino`)
+  - L55 ## Calibration (≈ 6 s, one tap) — finds places, headings, zero
+  - L69 ## Pose solver (`Body.solve`, per back-sensor sample, < 1 ms)
+  - L88 ## Offline test (`sh scripts/motion-sim/run.sh`, ≈ 10 s)
+  - L105 ## Real movements — CMU motion capture (owner 2026-11-03: "precise movement templates")
+  - L144 ## The figure: the VR workout's android (owner 2026-11-03: "use the model we had, don't make a new one")
+  - L158 ## The 3-D body (owner 2026-11-03: "a 3-D model that moves in sync with the body")
+  - L175 ## Precision today — what to trust (5 sensors)
+  - L182 ## Arms: the learned corrector (owner 2026-11-03: "make the arms as accurate as the legs")
+  - L199 ### The way to exact arms: record with teacher sensors (and a video), train on our own exercises
+  - L212 ## Limits with five sensors (honest)
+  - L221 ## Roadmap
+
 `docs/xems-part-strength.md` (212L)
   - L1 # Избрани мускулни групи: сила на импулсите само за тях (v1.1.85, двата импулса поотделно от 1.1.366)
   - L15 ## Как го постига (`train/utils/PartStrength`)
@@ -1427,6 +1447,9 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L282 ## 9a. Интерфейс (от v1.1.55-ble)
   - L300 ## 10. Сглобяване
   - L317 ## 11. Референции
+
+`motion/viewer/models/CREDITS.md` (9L)
+  - L1 # Models and data used by the XEMS Motion test page
 
 `server/CLAUDE.md` (11L)
   - L1 # server — XEMS license server (Cloudflare Worker + D1)

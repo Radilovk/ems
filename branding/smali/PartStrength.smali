@@ -223,7 +223,7 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 729
+    .line 732
     array-length v0, p0
 
     new-array v6, v0, [I
@@ -232,20 +232,20 @@
 
     move v2, v1
 
-    .line 731
+    .line 734
     :goto_6
     array-length v3, p0
 
     if-ge v0, v3, :cond_2c
 
-    .line 732
+    .line 735
     aget v3, p0, v0
 
     invoke-static {v3, p1}, Lcom/isaigu/gymapp/train/utils/PartStrength;->real(II)I
 
     move-result v3
 
-    .line 733
+    .line 736
     aget-boolean v4, p2, v0
 
     if-eqz v4, :cond_1a
@@ -262,25 +262,25 @@
     :cond_1a
     aput v3, v6, v0
 
-    .line 734
+    .line 737
     aget-boolean v3, p2, v0
 
     if-eqz v3, :cond_26
 
-    .line 735
+    .line 738
     aget v3, v6, v0
 
     invoke-static {v2, v3}, Ljava/lang/Math;->max(II)I
 
     move-result v2
 
-    .line 731
+    .line 734
     :cond_26
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_6
 
-    .line 733
+    .line 736
     :cond_29
     add-int/2addr v3, p3
 
@@ -288,13 +288,13 @@
 
     goto :goto_16
 
-    .line 739
+    .line 742
     :cond_2c
     if-le v2, p1, :cond_55
 
     if-eqz p5, :cond_55
 
-    .line 740
+    .line 743
     const/16 v0, 0x64
 
     invoke-static {v0, v2}, Ljava/lang/Math;->min(II)I
@@ -305,20 +305,20 @@
 
     move-result v0
 
-    .line 742
+    .line 745
     :goto_3a
     array-length v2, p0
 
     if-ge v1, v2, :cond_54
 
-    .line 743
+    .line 746
     aget-boolean v2, p2, v1
 
     if-nez v2, :cond_43
 
     if-eq v0, p1, :cond_51
 
-    .line 744
+    .line 747
     :cond_43
     aget v2, v6, v1
 
@@ -334,13 +334,13 @@
 
     aput v2, p0, v1
 
-    .line 742
+    .line 745
     :cond_51
     add-int/lit8 v1, v1, 0x1
 
     goto :goto_3a
 
-    .line 747
+    .line 750
     :cond_54
     return v0
 
@@ -356,7 +356,7 @@
     .prologue
     const/4 v5, 0x0
 
-    .line 673
+    .line 676
     if-eqz p2, :cond_14
 
     iget-object v0, p2, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenthBean:Lcom/isaigu/gymapp/bean/PartStrenthBean;
@@ -369,7 +369,7 @@
 
     move-object v6, v0
 
-    .line 674
+    .line 677
     :goto_c
     if-eqz v6, :cond_13
 
@@ -379,7 +379,7 @@
 
     if-lt p3, v0, :cond_16
 
-    .line 721
+    .line 724
     :cond_13
     :goto_13
     return-void
@@ -387,33 +387,33 @@
     :cond_14
     move-object v6, v5
 
-    .line 673
+    .line 676
     goto :goto_c
 
-    .line 678
+    .line 681
     :cond_16
     :try_start_16
     invoke-static {p0}, Lcom/isaigu/gymapp/train/utils/PartLook;->lockedSecond(Landroid/view/View;)Z
 
     move-result v0
 
-    .line 679
+    .line 682
     invoke-static {p0}, Lcom/isaigu/gymapp/train/utils/PartLook;->release(Landroid/view/View;)V
 
-    .line 680
+    .line 683
     invoke-static {}, Lcom/isaigu/gymapp/wearable/PartPick;->touch()V
 
-    .line 681
+    .line 684
     array-length v1, v6
 
     new-array v3, v1, [Z
 
-    .line 682
+    .line 685
     const/4 v1, 0x1
 
     aput-boolean v1, v3, p3
 
-    .line 683
+    .line 686
     iget-boolean v1, p2, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
 
     if-eqz v1, :cond_59
@@ -430,7 +430,7 @@
 
     if-eqz v1, :cond_59
 
-    .line 684
+    .line 687
     :cond_36
     iget v0, p2, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseStrenthPercent:I
 
@@ -444,7 +444,7 @@
 
     move-result v0
 
-    .line 685
+    .line 688
     invoke-static {p2, v6}, Lcom/isaigu/gymapp/wearable/SecondParts;->effective(Lcom/isaigu/gymapp/bean/ProgramDataBean;[I)[I
 
     move-result-object v1
@@ -455,7 +455,7 @@
 
     move-result v1
 
-    .line 686
+    .line 689
     const/4 v2, 0x0
 
     invoke-static {p4, v0}, Lcom/isaigu/gymapp/train/utils/PartStrength;->real(II)I
@@ -470,16 +470,16 @@
 
     goto :goto_13
 
-    .line 718
+    .line 721
     :catch_55
     move-exception v0
 
-    .line 719
+    .line 722
     aput p4, v6, p3
 
     goto :goto_13
 
-    .line 689
+    .line 692
     :cond_59
     :try_start_59
     iget-boolean v1, p2, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
@@ -488,7 +488,7 @@
 
     if-eqz v0, :cond_c0
 
-    .line 691
+    .line 694
     iget v0, p2, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseStrenthPercent:I
 
     const/4 v1, 0x0
@@ -501,7 +501,7 @@
 
     move-result v0
 
-    .line 692
+    .line 695
     const/4 v1, 0x0
 
     invoke-static {v1, p2}, Lcom/isaigu/gymapp/train/utils/PartStrength;->secondReal(Lcom/isaigu/gymapp/train/model/TrainItem;Lcom/isaigu/gymapp/bean/ProgramDataBean;)[I
@@ -510,12 +510,12 @@
 
     aget v1, v1, p3
 
-    .line 693
+    .line 696
     invoke-static {p4, v0}, Lcom/isaigu/gymapp/train/utils/PartStrength;->real(II)I
 
     move-result v2
 
-    .line 694
+    .line 697
     aget v4, v6, p3
 
     iget v5, p2, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenth:I
@@ -524,7 +524,7 @@
 
     move-result v4
 
-    .line 695
+    .line 698
     if-lez v1, :cond_af
 
     int-to-double v4, v4
@@ -541,7 +541,7 @@
 
     move-result-wide v0
 
-    .line 697
+    .line 700
     :goto_89
     const/4 v4, 0x0
 
@@ -549,12 +549,12 @@
 
     move-result-object v4
 
-    .line 698
+    .line 701
     invoke-static {p2, v6}, Lcom/isaigu/gymapp/wearable/SecondParts;->effective(Lcom/isaigu/gymapp/bean/ProgramDataBean;[I)[I
 
     move-result-object v5
 
-    .line 699
+    .line 702
     iget v7, p2, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenth:I
 
     int-to-long v8, v7
@@ -575,20 +575,20 @@
 
     aput v0, v6, p3
 
-    .line 700
+    .line 703
     invoke-static {p2, v6, v5}, Lcom/isaigu/gymapp/wearable/SecondParts;->set(Lcom/isaigu/gymapp/bean/ProgramDataBean;[I[I)V
 
-    .line 701
+    .line 704
     aput v2, v4, p3
 
-    .line 702
+    .line 705
     const/4 v0, 0x0
 
     invoke-static {v0, p1, p2, v3, v4}, Lcom/isaigu/gymapp/train/utils/PartStrength;->secondTo(Lcom/isaigu/gymapp/train/model/TrainItem;Lcom/isaigu/gymapp/bean/TrainProgram;Lcom/isaigu/gymapp/bean/ProgramDataBean;[Z[I)V
 
     goto/16 :goto_13
 
-    .line 696
+    .line 699
     :cond_af
     if-lez v0, :cond_be
 
@@ -615,7 +615,7 @@
 
     goto :goto_89
 
-    .line 705
+    .line 708
     :cond_c0
     iget-boolean v0, p2, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
 
@@ -625,7 +625,7 @@
 
     move-result-object v0
 
-    .line 706
+    .line 709
     :goto_c8
     iget-boolean v1, p2, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
 
@@ -635,7 +635,7 @@
 
     move-result-object v4
 
-    .line 707
+    .line 710
     :goto_d0
     if-eqz v4, :cond_d7
 
@@ -645,11 +645,11 @@
 
     move-result-object v5
 
-    .line 708
+    .line 711
     :cond_d7
     aput p4, v6, p3
 
-    .line 709
+    .line 712
     if-eqz v0, :cond_e6
 
     array-length v1, v0
@@ -658,21 +658,21 @@
 
     if-ne v1, v2, :cond_e6
 
-    .line 710
+    .line 713
     if-nez v4, :cond_e3
 
-    .line 711
+    .line 714
     aput p4, v0, p3
 
-    .line 713
+    .line 716
     :cond_e3
     invoke-static {p2, v6, v0}, Lcom/isaigu/gymapp/wearable/SecondParts;->set(Lcom/isaigu/gymapp/bean/ProgramDataBean;[I[I)V
 
-    .line 715
+    .line 718
     :cond_e6
     if-eqz v4, :cond_13
 
-    .line 716
+    .line 719
     const/4 v0, 0x0
 
     move-object v1, p1
@@ -683,7 +683,7 @@
 
     goto/16 :goto_13
 
-    .line 705
+    .line 708
     :cond_f0
     invoke-static {p2}, Lcom/isaigu/gymapp/wearable/SecondParts;->get(Lcom/isaigu/gymapp/bean/ProgramDataBean;)[I
     :try_end_f3
@@ -696,7 +696,7 @@
     :cond_f5
     move-object v4, v5
 
-    .line 706
+    .line 709
     goto :goto_d0
 .end method
 
@@ -706,21 +706,21 @@
     .prologue
     const/4 v0, 0x0
 
-    .line 808
+    .line 811
     if-nez p0, :cond_4
 
-    .line 812
+    .line 815
     :cond_3
     :goto_3
     return-object v0
 
-    .line 811
+    .line 814
     :cond_4
     invoke-virtual {p0}, Lcom/isaigu/gymapp/train/model/TrainItem;->getTrainProgram()Lcom/isaigu/gymapp/bean/TrainProgram;
 
     move-result-object v1
 
-    .line 812
+    .line 815
     if-eqz v1, :cond_3
 
     invoke-virtual {v1}, Lcom/isaigu/gymapp/bean/TrainProgram;->matchProgram()Lcom/isaigu/gymapp/bean/ProgramDataBean;
@@ -1114,7 +1114,7 @@
     .registers 6
 
     .prologue
-    .line 836
+    .line 839
     const-wide/16 v0, 0x0
 
     const-wide/16 v2, 0x64
@@ -1138,7 +1138,7 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 772
+    .line 775
     move v0, v1
 
     :goto_2
@@ -1146,20 +1146,20 @@
 
     if-ge v0, v2, :cond_1f
 
-    .line 773
+    .line 776
     if-eqz p3, :cond_e
 
     aget-boolean v2, p1, v0
 
     if-eqz v2, :cond_e
 
-    .line 772
+    .line 775
     :cond_b
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_2
 
-    .line 776
+    .line 779
     :cond_e
     aget v2, p0, v0
 
@@ -1167,7 +1167,7 @@
 
     move-result v2
 
-    .line 777
+    .line 780
     invoke-static {v2, p2, v1}, Lcom/isaigu/gymapp/train/utils/PartStrength;->percentFor(III)I
 
     move-result v3
@@ -1178,7 +1178,7 @@
 
     if-eq v3, v2, :cond_b
 
-    .line 781
+    .line 784
     :goto_1e
     return v1
 
@@ -1715,97 +1715,108 @@
     .registers 9
 
     .prologue
-    .line 638
-    if-eqz p0, :cond_10
+    .line 639
+    if-eqz p0, :cond_11
 
     :try_start_2
     invoke-virtual {p0}, Lcom/isaigu/gymapp/train/model/TrainItem;->getTrainProgram()Lcom/isaigu/gymapp/bean/TrainProgram;
 
     move-result-object v0
 
-    .line 639
+    .line 640
     :goto_6
-    if-eqz v0, :cond_f
-
-    const/4 v1, 0x3
-
-    if-ne p1, v1, :cond_f
+    if-eqz v0, :cond_c
 
     iget v1, v0, Lcom/isaigu/gymapp/bean/TrainProgram;->useType:I
 
-    if-ne v1, p1, :cond_12
+    if-ne v1, p1, :cond_13
 
-    .line 660
-    :cond_f
-    :goto_f
+    .line 641
+    :cond_c
+    const/4 v0, 0x0
+
+    invoke-static {p0, v0}, Lcom/isaigu/gymapp/train/utils/ProgramLive;->noteStage(Lcom/isaigu/gymapp/train/model/TrainItem;Z)V
+
+    .line 663
+    :cond_10
+    :goto_10
     return-void
 
-    .line 638
-    :cond_10
+    .line 639
+    :cond_11
     const/4 v0, 0x0
 
     goto :goto_6
 
-    .line 642
-    :cond_12
+    .line 644
+    :cond_13
     invoke-virtual {v0}, Lcom/isaigu/gymapp/bean/TrainProgram;->matchProgram()Lcom/isaigu/gymapp/bean/ProgramDataBean;
 
     move-result-object v1
 
-    .line 643
-    iget-object v2, v0, Lcom/isaigu/gymapp/bean/TrainProgram;->massageModeProgramDataBean:Lcom/isaigu/gymapp/bean/ProgramDataBean;
+    .line 645
+    invoke-static {p0, v1}, Lcom/isaigu/gymapp/train/utils/ProgramLive;->underWay(Lcom/isaigu/gymapp/train/model/TrainItem;Lcom/isaigu/gymapp/bean/ProgramDataBean;)Z
 
-    .line 644
-    if-eqz v1, :cond_f
+    move-result v2
 
-    if-eqz v2, :cond_f
+    invoke-static {p0, v2}, Lcom/isaigu/gymapp/train/utils/ProgramLive;->noteStage(Lcom/isaigu/gymapp/train/model/TrainItem;Z)V
 
-    if-eq v1, v2, :cond_f
+    .line 646
+    invoke-static {v0, p1}, Lcom/isaigu/gymapp/train/utils/ProgramLive;->bean(Lcom/isaigu/gymapp/bean/TrainProgram;I)Lcom/isaigu/gymapp/bean/ProgramDataBean;
 
-    iget-object v0, v1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenthBean:Lcom/isaigu/gymapp/bean/PartStrenthBean;
-
-    if-eqz v0, :cond_f
-
-    iget-object v0, v1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenthBean:Lcom/isaigu/gymapp/bean/PartStrenthBean;
-
-    iget-object v0, v0, Lcom/isaigu/gymapp/bean/PartStrenthBean;->buwei:[I
-
-    if-eqz v0, :cond_f
+    move-result-object v2
 
     .line 647
+    if-eqz v1, :cond_10
+
+    if-eqz v2, :cond_10
+
+    if-eq v1, v2, :cond_10
+
+    iget-object v0, v1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenthBean:Lcom/isaigu/gymapp/bean/PartStrenthBean;
+
+    if-eqz v0, :cond_10
+
     iget-object v0, v1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenthBean:Lcom/isaigu/gymapp/bean/PartStrenthBean;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/bean/PartStrenthBean;->buwei:[I
 
-    .line 648
+    if-eqz v0, :cond_10
+
+    .line 650
+    iget-object v0, v1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenthBean:Lcom/isaigu/gymapp/bean/PartStrenthBean;
+
+    iget-object v0, v0, Lcom/isaigu/gymapp/bean/PartStrenthBean;->buwei:[I
+
+    .line 651
     iget-object v3, v2, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenthBean:Lcom/isaigu/gymapp/bean/PartStrenthBean;
 
-    if-nez v3, :cond_37
+    if-nez v3, :cond_41
 
-    .line 649
+    .line 652
     new-instance v3, Lcom/isaigu/gymapp/bean/PartStrenthBean;
 
     invoke-direct {v3}, Lcom/isaigu/gymapp/bean/PartStrenthBean;-><init>()V
 
     iput-object v3, v2, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenthBean:Lcom/isaigu/gymapp/bean/PartStrenthBean;
 
-    .line 651
-    :cond_37
+    .line 654
+    :cond_41
     iget-object v3, v2, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenthBean:Lcom/isaigu/gymapp/bean/PartStrenthBean;
 
     iget-object v3, v3, Lcom/isaigu/gymapp/bean/PartStrenthBean;->buwei:[I
 
-    .line 652
-    if-eqz v3, :cond_41
+    .line 655
+    if-eqz v3, :cond_4b
 
     array-length v4, v3
 
     array-length v5, v0
 
-    if-eq v4, v5, :cond_57
+    if-eq v4, v5, :cond_61
 
-    .line 653
-    :cond_41
+    .line 656
+    :cond_4b
     iget-object v3, v2, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenthBean:Lcom/isaigu/gymapp/bean/PartStrenthBean;
 
     invoke-virtual {v0}, [I->clone()Ljava/lang/Object;
@@ -1816,8 +1827,8 @@
 
     iput-object v0, v3, Lcom/isaigu/gymapp/bean/PartStrenthBean;->buwei:[I
 
-    .line 657
-    :goto_4b
+    .line 660
+    :goto_55
     iget v0, v1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenth:I
 
     int-to-long v0, v0
@@ -1828,16 +1839,16 @@
 
     iput v0, v2, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenth:I
 
-    goto :goto_f
+    goto :goto_10
 
-    .line 658
-    :catch_55
+    .line 661
+    :catch_5f
     move-exception v0
 
-    goto :goto_f
+    goto :goto_10
 
-    .line 655
-    :cond_57
+    .line 658
+    :cond_61
     const/4 v4, 0x0
 
     const/4 v5, 0x0
@@ -1845,10 +1856,10 @@
     array-length v6, v0
 
     invoke-static {v0, v4, v3, v5, v6}, Ljava/lang/System;->arraycopy(Ljava/lang/Object;ILjava/lang/Object;II)V
-    :try_end_5d
-    .catch Ljava/lang/Throwable; {:try_start_2 .. :try_end_5d} :catch_55
+    :try_end_67
+    .catch Ljava/lang/Throwable; {:try_start_2 .. :try_end_67} :catch_5f
 
-    goto :goto_4b
+    goto :goto_55
 .end method
 
 .method static move(Lcom/isaigu/gymapp/train/model/TrainItem;Lcom/isaigu/gymapp/bean/ProgramDataBean;[Z[ZI)V
@@ -2620,14 +2631,14 @@
     .registers 7
 
     .prologue
-    .line 791
+    .line 794
     if-gtz p1, :cond_3
 
-    .line 804
+    .line 807
     :goto_2
     return p2
 
-    .line 794
+    .line 797
     :cond_3
     int-to-double v0, p0
 
@@ -2649,7 +2660,7 @@
 
     move-result v0
 
-    .line 795
+    .line 798
     :goto_12
     if-lez v0, :cond_1d
 
@@ -2659,12 +2670,12 @@
 
     if-le v1, p0, :cond_1d
 
-    .line 796
+    .line 799
     add-int/lit8 v0, v0, -0x1
 
     goto :goto_12
 
-    .line 798
+    .line 801
     :cond_1d
     :goto_1d
     const/16 v1, 0x64
@@ -2677,12 +2688,12 @@
 
     if-ge v1, p0, :cond_2a
 
-    .line 799
+    .line 802
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_1d
 
-    .line 801
+    .line 804
     :cond_2a
     if-lez v0, :cond_34
 
@@ -2692,13 +2703,13 @@
 
     if-le v1, p0, :cond_34
 
-    .line 802
+    .line 805
     add-int/lit8 v0, v0, -0x1
 
     :cond_34
     move p2, v0
 
-    .line 804
+    .line 807
     goto :goto_2
 .end method
 
@@ -2706,7 +2717,7 @@
     .registers 5
 
     .prologue
-    .line 756
+    .line 759
     move v0, p2
 
     :goto_1
@@ -2714,7 +2725,7 @@
 
     if-gt v0, v1, :cond_11
 
-    .line 757
+    .line 760
     const/4 v1, 0x0
 
     invoke-static {p0, p1, v0, v1}, Lcom/isaigu/gymapp/train/utils/PartStrength;->exact([I[ZIZ)Z
@@ -2725,25 +2736,25 @@
 
     move p2, v0
 
-    .line 768
+    .line 771
     :cond_d
     :goto_d
     return p2
 
-    .line 756
+    .line 759
     :cond_e
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_1
 
-    .line 763
+    .line 766
     :cond_11
     add-int/lit8 v0, p2, -0x1
 
     :goto_13
     if-lez v0, :cond_d
 
-    .line 764
+    .line 767
     const/4 v1, 0x1
 
     invoke-static {p0, p1, v0, v1}, Lcom/isaigu/gymapp/train/utils/PartStrength;->exact([I[ZIZ)Z
@@ -2754,10 +2765,10 @@
 
     move p2, v0
 
-    .line 765
+    .line 768
     goto :goto_d
 
-    .line 763
+    .line 766
     :cond_1e
     add-int/lit8 v0, v0, -0x1
 
@@ -2768,7 +2779,7 @@
     .registers 4
 
     .prologue
-    .line 786
+    .line 789
     int-to-float v0, p0
 
     const/high16 v1, 0x42c80000    # 100.0f
@@ -3301,7 +3312,7 @@
 
     const/4 v2, 0x0
 
-    .line 817
+    .line 820
     if-eqz p0, :cond_b
 
     if-eqz p1, :cond_b
@@ -3310,23 +3321,23 @@
 
     if-nez v0, :cond_c
 
-    .line 832
+    .line 835
     :cond_b
     :goto_b
     return-object v4
 
-    .line 820
+    .line 823
     :cond_c
     iget-object v0, p1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenthBean:Lcom/isaigu/gymapp/bean/PartStrenthBean;
 
-    .line 821
+    .line 824
     if-eqz v0, :cond_b
 
     iget-object v3, v0, Lcom/isaigu/gymapp/bean/PartStrenthBean;->buwei:[I
 
     if-eqz v3, :cond_b
 
-    .line 824
+    .line 827
     iget-object v3, v0, Lcom/isaigu/gymapp/bean/PartStrenthBean;->buwei:[I
 
     array-length v3, v3
@@ -3339,7 +3350,7 @@
 
     move-result v7
 
-    .line 825
+    .line 828
     iget-object v0, v0, Lcom/isaigu/gymapp/bean/PartStrenthBean;->buwei:[I
 
     array-length v0, v0
@@ -3350,11 +3361,11 @@
 
     move v6, v2
 
-    .line 827
+    .line 830
     :goto_25
     if-ge v5, v7, :cond_4d
 
-    .line 828
+    .line 831
     iget-object v0, p0, Lcom/isaigu/gymapp/train/model/TrainItem;->partsDisabled:[Z
 
     if-eqz v0, :cond_49
@@ -3373,7 +3384,7 @@
 
     move v0, v1
 
-    .line 829
+    .line 832
     :goto_37
     iget-object v8, p0, Lcom/isaigu/gymapp/train/model/TrainItem;->partsControl:[Z
 
@@ -3388,12 +3399,12 @@
     :goto_40
     aput-boolean v0, v3, v5
 
-    .line 830
+    .line 833
     aget-boolean v0, v3, v5
 
     or-int/2addr v6, v0
 
-    .line 827
+    .line 830
     add-int/lit8 v0, v5, 0x1
 
     move v5, v0
@@ -3403,16 +3414,16 @@
     :cond_49
     move v0, v2
 
-    .line 828
+    .line 831
     goto :goto_37
 
     :cond_4b
     move v0, v2
 
-    .line 829
+    .line 832
     goto :goto_40
 
-    .line 832
+    .line 835
     :cond_4d
     if-eqz v6, :cond_52
 

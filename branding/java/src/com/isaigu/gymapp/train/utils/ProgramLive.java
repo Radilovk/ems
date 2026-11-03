@@ -179,6 +179,86 @@ public final class ProgramLive {
         }
     }
 
+    // ================================================================ a mode change = a new stage (1.1.493)
+
+    /** Set by {@link PartStrength#modeCarry} (start of TrainItem.setUserType): the training is under way. */
+    private static final Map<TrainItem, Boolean> STAGE = new WeakHashMap<TrainItem, Boolean>();
+
+    static void noteStage(TrainItem it, boolean underWay) {
+        if (it == null) {
+            return;
+        }
+        synchronized (STAGE) {
+            STAGE.put(it, Boolean.valueOf(underWay));
+        }
+    }
+
+    /** Running, or paused part-way through the time of the mode {@code from}. */
+    static boolean underWay(TrainItem it, ProgramDataBean from) {
+        if (it == null || it.data == null) {
+            return false;
+        }
+        if (it.data.start) {
+            return true;
+        }
+        int left = it.workLength;
+        return from != null && left > 0 && left < from.workLength;
+    }
+
+    /**
+     * Hook: TrainItem.setUserType, in place of the vendor stop() (scripts/apply-mode-stages.py). Owner (1.1.493):
+     * Основен → Мускули → Кардио → Масаж in a training are stages of the same training, not new ones — the clock goes
+     * on (running) or stays where it was (paused), the session record goes on, only ■ or the end of the time ends
+     * the training. True = keep the time and go on in the new mode (the smali restarts the pulse with the new mode's
+     * times); false = not started yet: the vendor stop and the new mode's full time.
+     */
+    public static boolean stageLive(TrainItem it) {
+        Boolean b;
+        synchronized (STAGE) {
+            b = STAGE.remove(it);
+        }
+        return b != null && b.booleanValue();
+    }
+
+    // ================================================================ the training clock (1.1.493)
+
+    /** Per row: the exact milliseconds left at the last tick of the training countdown, and the second it showed. */
+    private static final Map<TrainItem, long[]> CLOCK = new WeakHashMap<TrainItem, long[]>();
+
+    /**
+     * Hook: TrainItem$1.onTick (the training countdown, every 100 ms). The vendor cut the milliseconds left down to
+     * whole seconds: each ❚❚ / ▶ (and every vendor stop / start) lost up to 1.1 s and the clock showed 19:59 the moment
+     * a 20:00 training began. Now the second shown is rounded up (20:00 → 19:59 after one real second, 0:01 is the
+     * last one) and the exact rest is kept for the restart ({@link #workMs}).
+     */
+    public static int tickWork(TrainItem it, long ms) {
+        long left = Math.max(0L, ms);
+        int sec = (int) ((left + 999L) / 1000L);
+        if (it != null) {
+            synchronized (CLOCK) {
+                CLOCK.put(it, new long[] {left, sec});
+            }
+        }
+        return sec;
+    }
+
+    /**
+     * Hook: TrainItem.start, the length of the new training countdown (ms). The exact rest when the row's time is
+     * still the one the last tick showed (a pause, a stage), else the row's whole seconds (a new training, a new
+     * length set by ⚙, the AI / automatic session).
+     */
+    public static long workMs(TrainItem it) {
+        int sec = it != null ? it.workLength : 0;
+        long[] c;
+        synchronized (CLOCK) {
+            c = it != null ? CLOCK.get(it) : null;
+        }
+        if (c != null && c[1] == sec && c[0] > 0L) {
+            return c[0];
+        }
+        return sec * 1000L;
+    }
+
     static int total(TrainProgram p, int mode) {
         ProgramDataBean b = bean(p, mode);
         return b != null ? b.workLength : 0;

@@ -172,6 +172,8 @@ python3 "${ROOT}/scripts/apply-pause-parts.py"
 # After the active-pause listeners are final: 2nd impulse from Hz or MA, 5 s auto-clear (TrainIndex).
 python3 "${ROOT}/scripts/apply-train-index.py"
 python3 "${ROOT}/scripts/apply-double-impulse.py"
+# A mode change in a training = a new stage of it (time, record go on); the clock keeps exact milliseconds.
+python3 "${ROOT}/scripts/apply-mode-stages.py"
 python3 "${ROOT}/scripts/apply-suit-reconnect.py"
 # The bodytech suit (service FE50) on the stock row: its XEMS commands become bodytech frames (BtBridge). After every
 # patch that rewrites BleDeviceManager / CommandSender / CommandReceiver.

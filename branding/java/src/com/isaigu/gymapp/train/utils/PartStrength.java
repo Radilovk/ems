@@ -629,18 +629,21 @@ public final class PartStrength {
 
     /**
      * Hook: start of TrainItem.setUserType (scripts/apply-double-impulse.py) — the row's mode keys, the focus board's
-     * mode tabs press them. Going into Масаж (useType 3) the massage starts from the strength and the channel
-     * percents of the mode it leaves — the preset Основен or what the client had (owner, 1.1.440: it started at the
-     * massage's own 100 %). The massage's times, Hz and 2nd impulse stay its own.
+     * mode tabs press them. A mode change is a new stage of the same training (owner, 1.1.493): the mode it goes into
+     * starts from the strength and the channel percents of the mode it leaves — Основен → Мускули → Кардио → Масаж
+     * and back, no time lost setting the channels again (1.1.440 did it only into Масаж). The mode's own times, Hz and
+     * 2nd impulse stay its own. Also notes for {@link ProgramLive#stageLive} whether the training is under way.
      */
     public static void modeCarry(TrainItem item, int to) {
         try {
             TrainProgram p = item != null ? item.getTrainProgram() : null;
-            if (p == null || to != 3 || p.useType == to) {
+            if (p == null || p.useType == to) {
+                ProgramLive.noteStage(item, false);
                 return;
             }
             ProgramDataBean from = p.matchProgram();
-            ProgramDataBean m = p.massageModeProgramDataBean;
+            ProgramLive.noteStage(item, ProgramLive.underWay(item, from));
+            ProgramDataBean m = ProgramLive.bean(p, to);
             if (from == null || m == null || from == m || from.strenthBean == null || from.strenthBean.buwei == null) {
                 return;
             }

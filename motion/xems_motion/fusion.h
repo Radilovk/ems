@@ -10,6 +10,9 @@
 // World frame: z up. q = sensor → world (w, x, y, z).
 #pragma once
 #include <math.h>
+#ifndef KP_MOVE
+#define KP_MOVE 0.5f   // gravity pull while moving (low: the gyro is exact for seconds, the accelerometer then feels more than gravity)
+#endif
 
 struct MotionFusion {
   float q[4] = {1, 0, 0, 0};
@@ -64,7 +67,7 @@ struct MotionFusion {
       float ex = uy * vz - uz * vy, ey = uz * vx - ux * vz, ez = ux * vy - uy * vx;
       float trust = 1.f - fabsf(an - 1.f) / 0.15f;
       if (trust < 0) trust = 0;
-      float kp = (n < (int)rate) ? 5.f : (still ? 2.f : 0.5f) * trust;
+      float kp = (n < (int)rate) ? 5.f : (still ? 2.f : KP_MOVE) * trust;
       w[0] += kp * ex; w[1] += kp * ey; w[2] += kp * ez;
     }
     // --- integrate q' = ½ q ⊗ (0, w)

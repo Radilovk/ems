@@ -196,6 +196,19 @@ no such anchor. What was built (`models/armdb.js`, `scripts/motion/armdb.js`, `A
   one bent 35° give the same wrist signal, and the training people did both.
 - So the arms are **not yet as exact as the legs**; the honest limit of one wrist sensor is ≈ 10–20° on the elbow.
 
+### Tested: dead reckoning of the elbow from the zero pose (owner's idea, 2026-11-03)
+"Every movement starts from a known position — follow it from there." Built behind `ARM_DR=1` (motion-core.js): the
+wrist sensor's acceleration relative to the shoulder, minus the forearm's own turn about the elbow, is the elbow's
+acceleration; integrated from the calibration pose, held on the sphere |elbow − shoulder| = upper-arm length,
+velocity zeroed when the arm is still. With perfect sensors it follows: curl ±4°, front raise exact to the top, then
+starts to drift. With the real fusion (tilt error 1–2°, up to 3° in fast moves → 0.2–0.5 m/s² of gravity leaking
+into the acceleration, integrated twice) the elbow is off by 40° and more after a second of movement — the reason a
+phone cannot measure distance with its accelerometer. Letting the gyro carry more during movement (lower gravity
+gain in fusion.h, `KP_MOVE`) made the tilt worse (1.3° → 3.5°), so it stays 0.5. The legs survive the same physics
+because every step on the floor and every still moment resets them and the balance checks the height; the arm has
+no such reset in mid-air. The arm physics in use *is* this idea in its drift-proof form: per movement from rest, one
+unknown (the shoulder's share), fitted on the integrated wrist velocity.
+
 ### The way to exact arms: record with teacher sensors (and a video), train on our own exercises
 Owner's idea (2026-11-03): record the sensors and a video of the same minutes, compare degrees and movement. Yes —
 and the most effective form of it:

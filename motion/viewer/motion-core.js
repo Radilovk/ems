@@ -446,6 +446,42 @@
         a.calm = spin < 0.3 ? a.calm + 1 : 0;
         if (a.calm * dt > 0.25) a.moving = false;
       }
+      // dead reckoning of the elbow from the zero pose (owner 2026-11-03: "every movement starts from a known position —
+      // follow it"): the wrist sensor's acceleration relative to the shoulder, minus the forearm's own turn about the
+      // elbow (α×r + ω×(ω×r), r = elbow → sensor), is the elbow's acceleration. Integrated from the calibration pose,
+      // held on the sphere |elbow − shoulder| = upper-arm length (that kills the drift along the arm every frame),
+      // velocity zeroed whenever the arm is still. The upper arm is then simply shoulder → elbow.
+      if (ARM_DR && Sb) {
+        const sg = side === 'l' ? 1 : -1, Lu = d.upper;
+        const r = mv(F, [0, sg * 0.03, -(d.fore - 0.03)]);
+        const al = a.prevWf ? sc(sub(Sf.w, a.prevWf), 1 / dt) : [0, 0, 0];
+        a.prevWf = Sf.w;
+        const aE = sub(acc, add(cross(al, r), cross(Sf.w, cross(Sf.w, r))));
+        if (!a.E) { a.E = mv(a.U, [0, 0, -Lu]); a.dE = [0, 0, 0]; a.stillN = 0; }
+        // still (relative to the trunk): the elbow moves only with the trunk
+        a.stillN = spin < 0.25 && norm(aE) < 0.8 ? a.stillN + 1 : 0;
+        if (a.stillN * dt > 0.12) a.dE = cross(Sb.w, a.E);
+        else {
+          const v0 = a.dE;
+          a.dE = add(a.dE, sc(add(aE, a.aE0 || aE), dt / 2));
+          a.E = add(a.E, sc(add(a.dE, v0), dt / 2));
+        }
+        a.aE0 = aE;
+        const e = unit(a.E);
+        a.E = sc(e, Lu);                                       // on the sphere around the shoulder
+        a.dE = sub(a.dE, sc(e, dot(a.dE, e)));                 // no speed along the upper arm
+        // a real elbow: bends 0–150°, never backwards past straight
+        const f0 = mv(F, [0, 0, -1]);
+        let ang = angBetween(e, f0);
+        if (ang > 150 * D2R) { const ax = unit(cross(e, f0)); a.E = sc(mv(rot(ax, ang - 150 * D2R), e), Lu); }
+        // the hanging arm at rest is straight (the zero pose)
+        const fTr = mv(T(Tr), f0);
+        if (a.stillN * dt > 0.5 && fTr[2] < -0.96) a.E = sc(unit(add(sc(unit(a.E), 1 - dt * 2), sc(f0, dt * 2))), Lu);
+        const z = sc(unit(a.E), -1); let y = mv(F, [0, 1, 0]); y = sub(y, sc(z, dot(y, z)));
+        if (norm(y) < 1e-3) y = mv(Tr, [0, 1, 0]);
+        y = unit(y); const x = cross(y, z);
+        a.U = [x[0], y[0], z[0], x[1], y[1], z[1], x[2], y[2], z[2]];
+      }
       // a real elbow bends at most ~150°
       const u = mv(a.U, [0, 0, -1]), f = mv(F, [0, 0, -1]);
       const flex = angBetween(u, f);
@@ -546,6 +582,7 @@
     const [a, b, c, d, e, f, g, h, i] = m, A = e * i - f * h, B = -(d * i - f * g), C = d * h - e * g, det = a * A + b * B + c * C || 1e-12;
     return [A / det, -(b * i - c * h) / det, (b * f - c * e) / det, B / det, (a * i - c * g) / det, -(a * f - c * d) / det, C / det, -(a * h - b * g) / det, (a * e - b * d) / det];
   }
+  const ARM_DR = typeof process !== 'undefined' && process.env && process.env.ARM_DR === '1';
   let ARMDB = null;
   function defaultArmPrior() {          // the page loads models/armdb.js (self.XEMS_ARMDB); decoded once
     const g = typeof self !== 'undefined' ? self : typeof global !== 'undefined' ? global : {};

@@ -134,6 +134,8 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/install_interval_timer_smali.py` (65L) — Install interval timer stack smali (helper, presets) into decompiled APK (the block program is gone, 1.1.331).
 - `scripts/mastogo/MastogoSim.java` (600L) — Offline test of the MASTOGO module: the real MastogoShell talks to a simulated H-024B that answers the way the vendor a…
 - `scripts/mastogo/run.sh` (12L) — Offline test of the MASTOGO H-024B module: the real MastogoShell against a simulated unit (no unit, no tablet).
+- `scripts/motion/build-motion.sh` (33L) — XEMS Motion sensor firmware → motion/xems-motion-sense.uf2 and motion/xems-motion-sense-plus.uf2 (XIAO nRF52840
+- `scripts/motion-sim/run.sh` (15L) — Offline end-to-end test of the XEMS Motion module (docs/xems-motion.md): scripted person → raw IMU (bias, drift,
 - `scripts/music-sim/MusicAutoTuneSim.java` (163L) — JVM checks for music → impulse auto-tune.
 - `scripts/music-sim/run.sh` (12L) — Auto-tune checks on the JVM. No Android.
 - `scripts/part-sim/AllMarked.java` (36L) — Owner's scenario (1.1.449): a training starts, every muscle is marked (1st tap), Интензитет 1 goes up with the double i…
@@ -150,7 +152,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/remove-ramp.py` (458L, build:L90) — Remove ramp UI and always send zero ramp bytes to the device.
 - `scripts/reorder-muscles.py` (84L, build:L49) — Reorder muscle group columns in train UI layouts (visual only, IDs unchanged).
 - `scripts/repo-map.py` (329L) — Token-cheap navigation for agents: generated repo map + per-file outline.
-- `scripts/scale-sim/ScaleSim.java` (1122L) — Offline test of the scale protocol and body composition against real captures published by the two MIT projects (sacoma…
+- `scripts/scale-sim/ScaleSim.java` (1146L) — Offline test of the scale protocol and body composition against real captures published by the two MIT projects (sacoma…
 - `scripts/scale-sim/run.sh` (14L) — Offline test of the body-composition scale (wearable/scale: protocol A + B, WLA25 body composition) on the JVM,
 - `scripts/serve-branding.sh` (15L) — Local web server for branding YAML maps and DEVELOPMENT.md reference.
 - `scripts/setup-android-toolchain.sh` (57L) — Java → smali toolchain without the Google Android SDK (cloud sessions: dl.google.com is blocked).
@@ -391,15 +393,15 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `ScaleBody.java` (234L, compile:music-sync*,wearable) — Body composition from one scale measurement — iCOMON's WLA25, the algorithm Fitdays uses for these scales, so the numbe…
 - `ScaleDetail.java` (582L, compile:music-sync*,wearable) — The full report of one weigh-in, as the fitness apps list it — every value with its status word — plus the five zones a…
 - `ScaleInsight.java` (928L, compile:music-sync*,wearable) — What the scale's measurements mean for EMS — pure Java (docs/xems-scale.md "EMS use", docs/xems-ems-physiology.md §6): …
-- `ScaleLink.java` (925L, compile:music-sync*,wearable) — The body-composition scale, straight over BLE (no Fitdays, no cloud), for as long as the page is open: find the scale w…
+- `ScaleLink.java` (1188L, compile:music-sync*,wearable) — The body-composition scale, straight over BLE (no Fitdays, no cloud), for as long as the page is open: find the scale w…
 - `ScaleModel.java` (446L, compile:music-sync*,wearable) — XEMS body model over the scale's impedances: sex-aware, and steady from one weigh-in to the next.
-- `ScaleProtocol.java` (385L, compile:music-sync*,wearable) — The ICOMON body-composition scale (Lepulse Lescale P1, Fitdays app) over BLE service FFB0, plaintext — pure Java, no ra…
-- `ScaleScreen.java` (2736L, compile:music-sync*,wearable) — The scale page of one client (client row → scale icon) — a full-screen work surface, landscape, two views behind one sw…
+- `ScaleProtocol.java` (401L, compile:music-sync*,wearable) — The ICOMON body-composition scale (Lepulse Lescale P1, Fitdays app) over BLE service FFB0, plaintext — pure Java, no ra…
+- `ScaleScreen.java` (2888L, compile:music-sync*,wearable) — The scale page of one client (client row → scale icon) — a full-screen work surface, landscape, two views behind one sw…
 - `ScaleSenssun.java` (672L, compile:music-sync*,wearable) — The Senssun / MovingLife scale family (Senssun "Fat", IF_xx; Klausberg KB-7853 and the other scales sold for the Moving…
 - `ScaleSession.java` (207L, compile:music-sync*,wearable) — One measuring session = one time on the scale.
 - `ScaleShare.java` (479L, compile:music-sync*,wearable) — Sharing the scale's result from the summary: as an image (the sheet as it is on the screen, PNG) or as one HTML file th…
 - `ScaleSources.java` (497L, compile:music-sync*,wearable) — "Научна основа" — where every number of the scale module comes from, said plainly: each source with what we take from i…
-- `ScaleStage.java` (754L, compile:music-sync*,wearable) — The measuring stage — what the client sees from "step on" to "done", one standing, no step-off: <ul> <li><b>Left</b> — …
+- `ScaleStage.java` (768L, compile:music-sync*,wearable) — The measuring stage — what the client sees from "step on" to "done", one standing, no step-off: <ul> <li><b>Left</b> — …
 - `ScaleStore.java` (259L, compile:music-sync*,wearable) — The client's scale measurements on this tablet (prefs "xems_scale", key m&lt;userId&gt; = JSON array, oldest first, at …
 - `ScaleUploader.java` (238L, compile:music-sync*,wearable) — The client's scale measurements → the server, filed under the client's dossier id (XemsDossier.cidFor) like the trainin…
 - `ScaleViews.java` (2037L, compile:music-sync*,wearable) — The drawn parts of the scale's result page: the body figure painted by segment, the radar of the five segments against …
@@ -472,7 +474,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `XemsLocalApi.java` (223L, compile:xems-local) — The tablet as the app's backend: ApiMgr's calls for customers, programs and training history land here; nothing goes to…
 - `XemsLocalAvatar.java` (1072L, compile:xems-local) — Client photo: picked from the gallery, cropped square, 320 px JPEG in the app's files (files/avatars).
 - `XemsLocalGate.java` (220L, compile:xems-local) — Hidden doors of the tablet build.
-- `XemsLocalSection.java` (351L, compile:xems-local) — Settings card "Tablet and data": the mode (admin setup / user), the profile key, the suits, export / import of the tabl…
+- `XemsLocalSection.java` (354L, compile:xems-local) — Settings card "Tablet and data": the mode (admin setup / user), the profile key, the suits, the arms channel (reduced /…
 - `XemsLocalStore.java` (1218L, compile:xems-local) — Local-only data layer: users, programs, training history and suits stay on the tablet.
 - `XemsLocalUserForm.java` (982L, compile:xems-local) — New / edit client form — one screen, mostly taps: name, sex, age / height / weight wheels, phone; goal, fitness and con…
 - `XemsModuleInfo.java` (488L, compile:music-sync*) — The "i" of every XEMS module: what it is, what it gives (value first), how to work with it.
@@ -583,14 +585,14 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 `AGENTS.md` (5L)
   - L1 # Agents
 
-`CLAUDE.md` (107L)
+`CLAUDE.md` (108L)
   - L1 # XEMS — agent guide
   - L8 ## Token protocol — always
   - L26 ## How it fits together
   - L43 ## Invariants (breaking one = broken release)
   - L58 ## UI standard (owner's requirement — every screen, every level: tablet, band, report, card, PWA)
   - L72 ## Deeper context (read only the section you need — headings/lines are in MAP)
-  - L104 ## Keeping the map true
+  - L105 ## Keeping the map true
 
 `PORTFOLIO.md` (353L)
   - L1 # XEMS Pro — продажбено портфолио и техническа визия
@@ -1084,6 +1086,17 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L95 ## Left out on purpose
   - L103 ## Safety
 
+`docs/xems-motion.md` (120L)
+  - L1 # XEMS Motion — body pose from five XIAO nRF52840 Sense sensors
+  - L18 ## Design in one picture
+  - L31 ## Hardware and placement
+  - L41 ## Sensor firmware (`fusion.h`, `xems_motion.ino`)
+  - L52 ## Calibration (≈ 6 s, one tap) — finds places, headings, zero
+  - L66 ## Pose solver (`Body.solve`, per back-sensor sample, < 1 ms)
+  - L85 ## Offline test (`sh scripts/motion-sim/run.sh`, ≈ 10 s)
+  - L102 ## Limits with five sensors (honest)
+  - L111 ## Roadmap
+
 `docs/xems-part-strength.md` (212L)
   - L1 # Избрани мускулни групи: сила на импулсите само за тях (v1.1.85, двата импулса поотделно от 1.1.366)
   - L15 ## Как го постига (`train/utils/PartStrength`)
@@ -1149,34 +1162,34 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L44 ## 3. UI / UX
   - L57 ## 4. Какво да се провери на първото истинско мерене
 
-`docs/xems-scale.md` (498L)
+`docs/xems-scale.md` (528L)
   - L1 # Body-composition scale (Lepulse Lescale P1) — direct BLE, no Fitdays
-  - L10 ## Code (`branding/java/src/com/isaigu/gymapp/wearable/scale/`, compile:wearable)
-  - L28 ## Senssun / MovingLife scales — Klausberg KB-7853 (1.1.306–307-ai, `ScaleSenssun`)
-  - L82 ## EMS use (1.1.286-ai)
-  - L93 ## Where the scale's data goes — every algorithm that uses the body (1.1.292-ai)
-  - L117 ### Readiness and focus, second pass (1.1.311-ai)
-  - L131 ### Client card — "Тяло" (1.1.310-ai)
-  - L145 ### Weight: the newest entry wins — typed or weighed (1.1.458-ai, owner)
-  - L152 ### Strength is never derived from the body (1.1.458-ai, owner)
-  - L158 ### Weight: the scale wins over the card (1.1.315-ai, owner; superseded by "newest entry wins" above)
-  - L165 ### Trend: tap a dot (1.1.315-ai)
-  - L169 ## Body type, physical age — what the fitness apps get wrong (1.1.287-ai)
-  - L188 ## XEMS model — sex-aware, steady (1.1.295-ai, `ScaleModel`)
-  - L214 ## Physiological limit between weigh-ins (1.1.342-ai, owner: "fat can't change that much in minutes")
-  - L224 ## State vs trait — why physical age jumped (1.1.300-ai)
-  - L238 ## One session must be enough — per-value stability (1.1.301-ai)
-  - L283 ## Owner's Fitdays report = test vector (1.1.288-ai)
-  - L290 ## Figures (1.1.288-ai)
-  - L295 ## Measuring — the stage and the session (1.1.301-ai, owner: "why does it make me step off?")
-  - L327 ## Scientific basis — "Научна основа" (1.1.298-ai, `ScaleSources`)
-  - L340 ## Result page (`ScaleScreen`) — two views
-  - L437 ## What the hardware is
-  - L448 ## Two verified open-source decoders (both MIT — portable to Java)
-  - L469 ## Measuring protocol (owner: no suit, thin clothes)
-  - L477 ## Validation path
-  - L482 ## Gemini / LLM
-  - L487 ## Licences of the ported code
+  - L40 ## Code (`branding/java/src/com/isaigu/gymapp/wearable/scale/`, compile:wearable)
+  - L58 ## Senssun / MovingLife scales — Klausberg KB-7853 (1.1.306–307-ai, `ScaleSenssun`)
+  - L112 ## EMS use (1.1.286-ai)
+  - L123 ## Where the scale's data goes — every algorithm that uses the body (1.1.292-ai)
+  - L147 ### Readiness and focus, second pass (1.1.311-ai)
+  - L161 ### Client card — "Тяло" (1.1.310-ai)
+  - L175 ### Weight: the newest entry wins — typed or weighed (1.1.458-ai, owner)
+  - L182 ### Strength is never derived from the body (1.1.458-ai, owner)
+  - L188 ### Weight: the scale wins over the card (1.1.315-ai, owner; superseded by "newest entry wins" above)
+  - L195 ### Trend: tap a dot (1.1.315-ai)
+  - L199 ## Body type, physical age — what the fitness apps get wrong (1.1.287-ai)
+  - L218 ## XEMS model — sex-aware, steady (1.1.295-ai, `ScaleModel`)
+  - L244 ## Physiological limit between weigh-ins (1.1.342-ai, owner: "fat can't change that much in minutes")
+  - L254 ## State vs trait — why physical age jumped (1.1.300-ai)
+  - L268 ## One session must be enough — per-value stability (1.1.301-ai)
+  - L313 ## Owner's Fitdays report = test vector (1.1.288-ai)
+  - L320 ## Figures (1.1.288-ai)
+  - L325 ## Measuring — the stage and the session (1.1.301-ai, owner: "why does it make me step off?")
+  - L357 ## Scientific basis — "Научна основа" (1.1.298-ai, `ScaleSources`)
+  - L370 ## Result page (`ScaleScreen`) — two views
+  - L467 ## What the hardware is
+  - L478 ## Two verified open-source decoders (both MIT — portable to Java)
+  - L499 ## Measuring protocol (owner: no suit, thin clothes)
+  - L507 ## Validation path
+  - L512 ## Gemini / LLM
+  - L517 ## Licences of the ported code
 
 `docs/xems-server-spec.md` (287L)
   - L1 # XEMS сървър — задание за доразработка (лицензи, функции, обновяване)

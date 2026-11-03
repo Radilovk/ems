@@ -427,7 +427,7 @@ public final class AiEngine {
         }
         Phase ph = phase();
         // Phase change happens at cycle boundaries (block finishes its current cycle).
-        if (phaseElapsedS >= ph.durationS) {
+        while (phaseElapsedS >= ph.durationS) {
             if (!advancePhase(nowMs)) {
                 return silent(nowMs);
             }
@@ -502,6 +502,8 @@ public final class AiEngine {
             lastTickMs = nowMs;
         }
         double dtS = Math.max(0, Math.min(2000, nowMs - lastTickMs)) / 1000.0;
+        // the plan clock takes the real time whole (1.1.494): a tick late by more than 2 s (busy UI) lost the rest
+        double clockS = Math.max(0, nowMs - lastTickMs) / 1000.0;
         lastTickMs = nowMs;
         if (state == State.READY || state == State.DONE || state == State.STOPPED) {
             return;
@@ -514,17 +516,21 @@ public final class AiEngine {
         guards(nowMs, dtS);
 
         boolean waiting = state == State.REST && restReady;
+        if (state == State.RUN || state == State.REST || state == State.CHECKPOINT || state == State.STIM_PAUSE) {
+            // The plan clock is the real clock (owner, 1.1.494): the rest waiting for the manual continue counts
+            // too, and so does a safety pause (HR / checkpoint) — before, they held the phases and a session ran far
+            // past its planned time. Only the trainer's ❚❚ holds it.
+            phaseElapsedS += clockS;
+        }
         if (state == State.RUN || (state == State.REST && !waiting)) {
-            // The plan clock does not run while an ACTIVE rest waits for the manual continue.
-            phaseElapsedS += dtS;
             trackCorridor(dtS);
         }
         if (state == State.REST) {
             tickRest(nowMs);
             if (phaseElapsedS >= phase().durationS) {
                 if (in.isTraining()) {
-                    // ACTIVE: the rest still ends manually; the next cycle moves to the next phase.
-                    phaseElapsedS = phase().durationS;
+                    // ACTIVE: the rest still ends manually; the next cycle moves to the next phase (the time
+                    // past the phase's end is kept: the next phase is that much on).
                     if (!restReady && restMinReached(nowMs)) {
                         markRestReady(nowMs);
                     }
@@ -1025,8 +1031,10 @@ public final class AiEngine {
         if (inBlock) {
             endBlockSilently(nowMs);
         }
+        // the time past the phase's end belongs to the next phase (real clock, 1.1.494; it was dropped)
+        double over = phaseIdx < plan.phases.size() ? Math.max(0, phaseElapsedS - phase().durationS) : 0;
         phaseIdx++;
-        phaseElapsedS = 0;
+        phaseElapsedS = over;
         useB = false;
         offFactor = 1.0;
         sigmaB = -1;

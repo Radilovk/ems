@@ -159,6 +159,18 @@ public final class AutoEngine {
     // session clock: impulses + the waits the program imposes (rest minimum, countdown, HR pause) — a longer
     // wait for ▶ and a manual pause do not count (owner, 1.1.271)
     private double imposedS;
+    /** Impulse time really run (RUN only) — the client's history (the plan clock now holds the rests too). */
+    private double runS;
+    /**
+     * The phase of the set after the running one, fixed at the set's start (−1 = none): the set's length, the rest
+     * expected after it and the countdown put the next set's start on the real clock, so a phase with sets hands over
+     * close to its planned end (not one set + one rest late) and the "next" announced in the set is the one that comes.
+     */
+    private int fixedNext = -1;
+    /** The last rest's minimum (s): the estimate of the next rest. */
+    private int lastRestMinS = -1;
+    /** Plan time jumped over without running it (■ → recovery, dose budget, skip to the recovery). */
+    private double jumpedS;
     private final List<float[]> trace = new ArrayList<float[]>();
 
     // countdown before every start
@@ -240,6 +252,7 @@ public final class AutoEngine {
     }
 
     private void countdown(long now, long goAt, State from) {
+        advance(now);
         countFrom = from;
         goMs = Math.max(now + COUNTDOWN_MS, goAt);
         state = State.COUNTDOWN;
@@ -248,6 +261,7 @@ public final class AutoEngine {
 
     /** Countdown over: the impulses start (one cycle now). */
     private void go(long now) {
+        advance(now);
         State from = countFrom;
         settle(now);
         if (from != State.READY) {
@@ -378,6 +392,7 @@ public final class AutoEngine {
 
     public void userPause(long now) {
         if (state == State.RUN) {
+            advance(now);
             settle(now);
             state = State.USER_PAUSE;
             pauseStartMs = now;
@@ -394,6 +409,7 @@ public final class AutoEngine {
         if (!canResume()) {
             return;
         }
+        advance(now);
         settle(now);
         double pauseS = (now - pauseStartMs) / 1000.0;
         totalPauseS += pauseS;
@@ -426,13 +442,25 @@ public final class AutoEngine {
         }
     }
 
+    /** The plan second phase {@code idx} starts at. */
+    private double phaseStartS(int idx) {
+        double t = 0;
+        for (int i = 0; i < idx && i < plan.phases.size(); i++) {
+            t += plan.phases.get(i).durationS;
+        }
+        return t;
+    }
+
     /** The plan clock jumps to the start of phase {@code idx}. */
     private void jumpTo(int idx, long now) {
         double t = 0;
         for (int i = 0; i < idx; i++) {
             t += plan.phases.get(i).durationS;
         }
-        elapsedS = Math.max(elapsedS, t);
+        if (t > elapsedS) {
+            jumpedS += t - elapsedS;
+            elapsedS = t;
+        }
         enterPhase(idx, now);
     }
 
@@ -562,15 +590,20 @@ public final class AutoEngine {
     }
 
     public void tick(long now) {
+        double dt = Math.max(0, (now - lastTickMs) / 1000.0);
+        if (state != State.RUN) {
+            advance(now);
+            if (clockRuns() && followClock(now)) {
+                return;
+            }
+        }
+        lastTickMs = now;
         if (state == State.COUNTDOWN) {
-            lastTickMs = now;
             if (now >= goMs) {
                 go(now);
             }
             return;
         }
-        double dt = Math.max(0, (now - lastTickMs) / 1000.0);
-        lastTickMs = now;
         boolean fresh = hr > 0 && now - hrMs <= HR_STALE_MS;
         if (fresh && state == State.RUN) {
             hrKnownS += dt;
@@ -611,6 +644,7 @@ public final class AutoEngine {
             return;
         }
         elapsedS += dt;
+        runS += dt;
         if (elapsedS >= plan.totalS) {
             state = State.DONE;
             endMs = now;
@@ -714,6 +748,9 @@ public final class AutoEngine {
             enterRest(now, false);
             return null;
         }
+        if (isStationPhase(phaseIndex) && stationS == 0) {
+            fixedNext = predictNext(c);
+        }
         c.startMs = now;
         settle(now);
         current = c;
@@ -732,6 +769,38 @@ public final class AutoEngine {
         return c;
     }
 
+    /** The rest the fatigue asks for after the set that just ended (s). */
+    private int restAfterSet() {
+        boolean tet = current != null && current.hz >= 20;
+        double f = peakF();
+        double t = f > fRec ? tauR * Math.log(f / fRec) : 0;
+        // a set skipped right after its start (⏭) did no work: only the fatigue decides, no floor
+        int floor = lastSetS < STATION_REST_FROM_S ? 0 : tet ? REST_FLOOR_TETANIC_S : REST_FLOOR_S;
+        return (int) Math.round(clamp(Math.max(floor, t), floor, REST_MAX_S));
+    }
+
+    /**
+     * The phase of the set after the one that starts with cycle {@code c}: where the real clock will be when it can
+     * start — this set's length, the rest expected after it (the last rest's minimum, else the floor) and the 3 s
+     * countdown. The cool-down when no set fits in the active part any more.
+     */
+    private int predictNext(Cmd c) {
+        double d = Math.max(1, c.durationMs() / 1000.0);
+        int n = (int) Math.ceil(STATION_MIN_S / d);
+        if (n * d > STATION_MAX_S && n > 1) {
+            n--;
+        }
+        double setEnd = elapsedS + n * d;
+        int rest = lastRestMinS >= 0 ? lastRestMinS : c.hz >= 20 ? REST_FLOOR_TETANIC_S : REST_FLOOR_S;
+        double nextStart = setEnd + rest + COUNTDOWN_MS / 1000.0;
+        int cool = cooldownIndex();
+        int idx = phaseAt(nextStart + STATION_MIN_S / 2.0);
+        if (cool >= 0 && (idx >= cool || plan.activeS - nextStart < STATION_MIN_S / 2.0)) {
+            return cool;
+        }
+        return idx;
+    }
+
     /**
      * The automatic pause after an exercise. Shortest rest = the time the fatigue model needs to bring the
      * muscle back to F_rec (F_max / 3, the level the Smart Session starts a block from): t = τ·ln(F / F_rec),
@@ -739,16 +808,32 @@ public final class AutoEngine {
      * (≥ 20 Hz), 8 s after twitches; at most 2 min. Before the recovery part: no minimum.
      */
     private void enterRest(long now, boolean beforeCooldown) {
+        int fixed = fixedNext;
+        fixedNext = -1;
+        int untilRecoveryS = 0;
+        settle(now);
+        int rest = restAfterSet();
         if (!beforeCooldown) {
-            int idx = phaseAt(elapsedS);
+            // the coming set's phase: where the real clock is when it can start (rest + countdown)
+            double nextStart = elapsedS + rest + COUNTDOWN_MS / 1000.0;
+            // a set belongs to the phase that holds most of it: it starts in the next one when it would run
+            // more than half of it past the boundary
+            int idx = Math.max(phaseAt(elapsedS), phaseAt(nextStart + STATION_MIN_S / 2.0));
             int cool = cooldownIndex();
-            if (cool >= 0 && (idx == cool || plan.activeS - elapsedS < STATION_MIN_S / 2.0)) {
+            if (cool >= 0 && (idx >= cool || plan.activeS - nextStart < STATION_MIN_S / 2.0)) {
                 beforeCooldown = true;         // no room for another set: the recovery is next
-                if (phaseIndex != cool) {
-                    jumpTo(cool, now);
+                double toCool = phaseStartS(cool) - elapsedS;
+                if (toCool >= 1) {
+                    // real clock (1.1.494): the rest lasts until the recovery's planned start — it starts on time,
+                    // not early (followClock moves the phase there)
+                    untilRecoveryS = (int) Math.ceil(toCool);
+                } else {
+                    if (phaseIndex != cool) {
+                        jumpTo(cool, now);
+                    }
+                    stationPhase = cool;
+                    stationIndex = 0;
                 }
-                stationPhase = cool;
-                stationIndex = 0;
             } else if (idx != phaseIndex) {
                 enterPhase(idx, now);          // the phase change the set waited for
                 stationPhase = idx;
@@ -763,14 +848,10 @@ public final class AutoEngine {
         stationsDone++;
         traceRest(now);
         if (beforeCooldown) {
-            restMinS = 0;
+            restMinS = untilRecoveryS;
         } else {
-            boolean tet = current != null && current.hz >= 20;
-            double f = peakF();
-            double t = f > fRec ? tauR * Math.log(f / fRec) : 0;
-            // a set skipped right after its start (⏭) did no work: only the fatigue decides, no floor
-            int floor = lastSetS < STATION_REST_FROM_S ? 0 : tet ? REST_FLOOR_TETANIC_S : REST_FLOOR_S;
-            restMinS = (int) Math.round(clamp(Math.max(floor, t), floor, REST_MAX_S));
+            restMinS = rest;
+            lastRestMinS = restMinS;
             lastSetS = STATION_MAX_S;
         }
         log(now, "set done → rest ≥ " + restMinS + "s F=" + fmt(peakF()) + "/" + fmt(fMax));
@@ -821,11 +902,20 @@ public final class AutoEngine {
         if (script == null || !isStationPhase(phaseIndex) || (state == State.REST && restBeforeCooldown)) {
             return null;
         }
-        // in a rest the coming set has not started: "next" is the one after it
-        double end = elapsedS + Math.max(0, getSetTargetS() - (state == State.REST ? 0 : stationS));
         int cool = cooldownIndex();
-        int idx = phaseAt(end);
-        if (cool >= 0 && (idx >= cool || plan.activeS - end < STATION_MIN_S / 2.0)) {
+        int idx;
+        if (state != State.REST && fixedNext >= 0) {
+            idx = fixedNext;                   // fixed at the set's start: the next set's phase on the real clock
+        } else {
+            // in a rest the coming set has not started: "next" is the one after it (rest left + countdown + set)
+            double end = elapsedS + (state == State.REST ? getRestLeftS(lastTickMs) + COUNTDOWN_MS / 1000.0 : 0)
+                    + Math.max(0, getSetTargetS() - (state == State.REST ? 0 : stationS));
+            idx = phaseAt(end);
+            if (cool >= 0 && plan.activeS - end < STATION_MIN_S / 2.0) {
+                idx = cool;
+            }
+        }
+        if (cool >= 0 && idx >= cool) {
             return NEXT_RECOVERY;
         }
         if (templateOnly()) {
@@ -1473,7 +1563,87 @@ public final class AutoEngine {
      * the recovery stays its own fixed part at the end.
      */
     private double imposedOf(State from, double pauseS) {
-        return Math.max(0, pauseS);
+        return clockRunsIn(from) ? 0 : Math.max(0, pauseS);   // a counted wait is already in the plan clock
+    }
+
+    /**
+     * The plan clock is the real clock (owner, 1.1.494: "30 min = 30 min"): the phases and the end follow the tablet's
+     * time from ▶ — the impulses, the rests between sets, the HR pause and the countdown after them all count. Only a
+     * manual ❚❚ (and the countdown after it, and the first countdown) holds the phases; the session clock counts it.
+     * Before 1.1.494 only the impulse time moved the phases: a 30 min active program ran 45–47 min and its recovery
+     * began at the 35th minute instead of the 20th.
+     */
+    private boolean clockRunsIn(State s) {
+        return s == State.RUN || s == State.REST || s == State.HR_PAUSE;
+    }
+
+    private boolean clockRuns() {
+        return clockRunsIn(state) || (state == State.COUNTDOWN && clockRunsIn(countFrom));
+    }
+
+    /** The real time since the last tick into the plan clock (when it runs), and the phase that time is in. */
+    private void advance(long now) {
+        double dt = Math.max(0, (now - lastTickMs) / 1000.0);
+        lastTickMs = now;
+        if (!clockRuns() || dt <= 0) {
+            return;
+        }
+        elapsedS += dt;
+        if (state == State.RUN) {
+            runS += dt;
+        }
+    }
+
+    /**
+     * Out of RUN (a rest, the HR pause, a countdown after them) the plan clock still runs: the session ends on time
+     * and the phase moves on when its time is over. A phase with sets changes at a set's end, as in RUN (the next
+     * set announced in the last seconds is the one that comes); only the recovery comes at once — a rest whose active
+     * part is over becomes the wait for the recovery (no minimum left). True = the session is over.
+     */
+    private boolean followClock(long now) {
+        if (elapsedS >= plan.totalS) {
+            settle(now);
+            state = State.DONE;
+            endMs = now;
+            log(now, "done");
+            return true;
+        }
+        int idx = phaseAt(elapsedS);
+        int cool = cooldownIndex();
+        boolean waiting = state == State.REST;   // a countdown already pressed goes straight into the recovery
+        if (cool >= 0 && phaseIndex < cool && idx >= cool) {
+            // the recovery's planned start: it comes now (a countdown already pressed starts it)
+            jumpTo(cool, now);
+            stationPhase = cool;
+            stationIndex = 0;
+            stationS = 0;
+            if (waiting) {
+                restBeforeCooldown = true;
+                restMinS = 0;
+                restStartMs = now;
+                log(now, "active part over in the rest → recovery");
+            }
+            return false;
+        }
+        if (cool >= 0 && waiting && !restBeforeCooldown && isStationPhase(phaseIndex)
+                && plan.activeS - elapsedS < STATION_MIN_S / 2.0) {
+            // a long rest left no room for another set: it goes on until the recovery's planned start
+            restBeforeCooldown = true;
+            restStartMs = now;
+            restMinS = (int) Math.ceil(Math.max(0, phaseStartS(cool) - elapsedS));
+            log(now, "no room for another set → rest until the recovery");
+            return false;
+        }
+        boolean coming = waiting || (state == State.COUNTDOWN && countFrom == State.REST);
+        if (coming && isStationPhase(phaseIndex)) {
+            idx = Math.max(idx, Math.min(cool >= 0 ? cool - 1 : idx, phaseAt(elapsedS + STATION_MIN_S / 2.0)));
+        }
+        if (idx > phaseIndex && (!isStationPhase(phaseIndex) || coming)) {   // the coming set is the new phase's
+            enterPhase(idx, now);
+            stationPhase = idx;
+            stationIndex = 0;
+        }
+        return false;
     }
 
     /** A wait sample at most every this many seconds of the session clock (the fall of the load in a pause). */
@@ -1505,7 +1675,10 @@ public final class AutoEngine {
      * takes beyond the rest minimum before ▶, and a manual pause, are not counted.
      */
     public double getSessionS(long now) {
-        double s = elapsedS - skippedS + imposedS;          // a skipped set is not session time: the end comes sooner
+        double s = elapsedS - skippedS - jumpedS + imposedS; // skipped / jumped plan time is not session time
+        if (clockRuns() && state != State.DONE && state != State.STOPPED) {
+            s += Math.max(0, (now - lastTickMs) / 1000.0);   // the real time since the last tick
+        }
         if (state == State.REST || state == State.HR_PAUSE || state == State.USER_PAUSE
                 || (state == State.COUNTDOWN && countFrom != State.READY)) {
             State from = state == State.COUNTDOWN ? countFrom : state;
@@ -1541,7 +1714,7 @@ public final class AutoEngine {
 
     /** Impulse time really given (the plan clock minus what ⏭ skipped). */
     public double getImpulseS() {
-        return Math.max(0, elapsedS - skippedS);
+        return runS;
     }
 
     /**
@@ -1568,6 +1741,13 @@ public final class AutoEngine {
             stationIndex++;
             log(now, "skip → set ended early, " + Math.round(skippedS) + " s skipped in all");
             enterRest(now, false);
+            return true;
+        }
+        if (state == State.REST && restBeforeCooldown && cooldownIndex() > phaseIndex) {
+            int cool = cooldownIndex();          // the rest until the recovery's start: the recovery now
+            skip(Math.max(0, phaseStartS(cool) - elapsedS));
+            log(now, "skip → recovery");
+            enterRecoveryRest(now, cool);
             return true;
         }
         if (state == State.REST && !restBeforeCooldown && isStationPhase(phaseIndex)) {

@@ -259,6 +259,41 @@ public final class ProgramLive {
         return sec * 1000L;
     }
 
+    // ================================================================ the impulse / pause phases on the real clock
+
+    /** Per row: when the running ON / pause phase is due to end (SystemClock.elapsedRealtime, ms). */
+    private static final Map<TrainItem, long[]> PHASE_DUE = new WeakHashMap<TrainItem, long[]>();
+    /** A phase that begins this late (or less) after the planned end of the one before is the next one on schedule. */
+    static final long ON_TIME_MS = 1500L;
+
+    /**
+     * Hook: TrainItem.startPulse, the length of the phase that starts now (ms; the vendor took {@code sec} × 1000).
+     * Every phase used to start when the previous one's callback ran (+ the AI / Auto / map work and the BLE send
+     * in it), so each ON / pause boundary added a few to a few hundred ms and the cycles — which the automatic
+     * modes, the workout maps and the Smart Session count — ran slower than the clock (owner, 1.1.494). Now a phase
+     * that follows the previous one on schedule ends at the previous one's planned end + its length: the lateness
+     * of one boundary is taken from the next phase, nothing adds up. A first phase, a restart or a resume after ❚❚
+     * starts a fresh schedule.
+     */
+    public static long phaseMs(TrainItem it, int sec) {
+        long len = Math.max(0, sec) * 1000L;
+        long now = android.os.SystemClock.elapsedRealtime();
+        if (it == null) {
+            return len;
+        }
+        synchronized (PHASE_DUE) {
+            long[] due = PHASE_DUE.get(it);
+            long late = due != null ? now - due[0] : -1;
+            if (due != null && late >= 0 && late <= ON_TIME_MS && it.data != null && it.data.start) {
+                long ms = Math.max(len / 2, len - late);   // an impulse is never cut below half its length
+                due[0] = now + ms;
+                return ms;
+            }
+            PHASE_DUE.put(it, new long[] {now + len});
+            return len;
+        }
+    }
+
     static int total(TrainProgram p, int mode) {
         ProgramDataBean b = bean(p, mode);
         return b != null ? b.workLength : 0;

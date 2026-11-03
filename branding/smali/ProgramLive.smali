@@ -39,6 +39,19 @@
     .end annotation
 .end field
 
+.field static final ON_TIME_MS:J = 0x5dcL
+
+.field private static final PHASE_DUE:Ljava/util/Map;
+    .annotation system Ldalvik/annotation/Signature;
+        value = {
+            "Ljava/util/Map",
+            "<",
+            "Lcom/isaigu/gymapp/train/model/TrainItem;",
+            "[J>;"
+        }
+    .end annotation
+.end field
+
 .field private static final PLAN_DELTA:Ljava/util/Map;
     .annotation system Ldalvik/annotation/Signature;
         value = {
@@ -104,6 +117,13 @@
 
     sput-object v0, Lcom/isaigu/gymapp/train/utils/ProgramLive;->CLOCK:Ljava/util/Map;
 
+    .line 265
+    new-instance v0, Ljava/util/WeakHashMap;
+
+    invoke-direct {v0}, Ljava/util/WeakHashMap;-><init>()V
+
+    sput-object v0, Lcom/isaigu/gymapp/train/utils/ProgramLive;->PHASE_DUE:Ljava/util/Map;
+
     return-void
 .end method
 
@@ -121,7 +141,7 @@
     .registers 3
 
     .prologue
-    .line 268
+    .line 303
     const/4 v0, 0x1
 
     if-ne p1, v0, :cond_6
@@ -131,7 +151,7 @@
     :goto_5
     return-object v0
 
-    .line 269
+    .line 304
     :cond_6
     const/4 v0, 0x2
 
@@ -141,7 +161,7 @@
 
     goto :goto_5
 
-    .line 270
+    .line 305
     :cond_c
     const/4 v0, 0x3
 
@@ -737,7 +757,7 @@
 
     const/4 v1, 0x0
 
-    .line 276
+    .line 311
     :try_start_2
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiSession;->getStage()Lcom/isaigu/gymapp/ai/AiSession$Stage;
 
@@ -749,12 +769,12 @@
 
     move v0, v1
 
-    .line 281
+    .line 316
     :cond_b
     :goto_b
     return v0
 
-    .line 279
+    .line 314
     :cond_c
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoSession;->getStage()Lcom/isaigu/gymapp/ai/AutoSession$Stage;
 
@@ -770,7 +790,7 @@
 
     goto :goto_b
 
-    .line 280
+    .line 315
     :catch_16
     move-exception v1
 
@@ -815,6 +835,153 @@
     monitor-exit v1
     :try_end_13
     .catchall {:try_start_6 .. :try_end_13} :catchall_11
+
+    throw v0
+.end method
+
+.method public static phaseMs(Lcom/isaigu/gymapp/train/model/TrainItem;I)J
+    .registers 12
+
+    .prologue
+    const/4 v0, 0x0
+
+    .line 279
+    invoke-static {v0, p1}, Ljava/lang/Math;->max(II)I
+
+    move-result v0
+
+    int-to-long v0, v0
+
+    const-wide/16 v2, 0x3e8
+
+    mul-long/2addr v2, v0
+
+    .line 280
+    invoke-static {}, Landroid/os/SystemClock;->elapsedRealtime()J
+
+    move-result-wide v6
+
+    .line 281
+    if-nez p0, :cond_11
+
+    move-wide v0, v2
+
+    .line 293
+    :goto_10
+    return-wide v0
+
+    .line 284
+    :cond_11
+    sget-object v1, Lcom/isaigu/gymapp/train/utils/ProgramLive;->PHASE_DUE:Ljava/util/Map;
+
+    monitor-enter v1
+
+    .line 285
+    :try_start_14
+    sget-object v0, Lcom/isaigu/gymapp/train/utils/ProgramLive;->PHASE_DUE:Ljava/util/Map;
+
+    invoke-interface {v0, p0}, Ljava/util/Map;->get(Ljava/lang/Object;)Ljava/lang/Object;
+
+    move-result-object v0
+
+    check-cast v0, [J
+
+    .line 286
+    if-eqz v0, :cond_4b
+
+    const/4 v4, 0x0
+
+    aget-wide v4, v0, v4
+
+    sub-long v4, v6, v4
+
+    .line 287
+    :goto_23
+    if-eqz v0, :cond_4e
+
+    const-wide/16 v8, 0x0
+
+    cmp-long v8, v4, v8
+
+    if-ltz v8, :cond_4e
+
+    const-wide/16 v8, 0x5dc
+
+    cmp-long v8, v4, v8
+
+    if-gtz v8, :cond_4e
+
+    iget-object v8, p0, Lcom/isaigu/gymapp/train/model/TrainItem;->data:Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
+
+    if-eqz v8, :cond_4e
+
+    iget-object v8, p0, Lcom/isaigu/gymapp/train/model/TrainItem;->data:Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
+
+    iget-boolean v8, v8, Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;->start:Z
+
+    if-eqz v8, :cond_4e
+
+    .line 288
+    const-wide/16 v8, 0x2
+
+    div-long v8, v2, v8
+
+    sub-long/2addr v2, v4
+
+    invoke-static {v8, v9, v2, v3}, Ljava/lang/Math;->max(JJ)J
+
+    move-result-wide v2
+
+    .line 289
+    const/4 v4, 0x0
+
+    add-long/2addr v6, v2
+
+    aput-wide v6, v0, v4
+
+    .line 290
+    monitor-exit v1
+
+    move-wide v0, v2
+
+    goto :goto_10
+
+    .line 286
+    :cond_4b
+    const-wide/16 v4, -0x1
+
+    goto :goto_23
+
+    .line 292
+    :cond_4e
+    sget-object v0, Lcom/isaigu/gymapp/train/utils/ProgramLive;->PHASE_DUE:Ljava/util/Map;
+
+    const/4 v4, 0x1
+
+    new-array v4, v4, [J
+
+    const/4 v5, 0x0
+
+    add-long/2addr v6, v2
+
+    aput-wide v6, v4, v5
+
+    invoke-interface {v0, p0, v4}, Ljava/util/Map;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+
+    .line 293
+    monitor-exit v1
+
+    move-wide v0, v2
+
+    goto :goto_10
+
+    .line 294
+    :catchall_5d
+    move-exception v0
+
+    monitor-exit v1
+    :try_end_5f
+    .catchall {:try_start_14 .. :try_end_5f} :catchall_5d
 
     throw v0
 .end method
@@ -1121,12 +1288,12 @@
     .registers 3
 
     .prologue
-    .line 263
+    .line 298
     invoke-static {p0, p1}, Lcom/isaigu/gymapp/train/utils/ProgramLive;->bean(Lcom/isaigu/gymapp/bean/TrainProgram;I)Lcom/isaigu/gymapp/bean/ProgramDataBean;
 
     move-result-object v0
 
-    .line 264
+    .line 299
     if-eqz v0, :cond_9
 
     iget v0, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->workLength:I

@@ -169,7 +169,9 @@ public final class AutoSim {
                 }
                 sets++;
                 int min = e.getRestMinS();
-                check(recovery ? min == 0 : min >= AutoEngine.REST_FLOOR_S && min <= AutoEngine.REST_MAX_S,
+                // before the recovery: the rest lasts until its planned start on the real clock (1.1.494)
+                check(recovery ? min >= 0 && min <= AutoEngine.REST_MAX_S + AutoEngine.STATION_MIN_S
+                                : min >= AutoEngine.REST_FLOOR_S && min <= AutoEngine.REST_MAX_S,
                         tag + ": rest " + min + " s in its bounds");
                 if (min > 0) {
                     check(!e.requestGo(t + 1000, t + 1000) && e.getState() == AutoEngine.State.REST,
@@ -408,8 +410,8 @@ public final class AutoSim {
                 e.onHr(t, plan.hrCap - 25);
                 e.tick(t);
             }
-            check(e.getElapsedS() == el && e.getState() == AutoEngine.State.HR_PAUSE,
-                    op + ": plan clock stops in the HR pause");
+            check(Math.abs(e.getElapsedS() - el - 15) < 1e-6 && e.getState() == AutoEngine.State.HR_PAUSE,
+                    op + ": plan clock runs on in the HR pause (real clock, 1.1.494)");
             for (int i = 0; i < 25; i++) {
                 t += 1000;
                 e.onHr(t, plan.hrCap - 25);
@@ -1584,8 +1586,8 @@ public final class AutoSim {
         AutoTemplates.Script sc = AutoTemplates.script(plan, null);
         AutoEngine.Forecast f = AutoEngine.forecast(plan, sc, false);
         check(f.points.size() > 50 && f.maxLoad > 0, "forecast has a profile (" + f.points.size() + ")");
-        check(f.totalS > plan.totalS + 60 && f.totalS < plan.totalS + 1800,
-                "forecast = impulses + the imposed rests (" + Math.round(f.totalS) + " vs " + plan.totalS + ")");
+        check(Math.abs(f.totalS - plan.totalS) < 15,
+                "forecast = the plan's time on the real clock, rests inside (" + Math.round(f.totalS) + " vs " + plan.totalS + ")");
         for (int i = 1; i < f.phaseStartS.length; i++) {
             check(f.phaseStartS[i] > f.phaseStartS[i - 1], "phases in order on the timeline");
         }
@@ -1663,7 +1665,9 @@ public final class AutoSim {
                 "⏭ in the rest skips the coming set: its time is cut from the session (" + setT + " s)");
         {
             AutoEngine.Forecast f0 = e.forecastFrom(late);
-            check(fBefore.totalS - f0.totalS > 0.7 * setT, "⏭ makes the session shorter (" + Math.round(fBefore.totalS)
+            // real clock (1.1.494): the cut set's time leaves the plan; the last set before the recovery is whole
+            // sets on the clock, so the end moves by the cut minus that rounding
+            check(fBefore.totalS - f0.totalS > 0, "⏭ makes the session shorter (" + Math.round(fBefore.totalS)
                     + " → " + Math.round(f0.totalS) + " s)");
             check(Math.abs((f0.totalS - f0.phaseStartS[f0.phaseStartS.length - 1])
                     - (fBefore.totalS - fBefore.phaseStartS[fBefore.phaseStartS.length - 1])) < 15,
@@ -1806,7 +1810,9 @@ public final class AutoSim {
         AutoEngine.Forecast f07 = AutoEngine.forecast(plan, sc, false, 0.7);
         AutoEngine.Forecast f12 = AutoEngine.forecast(plan, sc, false, 1.2);
         // weaker → shorter rests; stronger → longer rests, but the dose budget (§3.4) may end the work earlier
-        check(f07.totalS < f1.totalS && f12.maxLoad > f1.maxLoad, "S1 forecast follows the strength ("
+        // real clock (1.1.494): the strength changes the load and the rests inside the plan, never its end
+        check(Math.abs(f07.totalS - f1.totalS) < 20 && Math.abs(f12.totalS - f1.totalS) < 20
+                && f12.maxLoad > f1.maxLoad, "S1 forecast: load follows the strength, the end stays on the clock ("
                 + Math.round(f07.totalS / 60) + " / " + Math.round(f1.totalS / 60) + " / " + Math.round(f12.totalS / 60) + " min)");
         if (verbose) {
             System.out.println("  S1 rest " + a.getRestMinS() + " vs " + b.getRestMinS() + " s; forecast 0.7/1/1.2 = "

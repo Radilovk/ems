@@ -9,8 +9,11 @@
   'use strict';
   const D2R = Math.PI / 180, R2D = 180 / Math.PI, G = 9.81;
   const ROLES = ['back', 'lwrist', 'rwrist', 'lshank', 'rshank'];
-  const ROLE_BG = { back: 'гръб', lwrist: 'лява китка', rwrist: 'дясна китка', lshank: 'ляв глезен', rshank: 'десен глезен' };
-  const ROLE_LED = { back: 'white', lwrist: 'red', rwrist: 'green', lshank: 'magenta', rshank: 'cyan' };
+  // the recording layout for teaching the arms: the two leg sensors go on the upper arms (outer side, mid upper arm)
+  const ROLES_TEACH = ['back', 'lwrist', 'rwrist', 'lupper', 'rupper'];
+  const ROLE_BG = { back: 'гръб', lwrist: 'лява китка', rwrist: 'дясна китка', lshank: 'ляв глезен', rshank: 'десен глезен',
+    lupper: 'лява мишница', rupper: 'дясна мишница' };
+  const ROLE_LED = { back: 'white', lwrist: 'red', rwrist: 'green', lshank: 'magenta', rshank: 'cyan', lupper: 'yellow', rupper: 'blue' };
 
   // ---------- 3×3 rotation matrices (row-major arrays of 9) and vectors
   const I3 = () => [1, 0, 0, 0, 1, 0, 0, 0, 1];
@@ -80,10 +83,10 @@
   // ---------- calibration: zero pose (still) → one movement: slow squat with the arms raised forward
   // Finds for every sensor: its body place, its heading ψ, its zero orientation. No setting on the sensors.
   class Calibration {
-    constructor() { this.phase = 'stand'; this.s = {}; this.problems = []; }
+    constructor(opt) { this.phase = 'stand'; this.s = {}; this.problems = []; this.roles = (opt && opt.roles) || ROLES; }
     feed(id, smp) {
       let s = this.s[id];
-      if (!s) s = this.s[id] = { stand: [], q0: null, best: 0, accum: [0, 0, 0], n: 0 };
+      if (!s) s = this.s[id] = { stand: [], q0: null, best: 0, accum: [0, 0, 0], n: 0, amax: 0 };
       const R = qToM(smp.q);
       if (this.phase === 'stand') {
         s.stand.push(R);
@@ -93,6 +96,7 @@
         const a = norm(v) * R2D;
         if (a > s.best) s.best = a;
         if (a > 12) { s.accum = add(s.accum, v); s.n++; }
+        s.amax = Math.max(s.amax, Math.abs(norm(smp.acc) - 1));   // how hard it is swung: the wrist far more than the upper arm
       }
     }
     // zero pose: average of the last ~0.8 s of every sensor
@@ -117,22 +121,25 @@
         const ax = unit(s.accum);
         const nrm = mv(s.q0, [0, 0, 1]);                     // board normal (top side, away from the body)
         const ah = unit([ax[0], ax[1], 0]), nh = unit([nrm[0], nrm[1], 0]);
-        feat[id] = { ang: s.best, ax, ah, nh, d: dot(ah, nh), vert: Math.abs(ax[2]), tilt: Math.abs(nrm[2]), n: s.n };
+        feat[id] = { ang: s.best, ax, ah, nh, d: dot(ah, nh), vert: Math.abs(ax[2]), tilt: Math.abs(nrm[2]), n: s.n, amax: s.amax };
       }
       const roleCost = (r, f, flip) => {
         const d = flip ? -f.d : f.d;
         if (r === 'back') return 3 * Math.abs(d) + (f.ang > 75 ? 2 : 0);
         const big = Math.max(0, (60 - f.ang) / 20), mid = Math.max(0, (f.ang - 60) / 20);
-        if (r === 'lwrist') return Math.abs(d + 1) + big;
-        if (r === 'rwrist') return Math.abs(d - 1) + big;
+        if (r === 'lwrist' || r === 'lupper') return Math.abs(d + 1) + big;
+        if (r === 'rwrist' || r === 'rupper') return Math.abs(d - 1) + big;
         if (r === 'lshank') return Math.abs(d - 1) + mid;
         return Math.abs(d + 1) + mid;                        // rshank
       };
       let best = null;
       for (const flip of [false, true]) {
-        permute(ids, ROLES, (map) => {
+        permute(ids, this.roles, (map) => {
           let c = 0;
           for (const id in map) c += roleCost(map[id], feat[id], flip);
+          // same side, same rotation: the wrist is the one swung harder (further from the shoulder)
+          const who = {}; for (const id in map) who[map[id]] = id;
+          for (const sd of ['l', 'r']) if (who[sd + 'upper'] && who[sd + 'wrist'] && feat[who[sd + 'upper']].amax > feat[who[sd + 'wrist']].amax) c += 3;
           if (!best || c < best.cost) best = { cost: c, map: { ...map }, flip };
         });
       }
@@ -149,14 +156,14 @@
       for (const id in assign) {
         const f = feat[id], r = assign[id];
         if (!f) continue;
-        const exp = r === 'lwrist' || r === 'rwrist' ? -Math.PI / 2 : Math.PI / 2;   // expected axis: ∓y
+        const exp = /wrist|upper/.test(r) ? -Math.PI / 2 : Math.PI / 2;   // expected axis: −y for the arms, +y else
         out.psi[id] = exp - Math.atan2(f.ah[1], f.ah[0]);
         out.q0[id] = this.s[id].q0;
         if (f.ang < 15 || f.n < 5) out.problems.push(ROLE_BG[r] + ': почти не помръдна');
         if (f.vert > 0.6) out.problems.push(ROLE_BG[r] + ': движението не беше напред');
       }
       const placed = Object.values(assign);
-      for (const r of ROLES) if (!placed.includes(r)) out.problems.push('липсва ' + ROLE_BG[r]);
+      for (const r of this.roles) if (!placed.includes(r)) out.problems.push('липсва ' + ROLE_BG[r]);
       if (best && best.cost > 3.5) out.problems.push('несигурно разпознаване — провери цветовете');
       out.ok = out.problems.length === 0;
       return out;
@@ -506,7 +513,11 @@
       } else a.Uout = a.U;
       return F;
     }
-    armU(side) { const a = this.arm[side]; return a.Uout || a.U; }
+    armU(side) {
+      const m = this.role && this.role[side + 'upper'] && this.seg(side + 'upper');   // teacher sensor: measured
+      if (m) return m.R;
+      const a = this.arm[side]; return a.Uout || a.U;
+    }
 
     // legs: unknown knee flexions κl, κr. Each foot's chain (ankle → shank (measured) → thigh (hinged on the knee axis
     // of the shank, angle κ) → hip) must meet the other at the pelvis, and the body's centre of mass must stand over
@@ -782,7 +793,7 @@
   }
 
   // the five sensors on the scripted person: mounting (board bottom to the body, random spin), heading offsets
-  function makeRig(seed) {
+  function makeRig(seed, roleSet) {
     let s = seed || 7;
     const rnd = () => { s = (s * 16807) % 2147483647; return s / 2147483647; };
     const mount = (z, x, spin, tilt) => {
@@ -792,12 +803,12 @@
     };
     const rig = {};
     const ids = ['A1F0', 'B2E1', 'C3D2', 'D4C3', 'E5B4'];
-    const roles = ROLES.slice().sort(() => rnd() - 0.5);    // the test does not know who is where
+    const roles = (roleSet || ROLES).slice().sort(() => rnd() - 0.5);    // the test does not know who is where
     roles.forEach((r, i) => {
       const spin = (rnd() * 2 - 1) * Math.PI, tilt = (rnd() * 2 - 1) * 8 * D2R;
       let M;
       if (r === 'back') M = mount([-1, 0, 0], [0, 0, 1], spin, (rnd() * 2 - 1) * 15 * D2R);
-      else if (r === 'lwrist' || r === 'lshank') M = mount([0, 1, 0], [0, 0, -1], spin, tilt);
+      else if (r === 'lwrist' || r === 'lshank' || r === 'lupper') M = mount([0, 1, 0], [0, 0, -1], spin, tilt);
       else M = mount([0, -1, 0], [0, 0, -1], spin, tilt);
       rig[ids[i]] = { role: r, M, psi: (rnd() * 2 - 1) * Math.PI };
     });
@@ -831,6 +842,7 @@
     const s = role[0] === 'l' ? 'l' : 'r', sgn = s === 'l' ? 1 : -1;
     if (role === 'back') return { R: f.R.trunk, p: add(f.J.neck, mv(f.R.trunk, [-0.08, 0, -0.06])) };
     if (role.endsWith('wrist')) return { R: f.R[s + 'fore'], p: add(f.J[s + 'wrist'], mv(f.R[s + 'fore'], [0, sgn * 0.03, 0.03])) };
+    if (role.endsWith('upper')) return { R: f.R[s + 'upper'], p: add(f.J[s + 'sh'], mv(f.R[s + 'upper'], [0, sgn * 0.05, -0.15])) };
     return { R: f.R[s + 'shank'], p: add(f.J[s + 'ankle'], mv(f.R[s + 'shank'], [0, sgn * 0.05, 0.08])) };
   }
   // the angles a coach reads, from a true frame (same definitions as Body.solve)
@@ -1000,7 +1012,7 @@
     return { t, R: m.R, q: mToQ(mul(rz(r.psi), m.R)), gyro: sc(w, R2D), acc: sc(mv(T(m.R), acc), 1 / G), still: false };
   }
 
-  const api = { ROLES, ROLE_BG, ROLE_LED, Calibration, Body, RepCounter, ArmPrior, decodeFrame, bodyDims,
+  const api = { ROLES, ROLES_TEACH, ROLE_BG, ROLE_LED, Calibration, Body, RepCounter, ArmPrior, decodeFrame, bodyDims,
     sim: { SCRIPT, scriptAt, scriptLength, simBody, makeRig, simSample, ikLeg, scriptFrame, blendFrames, sensorOnFrame, truthAngles, Mocap, Timeline },
     m: { mul, T, mv, rot, rx, ry, rz, logm, expm, qToM, mToQ, yawOf, angBetween, add, sub, sc, dot, cross, norm, unit, D2R, R2D } };
   if (typeof module !== 'undefined' && module.exports) module.exports = api; else root.XemsMotion = api;

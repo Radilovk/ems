@@ -10,6 +10,9 @@
 - TrainItem$1.onTick: the vendor cut the milliseconds left to whole seconds, so every ❚❚ / ▶ lost up to 1.1 s and a
   20:00 training showed 19:59 at once. ProgramLive.tickWork rounds the shown second up and keeps the exact rest;
   TrainItem.start restarts the countdown from it (ProgramLive.workMs).
+- TrainItem.startPulse: every ON / pause phase started when the previous one's callback ran, so each boundary added
+  its lateness and the counted cycles (Auto, maps, Smart Session) ran slower than the clock. ProgramLive.phaseMs
+  times a phase from the planned end of the one before (1.1.494).
 Runs after apply-double-impulse.py (modeCarry + xemsRestartPulse) and apply-live-settings.py.
 """
 from __future__ import annotations
@@ -87,6 +90,12 @@ START_RE = re.compile(
     r"int-to-long (v\d+), \1\n")
 
 
+PULSE_RE = re.compile(
+    r"    iget (v\d+), (v\d+), " + re.escape(W) + r"->secondValue:I\n(?:\s*\.line \d+\n)?\s*"
+    r"mul-int/lit16 \1, \1, 0x3e8\n(?:\s*\.line \d+\n)?\s*"
+    r"int-to-long (v\d+), \1\n")
+
+
 def method(text: str, sig: str) -> tuple[int, int]:
     a = text.find(sig)
     if a < 0:
@@ -125,8 +134,22 @@ def main() -> None:
     body = body[:m.start()] + (f"    invoke-static {{p0}}, {PL}->workMs({TI})J\n\n"
                                f"    move-result-wide {m.group(2)}\n") + body[m.end():]
     text = text[:a] + body + text[b:]
-    ITEM.write_text(text, encoding="utf-8")
     print("TrainItem.start: the countdown resumes from the exact milliseconds left")
+
+    m = re.search(r"^\.method [a-z -]*startPulse\(\)V$", text, re.M)
+    if not m:
+        sys.exit("apply-mode-stages: TrainItem.startPulse not found")
+    a, b = method(text, m.group(0))
+    body = text[a:b]
+    m = PULSE_RE.search(body)
+    if not m or len(PULSE_RE.findall(body)) != 1:
+        sys.exit("apply-mode-stages: TrainItem.startPulse secondValue * 1000 not found")
+    body = body[:m.start()] + (f"    iget {m.group(1)}, {m.group(2)}, {W}->secondValue:I\n\n"
+                               f"    invoke-static {{p0, {m.group(1)}}}, {PL}->phaseMs({TI}I)J\n\n"
+                               f"    move-result-wide {m.group(3)}\n") + body[m.end():]
+    text = text[:a] + body + text[b:]
+    ITEM.write_text(text, encoding="utf-8")
+    print("TrainItem.startPulse: each ON / pause phase is timed from the planned end of the one before")
 
     tick = TICK.read_text(encoding="utf-8")
     m = TICK_RE.search(tick)

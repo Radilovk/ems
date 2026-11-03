@@ -504,6 +504,8 @@ public final class MapRunner {
     private static void tick() {
         long now = System.currentTimeMillis();
         double dt = Math.max(0, Math.min(2000, now - lastTickMs)) / 1000.0;
+        // the map's clock takes the real time whole (1.1.494): a tick late by more than 2 s lost the rest
+        double clockS = Math.max(0, now - lastTickMs) / 1000.0;
         lastTickMs = now;
         TrainItem lead = leader();
         if (lead == null) {
@@ -524,7 +526,7 @@ public final class MapRunner {
             dyn.advance(dt, running && work, on, work ? s.hz : 0, work ? s.pauseHz : 0, work ? s.pauseSigma : 0,
                     work ? b.rel / 100.0 : 0);
         }
-        if (running && clock.tick(dt)) {
+        if (running && clock.tick(clockS)) {
             apply(false);
         }
         idleS = running ? 0 : idleS + dt;

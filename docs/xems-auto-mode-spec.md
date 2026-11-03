@@ -674,3 +674,36 @@ SOLO), коридор, доза, пауза и меко връщане, вълн
 - Избор → „Напред“: Авто се затваря и се отваря екранът на процедурата за костюма на този ред (`BtAusScreen.open`) —
   зони, ниво, време, ▶. Двигателят на Авто не я води (носещата 1–2 kHz не е параметър на XEMS).
 - Данни и граници: `docs/xems-modulation.md`.
+
+## 18. The plan clock is the real clock (owner, 1.1.494)
+
+Owner: "the stages and time blocks drifted far from the real clock — tie every time to the tablet's clock; 30 min = 30 min".
+Before, `AutoEngine.elapsedS` (phases, end) ran only with the impulses: the rests between sets, the countdowns, the HR
+pause and the wait for ▶ held it. A 30 min active program ran 45–47 min and its recovery began at the 35th minute.
+
+- **What counts:** RUN, REST (the whole rest, also past its minimum), HR_PAUSE and the countdown after a rest / HR
+  pause. **Only ❚❚** (USER_PAUSE and the countdown after it) and the very first countdown hold the phases; the session
+  clock (`getSessionS`) still shows the pause as it lasts.
+- **Sets and phases:** a set belongs to the phase that holds most of it — at a set's end the coming set's phase is
+  taken at (now + its rest + 3 s countdown + ½ set); a long rest moves the coming set into the next phase by itself.
+  The phase of the next set is fixed at the set's start (`predictNext`), so "next" announced in the set is the one that
+  comes. A rest whose active part runs out becomes the wait for the recovery: it lasts until the recovery's planned
+  start (the ring counts it down, ⏭ skips it), so the recovery starts on time, not early and not late.
+- **Jumps** (■ → recovery, dose budget, skip to the recovery) are not session time (`jumpedS`); ⏭ still cuts plan time.
+- **History:** `getImpulseS` = the impulse time really run (`runS`), no longer plan − skipped.
+- **Result (AutoSim drift check, every program):** end = plan ± 3–7 s (the 3 s start countdown + cycle rounding);
+  phase starts within ½ set; the same with the trainer 25 s late at every ▶.
+- **Smart Session** (`AiEngine`): the rest waiting for the manual continue, CHECKPOINT and the safety pause
+  (STIM_PAUSE) count; the time past a phase's end goes into the next phase (was dropped every phase); the 2 s tick cap
+  no longer cuts the clock. AiSim checks every session ends within 30 s of its plan.
+- **Maps** (`MapRunner`): the 2 s tick cap no longer cuts the map clock.
+- **Every row's impulse cycle** (`ProgramLive.phaseMs`, hooked in `TrainItem.startPulse` by
+  `scripts/apply-mode-stages.py`): each ON / pause phase is timed from the planned end of the one before, so the
+  callback lateness of every boundary no longer adds up — the cycles that Auto, the maps and the Smart Session count
+  are as long as the clock says.
+- **1.1.495 — the cycle hook fired twice per cycle (trainers: "a stage is shown done after far fewer minutes").**
+  `TrainItem$2.onFinish` calls `AiSession.onPulseCycle` at the end of every phase — entering ON and entering the
+  pause. Auto ignored the second call (`onCycle`: inside the running cycle), but `MapClock` (workout maps and
+  procedures: impulse blocks advance by counted repetitions), the Smart Session (`AiEngine.onCycle`, its exercise
+  sets) counted it as a whole cycle: every counted block ended after about half its time. Now `AiSession.onPulseCycle`
+  passes only the call that enters an ON phase (`data.inStart`).

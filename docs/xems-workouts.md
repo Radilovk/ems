@@ -134,6 +134,8 @@ without a switch. **Procedures (passive maps) stay exactly as drawn.**
   trainings, power OFF ≥ 2·ON, glide in the sets) and every exercise of `library.json` (classified, approaches fit the
   movement, 🔒) — anything added later is checked at the next build.
 - `MapClock`: the time fallback waits for the real cycle length (`setCycleS`), a rest can be extended (`setRestS`).
+- 1.1.495: the device hook fired at both phase ends (ON and pause), so `MapClock` counted 2 repetitions per real
+  cycle and an impulse block ended after about half its time. `AiSession.onPulseCycle` now passes only the ON start.
 - Test: `run-auto.sh` → MapSim `dynamics()`.
 
 ## Audit 1.1.256 — the backend decides, the screen stays quiet

@@ -33,6 +33,7 @@ public class AiSim {
         Set<Integer> hzSeen = new TreeSet<>();
         long readySince = -1, pauseUntil = -1; boolean paused = false;
         minReentry = 1.0; idleWhileWaiting = 0; earlyContinueAccepted = 0; longOffActive = 0;
+        long endAt = -1;
         for (int step = 0; step < 4 * 60 * 60 * 4; step++) {
             t += 250;
             long rel = (t - 1_000_000L) / 1000;
@@ -88,11 +89,19 @@ public class AiSim {
                 if (e.canResume()) e.resume(t);
                 if ("checkpoint".equals(e.getPauseReason())) e.answerCheckpoint(6, t);
             }
-            if (s == AiEngine.State.DONE || s == AiEngine.State.STOPPED) break;
+            if (s == AiEngine.State.DONE || s == AiEngine.State.STOPPED) { endAt = t; break; }
         }
         check(silentDuringPause == 0, name + " output during STIM_PAUSE");
         check(earlyContinueAccepted == 0, name + " continue accepted before the rest threshold");
-        check(idleWhileWaiting < 1e-6, name + " plan clock ran while waiting for continue");
+        // real clock (owner, 1.1.494): the wait for the manual continue is plan time too — the session ends on time
+        if (stopAtS <= 0 && endAt > 0 && e.getState() == AiEngine.State.DONE && e.getFlags().isEmpty()) {
+            double total = 0;
+            for (AiModel.Phase ph : plan.phases) total += ph.durationS;
+            double wall = (endAt - 1_000_000L) / 1000.0 - (pauseAtS > 0 ? pauseLenS : 0)
+                    - (endAt - 1_000_000L > total * 1000 + 50000 ? AiEngine.RECOVERY_MS / 1000.0 : 0);   // the HRR 60 s after
+            if (print || Math.abs(wall - total) >= 30) System.out.println("  " + name + " wall " + wall + " s vs plan " + total + " s");
+            check(Math.abs(wall - total) < 30, name + " session on the real clock (" + Math.round(wall) + " vs " + Math.round(total) + " s)");
+        }
         check(mode != Mode.ACTIVE || longOffActive == 0, name + " ACTIVE tetanic pause > 4 s");
         System.out.printf("%-22s state=%-8s blocks=%2d maxFrac=%.2f q=%.0f/%.0f (plan %.0f) u=%.2f capHits=%d L1..u=%d/%d/%d/%d/%d corridor=%s hrr60=%s flags=%s hz=%s%n",
             name, e.getState(), e.getBlocks().size(), maxFrac, e.getQUsed()/1e6, e.getQBudget()/1e6, plan.qPlan/1e6, e.getU(), e.getCapHits(),

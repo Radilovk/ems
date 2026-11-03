@@ -13,6 +13,7 @@ Status: **phase 1 built and tested offline** — firmware, host core, test bench
 | Build → `.uf2` + Bluetooth OTA zips | `sh scripts/motion/build-motion.sh` → `motion/xems-motion-sense*.uf2` |
 | Host core: calibration, identification, pose, reps (JS, no deps) | `motion/viewer/motion-core.js` |
 | Test bench (Chrome, Web Bluetooth, demo person) | `motion/viewer/index.html` |
+| 3-D body (three.js r158 vendored, MIT), muscle zones = XEMS channels | `motion/viewer/body3d.js`, `motion/viewer/vendor/three-r158.min.js` |
 | Offline end-to-end test | `sh scripts/motion-sim/run.sh` (scripted, pass/fail) · `sh scripts/motion-sim/run.sh mocap` (real people) |
 | Real movements (CMU mocap, 9 clips, 80 s) | `motion/mocap/cmu.js` ← `python3 scripts/motion/cmu2json.py <dir with .asf/.amc>` |
 
@@ -139,12 +140,29 @@ that. What the real data changed in the solver (2026-11-03):
   on the wrist's **velocity** (integrated from rest), far less noisy than its acceleration.
 - `logm` fixed for tiny rotations (< 0.06° returned garbage — hit slow arm movements).
 
-## The figure (test page)
-A robot in the style of the **Android robot** (Google, CC BY 3.0 — attribution on the page): green capsule limbs
-beside a rounded torso, dome head with antennae and eyes that face where the chest faces; drawn on a plain canvas
-(no library), painter-sorted, light highlight per capsule. In "Демо" the real person's skeleton is drawn over it in
-orange ("Истина") — the robot is what the five sensors say, the orange lines what the person really did.
-"Демо" offers the XEMS script or any CMU clip (played three times, each round recalibrated) or all in a row.
+## The 3-D body (owner 2026-11-03: "a 3-D model that moves in sync with the body")
+`body3d.js` — WebGL (three.js r158, vendored so the tablet needs no internet; `three.min.js` works from file://, ES
+modules would not). A mannequin built from lathe-shaped segments (thigh, calf, chest… radius profiles per segment),
+joint balls, head, hands, feet, and the five sensors as small boxes where they sit, lit in their place colour after
+calibration. Posed every frame from `pose.R` (segment rotations, new in `Body.solve`) and `pose.J` (joints), segment
+length = the real joint distance, so it is exactly what the solver says. Soft shadow on the floor, drag to orbit,
+two fingers / wheel to zoom, front / side / 3-D views, "Робот" switches to the Android-style robot (Google, CC BY 3.0).
+**Muscle zones are separate meshes named by the XEMS channel under them** (Гърди, Корем, Гръб, Кръст, Глутеус,
+Трапец, Предно / Задно бедро, Прасец, Ръце): `fig.setChannels({ 'Предно бедро': 0.8, … })` makes them glow — the hook
+for the impulse sync. In "Демо" the real person is a translucent orange body standing on the same spot ("Истина").
+Without WebGL the page falls back to the flat drawing.
+
+Solver changes from watching it (2026-11-03): at rest and upright the static balance re-anchors the pelvis height
+(the back sensor's travel drifts slowly between rests); standing still, the feet as tracked are compared with each
+foot put back beside the other and the clearly better fit wins (a misread step no longer locks a knee straight — a
+real lunge keeps its feet because its shanks cannot close the chain otherwise).
+
+## Precision today — what to trust (5 sensors)
+| measured directly (≈ 1–2°, < 20 ms) | derived from physics (good) | inferred (approximate) |
+|---|---|---|
+| trunk lean / side bend / twist, forearm and shank angles, all angular speeds, back-sensor height travel | knees and hips in squat-type work (2–8°), pelvis height, steps | upper arms → elbow / shoulder (12–25°), knees in jumps and one-leg moves |
+For the impulse sync, drive timing from the measured signals (trunk, shanks, forearms and their speeds — the phase
+of a squat is the shank / trunk angle and its sign of speed); use the inferred joints for display and ROM.
 
 ## Limits with five sensors (honest)
 - **No pelvis sensor**: trunk and pelvis are one segment; lumbar flexion and hip flexion are not separated, hip

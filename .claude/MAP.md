@@ -1087,18 +1087,19 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L95 ## Left out on purpose
   - L103 ## Safety
 
-`docs/xems-motion.md` (167L)
+`docs/xems-motion.md` (185L)
   - L1 # XEMS Motion — body pose from five XIAO nRF52840 Sense sensors
-  - L19 ## Design in one picture
-  - L32 ## Hardware and placement
-  - L42 ## Sensor firmware (`fusion.h`, `xems_motion.ino`)
-  - L53 ## Calibration (≈ 6 s, one tap) — finds places, headings, zero
-  - L67 ## Pose solver (`Body.solve`, per back-sensor sample, < 1 ms)
-  - L86 ## Offline test (`sh scripts/motion-sim/run.sh`, ≈ 10 s)
-  - L103 ## Real movements — CMU motion capture (owner 2026-11-03: "precise movement templates")
-  - L142 ## The figure (test page)
-  - L149 ## Limits with five sensors (honest)
-  - L158 ## Roadmap
+  - L20 ## Design in one picture
+  - L33 ## Hardware and placement
+  - L43 ## Sensor firmware (`fusion.h`, `xems_motion.ino`)
+  - L54 ## Calibration (≈ 6 s, one tap) — finds places, headings, zero
+  - L68 ## Pose solver (`Body.solve`, per back-sensor sample, < 1 ms)
+  - L87 ## Offline test (`sh scripts/motion-sim/run.sh`, ≈ 10 s)
+  - L104 ## Real movements — CMU motion capture (owner 2026-11-03: "precise movement templates")
+  - L143 ## The 3-D body (owner 2026-11-03: "a 3-D model that moves in sync with the body")
+  - L160 ## Precision today — what to trust (5 sensors)
+  - L167 ## Limits with five sensors (honest)
+  - L176 ## Roadmap
 
 `docs/xems-part-strength.md` (212L)
   - L1 # Избрани мускулни групи: сила на импулсите само за тях (v1.1.85, двата импулса поотделно от 1.1.366)

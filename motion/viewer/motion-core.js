@@ -227,7 +227,29 @@
       // legs: knee flexion κ (thigh hinged to the shank) from chain closure at the pelvis + balance
       const armsR = {};
       for (const side of ['l', 'r']) armsR[side] = this.armStep(side, S[side === 'l' ? 'lwrist' : 'rwrist'], S.back, Tr, dt);
-      const leg = this.solveLegs(Tr, shanks, armsR, true);
+      // at rest and upright-ish the static balance is exact (nothing accelerates): it re-anchors the pelvis height
+      // the back sensor's travel slowly drifts from — not during movement, not in deep bends (balance is weakest there)
+      const hh = this.height;
+      if (hh.ok && hh.calm * dt > 0.5 && Math.abs(this.prevPose ? this.prevPose.A.trunkLean : 0) < 30) {
+        const zb = this.solveLegs(Tr, shanks, armsR, false).P[2] - this.pelvisZ0(Tr);
+        hh.z += (zb - hh.z) * Math.min(1, dt / 0.7);
+      }
+      let leg = this.solveLegs(Tr, shanks, armsR, true);
+      // standing still, the feet must explain what the shanks and the balance say. Try the feet as tracked, and each
+      // foot put back beside the other (a misread step); keep what fits clearly better. A real lunge keeps its feet:
+      // its tilted shanks cannot close the chain with the feet together.
+      if (!this.foot.l.moving && !this.foot.r.moving && (this.foot.l.p[0] !== this.foot.r.p[0] || Math.abs(this.foot.l.p[1] - this.foot.r.p[1]) > 2.2 * this.dim.hipW || this.foot.l.p[2] || this.foot.r.p[2])) {
+        const keep = { l: this.foot.l.p, r: this.foot.r.p }, kap = this.kappa;
+        let bestC = leg.cost, bestF = null;
+        for (const [mv1, st] of [['l', 'r'], ['r', 'l']]) {
+          const lat = mv(rz(yawOf(Tr)), [0, (mv1 === 'l' ? 2 : -2) * this.dim.hipW, 0]);
+          this.foot[mv1].p = [keep[st][0] + lat[0], keep[st][1] + lat[1], 0];
+          const alt = this.solveLegs(Tr, shanks, armsR, true);
+          if (alt.cost < 0.5 * bestC && leg.cost > 4e-4) { bestC = alt.cost; bestF = { side: mv1, p: this.foot[mv1].p, leg: alt, k: this.kappa }; }
+          this.foot.l.p = keep.l; this.foot.r.p = keep.r; this.kappa = kap;
+        }
+        if (bestF) { this.foot[bestF.side].p = bestF.p; this.foot[bestF.side].air = false; leg = bestF.leg; this.kappa = bestF.k; }
+      }
       // assemble the skeleton
       const P = leg.P;
       const up = (R, L) => mv(R, [0, 0, L]);
@@ -274,7 +296,13 @@
       // speeds: angular speed of each measured segment (°/s) and of the main joints
       const V = {};
       for (const r of ROLES) if (S[r]) V[r] = norm(S[r].w) * R2D;
-      const pose = { t, J, A, V, P, feet: { l: { ...this.foot.l }, r: { ...this.foot.r } }, yaw: yawOf(Tr) * R2D, still: ROLES.every((r) => !S[r] || S[r].still) };
+      // segment rotations (same convention as the true frames): what a 3-D model is posed with
+      const R = { trunk: Tr, pelvis: Tr, head: Tr };
+      for (const side of ['l', 'r']) {
+        R[side + 'shank'] = shanks[side]; R[side + 'thigh'] = mul(shanks[side], ry(-this.kappa[side]));
+        R[side + 'upper'] = this.arm[side].U; R[side + 'fore'] = armsR[side];
+      }
+      const pose = { t, J, R, A, V, P, feet: { l: { ...this.foot.l }, r: { ...this.foot.r } }, yaw: yawOf(Tr) * R2D, still: ROLES.every((r) => !S[r] || S[r].still) };
       if (this.prevPose) {
         const k = 1 / dt, pv = this.prevPose.V, lp = Math.min(1, dt / 0.12);   // speeds smoothed over ~0.1 s
         const ema = (name, v) => { V[name] = pv[name] == null ? v : pv[name] + (v - pv[name]) * lp; };
@@ -343,7 +371,8 @@
       if ((f.calmN * dt > 0.12 && norm(f.v) < 0.25) || f.calmN * dt > 0.5 || Tm > 2.5) {
         // stop: the leftover velocity is drift — its share of the travelled path goes; then is it a real step?
         const end = sub(f.pi, sc(f.v, Tm / 2)), move = norm(sub(end, f.pStart));
-        const real = Tm <= 2.5 && f.vMax > 0.25 && move > 0.1 && move < 0.9 && norm(f.v) < 0.6 && end[2] > -0.05 && end[2] < 0.7;
+        const plausible = move < 0.9 && end[2] > -0.05 && end[2] < 0.7;
+        const real = plausible && f.vMax > 0.25 && move > 0.1 && ((Tm <= 2.5 && norm(f.v) < 0.6) || (move > 0.25 && Tm <= 3.5 && norm(f.v) < 1.0));
         f.p = real ? end : f.pStart;
         f.v = [0, 0, 0]; f.moving = false;
         f.air = f.p[2] > 0.08;
@@ -491,7 +520,7 @@
         }
       }
       this.kappa = { l: bl, r: br };
-      return { P: best.P, gap: Math.sqrt(Math.max(0, best.c)) };
+      return { P: best.P, gap: Math.sqrt(Math.max(0, best.c)), cost: best.c };
     }
   }
   function inv3(m) {

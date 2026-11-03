@@ -29,10 +29,11 @@ button.main { background:var(--acc); color:#fff; font-weight:600; font-size:16px
 .dot { width:12px; height:12px; border-radius:50%; flex:none; background:var(--mute); }
 .sens b { font-weight:600; } .sens .m { color:var(--mute); margin-left:auto; white-space:nowrap; }
 #stage { position:relative; min-height:0; padding:0; overflow:hidden; }
-canvas { width:100%; height:100%; display:block; touch-action:none; }
+canvas { position:absolute; inset:0; width:100%; height:100%; display:block; touch-action:none; }
+#empty { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; color:var(--mute); pointer-events:none; text-align:center; padding:0 20px; }
 #hint { position:absolute; left:12px; bottom:10px; color:var(--mute); font-size:12px; }
-#credit { position:absolute; right:12px; bottom:10px; color:var(--mute); font-size:11px; opacity:.8; }
-#demotitle { position:absolute; left:14px; top:12px; font-weight:600; font-size:15px; }
+#credit { position:absolute; right:12px; bottom:10px; color:var(--mute); font-size:11px; opacity:.8; max-width:55%; text-align:right; }
+#demotitle { position:absolute; left:14px; top:14px; font-weight:600; font-size:15px; max-width:calc(100% - 380px); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 #demos { position:absolute; left:10px; right:10px; top:54px; display:none; flex-wrap:wrap; gap:8px; padding:10px; background:var(--card);
   border:1px solid var(--line); border-radius:14px; box-shadow:0 8px 30px rgba(0,0,0,.15); z-index:2; }
 #demos button { padding:9px 12px; font-size:14px; }
@@ -61,18 +62,20 @@ td.v { text-align:right; font-variant-numeric:tabular-nums; font-weight:600; } t
     <div class="sub" id="note">Сложи сензорите с долната страна към тялото: китките като часовник, подбедриците от външната страна над глезена, гърба между лопатките.</div>
   </div>
 </div>
-<div class="card" id="stage"><canvas id="cv"></canvas>
-  <div id="view"><button id="ghost" title="оранжево: истинското движение на човека (демо)">Истина</button><button data-v="front">Отпред</button><button data-v="side">Отстрани</button><button data-v="free">3D</button></div>
+<div class="card" id="stage"><canvas id="gl"></canvas><canvas id="cv"></canvas><div id="empty"></div>
+  <div id="view"><button id="style" title="човек / робот">Робот</button><button id="ghost" title="оранжево: истинското движение на човека (демо)">Истина</button><button data-v="front">Отпред</button><button data-v="side">Отстрани</button><button data-v="free">3D</button></div>
   <div id="demotitle"></div><div id="demos"></div>
   <div id="credit">Робот: по Android robot на Google (CC BY 3.0) · движения: CMU Graphics Lab Motion Capture Database</div>
-  <div id="hint">Влачи за завъртане</div></div>
+  <div id="hint">Влачи — завърти · два пръста — приближи</div></div>
 <div class="col">
   <div class="card" id="reps"><div class="n" id="rn">0</div><div class="k" id="rk">повторения</div><div class="ph" id="rp">в покой</div></div>
   <div class="card" id="angles"><table id="tbl"></table></div>
 </div>
 <div id="wiz"><div class="box"><div class="big" id="wn">1</div><div><h2 id="wt"></h2><p id="wp"></p><div class="res" id="wr"></div>
   <div class="row" style="margin-top:12px"><button id="wcancel">Отказ</button><button id="wok" class="main" style="display:none">Готово</button></div></div></div></div>
+<script src="vendor/three-r158.min.js"></script>
 <script src="motion-core.js"></script>
+<script src="body3d.js"></script>
 <script src="../mocap/cmu.js"></script>
 <script>
 'use strict';
@@ -177,7 +180,7 @@ function startDemo(which) {
 function demoTitle() {
   if (!demo || demo.t == null) return '';
   const p = demo.tl.parts.find((q) => demo.t < q.t0 + q.len);
-  return !p ? '' : p.kind === 'clip' ? p.title + ' · истински човек (CMU)' : p.kind === 'script' && p.name === 'calib' ? 'калибрация' : p.kind === 'script' ? 'сценарий XEMS' : '';
+  return !p ? '' : p.kind === 'clip' ? p.title + ' · истински човек' : p.kind === 'script' && p.name === 'calib' ? 'калибрация' : p.kind === 'script' ? 'сценарий XEMS' : '';
 }
 
 // ---------- calibration wizard: zero pose → slow squat with the arms forward
@@ -212,6 +215,7 @@ function wizTick() {
 function finishCal() {
   const res = cal.finish(); cal = null; wiz.phase = 'done';
   body.calibrate(res);
+  litSensors();
   for (const id in res.assign) send(id, 'led ' + X.ROLE_LED[res.assign[id]] + ' blink');
   show(res.ok ? '✓' : '!', res.ok ? 'Готово — всички сензори са намерени' : 'Почти готово', 'Всеки сензор свети в цвета на мястото си.');
   $('wr').innerHTML = Object.entries(res.assign).map(([id, r]) => `<span style="color:${LEDCSS[X.ROLE_LED[r]]}">●</span> ${X.ROLE_BG[r]} — ${id}`).join('<br>') +
@@ -229,7 +233,8 @@ $('rec').onclick = () => {
   rec = null; $('rec').textContent = '● Запис';
 };
 $('theme').onclick = () => { const r = document.documentElement; r.dataset.theme = r.dataset.theme === 'dark' ? 'light' : 'dark'; };
-document.querySelectorAll('#view button').forEach((b) => b.onclick = () => {
+document.querySelectorAll('#view button[data-v]').forEach((b) => b.onclick = () => {
+  if (b3) { b3.view.yaw = b.dataset.v === 'front' ? 0 : b.dataset.v === 'side' ? Math.PI / 2 : 0.55; b3.view.pitch = b.dataset.v === 'free' ? 0.12 : 0.05; }
   view.mode = b.dataset.v; if (view.mode === 'front') { view.yaw = 0; view.pitch = 0.08; } if (view.mode === 'side') { view.yaw = -Math.PI / 2; view.pitch = 0.08; }
 });
 
@@ -368,7 +373,25 @@ function capsule(a, b, r, side) {
   ctx.strokeStyle = GREEN_L; ctx.globalAlpha = 0.55; ctx.lineWidth = r * 0.22;
   ctx.beginPath(); ctx.moveTo(a[0] + nx * o, a[1] + ny * o); ctx.lineTo(b[0] + nx * o, b[1] + ny * o); ctx.stroke(); ctx.globalAlpha = 1;
 }
-function loop() { wizTick(); render(); drawPanels(); requestAnimationFrame(loop); }
+// ---------- the 3-D body (WebGL); the flat drawing above stays as the fallback
+let b3 = null;
+try { b3 = new XemsBody3D.Body3D($('gl')); $('cv').style.display = 'none'; } catch (e) { $('gl').style.display = 'none'; }
+$('style').onclick = () => { if (!b3) return; const r = b3.style === 'human'; b3.setStyle(r ? 'robot' : 'human', body.dim.H); $('style').textContent = r ? 'Човек' : 'Робот'; litSensors(); };
+const LEDHEX = { white: '#ffffff', red: '#ff3b30', green: '#30d158', magenta: '#d63af9', cyan: '#00c7d4' };
+function litSensors() {
+  if (!b3 || !body.cal) return;
+  const m = {}; for (const id in body.cal.assign) m[body.cal.assign[id]] = LEDHEX[X.ROLE_LED[body.cal.assign[id]]];
+  b3.fig.lightSensors(m);
+}
+function render3d() {
+  $('demotitle').textContent = demoTitle();
+  if (b3.H !== body.dim.H) b3.setStyle(b3.style, body.dim.H);
+  const dark = matchMedia('(prefers-color-scheme: dark)').matches && document.documentElement.dataset.theme !== 'light' || document.documentElement.dataset.theme === 'dark';
+  const truth = ghost && demo && demo.t != null ? demo.tl.frame(demo.t) : null;
+  b3.frame(pose, truth, dark);
+  $('empty').textContent = pose ? '' : Object.keys(sensors).length ? 'Калибрирай, за да се появи фигурата' : 'Свържи сензорите или пусни демо';
+}
+function loop() { wizTick(); if (b3) render3d(); else render(); drawPanels(); requestAnimationFrame(loop); }
 drawSensors(); loop();
 </script>
 </body>

@@ -10,6 +10,9 @@ const fs = require('fs');
 const path = require('path');
 const vm = require('vm');
 const M = require('../../motion/viewer/motion-core.js');
+// the arm prior (learned from other people's motion capture), as the page loads it
+{ const f = path.join(__dirname, '../../motion/viewer/models/armdb.js');
+  if (fs.existsSync(f) && !process.env.NO_ARMDB) { const c = { self: {} }; vm.runInNewContext(fs.readFileSync(f, 'utf8'), c); global.XEMS_ARMDB = c.self.XEMS_ARMDB; } }
 const { mul, T, mv, sub, add, sc, norm, D2R } = M.m;
 const [, , mode, dir, kind, clipArg] = process.argv;
 const MOCAP = kind === 'mocap';

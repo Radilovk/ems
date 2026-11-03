@@ -135,7 +135,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/mastogo/MastogoSim.java` (600L) — Offline test of the MASTOGO module: the real MastogoShell talks to a simulated H-024B that answers the way the vendor a…
 - `scripts/mastogo/run.sh` (12L) — Offline test of the MASTOGO H-024B module: the real MastogoShell against a simulated unit (no unit, no tablet).
 - `scripts/motion/build-motion.sh` (33L) — XEMS Motion sensor firmware → motion/xems-motion-sense.uf2 and motion/xems-motion-sense-plus.uf2 (XIAO nRF52840
-- `scripts/motion/cmu2json.py` (160L) — CMU Graphics Lab Motion Capture (mocap.cs.cmu.edu, free for any use) ASF/AMC → motion/mocap/cmu.js, the real human move…
+- `scripts/motion/cmu2json.py` (165L) — CMU Graphics Lab Motion Capture (mocap.cs.cmu.edu, free for any use) ASF/AMC → motion/mocap/cmu.js, the real human move…
 - `scripts/motion-sim/run.sh` (35L) — Offline end-to-end test of the XEMS Motion module (docs/xems-motion.md): a person → raw IMU (bias, drift, noise) →
 - `scripts/music-sim/MusicAutoTuneSim.java` (163L) — JVM checks for music → impulse auto-tune.
 - `scripts/music-sim/run.sh` (12L) — Auto-tune checks on the JVM. No Android.
@@ -1087,7 +1087,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L95 ## Left out on purpose
   - L103 ## Safety
 
-`docs/xems-motion.md` (200L)
+`docs/xems-motion.md` (230L)
   - L1 # XEMS Motion — body pose from five XIAO nRF52840 Sense sensors
   - L21 ## Design in one picture
   - L34 ## Hardware and placement
@@ -1099,8 +1099,10 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L144 ## The figure: the VR workout's android (owner 2026-11-03: "use the model we had, don't make a new one")
   - L158 ## The 3-D body (owner 2026-11-03: "a 3-D model that moves in sync with the body")
   - L175 ## Precision today — what to trust (5 sensors)
-  - L182 ## Limits with five sensors (honest)
-  - L191 ## Roadmap
+  - L182 ## Arms: the learned corrector (owner 2026-11-03: "make the arms as accurate as the legs")
+  - L199 ### The way to exact arms: record with teacher sensors (and a video), train on our own exercises
+  - L212 ## Limits with five sensors (honest)
+  - L221 ## Roadmap
 
 `docs/xems-part-strength.md` (212L)
   - L1 # Избрани мускулни групи: сила на импулсите само за тях (v1.1.85, двата импулса поотделно от 1.1.366)
@@ -1444,7 +1446,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L300 ## 10. Сглобяване
   - L317 ## 11. Референции
 
-`motion/viewer/models/CREDITS.md` (8L)
+`motion/viewer/models/CREDITS.md` (9L)
   - L1 # Models and data used by the XEMS Motion test page
 
 `server/CLAUDE.md` (11L)

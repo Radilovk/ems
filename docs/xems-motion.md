@@ -179,6 +179,36 @@ real lunge keeps its feet because its shanks cannot close the chain otherwise).
 For the impulse sync, drive timing from the measured signals (trunk, shanks, forearms and their speeds — the phase
 of a squat is the shank / trunk angle and its sign of speed); use the inferred joints for display and ROM.
 
+## Arms: the learned corrector (owner 2026-11-03: "make the arms as accurate as the legs")
+One wrist IMU does not see the upper arm. The legs are anchored (floor, balance, the back sensor's height); arms have
+no such anchor. What was built (`models/armdb.js`, `scripts/motion/armdb.js`, `ArmPrior` in motion-core.js):
+- The arm physics (per-movement shoulder share fitted on the wrist velocity) runs untouched.
+- A **corrector learnt from data** then gives the arm pose: nearest neighbours (44 k prototypes, 15 numbers each) over
+  *what the wrist sensor sees* (forearm direction and twist in the trunk frame, its turn rate, the wrist's push) **and
+  what the physics concluded** (its upper-arm direction) → the real upper arm. Trained by running the whole chain
+  (sensors → solver) over 108 CMU takes of other people (punches, martial arts, dance, stretches, reaching, squats; 44
+  min) and 40 synthetic EMS sessions (raises, curls, presses, flies, rows, holds, punches, squats with arms forward;
+  random speed, range, elbow bend, wrist turn, size). The physics estimate as an input lets it learn *when the physics
+  is right* (clean raises and curls) and when not (punches, jacks, mixed moves). Right arms are mirrored to left.
+- Result (mean elbow / shoulder error): XEMS script 2–14° / 2–17° (curl the worst); real people (CMU test clips)
+  **18° / 16°** (before: 19° / 17° physics only; a prior without the physics input 12° / 10° on people but 21° on the
+  EMS script). Best clips 7–10°; worst: arms held forward while squatting (≈ 40°) — a held arm forward straight and
+  one bent 35° give the same wrist signal, and the training people did both.
+- So the arms are **not yet as exact as the legs**; the honest limit of one wrist sensor is ≈ 10–20° on the elbow.
+
+### The way to exact arms: record with teacher sensors (and a video), train on our own exercises
+Owner's idea (2026-11-03): record the sensors and a video of the same minutes, compare degrees and movement. Yes —
+and the most effective form of it:
+1. **Teacher sensors**: for the recording sessions only, put **2 more XIAOs on the upper arms** (outer side, middle of
+   the upper arm; + 1 on the sacrum if available). They measure the upper arm directly (~2°): exact labels, no
+   camera. The page's "● Запис" saves every raw sample (`-raw.jsonl`, with the calibration) next to the angles CSV.
+2. **Video** from a phone (60 fps), front or 45°: the visual check (does the figure do what I did?) and, with a pose
+   model (MediaPipe), a rough automatic angle comparison (±10–15° itself — fine for checking, not as truth). Sync:
+   start with 3 jumps — the spike is in the video and in the data.
+3. 20–30 min of the real EMS exercises, 3–5 people → `armdb.js` trains on them (the teacher sensors are the truth;
+   the 5 sensors are what is kept) → the corrector learns exactly our exercises and how our clients hold their arms.
+   Expected: elbow 5–8° with the 5 sensors.
+
 ## Limits with five sensors (honest)
 - **No pelvis sensor**: trunk and pelvis are one segment; lumbar flexion and hip flexion are not separated, hip
   angles come from the leg solve. **A 6th sensor on the sacrum (suit belt) is the single best addition** — it makes

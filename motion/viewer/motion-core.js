@@ -178,6 +178,7 @@
     constructor(opt) {
       opt = opt || {};
       this.dim = bodyDims(opt.height || 1.75);
+      this.armPrior = opt.armPrior !== undefined ? opt.armPrior : defaultArmPrior();
       this.cal = null;
       this.last = {};                                         // id → latest sample
       this.arm = { l: this.newArm(), r: this.newArm() };
@@ -267,7 +268,7 @@
       for (const side of ['l', 'r']) {
         const sgn = side === 'l' ? 1 : -1;
         J[side + 'sh'] = add(J.neck, mv(Tr, [0, sgn * d.shW, -0.03 * d.H]));
-        J[side + 'elbow'] = add(J[side + 'sh'], mv(this.arm[side].U, [0, 0, -d.upper]));
+        J[side + 'elbow'] = add(J[side + 'sh'], mv(this.armU(side), [0, 0, -d.upper]));
         const F = armsR[side];
         J[side + 'wrist'] = add(J[side + 'elbow'], mv(F, [0, 0, -d.fore]));
         J[side + 'hand'] = add(J[side + 'wrist'], mv(F, [0, 0, -d.hand * 0.7]));
@@ -285,7 +286,7 @@
         A[side + 'Knee'] = this.kappa[side] * R2D;
         const thighDown = sub(J[side + 'knee'], J[side + 'hip']);
         A[side + 'Hip'] = angBetween(thighDown, sc(trunkUp, -1)) * R2D;
-        const U = this.arm[side].U, Ft = armsR[side];
+        const U = this.armU(side), Ft = armsR[side];
         const ua = mv(T(Tr), mv(U, [0, 0, -1]));              // upper arm in the trunk frame
         A[side + 'ShFlex'] = Math.atan2(ua[0], -ua[2]) * R2D;
         A[side + 'ShAbd'] = Math.atan2(sgn * ua[1], Math.hypot(ua[0], ua[2])) * R2D;
@@ -300,7 +301,7 @@
       const R = { trunk: Tr, pelvis: Tr, head: Tr };
       for (const side of ['l', 'r']) {
         R[side + 'shank'] = shanks[side]; R[side + 'thigh'] = mul(shanks[side], ry(-this.kappa[side]));
-        R[side + 'upper'] = this.arm[side].U; R[side + 'fore'] = armsR[side];
+        R[side + 'upper'] = this.armU(side); R[side + 'fore'] = armsR[side];
       }
       const pose = { t, J, R, A, V, P, feet: { l: { ...this.foot.l }, r: { ...this.foot.r } }, yaw: yawOf(Tr) * R2D, still: ROLES.every((r) => !S[r] || S[r].still) };
       if (this.prevPose) {
@@ -441,7 +442,7 @@
           if (worstE > 1.3 * bestE) a.k += (bestK - a.k) * Math.min(1, dt * 8);
         }
         const Us = upperAt(a.k);
-        a.U = Us[Us.length - 1];
+        a.U = ortho(Us[Us.length - 1]);
         a.calm = spin < 0.3 ? a.calm + 1 : 0;
         if (a.calm * dt > 0.25) a.moving = false;
       }
@@ -450,8 +451,26 @@
       const flex = angBetween(u, f);
       if (flex > 150 * D2R) a.U = mul(expm(sc(unit(cross(u, f)), flex - 150 * D2R)), a.U);
       a.prevF = F;
+      // the learned corrector (models/armdb.js): real people's arm poses for what the wrist sensor sees AND what the
+      // physics above concluded. The physics runs untouched (its estimate is an input, as in training); the prior
+      // learnt from thousands of real and EMS-style movements when that estimate is right (a clean raise or curl) and
+      // when it is not (punches, jacks, mixed moves) — and where the upper arm really is.
+      if (Sb) {
+        const Tt = T(Tr), mir = side === 'r', S3 = (v) => (mir ? [v[0], -v[1], v[2]] : v);
+        let ww = S3(mv(Tt, wRel)); if (mir) ww = sc(ww, -1);
+        const aa = S3(mv(Tt, acc));
+        a.fa = a.fa ? add(a.fa, sc(sub(aa, a.fa), Math.min(1, dt / 0.05))) : aa;
+        a.feat = { d: S3(mv(Tt, mv(F, [0, 0, -1]))), y: S3(mv(Tt, mv(F, [0, 1, 0]))), w: ww, a: a.fa, u: S3(mv(Tt, mv(a.U, [0, 0, -1]))) };
+      }
+      if (this.armPrior && a.feat) {
+        const P = this.armPrior.predict(this.armPrior.vec(a.feat));
+        const Ur = side === 'r' ? [P[0], -P[1], P[2], -P[3], P[4], -P[5], P[6], -P[7], P[8]] : P;
+        const Up = mul(Tr, Ur);
+        a.Uout = a.Uout ? ortho(slerpM(a.Uout, Up, Math.min(1, dt / 0.06))) : Up;
+      } else a.Uout = a.U;
       return F;
     }
+    armU(side) { const a = this.arm[side]; return a.Uout || a.U; }
 
     // legs: unknown knee flexions κl, κr. Each foot's chain (ankle → shank (measured) → thigh (hinged on the knee axis
     // of the shank, angle κ) → hip) must meet the other at the pelvis, and the body's centre of mass must stand over
@@ -477,7 +496,7 @@
       const sup = support.length ? sc(support.reduce(add), 1 / support.length) : null;
       const trunkC = mv(Tr, [0, 0, 0.17 * d.H]);
       const armC = { l: 0, r: 0 };
-      const armVec = (side) => add(mv(Tr, [0, (side === 'l' ? 1 : -1) * d.shW, d.trunk]), add(sc(mv(this.arm[side].U, [0, 0, -d.upper]), 0.5), sc(mv(armsR[side], [0, 0, -d.fore]), 0.3)));
+      const armVec = (side) => add(mv(Tr, [0, (side === 'l' ? 1 : -1) * d.shW, d.trunk]), add(sc(mv(this.armU(side), [0, 0, -d.upper]), 0.5), sc(mv(armsR[side], [0, 0, -d.fore]), 0.3)));
       const armOff = add(sc(armVec('l'), 0.05), sc(armVec('r'), 0.05));
       const prev = this.kappa;
       // pelvis height measured: standing pelvis height + the back sensor's vertical travel − what the trunk's lean took
@@ -527,6 +546,17 @@
     const [a, b, c, d, e, f, g, h, i] = m, A = e * i - f * h, B = -(d * i - f * g), C = d * h - e * g, det = a * A + b * B + c * C || 1e-12;
     return [A / det, -(b * i - c * h) / det, (b * f - c * e) / det, B / det, (a * i - c * g) / det, -(a * f - c * d) / det, C / det, -(a * h - b * g) / det, (a * e - b * d) / det];
   }
+  let ARMDB = null;
+  function defaultArmPrior() {          // the page loads models/armdb.js (self.XEMS_ARMDB); decoded once
+    const g = typeof self !== 'undefined' ? self : typeof global !== 'undefined' ? global : {};
+    if (!ARMDB && g.XEMS_ARMDB) ARMDB = new ArmPrior(g.XEMS_ARMDB);
+    return ARMDB;
+  }
+  function ortho(R) {                   // back to an exact rotation (products of many small turns drift)
+    const z = unit([R[2], R[5], R[8]]); let y = [R[1], R[4], R[7]];
+    y = unit(sub(y, sc(z, dot(y, z)))); const x = cross(y, z);
+    return [x[0], y[0], z[0], x[1], y[1], z[1], x[2], y[2], z[2]];
+  }
   function slerpM(A, B, k) { return mul(expm(sc(logm(mul(B, T(A))), k)), A); }
   const wrapDeg = (a) => ((a + 540) % 360) - 180;
 
@@ -567,6 +597,51 @@
       return this.out(this.key);
     }
     out(key) { return { count: this.count, total: this.total, key, phase: this.state, last: this.reps[this.reps.length - 1] || null }; }
+  }
+
+
+  // ---------- the arm prior (models/armdb.js, scripts/motion/armdb.js): nearest real-people arm poses for what the
+  // wrist sensor sees — forearm direction and twist in the trunk frame, its turn rate, the wrist's push
+  class ArmPrior {
+    constructor(db) {
+      const dec = (b64, n) => { const bin = typeof atob === 'function' ? Uint8Array.from(atob(b64), (c) => c.charCodeAt(0)) : Buffer.from(b64, 'base64');
+        const buf = new ArrayBuffer(bin.length); new Uint8Array(buf).set(bin); return new Float32Array(buf, 0, n); };
+      this.dim = db.dim || 12; this.n = db.n; this.X = dec(db.X, db.n * this.dim); this.U = dec(db.U, db.n * 9);
+      this.ks = db.ks || 0.12; this.ka = db.ka || 0.03; this.kp = db.kp || 1;
+    }
+    // the search vector (left-arm convention, trunk frame): forearm direction, its twist, turn rate, the wrist's push,
+    // and the physics' own upper-arm direction
+    vec(f) {
+      const v = [f.d[0], f.d[1], f.d[2], 0.6 * f.y[0], 0.6 * f.y[1], 0.6 * f.y[2], this.ks * f.w[0], this.ks * f.w[1], this.ks * f.w[2],
+        this.ka * f.a[0], this.ka * f.a[1], this.ka * f.a[2]];
+      if (this.dim === 15) v.push(this.kp * f.u[0], this.kp * f.u[1], this.kp * f.u[2]);
+      return v;
+    }
+    // x → the upper arm in the trunk frame (row-major 3×3), and how close the match was
+    predict(x, k) {
+      k = k || 8;
+      const best = [], X = this.X;
+      for (let i = 0; i < this.n; i++) {
+        const o = i * this.dim;
+        let d = 0;
+        for (let j = 0; j < this.dim; j++) { const e = X[o + j] - x[j]; d += e * e; if (best.length === k && d >= best[k - 1][0]) break; }
+        if (best.length < k || d < best[k - 1][0]) {
+          best.push([d, i]); best.sort((a, b) => a[0] - b[0]); if (best.length > k) best.pop();
+        }
+      }
+      let z = [0, 0, 0], y = [0, 0, 0], ws = 0;
+      for (const [d, i] of best) {
+        const w = 1 / (d + 0.004), U = this.U, o = i * 9;
+        z = add(z, sc([U[o + 2], U[o + 5], U[o + 8]], w)); y = add(y, sc([U[o + 1], U[o + 4], U[o + 7]], w)); ws += w;
+      }
+      z = unit(z); y = unit(sub(y, sc(z, dot(y, z)))); const xx = cross(y, z);
+      const R = [xx[0], y[0], z[0], xx[1], y[1], z[1], xx[2], y[2], z[2]];
+      // how much the neighbours agree on where the upper arm is (rad): a held arm-forward pose is ambiguous
+      let spread = 0;
+      for (const [d, i] of best) { const o = i * 9; spread += Math.acos(Math.max(-1, Math.min(1, -(this.U[o + 2] * -z[0] + this.U[o + 5] * -z[1] + this.U[o + 8] * -z[2])))) / best.length; }
+      R.dist = Math.sqrt(best[0][0]); R.spread = spread;
+      return R;
+    }
   }
 
   // ---------- simulator: a scripted person wearing the five sensors (demo mode and the offline test)
@@ -888,7 +963,7 @@
     return { t, R: m.R, q: mToQ(mul(rz(r.psi), m.R)), gyro: sc(w, R2D), acc: sc(mv(T(m.R), acc), 1 / G), still: false };
   }
 
-  const api = { ROLES, ROLE_BG, ROLE_LED, Calibration, Body, RepCounter, decodeFrame, bodyDims,
+  const api = { ROLES, ROLE_BG, ROLE_LED, Calibration, Body, RepCounter, ArmPrior, decodeFrame, bodyDims,
     sim: { SCRIPT, scriptAt, scriptLength, simBody, makeRig, simSample, ikLeg, scriptFrame, blendFrames, sensorOnFrame, truthAngles, Mocap, Timeline },
     m: { mul, T, mv, rot, rx, ry, rz, logm, expm, qToM, mToQ, yawOf, angBetween, add, sub, sc, dot, cross, norm, unit, D2R, R2D } };
   if (typeof module !== 'undefined' && module.exports) module.exports = api; else root.XemsMotion = api;

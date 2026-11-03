@@ -76,6 +76,7 @@ td.v { text-align:right; font-variant-numeric:tabular-nums; font-weight:600; } t
 <script src="vendor/three-r158.min.js"></script>
 <script src="vendor/gltf-loader-r158.js"></script>
 <script src="models/android.js"></script>
+<script src="models/armdb.js"></script>
 <script src="motion-core.js"></script>
 <script src="body3d.js"></script>
 <script src="../mocap/cmu.js"></script>
@@ -131,8 +132,11 @@ function onLine(id, l) {
 }
 
 // ---------- samples → calibration / body
+let raw = null;                 // raw sensor log while recording: re-solved offline, synced with a video, used for training
 function onSample(id, smp) {
   const s = sensors[id]; if (!s) return;
+  if (raw) raw.push(JSON.stringify({ id, role: body.cal && body.cal.assign[id] || null, t: +smp.t.toFixed(4), q: smp.q.map((v) => +v.toFixed(5)),
+    g: smp.gyro.map((v) => +v.toFixed(2)), a: smp.acc.map((v) => +v.toFixed(4)), s: smp.still ? 1 : 0 }));
   s.last = smp; s.n++;
   if (cal) cal.feed(id, smp);
   body.feed(id, smp);
@@ -228,11 +232,19 @@ function show(n, t, p) { $('wn').textContent = n; $('wt').textContent = t; $('wp
 const LEDCSS = { white: '#9aa3af', red: '#ff3b30', green: '#30b14c', magenta: '#d63af9', cyan: '#00b7c3' };
 
 // ---------- recording
+// recording: the angles (CSV, for reading) and every raw sensor sample (JSONL, with the calibration) — the raw log
+// can be solved again offline with a better solver, compared with a video of the same minutes, or used to train
 $('rec').onclick = () => {
-  if (!rec) { rec = ['t,' + ANG.map(([k]) => k).join(',') + ',reps']; $('rec').textContent = '■ Спри запис'; return; }
-  const blob = new Blob([rec.join('\n')], { type: 'text/csv' }), a = document.createElement('a');
-  a.href = URL.createObjectURL(blob); a.download = 'xems-motion-' + new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-') + '.csv'; a.click();
-  rec = null; $('rec').textContent = '● Запис';
+  if (!rec) {
+    rec = ['t,' + ANG.map(([k]) => k).join(',') + ',reps'];
+    raw = [JSON.stringify({ start: Date.now(), height: body.dim.H, calibration: body.cal ? { assign: body.cal.assign, psi: body.cal.psi, q0: body.cal.q0 } : null })];
+    $('rec').textContent = '■ Спри запис'; return;
+  }
+  const stamp = new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-');
+  const save = (text, name, type) => { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([text], { type })); a.download = name; a.click(); };
+  save(rec.join('\n'), 'xems-motion-' + stamp + '.csv', 'text/csv');
+  setTimeout(() => save(raw.join('\n'), 'xems-motion-' + stamp + '-raw.jsonl', 'application/json'), 400);
+  rec = null; raw = null; $('rec').textContent = '● Запис';
 };
 $('theme').onclick = () => { const r = document.documentElement; r.dataset.theme = r.dataset.theme === 'dark' ? 'light' : 'dark'; };
 document.querySelectorAll('#view button[data-v]').forEach((b) => b.onclick = () => {

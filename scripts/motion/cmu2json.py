@@ -123,10 +123,10 @@ def scan(dirn, clip):
         print(f'{i / 120:6.1f}s knee {180 - kl:4.0f} elbow {el:4.0f} armUp {arm:4.0f} lean {lean:3.0f} twist {tw:4.0f} hip y {P["root"][1]:.2f}')
 
 
-def pack(dirn, out):
+def pack(dirn, out, clips=None):
     data = {'source': 'CMU Graphics Lab Motion Capture Database, mocap.cs.cmu.edu (NSF EIA-0196217)', 'unit_m': UNIT_M,
             'skeletons': {}, 'clips': []}
-    for clip, a, b, title, what in CLIPS:
+    for clip, a, b, title, what in (clips or CLIPS):
         subj = clip.split('_')[0]
         bones = parse_asf(os.path.join(dirn, subj + '.asf'))
         if subj not in data['skeletons']:
@@ -139,10 +139,12 @@ def pack(dirn, out):
         for fr in frames:
             for n in KEEP:
                 v = fr.get(n, [0] * len(bones[n]['dof']))
-                if n == 'root':
-                    vals += [round(x * UNIT_M * 1000) for x in v[:3]] + [round(((x + 180) % 360 - 180) * 50) for x in v[3:6]]
+                if n == 'root':                 # position relative to the clip's start (x, z), so long walks fit int16
+                    o = frames[0]['root']
+                    pos = [v[0] - o[0], v[1], v[2] - o[2]]
+                    vals += [max(-32767, min(32767, round(x * UNIT_M * 1000))) for x in pos] + [round(((x + 180) % 360 - 180) * 50) for x in v[3:6]]
                 else:
-                    vals += [round(x * 50) for x in v]
+                    vals += [round(((x + 180) % 360 - 180) * 50) for x in v]
         raw = struct.pack('<%dh' % len(vals), *vals)
         data['clips'].append({'id': clip, 'subject': subj, 'title': title, 'what': what, 'fps': 60,
                               'frames': len(frames), 'data': base64.b64encode(raw).decode()})
@@ -156,4 +158,7 @@ def pack(dirn, out):
 if __name__ == '__main__':
     d = sys.argv[1]
     if '--scan' in sys.argv: scan(d, sys.argv[sys.argv.index('--scan') + 1])
+    elif '--train' in sys.argv:          # whole trials for the arm prior: --train <out.js> 143_20 15_04 …
+        i = sys.argv.index('--train')
+        pack(d, sys.argv[i + 1], [(t, 0, 0, t, t) for t in sys.argv[i + 2:]])
     else: pack(d, os.path.join(os.path.dirname(__file__), '..', '..', 'motion', 'mocap', 'cmu.js'))

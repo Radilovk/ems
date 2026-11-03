@@ -1724,15 +1724,16 @@ public final class AutoUi {
             int min = Math.max(1, e.getRestMinS());
             int left = e.getRestLeftS(now);
             boolean ok = AutoSession.startReady();
-            prog = beforeRecovery ? 1f : (float) Math.min(1.0, e.getRestS(now) / min);
-            rate = beforeRecovery || prog >= 1f ? 0f : 1f / min;
+            boolean waitDone = beforeRecovery && left == 0;
+            prog = waitDone ? 1f : (float) Math.min(1.0, e.getRestS(now) / min);
+            rate = waitDone || prog >= 1f ? 0f : 1f / min;
             mode = ok ? AutoViews.SetRing.READY : AutoViews.SetRing.REST;
-            if (beforeRecovery) {
-                time = AiText.mmss(plan.recoveryS);
-                timeColor = XemsUi.GO_TEXT;
-            } else if (left > 0) {
+            if (left > 0) {                                     // before the recovery too: until its start (1.1.494)
                 time = AiText.mmss(left);                       // the rest still needed
                 timeColor = XemsUi.AMBER;
+            } else if (beforeRecovery) {
+                time = AiText.mmss(plan.recoveryS);
+                timeColor = XemsUi.GO_TEXT;
             } else {
                 time = ok ? "▶" : "♥";                          // ready: the main ▶; or the pulse is still high
                 timeColor = ok ? XemsUi.GO_TEXT : XemsUi.AMBER;

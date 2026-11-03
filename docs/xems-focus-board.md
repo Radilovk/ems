@@ -90,6 +90,14 @@ Idea: the BodyTech mock-ups (landscape) — one client fills the place of the ro
   mode it leaves — the preset Основен or the client's own (`PartStrength.modeCarry`, hooked at the start of
   `TrainItem.setUserType` by `scripts/apply-double-impulse.py`). Before, it started at the massage's own 100 %.
   The massage's times, Hz and 2nd impulse stay its own.
+- **1.1.493 — stages, not new trainings (owner):** every mode change (Основен ↔ Мускули ↔ Кардио ↔ Масаж) carries
+  the strength and channel percents of the mode it leaves (`modeCarry` for every mode, not only Масаж). In a
+  training under way (running, or paused part-way) the mode change no longer stops it: the time left, the session
+  record and the run go on, the pulse restarts at once with the new mode's times / Hz / 2nd impulse
+  (`ProgramLive.stageLive`, `scripts/apply-mode-stages.py`). Only ■ or the end of the time ends the training.
+- **1.1.493 — exact training clock:** the vendor countdown cut the milliseconds left to whole seconds, so each
+  ❚❚ / ▶ lost up to 1.1 s and 20:00 showed 19:59 at once. The shown second is rounded up and a restart resumes
+  from the exact milliseconds (`ProgramLive.tickWork` / `workMs`).
 
 ## 1.1.444 — chip slide: both impulses in proportion, back down, yellow to 100
 - **Green / unmarked:** both impulses of the channel, its ratio fixed when its slides began (`PartStrength.RATIO`, no

@@ -81,9 +81,17 @@ public final class AiSession {
         AutoSession.attach(root, itemManager);
     }
 
-    /** TrainItem$2.onFinish — the device is entering an ON phase for this row. */
+    /**
+     * TrainItem$2.onFinish — the end of every phase of the row's pulse; only the one that enters an ON phase is a
+     * cycle (owner's trainers, 1.1.495: a map's impulse block, a workout or procedure stage, was shown done after
+     * about half its minutes). The hook fires at both phase ends — ON → pause too — and MapClock / the Smart Session
+     * counted each call as a whole cycle, so every counted block ran at double speed (Auto ignored the second call).
+     */
     public static void onPulseCycle(TrainItem item) {
         try {
+            if (item == null || item.data == null || !item.data.inStart) {
+                return;                                    // the pause phase begins: not a new cycle
+            }
             onPulseCycleImpl(item);
         } catch (Throwable t) {
             com.isaigu.gymapp.widget.XemsGuard.report("AiSession.onPulseCycle", t);

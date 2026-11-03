@@ -701,3 +701,9 @@ pause and the wait for ▶ held it. A 30 min active program ran 45–47 min and 
   `scripts/apply-mode-stages.py`): each ON / pause phase is timed from the planned end of the one before, so the
   callback lateness of every boundary no longer adds up — the cycles that Auto, the maps and the Smart Session count
   are as long as the clock says.
+- **1.1.495 — the cycle hook fired twice per cycle (trainers: "a stage is shown done after far fewer minutes").**
+  `TrainItem$2.onFinish` calls `AiSession.onPulseCycle` at the end of every phase — entering ON and entering the
+  pause. Auto ignored the second call (`onCycle`: inside the running cycle), but `MapClock` (workout maps and
+  procedures: impulse blocks advance by counted repetitions), the Smart Session (`AiEngine.onCycle`, its exercise
+  sets) counted it as a whole cycle: every counted block ended after about half its time. Now `AiSession.onPulseCycle`
+  passes only the call that enters an ON phase (`data.inStart`).

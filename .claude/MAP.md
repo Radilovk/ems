@@ -219,7 +219,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `AiRamp.java` (70L, compile:music-sync*,wearable) — The soft rise / fall of the impulse (ms) for the tablet's own ramp (train.model.SoftRamp) — the only ramp: the suit ign…
 - `AiRestHr.java` (292L, compile:music-sync*,wearable) — §2 CALIB_REST_HR — resting HR, measured as long as its reliability needs: 10–45 s (median of the last stretch).
 - `AiScreening.java` (86L, compile:music-sync*,wearable) — §1.1, §1.2, G11 — input validation and pre-session questionnaire.
-- `AiSession.java` (1235L, compile:music-sync*,wearable) — Android side of the Smart Session: owns the engine, feeds it band HR and device cycles, and writes its commands to ever…
+- `AiSession.java` (1243L, compile:music-sync*,wearable) — Android side of the Smart Session: owns the engine, feeds it band HR and device cycles, and writes its commands to ever…
 - `AiText.java` (181L, compile:music-sync*,wearable) — Bulgarian-first UI text for the Smart Session (English when the system language is not bg).
 - `AiUi.java` (2176L, compile:music-sync*,wearable) — Smart Session UI: sidebar "AI" button → full-screen card with a 3-step setup (goal and client · plan · calibration; the…
 - `AiViews.java` (318L, compile:music-sync*,wearable) — Canvas-drawn widgets for the Smart Session UI (no resources needed).
@@ -888,7 +888,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L201 ## Действия по време на сесията (v1.1.68)
   - L222 ## Отворено: проверка на алгоритъма с реални данни (бъдеще)
 
-`docs/xems-auto-mode-spec.md` (704L)
+`docs/xems-auto-mode-spec.md` (710L)
   - L1 # XEMS Автоматичен режим — спецификация v1.0 (реализирано в 1.1.156-ai, опростено в 1.1.162-ai)
   - L24 ## 1. Място в менюто
   - L32 ## 2. Стъпки (3 + на живо; отчетът е в клиентския картон) — 1.1.257
@@ -1317,17 +1317,17 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L72 ## Tests
   - L76 ## First test on the unit
 
-`docs/xems-workouts.md` (179L)
+`docs/xems-workouts.md` (181L)
   - L1 # Programs ("Програми": workouts and procedures) and the exercise library
   - L12 ## The library (302 exercises)
   - L26 ## Admin (server)
   - L52 ## The impulse map (`ai/Workout`, `ai/ImpulseMapView`) — 1.1.255
   - L89 ## Running a map
   - L101 ## Impulse in motion (owner, 1.1.324 — `ai/MapDynamics`)
-  - L139 ## Audit 1.1.256 — the backend decides, the screen stays quiet
-  - L152 ## Tests
-  - L159 ## Classifiers — what the automatic mode filters by (owner, 1.1.336)
-  - L176 ## Not yet
+  - L141 ## Audit 1.1.256 — the backend decides, the screen stays quiet
+  - L154 ## Tests
+  - L161 ## Classifiers — what the automatic mode filters by (owner, 1.1.336)
+  - L178 ## Not yet
 
 `docs/xiaomi-band-integration.md` (630L)
   - L1 # Интеграция XEMS ↔ Xiaomi Smart Band 8 / 10

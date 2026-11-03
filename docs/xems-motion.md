@@ -209,18 +209,21 @@ because every step on the floor and every still moment resets them and the balan
 no such reset in mid-air. The arm physics in use *is* this idea in its drift-proof form: per movement from rest, one
 unknown (the shoulder's share), fitted on the integrated wrist velocity.
 
-### The way to exact arms: record with teacher sensors (and a video), train on our own exercises
-Owner's idea (2026-11-03): record the sensors and a video of the same minutes, compare degrees and movement. Yes —
-and the most effective form of it:
-1. **Teacher sensors**: for the recording sessions only, put **2 more XIAOs on the upper arms** (outer side, middle of
-   the upper arm; + 1 on the sacrum if available). They measure the upper arm directly (~2°): exact labels, no
-   camera. The page's "● Запис" saves every raw sample (`-raw.jsonl`, with the calibration) next to the angles CSV.
-2. **Video** from a phone (60 fps), front or 45°: the visual check (does the figure do what I did?) and, with a pose
-   model (MediaPipe), a rough automatic angle comparison (±10–15° itself — fine for checking, not as truth). Sync:
-   start with 3 jumps — the spike is in the video and in the data.
-3. 20–30 min of the real EMS exercises, 3–5 people → `armdb.js` trains on them (the teacher sensors are the truth;
-   the 5 sensors are what is kept) → the corrector learns exactly our exercises and how our clients hold their arms.
-   Expected: elbow 5–8° with the 5 sensors.
+### Teacher recordings — exact arms with the same 5 sensors (built 2026-11-03)
+The owner has 5 XIAOs. For **recording sessions** they go: back, both wrists (as always) and **the two leg sensors on
+the upper arms** (outer side, middle of the upper arm, bottom side to the body). Page: "Запис за ръцете: вкл." →
+calibrate (the same zero pose + arms forward; the wrist is told from the upper arm on the same side because it is
+swung harder) → "● Запис" → the arm exercises, 1–2 min each → the `…-raw.jsonl` file.
+`scripts/motion/train-recordings.js`:
+- `train <armdb.js> <out> <raw.jsonl…>` replays a recording through the solver exactly as in normal use (back + wrists
+  → arm physics → the corrector's inputs) and adds the **measured** upper arm as the answer → a new `armdb.js`;
+- `eval <armdb.js> <raw.jsonl…>` — how far the normal 5-sensor arms are from the measured ones on a recording (use a
+  recording that was not trained on);
+- `sim <out> <clip ids>` — a simulated recording (CMU person, teacher layout) to test the chain.
+Simulated proof (CMU person 86): 19 s of teacher recording of "squats with the arms forward" (other repetitions)
+took that test clip from **40° to 9°** on the elbow; with 4 more minutes of his other moves the 9 test clips went from
+18° / 16° to **13° / 11°** (elbow / shoulder). The arms learn exactly what is recorded — so record the XEMS exercises,
+several people, and the video next to it for the visual check (start with 3 jumps to sync).
 
 ## Limits with five sensors (honest)
 - **No pelvis sensor**: trunk and pelvis are one segment; lumbar flexion and hip flexion are not separated, hip

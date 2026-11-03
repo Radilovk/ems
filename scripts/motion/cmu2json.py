@@ -160,5 +160,9 @@ if __name__ == '__main__':
     if '--scan' in sys.argv: scan(d, sys.argv[sys.argv.index('--scan') + 1])
     elif '--train' in sys.argv:          # whole trials for the arm prior: --train <out.js> 143_20 15_04 …
         i = sys.argv.index('--train')
-        pack(d, sys.argv[i + 1], [(t, 0, 0, t, t) for t in sys.argv[i + 2:]])
+        cl = []
+        for t in sys.argv[i + 2:]:          # 143_20 = the whole take; 86_08:8:15.5 = seconds 8 to 15.5 of it
+            p = t.split(':')
+            cl.append((p[0], float(p[1]) if len(p) > 1 else 0, float(p[2]) if len(p) > 2 else 0, t, t))
+        pack(d, sys.argv[i + 1], cl)
     else: pack(d, os.path.join(os.path.dirname(__file__), '..', '..', 'motion', 'mocap', 'cmu.js'))

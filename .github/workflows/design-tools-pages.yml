@@ -1,6 +1,7 @@
 # Publish branding/ dev reference + the XEMS Studio VR workout (WebXR) to GitHub Pages
 # URL: https://radilovk.github.io/ems/  (after Settings → Pages → Source: GitHub Actions)
 #      https://radilovk.github.io/ems/vr/  ← open in the Meta Quest browser, "Влез във VR" (preview, no suit)
+#      https://radilovk.github.io/ems/motion/viewer/  ← XEMS Motion test bench (5 sensors, Web Bluetooth, demo)
 # The Quest app with the suit link: release "xems-studio-latest" → xems-studio.apk (the tablet's VR Launcher
 # catalog installs it on the headset and adds the haptic bridge).
 name: Branding Dev Reference + VR (WebXR) — GitHub Pages
@@ -17,6 +18,7 @@ on:
       - "branding/design-presets.yaml"
       - "vr-workout/**"
       - "vr-bridge/prebuilt/**"
+      - "motion/**"
       - ".github/workflows/design-tools-pages.yml"
   workflow_dispatch:
 
@@ -96,7 +98,10 @@ jobs:
           gh release upload xems-studio-latest vr-workout/xems-studio.apk vr-workout/xems-studio-xems.apk --clobber
 
       - name: Assemble the site
-        run: cp -r branding/. site/
+        run: |
+          cp -r branding/. site/
+          # XEMS Motion: the test bench (Web Bluetooth needs https) + the sensor firmware to download
+          mkdir -p site/motion && cp -r motion/viewer motion/mocap site/motion/ && cp motion/*.uf2 motion/*-ota.zip site/motion/
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3

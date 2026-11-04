@@ -63,6 +63,13 @@ td.v { text-align:right; font-variant-numeric:tabular-nums; font-weight:600; } t
 #status.bad { background:#fff4e5; color:#8a4b00; } #status button { margin-top:6px; width:100%; }
 @media (prefers-color-scheme: dark) { #status.bad { background:#3a2a10; color:#ffcf8a; } }
 #fw { position:fixed; inset:0; background:rgba(0,0,0,.45); display:none; align-items:center; justify-content:center; z-index:6; }
+#place { position:fixed; inset:0; background:rgba(0,0,0,.45); display:none; align-items:center; justify-content:center; z-index:6; }
+#place .box { background:var(--card); border-radius:18px; padding:18px 22px; width:min(760px, 96vw); max-height:94vh; overflow:auto; display:flex; gap:18px; align-items:stretch; }
+#place h2 { margin:0; font-size:20px; } #place p { margin:0; color:var(--mute); font-size:14px; }
+.chips { display:flex; flex-wrap:wrap; gap:6px; } .chips button { flex:0 0 auto; padding:8px 12px; font-size:14px; } .chips button.sel { background:var(--acc); color:#fff; }
+#spine .vb { cursor:pointer; } #spine .dot { fill:var(--mute); } #spine .vb.sel .dot { fill:var(--acc); }
+#spine .body { fill:var(--bg); stroke:var(--mute); stroke-width:1.5; } #spine text { font-size:11px; fill:var(--mute); } #spine .vb.sel text { fill:var(--acc); font-weight:700; }
+@media (max-height: 560px) { #spine { width:190px; height:220px; } #place .box { padding:10px 14px; } }
 #fw .box { background:var(--card); border-radius:18px; padding:22px 26px; width:min(620px, 94vw); max-height:94vh; overflow:auto; display:flex; gap:10px; }
 @media (max-height: 560px) { #fw .box { padding:12px 16px; gap:6px; } #fw .sub { font-size:11px; } #fwbar { margin:6px 0 !important; } }
 #fw h2 { margin:0; font-size:20px; } #fw p { margin:0; color:var(--mute); }
@@ -79,13 +86,14 @@ td.v { text-align:right; font-variant-numeric:tabular-nums; font-weight:600; } t
   <div class="card col" style="flex:1; min-height:0">
     <div class="row"><button id="add">＋ Сензор</button><button id="demo">Демо</button></div>
     <div class="row" id="hrow"><button id="hm" style="flex:0 0 44px">−</button><div id="hval" style="text-align:center;align-self:center">Ръст 175 см</div><button id="hp" style="flex:0 0 44px">+</button></div>
+    <button id="placebtn" title="точното място на 5-ия сензор: прешлен, гръб или корем">5-и сензор: гръб T1</button>
     <div id="status" style="display:none"></div>
     <div id="sensors"></div>
     <button id="cal" class="main" disabled>Калибрирай</button>
     <div class="row"><button id="rec" disabled>● Запис</button><button id="sleep" title="сензорите заспиват; отварянето на приложението или силно разклащане ги събужда">💤 Приспи</button><button id="theme" style="flex:0 0 44px">◐</button></div>
     <button id="fwbtn" style="display:none">Фърмуер на сензор (USB)</button>
     <button id="teach" title="двата сензора от глезените отиват на мишниците — записът учи ръцете">Запис за ръцете: изкл.</button>
-    <div class="sub" id="note">Сложи сензорите с долната страна към тялото: китките като часовник, подбедриците от външната страна над глезена, гърба между лопатките.</div>
+    <div class="sub" id="note">Сложи сензорите с долната страна към тялото: китките като часовник, подбедриците от външната страна над глезена, петия — където си избрал (бутонът „5-и сензор“).</div>
   </div>
 </div>
 <div class="card" id="stage"><canvas id="gl"></canvas><canvas id="cv"></canvas><div id="empty"></div>
@@ -97,6 +105,16 @@ td.v { text-align:right; font-variant-numeric:tabular-nums; font-weight:600; } t
   <div class="card" id="reps"><div class="n" id="rn">0</div><div class="k" id="rk">повторения</div><div class="ph" id="rp">в покой</div></div>
   <div class="card" id="angles"><table id="tbl"></table></div>
 </div>
+<div id="place" class="ov"><div class="box">
+  <svg id="spine" viewBox="0 0 260 300" width="250" height="290" aria-label="гръбнак"></svg>
+  <div style="flex:1;display:flex;flex-direction:column;gap:8px;min-width:0">
+    <h2>Къде е 5-ият сензор?</h2>
+    <div id="placenow" style="font-size:18px;font-weight:600;color:var(--acc)"></div>
+    <div id="placechips" class="chips"></div>
+    <p id="placehint"></p>
+    <p class="sub">Как да намериш прешлена: C7 е най-изпъкналият в основата на врата при наведена глава · T7 — на нивото на долния ъгъл на лопатките · L4 — на линията на горния ръб на тазовите кости. Долната страна на сензора — към тялото.</p>
+    <div class="row" style="margin-top:auto"><button id="placeok" class="main">Готово</button></div>
+  </div></div></div>
 <div id="fw" class="ov"><div class="box" style="flex-direction:column;align-items:stretch">
   <h2>Фърмуер на сензор</h2>
   <p id="fwtext">Свържи сензора с USB кабел към телефона / таблета (USB-C ↔ USB-C или с OTG преходник) и натисни „Зареди“.</p>
@@ -281,6 +299,50 @@ $('sleep').onclick = () => {
   }, 800);
 };
 
+// ---------- the fifth sensor's place (owner 2026-11-04): a vertebra on the back, or the belly / breastbone. The solver
+// models the spine from that level (pelvis and chest from one sensor, motion-core.js SPINE_FIT) and the calibration
+// expects that side. One tap on the figure or a chip.
+let place = (() => { try { return JSON.parse(localStorage.getItem('xm-place')) || { v: 'T1' }; } catch (e) { return { v: 'T1' }; } })();
+const PLACE_QUICK = [[{ v: 'T1' }, 'Горе на гърба · T1'], [{ v: 'T7' }, '★ Между лопатките · T7'], [{ v: 'L3' }, 'Кръста · L3'],
+  [{ v: 'S1' }, 'Сакрума · S1'], [{ v: 'navel', front: true }, 'Корема · пъпа'], [{ v: 'sternum', front: true }, 'Гръдната кост']];
+// what each place gives — measured on real people (all CMU clips, docs/xems-motion.md "Trunk sensor place")
+const PLACE_HINT = (p) => p.front ? (p.v === 'sternum' ? 'Гръдната кост: ръцете като от T1, наклонът ±2°, коленете ±14°. Удобно, ако на гърба пречи нещо.'
+  : 'Коремът мърда с дишането и меките тъкани; при навеждане коленете грешат много (до ±48°). Само ако гърбът е зает.')
+  : X.LEVELS[p.v] >= 0.85 ? 'Горе на гърба: най-точни ръце и наклон на тялото (±1°); коленете ±12°.'
+  : X.LEVELS[p.v] >= 0.45 ? '★ Препоръчано: най-добрият баланс — коленете ±9°, ръцете като от T1, наклонът ±3°.'
+  : X.LEVELS[p.v] > 0.03 ? 'Кръстът: най-точни колене и височина при клек (±9°); ръцете и гърдите се смятат — ръцете ±22°, наклонът ±9°.'
+  : 'Сакрумът: тазът пряко; коленете ±12°, наклонът на гърдите ±11°.';
+const placeName = (p) => X.placeOf(p).name.replace(/^./, (c) => c.toUpperCase());
+function drawSpine() {
+  const lv = ['C7'].concat([...Array(12)].map((_, i) => 'T' + (i + 1)), [...Array(5)].map((_, i) => 'L' + (i + 1)), ['S1']);
+  const P = lv.map((v, i) => { const y = 34 + i * 13.3, x = i <= 12 ? 92 - 16 * Math.sin(Math.PI * i / 12) : i < 18 ? 92 + 11 * Math.sin(Math.PI * (i - 12) / 6) : 86; return [v, x, y]; });
+  const back = P.map(([, x, y]) => (x - 18) + ',' + y).join(' L ');
+  let h = `<path class="body" d="M ${P[0][1] - 12},6 L ${back} L 66,292 L 214,292 C 222,255 214,235 206,215 C 200,170 228,120 214,70 C 204,40 180,22 150,6 Z"/>`;
+  for (const [v, x, y] of P) {
+    const sel = !place.front && place.v === v;
+    h += `<g class="vb${sel ? ' sel' : ''}" data-v="${v}"><circle cx="${x}" cy="${y}" r="11" fill="transparent"/><circle class="dot" cx="${x}" cy="${y}" r="${sel ? 8 : 5}"/>` +
+      (/^(C7|T1|T7|T12|L3|L5|S1)$/.test(v) || sel ? `<text x="${x + 14}" y="${y + 4}">${v}</text>` : '') + '</g>';
+  }
+  for (const [v, y, x] of [['sternum', 92, 214], ['above', 190, 205], ['navel', 214, 207], ['below', 240, 211]]) {
+    const sel = place.front && place.v === v;
+    h += `<g class="vb${sel ? ' sel' : ''}" data-v="${v}" data-front="1"><circle cx="${x}" cy="${y}" r="11" fill="transparent"/><circle class="dot" cx="${x}" cy="${y}" r="${sel ? 8 : 5}"/>` +
+      `<text x="${x - 12}" y="${y + 4}" text-anchor="end">${X.FRONT[v][1]}</text></g>`;
+  }
+  h += '<text x="30" y="296">гръб</text><text x="250" y="296" text-anchor="end">отпред</text>';
+  $('spine').innerHTML = h;
+  $('spine').querySelectorAll('.vb').forEach((g) => { g.onclick = () => setPlace(g.dataset.front ? { v: g.dataset.v, front: true } : { v: g.dataset.v }); });
+  $('placechips').innerHTML = PLACE_QUICK.map(([p, t], i) => `<button data-i="${i}" class="${p.v === place.v && !!p.front === !!place.front ? 'sel' : ''}">${t}</button>`).join('');
+  $('placechips').querySelectorAll('button').forEach((b) => { b.onclick = () => setPlace(PLACE_QUICK[+b.dataset.i][0]); });
+  $('placenow').textContent = placeName(place) + (body && body.cal && !demo && placeChanged ? ' — калибрирай отново' : '');
+  $('placehint').textContent = PLACE_HINT(place);
+  $('placebtn').textContent = '5-и сензор: ' + X.placeOf(place).name;
+}
+let placeChanged = false;
+function setPlace(p) { place = p; placeChanged = true; try { localStorage.setItem('xm-place', JSON.stringify(p)); } catch (e) {} drawSpine(); }
+$('placebtn').onclick = () => { placeChanged = false; drawSpine(); $('place').style.display = 'flex'; };
+$('placeok').onclick = () => { $('place').style.display = 'none'; };
+drawSpine();
+
 // ---------- Bluetooth
 $('add').onclick = async () => {
   if (NATIVE) { nativeScan(); return; }
@@ -374,8 +436,8 @@ function startDemo(which) {
   if (which === 's') { tl = X.sim.Timeline.script(X.bodyDims(1.75)); tl.height = 1.75; }
   else if (which === 'all') tl = X.sim.Timeline.session(MOCAP, MOCAP.clips.map((c, i) => i));
   else tl = X.sim.Timeline.session(MOCAP, [+which, +which, +which]);          // the clip three times over
-  const rig = X.sim.makeRig(Math.floor(Math.random() * 1e6) + 1);
-  body = new X.Body({ height: tl.height }); pose = null;
+  const rig = X.sim.makeRig(Math.floor(Math.random() * 1e6) + 1, null, place);
+  body = new X.Body({ height: tl.height, place }); pose = null;
   demo = { rig, tl, t0: performance.now() / 1000 };
   for (const id in rig) sensors[id] = { name: 'Демо ' + id, n: 0, state: 'демо', bat: 100 };
   demo.timer = setInterval(() => {
@@ -414,8 +476,8 @@ $('wcancel').onclick = () => { wiz = null; cal = null; $('wiz').style.display = 
 $('wok').onclick = () => { $('wiz').style.display = 'none'; wiz = null; };
 function startCal(fromDemo) {
   if (demo && !fromDemo) demo.t0 = performance.now() / 1000;          // demo: replay its own calibration
-  if (!demo) body = new X.Body({ height: userH / 100 });          // real sensors: the client's own size
-  cal = new X.Calibration({ roles: teach ? X.ROLES_TEACH : X.ROLES });
+  if (!demo) body = new X.Body({ height: userH / 100, place });   // real sensors: the client's own size, the 5th's place
+  cal = new X.Calibration({ roles: teach ? X.ROLES_TEACH : X.ROLES, place });
   wiz = { phase: 'stand', since: performance.now(), stillSince: 0, moved: false };
   $('wiz').style.display = 'flex'; $('wok').style.display = 'none'; $('wr').textContent = '';
   for (const id in sensors) send(id, 'led off');

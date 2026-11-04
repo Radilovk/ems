@@ -17,6 +17,9 @@ const { mul, T, mv, sub, add, sc, norm, D2R } = M.m;
 const [, , mode, dir, kind, clipArg] = process.argv;
 const MOCAP = kind === 'mocap';
 const RATE = 208;
+// where the trunk sensor sits: PLACE=T1 (default) | T6 | L3 | S1 | navel / sternum (front); RIGID=1 = old rigid trunk
+const PLACE = (() => { const v = process.env.PLACE || 'T1'; return M.FRONT[v] ? { v, front: true } : { v }; })();
+const BODY = { place: PLACE, rigidSpine: process.env.RIGID === '1' };
 
 function source() {
   if (!MOCAP) { const tl = M.sim.Timeline.script(M.bodyDims(1.75)); tl.height = 1.75; return tl; }
@@ -30,7 +33,7 @@ const src = source();
 const N = Math.floor(src.len * RATE) - 8;
 
 if (mode === 'gen') {
-  const rig = M.sim.makeRig(11);
+  const rig = M.sim.makeRig(11, null, PLACE);
   let seed = 3;
   const rnd = () => { seed = (seed * 16807) % 2147483647; return seed / 2147483647; };
   const gauss = () => { let u = 0; for (let i = 0; i < 6; i++) u += rnd(); return (u - 3) * Math.SQRT2; };
@@ -47,7 +50,7 @@ if (mode === 'gen') {
     next = src.frame(t + h);
     for (const id in rig) {
       const r = rig[id];
-      const seg = (f) => { const s = M.sim.sensorOnFrame(f, r.role); return { R: mul(s.R, r.M), p: s.p }; };
+      const seg = (f) => { const s = M.sim.sensorOnFrame(f, r.role, PLACE); return { R: mul(s.R, r.M), p: s.p }; };
       const a = seg(prev), m = seg(cur), c = seg(next);
       const dR = mul(T(m.R), c.R.map((x, i) => (x - a.R[i]) / (2 * h)));
       const w = [(dR[7] - dR[5]) / 2, (dR[2] - dR[6]) / 2, (dR[3] - dR[1]) / 2];
@@ -82,7 +85,7 @@ let fail = 0;
 const ok = (cond, msg) => { console.log((cond ? '  ✓ ' : '  ✗ ') + msg); if (!cond) fail++; };
 
 // 1) calibration: zero pose (0–3 s), the movement (3–8 s), finish at 9.5 s
-const cal = new M.Calibration();
+const cal = new M.Calibration({ place: PLACE });
 let k = 0;
 for (; tOf(k) < 9.5 && k < nF; k++) {
   if (cal.phase === 'stand' && tOf(k) >= 2.8) cal.standDone();
@@ -94,7 +97,7 @@ for (const id of ids) console.log('  ' + id + ' → ' + (res.assign[id] || '?') 
 ok(ids.every((id) => res.assign[id] === rig[id]), 'all five sensors found on the right place');
 
 // 2) pose through the rest of the session; truth reps counted by the same counter on the true angles
-const body = new M.Body({ height: src.height });
+const body = new M.Body({ height: src.height, ...BODY });
 body.calibrate(res);
 const truthReps = new M.RepCounter();
 const err = {}, add2 = (blk, key, e) => { const b = (err[blk] = err[blk] || {}); (b[key] = b[key] || []).push(Math.abs(e)); };
@@ -154,7 +157,7 @@ if (!MOCAP) {
   const tBlk = (name) => { let t0 = 0; for (const [n, d] of M.sim.SCRIPT) { if (n === name) return t0; t0 += d; } return 0; };
   const { qToM, mToQ, mul, T: TT, rz: RZ } = M.m;
   const jump = (name, role, R) => {
-    const b2 = new M.Body({ height: src.height }); b2.calibrate(res);
+    const b2 = new M.Body({ height: src.height, ...BODY }); b2.calibrate(res);
     const id = idOf(role), q0 = res.q0[id], t0 = tBlk(name) + 1;
     let first = null, maxErr = 0, kneeErr = [];
     for (let k2 = 0; k2 < nF; k2++) {

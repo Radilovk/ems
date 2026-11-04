@@ -107,6 +107,36 @@ standing still), a wrist that stays impossible > 0.7 s is named on screen ("turn
 calibrate"). Test: `run.sh` injects a shin heading jump of 150° (named in 0.1 s, knees 4° off after) and a wrist
 sensor turned 180° on its strap (named in 2.8 s); clean scripted and all CMU clips: 0 % false faults, errors unchanged.
 
+### 1.6 — Trunk sensor place (owner, 2026-11-04: "let me say exactly where the fifth one is")
+"5-и сензор" opens a side-view figure: any vertebra C7 … S1 on the back, or the breastbone / above / at / below the
+navel in front (one tap; quick chips; how to find C7, T7, L4 by touch). `placeOf()` → spine height s (S1 0 … T1 1),
+front/back, the point's offset. The solver no longer treats the trunk as one rigid block: real people bend the spine
+with the lean — **pelvis → T1 bend ≈ a·lean + b**, fitted per level on all CMU clips (`scripts/motion/spine-fit.js`,
+r 0.39 at S1 … 0.82 at T1) — so one sensor gives the pelvis (legs, hips, height) and the chest (shoulders, arms, head)
+(`Body.spine`, `SPINE_FIT`). The sensor's own point is used for the shoulder lever (arm physics) and the pelvis height.
+The balance re-anchoring of the height runs only for a sensor at T1–T2 (lower, the sensor's travel *is* the pelvis's;
+the balance pulled it wrong in bends). The calibration expects the board normal forward for a front place.
+Measured on real people (CMU, 9 clips, mean error °):
+
+| place | knees | elbows | shoulders | trunk lean |
+|---|---|---|---|---|
+| T1 (upper back) | 12.2 | 18.4 | 15.9 | 0.7 |
+| **T7 (between the shoulder blades) — recommended** | **9.3** | 19.2 | 15.9 | 2.7 |
+| L3 (waist) | 8.7 | 22.4 | 15.7 | 8.6 |
+| S1 (sacrum) | 11.6 | 23.4 | 15.7 | 10.6 |
+| navel (front) | 12.8 | 22 | 15.5 | 9 |
+| breastbone (front) | 14.1 | 18.8 | 15.5 | 2.0 |
+
+The scripted test (rigid synthetic trunk) passes at T1 and T7; at L3 its rigid trunk disagrees with the real-people
+spine model (trunk 6° vs limit 4°) — the CMU table is the reference there. `PLACE=T7 sh scripts/motion-sim/run.sh mocap`.
+
+### AI (Gemini) — where it fits and where not
+Not for the live figure: a cloud model answers in 0.5–3 s, needs the network, costs per call and does not return
+reliable joint angles — the figure must follow the body in < 50 ms. "Natural" comes from local models learned from
+real people (the arm corrector `armdb`, the spine model, the anatomy limits). Gemini fits **after a set**: a compact
+angle summary (no raw data) through the license Worker (key on the server, client's consent) → the exercise's name,
+the count and a short technique comment in Bulgarian. Not built yet.
+
 ## Design in one picture
 ```
  sensor ×5 (208 Hz)                     host (tablet / laptop, 52 Hz)

@@ -310,6 +310,19 @@
       const shTilt = (Sh) => angBetween(mv(Sh, [0, 0, 1]), [0, 0, 1]);
       this.standStill = S.back && S.back.still && shTilt(shanks.l) < 8 * D2R && shTilt(shanks.r) < 8 * D2R &&
         angBetween(mv(Tr, [0, 0, 1]), [0, 0, 1]) < 15 * D2R ? (this.standStill || 0) + dt : 0;
+      // ... and the headings: standing quietly, a shin faces where the chest does (± 25°: a turned-out foot), a hanging
+      // forearm's twist about the vertical stays within ± 20° of its zero-pose one. Beyond that it is drift — pulled
+      // back (≈ 2 s). Every quiet stand re-zeros what the gyros let creep: no heading error can build up over a session.
+      if (this.standStill > 1) {
+        const yb = yawOf(Tr), k2 = Math.min(1, dt / 2), wr = (a) => Math.atan2(Math.sin(a), Math.cos(a));
+        const pull = (role, R, tol) => {
+          const id = this.role[role]; if (!id || !R) return;
+          const d = wr(yawOf(R) - yb), e = Math.abs(d) > tol ? d - Math.sign(d) * tol : 0;
+          if (e) this.yawFix[id] = (this.yawFix[id] || 0) + e * k2;
+        };
+        pull('lshank', shanks.l, 25 * D2R); pull('rshank', shanks.r, 25 * D2R);
+        for (const r of ['lwrist', 'rwrist']) if (S[r] && mv(S[r].R, [0, 0, 1])[2] > 0.94 && S[r].still) pull(r, S[r].R, 20 * D2R);
+      }
       if (this.standStill > 1 && !this.foot.l.moving && !this.foot.r.moving) {
         const mid = sc(add(this.foot.l.p, this.foot.r.p), 0.5), lat = mv(rz(yawOf(Tr)), [0, this.dim.hipW, 0]), k = Math.min(1, dt / 0.7);
         for (const [sd, sg] of [['l', 1], ['r', -1]]) {
@@ -658,7 +671,11 @@
         a.feat = { d: S3(mv(Tt, mv(F, [0, 0, -1]))), y: S3(mv(Tt, mv(F, [0, 1, 0]))), w: ww, a: a.fa, u: S3(mv(Tt, mv(a.U, [0, 0, -1]))) };
       }
       if (this.armPrior && a.feat) {
-        const P = this.armPrior.predict(this.armPrior.vec(a.feat));
+        // Owner 2026-11-04: "a small turn of the hand gives huge deviations". The forearm's twist now weighs half (a small
+        // wrist turn must not swing the upper arm); direction, turn rate, push and the per-movement physics as before
+        // (the physics restarts at every rest, so it carries nothing long). CMU: elbow 19.2° / shoulder 17.1° vs
+        // 18.6° / 16.1°; twist alone 0.1…1 changes little. ARMS=state = the old weights.
+        const P = ARMS_STATE ? this.armPrior.predict(this.armPrior.vec(a.feat)) : this.armPrior.predict(this.armPrior.vec(a.feat), 12, ARMS_W);
         const Ur = side === 'r' ? [P[0], -P[1], P[2], -P[3], P[4], -P[5], P[6], -P[7], P[8]] : P;
         const Up = mul(Tr, Ur);
         a.Uout = a.Uout ? ortho(slerpM(a.Uout, Up, Math.min(1, dt / 0.06))) : Up;
@@ -776,15 +793,20 @@
     return mv(rot(ax, hi), u);
   }
   const BEND = 110 * D2R, FLEX = 150 * D2R;
+  // the elbow-bend-direction rule (from the forearm's twist) is off: it changed nothing measurable (CMU) but a wrist
+  // turned a little past its range swung the whole upper arm round (owner's screenshot, 2026-11-04)
+  const BEND_RULE = false;
   function elbowFix(u, F) {             // u: shoulder → elbow (world); F: forearm (wrist sensor) → allowed u, excess
     const f = mv(F, [0, 0, -1]), beta = angBetween(u, f);
     let ex = 0;
-    if (beta > 20 * D2R) {
+    if (beta > 20 * D2R) {                // measured always (a wrist sensor turned on its strap shows here), applied never
       const m = mv(T(F), sc(u, -1)), phi = Math.atan2(m[1], m[0]);
       if (Math.abs(phi) > BEND) {
         ex = (Math.abs(phi) - BEND) * Math.min(1, (beta - 20 * D2R) / (30 * D2R));
+        if (BEND_RULE) {
         const r = Math.hypot(m[0], m[1]), p = Math.sign(phi) * BEND;
         u = sc(mv(F, [r * Math.cos(p), r * Math.sin(p), m[2]]), -1);
+        }
       }
     }
     const b2 = angBetween(u, f);
@@ -812,6 +834,8 @@
     const [a, b, c, d, e, f, g, h, i] = m, A = e * i - f * h, B = -(d * i - f * g), C = d * h - e * g, det = a * A + b * B + c * C || 1e-12;
     return [A / det, -(b * i - c * h) / det, (b * f - c * e) / det, B / det, (a * i - c * g) / det, -(a * f - c * d) / det, C / det, -(a * h - b * g) / det, (a * e - b * d) / det];
   }
+  const ARMS_STATE = typeof process !== 'undefined' && process.env && process.env.ARMS === 'state';
+  const ARMS_W = [1, 1, 1, 0.5, 0.5, 0.5, 1, 1, 1, 1, 1, 1, 1, 1, 1];
   const ARM_DR = typeof process !== 'undefined' && process.env && process.env.ARM_DR === '1';
   let ARMDB = null;
   function defaultArmPrior() {          // the page loads models/armdb.js (self.XEMS_ARMDB); decoded once
@@ -893,7 +917,7 @@
     }
     // x → the upper arm in the trunk frame (row-major 3×3), and how close the match was
     cellKey(a, b, c) { return (a + 8) * 289 + (b + 8) * 17 + (c + 8); }
-    predict(x, k) {
+    predict(x, k, wv) {
       k = k || 8;
       const best = [], X = this.X;
       const ca = Math.round(x[0] / 0.35), cb = Math.round(x[1] / 0.35), cc = Math.round(x[2] / 0.35), cand = [];
@@ -905,7 +929,7 @@
         const i = all ? j : cand[j];
         const o = i * this.dim;
         let d = 0;
-        for (let j = 0; j < this.dim; j++) { const e = X[o + j] - x[j]; d += e * e; if (best.length === k && d >= best[k - 1][0]) break; }
+        for (let j = 0; j < this.dim; j++) { const e = X[o + j] - x[j]; d += wv ? wv[j] * e * e : e * e; if (best.length === k && d >= best[k - 1][0]) break; }
         if (best.length < k || d < best[k - 1][0]) {
           best.push([d, i]); best.sort((a, b) => a[0] - b[0]); if (best.length > k) best.pop();
         }

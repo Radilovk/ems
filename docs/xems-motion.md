@@ -159,6 +159,25 @@ squatting 2.9 % → 0.1 % of the time; CMU clips (knees, mean) 12.6° → 11.0°
 Tried and dropped: a leaky speed (ate real speed: squats 6° → 14°), "never above standing" (jumps, bends: 11° → 21°),
 learning the offset from the speed left at each stop (lunges 7° → 13°).
 
+### 1.9 — the principle for long use (owner, 2026-11-04: "simple, working for long; no small error may build up")
+**Every pose is computed from the orientations of this moment.** Tilt of every sensor is drift-free (gravity);
+nothing is integrated over a session. What needs memory has a short, self-resetting one:
+- pelvis height: integrated only between still moments, its weight fading with the time since the last (1.8);
+- feet: a step is integrated from still to still; standing quietly they are put back under the hips (1.8);
+- upper arm: the learned corrector reads the forearm's direction, turn rate and push of this moment and the
+  per-movement physics (restarts at every rest);
+- heading (the one thing gravity cannot fix): ZARU on the sensor + anatomy limits + **re-zeroing at every quiet
+  stand** — shins to ± 25° of the chest, a hanging forearm's twist to ± 20° of its zero pose (a hanging forearm's
+  twist and heading drift are the same rotation, so not tighter: palms held back would be forced in).
+Owner's screenshot (hand to the face): **a small wrist turn swung the whole arm** — the elbow-bend-direction rule moved
+the upper arm round the forearm whenever the twist passed ± 110°, and the corrector weighed the twist strongly. The
+rule now only reports (strap-slip fault), never moves the arm; the twist weighs half (CMU: elbow 19.2° / shoulder
+17.1° vs 18.6° / 16.1°). **3-D artefacts**: the rig's upper arm and forearm are drawn by swing only (least turn from
+the parent bone); the forearm's twist goes to the hand — no twisted elbow skin.
+Long-session test `LAPS=5 ACC_BIAS=0.03 sh scripts/motion-sim/run.sh` (≈ 6 min, gyro bias drifting ~10× faster than
+the real chip's): knees 6.7° → 6.2°, trunk 0.2° → 0.3° from the first lap to the fifth; elbows 9° → 16° (without the
+forearm re-zero 20°). CMU clips: knees 11.0°, elbows 19.2°, shoulders 17.1°, trunk 0.7°, 0 false faults.
+
 ### AI (Gemini) — where it fits and where not
 Not for the live figure: a cloud model answers in 0.5–3 s, needs the network, costs per call and does not return
 reliable joint angles — the figure must follow the body in < 50 ms. "Natural" comes from local models learned from

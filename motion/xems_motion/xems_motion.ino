@@ -21,7 +21,7 @@
 #include <Wire.h>
 #include "fusion.h"
 
-#define FW_VER "2"
+#define FW_VER "3"
 #define IMU_ADDR 0x6A
 #define IMU_RATE 208.f
 
@@ -51,17 +51,40 @@ static uint8_t imuRead(uint8_t r, uint8_t *buf, uint8_t n) {
   for (uint8_t i = 0; i < got; i++) buf[i] = Wire1.read();
   return got;
 }
+// The core's I2C waits for the bus with no time limit: a motion chip that does not answer the expected way would freeze
+// the sensor at start (fw 1–2 on the owner's sensors: dark, Bluetooth never up). So: check the bus lines first, give
+// the chip 60 ms to power up, and a watchdog (setup) restarts a frozen start and skips the chip the next time.
+static const char *imuWhy = "";
 static bool imuBegin() {
   pinMode(PIN_LSM6DS3TR_C_POWER, OUTPUT); digitalWrite(PIN_LSM6DS3TR_C_POWER, HIGH);
-  delay(20);
-  Wire1.begin(); Wire1.setClock(400000);
-  uint8_t who = 0; imuRead(0x0F, &who, 1);
-  if (who != 0x6A) return false;
+  delay(60);
+  pinMode(PIN_WIRE1_SDA, INPUT_PULLUP); pinMode(PIN_WIRE1_SCL, INPUT_PULLUP); delay(2);
+  if (!digitalRead(PIN_WIRE1_SDA) || !digitalRead(PIN_WIRE1_SCL)) { imuWhy = "bus"; return false; }   // a line held low
+  Wire1.begin(); Wire1.setClock(100000);    // 100 kHz while finding it
+  uint8_t who = 0;
+  for (int i = 0; i < 5 && who != 0x6A; i++) { imuRead(0x0F, &who, 1); if (who != 0x6A) delay(20); }
+  if (who != 0x6A) { imuWhy = who ? "who" : "silent"; return false; }
   imuWrite(0x12, 0x01); delay(20);          // CTRL3_C SW_RESET
   imuWrite(0x12, 0x44);                     // BDU + IF_INC
   imuWrite(0x10, 0x54);                     // CTRL1_XL 208 Hz, ±16 g (ankle landings)
   imuWrite(0x11, 0x5C);                     // CTRL2_G 208 Hz, ±2000 °/s (fast punches)
+  Wire1.setClock(400000);
   return true;
+}
+
+// watchdog: 4 s; fed in loop(). NRF_POWER->GPREGRET2 keeps the start stage across a watchdog restart.
+static uint8_t lastHang = 0;
+static void wdtStart() {
+  NRF_WDT->CONFIG = (WDT_CONFIG_HALT_Pause << WDT_CONFIG_HALT_Pos) | (WDT_CONFIG_SLEEP_Run << WDT_CONFIG_SLEEP_Pos);
+  NRF_WDT->CRV = 4 * 32768;
+  NRF_WDT->RREN = WDT_RREN_RR0_Msk;
+  NRF_WDT->TASKS_START = 1;
+}
+static inline void wdtFeed() { NRF_WDT->RR[0] = WDT_RR_RR_Reload; }
+static void stage(uint8_t n, int color, const char *what) {
+  NRF_POWER->GPREGRET2 = n;
+  ledShow(color);
+  Serial.print("BOOT "); Serial.print(n); Serial.print(' '); Serial.println(what);
 }
 
 // ---------- LED (active low)
@@ -91,8 +114,8 @@ static void say(const char *s) {
 static void info() {
   uint8_t t[2] = {0, 0}; imuRead(0x20, t, 2);
   float temp = 25.f + (int16_t)(t[0] | t[1] << 8) / 256.f;
-  char b[120];
-  snprintf(b, sizeof b, "INFO XEMS-MOTION %s id=%s imu=%d rate=%d bat=%d %.2f bias=%d t=%.1f", FW_VER, devId, imuOk ? 1 : 0,
+  char b[160];
+  snprintf(b, sizeof b, "INFO XEMS-MOTION %s id=%s imu=%d%s%s hang=%d rate=%d bat=%d %.2f bias=%d t=%.1f", FW_VER, devId, imuOk ? 1 : 0, imuOk ? "" : "/", imuOk ? "" : imuWhy, lastHang,
            (int)(IMU_RATE / decim + 0.5f), batPct, batV, fus.biasReady ? 1 : 0, temp);
   say(b);
 }
@@ -123,6 +146,7 @@ static void feed(char c, char *line, uint8_t &len) {
 // deep sleep, woken by motion on INT1 (wake-up interrupt of the IMU)
 static void goSleep() {
   ledShow(0);
+  if (!imuOk) { sd_power_system_off(); return; }
   imuWrite(0x10, 0x20);                     // accel 26 Hz low power, gyro off
   imuWrite(0x11, 0x00);
   imuWrite(0x5C, 0x00);                     // WAKE_UP_DUR
@@ -142,13 +166,25 @@ static void connectCb(uint16_t h) {
 void setup() {
   pinMode(LED_RED, OUTPUT); pinMode(LED_GREEN, OUTPUT); pinMode(LED_BLUE, OUTPUT);
   pinMode(VBAT_ENABLE, OUTPUT); digitalWrite(VBAT_ENABLE, LOW);
-  ledShow(0);
+  // where did the last start freeze? (a watchdog restart with a stage left in GPREGRET2)
+  bool byDog = NRF_POWER->RESETREAS & POWER_RESETREAS_DOG_Msk;
+  NRF_POWER->RESETREAS = 0xFFFFFFFF;
+  lastHang = byDog ? NRF_POWER->GPREGRET2 : 0;
+  wdtStart();
   Serial.begin(115200);
-  bool ok = imuBegin();
+  // start stages, each with its colour: red = started · yellow = motion chip · blue = Bluetooth · green+white = ready.
+  // A sensor that stops on a colour shows where; the watchdog restarts it in 4 s and the chip step is skipped then.
+  stage(1, 1, "start"); delay(300);
+  stage(2, 3, "imu");
+  bool ok = false;
+  if (lastHang == 2) imuWhy = "froze";      // it froze here last time: go on without it (red blinking says so)
+  else ok = imuBegin();
+  wdtFeed();
   uint32_t a0 = NRF_FICR->DEVICEADDR[0];
   snprintf(devId, sizeof devId, "%04X", (unsigned)(a0 & 0xFFFF));
   char name[24]; snprintf(name, sizeof name, "XEMS Motion %s", devId);
 
+  stage(3, 4, "bluetooth");
   Bluefruit.configPrphBandwidth(BANDWIDTH_MAX);
   Bluefruit.begin();
   Bluefruit.setName(name);
@@ -169,17 +205,23 @@ void setup() {
   Bluefruit.Advertising.setInterval(160, 480);
   Bluefruit.Advertising.setFastTimeout(30);
   Bluefruit.Advertising.start(0);
+  wdtFeed();
+  stage(4, 2, "battery");
   readBattery();
   lastMove = millis();
   imuOk = ok;
+  stage(0, 2, "ready");
   // "I am alive": green for a second, then white flash — visible on every power-up / reset
-  ledShow(2); delay(1000); ledShow(7); delay(150); ledShow(0);
+  delay(1000); ledShow(7); delay(150); ledShow(0);
+  wdtFeed();
 }
 
 static inline int16_t clamp16(float v) { return v > 32767 ? 32767 : v < -32768 ? -32768 : (int16_t)lrintf(v); }
 
 void loop() {
+  wdtFeed();
   uint8_t st = 0;
+  NRF_POWER->GPREGRET2 = 2;                 // a freeze in the chip's I2C from here on is a chip freeze (watchdog → skip it)
   if (imuOk) imuRead(0x1E, &st, 1);
   if ((st & 3) == 3) {
     uint8_t r[12];
@@ -204,6 +246,7 @@ void loop() {
       }
     }
   }
+  NRF_POWER->GPREGRET2 = 0;
   while (Serial.available()) feed(Serial.read(), usbLine, usbLen);
   while (bleuart.available()) feed(bleuart.read(), bleLine, bleLen);
   uint32_t now = millis();

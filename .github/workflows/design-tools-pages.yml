@@ -2,6 +2,7 @@
 # URL: https://radilovk.github.io/ems/  (after Settings → Pages → Source: GitHub Actions)
 #      https://radilovk.github.io/ems/vr/  ← open in the Meta Quest browser, "Влез във VR" (preview, no suit)
 #      https://radilovk.github.io/ems/motion/viewer/  ← XEMS Motion test bench (5 sensors, Web Bluetooth, demo)
+#      https://radilovk.github.io/ems/motion/xems-motion.apk  ← the same as an Android app (USB firmware, auto-connect)
 # The Quest app with the suit link: release "xems-studio-latest" → xems-studio.apk (the tablet's VR Launcher
 # catalog installs it on the headset and adds the haptic bridge).
 name: Branding Dev Reference + VR (WebXR) — GitHub Pages
@@ -101,7 +102,7 @@ jobs:
         run: |
           cp -r branding/. site/
           # XEMS Motion: the test bench (Web Bluetooth needs https) + the sensor firmware to download
-          mkdir -p site/motion && cp -r motion/viewer motion/mocap site/motion/ && cp motion/*.uf2 motion/*-ota.zip site/motion/
+          mkdir -p site/motion && cp -r motion/viewer motion/mocap site/motion/ && cp motion/*.uf2 motion/*-ota.zip motion/dist/xems-motion.apk site/motion/
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3

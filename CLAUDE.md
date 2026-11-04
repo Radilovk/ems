@@ -97,7 +97,7 @@ Agent-facing files are in English on purpose (≈2–3× fewer tokens than Cyril
 | Bluetens TENS pads: BLE text shell (FFE0/FFE1), .lok programs, XEMS module plan | `docs/xems-bluetens.md` |
 | MASTOGO H-024B TENS/EMS unit: AT protocol (FFF0), hardware (SYD8811, H-bridge), XEMS page (modulation, exploration) | `docs/xems-mastogo.md` |
 | Voice commands module (XIAO nRF52840 Sense mic, Bulgarian, own recordings, DTW) | `docs/xems-voice.md` |
-| Motion module: 5 XIAO IMUs (wrists, shanks, T1) → pose, angles, reps; test bench, not in the APK yet | `docs/xems-motion.md` |
+| Motion module: 5 XIAO IMUs (wrists, shanks, T1) → pose, angles, reps; own app `motion/dist/xems-motion.apk` (`sh scripts/build-motion-app.sh`, bump `motion/app/VERSION`), not in xems27.apk | `docs/xems-motion.md` |
 | Quest 3 VR haptics → suit (OpenXR layer, UDP, manual mode, zones off) | `vr-bridge/README.md` |
 | License server | `server/CLAUDE.md`, `docs/xems-license-api.md`, `docs/xems-server-spec.md` |
 | XBody EMS unit OS (i.MX53 Yocto, Qt app), our mod → USB stick / SD image; XEMS panel + XIAO BLE bridge | `xbody/CLAUDE.md`, `docs/xbody-os.md`, `docs/xbody-xems-panel.md`, `docs/xbody-protocol.md` |

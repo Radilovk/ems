@@ -18,6 +18,26 @@ Status: **phase 1 built and tested offline** — firmware, host core, test bench
 | Offline end-to-end test | `sh scripts/motion-sim/run.sh` (scripted, pass/fail) · `sh scripts/motion-sim/run.sh mocap` (real people) |
 | Real movements (CMU mocap, 9 clips, 80 s) | `motion/mocap/cmu.js` ← `python3 scripts/motion/cmu2json.py <dir with .asf/.amc>` |
 
+## The app — "XEMS Движение" for Android (owner 2026-11-03: everything installable, as easy as possible)
+Download: **https://radilovk.github.io/ems/motion/xems-motion.apk** (8 MB). Build: `sh scripts/build-motion-app.sh`
+→ `motion/dist/xems-motion.apk`; source `motion/app` (version in `motion/app/VERSION`). The test bench page in a
+WebView (assets: the same files as https://radilovk.github.io/ems/motion/viewer/, works offline) + what a browser
+cannot:
+- **Bluetooth without choosing**: every "XEMS Motion …" in range connects by itself on start ("Свържи сензорите"
+  looks again); a dropped sensor is found again. Frames batched every 20 ms with the phone's receive time
+  (`Ble.java` → `XemsApp.onFrames`). Android's WebView has no Web Bluetooth.
+- **Firmware over the USB cable** (`Usb.java` + `Dfu.java`, the voice module's loader): plugging a XIAO in opens the
+  app on "Фърмуер на сензор" (USB filter Seeed / Adafruit); one tap: the 1200-bps touch sends a running sensor to
+  its bootloader (a factory-fresh one: the panel asks for RST × 2), then the serial DFU (≈ 20 s). Both firmwares
+  ride in the APK (`assets/fw/sense|sense-plus`, from the OTA zips); Sense is the default, Sense Plus one tap.
+  `Dfu.java` passes the voice module's bootloader simulation with this firmware (253 frames, the first 3 byte-equal
+  to adafruit-nrfutil).
+- **Recordings** to Downloads/XEMS Motion + Android's share sheet (both files at once).
+- The client's **height** (−/+, remembered) sets the figure's and the solver's proportions.
+- Phones in landscape (≈ 380 px high): compact layout, sensors as chips, everything on one screen.
+Tested here: the page in app mode with a fake bridge feeding firmware-format frames (calibration → figure →
+recording → share → firmware panel); the Java compiles to dex. Not yet on a real phone.
+
 ## Design in one picture
 ```
  sensor ×5 (208 Hz)                     host (tablet / laptop, 52 Hz)

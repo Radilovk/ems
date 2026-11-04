@@ -45,6 +45,22 @@ table { width:100%; border-collapse:collapse; font-size:13px; } td { padding:3px
 td.v { text-align:right; font-variant-numeric:tabular-nums; font-weight:600; } td.l { color:var(--l); } td.r { color:var(--r); }
 #angles { overflow:auto; min-height:0; flex:1; }
 #wiz { position:fixed; inset:0; background:rgba(0,0,0,.45); display:none; align-items:center; justify-content:center; z-index:5; }
+/* phones in landscape (≈ 360–420 px high): everything still on one screen — smaller buttons, sensors as chips */
+@media (max-height: 560px) {
+  body { grid-template-columns: 210px 1fr 200px; gap:8px; padding:8px 10px; font-size:13px; height:100vh; overflow:hidden; }
+  #stage { height:auto; }
+  .col { gap:8px; } .card { padding:8px; border-radius:12px; }
+  body > .col:first-child > .card:first-child { display:none; }
+  button { padding:7px 9px; border-radius:9px; font-size:13px; } button.main { font-size:14px; }
+  #sensors { flex-direction:row; flex-wrap:wrap; gap:4px; flex:none; }
+  .sens { padding:4px 6px; font-size:11px; gap:4px; } .sens .sub, .sens .m { display:none; }
+  #note { display:none; } #reps .n { font-size:40px; } td { padding:1px 2px; }
+  #view button { padding:4px 7px; font-size:12px; } #credit, #hint { display:none; }
+}
+#fw { position:fixed; inset:0; background:rgba(0,0,0,.45); display:none; align-items:center; justify-content:center; z-index:6; }
+#fw .box { background:var(--card); border-radius:18px; padding:22px 26px; width:min(560px, 92vw); display:flex; gap:10px; }
+#fw h2 { margin:0; font-size:20px; } #fw p { margin:0; color:var(--mute); }
+.brd.sel { background:var(--acc); color:#fff; }
 #wiz .box { background:var(--card); border-radius:18px; padding:22px 26px; width:min(640px, 92vw); display:flex; gap:20px; align-items:center; }
 #wiz .big { font-size:56px; font-weight:700; min-width:80px; text-align:center; color:var(--acc); }
 #wiz h2 { margin:0 0 6px; font-size:20px; } #wiz p { margin:0; color:var(--mute); }
@@ -56,9 +72,11 @@ td.v { text-align:right; font-variant-numeric:tabular-nums; font-weight:600; } t
   <div class="card"><h1>XEMS Движение</h1><div class="sub">5 сензора → поза, ъгли, скорост, повторения</div></div>
   <div class="card col" style="flex:1; min-height:0">
     <div class="row"><button id="add">＋ Сензор</button><button id="demo">Демо</button></div>
+    <div class="row" id="hrow"><button id="hm" style="flex:0 0 44px">−</button><div id="hval" style="text-align:center;align-self:center">Ръст 175 см</div><button id="hp" style="flex:0 0 44px">+</button></div>
     <div id="sensors"></div>
     <button id="cal" class="main" disabled>Калибрирай</button>
     <div class="row"><button id="rec" disabled>● Запис</button><button id="theme">◐</button></div>
+    <button id="fwbtn" style="display:none">Фърмуер на сензор (USB)</button>
     <button id="teach" title="двата сензора от глезените отиват на мишниците — записът учи ръцете">Запис за ръцете: изкл.</button>
     <div class="sub" id="note">Сложи сензорите с долната страна към тялото: китките като часовник, подбедриците от външната страна над глезена, гърба между лопатките.</div>
   </div>
@@ -72,6 +90,13 @@ td.v { text-align:right; font-variant-numeric:tabular-nums; font-weight:600; } t
   <div class="card" id="reps"><div class="n" id="rn">0</div><div class="k" id="rk">повторения</div><div class="ph" id="rp">в покой</div></div>
   <div class="card" id="angles"><table id="tbl"></table></div>
 </div>
+<div id="fw" class="ov"><div class="box" style="flex-direction:column;align-items:stretch">
+  <h2>Фърмуер на сензор</h2>
+  <p id="fwtext">Свържи сензора с USB кабел към телефона / таблета (USB-C ↔ USB-C или с OTG преходник) и натисни „Зареди“.</p>
+  <div class="row" style="margin-top:10px"><button data-b="sense" class="brd sel">XIAO Sense</button><button data-b="plus" class="brd">XIAO Sense Plus</button></div>
+  <div id="fwbar" style="height:10px;border-radius:6px;background:var(--line);margin:14px 0;overflow:hidden"><div id="fwfill" style="height:100%;width:0;background:var(--acc);transition:width .2s"></div></div>
+  <div class="row"><button id="fwclose">Затвори</button><button id="fwgo" class="main">Зареди</button></div>
+</div></div>
 <div id="wiz"><div class="box"><div class="big" id="wn">1</div><div><h2 id="wt"></h2><p id="wp"></p><div class="res" id="wr"></div>
   <div class="row" style="margin-top:12px"><button id="wcancel">Отказ</button><button id="wok" class="main" style="display:none">Готово</button></div></div></div></div>
 <script src="vendor/three-r158.min.js"></script>
@@ -90,8 +115,69 @@ const sensors = {};             // id → { name, dev, rx, last, bat, n, rate }
 let body = new X.Body({ height: 1.75 });
 let cal = null, demo = null, pose = null, rec = null, ghost = true, view = { yaw: -0.6, pitch: 0.18, mode: 'free' };
 
+// ---------- inside the Android app (window.XemsNative, motion/app): native Bluetooth — no chooser, every sensor in
+// range connects by itself; the USB firmware loader; recordings saved to Downloads and shared
+const NATIVE = window.XemsNative || null;
+const STATE_BG = { connecting: 'свързване…', online: 'на линия', lost: 'изгубен — търся отново', error: 'грешка' };
+const XemsApp = window.XemsApp = {
+  onFrames(batch) {
+    for (const f of batch.split(';')) {
+      if (!f) continue;
+      const [id, ms, hex] = f.split(',');
+      if (!sensors[id]) { sensors[id] = { name: 'XEMS Motion ' + id, n: 0, state: 'на линия' }; drawSensors(); $('cal').disabled = false; }
+      const u = new Uint8Array(hex.length / 2);
+      for (let i = 0; i < u.length; i++) u[i] = parseInt(hex.substr(2 * i, 2), 16);
+      onSample(id, X.decodeFrame(new DataView(u.buffer), +ms / 1000));
+    }
+  },
+  onLine(id, l) { if (sensors[id]) onLine(id, l); },
+  onState(id, st) {
+    const s = sensors[id] = sensors[id] || { name: 'XEMS Motion ' + id, n: 0 };
+    s.state = STATE_BG[st] || st; drawSensors(); $('cal').disabled = Object.keys(sensors).length < 1;
+  },
+  onPermissions() { if (NATIVE) nativeScan(); },
+  onUsb() { openFw(); },
+  onFlash(stage, pct, note) { flashStage(stage, pct, note); },
+};
+function nativeScan() {
+  const r = NATIVE.scan();
+  if (r === 'bluetooth-off') $('note').textContent = 'Включи Bluetooth и натисни „Свържи сензорите“.';
+  else if (r !== 'ok') $('note').textContent = 'Bluetooth: ' + r;
+}
+if (NATIVE) {
+  $('add').textContent = 'Свържи сензорите';
+  $('fwbtn').style.display = '';
+  setTimeout(nativeScan, 600);
+}
+// firmware over USB: plug in → the panel opens by itself → one tap; next sensor → plug in, tap again
+let fwBoard = localStorage.getItem('xm-board') || 'sense', fwBusy = false;
+document.querySelectorAll('.brd').forEach((b) => { b.classList.toggle('sel', b.dataset.b === fwBoard); b.onclick = () => {
+  fwBoard = b.dataset.b; try { localStorage.setItem('xm-board', fwBoard); } catch (e) {}
+  document.querySelectorAll('.brd').forEach((x) => x.classList.toggle('sel', x === b)); }; });
+function openFw() { $('fw').style.display = 'flex'; if (!fwBusy) { $('fwfill').style.width = '0'; $('fwgo').disabled = false;
+  $('fwtext').textContent = NATIVE && NATIVE.usbPresent() ? 'Сензорът е на кабела. Натисни „Зареди“ — около 20 секунди.' : 'Свържи сензора с USB кабел към телефона / таблета (USB-C ↔ USB-C или с OTG преходник) и натисни „Зареди“.'; } }
+$('fwbtn').onclick = openFw;
+$('fwclose').onclick = () => { $('fw').style.display = 'none'; };
+$('fwgo').onclick = () => { if (!NATIVE || fwBusy) return; fwBusy = true; $('fwgo').disabled = true; NATIVE.flash(fwBoard); };
+function flashStage(stage, pct, note) {
+  const T = ['Не виждам сензор на кабела — свържи го и натисни „Зареди“ отново.', 'Android пита за достъп до USB — разреши.',
+    'Рестартирам сензора за зареждане…', 'Натисни бързо 2 пъти малкия бутон RST на сензора (до USB букса­та).',
+    'Зареждам… ' + pct + ' %', 'Готово ✓ Сензорът се рестартира и се свързва сам. Следващият: смени кабела и натисни „Зареди“.',
+    'Не стана' + (note ? ' (' + note + ')' : '') + '. Извади и пъхни кабела, натисни „Зареди“ отново.'];
+  $('fwtext').textContent = T[stage] || '';
+  $('fwfill').style.width = (stage === 4 ? pct : stage === 5 ? 100 : stage === 6 || stage === 0 ? 0 : 5) + '%';
+  if (stage === 0 || stage >= 5) { fwBusy = false; $('fwgo').disabled = false; if (stage === 5 && NATIVE) setTimeout(nativeScan, 4000); }
+}
+// the client's height: segment lengths of the figure and of the leg / arm solution
+let userH = +(localStorage.getItem('xm-height') || 175);
+function showH() { $('hval').textContent = 'Ръст ' + userH + ' см'; try { localStorage.setItem('xm-height', userH); } catch (e) {} }
+$('hm').onclick = () => { userH = Math.max(140, userH - 1); showH(); };
+$('hp').onclick = () => { userH = Math.min(210, userH + 1); showH(); };
+showH();
+
 // ---------- Bluetooth
 $('add').onclick = async () => {
+  if (NATIVE) { nativeScan(); return; }
   if (!navigator.bluetooth) { alert('Този браузър няма Bluetooth. Отвори страницата в Chrome.'); return; }
   try {
     const dev = await navigator.bluetooth.requestDevice({ filters: [{ namePrefix: 'XEMS Motion' }], optionalServices: [DATA_SVC, NUS] });
@@ -126,7 +212,7 @@ async function connect(dev, tries = 0) {
   }
   drawSensors(); $('cal').disabled = Object.keys(sensors).length < 1;
 }
-function send(id, line) { const s = sensors[id]; if (s && s.rx) s.rx.writeValue(new TextEncoder().encode(line + '\n')).catch(() => {}); }
+function send(id, line) { if (NATIVE) { NATIVE.send(id, line); return; } const s = sensors[id]; if (s && s.rx) s.rx.writeValue(new TextEncoder().encode(line + '\n')).catch(() => {}); }
 function onLine(id, l) {
   const s = sensors[id], m = /bat=(-?\d+)/.exec(l) || /^BAT (-?\d+)/.exec(l);
   if (m) { s.bat = +m[1]; drawSensors(); }
@@ -185,6 +271,7 @@ function startDemo(which) {
   setTimeout(() => startCal(true), 100);
 }
 function demoTitle() {
+  $('ghost').style.display = demo ? '' : 'none';
   if (!demo || demo.t == null) return '';
   const p = demo.tl.parts.find((q) => demo.t < q.t0 + q.len);
   return !p ? '' : p.kind === 'clip' ? p.title + ' · истински човек' : p.kind === 'script' && p.name === 'calib' ? 'калибрация' : p.kind === 'script' ? 'сценарий XEMS' : '';
@@ -209,6 +296,7 @@ $('wcancel').onclick = () => { wiz = null; cal = null; $('wiz').style.display = 
 $('wok').onclick = () => { $('wiz').style.display = 'none'; wiz = null; };
 function startCal(fromDemo) {
   if (demo && !fromDemo) demo.t0 = performance.now() / 1000;          // demo: replay its own calibration
+  if (!demo) body = new X.Body({ height: userH / 100 });          // real sensors: the client's own size
   cal = new X.Calibration({ roles: teach ? X.ROLES_TEACH : X.ROLES });
   wiz = { phase: 'stand', since: performance.now(), stillSince: 0, moved: false };
   $('wiz').style.display = 'flex'; $('wok').style.display = 'none'; $('wr').textContent = '';
@@ -254,9 +342,16 @@ $('rec').onclick = () => {
     $('rec').textContent = '■ Спри запис'; return;
   }
   const stamp = new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-');
-  const save = (text, name, type) => { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([text], { type })); a.download = name; a.click(); };
-  save(rec.join('\n'), 'xems-motion-' + stamp + '.csv', 'text/csv');
-  setTimeout(() => save(raw.join('\n'), 'xems-motion-' + stamp + '-raw.jsonl', 'application/json'), 400);
+  const n1 = 'xems-motion-' + stamp + '.csv', n2 = 'xems-motion-' + stamp + '-raw.jsonl';
+  if (NATIVE) {                 // the app: Downloads/XEMS Motion + Android's share sheet (Viber, Gmail, Drive …)
+    const where = NATIVE.save(n1, rec.join('\n')); NATIVE.save(n2, raw.join('\n'));
+    $('note').textContent = 'Записът е запазен: ' + where.replace(/[^/]*$/, '') + ' — изпрати двата файла.';
+    NATIVE.share(n1 + '|' + n2);
+  } else {
+    const save = (text, name, type) => { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([text], { type })); a.download = name; a.click(); };
+    save(rec.join('\n'), n1, 'text/csv');
+    setTimeout(() => save(raw.join('\n'), n2, 'application/json'), 400);
+  }
   rec = null; raw = null; $('rec').textContent = '● Запис';
 };
 $('theme').onclick = () => { const r = document.documentElement; r.dataset.theme = r.dataset.theme === 'dark' ? 'light' : 'dark'; };

@@ -656,6 +656,13 @@
         const buf = new ArrayBuffer(bin.length); new Uint8Array(buf).set(bin); return new Float32Array(buf, 0, n); };
       this.dim = db.dim || 12; this.n = db.n; this.X = dec(db.X, db.n * this.dim); this.U = dec(db.U, db.n * 9);
       this.ks = db.ks || 0.12; this.ka = db.ka || 0.03; this.kp = db.kp || 1;
+      // cells by forearm direction (unit vector, 0.35 per cell): a query looks only in its own and the 26 next cells —
+      // ~10× less work, light enough for a phone at 50 Hz (a farther prototype is off by > 0.35 in direction anyway)
+      this.cells = new Map();
+      for (let i = 0; i < this.n; i++) {
+        const o = i * this.dim, k = this.cellKey(Math.round(this.X[o] / 0.35), Math.round(this.X[o + 1] / 0.35), Math.round(this.X[o + 2] / 0.35));
+        let c = this.cells.get(k); if (!c) this.cells.set(k, (c = [])); c.push(i);
+      }
     }
     // the search vector (left-arm convention, trunk frame): forearm direction, its twist, turn rate, the wrist's push,
     // and the physics' own upper-arm direction
@@ -666,10 +673,17 @@
       return v;
     }
     // x → the upper arm in the trunk frame (row-major 3×3), and how close the match was
+    cellKey(a, b, c) { return (a + 8) * 289 + (b + 8) * 17 + (c + 8); }
     predict(x, k) {
       k = k || 8;
       const best = [], X = this.X;
-      for (let i = 0; i < this.n; i++) {
+      const ca = Math.round(x[0] / 0.35), cb = Math.round(x[1] / 0.35), cc = Math.round(x[2] / 0.35), cand = [];
+      for (let a = -1; a <= 1; a++) for (let b = -1; b <= 1; b++) for (let c = -1; c <= 1; c++) {
+        const cell = this.cells.get(this.cellKey(ca + a, cb + b, cc + c)); if (cell) for (const i of cell) cand.push(i);
+      }
+      const all = cand.length < k;
+      for (let j = 0, N = all ? this.n : cand.length; j < N; j++) {
+        const i = all ? j : cand[j];
         const o = i * this.dim;
         let d = 0;
         for (let j = 0; j < this.dim; j++) { const e = X[o + j] - x[j]; d += e * e; if (best.length === k && d >= best[k - 1][0]) break; }

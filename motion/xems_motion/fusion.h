@@ -22,12 +22,32 @@ struct MotionFusion {
   int bN = 0, stillN = 0, n = 0;
   bool biasReady = false, still = false;
   float rate = 208.f;             // samples per second
+  // fw 8: the accelerometer through a 20 Hz low-pass (2nd-order Butterworth) before anything uses it. Body movement
+  // lives below ~15 Hz; the suit's impulses (50–100 Hz) shake the body and, unfiltered, they tilted the gravity
+  // reference and kept "still" from ever being seen during EMS (offline test with 85 Hz / 0.5 g: trunk 0.1° → 2.9°).
+  // af = the filtered acceleration (g), also what the frame carries.
+  float af[3] = {0, 0, 1};
+  float lb0 = 0, lb1, lb2, la1, la2, lz1[3] = {0, 0, 0}, lz2[3] = {0, 0, 0};
+  void lowpass(float *a) {
+    if (lb0 == 0) {
+      const float K = tanf(3.14159265f * 20.f / rate), Q = 0.70710678f, nrm = 1.f / (1.f + K / Q + K * K);
+      lb0 = K * K * nrm; lb1 = 2 * lb0; lb2 = lb0; la1 = 2 * (K * K - 1) * nrm; la2 = (1 - K / Q + K * K) * nrm;
+      for (int i = 0; i < 3; i++) { lz1[i] = a[i] * (1 - lb0); lz2[i] = a[i] * (lb2 - la2); }   // start settled
+    }
+    for (int i = 0; i < 3; i++) {             // transposed direct form II
+      float y = lb0 * a[i] + lz1[i];
+      lz1[i] = lb1 * a[i] - la1 * y + lz2[i];
+      lz2[i] = lb2 * a[i] - la2 * y;
+      a[i] = af[i] = y;
+    }
+  }
 
   void reset() { q[0] = 1; q[1] = q[2] = q[3] = 0; n = 0; }
   void relearnBias() { biasReady = false; bN = 0; bAcc[0] = bAcc[1] = bAcc[2] = 0; }
 
   // g: rad/s, a: g (specific force: +1 g up at rest), dt: s
   void update(float gx, float gy, float gz, float ax, float ay, float az, float dt) {
+    { float a3[3] = {ax, ay, az}; lowpass(a3); ax = a3[0]; ay = a3[1]; az = a3[2]; }
     float an = sqrtf(ax * ax + ay * ay + az * az);
     if (n == 0 && an > 0.5f) fromGravity(ax / an, ay / an, az / an);
     n++;

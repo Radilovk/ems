@@ -6,7 +6,7 @@
 //
 // BLE name "XEMS Motion XXXX" (XXXX = last 2 bytes of the chip address). Two services:
 //  * data  6E400101-B5A3-F393-E0A9-E50E24DCCA9E, characteristic …0102 (notify), one 20-byte frame per sample:
-//      u8 seq | u8 flags (b0 still, b1 bias ready, b2 low battery) | i16 qx qy qz (Q15, w ≥ 0 ⇒ w = √(1−x²−y²−z²))
+//      u8 seq | u8 flags (b0 still, b1 bias ready, b2 low battery, b3 hit > 2.5 g — fw 8) | i16 qx qy qz (Q15, w ≥ 0 ⇒ w = √(1−x²−y²−z²))
 //      | i16 gx gy gz (°/s × 16, bias removed) | i16 ax ay az (mg, raw specific force)      — all little-endian
 //  * text  Nordic UART 6E400001-…, one line each way (also on USB serial):
 //      Host → sensor                       Sensor → host
@@ -27,7 +27,7 @@
 #include <Wire.h>
 #include "fusion.h"
 
-#define FW_VER "7"
+#define FW_VER "8"
 #define IMU_ADDR 0x6A
 #define IMU_RATE 208.f
 
@@ -37,6 +37,16 @@ BLECharacteristic dataChr("6E400102-B5A3-F393-E0A9-E50E24DCCA9E");
 MotionFusion fus;
 static uint8_t seq = 0, decim = 4;          // 208/4 = 52 Hz by default
 static uint8_t sub = 0;
+// fw 8: a frame carries the MEAN of its samples, not every 4th one. Sampling every 4th sample folds anything above
+// 26 Hz — the suit's own impulses (50–100 Hz shake the body), landings — into the movement band, and the phone
+// integrates velocities from it. Gyro: mean (bias removed); acceleration: mean in the gravity frame, turned back to the
+// sensor at the frame's instant (what the phone integrates). Plus flag b3: a hit > 2.5 g inside the frame (a landing).
+static float sumG[3], sumA[3], peakA;
+static void qrot(const float *q, const float *v, float *o, bool inv) {
+  float w = q[0], x = inv ? -q[1] : q[1], y = inv ? -q[2] : q[2], z = inv ? -q[3] : q[3];
+  float tx = 2 * (y * v[2] - z * v[1]), ty = 2 * (z * v[0] - x * v[2]), tz = 2 * (x * v[1] - y * v[0]);
+  o[0] = v[0] + w * tx + y * tz - z * ty; o[1] = v[1] + w * ty + z * tx - x * tz; o[2] = v[2] + w * tz + x * ty - y * tx;
+}
 static char devId[8];
 static int batPct = -1;
 static float batV = 0;
@@ -320,8 +330,19 @@ void loop() {
       float ax = (int16_t)(r[6] | r[7] << 8) * A, ay = (int16_t)(r[8] | r[9] << 8) * A, az = (int16_t)(r[10] | r[11] << 8) * A;
       fus.update(gx, gy, gz, ax, ay, az, 1.f / IMU_RATE);
       if (!fus.still) lastMove = millis();
+      { const float a3[3] = {fus.af[0], fus.af[1], fus.af[2]}; float aw[3]; qrot(fus.q, a3, aw, false);   // 20 Hz low-passed
+        sumG[0] += gx - fus.bias[0]; sumG[1] += gy - fus.bias[1]; sumG[2] += gz - fus.bias[2];
+        for (int i = 0; i < 3; i++) sumA[i] += aw[i];
+        float m = sqrtf(ax * ax + ay * ay + az * az); if (m > peakA) peakA = m; }
       if (++sub >= decim) {
+        const float n = sub;
         sub = 0;
+        { float mw[3] = {sumA[0] / n, sumA[1] / n, sumA[2] / n}, ma[3]; qrot(fus.q, mw, ma, true);
+          ax = ma[0]; ay = ma[1]; az = ma[2];
+          gx = sumG[0] / n + fus.bias[0]; gy = sumG[1] / n + fus.bias[1]; gz = sumG[2] / n + fus.bias[2]; }
+        const bool hit = peakA > 2.5f;
+        for (int i = 0; i < 3; i++) sumG[i] = sumA[i] = 0;
+        peakA = 0;
         float s = fus.q[0] < 0 ? -1.f : 1.f;     // w ≥ 0 so the host can rebuild it
         uint8_t f[20];
         int16_t v[9] = {clamp16(s * fus.q[1] * 32767), clamp16(s * fus.q[2] * 32767), clamp16(s * fus.q[3] * 32767),
@@ -329,7 +350,7 @@ void loop() {
                         clamp16((gz - fus.bias[2]) * 57.29578f * 16),
                         clamp16(ax * 1000), clamp16(ay * 1000), clamp16(az * 1000)};
         f[0] = seq++;
-        f[1] = (fus.still ? 1 : 0) | (fus.biasReady ? 2 : 0) | (batPct >= 0 && batPct < 10 ? 4 : 0);
+        f[1] = (fus.still ? 1 : 0) | (fus.biasReady ? 2 : 0) | (batPct >= 0 && batPct < 10 ? 4 : 0) | (hit ? 8 : 0);
         for (int i = 0; i < 9; i++) { f[2 + 2 * i] = v[i] & 0xFF; f[3 + 2 * i] = (uint16_t)v[i] >> 8; }
         if (btOk && Bluefruit.connected()) dataChr.notify(f, 20);
       }

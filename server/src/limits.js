@@ -1,7 +1,9 @@
 /** Caps and rate-limit settings — stay safe on Workers free tier. */
 
 export const LIMITS = {
-  maxApkBytes: 12 * 1024 * 1024,
+  // the APK (with music, AI, band app, voice firmware) is ~17 MB and grows; a Worker holds 128 MB, the hash
+  // of the file is made in memory once per registration (1.1.495: 12 MB refused the 16.6 MB release)
+  maxApkBytes: 64 * 1024 * 1024,
   maxBodyBytes: 16 * 1024,
   activatePerMinutePerIp: 10,
   activatePerDayPerDevice: 20,

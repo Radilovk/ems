@@ -56,7 +56,11 @@ if (mode === 'gen') {
       const w = [(dR[7] - dR[5]) / 2, (dR[2] - dR[6]) / 2, (dR[3] - dR[1]) / 2];
       const acc = mv(T(m.R), add(sc(add(sub(c.p, m.p), sub(a.p, m.p)), 1 / (h * h)), [0, 0, 9.81]));
       const g = w.map((x, i) => x + bias[id][i] + drift[id][i] * t + gauss() * 0.07 * D2R);
-      const ac = acc.map((x) => Math.max(-16, Math.min(16, x / 9.81 + gauss() * 0.003)));   // ±16 g range
+      // EMS_HZ=85: the suit's impulses shake the body (EMS_G g, 4 s on / 4 s off after the calibration) — what fw 8's
+      // frame averaging is for
+      const ems = process.env.EMS_HZ && t > 10 && Math.floor(t / 4) % 2 === 0 ? +(process.env.EMS_G || 0.5) * 9.81 : 0;
+      const vib = ems ? [0, 1, 2].map((i) => ems * Math.sin(2 * Math.PI * +process.env.EMS_HZ * t + i * 2.1 + id.charCodeAt(0))) : [0, 0, 0];
+      const ac = acc.map((x, i) => Math.max(-16, Math.min(16, (x + vib[i]) / 9.81 + gauss() * 0.003)));   // ±16 g range
       out[id].push(g.map((x) => x.toFixed(6)).join(' ') + ' ' + ac.map((x) => x.toFixed(5)).join(' '));
     }
     prev = cur; cur = next;
@@ -75,7 +79,7 @@ const streams = {};
 for (const id of ids) streams[id] = fs.readFileSync(path.join(dir, 'out_' + id + '.txt'), 'utf8').trim().split('\n').map((l) => l.split(' ').map(Number));
 const nF = Math.min(...ids.map((id) => streams[id].length));
 const tOf = (k) => (2 + 4 * k + 3) / RATE;      // fusion output k = raw sample 4k+3 of the file, which starts at t = 2h
-const sample = (id, k) => { const v = streams[id][k]; return { t: tOf(k), q: v.slice(0, 4), gyro: v.slice(4, 7), acc: v.slice(7, 10), still: v[10] === 1 }; };
+const sample = (id, k) => { const v = streams[id][k]; return { t: tOf(k), q: v.slice(0, 4), gyro: v.slice(4, 7), acc: v.slice(7, 10), still: v[10] === 1, hit: v[11] === 1 }; };
 const blockAt = (t) => {
   if (MOCAP) return src.nameAt(t);
   let t0 = 0; for (const [name, dur] of M.sim.SCRIPT) { if (t < t0 + dur) return name; t0 += dur; } return 'end';

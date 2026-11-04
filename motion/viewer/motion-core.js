@@ -94,7 +94,7 @@
     const x = i16(2) / 32767, y = i16(4) / 32767, z = i16(6) / 32767;
     const w = Math.sqrt(Math.max(0, 1 - x * x - y * y - z * z));
     const f = dv.getUint8(1);
-    return { t, seq: dv.getUint8(0), still: !!(f & 1), biasReady: !!(f & 2), lowBat: !!(f & 4), q: [w, x, y, z],
+    return { t, seq: dv.getUint8(0), still: !!(f & 1), biasReady: !!(f & 2), lowBat: !!(f & 4), hit: !!(f & 8), q: [w, x, y, z],
       gyro: [i16(8) / 16, i16(10) / 16, i16(12) / 16], acc: [i16(14) / 1000, i16(16) / 1000, i16(18) / 1000] };
   }
 
@@ -250,7 +250,7 @@
       // standing upright the body balances over the mid-foot: the straight legs lean forward by ~atan(5 cm / leg)
       if (role === 'lshank' || role === 'rshank') R = mul(R, ry(Math.atan2(this.dim.footFwd, this.dim.shank + this.dim.thigh)));
       const RWS = mul(Rzf, Rq);
-      return { R, w: sc(mv(RWS, s.gyro), D2R), a: sub(sc(mv(RWS, s.acc), G), [0, 0, G]), still: s.still, t: s.t };
+      return { R, w: sc(mv(RWS, s.gyro), D2R), a: sub(sc(mv(RWS, s.acc), G), [0, 0, G]), still: s.still, hit: s.hit, t: s.t };
     }
     // one pose for "now" (call after feeding a frame of all sensors)
     solve(t) {
@@ -365,11 +365,12 @@
         ema('pelvisZ', (J.pelvis[2] - pj.pelvis[2]) * k);
       }
       pose.rep = this.reps.feed(t, A);
-      // an impossible pose that lasts (> 0.7 s, > 25° past the limit) is a measurement fault, said per sensor
+      // an impossible pose that lasts (> 0.7 s; > 25° past the limit, wrists > 10°) is a measurement fault, said per sensor
       pose.viol = viol; pose.warn = [];
       for (const r of ROLES) {
         const v = viol[r] || 0, an = this.anat;
-        an[r] = v > 25 ? (an[r] || 0) + dt : Math.max(0, (an[r] || 0) - 2 * dt);
+        // wrists: a clean arm never shows > 5° (scripted + all CMU clips); a sensor turned on its strap holds 12–17°
+        an[r] = v > (/wrist/.test(r) ? 10 : 25) ? (an[r] || 0) + dt : Math.max(0, (an[r] || 0) - 2 * dt);
         if (an[r] > 0.7 || (this.fixAcc && this.fixAcc[r] > 25)) pose.warn.push(r);
       }
       pose.yawFix = {};
@@ -486,6 +487,7 @@
       f.p = norm(dp) < 0.8 && f.pi[2] > -0.05 && f.pi[2] < 0.7 ? f.pi.slice() : f.pStart.slice();
       const Tm = t - f.t0;
       // a foot at speed is never calm for long: calm + slow = landed; calm for 0.5 s at "speed" = that speed is drift
+      // (fw 8's hit flag as "landed now" was tried: it cut the drift correction short — jump squats 13° → 19°; not used)
       if ((f.calmN * dt > 0.12 && norm(f.v) < 0.25) || f.calmN * dt > 0.5 || Tm > 2.5) {
         // stop: the leftover velocity is drift — its share of the travelled path goes; then is it a real step?
         const end = sub(f.pi, sc(f.v, Tm / 2)), move = norm(sub(end, f.pStart));

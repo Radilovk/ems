@@ -130,6 +130,18 @@ Measured on real people (CMU, 9 clips, mean error °):
 The scripted test (rigid synthetic trunk) passes at T1 and T7; at L3 its rigid trunk disagrees with the real-people
 spine model (trunk 6° vs limit 4°) — the CMU table is the reference there. `PLACE=T7 sh scripts/motion-sim/run.sh mocap`.
 
+### 1.7 / firmware 8 — the suit's impulses kept out of the movement (2026-11-04)
+The owner asked to start with what raises kinesiological accuracy and EMS sync most, at no AI-token cost. The
+offline test got an EMS model (`EMS_HZ=85 EMS_G=0.5`: the body shaken at the impulse frequency, 4 s on / 4 s off).
+With firmware 7 that broke the pose: lunge knees 7° → 20°, knee raise 4° → 19°, trunk 0.1° → 2.9° — the shake tilts
+the gravity reference and is folded (every 4th sample sent) into the 0–26 Hz band the phone integrates. Firmware 8:
+- the accelerometer through a **20 Hz low-pass** (2nd-order Butterworth, `fusion.h`) before the fusion uses it;
+- each frame carries the **mean of its 4 samples** (gyro; acceleration averaged in the gravity frame) — no folding;
+- flag b3 = a hit > 2.5 g inside the frame (kept for EMS sync / landings; as "landed now" for the foot it made jumps
+  worse — not used by the solver).
+Result with EMS: the scripted test equals the no-EMS one (lunge 8°, knee raise 5°, trunk 0.1°); CMU clips: knees
+13.1° with EMS vs 12.6° without (fw 7 without EMS: 12.2°). `EMS_HZ=85 sh scripts/motion-sim/run.sh [mocap]`.
+
 ### AI (Gemini) — where it fits and where not
 Not for the live figure: a cloud model answers in 0.5–3 s, needs the network, costs per call and does not return
 reliable joint angles — the figure must follow the body in < 50 ms. "Natural" comes from local models learned from

@@ -54,6 +54,16 @@ Two separate causes, both fixed:
   · firmware 2 · battery 81 % (4.02 V) · motion chip ✓", or says it is silent / in its bootloader / runs other
   software / has an older firmware → "Зареди". The LED legend is in the panel.
 
+### 1.2 / firmware 3 — "loaded, but dark, and silent on the cable" (owner, 2026-11-04)
+The probe found the sensor as a running app (USB up) but no INFO: the firmware started and never reached `loop()`.
+The core's I2C (`Wire_nRF52.cpp`) waits for bus events with no time limit — a motion chip that does not answer the
+expected way freezes the start, before the LED and before Bluetooth. Firmware 3: bus lines checked before I2C, the chip
+given 60 ms to power up and found at 100 kHz with retries; a **4-s watchdog** (fed in `loop`) restarts a frozen start,
+and the stage it froze in (kept in `GPREGRET2`) is skipped next time (the chip → the sensor runs without motion,
+red blinking, `INFO … imu=0/froze hang=2`). **Start stages light up**: red start → yellow motion chip → blue
+Bluetooth → green + white ready, each also printed on USB (`BOOT n …`) — "Провери сензора" names the stage it stops
+in. Not yet confirmed on the owner's sensors; if it stops on Bluetooth, the SoftDevice is the next suspect.
+
 ## Design in one picture
 ```
  sensor ×5 (208 Hz)                     host (tablet / laptop, 52 Hz)

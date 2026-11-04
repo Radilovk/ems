@@ -115,7 +115,7 @@ final class Usb {
                 c.bulkTransfer(out, q, q.length, 500);
                 StringBuilder sb = new StringBuilder();
                 byte[] b = new byte[256];
-                long end = System.currentTimeMillis() + 3500;
+                long end = System.currentTimeMillis() + 6000;
                 while (System.currentTimeMillis() < end) {
                     int n = c.bulkTransfer(in, b, b.length, 300);
                     if (n > 0) {
@@ -128,7 +128,8 @@ final class Usb {
                     }
                 }
                 if ("silent".equals(got) && sb.length() > 0) {
-                    got = "other: " + sb.toString().trim().replace('\n', ' ');
+                    String all = sb.toString().trim().replace('\n', ' ').replace('\r', ' ');
+                    got = (all.indexOf("BOOT ") >= 0 ? "boot: " : "other: ") + (all.length() > 300 ? all.substring(all.length() - 300) : all);
                 }
             } catch (Throwable t) {
                 got = "error: " + t.getMessage();

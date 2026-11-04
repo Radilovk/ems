@@ -102,6 +102,7 @@ td.v { text-align:right; font-variant-numeric:tabular-nums; font-weight:600; } t
   <div id="fwbar" style="height:10px;border-radius:6px;background:var(--line);margin:14px 0;overflow:hidden"><div id="fwfill" style="height:100%;width:0;background:var(--acc);transition:width .2s"></div></div>
   <div class="row"><button id="fwclose">Затвори</button><button id="fwprobe">Провери сензора</button><button id="fwgo" class="main">Зареди</button></div>
   <div class="sub" style="margin-top:8px">Светлините на сензора: <b>зелено 1 с + бяла светкавица</b> — току-що се включи ·
+    <b>при старт червено → жълто → синьо → зелено</b> (спре ли на цвят — там е проблемът; сам се рестартира след 4 с) ·
     <b>синьо всяка секунда</b> — работи и чака телефона · <b>зелено кратко</b> — свързан · <b>цвят</b> — мястото му на тялото ·
     <b>оранжево двойно</b> — слаба батерия · <b>бързо червено</b> — чипът за движение не отговаря. Нищо не свети: батерията е празна
     или е изключен — сложи го на кабел (зарежда се) или натисни RST веднъж.</div>
@@ -177,18 +178,27 @@ function showStatus() {
 }
 setInterval(() => { if (NATIVE) { checkProblems(); } }, 3000);
 function probeResult(t) {
-  const m = /INFO XEMS-MOTION (\d+) id=(\w+)(?: imu=(\d))?.*?bat=(-?\d+) ([\d.]+)/.exec(t);
+  const m = /INFO XEMS-MOTION (\d+) id=(\w+)(?: imu=(\d)(?:\/(\w+))?)?(?: hang=(\d))?.*?bat=(-?\d+) ([\d.]+)/.exec(t);
+  const WHY = { bus: 'линиите към него са дадени накъсо', who: 'отговаря друг чип', silent: 'не отговаря', froze: 'замръзна при старта' };
+  const STAGE = { 1: 'старта', 2: 'чипа за движение', 3: 'Bluetooth', 4: 'батерията' };
   let msg;
   if (m) {
     const fw = +m[1], imu = m[3] === undefined ? 1 : +m[3];
-    msg = 'Сензор ' + m[2] + ' работи ✓ · фърмуер ' + fw + (fw < FW_APP ? ' (има по-нов — натисни „Зареди“)' : ' ✓') + ' · батерия ' + m[4] + ' % (' + m[5] + ' V)' +
-      (imu ? ' · чип за движение ✓' : ' · ⚠ чипът за движение не отговаря');
+    msg = 'Сензор ' + m[2] + ' работи ✓ · фърмуер ' + fw + (fw < FW_APP ? ' (има по-нов — натисни „Зареди“)' : ' ✓') + ' · батерия ' + m[6] + ' % (' + m[7] + ' V)' +
+      (imu ? ' · чип за движение ✓' : ' · ⚠ чипът за движение ' + (WHY[m[4]] || 'не отговаря') + ' — сензорът работи, но без движение') +
+      (+m[5] ? ' · предишният старт замръзна на ' + STAGE[m[5]] : '');
+  } else if (t.startsWith('boot')) {
+    const st = [...t.matchAll(/BOOT (\d)/g)].map((x) => +x[1]), last = st.length ? st[st.length - 1] : 0;
+    msg = 'Сензорът стартира, но спира на ' + (STAGE[last] || 'стъпка ' + last) + '. ' + (last === 2
+      ? 'Рестартира се сам след 4 с и продължава без чипа за движение — натисни „Провери сензора“ пак след 10 с.'
+      : last === 3 ? 'Bluetooth частта не тръгва: натисни 2 пъти бързо RST на сензора и после „Зареди“ (пълно презареждане).'
+      : 'Натисни „Провери сензора“ пак след 10 с.');
   } else msg = { nocable: 'Не виждам сензор на кабела. Свържи го и натисни „Провери сензора“.', bootloader: 'Сензорът е в режим за зареждане — натисни „Зареди“.',
     silent: 'Сензорът е на кабела, но мълчи — няма нашия фърмуер или не е стартирал. Натисни „Зареди“.', denied: 'Без разрешение за USB — натисни пак и разреши.' }[t] ||
     (t.startsWith('other') ? 'На сензора има друг софтуер. Натисни „Зареди“.' : 'Проверката не стана: ' + t);
   $('fwtext').textContent = msg;
 }
-const FW_APP = 2;           // the firmware inside this app (motion/xems_motion FW_VER)
+const FW_APP = 3;           // the firmware inside this app (motion/xems_motion FW_VER)
 function nativeScan() {
   scanStart = Date.now();
   const r = NATIVE.scan();
@@ -267,7 +277,7 @@ async function connect(dev, tries = 0) {
 function send(id, line) { if (NATIVE) { NATIVE.send(id, line); return; } const s = sensors[id]; if (s && s.rx) s.rx.writeValue(new TextEncoder().encode(line + '\n')).catch(() => {}); }
 function onLine(id, l) {
   const fv = /INFO XEMS-MOTION (\d+)/.exec(l);
-  if (fv && sensors[id]) { sensors[id].fw = +fv[1]; if (+fv[1] < 2) sensors[id].state = 'стар фърмуер — обнови по USB'; drawSensors(); }
+  if (fv && sensors[id]) { sensors[id].fw = +fv[1]; if (+fv[1] < FW_APP) sensors[id].state = 'стар фърмуер — обнови по USB'; drawSensors(); }
   const s = sensors[id], m = /bat=(-?\d+)/.exec(l) || /^BAT (-?\d+)/.exec(l);
   if (m) { s.bat = +m[1]; drawSensors(); }
 }

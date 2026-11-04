@@ -78,6 +78,18 @@ mode 3) and then our firmware, one tap, progress across both. Seven seconds afte
 starts the full load by itself if Bluetooth is still missing. `sh scripts/motion-sim/run-dfu.sh` checks both packages
 against a simulated bootloader (first frames byte-equal to adafruit-nrfutil).
 
+### 1.4 / firmware 6 — the real cause, from the documentation (owner, 2026-11-04: "read how it is done, don't guess")
+- **Nordic S140 SoftDevice Specification**: once the SoftDevice is enabled, POWER and CLOCK are *restricted*
+  peripherals — "a write to a protected peripheral register will result in a Hard Fault"; use the SoftDevice API.
+  Firmware 3–5 wrote the start stage straight into `NRF_POWER->GPREGRET2` — right after `Bluefruit.begin()` (stage
+  4) → Hard Fault → the core's handler spins → 4-s watchdog → restart: exactly the owner's red → yellow → blue loop.
+  Firmware 6 writes it through `sd_power_gpregret_clr/set` while the SoftDevice runs (`markStage`), as Bluefruit's
+  own DFU service does (`BLEDfu.cpp`). Firmware 5 also reads the reset reason with `readResetReason()` (the core's
+  `init()` clears `RESETREAS`).
+- **IMU power** as Seeed's own library does it (`Seeed_Arduino_LSM6DS3`, `beginCore`): P1.08 output with **high
+  drive (H0H1)**, no pull, HIGH, wait, then `Wire1`. No internal pull-ups on SDA/SCL before power-up (Nordic
+  DevZone: I2C pins back-feed the unpowered sensor). The old "bus" line check is gone.
+
 ## Design in one picture
 ```
  sensor ×5 (208 Hz)                     host (tablet / laptop, 52 Hz)

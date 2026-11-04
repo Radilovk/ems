@@ -21,7 +21,7 @@
 #include <Wire.h>
 #include "fusion.h"
 
-#define FW_VER "4"
+#define FW_VER "6"
 #define IMU_ADDR 0x6A
 #define IMU_RATE 208.f
 
@@ -56,10 +56,17 @@ static uint8_t imuRead(uint8_t r, uint8_t *buf, uint8_t n) {
 // the chip 60 ms to power up, and a watchdog (setup) restarts a frozen start and skips the chip the next time.
 static const char *imuWhy = "";
 static bool imuBegin() {
-  pinMode(PIN_LSM6DS3TR_C_POWER, OUTPUT); digitalWrite(PIN_LSM6DS3TR_C_POWER, HIGH);
-  delay(60);
-  pinMode(PIN_WIRE1_SDA, INPUT_PULLUP); pinMode(PIN_WIRE1_SCL, INPUT_PULLUP); delay(2);
-  if (!digitalRead(PIN_WIRE1_SDA) || !digitalRead(PIN_WIRE1_SCL)) { imuWhy = "bus"; return false; }   // a line held low
+  // Seeed's own sequence (Seeed_Arduino_LSM6DS3, beginCore): P1.08 as output with HIGH drive (H0H1) and no pull —
+  // the pin is the sensor's supply, standard drive sags under its current — then HIGH, wait, Wire1. No pull-ups on
+  // SDA/SCL before that: they would feed the unpowered sensor through its I2C pins (Nordic DevZone).
+  pinMode(PIN_LSM6DS3TR_C_POWER, OUTPUT);
+  NRF_P1->PIN_CNF[8] = ((uint32_t)NRF_GPIO_PIN_DIR_OUTPUT << GPIO_PIN_CNF_DIR_Pos)
+                     | ((uint32_t)NRF_GPIO_PIN_INPUT_DISCONNECT << GPIO_PIN_CNF_INPUT_Pos)
+                     | ((uint32_t)NRF_GPIO_PIN_NOPULL << GPIO_PIN_CNF_PULL_Pos)
+                     | ((uint32_t)NRF_GPIO_PIN_H0H1 << GPIO_PIN_CNF_DRIVE_Pos)
+                     | ((uint32_t)NRF_GPIO_PIN_NOSENSE << GPIO_PIN_CNF_SENSE_Pos);
+  digitalWrite(PIN_LSM6DS3TR_C_POWER, HIGH);
+  delay(30);                                // LSM6DS3TR-C boot ≈ 15 ms
   Wire1.begin(); Wire1.setClock(100000);    // 100 kHz while finding it
   uint8_t who = 0;
   for (int i = 0; i < 5 && who != 0x6A; i++) { imuRead(0x0F, &who, 1); if (who != 0x6A) delay(20); }
@@ -74,6 +81,7 @@ static bool imuBegin() {
 
 // watchdog: 4 s; fed in loop(). NRF_POWER->GPREGRET2 keeps the start stage across a watchdog restart.
 static uint8_t lastHang = 0;
+static uint32_t resetWhy = 0;
 static bool btOk = false;
 static uint16_t sdFwid = 0;          // the SoftDevice in flash (S140 7.3.0 = 0x0123), 0 = none
 static void wdtStart() {
@@ -83,8 +91,16 @@ static void wdtStart() {
   NRF_WDT->TASKS_START = 1;
 }
 static inline void wdtFeed() { NRF_WDT->RR[0] = WDT_RR_RR_Reload; }
+// S140 SoftDevice Specification: with the SoftDevice enabled POWER is a restricted peripheral — a direct register
+// write is a Hard Fault (firmware 3–5 froze right after Bluetooth started, watchdog restart, red→yellow→blue loop).
+// Then only through its API, as Bluefruit's own DFU service does (sd_power_gpregret_clr/set).
+static void markStage(uint8_t n) {
+  uint8_t on = 0; sd_softdevice_is_enabled(&on);
+  if (on) { sd_power_gpregret_clr(1, 0xFF); if (n) sd_power_gpregret_set(1, n); }
+  else NRF_POWER->GPREGRET2 = n;
+}
 static void stage(uint8_t n, int color, const char *what) {
-  NRF_POWER->GPREGRET2 = n;
+  markStage(n);
   ledShow(color);
   Serial.print("BOOT "); Serial.print(n); Serial.print(' '); Serial.println(what);
 }
@@ -117,7 +133,7 @@ static void info() {
   uint8_t t[2] = {0, 0}; imuRead(0x20, t, 2);
   float temp = 25.f + (int16_t)(t[0] | t[1] << 8) / 256.f;
   char b[160];
-  snprintf(b, sizeof b, "INFO XEMS-MOTION %s id=%s imu=%d%s%s bt=%d sd=%04X hang=%d rate=%d bat=%d %.2f bias=%d t=%.1f", FW_VER, devId, imuOk ? 1 : 0, imuOk ? "" : "/", imuOk ? "" : imuWhy, btOk ? 1 : 0, sdFwid, lastHang,
+  snprintf(b, sizeof b, "INFO XEMS-MOTION %s id=%s imu=%d%s%s bt=%d sd=%04X hang=%d rr=%lX rate=%d bat=%d %.2f bias=%d t=%.1f", FW_VER, devId, imuOk ? 1 : 0, imuOk ? "" : "/", imuOk ? "" : imuWhy, btOk ? 1 : 0, sdFwid, lastHang, (unsigned long)resetWhy,
            (int)(IMU_RATE / decim + 0.5f), batPct, batV, fus.biasReady ? 1 : 0, temp);
   say(b);
 }
@@ -168,15 +184,18 @@ static void connectCb(uint16_t h) {
 void setup() {
   pinMode(LED_RED, OUTPUT); pinMode(LED_GREEN, OUTPUT); pinMode(LED_BLUE, OUTPUT);
   pinMode(VBAT_ENABLE, OUTPUT); digitalWrite(VBAT_ENABLE, LOW);
-  // where did the last start freeze? (a watchdog restart with a stage left in GPREGRET2)
-  bool byDog = NRF_POWER->RESETREAS & POWER_RESETREAS_DOG_Msk;
-  NRF_POWER->RESETREAS = 0xFFFFFFFF;
-  lastHang = byDog ? NRF_POWER->GPREGRET2 : 0;
+  // where did the last start freeze? A watchdog (or lockup) restart with a stage left in GPREGRET2. The core's init()
+  // has already read and cleared RESETREAS (fw 3–4 read the cleared register: the skip never happened, the start
+  // looped red → yellow → blue for ever) — its copy is readResetReason().
+  uint32_t rr = readResetReason();
+  bool crashed = rr & (POWER_RESETREAS_DOG_Msk | POWER_RESETREAS_LOCKUP_Msk);
+  lastHang = crashed ? NRF_POWER->GPREGRET2 : 0;
+  resetWhy = rr;
   wdtStart();
   Serial.begin(115200);
   // start stages, each with its colour: red = started · yellow = motion chip · blue = Bluetooth · green+white = ready.
   // A sensor that stops on a colour shows where; the watchdog restarts it in 4 s and the chip step is skipped then.
-  stage(1, 1, "start"); delay(300);
+  stage(1, 1, "start"); Serial.print("RESET 0x"); Serial.print(rr, HEX); Serial.print(" hang "); Serial.println(lastHang); delay(300);
   stage(2, 3, "imu");
   bool ok = false;
   if (lastHang == 2) imuWhy = "froze";      // it froze here last time: go on without it (red blinking says so)
@@ -190,13 +209,15 @@ void setup() {
   // another one): calling it then crashes the start (the owner's sensors: blue → red over and over). Look first.
   sdFwid = (*(volatile uint32_t *)0x3004 == 0x51B1E5DB) ? *(volatile uint16_t *)0x300C : 0;
   if (sdFwid != 0x0123) { stage(3, 5, sdFwid ? "bluetooth: other softdevice" : "bluetooth: no softdevice"); }
-  else if (lastHang == 3) { stage(3, 5, "bluetooth: froze last time"); }
+  else if (lastHang == 6) { stage(3, 5, "bluetooth: froze twice, off"); }
   else {
-  stage(3, 4, "bluetooth");
-  Bluefruit.configPrphBandwidth(BANDWIDTH_MAX);
+  // second try after a freeze: the plainest settings (default bandwidth, default power)
+  bool light = lastHang == 3;
+  stage(light ? 6 : 3, 4, light ? "bluetooth (plain)" : "bluetooth");
+  if (!light) Bluefruit.configPrphBandwidth(BANDWIDTH_MAX);
   Bluefruit.begin();
   Bluefruit.setName(name);
-  Bluefruit.setTxPower(4);
+  if (!light) Bluefruit.setTxPower(4);
   Bluefruit.autoConnLed(false);
   Bluefruit.Periph.setConnectCallback(connectCb);
   dataSvc.begin();
@@ -231,7 +252,7 @@ static inline int16_t clamp16(float v) { return v > 32767 ? 32767 : v < -32768 ?
 void loop() {
   wdtFeed();
   uint8_t st = 0;
-  NRF_POWER->GPREGRET2 = 2;                 // a freeze in the chip's I2C from here on is a chip freeze (watchdog → skip it)
+  markStage(2);                 // a freeze in the chip's I2C from here on is a chip freeze (watchdog → skip it)
   if (imuOk) imuRead(0x1E, &st, 1);
   if ((st & 3) == 3) {
     uint8_t r[12];
@@ -256,7 +277,7 @@ void loop() {
       }
     }
   }
-  NRF_POWER->GPREGRET2 = 0;
+  markStage(0);
   while (Serial.available()) feed(Serial.read(), usbLine, usbLen);
   if (btOk) while (bleuart.available()) feed(bleuart.read(), bleLine, bleLen);
   uint32_t now = millis();

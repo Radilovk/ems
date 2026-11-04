@@ -159,6 +159,16 @@ public class MainActivity extends Activity {
         }
 
         @Override
+        public void onScan(int devices, int sensors, boolean scanning) {
+            js("XemsApp.onScan(" + devices + "," + sensors + "," + scanning + ")");
+        }
+
+        @Override
+        public void onProbe(String text) {
+            js("XemsApp.onProbe(" + q(text) + ")");
+        }
+
+        @Override
         public void onFlash(int stage, int percent, String note) {
             js("XemsApp.onFlash(" + stage + "," + percent + "," + q(note == null ? "" : note) + ")");
         }
@@ -179,6 +189,33 @@ public class MainActivity extends Activity {
         @JavascriptInterface
         public void send(String id, String line) {
             ble.send(id, line);
+        }
+
+        /** what stops Bluetooth from finding anything: "bt,loc,perm" flags that are NOT ok (empty = all fine) */
+        @JavascriptInterface
+        public String problems() {
+            StringBuilder p = new StringBuilder();
+            android.bluetooth.BluetoothAdapter a = ble.adapter();
+            if (a == null || !a.isEnabled()) {
+                p.append("bt,");
+            }
+            if (!locationOn()) {
+                p.append("loc,");
+            }
+            if (Build.VERSION.SDK_INT >= 23 && checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                p.append("perm,");
+            }
+            return p.toString();
+        }
+
+        @JavascriptInterface
+        public void fix(String what) {
+            web.post(new Fix(what));
+        }
+
+        @JavascriptInterface
+        public void probe() {
+            web.post(new StartProbe());
         }
 
         @JavascriptInterface
@@ -234,6 +271,64 @@ public class MainActivity extends Activity {
         public void share(String names) {
             web.post(new Share(names));
         }
+    }
+
+    boolean locationOn() {
+        try {
+            android.location.LocationManager lm = (android.location.LocationManager) getSystemService(Context.LOCATION_SERVICE);
+            if (lm == null) {
+                return true;
+            }
+            if (Build.VERSION.SDK_INT >= 28) {
+                return lm.isLocationEnabled();
+            }
+            return lm.isProviderEnabled(android.location.LocationManager.GPS_PROVIDER)
+                    || lm.isProviderEnabled(android.location.LocationManager.NETWORK_PROVIDER);
+        } catch (Throwable t) {
+            return true;
+        }
+    }
+
+    /** one tap from the page to Android's own switch for what is missing */
+    final class Fix implements Runnable {
+        final String what;
+
+        Fix(String what) {
+            this.what = what;
+        }
+
+        @Override
+        public void run() {
+            try {
+                if ("bt".equals(what)) {
+                    startActivity(new Intent(android.bluetooth.BluetoothAdapter.ACTION_REQUEST_ENABLE));
+                } else if ("loc".equals(what)) {
+                    startActivity(new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+                } else if ("perm".equals(what)) {
+                    askPermissions();
+                    Intent i = new Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                            Uri.parse("package:" + getPackageName()));
+                    if (Build.VERSION.SDK_INT >= 23 && shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION)) {
+                        return;                         // Android will ask again in its own dialog
+                    }
+                    startActivity(i);
+                }
+            } catch (Throwable ignored) {
+            }
+        }
+    }
+
+    final class StartProbe implements Runnable {
+        @Override
+        public void run() {
+            Usb.probe(MainActivity.this, new ToPage());
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        js("XemsApp.onResume()");                     // back from Android's settings: look again
     }
 
     final class StartFlash implements Runnable {

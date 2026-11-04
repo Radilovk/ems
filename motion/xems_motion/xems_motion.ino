@@ -10,7 +10,7 @@
 //      | i16 gx gy gz (°/s × 16, bias removed) | i16 ax ay az (mg, raw specific force)      — all little-endian
 //  * text  Nordic UART 6E400001-…, one line each way (also on USB serial):
 //      Host → sensor                       Sensor → host
-//        info                                INFO XEMS-MOTION <ver> id=<XXXX> rate=<hz> bat=<%> <V> bias=<0|1> t=<°C>
+//        info                                INFO XEMS-MOTION <ver> id=<XXXX> imu=<0|1> rate=<hz> bat=<%> <V> bias=<0|1> t=<°C>
 //        rate 25|50|100                      OK rate <hz>
 //        led off|red|green|blue|yellow|cyan|magenta|white [blink]   OK led <color>   (shows the found position)
 //        bias                                OK bias  (hold still ~1 s: the gyro bias is learned again)
@@ -21,7 +21,7 @@
 #include <Wire.h>
 #include "fusion.h"
 
-#define FW_VER "1"
+#define FW_VER "2"
 #define IMU_ADDR 0x6A
 #define IMU_RATE 208.f
 
@@ -34,7 +34,8 @@ static uint8_t sub = 0;
 static char devId[8];
 static int batPct = -1;
 static float batV = 0;
-static uint32_t lastBat = 0, lastMove = 0, ledBlinkUntil = 0;
+static uint32_t lastBat = 0, lastMove = 0, ledBlinkUntil = 0, lastHello = 0;
+static bool imuOk = false;
 static int ledColor = 0;                    // bit0 R, bit1 G, bit2 B
 static bool ledBlink = false;
 static char usbLine[64], bleLine[64];
@@ -91,7 +92,7 @@ static void info() {
   uint8_t t[2] = {0, 0}; imuRead(0x20, t, 2);
   float temp = 25.f + (int16_t)(t[0] | t[1] << 8) / 256.f;
   char b[120];
-  snprintf(b, sizeof b, "INFO XEMS-MOTION %s id=%s rate=%d bat=%d %.2f bias=%d t=%.1f", FW_VER, devId,
+  snprintf(b, sizeof b, "INFO XEMS-MOTION %s id=%s imu=%d rate=%d bat=%d %.2f bias=%d t=%.1f", FW_VER, devId, imuOk ? 1 : 0,
            (int)(IMU_RATE / decim + 0.5f), batPct, batV, fus.biasReady ? 1 : 0, temp);
   say(b);
 }
@@ -170,14 +171,16 @@ void setup() {
   Bluefruit.Advertising.start(0);
   readBattery();
   lastMove = millis();
-  if (!ok) { for (;;) { ledShow(1); delay(150); ledShow(0); delay(150); say("ERR imu"); } }
+  imuOk = ok;
+  // "I am alive": green for a second, then white flash — visible on every power-up / reset
+  ledShow(2); delay(1000); ledShow(7); delay(150); ledShow(0);
 }
 
 static inline int16_t clamp16(float v) { return v > 32767 ? 32767 : v < -32768 ? -32768 : (int16_t)lrintf(v); }
 
 void loop() {
   uint8_t st = 0;
-  imuRead(0x1E, &st, 1);
+  if (imuOk) imuRead(0x1E, &st, 1);
   if ((st & 3) == 3) {
     uint8_t r[12];
     if (imuRead(0x22, r, 12) == 12) {
@@ -209,9 +212,17 @@ void loop() {
     char b[32]; snprintf(b, sizeof b, "BAT %d %.2f", batPct, batV); say(b);
   }
   // LED: the colour the host gave (blinking first 4 s); otherwise blue blink = waiting, short green = connected
-  if (ledColor) ledShow(ledBlink && now < ledBlinkUntil && (now / 150) % 2 ? 0 : ledColor);
-  else if (!Bluefruit.connected()) ledShow((now % 2000) < 60 ? 4 : 0);
-  else ledShow((now % 3000) < 30 ? 2 : 0);
+  // LED, easy to read (fw 2): red fast = the motion sensor chip does not answer · orange double blink = battery low ·
+  // blue once a second = waiting for the phone · green short every 2 s = connected · a colour = its place on the body
+  bool low = batPct >= 0 && batPct < 10;
+  if (!imuOk) ledShow((now / 120) % 2 ? 1 : 0);
+  else if (ledColor) ledShow(ledBlink && now < ledBlinkUntil && (now / 150) % 2 ? 0 : ledColor);
+  else if (low && (now % 3000) < 400) ledShow((now % 3000) < 120 || ((now % 3000) > 250 && (now % 3000) < 370) ? 3 : 0);
+  else if (!Bluefruit.connected()) ledShow((now % 1000) < 150 ? 4 : 0);
+  else ledShow((now % 2000) < 100 ? 2 : 0);
+  // on the USB cable: say who I am every 2 s (the app's "check the sensor" reads it)
+  if (now - lastHello > 2000) { lastHello = now; if (Serial) info(); }
   // nobody connected and no movement for 10 minutes → sleep
-  if (!Bluefruit.connected() && now - lastMove > 600000) goSleep();
+  // nobody connected and not moved for 30 min → sleep (a shake or RST wakes it); never on the USB cable
+  if (!Bluefruit.connected() && !Serial && now - lastMove > 1800000UL) goSleep();
 }

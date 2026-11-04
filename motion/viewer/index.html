@@ -57,8 +57,12 @@ td.v { text-align:right; font-variant-numeric:tabular-nums; font-weight:600; } t
   #note { display:none; } #reps .n { font-size:40px; } td { padding:1px 2px; }
   #view button { padding:4px 7px; font-size:12px; } #credit, #hint { display:none; }
 }
+#status { border-radius:10px; padding:8px 10px; font-size:13px; background:var(--bg); }
+#status.bad { background:#fff4e5; color:#8a4b00; } #status button { margin-top:6px; width:100%; }
+@media (prefers-color-scheme: dark) { #status.bad { background:#3a2a10; color:#ffcf8a; } }
 #fw { position:fixed; inset:0; background:rgba(0,0,0,.45); display:none; align-items:center; justify-content:center; z-index:6; }
-#fw .box { background:var(--card); border-radius:18px; padding:22px 26px; width:min(560px, 92vw); display:flex; gap:10px; }
+#fw .box { background:var(--card); border-radius:18px; padding:22px 26px; width:min(620px, 94vw); max-height:94vh; overflow:auto; display:flex; gap:10px; }
+@media (max-height: 560px) { #fw .box { padding:12px 16px; gap:6px; } #fw .sub { font-size:11px; } #fwbar { margin:6px 0 !important; } }
 #fw h2 { margin:0; font-size:20px; } #fw p { margin:0; color:var(--mute); }
 .brd.sel { background:var(--acc); color:#fff; }
 #wiz .box { background:var(--card); border-radius:18px; padding:22px 26px; width:min(640px, 92vw); display:flex; gap:20px; align-items:center; }
@@ -73,6 +77,7 @@ td.v { text-align:right; font-variant-numeric:tabular-nums; font-weight:600; } t
   <div class="card col" style="flex:1; min-height:0">
     <div class="row"><button id="add">＋ Сензор</button><button id="demo">Демо</button></div>
     <div class="row" id="hrow"><button id="hm" style="flex:0 0 44px">−</button><div id="hval" style="text-align:center;align-self:center">Ръст 175 см</div><button id="hp" style="flex:0 0 44px">+</button></div>
+    <div id="status" style="display:none"></div>
     <div id="sensors"></div>
     <button id="cal" class="main" disabled>Калибрирай</button>
     <div class="row"><button id="rec" disabled>● Запис</button><button id="theme">◐</button></div>
@@ -95,7 +100,11 @@ td.v { text-align:right; font-variant-numeric:tabular-nums; font-weight:600; } t
   <p id="fwtext">Свържи сензора с USB кабел към телефона / таблета (USB-C ↔ USB-C или с OTG преходник) и натисни „Зареди“.</p>
   <div class="row" style="margin-top:10px"><button data-b="sense" class="brd sel">XIAO Sense</button><button data-b="plus" class="brd">XIAO Sense Plus</button></div>
   <div id="fwbar" style="height:10px;border-radius:6px;background:var(--line);margin:14px 0;overflow:hidden"><div id="fwfill" style="height:100%;width:0;background:var(--acc);transition:width .2s"></div></div>
-  <div class="row"><button id="fwclose">Затвори</button><button id="fwgo" class="main">Зареди</button></div>
+  <div class="row"><button id="fwclose">Затвори</button><button id="fwprobe">Провери сензора</button><button id="fwgo" class="main">Зареди</button></div>
+  <div class="sub" style="margin-top:8px">Светлините на сензора: <b>зелено 1 с + бяла светкавица</b> — току-що се включи ·
+    <b>синьо всяка секунда</b> — работи и чака телефона · <b>зелено кратко</b> — свързан · <b>цвят</b> — мястото му на тялото ·
+    <b>оранжево двойно</b> — слаба батерия · <b>бързо червено</b> — чипът за движение не отговаря. Нищо не свети: батерията е празна
+    или е изключен — сложи го на кабел (зарежда се) или натисни RST веднъж.</div>
 </div></div>
 <div id="wiz"><div class="box"><div class="big" id="wn">1</div><div><h2 id="wt"></h2><p id="wp"></p><div class="res" id="wr"></div>
   <div class="row" style="margin-top:12px"><button id="wcancel">Отказ</button><button id="wok" class="main" style="display:none">Готово</button></div></div></div></div>
@@ -132,14 +141,56 @@ const XemsApp = window.XemsApp = {
   },
   onLine(id, l) { if (sensors[id]) onLine(id, l); },
   onState(id, st) {
+    if (id === '-') { scanFail = st; showStatus(); return; }
     const s = sensors[id] = sensors[id] || { name: 'XEMS Motion ' + id, n: 0 };
     s.state = STATE_BG[st] || st; drawSensors(); $('cal').disabled = Object.keys(sensors).length < 1;
   },
-  onPermissions() { if (NATIVE) nativeScan(); },
+  onPermissions() { if (NATIVE) { checkProblems(); nativeScan(); } },
+  onResume() { if (NATIVE) { checkProblems(); nativeScan(); } },
+  onScan(devices, found, scanning) { scanInfo = { devices, found, scanning, at: Date.now() }; showStatus(); },
+  onProbe(t) { probeResult(t); },
   onUsb() { openFw(); },
   onFlash(stage, pct, note) { flashStage(stage, pct, note); },
 };
+// what keeps the phone from finding the sensors, said plainly, each with its one-tap fix (Android's own switch)
+let scanInfo = null, scanFail = '', problems = '', scanStart = Date.now();
+const FIX = { bt: ['Bluetooth е изключен', 'Включи Bluetooth'], loc: ['Местоположението (GPS) е изключено — без него Android не показва Bluetooth устройства', 'Включи местоположение'],
+  perm: ['Приложението няма разрешение за устройства наблизо / местоположение', 'Дай разрешение'] };
+function checkProblems() { if (NATIVE && NATIVE.problems) { problems = NATIVE.problems(); showStatus(); } }
+function showStatus() {
+  const el = $('status'); if (!NATIVE) return;
+  el.style.display = ''; el.classList.remove('bad');
+  const p = problems.split(',').filter(Boolean);
+  if (p.length) {
+    el.classList.add('bad');
+    el.innerHTML = FIX[p[0]][0] + '<button class="main" id="fixbtn">' + FIX[p[0]][1] + '</button>';
+    $('fixbtn').onclick = () => NATIVE.fix(p[0]); return;
+  }
+  const online = Object.values(sensors).filter((x) => x.state === 'на линия').length;
+  if (online >= 5) { el.style.display = 'none'; return; }
+  const si = scanInfo || { devices: 0, found: 0 };
+  let t = 'Търся сензори… Наоколо: ' + si.devices + ' Bluetooth устройства, сензори XEMS: ' + si.found + '.';
+  if (scanFail) t += ' (' + scanFail + ')';
+  if (Date.now() - scanStart > 8000 && si.devices === 0) { el.classList.add('bad'); t = 'Телефонът не чува никакви Bluetooth устройства. Изключи и включи Bluetooth, после „Свържи сензорите“.'; }
+  else if (Date.now() - scanStart > 8000 && si.found === 0) { el.classList.add('bad'); t += ' Нито един сензор не се обажда: виж светят ли (синьо всяка секунда). Ако не — сложи ги на кабел или натисни RST; „Фърмуер на сензор“ → „Провери сензора“ казва дали работи.'; }
+  el.textContent = ''; el.append(t);
+}
+setInterval(() => { if (NATIVE) { checkProblems(); } }, 3000);
+function probeResult(t) {
+  const m = /INFO XEMS-MOTION (\d+) id=(\w+)(?: imu=(\d))?.*?bat=(-?\d+) ([\d.]+)/.exec(t);
+  let msg;
+  if (m) {
+    const fw = +m[1], imu = m[3] === undefined ? 1 : +m[3];
+    msg = 'Сензор ' + m[2] + ' работи ✓ · фърмуер ' + fw + (fw < FW_APP ? ' (има по-нов — натисни „Зареди“)' : ' ✓') + ' · батерия ' + m[4] + ' % (' + m[5] + ' V)' +
+      (imu ? ' · чип за движение ✓' : ' · ⚠ чипът за движение не отговаря');
+  } else msg = { nocable: 'Не виждам сензор на кабела. Свържи го и натисни „Провери сензора“.', bootloader: 'Сензорът е в режим за зареждане — натисни „Зареди“.',
+    silent: 'Сензорът е на кабела, но мълчи — няма нашия фърмуер или не е стартирал. Натисни „Зареди“.', denied: 'Без разрешение за USB — натисни пак и разреши.' }[t] ||
+    (t.startsWith('other') ? 'На сензора има друг софтуер. Натисни „Зареди“.' : 'Проверката не стана: ' + t);
+  $('fwtext').textContent = msg;
+}
+const FW_APP = 2;           // the firmware inside this app (motion/xems_motion FW_VER)
 function nativeScan() {
+  scanStart = Date.now();
   const r = NATIVE.scan();
   if (r === 'bluetooth-off') $('note').textContent = 'Включи Bluetooth и натисни „Свържи сензорите“.';
   else if (r !== 'ok') $('note').textContent = 'Bluetooth: ' + r;
@@ -147,7 +198,7 @@ function nativeScan() {
 if (NATIVE) {
   $('add').textContent = 'Свържи сензорите';
   $('fwbtn').style.display = '';
-  setTimeout(nativeScan, 600);
+  setTimeout(() => { checkProblems(); nativeScan(); }, 600);
 }
 // firmware over USB: plug in → the panel opens by itself → one tap; next sensor → plug in, tap again
 let fwBoard = localStorage.getItem('xm-board') || 'sense', fwBusy = false;
@@ -158,6 +209,7 @@ function openFw() { $('fw').style.display = 'flex'; if (!fwBusy) { $('fwfill').s
   $('fwtext').textContent = NATIVE && NATIVE.usbPresent() ? 'Сензорът е на кабела. Натисни „Зареди“ — около 20 секунди.' : 'Свържи сензора с USB кабел към телефона / таблета (USB-C ↔ USB-C или с OTG преходник) и натисни „Зареди“.'; } }
 $('fwbtn').onclick = openFw;
 $('fwclose').onclick = () => { $('fw').style.display = 'none'; };
+$('fwprobe').onclick = () => { if (NATIVE && NATIVE.probe) { $('fwtext').textContent = 'Проверявам…'; NATIVE.probe(); } };
 $('fwgo').onclick = () => { if (!NATIVE || fwBusy) return; fwBusy = true; $('fwgo').disabled = true; NATIVE.flash(fwBoard); };
 function flashStage(stage, pct, note) {
   const T = ['Не виждам сензор на кабела — свържи го и натисни „Зареди“ отново.', 'Android пита за достъп до USB — разреши.',
@@ -214,6 +266,8 @@ async function connect(dev, tries = 0) {
 }
 function send(id, line) { if (NATIVE) { NATIVE.send(id, line); return; } const s = sensors[id]; if (s && s.rx) s.rx.writeValue(new TextEncoder().encode(line + '\n')).catch(() => {}); }
 function onLine(id, l) {
+  const fv = /INFO XEMS-MOTION (\d+)/.exec(l);
+  if (fv && sensors[id]) { sensors[id].fw = +fv[1]; if (+fv[1] < 2) sensors[id].state = 'стар фърмуер — обнови по USB'; drawSensors(); }
   const s = sensors[id], m = /bat=(-?\d+)/.exec(l) || /^BAT (-?\d+)/.exec(l);
   if (m) { s.bat = +m[1]; drawSensors(); }
 }
@@ -367,7 +421,8 @@ function drawSensors() {
     const r = role[id], c = r ? LEDCSS[X.ROLE_LED[r]] : 'var(--mute)';
     return `<div class="sens"><span class="dot" style="background:${c}"></span><div><b>${r ? X.ROLE_BG[r] : s.name}</b><br><span class="sub">${s.state || ''}</span></div>` +
       `<span class="m">${s.bat != null ? s.bat + ' %' : ''}</span></div>`;
-  }).join('') || '<div class="sub">Няма сензори. Натисни „＋ Сензор“ за всеки от петте или „Демо“.</div>';
+  }).join('') || (NATIVE ? '<div class="sub">Включените сензори се свързват сами. Без сензори — „Демо“.</div>'
+    : '<div class="sub">Няма сензори. Натисни „＋ Сензор“ за всеки от петте или „Демо“.</div>');
 }
 const ANG = [['trunkLean', 'Наклон напред', ''], ['trunkSide', 'Наклон встрани', ''], ['trunkTwist', 'Завъртане', ''],
   ['lKnee', 'Коляно', 'l'], ['rKnee', 'Коляно', 'r'], ['lHip', 'Тазобедрена', 'l'], ['rHip', 'Тазобедрена', 'r'],

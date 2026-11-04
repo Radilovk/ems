@@ -116,6 +116,7 @@
       if (this.phase === 'stand') {
         s.stand.push(R);
         if (s.stand.length > 40) s.stand.shift();
+        s.accS = s.accS || []; s.accS.push(smp.acc); if (s.accS.length > 40) s.accS.shift();   // the zero pose: still
       } else if (this.phase === 'move' && s.q0) {
         const v = logm(mul(R, T(s.q0)));                    // rotation since the zero pose, in G_i
         const a = norm(v) * R2D;
@@ -133,6 +134,9 @@
         let acc = [0, 0, 0];
         for (const R of st) acc = add(acc, logm(mul(R, T(ref))));
         this.s[id].q0 = mul(expm(sc(acc, 1 / st.length)), ref);
+        // the accelerometer's offset along gravity: standing still it must read exactly 1 g (Body.seg learns on)
+        const as = this.s[id].accS || [];
+        if (as.length >= 10) { const m = sc(as.reduce(add), 1 / as.length), n = norm(m); this.s[id].aOff = sc(m, (n - 1) / n); }
         this.s[id].best = 0; this.s[id].accum = [0, 0, 0]; this.s[id].n = 0;
       }
       this.phase = 'move';
@@ -184,6 +188,7 @@
         const exp = /wrist|upper/.test(r) ? -Math.PI / 2 : Math.PI / 2;   // expected axis: −y for the arms, +y else
         out.psi[id] = exp - Math.atan2(f.ah[1], f.ah[0]);
         out.q0[id] = this.s[id].q0;
+        (out.aOff = out.aOff || {})[id] = this.s[id].aOff ? this.s[id].aOff.map((x) => Math.max(-0.08, Math.min(0.08, x))) : [0, 0, 0];
         if (f.ang < 15 || f.n < 5) out.problems.push(ROLE_BG[r] + ': почти не помръдна');
         if (f.vert > 0.6) out.problems.push(ROLE_BG[r] + ': движението не беше напред');
       }
@@ -222,6 +227,7 @@
       this.reps = new RepCounter();
       this.faceForward = true;
       this.yawFix = {};                                       // id → heading drift taken out (rad), from anatomy
+      this.aOff = {};                                         // id → accelerometer offset (g, sensor frame), learned when still
       this.anat = {};                                         // role → seconds an impossible pose has lasted
     }
     newArm() { return { U: I3(), k: 0.5, prevF: null, moving: false }; }
@@ -239,6 +245,8 @@
       this.reps = new RepCounter();
       this.yawFix = {};
       this.anat = {};
+      this.aOff = {};
+      for (const id in res.aOff || {}) this.aOff[id] = res.aOff[id].slice();
     }
     feed(id, smp) { this.last[id] = smp; }
     // segment orientation (in W) and the sensor's motion, in W, for one role
@@ -250,7 +258,18 @@
       // standing upright the body balances over the mid-foot: the straight legs lean forward by ~atan(5 cm / leg)
       if (role === 'lshank' || role === 'rshank') R = mul(R, ry(Math.atan2(this.dim.footFwd, this.dim.shank + this.dim.thigh)));
       const RWS = mul(Rzf, Rq);
-      return { R, w: sc(mv(RWS, s.gyro), D2R), a: sub(sc(mv(RWS, s.acc), G), [0, 0, G]), still: s.still, hit: s.hit, t: s.t };
+      // a real accelerometer reads a little off zero (LSM6DS3TR-C: up to ±0.04 g = 0.4 m/s²); integrated, that alone
+      // sank the pelvis and the figure squatted by itself (owner 2026-11-04). Whenever the sensor says it is still
+      // its acceleration must be 0: what it reads then is its offset, learned (≈ 0.5 s) and taken out.
+      // Still, |acc − offset| must be 1 g: each still moment tells the offset along that moment's gravity direction (in
+      // the SENSOR's frame — the offset turns with the body when it leans). LMS, ≈ 0.5 s.
+      const off = this.aOff[id] || (this.aOff[id] = [0, 0, 0]), an = norm(s.acc);
+      if (s.still && s.t !== off.t && an > 0.5) {
+        off.t = s.t; const gs = sc(s.acc, 1 / an), e = an - 1 - dot(gs, off);
+        for (let i = 0; i < 3; i++) off[i] = Math.max(-0.08, Math.min(0.08, off[i] + 0.04 * e * gs[i]));
+      }
+      const a = sub(sc(mv(RWS, sub(s.acc, off)), G), [0, 0, G]);
+      return { R, RS: RWS, id, w: sc(mv(RWS, s.gyro), D2R), a, still: s.still, hit: s.hit, t: s.t };
     }
     // one pose for "now" (call after feeding a frame of all sensors)
     solve(t) {
@@ -284,6 +303,19 @@
       if (this.place.s >= 0.9 && hh.ok && hh.calm * dt > 0.5 && Math.abs(this.prevPose ? this.prevPose.A.trunkLean : 0) < 30) {
         const zb = this.solveLegs(Tr, shanks, armsR, false).P[2] - this.pelvisZ0(Tr);
         hh.z += (zb - hh.z) * Math.min(1, dt / 0.7);
+      }
+      // standing still, upright, both shins vertical: the feet ARE under the hips, side by side (a wide or split stance
+      // tilts the shins). Any step the foot tracker kept beyond that is drift — pulled back (≈ 0.7 s). Owner
+      // 2026-11-04: the mannequin (drawn at the tracked feet) stood "spread apart" while the android looked fine.
+      const shTilt = (Sh) => angBetween(mv(Sh, [0, 0, 1]), [0, 0, 1]);
+      this.standStill = S.back && S.back.still && shTilt(shanks.l) < 8 * D2R && shTilt(shanks.r) < 8 * D2R &&
+        angBetween(mv(Tr, [0, 0, 1]), [0, 0, 1]) < 15 * D2R ? (this.standStill || 0) + dt : 0;
+      if (this.standStill > 1 && !this.foot.l.moving && !this.foot.r.moving) {
+        const mid = sc(add(this.foot.l.p, this.foot.r.p), 0.5), lat = mv(rz(yawOf(Tr)), [0, this.dim.hipW, 0]), k = Math.min(1, dt / 0.7);
+        for (const [sd, sg] of [['l', 1], ['r', -1]]) {
+          const want = [mid[0] + sg * lat[0], mid[1] + sg * lat[1], 0], f = this.foot[sd];
+          f.p = add(f.p, sc(sub(want, f.p), k)); f.air = false;
+        }
       }
       let leg = this.solveLegs(Tr, shanks, armsR, true);
       // standing still, the feet must explain what the shanks and the balance say. Try the feet as tracked, and each
@@ -449,16 +481,23 @@
       h.z += (h.v + v0) / 2 * dt;
       h.a = a;
       h.t += dt;
-      const calm = Math.abs(b.a[2]) < 0.25 && norm(b.w) < 0.25;
+      const calm = b.still || (Math.abs(b.a[2]) < 0.25 && norm(b.w) < 0.25);
       h.calm = calm ? h.calm + 1 : 0;
       // still = calm and slow (a slow, smooth descent is calm too, but it has speed); calm for 1 s at "speed" = drift
       if (h.t > 0.2 && ((h.calm * dt > 0.15 && Math.abs(h.v) < 0.12) || h.calm * dt > 1)) {
         h.z -= h.v * Math.min(h.t, 6) / 2; h.v = 0; h.t = 0;
       } else if (h.t > 15) { h.v = 0; h.t = 0; }      // never still for 15 s: stop the drift growing
       // standing upright and still (legs and trunk as in the zero pose): that is height 0 again
+      // Only MEASURED things decide it: trunk upright, both shins vertical, feet down, still. (It also asked for straight
+      // knees — but the knees come from this very height: once it had sunk the knees were bent, the reset never came
+      // and the figure stayed squatting for good. Owner 2026-11-04.) Shins vertical + trunk upright = standing.
       const A = this.prevPose && this.prevPose.A;
-      if (h.calm * dt > 1 && A && Math.abs(A.trunkLean) < 12 && A.lShank < 8 && A.rShank < 8 && A.lKnee < 12 &&
-          A.rKnee < 12 && !this.foot.l.air && !this.foot.r.air) h.z *= Math.exp(-dt / 1.5);
+      if (h.calm * dt > 0.6 && A && Math.abs(A.trunkLean) < 15 && A.lShank < 10 && A.rShank < 10 &&
+          !this.foot.l.air && !this.foot.r.air) { h.z *= Math.exp(-dt / 0.5); if (Math.abs(h.z) < 0.01) h.v = 0; }
+      // and never past what a body can do: down ≤ 70 % of the leg, up ≤ 0.6 m (a jump)
+      const leg = this.dim.shank + this.dim.thigh;
+      if (h.z > 0.6) { h.z = 0.6; if (h.v > 0) h.v = 0; }
+      if (h.z < -0.7 * leg) { h.z = -0.7 * leg; if (h.v < 0) h.v = 0; }
       h.ok = true;
     }
 
@@ -662,6 +701,8 @@
       const prev = this.kappa;
       // pelvis height measured: standing pelvis height + the back sensor's vertical travel − what the trunk's lean took
       const zP = useHeight && this.height.ok ? this.pelvisZ0(Tr) + this.height.z : null;
+      // its weight fades with the time since the trunk was last still (double integration: any offset left grows ∝ t²)
+      const wH = 4 * Math.exp(-(this.height.t || 0) / 2.5);
       // the hip's range (trunk frame): flexion ≤ 150° (incl. the spine's curl — the trunk is the T1 sensor), extension
       // ≤ 35°, abduction ≤ 60°, adduction ≤ 30°. A thigh outside is not a solution.
       const TrT = T(sp.Tpv), HF = 150 * D2R, HE = 35 * D2R, HAB = 60 * D2R, HAD = 30 * D2R;
@@ -685,7 +726,7 @@
         }
         // two thigh angles balance the same: the one with the hip above the knee is the real one (a thigh pointing
         // down-and-back from the knee happens only at the very bottom of a deep squat)
-        if (zP != null) c += 4 * (P[2] - zP) ** 2;      // pelvis height from the back sensor's own travel
+        if (zP != null) c += wH * (P[2] - zP) ** 2;     // pelvis height from the back sensor's own travel
         c += 0.02 * (Math.max(0, -tl[2] / d.thigh) ** 2 + Math.max(0, -tr[2] / d.thigh) ** 2);
         c += 0.05 * (hipPen(tl, 1) + hipPen(tr, -1));
         c += 2e-5 * ((kl - prev.l) ** 2 + (kr - prev.r) ** 2) + 1e-6 * (kl * kl + kr * kr);

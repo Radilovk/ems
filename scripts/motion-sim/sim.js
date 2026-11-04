@@ -60,7 +60,10 @@ if (mode === 'gen') {
       // frame averaging is for
       const ems = process.env.EMS_HZ && t > 10 && Math.floor(t / 4) % 2 === 0 ? +(process.env.EMS_G || 0.5) * 9.81 : 0;
       const vib = ems ? [0, 1, 2].map((i) => ems * Math.sin(2 * Math.PI * +process.env.EMS_HZ * t + i * 2.1 + id.charCodeAt(0))) : [0, 0, 0];
-      const ac = acc.map((x, i) => Math.max(-16, Math.min(16, (x + vib[i]) / 9.81 + gauss() * 0.003)));   // ±16 g range
+      // ACC_BIAS=0.03: a real accelerometer's zero-g offset (g, LSM6DS3TR-C typ. ±0.04 g) on every sensor —
+      // what drifts the pelvis height (owner 2026-11-04: "it squats by itself and never stands up again")
+      const ab = process.env.ACC_BIAS ? (r.role === 'back' ? [0.6, -0.5, 0.62] : [0, 1, 2].map((i) => Math.sin(id.charCodeAt(i) * 7.1 + i))).map((x) => x * +process.env.ACC_BIAS * 9.81) : [0, 0, 0];
+      const ac = acc.map((x, i) => Math.max(-16, Math.min(16, (x + vib[i] + ab[i]) / 9.81 + gauss() * 0.003)));   // ±16 g range
       out[id].push(g.map((x) => x.toFixed(6)).join(' ') + ' ' + ac.map((x) => x.toFixed(5)).join(' '));
     }
     prev = cur; cur = next;
@@ -106,7 +109,7 @@ body.calibrate(res);
 const truthReps = new M.RepCounter();
 const err = {}, add2 = (blk, key, e) => { const b = (err[blk] = err[blk] || {}); (b[key] = b[key] || []).push(Math.abs(e)); };
 const reps = {};
-let lastBlock = null, c0 = 0, ct0 = 0, falseWarn = 0, nPose = 0;
+let lastBlock = null, c0 = 0, ct0 = 0, falseWarn = 0, nPose = 0, nStand = 0, stuck = 0;
 const closeBlock = (est, tru) => { if (lastBlock) reps[lastBlock] = [est - c0, tru - ct0]; };
 for (; k < nF; k++) {
   const t = tOf(k);
@@ -125,10 +128,15 @@ for (; k < nF; k++) {
     add2(blk, 'hand cm', 100 * norm(sub(sub(pose.J[s + 'wrist'], pose.J.neck), sub(f.J[s + 'wrist'], f.J.neck))));
   }
   add2(blk, 'trunk', pose.A.trunkLean - A.trunkLean);
+  if (A.lKnee < 8 && A.rKnee < 8) { nStand++; if (pose.A.lKnee > 25 || pose.A.rKnee > 25) stuck++; }
+  if (A.lKnee < 8 && A.rKnee < 8) { const fw = (J) => Math.hypot(J.lankle[0] - J.rankle[0], J.lankle[1] - J.rankle[1]); add2('feet', 'gap cm', 100 * (fw(pose.J) - fw(f.J))); }
 }
 closeBlock(body.reps.total, truthReps.total);
 
 const mean = (a) => a.reduce((x, y) => x + y, 0) / a.length;
+if (err.feet) console.log('standing: feet apart vs truth ' + mean(err.feet['gap cm'].map(Math.abs)).toFixed(1) + ' cm (max ' + Math.max(...err.feet['gap cm']).toFixed(0) + ')');
+const feetErr = err.feet; delete err.feet;
+console.log('standing truly, knees shown > 25°: ' + (100 * stuck / Math.max(1, nStand)).toFixed(1) + ' % of ' + nStand + ' frames');
 if (MOCAP) {
   const blk = Object.keys(err)[0], r = reps[blk] || ['', ''], title = src.parts[2].title;
   const line = [title.padEnd(24), ...['knee', 'elbow', 'shoulder', 'trunk', 'hand cm'].map((key) => mean(err[blk][key]).toFixed(1).padStart(9)), '   ' + r[0] + ' / ' + r[1], '   faults ' + (100 * falseWarn / nPose).toFixed(1) + ' %', fail ? '  (places wrong)' : ''].join('');
@@ -156,6 +164,7 @@ if (!MOCAP) {
   // 3) anatomy: a clean session raises no fault; a broken sensor is named (owner 2026-11-04: "a pose a human cannot
   // make means a measurement error"). Faults: a shin's heading jumps 150° (gyro / strap); the left wrist sensor turns
   // 180° on its strap at the start of the curls.
+  ok(stuck / Math.max(1, nStand) < 0.02, 'standing is shown standing (knees > 25° in ' + (100 * stuck / Math.max(1, nStand)).toFixed(1) + ' % of standing frames)');
   ok(falseWarn / nPose < 0.01, 'anatomy: clean session, no false fault (' + (100 * falseWarn / nPose).toFixed(1) + ' % of frames)');
   const idOf = (role) => ids.find((id) => res.assign[id] === role);
   const tBlk = (name) => { let t0 = 0; for (const [n, d] of M.sim.SCRIPT) { if (n === name) return t0; t0 += d; } return 0; };

@@ -142,6 +142,23 @@ the gravity reference and is folded (every 4th sample sent) into the 0–26 Hz b
 Result with EMS: the scripted test equals the no-EMS one (lunge 8°, knee raise 5°, trunk 0.1°); CMU clips: knees
 13.1° with EMS vs 12.6° without (fw 7 without EMS: 12.2°). `EMS_HZ=85 sh scripts/motion-sim/run.sh [mocap]`.
 
+### 1.8 — "it squats by itself and never stands up" (owner, 2026-11-04)
+The pelvis height comes from the back sensor's vertical travel (double integration). Two faults made it sink for good:
+- **a deadlock**: "standing again ⇒ height 0" also required straight knees — but the knees come from that height;
+  once it had sunk the knees were bent, the reset never came. Now only measured things decide it: trunk upright,
+  both shins vertical, feet down, still ⇒ height → 0 (≈ 0.5 s).
+- **the accelerometer's offset** (LSM6DS3TR-C: up to ±0.04 g). 0.03 g alone kept the "trunk still" test (vertical
+  acceleration < 0.25 m/s²) from ever passing — no zero-velocity stops, the height ran away. Now: the offset along
+  gravity is measured in the calibration's zero pose and learned on whenever a sensor is still (sensor frame, every
+  sensor); "still" also comes from the sensor's own flag; the height's weight in the leg solution fades with the
+  time since the trunk was last still (`wH`); it is bounded (−70 % of the leg … +0.6 m).
+- **the mannequin "spread apart"** (it is drawn at the tracked feet, the android only by joint angles): standing still,
+  upright, both shins vertical ⇒ the feet are under the hips — any step the foot tracker kept is pulled back.
+Offline (`ACC_BIAS=0.03` = that offset on every sensor): scripted squats 34° → 16.5° knee error, standing shown as
+squatting 2.9 % → 0.1 % of the time; CMU clips (knees, mean) 12.6° → 11.0° without the offset, ≥ 22° → 14.7° with it.
+Tried and dropped: a leaky speed (ate real speed: squats 6° → 14°), "never above standing" (jumps, bends: 11° → 21°),
+learning the offset from the speed left at each stop (lunges 7° → 13°).
+
 ### AI (Gemini) — where it fits and where not
 Not for the live figure: a cloud model answers in 0.5–3 s, needs the network, costs per call and does not return
 reliable joint angles — the figure must follow the body in < 50 ms. "Natural" comes from local models learned from

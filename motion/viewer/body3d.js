@@ -9,6 +9,18 @@
 (function (root) {
   'use strict';
   const T3 = root.THREE;
+  // P turned by the least rotation that brings its z axis onto C's (no twist about the bone)
+  function swing(P, C) {
+    const a = [P[2], P[5], P[8]], b = [C[2], C[5], C[8]];
+    const cx = a[1] * b[2] - a[2] * b[1], cy = a[2] * b[0] - a[0] * b[2], cz = a[0] * b[1] - a[1] * b[0];
+    const c = Math.max(-1, Math.min(1, a[0] * b[0] + a[1] * b[1] + a[2] * b[2])), sn = Math.hypot(cx, cy, cz);
+    if (sn < 1e-6) return c > 0 ? P.slice() : C.slice();
+    const x = cx / sn, y = cy / sn, z = cz / sn, ang = Math.atan2(sn, c), co = Math.cos(ang), si = Math.sin(ang), t = 1 - co;
+    const Rr = [t * x * x + co, t * x * y - si * z, t * x * z + si * y, t * x * y + si * z, t * y * y + co, t * y * z - si * x, t * x * z - si * y, t * y * z + si * x, t * z * z + co];
+    const out = new Array(9);
+    for (let i = 0; i < 3; i++) for (let j = 0; j < 3; j++) out[3 * i + j] = Rr[3 * i] * P[j] + Rr[3 * i + 1] * P[3 + j] + Rr[3 * i + 2] * P[6 + j];
+    return out;
+  }
   const v3 = (p) => new T3.Vector3(p[1], p[2], p[0]);
   function q3(R) {                     // W rotation (row-major 3×3) → three quaternion (M R Mᵀ, M = rows y, z, x)
     const idx = [1, 2, 0], m = new T3.Matrix4();
@@ -241,7 +253,10 @@
         const fy = yawQ(R[s + 'shank']);
         // a foot on the floor stays flat; a foot in the air follows its shank
         seg['foot_' + s] = feet && feet[s] && feet[s].air ? q3(R[s + 'shank']) : fy; seg['ball_' + s] = seg['foot_' + s];
-        seg['upperarm_' + s] = q3(R[s + 'upper']); seg['lowerarm_' + s] = q3(R[s + 'fore']); seg['hand_' + s] = q3(R[s + 'fore']);
+        // no twisted skin (owner 2026-11-04: "the 3-D model cuts, artefacts"): the upper arm and the forearm are drawn
+        // with the least turn from their parent (swing only); the forearm's twist goes to the hand, as a real wrist shows
+        const Ua = swing(R.trunk, R[s + 'upper']), Fa = swing(Ua, R[s + 'fore']);
+        seg['upperarm_' + s] = q3(Ua); seg['lowerarm_' + s] = q3(Fa); seg['hand_' + s] = q3(R[s + 'fore']);
       }
       const world = {};
       for (const n of ORDER) {

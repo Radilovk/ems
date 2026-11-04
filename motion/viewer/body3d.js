@@ -232,9 +232,9 @@
     set(pose, feet) {
       if (!this.ready) return;
       const R = pose.R, J = pose.J, Tr = q3(R.trunk), I = new T3.Quaternion();
-      const part = (k) => I.clone().slerp(Tr, k);
+      const Pv = q3(R.pelvis || R.trunk), part = (k) => Pv.clone().slerp(Tr, k);   // the spine bends pelvis → chest
       const yawQ = (Sh) => { const y = Math.atan2(-Sh[1], Sh[4]); return new T3.Quaternion().setFromAxisAngle(new T3.Vector3(0, 1, 0), y); };
-      const seg = { pelvis: part(0.5), spine_01: part(0.65), spine_02: part(0.85), spine_03: Tr, neck_01: Tr, head: q3(R.head || R.trunk),
+      const seg = { pelvis: Pv, spine_01: part(0.35), spine_02: part(0.7), spine_03: Tr, neck_01: Tr, head: q3(R.head || R.trunk),
         clavicle_l: Tr, clavicle_r: Tr };
       for (const s of ['l', 'r']) {
         seg['thigh_' + s] = q3(R[s + 'thigh']); seg['calf_' + s] = q3(R[s + 'shank']);

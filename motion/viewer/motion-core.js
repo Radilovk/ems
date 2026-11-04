@@ -14,6 +14,31 @@
   const ROLE_BG = { back: 'гръб', lwrist: 'лява китка', rwrist: 'дясна китка', lshank: 'ляв глезен', rshank: 'десен глезен',
     lupper: 'лява мишница', rupper: 'дясна мишница' };
   const ROLE_LED = { back: 'white', lwrist: 'red', rwrist: 'green', lshank: 'magenta', rshank: 'cyan', lupper: 'yellow', rupper: 'blue' };
+  // ---------- where the fifth sensor sits (owner 2026-11-04: "let me say exactly where — belly, waist, which vertebra")
+  // s = height on the spine, 0 = S1 (sacrum) … 1 = T1; front = on the belly / breastbone (board bottom to the body).
+  const LEVELS = { C7: 1.04, T1: 1 };
+  for (let i = 2; i <= 12; i++) LEVELS['T' + i] = 1 - (i - 1) * 0.0582;
+  Object.assign(LEVELS, { L1: 0.30, L2: 0.24, L3: 0.18, L4: 0.12, L5: 0.06, S1: 0 });
+  const FRONT = { sternum: ['T5', 'гръдната кост'], above: ['L1', 'над пъпа'], navel: ['L3', 'пъпа'], below: ['L5', 'под пъпа'] };
+  // place → { s, front, dx (m, along the trunk's x: + front), name }
+  function placeOf(p) {
+    p = p || {};
+    const v = p.front ? (FRONT[p.v] || FRONT.navel)[0] : (LEVELS[p.v] != null ? p.v : 'T1');
+    return { v: p.v || 'T1', s: LEVELS[v], front: !!p.front, dx: p.front ? 0.10 : -0.08,
+      name: p.front ? 'отпред, ' + (FRONT[p.v] || FRONT.navel)[1] : 'гръб, ' + v };
+  }
+  // the spine is not rigid: real people (all CMU clips, 50 k frames) bend it with the lean. Pelvis → T1 bend (about the
+  // lateral axis) ≈ a·(lean of the sensor's level) + b — fitted per level (scripts/motion/spine-fit.js; r 0.39 at S1 …
+  // 0.82 at T1). One sensor then gives both ends: pelvis = R_s·Ry(−s·f), chest = R_s·Ry((1−s)·f).
+  const SPINE_FIT = [[0, 0.357, 0.5], [0.18, 0.436, -0.9], [0.36, 0.475, -1.9], [0.67, 0.482, -2.9], [1, 0.452, -3.2]];
+  function spineFit(s) {
+    s = Math.max(0, Math.min(1, s));
+    for (let i = 1; i < SPINE_FIT.length; i++) if (s <= SPINE_FIT[i][0]) {
+      const [s0, a0, b0] = SPINE_FIT[i - 1], [s1, a1, b1] = SPINE_FIT[i], k = (s - s0) / (s1 - s0);
+      return [a0 + (a1 - a0) * k, (b0 + (b1 - b0) * k) * D2R];
+    }
+    return [SPINE_FIT[4][1], SPINE_FIT[4][2] * D2R];
+  }
 
   // ---------- 3×3 rotation matrices (row-major arrays of 9) and vectors
   const I3 = () => [1, 0, 0, 0, 1, 0, 0, 0, 1];
@@ -83,7 +108,7 @@
   // ---------- calibration: zero pose (still) → one movement: slow squat with the arms raised forward
   // Finds for every sensor: its body place, its heading ψ, its zero orientation. No setting on the sensors.
   class Calibration {
-    constructor(opt) { this.phase = 'stand'; this.s = {}; this.problems = []; this.roles = (opt && opt.roles) || ROLES; }
+    constructor(opt) { this.phase = 'stand'; this.s = {}; this.problems = []; this.roles = (opt && opt.roles) || ROLES; this.front = !!(opt && opt.place && opt.place.front); }
     feed(id, smp) {
       let s = this.s[id];
       if (!s) s = this.s[id] = { stand: [], q0: null, best: 0, accum: [0, 0, 0], n: 0, amax: 0 };
@@ -150,7 +175,7 @@
       const backId = Object.keys(assign).find((id) => assign[id] === 'back');
       if (backId && feat[backId]) {
         const fwd = cross(feat[backId].ah, [0, 0, 1]);
-        flip = dot(feat[backId].nh, fwd) > 0;
+        flip = (dot(feat[backId].nh, fwd) > 0) !== this.front;    // on the belly its normal points forward
       }
       const out = { ok: true, assign, psi: {}, q0: {}, flip, feat, problems: [] };
       for (const id in assign) {
@@ -185,6 +210,8 @@
     constructor(opt) {
       opt = opt || {};
       this.dim = bodyDims(opt.height || 1.75);
+      this.place = placeOf(opt.place);
+      this.rigidSpine = !!opt.rigidSpine;
       this.armPrior = opt.armPrior !== undefined ? opt.armPrior : defaultArmPrior();
       this.cal = null;
       this.last = {};                                         // id → latest sample
@@ -233,7 +260,8 @@
       let S = {}; for (const r of ROLES) S[r] = this.seg(r);
       const viol = {};                                        // role → how far past a human limit (°) this frame
       if (this.anatomyYaw(S, dt, viol)) { S = {}; for (const r of ROLES) S[r] = this.seg(r); }
-      const Tr = S.back ? S.back.R : I3();
+      const sp = this.sp = this.spine(S.back ? S.back.R : I3());
+      const Tr = sp.Tth;                                       // the chest: shoulders, arms, head
       const shanks = { l: S.lshank ? S.lshank.R : I3(), r: S.rshank ? S.rshank.R : I3() };
       // feet: ankle point tracked with zero-velocity updates
       for (const side of ['l', 'r']) if (S[side + 'shank']) this.trackFoot(side, S[side + 'shank'], dt, t);
@@ -251,7 +279,9 @@
       // at rest and upright-ish the static balance is exact (nothing accelerates): it re-anchors the pelvis height
       // the back sensor's travel slowly drifts from — not during movement, not in deep bends (balance is weakest there)
       const hh = this.height;
-      if (hh.ok && hh.calm * dt > 0.5 && Math.abs(this.prevPose ? this.prevPose.A.trunkLean : 0) < 30) {
+      // (only for a sensor high on the back: lower on the spine its own vertical travel IS the pelvis's — the balance
+      // there pulled the height wrong in bends, knees 55° off on real people at L3; without it 8°)
+      if (this.place.s >= 0.9 && hh.ok && hh.calm * dt > 0.5 && Math.abs(this.prevPose ? this.prevPose.A.trunkLean : 0) < 30) {
         const zb = this.solveLegs(Tr, shanks, armsR, false).P[2] - this.pelvisZ0(Tr);
         hh.z += (zb - hh.z) * Math.min(1, dt / 0.7);
       }
@@ -283,7 +313,7 @@
         J[side + 'hip'] = add(J[side + 'knee'], up(mul(Sh, ry(-this.kappa[side])), d.thigh));
         J[side + 'toe'] = add(J[side + 'ankle'], mv(rz(yawOf(Sh)), [0.13 * d.H / 1.75, 0, -d.ankleH]));
       }
-      J.neck = add(P, up(Tr, d.trunk));
+      J.neck = add(P, up(sp.Tmid, d.trunk));
       J.head = add(J.neck, up(Tr, d.neck + d.head * 0.6));
       for (const side of ['l', 'r']) {
         const sgn = side === 'l' ? 1 : -1;
@@ -305,7 +335,7 @@
         const sgn = side === 'l' ? 1 : -1;
         A[side + 'Knee'] = this.kappa[side] * R2D;
         const thighDown = sub(J[side + 'knee'], J[side + 'hip']);
-        A[side + 'Hip'] = angBetween(thighDown, sc(trunkUp, -1)) * R2D;
+        A[side + 'Hip'] = angBetween(thighDown, sc(mv(sp.Tpv, [0, 0, 1]), -1)) * R2D;
         const U = this.armU(side), Ft = armsR[side];
         const ua = mv(T(Tr), mv(U, [0, 0, -1]));              // upper arm in the trunk frame
         A[side + 'ShFlex'] = Math.atan2(ua[0], -ua[2]) * R2D;
@@ -318,7 +348,7 @@
       const V = {};
       for (const r of ROLES) if (S[r]) V[r] = norm(S[r].w) * R2D;
       // segment rotations (same convention as the true frames): what a 3-D model is posed with
-      const R = { trunk: Tr, pelvis: Tr, head: Tr };
+      const R = { trunk: Tr, pelvis: sp.Tpv, head: Tr };
       for (const side of ['l', 'r']) {
         R[side + 'shank'] = shanks[side]; R[side + 'thigh'] = mul(shanks[side], ry(-this.kappa[side]));
         R[side + 'upper'] = this.armU(side); R[side + 'fore'] = armsR[side];
@@ -346,6 +376,19 @@
       for (const id in this.yawFix) pose.yawFix[this.cal.assign[id]] = this.yawFix[id] * R2D;
       this.prevPose = pose;
       return pose;
+    }
+
+    // one trunk sensor → pelvis, chest and the middle of the spine (see SPINE_FIT)
+    spine(Rs) {
+      const s = this.place.s, up = mv(Rs, [0, 0, 1]);
+      const lean = Math.atan2(dot(up, mv(rz(yawOf(Rs)), [1, 0, 0])), up[2]);
+      const [a, b] = spineFit(s);
+      const f = this.rigidSpine ? 0 : Math.max(-40 * D2R, Math.min(70 * D2R, a * lean + b));
+      return { Rs, f, Tth: mul(Rs, ry((1 - Math.min(1, s)) * f)), Tpv: mul(Rs, ry(-s * f)), Tmid: mul(Rs, ry((0.5 - s) * f)) };
+    }
+    sensorRel(Rs) {                       // the trunk sensor's point relative to the pelvis joint
+      const d = this.dim, p = this.place;
+      return mv(Rs, [p.dx, 0, 0.05 + p.s * (d.trunk - 0.11)]);
     }
 
     // heading is the one thing gravity cannot correct on a sensor: its gyro drifts it, a strap that turns shifts it.
@@ -467,7 +510,8 @@
       const F = Sf.R;
       let acc = Sf.a;
       if (Sb) {                     // wrist acceleration relative to the shoulder (back sensor point moved there)
-        const rTS = mv(Tr, [0.08, (side === 'l' ? 1 : -1) * d.shW, -0.02]);
+        // the shoulder relative to the trunk sensor (wherever on the spine it sits)
+        const sp = this.sp, rTS = sub(add(mv(sp.Tmid, [0, 0, d.trunk]), mv(Tr, [0, (side === 'l' ? 1 : -1) * d.shW, -0.03 * d.H])), this.sensorRel(sp.Rs));
         const aT = a.prevWb ? sc(sub(Sb.w, a.prevWb), 1 / dt) : [0, 0, 0];
         acc = sub(acc, add(Sb.a, add(cross(aT, rTS), cross(Sb.w, cross(Sb.w, rTS)))));
         a.prevWb = Sb.w;
@@ -591,12 +635,13 @@
     // the feet that carry it. Grid + refine (≈3 k evaluations, < 1 ms).
     // pelvis height at zero travel of the back sensor for this trunk lean (standing pelvis height + lean geometry)
     pelvisZ0(Tr) {
-      const d = this.dim, off = (R) => mv(R, [-0.08, 0, d.trunk - 0.06])[2];
-      return d.ankleH + d.shank + d.thigh + off(I3()) - off(Tr);
+      const d = this.dim, off = (R) => this.sensorRel(R)[2];
+      return d.ankleH + d.shank + d.thigh + off(I3()) - off(this.sp ? this.sp.Rs : Tr);
     }
 
     solveLegs(Tr, Sh, armsR, useHeight) {
-      const d = this.dim, hipOff = (s) => mv(Tr, [0, s * d.hipW, 0]);
+      const sp = this.sp || { Tpv: Tr, Tmid: Tr };
+      const d = this.dim, hipOff = (s) => mv(sp.Tpv, [0, s * d.hipW, 0]);
       const fl = this.foot.l, fr = this.foot.r;
       const base = (side) => {
         const f = this.foot[side];
@@ -608,16 +653,16 @@
       if (!fl.air) support.push(add(fl.p, mv(rz(yawOf(Sh.l)), [d.footFwd, 0, 0])));
       if (!fr.air) support.push(add(fr.p, mv(rz(yawOf(Sh.r)), [d.footFwd, 0, 0])));
       const sup = support.length ? sc(support.reduce(add), 1 / support.length) : null;
-      const trunkC = mv(Tr, [0, 0, 0.17 * d.H]);
+      const trunkC = mv(sp.Tmid, [0, 0, 0.17 * d.H]);
       const armC = { l: 0, r: 0 };
-      const armVec = (side) => add(mv(Tr, [0, (side === 'l' ? 1 : -1) * d.shW, d.trunk]), add(sc(mv(this.armU(side), [0, 0, -d.upper]), 0.5), sc(mv(armsR[side], [0, 0, -d.fore]), 0.3)));
+      const armVec = (side) => add(add(mv(sp.Tmid, [0, 0, d.trunk]), mv(Tr, [0, (side === 'l' ? 1 : -1) * d.shW, 0])), add(sc(mv(this.armU(side), [0, 0, -d.upper]), 0.5), sc(mv(armsR[side], [0, 0, -d.fore]), 0.3)));
       const armOff = add(sc(armVec('l'), 0.05), sc(armVec('r'), 0.05));
       const prev = this.kappa;
       // pelvis height measured: standing pelvis height + the back sensor's vertical travel − what the trunk's lean took
       const zP = useHeight && this.height.ok ? this.pelvisZ0(Tr) + this.height.z : null;
       // the hip's range (trunk frame): flexion ≤ 150° (incl. the spine's curl — the trunk is the T1 sensor), extension
       // ≤ 35°, abduction ≤ 60°, adduction ≤ 30°. A thigh outside is not a solution.
-      const TrT = T(Tr), HF = 150 * D2R, HE = 35 * D2R, HAB = 60 * D2R, HAD = 30 * D2R;
+      const TrT = T(sp.Tpv), HF = 150 * D2R, HE = 35 * D2R, HAB = 60 * D2R, HAD = 30 * D2R;
       const hipPen = (t, sg) => {
         const u = mv(TrT, t), n = -(norm(u) || 1), x = u[0] / n, y = sg * u[1] / n, z = u[2] / n;   // hip → knee (t: knee → hip)
         const fl = Math.atan2(x, -z), ab = Math.atan2(y, Math.hypot(x, z));
@@ -938,7 +983,7 @@
   }
 
   // the five sensors on the scripted person: mounting (board bottom to the body, random spin), heading offsets
-  function makeRig(seed, roleSet) {
+  function makeRig(seed, roleSet, place) {
     let s = seed || 7;
     const rnd = () => { s = (s * 16807) % 2147483647; return s / 2147483647; };
     const mount = (z, x, spin, tilt) => {
@@ -952,10 +997,10 @@
     roles.forEach((r, i) => {
       const spin = (rnd() * 2 - 1) * Math.PI, tilt = (rnd() * 2 - 1) * 8 * D2R;
       let M;
-      if (r === 'back') M = mount([-1, 0, 0], [0, 0, 1], spin, (rnd() * 2 - 1) * 15 * D2R);
+      if (r === 'back') M = mount([place && place.front ? 1 : -1, 0, 0], [0, 0, 1], spin, (rnd() * 2 - 1) * 15 * D2R);
       else if (r === 'lwrist' || r === 'lshank' || r === 'lupper') M = mount([0, 1, 0], [0, 0, -1], spin, tilt);
       else M = mount([0, -1, 0], [0, 0, -1], spin, tilt);
-      rig[ids[i]] = { role: r, M, psi: (rnd() * 2 - 1) * Math.PI };
+      rig[ids[i]] = { role: r, M, psi: (rnd() * 2 - 1) * Math.PI, place };
     });
     return rig;
   }
@@ -983,9 +1028,14 @@
     return { R, J };
   }
   // where each sensor sits on a frame (and which segment carries it)
-  function sensorOnFrame(f, role) {
+  function sensorOnFrame(f, role, place) {
     const s = role[0] === 'l' ? 'l' : 'r', sgn = s === 'l' ? 1 : -1;
-    if (role === 'back') return { R: f.R.trunk, p: add(f.J.neck, mv(f.R.trunk, [-0.08, 0, -0.06])) };
+    if (role === 'back') {                // on the spine at its level: orientation between pelvis and chest, point on it
+      const pl = placeOf(place), Rp = f.R.pelvis || f.R.trunk;
+      const R = pl.s >= 1 ? f.R.trunk : slerpM(Rp, f.R.trunk, pl.s);
+      const sp = sub(f.J.neck, f.J.pelvis), L = norm(sp), z = Math.min(1.05, (0.05 + pl.s * (L - 0.11)) / L);
+      return { R, p: add(add(f.J.pelvis, sc(sp, z)), mv(R, [pl.dx, 0, 0])) };
+    }
     if (role.endsWith('wrist')) return { R: f.R[s + 'fore'], p: add(f.J[s + 'wrist'], mv(f.R[s + 'fore'], [0, sgn * 0.03, 0.03])) };
     if (role.endsWith('upper')) return { R: f.R[s + 'upper'], p: add(f.J[s + 'sh'], mv(f.R[s + 'upper'], [0, sgn * 0.05, -0.15])) };
     return { R: f.R[s + 'shank'], p: add(f.J[s + 'ankle'], mv(f.R[s + 'shank'], [0, sgn * 0.05, 0.08])) };
@@ -1149,7 +1199,7 @@
   function simSample(t, rig, id, src, h) {
     h = h || 0.004;
     const r = rig[id];
-    const at = (tt) => { const s = sensorOnFrame(src.frame(tt), r.role); return { R: mul(s.R, r.M), p: s.p }; };
+    const at = (tt) => { const s = sensorOnFrame(src.frame(tt), r.role, r.place); return { R: mul(s.R, r.M), p: s.p }; };
     const a = at(t - h), m = at(t), c = at(t + h);
     const dR = mul(T(m.R), c.R.map((x, i) => (x - a.R[i]) / (2 * h)));
     const w = [(dR[7] - dR[5]) / 2, (dR[2] - dR[6]) / 2, (dR[3] - dR[1]) / 2];
@@ -1159,6 +1209,7 @@
 
   const api = { ROLES, ROLES_TEACH, ROLE_BG, ROLE_LED, Calibration, Body, RepCounter, ArmPrior, decodeFrame, bodyDims,
     sim: { SCRIPT, scriptAt, scriptLength, simBody, makeRig, simSample, ikLeg, scriptFrame, blendFrames, sensorOnFrame, truthAngles, Mocap, Timeline },
+    placeOf, LEVELS, FRONT,
     m: { mul, T, mv, rot, rx, ry, rz, logm, expm, qToM, mToQ, yawOf, angBetween, add, sub, sc, dot, cross, norm, unit, D2R, R2D } };
   if (typeof module !== 'undefined' && module.exports) module.exports = api; else root.XemsMotion = api;
 })(typeof self !== 'undefined' ? self : this);

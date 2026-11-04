@@ -103,7 +103,7 @@ td.v { text-align:right; font-variant-numeric:tabular-nums; font-weight:600; } t
   <div class="row"><button id="fwclose">Затвори</button><button id="fwprobe">Провери сензора</button><button id="fwgo" class="main">Зареди</button></div>
   <div class="sub" style="margin-top:8px">Светлините на сензора: <b>зелено 1 с + бяла светкавица</b> — току-що се включи ·
     <b>при старт червено → жълто → синьо → зелено</b> (спре ли на цвят — там е проблемът; сам се рестартира след 4 с) ·
-    <b>синьо всяка секунда</b> — работи и чака телефона · <b>зелено кратко</b> — свързан · <b>цвят</b> — мястото му на тялото ·
+    <b>синьо всяка секунда</b> — работи и чака телефона · <b>червено/синьо бавно</b> — няма Bluetooth софтуер (натисни „Зареди“) · <b>зелено кратко</b> — свързан · <b>цвят</b> — мястото му на тялото ·
     <b>оранжево двойно</b> — слаба батерия · <b>бързо червено</b> — чипът за движение не отговаря. Нищо не свети: батерията е празна
     или е изключен — сложи го на кабел (зарежда се) или натисни RST веднъж.</div>
 </div></div>
@@ -178,15 +178,25 @@ function showStatus() {
 }
 setInterval(() => { if (NATIVE) { checkProblems(); } }, 3000);
 function probeResult(t) {
-  const m = /INFO XEMS-MOTION (\d+) id=(\w+)(?: imu=(\d)(?:\/(\w+))?)?(?: hang=(\d))?.*?bat=(-?\d+) ([\d.]+)/.exec(t);
+  if (fwPlan === 'flash' || fwPlan === 'after') {
+    const plan = fwPlan; fwPlan = null;
+    const full = needsSoftDevice(t);
+    if (plan === 'flash') { NATIVE.flash(fwBoard, full); return; }
+    if (full && !autoFullDone) {         // loaded, but the board has no Bluetooth software: put it on, then ours again
+      autoFullDone = true; fwBusy = true; $('fwgo').disabled = true; NATIVE.flash(fwBoard, true); return;
+    }
+  }
+  const m = /INFO XEMS-MOTION (\d+) id=(\w+)(?: imu=(\d)(?:\/(\w+))?)?(?: bt=(\d) sd=(\w+))?(?: hang=(\d))?.*?bat=(-?\d+) ([\d.]+)/.exec(t);
   const WHY = { bus: 'линиите към него са дадени накъсо', who: 'отговаря друг чип', silent: 'не отговаря', froze: 'замръзна при старта' };
   const STAGE = { 1: 'старта', 2: 'чипа за движение', 3: 'Bluetooth', 4: 'батерията' };
   let msg;
   if (m) {
     const fw = +m[1], imu = m[3] === undefined ? 1 : +m[3];
-    msg = 'Сензор ' + m[2] + ' работи ✓ · фърмуер ' + fw + (fw < FW_APP ? ' (има по-нов — натисни „Зареди“)' : ' ✓') + ' · батерия ' + m[6] + ' % (' + m[7] + ' V)' +
+    const bt = m[5] === undefined ? 1 : +m[5];
+    msg = 'Сензор ' + m[2] + ' работи ✓ · фърмуер ' + fw + (fw < FW_APP ? ' (има по-нов — натисни „Зареди“)' : ' ✓') + ' · батерия ' + m[8] + ' % (' + m[9] + ' V)' +
+      (bt ? ' · Bluetooth ✓' : ' · ⚠ без Bluetooth: ' + (m[6] === '0000' ? 'на платката липсва Bluetooth софтуерът на Nordic' : 'Bluetooth не тръгва') + ' — натисни „Зареди“, приложението ще го зареди') +
       (imu ? ' · чип за движение ✓' : ' · ⚠ чипът за движение ' + (WHY[m[4]] || 'не отговаря') + ' — сензорът работи, но без движение') +
-      (+m[5] ? ' · предишният старт замръзна на ' + STAGE[m[5]] : '');
+      (+m[7] ? ' · предишният старт замръзна на ' + STAGE[m[7]] : '');
   } else if (t.startsWith('boot')) {
     const st = [...t.matchAll(/BOOT (\d)/g)].map((x) => +x[1]), last = st.length ? st[st.length - 1] : 0;
     msg = 'Сензорът стартира, но спира на ' + (STAGE[last] || 'стъпка ' + last) + '. ' + (last === 2
@@ -198,7 +208,7 @@ function probeResult(t) {
     (t.startsWith('other') ? 'На сензора има друг софтуер. Натисни „Зареди“.' : 'Проверката не стана: ' + t);
   $('fwtext').textContent = msg;
 }
-const FW_APP = 3;           // the firmware inside this app (motion/xems_motion FW_VER)
+const FW_APP = 4;           // the firmware inside this app (motion/xems_motion FW_VER)
 function nativeScan() {
   scanStart = Date.now();
   const r = NATIVE.scan();
@@ -220,15 +230,29 @@ function openFw() { $('fw').style.display = 'flex'; if (!fwBusy) { $('fwfill').s
 $('fwbtn').onclick = openFw;
 $('fwclose').onclick = () => { $('fw').style.display = 'none'; };
 $('fwprobe').onclick = () => { if (NATIVE && NATIVE.probe) { $('fwtext').textContent = 'Проверявам…'; NATIVE.probe(); } };
-$('fwgo').onclick = () => { if (!NATIVE || fwBusy) return; fwBusy = true; $('fwgo').disabled = true; NATIVE.flash(fwBoard); };
+// "Зареди": look at the sensor first — a board without Nordic's Bluetooth software (SoftDevice) gets it first
+let fwPlan = null, autoFullDone = false;
+$('fwgo').onclick = () => {
+  if (!NATIVE || fwBusy) return; fwBusy = true; $('fwgo').disabled = true;
+  fwPlan = 'flash'; $('fwtext').textContent = 'Проверявам сензора…'; NATIVE.probe();
+};
+function needsSoftDevice(t) {
+  const m = /bt=(\d) sd=([0-9A-F]{4})/.exec(t);
+  if (m) return m[1] === '0' || m[2] !== '0123';
+  const st = [...t.matchAll(/BOOT (\d)/g)].map((x) => +x[1]);
+  return t.startsWith('boot') && st[st.length - 1] === 3;
+}
 function flashStage(stage, pct, note) {
   const T = ['Не виждам сензор на кабела — свържи го и натисни „Зареди“ отново.', 'Android пита за достъп до USB — разреши.',
     'Рестартирам сензора за зареждане…', 'Натисни бързо 2 пъти малкия бутон RST на сензора (до USB букса­та).',
-    'Зареждам… ' + pct + ' %', 'Готово ✓ Сензорът се рестартира и се свързва сам. Следващият: смени кабела и натисни „Зареди“.',
+    (note === 'softdevice' ? 'Зареждам Bluetooth софтуера на платката (Nordic SoftDevice)… ' : 'Зареждам… ') + pct + ' %', 'Готово ✓ Сензорът се рестартира и се свързва сам. Следващият: смени кабела и натисни „Зареди“.',
     'Не стана' + (note ? ' (' + note + ')' : '') + '. Извади и пъхни кабела, натисни „Зареди“ отново.'];
   $('fwtext').textContent = T[stage] || '';
   $('fwfill').style.width = (stage === 4 ? pct : stage === 5 ? 100 : stage === 6 || stage === 0 ? 0 : 5) + '%';
-  if (stage === 0 || stage >= 5) { fwBusy = false; $('fwgo').disabled = false; if (stage === 5 && NATIVE) setTimeout(nativeScan, 4000); }
+  if (stage === 0 || stage >= 5) { fwBusy = false; $('fwgo').disabled = false;
+    if (stage === 5 && NATIVE) { setTimeout(nativeScan, 4000);
+      // a few seconds after: is Bluetooth up on it? If not (no SoftDevice), the full load starts by itself
+      setTimeout(() => { if (!fwBusy) { fwPlan = 'after'; NATIVE.probe(); } }, 7000); } }
 }
 // the client's height: segment lengths of the figure and of the leg / arm solution
 let userH = +(localStorage.getItem('xm-height') || 175);

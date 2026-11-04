@@ -64,6 +64,20 @@ red blinking, `INFO … imu=0/froze hang=2`). **Start stages light up**: red sta
 Bluetooth → green + white ready, each also printed on USB (`BOOT n …`) — "Провери сензора" names the stage it stops
 in. Not yet confirmed on the owner's sensors; if it stops on Bluetooth, the SoftDevice is the next suspect.
 
+### 1.3 / firmware 4 — "blue, red, blue, red" (owner, 2026-11-04)
+Firmware 3's start stages showed it: the sensors reach Bluetooth (blue) and restart (watchdog, red) — the start of
+Nordic's SoftDevice crashes. Most likely the boards have **no SoftDevice S140 7.3.0** in flash (some XIAO boards ship
+without it; the core boots and USB works without it, which is why loading and the USB probe worked). Firmware 4 reads
+the SoftDevice's info block (0x3004 magic `0x51B1E5DB`, FWID at 0x300C, S140 7.3.0 = `0x0123`) before touching
+Bluetooth: without it the sensor keeps running without Bluetooth, blinks red/blue slowly and says `bt=0 sd=0000` on
+USB; a Bluetooth start that froze last time (watchdog) is skipped too. The Bluetooth clock now comes from the chip's
+RC oscillator (`build-motion.sh` patches the variant to `USE_LFRC`) — no dependence on the 32 kHz crystal.
+**App 1.3**: "Зареди" checks the sensor first; with no SoftDevice (or a start stuck at Bluetooth) it loads **Seeed's
+own package — SoftDevice S140 7.3.0 + bootloader 0.6.2** (from the board package, `assets/fw/*/sdbl.*`, serial DFU
+mode 3) and then our firmware, one tap, progress across both. Seven seconds after any load it checks again and
+starts the full load by itself if Bluetooth is still missing. `sh scripts/motion-sim/run-dfu.sh` checks both packages
+against a simulated bootloader (first frames byte-equal to adafruit-nrfutil).
+
 ## Design in one picture
 ```
  sensor ×5 (208 Hz)                     host (tablet / laptop, 52 Hz)

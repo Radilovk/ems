@@ -22,7 +22,7 @@ public final class Dfu {
         void onProgress(int percent);
     }
 
-    static final int INIT = 1, START = 3, DATA = 4, STOP = 5, MODE_APP = 4;
+    static final int INIT = 1, START = 3, DATA = 4, STOP = 5, MODE_APP = 4, MODE_SD_BL = 3;
     static final int PACKET = 512, PAGE = 4096;
 
     final Io io;
@@ -34,13 +34,18 @@ public final class Dfu {
 
     /** The whole update; throws with a short reason when the module stops answering. */
     public void run(byte[] dat, byte[] bin, Progress p) throws Exception {
+        run(dat, bin, MODE_APP, 0, 0, bin.length, p);
+    }
+
+    /** SoftDevice + bootloader (mode 3, sizes from the package's manifest) or the application (mode 4). */
+    public void run(byte[] dat, byte[] bin, int mode, int sdSize, int blSize, int appSize, Progress p) throws Exception {
         seq = 0;
         byte[] start = new byte[20];
         le32(start, 0, START);
-        le32(start, 4, MODE_APP);
-        le32(start, 8, 0);                              // softdevice size
-        le32(start, 12, 0);                             // bootloader size
-        le32(start, 16, bin.length);                    // application size
+        le32(start, 4, mode);
+        le32(start, 8, sdSize);                         // softdevice size
+        le32(start, 12, blSize);                        // bootloader size
+        le32(start, 16, appSize);                       // application size
         send(start);
         io.sleep(Math.max(500, (bin.length / PAGE + 1) * 90L));   // the bank is erased now
 

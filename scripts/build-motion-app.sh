@@ -43,6 +43,19 @@ for B in sense sense-plus; do
 	cp "$T/fw-$B"/*.dat "$T/apk/assets/fw/$B/app.dat"
 	cp "$T/fw-$B"/*.bin "$T/apk/assets/fw/$B/app.bin"
 done
+# Seeed's SoftDevice S140 7.3.0 + bootloader 0.6.2 (from the board package): for boards that came without the
+# SoftDevice — the app loads it first when a sensor reports no Bluetooth (docs/xems-motion.md, firmware 4)
+CORE=$REPO/build/xtool/arduino/packages/Seeeduino/hardware/nrf52/1.1.13/bootloader
+[ -d "$CORE" ] || sh "$REPO/scripts/motion/build-motion.sh"
+for P in sense:Seeed_XIAO_nRF52840_Sense sense-plus:Seeed_XIAO_nRF52840_Sense_Plus; do
+	B=${P%%:*}; V=${P#*:}
+	rm -rf "$T/sdbl-$B"; mkdir -p "$T/sdbl-$B"
+	unzip -q -o "$CORE/$V/${V}_bootloader-0.6.2_s140_7.3.0.zip" -d "$T/sdbl-$B"
+	cp "$T/sdbl-$B/sd_bl.bin" "$T/apk/assets/fw/$B/sdbl.bin"
+	cp "$T/sdbl-$B/sd_bl.dat" "$T/apk/assets/fw/$B/sdbl.dat"
+	python3 -c "import json,sys;m=json.load(open(sys.argv[1]))['manifest']['softdevice_bootloader'];print(m['sd_size'],m['bl_size'])" \
+		"$T/sdbl-$B/manifest.json" > "$T/apk/assets/fw/$B/sdbl.txt"
+done
 sed "s/@NAME@/$NAME/g; s/@CODE@/$CODE/g" "$SRC/AndroidManifest.xml" > "$T/apk/AndroidManifest.xml"
 cat > "$T/apk/apktool.yml" <<YML
 version: 2.9.3

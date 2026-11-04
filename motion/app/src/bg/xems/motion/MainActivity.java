@@ -224,8 +224,8 @@ public class MainActivity extends Activity {
         }
 
         @JavascriptInterface
-        public void flash(String board) {
-            web.post(new StartFlash(board));
+        public void flash(String board, boolean withSoftDevice) {
+            web.post(new StartFlash(board, withSoftDevice));
         }
 
         @JavascriptInterface
@@ -333,14 +333,16 @@ public class MainActivity extends Activity {
 
     final class StartFlash implements Runnable {
         final String board;
+        final boolean sd;
 
-        StartFlash(String board) {
+        StartFlash(String board, boolean sd) {
             this.board = board;
+            this.sd = sd;
         }
 
         @Override
         public void run() {
-            Usb.start(MainActivity.this, board, new ToPage());
+            Usb.start(MainActivity.this, board, sd, new ToPage());
         }
     }
 

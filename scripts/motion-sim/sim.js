@@ -99,12 +99,13 @@ body.calibrate(res);
 const truthReps = new M.RepCounter();
 const err = {}, add2 = (blk, key, e) => { const b = (err[blk] = err[blk] || {}); (b[key] = b[key] || []).push(Math.abs(e)); };
 const reps = {};
-let lastBlock = null, c0 = 0, ct0 = 0;
+let lastBlock = null, c0 = 0, ct0 = 0, falseWarn = 0, nPose = 0;
 const closeBlock = (est, tru) => { if (lastBlock) reps[lastBlock] = [est - c0, tru - ct0]; };
 for (; k < nF; k++) {
   const t = tOf(k);
   for (const id of ids) body.feed(id, sample(id, k));
   const pose = body.solve(t);
+  nPose++; if (pose.warn && pose.warn.length) falseWarn++;
   const f = src.frame(t), A = M.sim.truthAngles(f);
   const tr = truthReps.feed(t, A);
   const blk = blockAt(t);
@@ -123,7 +124,7 @@ closeBlock(body.reps.total, truthReps.total);
 const mean = (a) => a.reduce((x, y) => x + y, 0) / a.length;
 if (MOCAP) {
   const blk = Object.keys(err)[0], r = reps[blk] || ['', ''], title = src.parts[2].title;
-  const line = [title.padEnd(24), ...['knee', 'elbow', 'shoulder', 'trunk', 'hand cm'].map((key) => mean(err[blk][key]).toFixed(1).padStart(9)), '   ' + r[0] + ' / ' + r[1], fail ? '  (places wrong)' : ''].join('');
+  const line = [title.padEnd(24), ...['knee', 'elbow', 'shoulder', 'trunk', 'hand cm'].map((key) => mean(err[blk][key]).toFixed(1).padStart(9)), '   ' + r[0] + ' / ' + r[1], '   faults ' + (100 * falseWarn / nPose).toFixed(1) + ' %', fail ? '  (places wrong)' : ''].join('');
   fs.writeFileSync(path.join(dir, 'summary.txt'), line + '\n');
   console.log(line);
   process.exit(0);
@@ -145,6 +146,34 @@ if (!MOCAP) {
   ok(E('lunge', 'knee') < 18, 'knees in the lunge within 18° (' + E('lunge', 'knee').toFixed(1) + ')');
   ok(E('knee', 'knee') < 20, 'knee raise within 20° (' + E('knee', 'knee').toFixed(1) + ')');
   for (const [b, n] of [['squat', 3], ['curl', 3], ['raise', 3], ['lateral', 3]]) ok(reps[b][0] === n, b + ' counted: ' + reps[b][0] + ' / ' + n);
+  // 3) anatomy: a clean session raises no fault; a broken sensor is named (owner 2026-11-04: "a pose a human cannot
+  // make means a measurement error"). Faults: a shin's heading jumps 150° (gyro / strap); the left wrist sensor turns
+  // 180° on its strap at the start of the curls.
+  ok(falseWarn / nPose < 0.01, 'anatomy: clean session, no false fault (' + (100 * falseWarn / nPose).toFixed(1) + ' % of frames)');
+  const idOf = (role) => ids.find((id) => res.assign[id] === role);
+  const tBlk = (name) => { let t0 = 0; for (const [n, d] of M.sim.SCRIPT) { if (n === name) return t0; t0 += d; } return 0; };
+  const { qToM, mToQ, mul, T: TT, rz: RZ } = M.m;
+  const jump = (name, role, R) => {
+    const b2 = new M.Body({ height: src.height }); b2.calibrate(res);
+    const id = idOf(role), q0 = res.q0[id], t0 = tBlk(name) + 1;
+    let first = null, maxErr = 0, kneeErr = [];
+    for (let k2 = 0; k2 < nF; k2++) {
+      const t = tOf(k2); if (t < 9.5) continue;
+      for (const i of ids) {
+        const smp = sample(i, k2);
+        if (i === id && t >= t0) smp.q = mToQ(R === 'yaw' ? mul(RZ(150 * Math.PI / 180), qToM(smp.q)) : mul(qToM(smp.q), mul(TT(q0), mul(R, q0))));
+        b2.feed(i, smp);
+      }
+      const pose = b2.solve(t);
+      if (t >= t0 && first == null && pose.warn.includes(role)) first = t - t0;
+      if (t >= t0 + 12 && t < t0 + 22 && R === 'yaw') { const A = M.sim.truthAngles(src.frame(t)); kneeErr.push(Math.abs(pose.A.lKnee - A.lKnee) + Math.abs(pose.A.rKnee - A.rKnee)); }
+    }
+    return { first, knee: kneeErr.length ? mean(kneeErr) / 2 : 0 };
+  };
+  const j1 = jump('lunge', 'lshank', 'yaw');
+  ok(j1.first != null && j1.first < 2, 'anatomy: a shin turned 150° is named (' + (j1.first == null ? 'never' : j1.first.toFixed(1) + ' s') + '), knees 12–22 s later ' + j1.knee.toFixed(1) + '° off');
+  const j2 = jump('curl', 'lwrist', M.m.rz(Math.PI));
+  ok(j2.first != null && j2.first < 4, 'anatomy: a wrist sensor turned on its strap is named (' + (j2.first == null ? 'never' : j2.first.toFixed(1) + ' s') + ')');
 }
 console.log(fail ? '\nFAIL (' + fail + ')' : '\nPASS');
 process.exit(fail ? 1 : 0);

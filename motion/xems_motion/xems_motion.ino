@@ -15,13 +15,19 @@
 //        led off|red|green|blue|yellow|cyan|magenta|white [blink]   OK led <color>   (shows the found position)
 //        bias                                OK bias  (hold still ~1 s: the gyro bias is learned again)
 //        level                               OK level (orientation restarts from gravity, heading 0)
-//        sleep                               OK sleep (deep sleep; wakes on a shake or RESET)
+//        sleep                               OK sleep (standby, see below)
+//        off                                 OK off   (deep sleep: only a firm shake, the USB cable or RST wakes it)
+//
+// Sleep without a button (fw 7, owner 2026-11-04): STANDBY = motion chip asleep (only its shake detector, ~10 µA),
+// Bluetooth heard every 2 s, LED dark. Into standby: the app's "Приспи" (command sleep), or 5 min with no phone
+// (never on the USB cable). Out of standby: the phone connects (opening the app wakes every sensor) or a firm shake.
+// 48 h in standby (or an empty battery) → deep sleep; the shake / cable / RST wake it.
 //                                            BAT <%> <V>   every 30 s
 #include <bluefruit.h>
 #include <Wire.h>
 #include "fusion.h"
 
-#define FW_VER "6"
+#define FW_VER "7"
 #define IMU_ADDR 0x6A
 #define IMU_RATE 208.f
 
@@ -41,6 +47,10 @@ static bool ledBlink = false;
 static char usbLine[64], bleLine[64];
 static void goSleep();
 static uint8_t usbLen = 0, bleLen = 0;
+static bool standby = false;
+static volatile bool wakeReq = false;
+static uint32_t standbyAt = 0, lastConn = 0;
+static uint16_t connHdl = BLE_CONN_HANDLE_INVALID;
 
 // ---------- IMU (direct registers: no library, exact ODR/range control)
 static void imuWrite(uint8_t r, uint8_t v) { Wire1.beginTransmission(IMU_ADDR); Wire1.write(r); Wire1.write(v); Wire1.endTransmission(); }
@@ -152,7 +162,9 @@ static void command(char *s) {
     snprintf(b, sizeof b, "OK led %s", s + 4); say(b);
   } else if (!strcmp(s, "bias")) { fus.relearnBias(); say("OK bias"); }
   else if (!strcmp(s, "level")) { fus.reset(); say("OK level"); }
-  else if (!strcmp(s, "sleep")) { say("OK sleep"); delay(100); goSleep(); }
+  else if (!strcmp(s, "sleep")) { say("OK sleep"); delay(300); enterStandby(); }
+  else if (!strcmp(s, "off")) { say("OK off"); delay(300); goSleep(); }
+  else if (!strcmp(s, "wake")) { if (standby) leaveStandby(); say("OK wake"); }
   else say("ERR ?");
 }
 
@@ -161,21 +173,59 @@ static void feed(char c, char *line, uint8_t &len) {
   else if (len < 63) line[len++] = c;
 }
 
-// deep sleep, woken by motion on INT1 (wake-up interrupt of the IMU)
+// the motion chip as a shake detector (AN5130 wake-up): accel only, 26 Hz low power (CTRL6_C XL_HM_MODE), gyro off,
+// slope over 1 g at ±2 g (WAKE_UP_THS 32 × FS/64) — a deliberate shake, not a bag being carried; latched on INT1
+static void imuShakeOnly() {
+  imuWrite(0x11, 0x00);                     // CTRL2_G gyro off
+  imuWrite(0x15, 0x10);                     // CTRL6_C accel low-power mode
+  imuWrite(0x10, 0x20);                     // CTRL1_XL 26 Hz, ±2 g
+  imuWrite(0x5C, 0x00);                     // WAKE_UP_DUR
+  imuWrite(0x5B, 0x20);                     // WAKE_UP_THS ≈ 1 g
+  imuWrite(0x58, 0x81);                     // TAP_CFG: interrupts on, latched
+  imuWrite(0x5E, 0x20);                     // MD1_CFG: wake-up → INT1
+  uint8_t x; imuRead(0x1B, &x, 1);          // WAKE_UP_SRC: clears a pending latch
+  pinMode(PIN_LSM6DS3TR_C_INT1, INPUT_PULLDOWN);
+}
+static void imuRun() {                      // back to streaming (the setup values)
+  imuWrite(0x5E, 0x00); imuWrite(0x58, 0x00); imuWrite(0x15, 0x00);
+  imuWrite(0x10, 0x54); imuWrite(0x11, 0x5C);
+  fus.reset();
+}
+// deep sleep (System OFF), woken by the shake on INT1, the USB cable or RST
 static void goSleep() {
   ledShow(0);
   if (!imuOk) { if (btOk) sd_power_system_off(); else NRF_POWER->SYSTEMOFF = 1; return; }
-  imuWrite(0x10, 0x20);                     // accel 26 Hz low power, gyro off
-  imuWrite(0x11, 0x00);
-  imuWrite(0x5C, 0x00);                     // WAKE_UP_DUR
-  imuWrite(0x5B, 0x02);                     // WAKE_UP_THS ≈ 2 × FS/64
-  imuWrite(0x58, 0x80);                     // TAP_CFG: interrupts enable
-  imuWrite(0x5E, 0x20);                     // MD1_CFG: wake-up → INT1
+  imuShakeOnly();
   pinMode(PIN_LSM6DS3TR_C_INT1, INPUT_PULLDOWN_SENSE);
   if (btOk) sd_power_system_off(); else NRF_POWER->SYSTEMOFF = 1;
 }
+static void advSlow(bool slow) {            // 2 s in standby; 100 ms → 300 ms when awake
+  Bluefruit.Advertising.stop();
+  if (slow) { Bluefruit.Advertising.setInterval(3200, 3200); Bluefruit.Advertising.setFastTimeout(0); }
+  else { Bluefruit.Advertising.setInterval(160, 480); Bluefruit.Advertising.setFastTimeout(30); }
+  if (!Bluefruit.connected()) Bluefruit.Advertising.start(0);
+}
+static void enterStandby() {
+  if (!btOk) { goSleep(); return; }         // no Bluetooth: nothing could wake it but the shake anyway
+  if (imuOk) imuShakeOnly();
+  ledShow(0);
+  advSlow(true);
+  if (Bluefruit.connected() && connHdl != BLE_CONN_HANDLE_INVALID) Bluefruit.disconnect(connHdl);
+  standby = true; standbyAt = millis();
+  Serial.println("STANDBY");
+}
+static void leaveStandby() {
+  standby = false; wakeReq = false;
+  if (imuOk) imuRun();
+  advSlow(false);
+  lastConn = lastMove = millis();
+  ledShow(7); delay(120); ledShow(0);       // white flash: awake
+  Serial.println("AWAKE");
+}
 
 static void connectCb(uint16_t h) {
+  connHdl = h;
+  if (standby) wakeReq = true;              // the phone came for it: wake (in loop — the chip's I2C is loop's)
   BLEConnection *c = Bluefruit.Connection(h);
   c->requestConnectionParameter(6, 0, 400);   // 7.5 ms: five sensors at 100 Hz still fit
   info();
@@ -239,7 +289,7 @@ void setup() {
   wdtFeed();
   stage(4, 2, "battery");
   readBattery();
-  lastMove = millis();
+  lastMove = lastConn = millis();
   imuOk = ok;
   stage(0, 2, "ready");
   // "I am alive": green for a second, then white flash — visible on every power-up / reset
@@ -251,6 +301,14 @@ static inline int16_t clamp16(float v) { return v > 32767 ? 32767 : v < -32768 ?
 
 void loop() {
   wdtFeed();
+  if (standby) {
+    uint32_t now = millis();
+    if (wakeReq || Serial || (imuOk && digitalRead(PIN_LSM6DS3TR_C_INT1))) { leaveStandby(); return; }
+    if (now - lastBat > 1800000UL) { lastBat = now; readBattery(); }
+    if (now - standbyAt > 48UL * 3600000UL || (batPct >= 0 && batPct < 3)) goSleep();
+    delay(200);                             // FreeRTOS idles the CPU (tickless) between looks
+    return;
+  }
   uint8_t st = 0;
   markStage(2);                 // a freeze in the chip's I2C from here on is a chip freeze (watchdog → skip it)
   if (imuOk) imuRead(0x1E, &st, 1);
@@ -298,7 +356,8 @@ void loop() {
   else ledShow((now % 2000) < 100 ? 2 : 0);
   // on the USB cable: say who I am every 2 s (the app's "check the sensor" reads it)
   if (now - lastHello > 2000) { lastHello = now; if (Serial) info(); }
-  // nobody connected and no movement for 10 minutes → sleep
-  // nobody connected and not moved for 30 min → sleep (a shake or RST wakes it); never on the USB cable
-  if (btOk && !conn && !Serial && now - lastMove > 1800000UL) goSleep();
+  // no phone for 5 min → standby (never on the USB cable); an empty battery → deep sleep
+  if (conn || Serial) lastConn = now;
+  if (btOk && now - lastConn > 300000UL) enterStandby();
+  else if (batPct >= 0 && batPct < 3 && !Serial) goSleep();
 }

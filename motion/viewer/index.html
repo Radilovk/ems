@@ -33,6 +33,8 @@ canvas { position:absolute; inset:0; width:100%; height:100%; display:block; tou
 #empty { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; color:var(--mute); pointer-events:none; text-align:center; padding:0 20px; }
 #hint { position:absolute; left:12px; bottom:10px; color:var(--mute); font-size:12px; }
 #credit { position:absolute; right:12px; bottom:10px; color:var(--mute); font-size:11px; opacity:.8; max-width:55%; text-align:right; }
+#anat { position:absolute; left:14px; bottom:44px; max-width:min(460px, calc(100% - 28px)); background:#fff4e5; color:#8a4b00; border-radius:10px; padding:7px 10px; font-size:13px; display:none; }
+@media (prefers-color-scheme: dark) { #anat { background:#3a2a10; color:#ffcf8a; } }
 #demotitle { position:absolute; left:14px; top:14px; font-weight:600; font-size:15px; max-width:calc(100% - 380px); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 #demos { position:absolute; left:10px; right:10px; top:54px; display:none; flex-wrap:wrap; gap:8px; padding:10px; background:var(--card);
   border:1px solid var(--line); border-radius:14px; box-shadow:0 8px 30px rgba(0,0,0,.15); z-index:2; }
@@ -80,7 +82,7 @@ td.v { text-align:right; font-variant-numeric:tabular-nums; font-weight:600; } t
     <div id="status" style="display:none"></div>
     <div id="sensors"></div>
     <button id="cal" class="main" disabled>Калибрирай</button>
-    <div class="row"><button id="rec" disabled>● Запис</button><button id="theme">◐</button></div>
+    <div class="row"><button id="rec" disabled>● Запис</button><button id="sleep" title="сензорите заспиват; отварянето на приложението или силно разклащане ги събужда">💤 Приспи</button><button id="theme" style="flex:0 0 44px">◐</button></div>
     <button id="fwbtn" style="display:none">Фърмуер на сензор (USB)</button>
     <button id="teach" title="двата сензора от глезените отиват на мишниците — записът учи ръцете">Запис за ръцете: изкл.</button>
     <div class="sub" id="note">Сложи сензорите с долната страна към тялото: китките като часовник, подбедриците от външната страна над глезена, гърба между лопатките.</div>
@@ -88,7 +90,7 @@ td.v { text-align:right; font-variant-numeric:tabular-nums; font-weight:600; } t
 </div>
 <div class="card" id="stage"><canvas id="gl"></canvas><canvas id="cv"></canvas><div id="empty"></div>
   <div id="view"><button id="style" title="андроид / манекен с мускулните зони">Манекен</button><button id="ghost" title="оранжево: истинското движение на човека (демо)">Истина</button><button data-v="front">Отпред</button><button data-v="side">Отстрани</button><button data-v="free">3D</button></div>
-  <div id="demotitle"></div><div id="demos"></div>
+  <div id="anat"></div><div id="demotitle"></div><div id="demos"></div>
   <div id="credit">Модел: „White Android Robot“ — Cedric Ricci, CC BY 4.0 · движения: CMU Graphics Lab Motion Capture Database</div>
   <div id="hint">Влачи — завърти · два пръста — приближи</div></div>
 <div class="col">
@@ -144,10 +146,10 @@ const XemsApp = window.XemsApp = {
   onState(id, st) {
     if (id === '-') { scanFail = st; showStatus(); return; }
     const s = sensors[id] = sensors[id] || { name: 'XEMS Motion ' + id, n: 0 };
-    s.state = STATE_BG[st] || st; drawSensors(); $('cal').disabled = Object.keys(sensors).length < 1;
+    s.state = asleep && st !== 'online' ? 'спи 💤' : STATE_BG[st] || st; drawSensors(); $('cal').disabled = Object.keys(sensors).length < 1;
   },
   onPermissions() { if (NATIVE) { checkProblems(); nativeScan(); } },
-  onResume() { if (NATIVE) { checkProblems(); nativeScan(); } },
+  onResume() { if (NATIVE) { checkProblems(); if (!asleep) nativeScan(); } },
   onScan(devices, found, scanning) { scanInfo = { devices, found, scanning, at: Date.now() }; showStatus(); },
   onProbe(t) { probeResult(t); },
   onUsb() { openFw(); },
@@ -159,8 +161,9 @@ const FIX = { bt: ['Bluetooth е изключен', 'Включи Bluetooth'], l
   perm: ['Приложението няма разрешение за устройства наблизо / местоположение', 'Дай разрешение'] };
 function checkProblems() { if (NATIVE && NATIVE.problems) { problems = NATIVE.problems(); showStatus(); } }
 function showStatus() {
-  const el = $('status'); if (!NATIVE) return;
+  const el = $('status'); if (!NATIVE && !asleep) return;
   el.style.display = ''; el.classList.remove('bad');
+  if (asleep) { el.textContent = '💤 Сензорите спят и почти не харчат батерия. Събуждат се с „Събуди“, при следващо отваряне на приложението или ако ги разклатите силно 2–3 пъти.'; return; }
   const p = problems.split(',').filter(Boolean);
   if (p.length) {
     el.classList.add('bad');
@@ -208,7 +211,7 @@ function probeResult(t) {
     (t.startsWith('other') ? 'На сензора има друг софтуер. Натисни „Зареди“.' : 'Проверката не стана: ' + t);
   $('fwtext').textContent = msg;
 }
-const FW_APP = 6;           // the firmware inside this app (motion/xems_motion FW_VER)
+const FW_APP = 7;           // the firmware inside this app (motion/xems_motion FW_VER)
 function nativeScan() {
   scanStart = Date.now();
   const r = NATIVE.scan();
@@ -260,6 +263,23 @@ function showH() { $('hval').textContent = 'Ръст ' + userH + ' см'; try { 
 $('hm').onclick = () => { userH = Math.max(140, userH - 1); showH(); };
 $('hp').onclick = () => { userH = Math.min(210, userH + 1); showH(); };
 showH();
+
+// ---------- sleep / wake (firmware 7): no button on the sensors. "Приспи" → each sensor's motion chip sleeps, Bluetooth
+// is heard every 2 s; the phone connecting again wakes it (so opening the app wakes them all), so does a firm shake.
+// Left alone without a phone for 5 min they go to sleep by themselves.
+let asleep = false;
+$('sleep').onclick = () => {
+  if (asleep) { asleep = false; $('sleep').textContent = '💤 Приспи'; showStatus(); if (NATIVE) nativeScan(); else for (const id in sensors) if (sensors[id].dev) connect(sensors[id].dev); return; }
+  const ids = Object.keys(sensors).filter((id) => sensors[id].state === 'на линия');
+  for (const id of ids) send(id, 'sleep');
+  asleep = true; $('sleep').textContent = '☀ Събуди';
+  setTimeout(() => {
+    if (NATIVE) NATIVE.disconnectAll();
+    else for (const id of ids) { const d = sensors[id].dev; if (d) { d.ongattserverdisconnected = null; try { d.gatt.disconnect(); } catch (e) {} } }
+    for (const id of ids) sensors[id].state = 'спи 💤';
+    drawSensors(); showStatus();
+  }, 800);
+};
 
 // ---------- Bluetooth
 $('add').onclick = async () => {
@@ -319,8 +339,18 @@ function onSample(id, smp) {
   const backId = body.role && body.role.back;
   if (body.cal && (id === backId || !backId)) step(smp.t);
 }
+// a pose no human can make = a measurement fault: say which sensor and what to do (heading drift is fixed by itself)
+let anatShown = '';
+function showAnat(p) {
+  const w = p && !demo ? p.warn : [];
+  const txt = w.map((r) => '⚠ ' + X.ROLE_BG[r] + ': ' + (/shank|back/.test(r)
+    ? 'посоката излезе извън човешкото — изправям я сама. Ако се повтаря: стегни каишката или калибрирай отново.'
+    : 'ръката излиза в невъзможна поза — сензорът се е завъртял на каишката. Върни го (долу към тялото) или калибрирай отново.')).join('<br>');
+  if (txt === anatShown) return; anatShown = txt;
+  $('anat').innerHTML = txt; $('anat').style.display = txt ? 'block' : 'none';
+}
 function step(t) {
-  pose = body.solve(t);
+  pose = body.solve(t); showAnat(pose);
   if (rec && pose) rec.push([t.toFixed(3), ...ANG.map(([k]) => (pose.A[k] || 0).toFixed(1)), pose.rep.count].join(','));
 }
 

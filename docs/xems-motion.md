@@ -90,6 +90,23 @@ against a simulated bootloader (first frames byte-equal to adafruit-nrfutil).
   drive (H0H1)**, no pull, HIGH, wait, then `Wire1`. No internal pull-ups on SDA/SCL before power-up (Nordic
   DevZone: I2C pins back-feed the unpowered sensor). The old "bus" line check is gone.
 
+### 1.5 / firmware 7 — sleep without a button; the body's limits (owner, 2026-11-04)
+**Sleep / wake** (no button on the sensors): *standby* = the motion chip only watches for a shake (AN5130 wake-up,
+26 Hz low power, gyro off), Bluetooth heard every 2 s, LED dark. Into standby: "💤 Приспи" in the app (command
+`sleep`; the app then stops reconnecting), or 5 min with no phone (never on the USB cable). Out: the phone connects —
+**opening the app wakes every sensor** — or "☀ Събуди", or a firm shake (> 1 g, INT1 polled). 48 h in standby or an
+empty battery → deep sleep (System OFF; the shake, the cable or RST wake it). Command `off` = deep sleep now.
+A voice command can later send the same `sleep` (docs/xems-voice.md).
+**Anatomy** (`armLimits`, `anatomyYaw`, `solveLegs` hip range in `motion-core.js`): what a human cannot do —
+shoulder behind the body > 60° (hanging) / 45° (sideways) / 20° (overhead), across the body > 10–60°, elbow > 150°
+or bending toward the little finger (hinge; ±110° of forearm turn allowed), hip flexion > 150°, extension > 35°,
+abduction > 60°, adduction > 30°, a shin facing > 100° away from the chest, two shins > 110° apart. The estimated
+upper arm moves to the nearest possible pose, its roll follows the elbow's hinge (no twisted elbow on the figure);
+a measured sensor past a limit is a **measurement fault**: shin / back heading is pulled back (and re-anchored when
+standing still), a wrist that stays impossible > 0.7 s is named on screen ("turned on its strap — put it back or
+calibrate"). Test: `run.sh` injects a shin heading jump of 150° (named in 0.1 s, knees 4° off after) and a wrist
+sensor turned 180° on its strap (named in 2.8 s); clean scripted and all CMU clips: 0 % false faults, errors unchanged.
+
 ## Design in one picture
 ```
  sensor ×5 (208 Hz)                     host (tablet / laptop, 52 Hz)

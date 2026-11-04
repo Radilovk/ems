@@ -194,6 +194,8 @@
       this.prevT = null;
       this.reps = new RepCounter();
       this.faceForward = true;
+      this.yawFix = {};                                       // id → heading drift taken out (rad), from anatomy
+      this.anat = {};                                         // role → seconds an impossible pose has lasted
     }
     newArm() { return { U: I3(), k: 0.5, prevF: null, moving: false }; }
     newFoot(side) {
@@ -208,17 +210,19 @@
       this.kappa = { l: 0, r: 0 };
       this.height = { z: 0, v: 0, calm: 0, t: 0, ok: false };
       this.reps = new RepCounter();
+      this.yawFix = {};
+      this.anat = {};
     }
     feed(id, smp) { this.last[id] = smp; }
     // segment orientation (in W) and the sensor's motion, in W, for one role
     seg(role) {
       const id = this.role && this.role[role], s = id && this.last[id];
       if (!s) return null;
-      const psi = this.cal.psi[id], Rz = rz(psi), Rq = qToM(s.q);
-      let R = mul(mul(Rz, mul(Rq, T(this.cal.q0[id]))), T(Rz));
+      const psi = this.cal.psi[id], Rz = rz(psi), Rq = qToM(s.q), Rzf = rz(psi - (this.yawFix[id] || 0));
+      let R = mul(mul(Rzf, mul(Rq, T(this.cal.q0[id]))), T(Rz));
       // standing upright the body balances over the mid-foot: the straight legs lean forward by ~atan(5 cm / leg)
       if (role === 'lshank' || role === 'rshank') R = mul(R, ry(Math.atan2(this.dim.footFwd, this.dim.shank + this.dim.thigh)));
-      const RWS = mul(Rz, Rq);
+      const RWS = mul(Rzf, Rq);
       return { R, w: sc(mv(RWS, s.gyro), D2R), a: sub(sc(mv(RWS, s.acc), G), [0, 0, G]), still: s.still, t: s.t };
     }
     // one pose for "now" (call after feeding a frame of all sensors)
@@ -226,7 +230,9 @@
       if (!this.cal) return null;
       const d = this.dim, dt = this.prevT == null ? 0.02 : Math.max(0.005, Math.min(0.1, t - this.prevT));
       this.prevT = t;
-      const S = {}; for (const r of ROLES) S[r] = this.seg(r);
+      let S = {}; for (const r of ROLES) S[r] = this.seg(r);
+      const viol = {};                                        // role → how far past a human limit (°) this frame
+      if (this.anatomyYaw(S, dt, viol)) { S = {}; for (const r of ROLES) S[r] = this.seg(r); }
       const Tr = S.back ? S.back.R : I3();
       const shanks = { l: S.lshank ? S.lshank.R : I3(), r: S.rshank ? S.rshank.R : I3() };
       // feet: ankle point tracked with zero-velocity updates
@@ -234,7 +240,14 @@
       if (S.back) this.trackHeight(S.back, dt);
       // legs: knee flexion κ (thigh hinged to the shank) from chain closure at the pelvis + balance
       const armsR = {};
-      for (const side of ['l', 'r']) armsR[side] = this.armStep(side, S[side === 'l' ? 'lwrist' : 'rwrist'], S.back, Tr, dt);
+      for (const side of ['l', 'r']) {
+        armsR[side] = this.armStep(side, S[side === 'l' ? 'lwrist' : 'rwrist'], S.back, Tr, dt);
+        const a = this.arm[side];
+        if (S[side + 'wrist'] && !(this.role && this.role[side + 'upper'])) {
+          const r = armLimits(side, a.Uout || a.U, armsR[side], Tr);
+          a.Uout = r.U; viol[side + 'wrist'] = r.viol * R2D;
+        }
+      }
       // at rest and upright-ish the static balance is exact (nothing accelerates): it re-anchors the pelvis height
       // the back sensor's travel slowly drifts from — not during movement, not in deep bends (balance is weakest there)
       const hh = this.height;
@@ -322,8 +335,62 @@
         ema('pelvisZ', (J.pelvis[2] - pj.pelvis[2]) * k);
       }
       pose.rep = this.reps.feed(t, A);
+      // an impossible pose that lasts (> 0.7 s, > 25° past the limit) is a measurement fault, said per sensor
+      pose.viol = viol; pose.warn = [];
+      for (const r of ROLES) {
+        const v = viol[r] || 0, an = this.anat;
+        an[r] = v > 25 ? (an[r] || 0) + dt : Math.max(0, (an[r] || 0) - 2 * dt);
+        if (an[r] > 0.7 || (this.fixAcc && this.fixAcc[r] > 25)) pose.warn.push(r);
+      }
+      pose.yawFix = {};
+      for (const id in this.yawFix) pose.yawFix[this.cal.assign[id]] = this.yawFix[id] * R2D;
       this.prevPose = pose;
       return pose;
+    }
+
+    // heading is the one thing gravity cannot correct on a sensor: its gyro drifts it, a strap that turns shifts it.
+    // The body bounds it: a shin cannot face more than ~100° away from the chest (hip + spine rotation), two shins not
+    // more than ~110° from each other. Past that the measurement is wrong — whose? Both shins off the same way: the
+    // back sensor; else the shin itself. That sensor's heading is pulled back to the limit (≈ 0.3 s), and the excess
+    // is reported (pose.viol). Only while the segments are upright enough for a heading to mean something.
+    anatomyYaw(S, dt, viol) {
+      this.fixAcc = this.fixAcc || {};
+      for (const r in this.fixAcc) this.fixAcc[r] *= Math.max(0, 1 - dt / 3);      // heading taken out, last ~3 s
+      if (!S.back) return false;
+      const flat = (R) => Math.abs(R[7]) > 0.7 || mv(R, [0, 0, 1])[2] < 0.45;   // lateral axis steep / lying
+      if (flat(S.back.R)) return false;
+      const yb = yawOf(S.back.R), k = Math.min(1, dt / 0.3), LIM = 100 * D2R, PAIR = 110 * D2R;
+      const wr = (a) => Math.atan2(Math.sin(a), Math.cos(a));
+      const ex = {}, d = {};
+      for (const r of ['lshank', 'rshank']) if (S[r] && !flat(S[r].R)) {
+        d[r] = wr(yawOf(S[r].R) - yb);
+        ex[r] = Math.abs(d[r]) > LIM ? d[r] - Math.sign(d[r]) * LIM : 0;
+      }
+      let changed = false;
+      const fix = (role, by) => { const id = this.role[role]; this.yawFix[id] = (this.yawFix[id] || 0) + by; changed = true;
+        this.fixAcc[role] = (this.fixAcc[role] || 0) + Math.abs(by) * R2D;
+        if (Math.abs(by) > 0.02 * k) (this.suspect = this.suspect || {})[role] = true; };
+      // a sensor caught past the limit is not trusted near it either: standing still and upright, a shin faces about
+      // where the chest does (± a turned-out foot) — its heading is brought there (≈ 1 s) and trusted again
+      const sus = this.suspect || {};
+      const still = S.back.still && ['lshank', 'rshank'].every((r) => !S[r] || S[r].still);
+      for (const r of ['lshank', 'rshank']) if (sus[r] && d[r] != null && still) {
+        const e = Math.abs(d[r]) > 20 * D2R ? d[r] - Math.sign(d[r]) * 20 * D2R : 0;
+        if (e) { const id = this.role[r]; this.yawFix[id] = (this.yawFix[id] || 0) + e * Math.min(1, dt); changed = true; }
+        else sus[r] = false;
+      }
+      if (ex.lshank && ex.rshank && Math.sign(ex.lshank) === Math.sign(ex.rshank)) {
+        const m = Math.sign(ex.lshank) * Math.min(Math.abs(ex.lshank), Math.abs(ex.rshank));
+        fix('back', -m * k); viol.back = Math.abs(m) * R2D;           // the chest turned "too far": the back drifted
+      } else for (const r in ex) if (ex[r]) { fix(r, ex[r] * k); viol[r] = Math.abs(ex[r]) * R2D; }
+      if (d.lshank != null && d.rshank != null) {
+        const p = wr(d.lshank - d.rshank);
+        if (Math.abs(p) > PAIR) {
+          const r = Math.abs(d.lshank) > Math.abs(d.rshank) ? 'lshank' : 'rshank', e = (Math.abs(p) - PAIR) * Math.sign(r === 'lshank' ? p : -p);
+          fix(r, e * k); viol[r] = Math.max(viol[r] || 0, Math.abs(e) * R2D);
+        }
+      }
+      return changed;
     }
 
     // foot: the ankle point (sensor ~8 cm above it, on the shank) integrated between still moments, velocity reset
@@ -548,6 +615,14 @@
       const prev = this.kappa;
       // pelvis height measured: standing pelvis height + the back sensor's vertical travel − what the trunk's lean took
       const zP = useHeight && this.height.ok ? this.pelvisZ0(Tr) + this.height.z : null;
+      // the hip's range (trunk frame): flexion ≤ 150° (incl. the spine's curl — the trunk is the T1 sensor), extension
+      // ≤ 35°, abduction ≤ 60°, adduction ≤ 30°. A thigh outside is not a solution.
+      const TrT = T(Tr), HF = 150 * D2R, HE = 35 * D2R, HAB = 60 * D2R, HAD = 30 * D2R;
+      const hipPen = (t, sg) => {
+        const u = mv(TrT, t), n = -(norm(u) || 1), x = u[0] / n, y = sg * u[1] / n, z = u[2] / n;   // hip → knee (t: knee → hip)
+        const fl = Math.atan2(x, -z), ab = Math.atan2(y, Math.hypot(x, z));
+        return Math.max(0, fl - HF, -HE - fl) ** 2 + Math.max(0, ab - HAB, -HAD - ab) ** 2;
+      };
       const cost = (kl, kr) => {
         const tl = thigh('l', kl), tr = thigh('r', kr);
         const Pl = sub(add(Kl, tl), hipOff(1)), Pr = sub(add(Kr, tr), hipOff(-1));
@@ -565,6 +640,7 @@
         // down-and-back from the knee happens only at the very bottom of a deep squat)
         if (zP != null) c += 4 * (P[2] - zP) ** 2;      // pelvis height from the back sensor's own travel
         c += 0.02 * (Math.max(0, -tl[2] / d.thigh) ** 2 + Math.max(0, -tr[2] / d.thigh) ** 2);
+        c += 0.05 * (hipPen(tl, 1) + hipPen(tr, -1));
         c += 2e-5 * ((kl - prev.l) ** 2 + (kr - prev.r) ** 2) + 1e-6 * (kl * kl + kr * kr);
         return { c, P };
       };
@@ -588,6 +664,61 @@
       this.kappa = { l: bl, r: br };
       return { P: best.P, gap: Math.sqrt(Math.max(0, best.c)), cost: best.c };
     }
+  }
+  // ---------- what a human arm can do (owner 2026-11-04: "limits the model knows are impossible; a pose past them
+  // means a measurement error"). Shoulder (trunk frame, the arm's own side = +y): behind the body ≤ 60° hanging,
+  // 45° sideways, 20° overhead; across the body ≤ 10° hanging, up to 60° in front. Elbow: 0–150°, a hinge — it bends
+  // toward the thumb side ±110° of forearm turn (palm or back of the hand to the shoulder), never toward the little
+  // finger. The wrist sensor measures the forearm; the upper arm is estimated — so the upper arm moves to the nearest
+  // possible pose, and its roll is set by the elbow's hinge (no twisted skin at the elbow of the 3-D figure).
+  const clamp1 = (x) => Math.max(-1, Math.min(1, x));
+  function shoulderViol(u) {            // u: shoulder → elbow, trunk frame, own side +y
+    const e = Math.acos(clamp1(-u[2])), H = Math.PI / 2;
+    const lim = (e <= H ? 60 - (e / H) * 15 : 45 - ((e - H) / H) * 25) * D2R;
+    const behind = Math.atan2(-u[0], Math.hypot(u[1], u[2]));
+    const medial = Math.asin(clamp1(-u[1])), medLim = (10 + 50 * Math.max(0, u[0])) * D2R;
+    return Math.max(0, behind - lim, medial - medLim);
+  }
+  const SAFE = unit([0.45, 0.35, -0.82]);
+  function shoulderFix(u) {             // nearest allowed direction along the arc toward a surely-possible one
+    if (shoulderViol(u) <= 0) return u;
+    const ang = angBetween(u, SAFE), ax = norm(cross(u, SAFE)) > 1e-6 ? unit(cross(u, SAFE)) : [0, 0, 1];
+    let lo = 0, hi = ang;
+    for (let i = 0; i < 14; i++) { const m = (lo + hi) / 2; if (shoulderViol(mv(rot(ax, m), u)) > 0) lo = m; else hi = m; }
+    return mv(rot(ax, hi), u);
+  }
+  const BEND = 110 * D2R, FLEX = 150 * D2R;
+  function elbowFix(u, F) {             // u: shoulder → elbow (world); F: forearm (wrist sensor) → allowed u, excess
+    const f = mv(F, [0, 0, -1]), beta = angBetween(u, f);
+    let ex = 0;
+    if (beta > 20 * D2R) {
+      const m = mv(T(F), sc(u, -1)), phi = Math.atan2(m[1], m[0]);
+      if (Math.abs(phi) > BEND) {
+        ex = (Math.abs(phi) - BEND) * Math.min(1, (beta - 20 * D2R) / (30 * D2R));
+        const r = Math.hypot(m[0], m[1]), p = Math.sign(phi) * BEND;
+        u = sc(mv(F, [r * Math.cos(p), r * Math.sin(p), m[2]]), -1);
+      }
+    }
+    const b2 = angBetween(u, f);
+    if (b2 > FLEX) { const ax = unit(cross(f, u)); u = mv(rot(ax, FLEX - b2), u); }
+    return { u: unit(u), ex };
+  }
+  function armLimits(side, U, F, Tr) {
+    const sg = side === 'l' ? 1 : -1, TrT = T(Tr);
+    const toT = (u) => { const v = mv(TrT, u); return [v[0], sg * v[1], v[2]]; };
+    const toW = (v) => mv(Tr, [v[0], sg * v[1], v[2]]);
+    const u0 = mv(U, [0, 0, -1]);
+    let u = u0, e = { ex: 0 }, ex0 = 0;
+    for (let i = 0; i < 2; i++) { e = elbowFix(u, F); if (!i) ex0 = e.ex; u = toW(shoulderFix(toT(e.u))); }
+    const left = Math.max(elbowFix(u, F).ex, shoulderViol(toT(u)));     // nothing possible fits: the sensor is wrong
+    const f = mv(F, [0, 0, -1]), beta = angBetween(u, f), z = sc(u, -1);
+    // roll: the hinge axis when bent, the forearm's own lateral axis when straight
+    const w = Math.max(0, Math.min(1, (beta - 15 * D2R) / (20 * D2R)));
+    const hinge = norm(cross(f, u)) > 1e-6 ? unit(cross(f, u)) : mv(F, [0, 1, 0]);
+    let y = add(sc(hinge, w), sc(mv(F, [0, 1, 0]), 1 - w));
+    y = sub(y, sc(z, dot(y, z))); if (norm(y) < 1e-4) y = mv(Tr, [0, 1, 0]);
+    y = unit(y); const x = cross(y, z);
+    return { U: [x[0], y[0], z[0], x[1], y[1], z[1], x[2], y[2], z[2]], viol: Math.max(left, ex0) };
   }
   function inv3(m) {
     const [a, b, c, d, e, f, g, h, i] = m, A = e * i - f * h, B = -(d * i - f * g), C = d * h - e * g, det = a * A + b * B + c * C || 1e-12;

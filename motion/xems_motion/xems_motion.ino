@@ -21,7 +21,7 @@
 #include <Wire.h>
 #include "fusion.h"
 
-#define FW_VER "3"
+#define FW_VER "4"
 #define IMU_ADDR 0x6A
 #define IMU_RATE 208.f
 
@@ -74,6 +74,8 @@ static bool imuBegin() {
 
 // watchdog: 4 s; fed in loop(). NRF_POWER->GPREGRET2 keeps the start stage across a watchdog restart.
 static uint8_t lastHang = 0;
+static bool btOk = false;
+static uint16_t sdFwid = 0;          // the SoftDevice in flash (S140 7.3.0 = 0x0123), 0 = none
 static void wdtStart() {
   NRF_WDT->CONFIG = (WDT_CONFIG_HALT_Pause << WDT_CONFIG_HALT_Pos) | (WDT_CONFIG_SLEEP_Run << WDT_CONFIG_SLEEP_Pos);
   NRF_WDT->CRV = 4 * 32768;
@@ -108,14 +110,14 @@ static void readBattery() {
 
 static void say(const char *s) {
   Serial.println(s);
-  if (Bluefruit.connected() && bleuart.notifyEnabled()) { bleuart.write((const uint8_t *)s, strlen(s)); bleuart.write((const uint8_t *)"\n", 1); }
+  if (btOk && Bluefruit.connected() && bleuart.notifyEnabled()) { bleuart.write((const uint8_t *)s, strlen(s)); bleuart.write((const uint8_t *)"\n", 1); }
 }
 
 static void info() {
   uint8_t t[2] = {0, 0}; imuRead(0x20, t, 2);
   float temp = 25.f + (int16_t)(t[0] | t[1] << 8) / 256.f;
   char b[160];
-  snprintf(b, sizeof b, "INFO XEMS-MOTION %s id=%s imu=%d%s%s hang=%d rate=%d bat=%d %.2f bias=%d t=%.1f", FW_VER, devId, imuOk ? 1 : 0, imuOk ? "" : "/", imuOk ? "" : imuWhy, lastHang,
+  snprintf(b, sizeof b, "INFO XEMS-MOTION %s id=%s imu=%d%s%s bt=%d sd=%04X hang=%d rate=%d bat=%d %.2f bias=%d t=%.1f", FW_VER, devId, imuOk ? 1 : 0, imuOk ? "" : "/", imuOk ? "" : imuWhy, btOk ? 1 : 0, sdFwid, lastHang,
            (int)(IMU_RATE / decim + 0.5f), batPct, batV, fus.biasReady ? 1 : 0, temp);
   say(b);
 }
@@ -146,7 +148,7 @@ static void feed(char c, char *line, uint8_t &len) {
 // deep sleep, woken by motion on INT1 (wake-up interrupt of the IMU)
 static void goSleep() {
   ledShow(0);
-  if (!imuOk) { sd_power_system_off(); return; }
+  if (!imuOk) { if (btOk) sd_power_system_off(); else NRF_POWER->SYSTEMOFF = 1; return; }
   imuWrite(0x10, 0x20);                     // accel 26 Hz low power, gyro off
   imuWrite(0x11, 0x00);
   imuWrite(0x5C, 0x00);                     // WAKE_UP_DUR
@@ -154,7 +156,7 @@ static void goSleep() {
   imuWrite(0x58, 0x80);                     // TAP_CFG: interrupts enable
   imuWrite(0x5E, 0x20);                     // MD1_CFG: wake-up → INT1
   pinMode(PIN_LSM6DS3TR_C_INT1, INPUT_PULLDOWN_SENSE);
-  sd_power_system_off();
+  if (btOk) sd_power_system_off(); else NRF_POWER->SYSTEMOFF = 1;
 }
 
 static void connectCb(uint16_t h) {
@@ -184,6 +186,12 @@ void setup() {
   snprintf(devId, sizeof devId, "%04X", (unsigned)(a0 & 0xFFFF));
   char name[24]; snprintf(name, sizeof name, "XEMS Motion %s", devId);
 
+  // Bluetooth runs on Nordic's SoftDevice S140 7.3.0 (flash 0x1000–0x27000). Some XIAO boards come without it (or with
+  // another one): calling it then crashes the start (the owner's sensors: blue → red over and over). Look first.
+  sdFwid = (*(volatile uint32_t *)0x3004 == 0x51B1E5DB) ? *(volatile uint16_t *)0x300C : 0;
+  if (sdFwid != 0x0123) { stage(3, 5, sdFwid ? "bluetooth: other softdevice" : "bluetooth: no softdevice"); }
+  else if (lastHang == 3) { stage(3, 5, "bluetooth: froze last time"); }
+  else {
   stage(3, 4, "bluetooth");
   Bluefruit.configPrphBandwidth(BANDWIDTH_MAX);
   Bluefruit.begin();
@@ -205,6 +213,8 @@ void setup() {
   Bluefruit.Advertising.setInterval(160, 480);
   Bluefruit.Advertising.setFastTimeout(30);
   Bluefruit.Advertising.start(0);
+  btOk = true;
+  }
   wdtFeed();
   stage(4, 2, "battery");
   readBattery();
@@ -242,13 +252,13 @@ void loop() {
         f[0] = seq++;
         f[1] = (fus.still ? 1 : 0) | (fus.biasReady ? 2 : 0) | (batPct >= 0 && batPct < 10 ? 4 : 0);
         for (int i = 0; i < 9; i++) { f[2 + 2 * i] = v[i] & 0xFF; f[3 + 2 * i] = (uint16_t)v[i] >> 8; }
-        if (Bluefruit.connected()) dataChr.notify(f, 20);
+        if (btOk && Bluefruit.connected()) dataChr.notify(f, 20);
       }
     }
   }
   NRF_POWER->GPREGRET2 = 0;
   while (Serial.available()) feed(Serial.read(), usbLine, usbLen);
-  while (bleuart.available()) feed(bleuart.read(), bleLine, bleLen);
+  if (btOk) while (bleuart.available()) feed(bleuart.read(), bleLine, bleLen);
   uint32_t now = millis();
   if (now - lastBat > 30000) {
     lastBat = now; readBattery();
@@ -258,14 +268,16 @@ void loop() {
   // LED, easy to read (fw 2): red fast = the motion sensor chip does not answer · orange double blink = battery low ·
   // blue once a second = waiting for the phone · green short every 2 s = connected · a colour = its place on the body
   bool low = batPct >= 0 && batPct < 10;
-  if (!imuOk) ledShow((now / 120) % 2 ? 1 : 0);
+  bool conn = btOk && Bluefruit.connected();
+  if (!btOk) ledShow((now / 400) % 2 ? 1 : 4);          // red / blue slowly: no Bluetooth (no SoftDevice) — reload it
+  else if (!imuOk) ledShow((now / 120) % 2 ? 1 : 0);
   else if (ledColor) ledShow(ledBlink && now < ledBlinkUntil && (now / 150) % 2 ? 0 : ledColor);
   else if (low && (now % 3000) < 400) ledShow((now % 3000) < 120 || ((now % 3000) > 250 && (now % 3000) < 370) ? 3 : 0);
-  else if (!Bluefruit.connected()) ledShow((now % 1000) < 150 ? 4 : 0);
+  else if (!conn) ledShow((now % 1000) < 150 ? 4 : 0);
   else ledShow((now % 2000) < 100 ? 2 : 0);
   // on the USB cable: say who I am every 2 s (the app's "check the sensor" reads it)
   if (now - lastHello > 2000) { lastHello = now; if (Serial) info(); }
   // nobody connected and no movement for 10 minutes → sleep
   // nobody connected and not moved for 30 min → sleep (a shake or RST wakes it); never on the USB cable
-  if (!Bluefruit.connected() && !Serial && now - lastMove > 1800000UL) goSleep();
+  if (btOk && !conn && !Serial && now - lastMove > 1800000UL) goSleep();
 }

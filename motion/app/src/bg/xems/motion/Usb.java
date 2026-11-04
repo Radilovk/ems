@@ -48,6 +48,9 @@ final class Usb {
     static int stage = -1;
     static String board = "sense";
     static boolean probing;
+    /** full = first Seeed's SoftDevice S140 7.3.0 + bootloader 0.6.2 (boards that came without it), then our firmware */
+    static boolean full;
+    static int part;
 
     /** "Is this sensor alive?" — on the cable the firmware says INFO every 2 s; read it (or tell what is there). */
     static void probe(Context c, Listener l) {
@@ -168,10 +171,12 @@ final class Usb {
         return find() != null;
     }
 
-    static void start(Context c, String boardName, Listener l) {
+    static void start(Context c, String boardName, boolean withSoftDevice, Listener l) {
         app = c.getApplicationContext();
         listener = l;
         board = "plus".equals(boardName) ? "sense-plus" : "sense";
+        full = withSoftDevice;
+        part = withSoftDevice ? 0 : 1;
         if (busy) {
             return;
         }
@@ -374,7 +379,8 @@ final class Usb {
             UsbDeviceConnection c = null;
             String err = null;
             try {
-                byte[] dat = asset("app.dat"), bin = asset("app.bin");
+                boolean sd = full && part == 0;
+                byte[] dat = asset(sd ? "sdbl.dat" : "app.dat"), bin = asset(sd ? "sdbl.bin" : "app.bin");
                 UsbInterface[] f = cdc(d);
                 c = um.openDevice(d);
                 if (f[0] != null) {
@@ -400,7 +406,12 @@ final class Usb {
                 while (c.bulkTransfer(in, junk, junk.length, 50) > 0) {
                     // whatever the bootloader said before: not an ack
                 }
-                new Dfu(new Port(c, in, out)).run(dat, bin, this);
+                if (sd) {
+                    String[] z = new String(asset("sdbl.txt"), "UTF-8").trim().split("\\s+");
+                    new Dfu(new Port(c, in, out)).run(dat, bin, Dfu.MODE_SD_BL, Integer.parseInt(z[0]), Integer.parseInt(z[1]), 0, this);
+                } else {
+                    new Dfu(new Port(c, in, out)).run(dat, bin, this);
+                }
             } catch (Throwable t) {
                 err = String.valueOf(t.getMessage());
             } finally {
@@ -411,14 +422,21 @@ final class Usb {
                     }
                 }
             }
+            if (err == null && full && part == 0) {        // SoftDevice + bootloader in: the board restarts — now our firmware
+                part = 1;
+                main.post(new Told(WRITING, 50, "softdevice"));
+                main.post(new NextPart());
+                return;
+            }
             main.post(new Told(err == null ? DONE : FAILED, 100, err == null ? "" : err));
         }
 
         @Override
         public void onProgress(int percent) {
-            if (percent != last) {
-                last = percent;
-                main.post(new Told(WRITING, percent, ""));
+            int pc = full ? (part == 0 ? percent / 2 : 50 + percent / 2) : percent;
+            if (pc != last) {
+                last = pc;
+                main.post(new Told(WRITING, pc, full && part == 0 ? "softdevice" : ""));
             }
         }
     }
@@ -436,6 +454,16 @@ final class Usb {
         @Override
         public void run() {
             tell(s, pct, note);
+        }
+    }
+
+    /** after the SoftDevice + bootloader: wait for the board to come back (bootloader or app), then the firmware */
+    static final class NextPart implements Runnable {
+        @Override
+        public void run() {
+            stage = -1;
+            waitUntil = System.currentTimeMillis() + 25000;
+            main.postDelayed(new Step(), 3000);
         }
     }
 

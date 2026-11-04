@@ -15,6 +15,12 @@ if [ ! -d "$T/arduino/packages/Seeeduino/hardware/nrf52/1.1.13" ]; then
 	"$T/arduino-cli" core update-index --additional-urls "$URL"
 	"$T/arduino-cli" core install Seeeduino:nrf52@1.1.13 --additional-urls "$URL"
 fi
+# the Bluetooth clock from the chip's own RC oscillator, not the 32 kHz crystal: works on every board (the SoftDevice
+# calibrates it); a crystal that does not start would freeze Bluetooth at start (owner's sensors, 2026-11-04)
+for V in Seeed_XIAO_nRF52840_Sense Seeed_XIAO_nRF52840_Sense_Plus; do
+	sed -i 's|^#define USE_LFXO |//#define USE_LFXO |; s|^//#define USE_LFRC |#define USE_LFRC |' \
+		"$T/arduino/packages/Seeeduino/hardware/nrf52/1.1.13/variants/$V/variant.h"
+done
 printf '#!/bin/sh\nexit 0\n' > "$T/fakebin/adafruit-nrfutil"; chmod +x "$T/fakebin/adafruit-nrfutil"
 if [ ! -x "$T/nrfu/bin/adafruit-nrfutil" ]; then
 	python3 -m venv "$T/nrfu" && "$T/nrfu/bin/pip" install -q adafruit-nrfutil

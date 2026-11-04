@@ -106,7 +106,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/bluetens/lok.py` (243L) — Bluetens .lok program format — parse, build, time estimate (reference for a future Java port).
 - `scripts/bluetens/run.sh` (17L) — Offline test of the Bluetens module: the real BluetensShell / BluetensLok / BluetensPrograms / BluetensProgram
 - `scripts/body_deltoid.py` (58L) — The deltoid (shoulder cap) on the body figures' zone maps — one cut for every figure: the report and the client card (s…
-- `scripts/build-motion-app.sh` (71L) — "XEMS Движение" — the XEMS Motion app for Android phones / tablets (motion/app, docs/xems-motion.md "The app"): the
+- `scripts/build-motion-app.sh` (84L) — "XEMS Движение" — the XEMS Motion app for Android phones / tablets (motion/app, docs/xems-motion.md "The app"): the
 - `scripts/build-wiems-app.sh` (65L) — "XEMS WiEMS" — the light tablet app for one WiEMS unit (wiems/app, docs/xems-wiems-app.md): XBody's training
 - `scripts/compile-avatar-cluster-java.sh` (49L, build:L81[SKIP_JAVA_RECOMPILE]) — Compile AvatarClusterLayout.java to smali (prebuilt fallback when SDK missing).
 - `scripts/compile-bodytech-java.sh` (47L, build:L84[SKIP_JAVA_RECOMPILE]) — Compile the bodytech suit driver (com.isaigu.gymapp.bodytech: BtProto, BtSettings, BtTranslator, BtBridge)
@@ -136,8 +136,10 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/install_interval_timer_smali.py` (65L) — Install interval timer stack smali (helper, presets) into decompiled APK (the block program is gone, 1.1.331).
 - `scripts/mastogo/MastogoSim.java` (600L) — Offline test of the MASTOGO module: the real MastogoShell talks to a simulated H-024B that answers the way the vendor a…
 - `scripts/mastogo/run.sh` (12L) — Offline test of the MASTOGO H-024B module: the real MastogoShell against a simulated unit (no unit, no tablet).
-- `scripts/motion/build-motion.sh` (33L) — XEMS Motion sensor firmware → motion/xems-motion-sense.uf2 and motion/xems-motion-sense-plus.uf2 (XIAO nRF52840
+- `scripts/motion/build-motion.sh` (39L) — XEMS Motion sensor firmware → motion/xems-motion-sense.uf2 and motion/xems-motion-sense-plus.uf2 (XIAO nRF52840
 - `scripts/motion/cmu2json.py` (169L) — CMU Graphics Lab Motion Capture (mocap.cs.cmu.edu, free for any use) ASF/AMC → motion/mocap/cmu.js, the real human move…
+- `scripts/motion-sim/MotionDfuSim.java` (98L) — Offline test of the USB update (wearable/voice/Dfu): a simulated Adafruit nRF52 bootloader decodes every frame — SLIP, …
+- `scripts/motion-sim/run-dfu.sh` (37L) — Offline test of the XEMS Motion app's USB loader (motion/app/src/bg/xems/motion/Dfu.java) against a simulated
 - `scripts/motion-sim/run.sh` (35L) — Offline end-to-end test of the XEMS Motion module (docs/xems-motion.md): a person → raw IMU (bias, drift, noise) →
 - `scripts/music-sim/MusicAutoTuneSim.java` (163L) — JVM checks for music → impulse auto-tune.
 - `scripts/music-sim/run.sh` (12L) — Auto-tune checks on the JVM. No Android.
@@ -1090,26 +1092,27 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L95 ## Left out on purpose
   - L103 ## Safety
 
-`docs/xems-motion.md` (292L)
+`docs/xems-motion.md` (306L)
   - L1 # XEMS Motion — body pose from five XIAO nRF52840 Sense sensors
   - L21 ## The app — "XEMS Движение" for Android (owner 2026-11-03: everything installable, as easy as possible)
   - L41 ### 1.1 / firmware 2 — "nothing lights, nothing is found" (owner's first try, 2026-11-04)
   - L57 ### 1.2 / firmware 3 — "loaded, but dark, and silent on the cable" (owner, 2026-11-04)
-  - L67 ## Design in one picture
-  - L80 ## Hardware and placement
-  - L90 ## Sensor firmware (`fusion.h`, `xems_motion.ino`)
-  - L101 ## Calibration (≈ 6 s, one tap) — finds places, headings, zero
-  - L115 ## Pose solver (`Body.solve`, per back-sensor sample, < 1 ms)
-  - L134 ## Offline test (`sh scripts/motion-sim/run.sh`, ≈ 10 s)
-  - L151 ## Real movements — CMU motion capture (owner 2026-11-03: "precise movement templates")
-  - L190 ## The figure: the VR workout's android (owner 2026-11-03: "use the model we had, don't make a new one")
-  - L204 ## The 3-D body (owner 2026-11-03: "a 3-D model that moves in sync with the body")
-  - L221 ## Precision today — what to trust (5 sensors)
-  - L228 ## Arms: the learned corrector (owner 2026-11-03: "make the arms as accurate as the legs")
-  - L245 ### Tested: dead reckoning of the elbow from the zero pose (owner's idea, 2026-11-03)
-  - L258 ### Teacher recordings — exact arms with the same 5 sensors (built 2026-11-03)
-  - L274 ## Limits with five sensors (honest)
-  - L283 ## Roadmap
+  - L67 ### 1.3 / firmware 4 — "blue, red, blue, red" (owner, 2026-11-04)
+  - L81 ## Design in one picture
+  - L94 ## Hardware and placement
+  - L104 ## Sensor firmware (`fusion.h`, `xems_motion.ino`)
+  - L115 ## Calibration (≈ 6 s, one tap) — finds places, headings, zero
+  - L129 ## Pose solver (`Body.solve`, per back-sensor sample, < 1 ms)
+  - L148 ## Offline test (`sh scripts/motion-sim/run.sh`, ≈ 10 s)
+  - L165 ## Real movements — CMU motion capture (owner 2026-11-03: "precise movement templates")
+  - L204 ## The figure: the VR workout's android (owner 2026-11-03: "use the model we had, don't make a new one")
+  - L218 ## The 3-D body (owner 2026-11-03: "a 3-D model that moves in sync with the body")
+  - L235 ## Precision today — what to trust (5 sensors)
+  - L242 ## Arms: the learned corrector (owner 2026-11-03: "make the arms as accurate as the legs")
+  - L259 ### Tested: dead reckoning of the elbow from the zero pose (owner's idea, 2026-11-03)
+  - L272 ### Teacher recordings — exact arms with the same 5 sensors (built 2026-11-03)
+  - L288 ## Limits with five sensors (honest)
+  - L297 ## Roadmap
 
 `docs/xems-part-strength.md` (212L)
   - L1 # Избрани мускулни групи: сила на импулсите само за тях (v1.1.85, двата импулса поотделно от 1.1.366)

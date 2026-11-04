@@ -36,6 +36,8 @@ final class Ble {
         void onLine(String id, String line);
 
         void onState(String id, String state);
+
+        void onScan(int devices, int sensors, boolean scanning);
     }
 
     static final UUID DATA_SVC = UUID.fromString("6e400101-b5a3-f393-e0a9-e50e24dcca9e");
@@ -54,11 +56,32 @@ final class Ble {
     final ScanCb scanCb = new ScanCb();
     BluetoothLeScanner scanner;
     boolean scanning, wanted;
+    /** every Bluetooth device heard and every sensor heard while looking — shown, so "nothing found" is explained */
+    final java.util.HashSet<String> seen = new java.util.HashSet<String>(), seenXems = new java.util.HashSet<String>();
 
     Ble(Context c, Sink s) {
         ctx = c.getApplicationContext();
         sink = s;
         main.postDelayed(new Flush(), 20);
+        main.postDelayed(new Report(), 1000);
+    }
+
+    int online() {
+        int n = 0;
+        for (Conn c : conns.values()) {
+            if (c.rx != null || c.ready) {
+                n++;
+            }
+        }
+        return n;
+    }
+
+    final class Report implements Runnable {
+        @Override
+        public void run() {
+            sink.onScan(seen.size(), seenXems.size(), scanning);
+            main.postDelayed(this, 1000);
+        }
     }
 
     BluetoothAdapter adapter() {
@@ -103,6 +126,14 @@ final class Ble {
         scanning = false;
     }
 
+    /** a scan ended: while fewer than five sensors are with us, look again in 3 s (sensors switched on later) */
+    void scanEnded() {
+        stopScan();
+        if (wanted && online() < 5) {
+            main.postDelayed(new Rescan(), 3000);
+        }
+    }
+
     void disconnectAll() {
         wanted = false;
         stopScan();
@@ -123,6 +154,7 @@ final class Ble {
         if (name == null || !name.startsWith(PREFIX)) {
             return;
         }
+        seenXems.add(d.getAddress());
         String id = name.substring(PREFIX.length()).trim();
         if (id.length() == 0) {
             id = d.getAddress();
@@ -168,7 +200,7 @@ final class Ble {
     final class StopScan implements Runnable {
         @Override
         public void run() {
-            stopScan();
+            scanEnded();
         }
     }
 
@@ -183,8 +215,15 @@ final class Ble {
 
     final class ScanCb extends ScanCallback {
         @Override
+        public void onScanFailed(int code) {
+            scanning = false;
+            main.post(new Tell("-", "scan-failed " + code, false));
+        }
+
+        @Override
         public void onScanResult(int type, ScanResult r) {
             BluetoothDevice d = r.getDevice();
+            seen.add(d.getAddress());
             String name = r.getScanRecord() != null ? r.getScanRecord().getDeviceName() : null;
             if (name == null) {
                 try {
@@ -237,6 +276,7 @@ final class Ble {
         final BluetoothDevice dev;
         BluetoothGatt gatt;
         BluetoothGattCharacteristic rx;
+        boolean ready;
         final ArrayDeque<Object> queue = new ArrayDeque<Object>();
         boolean busy;
         final StringBuilder text = new StringBuilder();
@@ -334,6 +374,7 @@ final class Ble {
                 }
                 gatt = null;
                 rx = null;
+                ready = false;
                 synchronized (queue) {
                     queue.clear();
                     busy = false;
@@ -358,6 +399,7 @@ final class Ble {
                     queue.add("info\n");
                 }
             }
+            ready = true;
             main.post(new Tell(id, "online", false));
             pump();
         }

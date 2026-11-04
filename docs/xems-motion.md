@@ -38,6 +38,22 @@ cannot:
 Tested here: the page in app mode with a fake bridge feeding firmware-format frames (calibration → figure →
 recording → share → firmware panel); the Java compiles to dex. Not yet on a real phone.
 
+### 1.1 / firmware 2 — "nothing lights, nothing is found" (owner's first try, 2026-11-04)
+Two separate causes, both fixed:
+- **Firmware 1 was nearly invisible and fell asleep**: a 60-ms blue blink every 2 s while waiting, and deep sleep
+  after 10 min unconnected and still — a sensor charged and left on the table was asleep. Firmware 2: green 1 s +
+  white flash at every power-up; **blue every second** while waiting; green short when connected; its place colour
+  after calibration; orange double blink = battery low; fast red = the motion chip does not answer (Bluetooth stays
+  up so the app can say so — fw 1 locked up there). Sleep only after 30 min and never on the USB cable. On the cable
+  it says INFO every 2 s (now with `imu=0|1`).
+- **Android hears no Bluetooth device while Location (GPS) is off** (apps below target 31) — the app did not check.
+  Now a banner names what is missing — Bluetooth off / Location off / no permission — with a one-tap button to
+  Android's own switch, and while searching it shows "around: N Bluetooth devices, XEMS sensors: M" (N = 0 → the
+  phone hears nothing; M = 0 → the sensors are not on). Searching repeats every 3 s until five sensors are online.
+- **"Провери сензора"** (firmware panel, sensor on the cable): reads the sensor's INFO over USB → "Sensor 4A2F works ✓
+  · firmware 2 · battery 81 % (4.02 V) · motion chip ✓", or says it is silent / in its bootloader / runs other
+  software / has an older firmware → "Зареди". The LED legend is in the panel.
+
 ## Design in one picture
 ```
  sensor ×5 (208 Hz)                     host (tablet / laptop, 52 Hz)

@@ -29,6 +29,8 @@ import java.io.InputStream;
 final class Usb {
     interface Listener {
         void onFlash(int stage, int percent, String note);
+
+        void onProbe(String text);
     }
 
     static final int NO_CABLE = 0, ASK = 1, RESET = 2, PRESS_RST = 3, WRITING = 4, DONE = 5, FAILED = 6;
@@ -45,6 +47,117 @@ final class Usb {
     static long waitUntil;
     static int stage = -1;
     static String board = "sense";
+    static boolean probing;
+
+    /** "Is this sensor alive?" — on the cable the firmware says INFO every 2 s; read it (or tell what is there). */
+    static void probe(Context c, Listener l) {
+        app = c.getApplicationContext();
+        listener = l;
+        um = (UsbManager) app.getSystemService(Context.USB_SERVICE);
+        if (receiver == null) {
+            receiver = new Receiver();
+            app.registerReceiver(receiver, new IntentFilter(ACTION));
+        }
+        UsbDevice d = find();
+        if (d == null) {
+            l.onProbe("nocable");
+            return;
+        }
+        if (!um.hasPermission(d)) {
+            probing = true;
+            int flags = Build.VERSION.SDK_INT >= 31 ? 0x02000000 : 0;
+            Intent i = new Intent(ACTION);
+            i.setPackage(app.getPackageName());
+            um.requestPermission(d, PendingIntent.getBroadcast(app, 0, i, flags));
+            return;
+        }
+        if (bootloader(d)) {
+            l.onProbe("bootloader");
+            return;
+        }
+        new Thread(new Probe(d), "xems-motion-probe").start();
+    }
+
+    static final class Probe implements Runnable {
+        final UsbDevice d;
+
+        Probe(UsbDevice d) {
+            this.d = d;
+        }
+
+        @Override
+        public void run() {
+            UsbDeviceConnection c = null;
+            String got = "silent";
+            try {
+                UsbInterface[] f = cdc(d);
+                c = um.openDevice(d);
+                if (f[0] != null) {
+                    c.claimInterface(f[0], true);
+                }
+                c.claimInterface(f[1], true);
+                UsbEndpoint in = null, out = null;
+                for (int i = 0; i < f[1].getEndpointCount(); i++) {
+                    UsbEndpoint e = f[1].getEndpoint(i);
+                    if (e.getType() == UsbConstants.USB_ENDPOINT_XFER_BULK) {
+                        if (e.getDirection() == UsbConstants.USB_DIR_IN) {
+                            in = e;
+                        } else {
+                            out = e;
+                        }
+                    }
+                }
+                int iface = f[0] != null ? f[0].getId() : f[1].getId();
+                lineCoding(c, iface, 115200);
+                lines(c, iface, true);
+                Thread.sleep(300);
+                byte[] q = "info\n".getBytes("UTF-8");
+                c.bulkTransfer(out, q, q.length, 500);
+                StringBuilder sb = new StringBuilder();
+                byte[] b = new byte[256];
+                long end = System.currentTimeMillis() + 3500;
+                while (System.currentTimeMillis() < end) {
+                    int n = c.bulkTransfer(in, b, b.length, 300);
+                    if (n > 0) {
+                        sb.append(new String(b, 0, n, "UTF-8"));
+                        int k = sb.indexOf("INFO XEMS-MOTION");
+                        if (k >= 0 && sb.indexOf("\n", k) > 0) {
+                            got = sb.substring(k, sb.indexOf("\n", k)).trim();
+                            break;
+                        }
+                    }
+                }
+                if ("silent".equals(got) && sb.length() > 0) {
+                    got = "other: " + sb.toString().trim().replace('\n', ' ');
+                }
+            } catch (Throwable t) {
+                got = "error: " + t.getMessage();
+            } finally {
+                if (c != null) {
+                    try {
+                        c.close();
+                    } catch (Throwable ignored) {
+                    }
+                }
+            }
+            main.post(new Probed(got));
+        }
+    }
+
+    static final class Probed implements Runnable {
+        final String text;
+
+        Probed(String text) {
+            this.text = text;
+        }
+
+        @Override
+        public void run() {
+            if (listener != null) {
+                listener.onProbe(text);
+            }
+        }
+    }
 
     private Usb() {}
 
@@ -339,7 +452,19 @@ final class Usb {
     static final class Receiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context c, Intent i) {
-            if (!ACTION.equals(i.getAction()) || !busy) {
+            if (!ACTION.equals(i.getAction())) {
+                return;
+            }
+            if (probing) {
+                probing = false;
+                if (i.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
+                    probe(app, listener);
+                } else if (listener != null) {
+                    listener.onProbe("denied");
+                }
+                return;
+            }
+            if (!busy) {
                 return;
             }
             if (i.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {

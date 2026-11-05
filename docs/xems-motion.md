@@ -220,6 +220,27 @@ movements never taught: unchanged (19.2°). Preferring the personal ones (×0.6)
 — so they count as equals. One person per phone for now. Personal proportions (limb lengths) not done: the 5
 sensors give orientations only; lengths need a reference (e.g. the camera) — later.
 
+### 1.14 — the calibration poses that carry the most information (owner, 2026-11-05: "not just any — the best")
+Each sensor's mounting has 3 unknown angles. Standing still (gravity) gives 2; a still pose with the segment turned
+about a known body axis gives the third. More poses only help if they turn the segment about a DIFFERENT axis —
+that is an independent second reading, and the person's imperfect copying averages out.
+Measured (`node scripts/motion-sim/calinfo.js E`: 40 mountings, the person's arms off the instructed plane by up to
+±E°, then forearm orientation vs truth over a normal session):
+
+| poses | ±10° | ±20° | ±30° (mean / worst) |
+|---|---|---|---|
+| stand + arms forward & half squat (hold) | 3.0° / 20° | 4.8° / 31° | 6.7° / 42° |
+| + **arms out to the sides (hold)** | 1.7° / 13° | 2.8° / 22° | 4.0° / 30° |
+
+So the calibration is now: stand still → arms forward + half squat, hold → up → **arms out to the sides at
+shoulder height, palms down, hold** → down (`Calibration.holdT`; the robot shows each step; skipped after 15 s
+without the hold → the two poses alone). Legs and trunk: the squat already turns them about the lateral axis; their
+errors are small (≤ 2°) — no extra pose earns its time there.
+**Tried and dropped — a "cover everything" teaching program** (12 movements: every shoulder plane, bent / straight,
+turned in / out, twisted; `TEACH=1` offline): learnt as personal arm poses it made movements outside it worse (CMU
+elbows 19.2° → 23.4°). With 5 sensors one forearm reading fits many upper-arm positions; more varied examples blur
+the choice. What helps is teaching the person's OWN exercises (1.13: their routine 15° → 4°).
+
 ### AI (Gemini) — where it fits and where not
 Not for the live figure: a cloud model answers in 0.5–3 s, needs the network, costs per call and does not return
 reliable joint angles — the figure must follow the body in < 50 ms. "Natural" comes from local models learned from

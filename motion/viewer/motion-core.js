@@ -166,6 +166,17 @@
       }
       this.held = true;
     }
+    // a second held pose: arms out to the sides (T). The arms then turn about the body's forward axis — a second, independent
+    // reading of each arm sensor's heading (the first: the forward raise, about the lateral axis)
+    holdT() {
+      for (const id in this.s) {
+        const s = this.s[id]; if (!s.q0 || !s.recent || s.recent.length < 8) continue;
+        const rs = s.recent.slice(-12), ref = rs[rs.length - 1];
+        let acc = [0, 0, 0]; for (const R of rs) acc = add(acc, logm(mul(R, T(ref))));
+        s.heldT = logm(mul(mul(expm(sc(acc, 1 / rs.length)), ref), T(s.q0)));
+      }
+      this.heldT = true;
+    }
     finish(forced) {
       this.phase = 'done';
       const ids = Object.keys(this.s).filter((id) => this.s[id].q0);
@@ -214,6 +225,14 @@
         if (!f) continue;
         const exp = /wrist|upper/.test(r) ? -Math.PI / 2 : Math.PI / 2;   // expected axis: −y for the arms, +y else
         out.psi[id] = exp - Math.atan2(f.ah[1], f.ah[0]);
+        // arms with a T hold too: its axis (forward: +x for the left arm, −x for the right) gives the heading again —
+        // the two readings averaged, weighted by how far each pose turned the sensor
+        const s2 = this.s[id].heldT;
+        if (/wrist/.test(r) && s2 && norm(s2) * R2D > 40) {
+          const h2 = unit([s2[0], s2[1], 0]), e2 = r[0] === 'l' ? 0 : Math.PI, psi2 = e2 - Math.atan2(h2[1], h2[0]);
+          const w1 = Math.min(1, f.ang / 60), w2 = Math.min(1, norm(s2) * R2D / 60);
+          out.psi[id] = Math.atan2(w1 * Math.sin(out.psi[id]) + w2 * Math.sin(psi2), w1 * Math.cos(out.psi[id]) + w2 * Math.cos(psi2));
+        }
         out.q0[id] = this.s[id].q0;
         (out.aOff = out.aOff || {})[id] = this.s[id].aOff ? this.s[id].aOff.map((x) => Math.max(-0.08, Math.min(0.08, x))) : [0, 0, 0];
         if (f.ang < 15 || f.n < 5) out.problems.push(ROLE_BG[r] + ': почти не помръдна');
@@ -1028,7 +1047,7 @@
     ['twist', 6, (u) => ({ twist: 35 * Math.sin((2 * Math.PI * u * 6) / 3), arms: { l: { f: 60, e: 80 }, r: { f: 60, e: 80 } } })],
   ];
   // the calibration, shown by the figure for the user to copy (owner 2026-11-05: "a clip of exactly what to repeat"):
-  // stand still → arms straight forward + half squat → HOLD → back up. Loops while the wizard is open.
+  // stand still → arms straight forward + half squat → HOLD → back up → arms out to the sides → HOLD → down.
   const ease = (u) => (u <= 0 ? 0 : u >= 1 ? 1 : u * u * (3 - 2 * u));
   const GUIDE = [
     ['stand', 2.2, () => ({})],
@@ -1036,6 +1055,11 @@
     ['hold', 2.2, () => ({ squat: 0.5, arms: { l: { f: 90 }, r: { f: 90 } } })],
     ['up', 1.6, (u) => { const e = 1 - ease(u); return { squat: 0.5 * e, arms: { l: { f: 90 * e }, r: { f: 90 * e } } }; }],
     ['stand', 1.4, () => ({})],
+    // the T hold (calibration 1.14): arms out to the sides at shoulder height
+    ['tup', 1.6, (u) => { const e = ease(u); return { arms: { l: { hz: 0, a: 90 * e }, r: { hz: 0, a: 90 * e } } }; }],
+    ['thold', 2.2, () => ({ arms: { l: { hz: 0, a: 90 }, r: { hz: 0, a: 90 } } })],
+    ['tdown', 1.6, (u) => { const e = 1 - ease(u); return { arms: { l: { hz: 0, a: 90 * e }, r: { hz: 0, a: 90 * e } } }; }],
+    ['stand', 1.0, () => ({})],
   ];
   function scriptAt(t, script) {
     script = script || SCRIPT;
@@ -1070,7 +1094,10 @@
     const arms = {};
     for (const side of ['l', 'r']) {
       const a = (p.arms && p.arms[side]) || {}, sgn = side === 'l' ? 1 : -1;
-      const U = mul(Tr, mul(ry(-(a.f || 0) * D2R), rx(sgn * (a.a || 0) * D2R)));
+      // f flexion, a abduction, hz horizontal swing of the raised arm (0 = out to the side, 90 = forward, > 90 across
+      // the body), h rotation of the upper arm about itself (+ = forearm up when the arm is out), e elbow, p twist
+      const U = a.hz != null ? mul(Tr, mul(rz(-sgn * a.hz * D2R), mul(rx(sgn * (a.a || 0) * D2R), rz(sgn * (a.h || 0) * D2R))))
+        : mul(Tr, mul(ry(-(a.f || 0) * D2R), mul(rx(sgn * (a.a || 0) * D2R), rz(sgn * (a.h || 0) * D2R))));
       const F = mul(U, mul(ry(-(a.e || 0) * D2R), rz(sgn * (a.p || 0) * D2R)));
       arms[side] = { U, F };
     }

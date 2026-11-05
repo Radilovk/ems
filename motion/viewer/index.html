@@ -538,7 +538,23 @@ function wizTick() {
     show('↑', 'Изправи се', 'Свали ръцете до тялото и застани спокойно.');
     if (moving) wiz.moved = true;
     wiz.stillSince = still && wiz.moved ? wiz.stillSince || now : 0;
-    if ((wiz.stillSince && now - wiz.stillSince > 700) || now - wiz.since > 10000) finishCal();
+    if ((wiz.stillSince && now - wiz.stillSince > 700) || now - wiz.since > 10000) { wiz.phase = 'side'; wiz.moved = false; wiz.stillSince = 0; wiz.since = now; }
+  } else if (wiz.phase === 'side') {
+    // a second held pose (arms out to the sides): a second, independent reading of each arm sensor — offline, the
+    // forearms come out ~40 % closer when the poses are copied imperfectly (docs/xems-motion.md 1.14)
+    show('↔', 'Ръце встрани — задръж', 'Вдигни ръцете встрани до височината на раменете, дланите надолу, и задръж неподвижно 2 секунди.');
+    const tv = Object.values(cal.turns()).sort((a, b) => b - a), ok = tv.length >= 2 && tv[1] >= 60;
+    $('wchk').textContent = ok ? '✓ ръцете встрани' : '… ръцете по-високо — до раменете';
+    if (moving) wiz.moved = true;
+    wiz.stillSince = still && wiz.moved ? wiz.stillSince || now : 0;
+    if (wiz.stillSince && now - wiz.stillSince > 1000 && tv[1] >= 45) { cal.holdT(); wiz.phase = 'sidedown'; wiz.moved = false; wiz.stillSince = 0; wiz.since = now; }
+    else if (now - wiz.since > 15000) finishCal();     // skipped: the two poses alone
+  } else if (wiz.phase === 'sidedown') {
+    $('wchk').textContent = '✓ задържането е записано';
+    show('↓', 'Свали ръцете', 'Ръцете до тялото, застани спокойно.');
+    if (moving) wiz.moved = true;
+    wiz.stillSince = still && wiz.moved ? wiz.stillSince || now : 0;
+    if ((wiz.stillSince && now - wiz.stillSince > 700) || now - wiz.since > 8000) finishCal();
   }
 }
 // places are remembered per sensor (the same sensor stays on the same strap): an unsure recognition takes the remembered
@@ -759,7 +775,8 @@ function render3d() {
     // in step with the wizard: stands while it says stand; goes down and holds (again and again) while it says hold;
     // stands up when it says up
     const dt = (performance.now() - wiz.since) / 1000;
-    const tg = wiz.phase === 'move' ? 2.2 + Math.min(dt % 4.6, 3.8) : wiz.phase === 'up' ? 6.0 + Math.min(dt, 3.0) : 0;
+    const tg = wiz.phase === 'move' ? 2.2 + Math.min(dt % 4.6, 3.8) : wiz.phase === 'up' ? 6.0 + Math.min(dt, 3.0)
+      : wiz.phase === 'side' ? 9.0 + Math.min(dt % 4.6, 3.8) : wiz.phase === 'sidedown' ? 12.8 + Math.min(dt, 2.6) : 0;
     const f = GUIDE.tl.frame(tg);
     b3.frame({ J: f.J, R: f.R, feet: null }, null, dark);
     $('demotitle').textContent = 'Повтори след фигурата';

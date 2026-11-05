@@ -241,6 +241,31 @@ turned in / out, twisted; `TEACH=1` offline): learnt as personal arm poses it ma
 elbows 19.2° → 23.4°). With 5 sensors one forearm reading fits many upper-arm positions; more varied examples blur
 the choice. What helps is teaching the person's OWN exercises (1.13: their routine 15° → 4°).
 
+### 1.15 — the owner's clip as the truth (2026-11-05)
+A 127-s clip of clear movements + the app's angle recording (CSV, app 1.14). `scripts/motion/video-pose.py`
+(MediaPipe Pose, heavy, 10 fps) gives the person's joint angles; `video-compare.py` finds the offset (the recording
+started 25 s before the clip) and compares per movement block. MediaPipe itself is off by ~25–35° on knees (standing
+reads 25–35°) and −16° on trunk lean, so only the arms are a fair truth. **Arms (app 1.14 vs clip)**: shoulder
+elevation of horizontal arms 20–40° too low (T 61/52 → 38/31, forward 84/62 → 63/32, profile raise 74/71 → 56/32,
+the right arm worse — its sensor had been reported turned on the strap); a hanging arm in a forward bend shown bent
+(left elbow 28 → 91); mean |error| elbows 16–18°, shoulders 23°.
+Fixes:
+- **calibration teaches the arms** (`Body.learnCalibration`): the forward-raise / squat and the T hold are known
+  straight-arm poses — replayed after every calibration as this session's personal prototypes (tag `cal`).
+  Offline: squat with arms forward elbow 8.6° → 3.2°; nothing else changes.
+- **a forearm hanging by gravity, quiet, is a straight arm** whatever the trunk does.
+- **a forearm twisting about itself no longer moves the upper arm**: the physics' per-step turns drop the twist about
+  the forearm axis, and the corrector's answer is taken in only as fast as the forearm's DIRECTION moves (still or
+  only twisting → held). `node scripts/motion-sim/twist-test.js`: palms turned ±80° moved the drawn upper arm by
+  60° (elbows bent at the sides) / 59° (arms forward) / 21° (arms out) — now 0° / 0° / 0°. CMU: elbows 19.4°,
+  shoulders 17.3° (was 19.2 / 17.1); 6-min test: elbows lap 5 16° → 13°.
+Tried and dropped: ignoring the twist entirely (curls 15° → 23°: people curl palm-up, the twist is a real cue — it
+is its CHANGE that must not move the arm); weighting the physics more (CMU 19° → 27°); lowering the balance in deep
+bends (CMU bends 13° → 17°). **Open**: a curl held still at the side (elbow 90°, forearm forward) can still be shown
+as a straight arm forward (twist-test: 79°) — the forearm alone cannot tell them apart; the movement that led there
+can (the physics alone gets it right, but then misses raises). Next with the owner's raw log (-raw.jsonl) replayed
+against the clip.
+
 ### AI (Gemini) — where it fits and where not
 Not for the live figure: a cloud model answers in 0.5–3 s, needs the network, costs per call and does not return
 reliable joint angles — the figure must follow the body in < 50 ms. "Natural" comes from local models learned from

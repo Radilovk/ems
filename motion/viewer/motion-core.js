@@ -118,6 +118,7 @@
         if (s.stand.length > 40) s.stand.shift();
         s.accS = s.accS || []; s.accS.push(smp.acc); if (s.accS.length > 40) s.accS.shift();   // the zero pose: still
       } else if (this.phase === 'move' && s.q0) {
+        (this.samples = this.samples || []).push([id, smp]);
         const v = logm(mul(R, T(s.q0)));                    // rotation since the zero pose, in G_i
         const a = norm(v) * R2D;
         if (a > s.best) s.best = a;
@@ -219,7 +220,7 @@
         const fwd = cross(feat[backId].ah, [0, 0, 1]);
         flip = (dot(feat[backId].nh, fwd) > 0) !== this.front;    // on the belly its normal points forward
       }
-      const out = { ok: true, assign, psi: {}, q0: {}, flip, feat, problems: [] };
+      const out = { ok: true, assign, psi: {}, q0: {}, flip, feat, problems: [], samples: this.samples || [] };
       for (const id in assign) {
         const f = feat[id], r = assign[id];
         if (!f) continue;
@@ -293,6 +294,35 @@
       this.anat = {};
       this.aOff = {};
       for (const id in res.aOff || {}) this.aOff[id] = res.aOff[id].slice();
+      if (res.samples && res.samples.length && this.armPrior && !NO_CALTEACH) this.learnCalibration(res);
+    }
+    // The calibration's movements are KNOWN poses: the arms straight (forward raise with the squat, the sideways raise).
+    // Owner's video 2026-11-05: horizontal arms came out at 55–65° instead of 90° — one forearm reading fits a straight
+    // arm and a lower upper arm with a bent elbow, and the generic examples lean to the second. So every calibration
+    // teaches the corrector THIS person's straight arms (upper arm along the forearm), for this session.
+    learnCalibration(res) {
+      this.armPrior.clearPersonal('cal');
+      const keep = this.onLearn; this.onLearn = null;
+      let last = {};
+      for (const [id, smp] of res.samples) {
+        this.feed(id, smp);
+        if (res.assign[id] !== 'back') continue;
+        this.solve(smp.t);
+        const Tr = this.sp ? this.sp.Tth : I3();
+        for (const side of ['l', 'r']) {
+          const w = this.seg(side + 'wrist'), a = this.arm[side];
+          if (!w || !a.feat) continue;
+          const f = mv(w.R, [0, 0, -1]), el = angBetween(f, mv(Tr, [0, 0, -1])) * R2D;
+          if (el < 25) continue;                                 // hanging: the zero pose is known already
+          if (last[side] && angBetween(last[side], f) < 4 * D2R) continue;
+          last[side] = f;
+          let U = mul(T(Tr), w.R); if (side === 'r') U = [U[0], -U[1], U[2], -U[3], U[4], -U[5], U[6], -U[7], U[8]];
+          this.armPrior.addPersonal(this.armPrior.vec(a.feat), U, 'cal');
+        }
+      }
+      this.onLearn = keep;
+      // back to a clean state for the session (the replay moved feet, height, arms)
+      const r2 = { ...res, samples: null }; this.calibrate(r2);
     }
     feed(id, smp) { this.last[id] = smp; }
     // segment orientation (in W) and the sensor's motion, in W, for one role
@@ -627,7 +657,13 @@
         acc = sub(acc, add(Sb.a, add(cross(aT, rTS), cross(Sb.w, cross(Sb.w, rTS)))));
         a.prevWb = Sb.w;
       }
+      // The forearm turning about its OWN axis (pronation / supination — radius over ulna) never moves the upper arm.
+      // Owner's video 2026-11-05: a palm turn alone swung the drawn upper arm by up to 80°. So that part of the
+      // forearm's turn is taken out of everything that estimates the upper arm (turn rate, per-step turns, twist).
+      const fax = mv(F, [0, 0, -1]), noTwist = (v) => (NO_UNTWIST ? v : sub(v, sc(fax, dot(v, fax))));
       const wRel = Sb ? sub(Sf.w, Sb.w) : Sf.w, spin = norm(wRel);
+      // how fast the forearm's DIRECTION moves (its turn without the twist about itself): only that can move the upper arm
+      const swing = norm(noTwist(wRel));
       if (!a.prevF) { a.prevF = F; return F; }
       if (!a.moving) {
         if (spin > 0.6) { a.moving = true; a.U0 = a.U; a.buf = []; a.calm = 0; }
@@ -641,7 +677,7 @@
         // the forearm's turn since the last sample (small: no wrap-around however far the arm goes overall)
         // the wrist's velocity relative to the shoulder, integrated from rest (it was 0 when the movement began)
         a.vm = a.buf.length ? add(a.vm, sc(acc, dt)) : sc(acc, dt);
-        a.buf.push({ F, acc, spin, vm: a.vm, lg: logm(mul(F, T(a.prevF))) });
+        a.buf.push({ F, acc, spin, vm: a.vm, lg: noTwist(logm(mul(F, T(a.prevF)))) });
         if (a.buf.length > 150) {                   // a 3-s movement: fold the oldest step in for good
           const o = a.buf.shift(); a.U0 = mul(expm(sc(o.lg, a.k)), a.U0);
         }
@@ -735,8 +771,23 @@
         const P = ARMS_STATE ? this.armPrior.predict(this.armPrior.vec(a.feat)) : this.armPrior.predict(this.armPrior.vec(a.feat), 12, ARMS_W);
         const Ur = side === 'r' ? [P[0], -P[1], P[2], -P[3], P[4], -P[5], P[6], -P[7], P[8]] : P;
         const Up = mul(Tr, Ur);
-        a.Uout = a.Uout ? ortho(slerpM(a.Uout, Up, Math.min(1, dt / 0.06))) : Up;
+        // The corrector's answer is taken in only as fast as the forearm's direction moves: a forearm only turning about
+        // itself (a palm turn) leaves the upper arm where it is (twist-test.js: was up to 80° off), a still arm keeps it;
+        // a moving one follows at once
+        const gate = NO_UNTWIST ? 1 : Math.max(0, Math.min(1, (swing - 0.12) / 0.5));
+        a.Uout = a.Uout ? ortho(slerpM(a.Uout, Up, Math.min(1, gate * dt / 0.06))) : Up;
       } else a.Uout = a.U;
+      // a forearm hanging straight down BY GRAVITY, quiet: a relaxed arm hangs straight, whatever the trunk does
+      // (owner's video: bent forward, arms hanging — the elbow came out 91° instead of ~25°: in the trunk's frame a
+      // hanging forearm points "forward", which the corrector reads as a curl)
+      const fw = mv(F, [0, 0, -1]);
+      a.hang = fw[2] < -0.93 && spin < 0.8 ? (a.hang || 0) + dt : 0;
+      if (a.hang > 0.15 && !NO_HANG) {
+        const k = Math.min(1, (a.hang - 0.15) / 0.3), z = sc(fw, -1);
+        let y = mv(a.Uout, [0, 1, 0]); y = sub(y, sc(z, dot(y, z))); y = norm(y) > 1e-3 ? unit(y) : mv(F, [0, 1, 0]);
+        const x = cross(y, z), Ust = [x[0], y[0], z[0], x[1], y[1], z[1], x[2], y[2], z[2]];
+        a.Uout = ortho(slerpM(a.Uout, Ust, k));
+      }
       return F;
     }
     armU(side) {
@@ -891,7 +942,11 @@
     const [a, b, c, d, e, f, g, h, i] = m, A = e * i - f * h, B = -(d * i - f * g), C = d * h - e * g, det = a * A + b * B + c * C || 1e-12;
     return [A / det, -(b * i - c * h) / det, (b * f - c * e) / det, B / det, (a * i - c * g) / det, -(a * f - c * d) / det, C / det, -(a * h - b * g) / det, (a * e - b * d) / det];
   }
+  const NO_UNTWIST = typeof process !== 'undefined' && process.env && process.env.NO_UNTWIST === '1';
+  const NO_HANG = typeof process !== 'undefined' && process.env && process.env.NO_HANG === '1';
+  const NO_CALTEACH = typeof process !== 'undefined' && process.env && process.env.NO_CALTEACH === '1';
   const ARMS_STATE = typeof process !== 'undefined' && process.env && process.env.ARMS === 'state';
+  // the forearm's twist (dims 3–5) no longer read at all — see noTwist in armStep
   const ARMS_W = [1, 1, 1, 0.5, 0.5, 0.5, 1, 1, 1, 1, 1, 1, 1, 1, 1];
   const ARM_DR = typeof process !== 'undefined' && process.env && process.env.ARM_DR === '1';
   let ARMDB = null;
@@ -968,13 +1023,18 @@
     // arm-teaching mode (upper-arm sensors = truth), kept on the phone, searched together with the generic ones as
     // equals (offline: this person's own routine, curls 15° → 4°; movements they never taught: unchanged, 19.2° vs
     // 19.2° — preferring them (×0.6) made those worse, 23°)
-    addPersonal(x, U) {
-      if (!this.pX) { this.pX = []; this.pU = []; }
-      const j = this.pX.length; this.pX.push(Float32Array.from(x)); this.pU.push(Float32Array.from(U));
+    addPersonal(x, U, tag) {
+      if (!this.pX) { this.pX = []; this.pU = []; this.pT = []; }
+      const j = this.pX.length; this.pX.push(Float32Array.from(x)); this.pU.push(Float32Array.from(U)); this.pT.push(tag || '');
       const k = this.cellKey(Math.round(x[0] / 0.35), Math.round(x[1] / 0.35), Math.round(x[2] / 0.35));
       let c = this.cells.get(k); if (!c) this.cells.set(k, (c = [])); c.push(-(j + 1));
     }
-    clearPersonal() { if (!this.pX) return; for (const c of this.cells.values()) for (let i = c.length - 1; i >= 0; i--) if (c[i] < 0) c.splice(i, 1); this.pX = this.pU = null; }
+    clearPersonal(tag) {
+      if (!this.pX) return;
+      if (tag == null) { for (const c of this.cells.values()) for (let i = c.length - 1; i >= 0; i--) if (c[i] < 0) c.splice(i, 1); this.pX = this.pU = this.pT = null; return; }
+      const keep = []; for (let j = 0; j < this.pX.length; j++) if (this.pT[j] !== tag) keep.push([this.pX[j], this.pU[j], this.pT[j]]);
+      this.clearPersonal(); for (const [x, U, t] of keep) this.addPersonal(x, U, t);
+    }
     personalCount() { return this.pX ? this.pX.length : 0; }
     // the search vector (left-arm convention, trunk frame): forearm direction, its twist, turn rate, the wrist's push,
     // and the physics' own upper-arm direction

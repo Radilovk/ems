@@ -143,6 +143,11 @@
       this.phase = 'move';
     }
     // how far the sensors are from the zero pose now (°, the largest): the wizard tells "held down" from "back up"
+    turns() {             // each sensor's turn from the zero pose now (°)
+      const o = {};
+      for (const id in this.s) { const s = this.s[id]; if (s.q0 && s.recent && s.recent.length) o[id] = norm(logm(mul(s.recent[s.recent.length - 1], T(s.q0)))) * R2D; }
+      return o;
+    }
     turnNow() {
       let m = 0;
       for (const id in this.s) { const s = this.s[id]; if (s.q0 && s.recent && s.recent.length) m = Math.max(m, norm(logm(mul(s.recent[s.recent.length - 1], T(s.q0)))) * R2D); }
@@ -993,6 +998,16 @@
     ['stand', 2, () => ({})],
     ['twist', 6, (u) => ({ twist: 35 * Math.sin((2 * Math.PI * u * 6) / 3), arms: { l: { f: 60, e: 80 }, r: { f: 60, e: 80 } } })],
   ];
+  // the calibration, shown by the figure for the user to copy (owner 2026-11-05: "a clip of exactly what to repeat"):
+  // stand still → arms straight forward + half squat → HOLD → back up. Loops while the wizard is open.
+  const ease = (u) => (u <= 0 ? 0 : u >= 1 ? 1 : u * u * (3 - 2 * u));
+  const GUIDE = [
+    ['stand', 2.2, () => ({})],
+    ['down', 1.6, (u) => { const e = ease(u); return { squat: 0.5 * e, arms: { l: { f: 90 * e }, r: { f: 90 * e } } }; }],
+    ['hold', 2.2, () => ({ squat: 0.5, arms: { l: { f: 90 }, r: { f: 90 } } })],
+    ['up', 1.6, (u) => { const e = 1 - ease(u); return { squat: 0.5 * e, arms: { l: { f: 90 * e }, r: { f: 90 * e } } }; }],
+    ['stand', 1.4, () => ({})],
+  ];
   function scriptAt(t, script) {
     script = script || SCRIPT;
     let t0 = 0;
@@ -1281,6 +1296,7 @@
       tl.height = H;
       return tl;
     }
+    static guide(dim) { const L = GUIDE.reduce((a, g) => a + g[1], 0); return new Timeline([{ kind: 'script', name: 'guide', from: 0, len: L, script: GUIDE }], dim); }
     static script(dim) { return new Timeline([{ kind: 'script', name: 'script', from: 0, len: scriptLength(), script: SCRIPT }], dim); }
   }
 

@@ -46,7 +46,9 @@ canvas { position:absolute; inset:0; width:100%; height:100%; display:block; tou
 table { width:100%; border-collapse:collapse; font-size:13px; } td { padding:3px 2px; border-bottom:1px solid var(--line); }
 td.v { text-align:right; font-variant-numeric:tabular-nums; font-weight:600; } td.l { color:var(--l); } td.r { color:var(--r); }
 #angles { overflow:auto; min-height:0; flex:1; }
-#wiz { position:fixed; inset:0; background:rgba(0,0,0,.45); display:none; align-items:center; justify-content:center; z-index:5; }
+#wiz { position:fixed; inset:0; background:transparent; display:none; align-items:flex-end; justify-content:center; z-index:5; pointer-events:none; padding-bottom:14px; }
+#wiz .box { pointer-events:auto; box-shadow:0 8px 30px rgba(0,0,0,.25); }
+#wiz .chk { margin-top:6px; font-size:14px; font-weight:600; }
 /* phones in landscape (≈ 360–420 px high): everything still on one screen — smaller buttons, sensors as chips */
 @media (max-height: 560px) {
   body { grid-template-columns: 210px 1fr 200px; gap:8px; padding:8px 10px; font-size:13px; height:100vh; overflow:hidden; }
@@ -127,7 +129,7 @@ td.v { text-align:right; font-variant-numeric:tabular-nums; font-weight:600; } t
     <b>оранжево двойно</b> — слаба батерия · <b>бързо червено</b> — чипът за движение не отговаря. Нищо не свети: батерията е празна
     или е изключен — сложи го на кабел (зарежда се) или натисни RST веднъж.</div>
 </div></div>
-<div id="wiz"><div class="box"><div class="big" id="wn">1</div><div><h2 id="wt"></h2><p id="wp"></p><div class="res" id="wr"></div>
+<div id="wiz"><div class="box"><div class="big" id="wn">1</div><div><h2 id="wt"></h2><p id="wp"></p><div class="chk" id="wchk"></div><div class="res" id="wr"></div>
   <div class="row" style="margin-top:12px"><button id="wcancel">Отказ</button><button id="wok" class="main" style="display:none">Готово</button></div></div></div></div>
 <script src="vendor/three-r158.min.js"></script>
 <script src="vendor/gltf-loader-r158.js"></script>
@@ -478,7 +480,7 @@ $('wok').onclick = () => { $('wiz').style.display = 'none'; wiz = null; };
 function startCal(fromDemo) {
   if (demo && !fromDemo) demo.t0 = performance.now() / 1000;          // demo: replay its own calibration
   if (!demo) body = new X.Body({ height: userH / 100, place });   // real sensors: the client's own size, the 5th's place
-  cal = new X.Calibration({ roles: teach ? X.ROLES_TEACH : X.ROLES, place }); calRaw = [];
+  cal = new X.Calibration({ roles: teach ? X.ROLES_TEACH : X.ROLES, place }); calRaw = []; $('wchk').textContent = '';
   wiz = { phase: 'stand', since: performance.now(), stillSince: 0, moved: false };
   $('wiz').style.display = 'flex'; $('wok').style.display = 'none'; $('wr').textContent = '';
   for (const id in sensors) send(id, 'led off');
@@ -499,9 +501,14 @@ function wizTick() {
     if (moving) wiz.moved = true;
     wiz.stillSince = still && wiz.moved ? wiz.stillSince || now : 0;
     const turn = cal.turnNow();
+    // how far each part has gone: the two largest turns are the arms (≥ 60°), the other three legs / trunk (≥ 8°)
+    const tv = Object.values(cal.turns()).sort((a, b) => b - a);
+    const armsOk = tv.length >= 2 && tv[1] >= 60, legsOk = tv.length >= 5 && tv.slice(2).every((x) => x >= 8);
+    $('wchk').textContent = (armsOk ? '✓ ръцете напред' : '… ръцете по-високо — право напред') + '   ' + (legsOk ? '✓ клекът' : '… клекни малко по-ниско');
     if (wiz.stillSince && now - wiz.stillSince > 1000 && turn > 20) { cal.hold(); wiz.phase = 'up'; wiz.moved = false; wiz.stillSince = 0; wiz.since = now; }
     else if ((wiz.stillSince && now - wiz.stillSince > 700 && turn < 15) || now - wiz.since > 15000) finishCal();   // no hold: the movement alone
   } else if (wiz.phase === 'up') {
+    $('wchk').textContent = '✓ задържането е записано';
     show('↑', 'Изправи се', 'Свали ръцете до тялото и застани спокойно.');
     if (moving) wiz.moved = true;
     wiz.stillSince = still && wiz.moved ? wiz.stillSince || now : 0;
@@ -521,7 +528,7 @@ function finishCal(forced) {
   let res = cal.finish(forced);
   if (!forced && res.problems.some((p) => /несигурно/.test(p))) { const m = rememberedRoles(Object.keys(res.assign)); if (m) res = cal.finish(m); }
   if (res.ok || forced) try { localStorage.setItem(ROLES_KEY, JSON.stringify(Object.assign(JSON.parse(localStorage.getItem(ROLES_KEY) || '{}'), res.assign))); } catch (e) {}
-  calDone = cal; cal = null; wiz.phase = 'done';
+  calDone = cal; cal = null; wiz.phase = 'done'; $('wchk').textContent = '';
   body.calibrate(res);
   litSensors();
   for (const id in res.assign) send(id, 'led ' + X.ROLE_LED[res.assign[id]] + ' blink');
@@ -720,9 +727,22 @@ function render3d() {
   if (b3.H !== body.dim.H) b3.setStyle(b3.style, body.dim.H);
   const dark = matchMedia('(prefers-color-scheme: dark)').matches && document.documentElement.dataset.theme !== 'light' || document.documentElement.dataset.theme === 'dark';
   const truth = ghost && demo && demo.t != null ? demo.tl.frame(demo.t) : null;
+  // calibrating with real sensors: the figure SHOWS the movement to copy (stand → arms forward, half squat, hold → up)
+  if (wiz && wiz.phase !== 'done' && !demo) {
+    GUIDE.tl = GUIDE.tl || X.sim.Timeline.guide(X.bodyDims(body.dim.H));
+    // in step with the wizard: stands while it says stand; goes down and holds (again and again) while it says hold;
+    // stands up when it says up
+    const dt = (performance.now() - wiz.since) / 1000;
+    const tg = wiz.phase === 'move' ? 2.2 + Math.min(dt % 4.6, 3.8) : wiz.phase === 'up' ? 6.0 + Math.min(dt, 3.0) : 0;
+    const f = GUIDE.tl.frame(tg);
+    b3.frame({ J: f.J, R: f.R, feet: null }, null, dark);
+    $('demotitle').textContent = 'Повтори след фигурата';
+    $('empty').textContent = ''; return;
+  }
   b3.frame(pose, truth, dark);
   $('empty').textContent = pose ? '' : Object.keys(sensors).length ? 'Калибрирай, за да се появи фигурата' : 'Свържи сензорите или пусни демо';
 }
+const GUIDE = {};
 function loop() { wizTick(); if (b3) render3d(); else render(); drawPanels(); requestAnimationFrame(loop); }
 drawSensors(); loop();
 </script>

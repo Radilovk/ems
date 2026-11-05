@@ -19,6 +19,7 @@ const MOCAP = kind === 'mocap';
 const RATE = 208;
 // where the trunk sensor sits: PLACE=T1 (default) | T6 | L3 | S1 | navel / sternum (front); RIGID=1 = old rigid trunk
 const PLACE = (() => { const v = process.env.PLACE || 'T1'; return M.FRONT[v] ? { v, front: true } : { v }; })();
+const TEACH = process.env.TEACH === '1';
 const BODY = { place: PLACE, rigidSpine: process.env.RIGID === '1' };
 
 function source() {
@@ -36,7 +37,9 @@ const src = source();
 const N = Math.floor(src.len * RATE) - 8;
 
 if (mode === 'gen') {
-  const rig = M.sim.makeRig(11, null, PLACE);
+  // TEACH=1: the arm-teaching layout (the two shank sensors on the upper arms) — LEARN_OUT=<file> keeps what the
+// phone would learn from it; PERSONAL=<file> runs a normal session with those personal arm poses
+const rig = M.sim.makeRig(11, TEACH ? M.ROLES_TEACH : null, PLACE);
   let seed = 3;
   const rnd = () => { seed = (seed * 16807) % 2147483647; return seed / 2147483647; };
   const gauss = () => { let u = 0; for (let i = 0; i < 6; i++) u += rnd(); return (u - 3) * Math.SQRT2; };
@@ -96,7 +99,7 @@ let fail = 0;
 const ok = (cond, msg) => { console.log((cond ? '  ✓ ' : '  ✗ ') + msg); if (!cond) fail++; };
 
 // 1) calibration: zero pose (0–3 s), the movement (3–8 s), finish at 9.5 s
-const cal = new M.Calibration({ place: PLACE });
+const cal = new M.Calibration({ place: PLACE, roles: TEACH ? M.ROLES_TEACH : M.ROLES });
 let k = 0;
 for (; tOf(k) < 9.5 && k < nF; k++) {
   if (cal.phase === 'stand' && tOf(k) >= 2.8) cal.standDone();
@@ -110,6 +113,9 @@ ok(ids.every((id) => res.assign[id] === rig[id]), 'all five sensors found on the
 
 // 2) pose through the rest of the session; truth reps counted by the same counter on the true angles
 const body = new M.Body({ height: src.height, ...BODY });
+const learned = [];
+if (process.env.LEARN_OUT) body.onLearn = (x, U) => learned.push([Array.from(x, (v) => +v.toFixed(4)), U.slice(0, 9).map((v) => +v.toFixed(4))]);
+if (process.env.PERSONAL && body.armPrior) { body.armPrior.clearPersonal(); for (const [x, U] of JSON.parse(fs.readFileSync(process.env.PERSONAL))) body.armPrior.addPersonal(x, U); }
 body.calibrate(res);
 const truthReps = new M.RepCounter();
 const err = {}, add2 = (blk, key, e) => { const b = (err[blk] = err[blk] || {}); (b[key] = b[key] || []).push(Math.abs(e)); };
@@ -145,6 +151,7 @@ const mean = (a) => a.reduce((x, y) => x + y, 0) / a.length;
 if (err.feet) console.log('standing: feet apart vs truth ' + mean(err.feet['gap cm'].map(Math.abs)).toFixed(1) + ' cm (max ' + Math.max(...err.feet['gap cm']).toFixed(0) + ')');
 const feetErr = err.feet; delete err.feet;
 console.log('standing truly, knees shown > 25°: ' + (100 * stuck / Math.max(1, nStand)).toFixed(1) + ' % of ' + nStand + ' frames');
+if (process.env.LEARN_OUT) { fs.writeFileSync(process.env.LEARN_OUT, JSON.stringify(learned)); console.log('learned ' + learned.length + ' personal arm poses'); }
 if (MOCAP) {
   const blk = Object.keys(err)[0], r = reps[blk] || ['', ''], title = src.parts[2].title;
   const line = [title.padEnd(24), ...['knee', 'elbow', 'shoulder', 'trunk', 'hand cm'].map((key) => mean(err[blk][key]).toFixed(1).padStart(9)), '   ' + r[0] + ' / ' + r[1], '   faults ' + (100 * falseWarn / nPose).toFixed(1) + ' %', fail ? '  (places wrong)' : ''].join('');

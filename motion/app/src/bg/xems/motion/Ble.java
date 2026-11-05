@@ -105,7 +105,8 @@ final class Ble {
         }
         if (!scanning) {
             try {
-                ScanSettings st = new ScanSettings.Builder().setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY).build();
+                // battery: the full-power scan only while nothing is connected; looking for the rest, balanced
+                ScanSettings st = new ScanSettings.Builder().setScanMode(online() == 0 ? ScanSettings.SCAN_MODE_LOW_LATENCY : ScanSettings.SCAN_MODE_BALANCED).build();
                 scanner.startScan(null, st, scanCb);
                 scanning = true;
                 main.postDelayed(new StopScan(), 12000);

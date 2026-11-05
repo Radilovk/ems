@@ -200,6 +200,11 @@ it says hold, stands up when it says up; "Повтори след фигурат
 figure stays visible) and checks the user live: the two largest turns from the zero pose are the arms (≥ 60° →
 "✓ ръцете напред"), the other three legs / trunk (≥ 8° → "✓ клекът"); "✓ задържането е записано" once held.
 
+### 1.12 — phone screens (owner, 2026-11-05: "the screen does not scroll on a phone")
+The side columns scroll on their own (the stage stays put); on a short landscape screen the left card no longer
+squeezes its content (its inline `flex:1; min-height:0` overridden), the calibration panel is compact (≤ 70 % of the
+height, scrolls). Checked at 780×360 and 915×412: every control reachable, no sideways page scroll.
+
 ### AI (Gemini) — where it fits and where not
 Not for the live figure: a cloud model answers in 0.5–3 s, needs the network, costs per call and does not return
 reliable joint angles — the figure must follow the body in < 50 ms. "Natural" comes from local models learned from

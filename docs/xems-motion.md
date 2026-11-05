@@ -193,6 +193,13 @@ load. (2) The upper arm's swing is measured from a reference the arm can never r
 swing from "arm down" was undefined straight overhead and flipped round it. (3) The clavicle follows the arm
 (scapulohumeral rhythm ≈ 2:1 past 30°, ≤ 35°).
 
+### 1.11 — the figure shows the calibration (owner, 2026-11-05: "a clip of exactly what to repeat")
+No video file: the android itself performs the calibration on the stage (`Timeline.guide`, `GUIDE` in motion-core),
+in step with the wizard — stands while it says stand, goes down to the half squat with arms forward and holds while
+it says hold, stands up when it says up; "Повтори след фигурата". The wizard sits at the bottom of the stage (the
+figure stays visible) and checks the user live: the two largest turns from the zero pose are the arms (≥ 60° →
+"✓ ръцете напред"), the other three legs / trunk (≥ 8° → "✓ клекът"); "✓ задържането е записано" once held.
+
 ### AI (Gemini) — where it fits and where not
 Not for the live figure: a cloud model answers in 0.5–3 s, needs the network, costs per call and does not return
 reliable joint angles — the figure must follow the body in < 50 ms. "Natural" comes from local models learned from

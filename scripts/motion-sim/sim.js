@@ -100,6 +100,7 @@ const cal = new M.Calibration({ place: PLACE });
 let k = 0;
 for (; tOf(k) < 9.5 && k < nF; k++) {
   if (cal.phase === 'stand' && tOf(k) >= 2.8) cal.standDone();
+  if (!process.env.NOHOLD && cal.phase === 'move' && !cal.held && tOf(k) >= 5.5) cal.hold();   // the held half squat (its lowest point)
   for (const id of ids) cal.feed(id, sample(id, k));
 }
 const res = cal.finish();

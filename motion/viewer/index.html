@@ -77,7 +77,7 @@ td.v { text-align:right; font-variant-numeric:tabular-nums; font-weight:600; } t
 #wiz .box { background:var(--card); border-radius:18px; padding:22px 26px; width:min(640px, 92vw); display:flex; gap:20px; align-items:center; }
 #wiz .big { font-size:56px; font-weight:700; min-width:80px; text-align:center; color:var(--acc); }
 #wiz h2 { margin:0 0 6px; font-size:20px; } #wiz p { margin:0; color:var(--mute); }
-#wiz .res { margin-top:10px; font-size:14px; } .bad { color:var(--warn); }
+#wiz .res { margin-top:10px; font-size:14px; } .swp { padding:4px 6px; border-radius:8px; cursor:pointer; } .swp.sel { background:var(--acc); color:#fff; } .bad { color:var(--warn); }
 </style>
 </head>
 <body>
@@ -389,9 +389,10 @@ function onLine(id, l) {
 }
 
 // ---------- samples → calibration / body
-let raw = null;                 // raw sensor log while recording: re-solved offline, synced with a video, used for training
+let raw = null, calRaw = null;     // calRaw: the last calibration's own samples — every recording starts with them                 // raw sensor log while recording: re-solved offline, synced with a video, used for training
 function onSample(id, smp) {
   const s = sensors[id]; if (!s) return;
+  if (cal && calRaw && calRaw.length < 20000) calRaw.push(JSON.stringify({ cal: 1, id, t: +smp.t.toFixed(4), q: smp.q.map((v) => +v.toFixed(5)), g: smp.gyro.map((v) => +v.toFixed(2)), a: smp.acc.map((v) => +v.toFixed(4)), s: smp.still ? 1 : 0 }));
   if (raw) raw.push(JSON.stringify({ id, role: body.cal && body.cal.assign[id] || null, t: +smp.t.toFixed(4), q: smp.q.map((v) => +v.toFixed(5)),
     g: smp.gyro.map((v) => +v.toFixed(2)), a: smp.acc.map((v) => +v.toFixed(4)), s: smp.still ? 1 : 0 }));
   s.last = smp; s.n++;
@@ -477,7 +478,7 @@ $('wok').onclick = () => { $('wiz').style.display = 'none'; wiz = null; };
 function startCal(fromDemo) {
   if (demo && !fromDemo) demo.t0 = performance.now() / 1000;          // demo: replay its own calibration
   if (!demo) body = new X.Body({ height: userH / 100, place });   // real sensors: the client's own size, the 5th's place
-  cal = new X.Calibration({ roles: teach ? X.ROLES_TEACH : X.ROLES, place });
+  cal = new X.Calibration({ roles: teach ? X.ROLES_TEACH : X.ROLES, place }); calRaw = [];
   wiz = { phase: 'stand', since: performance.now(), stillSince: 0, moved: false };
   $('wiz').style.display = 'flex'; $('wok').style.display = 'none'; $('wr').textContent = '';
   for (const id in sensors) send(id, 'led off');
@@ -493,20 +494,48 @@ function wizTick() {
     show(Math.ceil(left) || '✓', 'Застани изправен', 'Краката събрани, ръцете до тялото, дланите към бедрата. Не мърдай.');
     if (wiz.stillSince && left <= 0) { cal.standDone(); wiz.phase = 'move'; wiz.since = now; wiz.stillSince = 0; }
   } else if (wiz.phase === 'move') {
-    show('↓↑', 'Клекни бавно с ръце напред', 'Вдигни ръцете напред, клекни наполовина и се изправи. Спри изправен.');
+    // a HELD pose gives each sensor's axis from two still poses (exact); then stand up (calibration 2026-11-05)
+    show('↓', 'Ръце напред, полуклек — задръж', 'Вдигни ръцете право напред (дланите една към друга), клекни наполовина и задръж неподвижно 2 секунди.');
     if (moving) wiz.moved = true;
     wiz.stillSince = still && wiz.moved ? wiz.stillSince || now : 0;
-    if ((wiz.stillSince && now - wiz.stillSince > 700) || now - wiz.since > 12000) finishCal();
+    const turn = cal.turnNow();
+    if (wiz.stillSince && now - wiz.stillSince > 1000 && turn > 20) { cal.hold(); wiz.phase = 'up'; wiz.moved = false; wiz.stillSince = 0; wiz.since = now; }
+    else if ((wiz.stillSince && now - wiz.stillSince > 700 && turn < 15) || now - wiz.since > 15000) finishCal();   // no hold: the movement alone
+  } else if (wiz.phase === 'up') {
+    show('↑', 'Изправи се', 'Свали ръцете до тялото и застани спокойно.');
+    if (moving) wiz.moved = true;
+    wiz.stillSince = still && wiz.moved ? wiz.stillSince || now : 0;
+    if ((wiz.stillSince && now - wiz.stillSince > 700) || now - wiz.since > 10000) finishCal();
   }
 }
-function finishCal() {
-  const res = cal.finish(); cal = null; wiz.phase = 'done';
+// places are remembered per sensor (the same sensor stays on the same strap): an unsure recognition takes the remembered
+// ones, and two taps on the list below swap two places by hand
+let calDone = null;
+const ROLES_KEY = 'xm-roles';
+function rememberedRoles(ids) {
+  let m = null; try { m = JSON.parse(localStorage.getItem(ROLES_KEY)); } catch (e) {}
+  if (!m || !ids.every((id) => m[id])) return null;
+  const used = new Set(ids.map((id) => m[id])); return used.size === ids.length ? Object.fromEntries(ids.map((id) => [id, m[id]])) : null;
+}
+function finishCal(forced) {
+  let res = cal.finish(forced);
+  if (!forced && res.problems.some((p) => /несигурно/.test(p))) { const m = rememberedRoles(Object.keys(res.assign)); if (m) res = cal.finish(m); }
+  if (res.ok || forced) try { localStorage.setItem(ROLES_KEY, JSON.stringify(Object.assign(JSON.parse(localStorage.getItem(ROLES_KEY) || '{}'), res.assign))); } catch (e) {}
+  calDone = cal; cal = null; wiz.phase = 'done';
   body.calibrate(res);
   litSensors();
   for (const id in res.assign) send(id, 'led ' + X.ROLE_LED[res.assign[id]] + ' blink');
   show(res.ok ? '✓' : '!', res.ok ? 'Готово — всички сензори са намерени' : 'Почти готово', 'Всеки сензор свети в цвета на мястото си.');
-  $('wr').innerHTML = Object.entries(res.assign).map(([id, r]) => `<span style="color:${LEDCSS[X.ROLE_LED[r]]}">●</span> ${X.ROLE_BG[r]} — ${id}`).join('<br>') +
-    (res.problems.length ? '<div class="bad">' + res.problems.join('<br>') + '</div>' : '');
+  $('wr').innerHTML = Object.entries(res.assign).map(([id, r]) => `<div class="swp" data-id="${id}"><span style="color:${LEDCSS[X.ROLE_LED[r]]}">●</span> ${X.ROLE_BG[r]} — ${id}</div>`).join('') +
+    (res.problems.length ? '<div class="bad">' + res.problems.join('<br>') + '</div>' : '') +
+    '<div class="sub" style="margin-top:6px">Грешно място? Докосни два реда — разменят се.</div>';
+  let pick = null;
+  $('wr').querySelectorAll('.swp').forEach((el) => { el.onclick = () => {
+    if (!pick) { pick = el.dataset.id; el.classList.add('sel'); return; }
+    const a = pick, b = el.dataset.id; pick = null; if (a === b) { el.classList.remove('sel'); return; }
+    const m = { ...res.assign }; [m[a], m[b]] = [m[b], m[a]];
+    cal = calDone; wiz.phase = 'move'; finishCal(m);
+  }; });
   $('wok').style.display = ''; $('rec').disabled = false; drawSensors();
 }
 function show(n, t, p) { $('wn').textContent = n; $('wt').textContent = t; $('wp').textContent = p; }
@@ -518,7 +547,7 @@ const LEDCSS = { white: '#9aa3af', red: '#ff3b30', green: '#30b14c', magenta: '#
 $('rec').onclick = () => {
   if (!rec) {
     rec = ['t,' + ANG.map(([k]) => k).join(',') + ',reps'];
-    raw = [JSON.stringify({ start: Date.now(), height: body.dim.H, calibration: body.cal ? { assign: body.cal.assign, psi: body.cal.psi, q0: body.cal.q0 } : null })];
+    raw = [JSON.stringify({ start: Date.now(), height: body.dim.H, place, calibration: body.cal ? { assign: body.cal.assign, psi: body.cal.psi, q0: body.cal.q0 } : null })].concat(calRaw || []);
     $('rec').textContent = '■ Спри запис'; return;
   }
   const stamp = new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-');

@@ -123,6 +123,7 @@
         if (a > s.best) s.best = a;
         if (a > 12) { s.accum = add(s.accum, v); s.n++; }
         s.amax = Math.max(s.amax, Math.abs(norm(smp.acc) - 1));   // how hard it is swung: the wrist far more than the upper arm
+        s.recent = s.recent || []; s.recent.push(R); if (s.recent.length > 25) s.recent.shift();
       }
     }
     // zero pose: average of the last ~0.8 s of every sensor
@@ -141,13 +142,34 @@
       }
       this.phase = 'move';
     }
+    // how far the sensors are from the zero pose now (°, the largest): the wizard tells "held down" from "back up"
+    turnNow() {
+      let m = 0;
+      for (const id in this.s) { const s = this.s[id]; if (s.q0 && s.recent && s.recent.length) m = Math.max(m, norm(logm(mul(s.recent[s.recent.length - 1], T(s.q0)))) * R2D); }
+      return m;
+    }
+    // the HELD pose (half squat, arms forward, still ~1 s): each sensor's turn from the zero pose read from two still
+    // poses — exact (fusion at rest), whatever the speed or path of the movement. Owner 2026-11-05: "places are not
+    // recognised well — find a better calibration". The moving average (accum) stays as the fallback.
+    hold() {
+      for (const id in this.s) {
+        const s = this.s[id]; if (!s.q0 || !s.recent || s.recent.length < 8) continue;
+        const rs = s.recent.slice(-12), ref = rs[rs.length - 1];
+        let acc = [0, 0, 0]; for (const R of rs) acc = add(acc, logm(mul(R, T(ref))));
+        const Rh = mul(expm(sc(acc, 1 / rs.length)), ref);
+        s.held = logm(mul(Rh, T(s.q0)));
+      }
+      this.held = true;
+    }
     finish(forced) {
       this.phase = 'done';
       const ids = Object.keys(this.s).filter((id) => this.s[id].q0);
       const feat = {};
       for (const id of ids) {
         const s = this.s[id];
-        const ax = unit(s.accum);
+        const useHeld = s.held && norm(s.held) * R2D > 8;
+        const ax = unit(useHeld ? s.held : s.accum);
+        if (useHeld) s.best = Math.max(norm(s.held) * R2D, Math.min(s.best, norm(s.held) * R2D + 25));
         const nrm = mv(s.q0, [0, 0, 1]);                     // board normal (top side, away from the body)
         const ah = unit([ax[0], ax[1], 0]), nh = unit([nrm[0], nrm[1], 0]);
         feat[id] = { ang: s.best, ax, ah, nh, d: dot(ah, nh), vert: Math.abs(ax[2]), tilt: Math.abs(nrm[2]), n: s.n, amax: s.amax };

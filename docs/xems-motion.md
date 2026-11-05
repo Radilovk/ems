@@ -178,6 +178,21 @@ Long-session test `LAPS=5 ACC_BIAS=0.03 sh scripts/motion-sim/run.sh` (≈ 6 min
 the real chip's): knees 6.7° → 6.2°, trunk 0.2° → 0.3° from the first lap to the fifth; elbows 9° → 16° (without the
 forearm re-zero 20°). CMU clips: knees 11.0°, elbows 19.2°, shoulders 17.1°, trunk 0.7°, 0 false faults.
 
+### 1.10 — calibration from held poses; the shoulder in 3-D (owner, 2026-11-05)
+**Calibration**: stand still (zero pose) → arms straight forward, palms facing, half squat — **hold 2 s** → stand up.
+Each sensor's axis now comes from the two still poses (`Calibration.hold()`: exact, the fusion at rest), not from the
+movement's path or speed; the moving average stays as the fallback (no hold → as before). 60 random mountings × 4
+places (T1, T7, L3, breastbone), movement 0.7–1.3× speed: 60/60 right places. **Places are remembered per sensor**
+(`xm-roles`): an unsure recognition takes the remembered ones; two taps on the result list swap two places by hand.
+**Every recording now starts with the calibration's own raw samples** (`"cal":1` lines) — a real failure can be
+replayed offline.
+**3-D shoulder** (owner: "defects at the humerus / biceps"): (1) ~20 hip vertices of the model's skin were tied to the
+hand / forearm bones (they hang beside the hip in the bind pose) — raising the arm dragged them up: long spikes from
+the armpit to the hip. `fixArmSkin` gives such vertices (nearer a body bone than the arm) to the nearest body bone at
+load. (2) The upper arm's swing is measured from a reference the arm can never reach (back across the body) — plain
+swing from "arm down" was undefined straight overhead and flipped round it. (3) The clavicle follows the arm
+(scapulohumeral rhythm ≈ 2:1 past 30°, ≤ 35°).
+
 ### AI (Gemini) — where it fits and where not
 Not for the live figure: a cloud model answers in 0.5–3 s, needs the network, costs per call and does not return
 reliable joint angles — the figure must follow the body in < 50 ms. "Natural" comes from local models learned from

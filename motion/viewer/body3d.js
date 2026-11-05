@@ -21,6 +21,28 @@
     for (let i = 0; i < 3; i++) for (let j = 0; j < 3; j++) out[3 * i + j] = Rr[3 * i] * P[j] + Rr[3 * i + 1] * P[3 + j] + Rr[3 * i + 2] * P[6 + j];
     return out;
   }
+  const m3 = (A, B) => { const o = new Array(9); for (let i = 0; i < 3; i++) for (let j = 0; j < 3; j++) o[3 * i + j] = A[3 * i] * B[j] + A[3 * i + 1] * B[3 + j] + A[3 * i + 2] * B[6 + j]; return o; };
+  const m3T = (A) => [A[0], A[3], A[6], A[1], A[4], A[7], A[2], A[5], A[8]];
+  const rotAx = (x, y, z, ang) => { const n = Math.hypot(x, y, z) || 1; x /= n; y /= n; z /= n; const c = Math.cos(ang), si = Math.sin(ang), t = 1 - c;
+    return [t * x * x + c, t * x * y - si * z, t * x * z + si * y, t * x * y + si * z, t * y * y + c, t * y * z - si * x, t * x * z - si * y, t * y * z + si * x, t * z * z + c]; };
+  // the upper arm drawn from the chest by swing only — but measured from a reference the arm can never reach (pointing
+  // back across the body, through the trunk): plain swing from "arm down" is undefined with the arm straight overhead
+  // (the owner's shoulder / biceps artefacts, 2026-11-05) and flips round it. A fixed twist puts arm-down back to rest.
+  function armFrame(Tr, U, sg) {
+    const a = [-0.5, -0.85 * sg, 0.15], n = Math.hypot(...a), ax = [a[0] / n, a[1] / n, a[2] / n];
+    const A = rotAx(-ax[1], ax[0], 0, Math.acos(Math.max(-1, Math.min(1, ax[2]))));   // z → the unreachable direction
+    const Ref = m3(Tr, A), W = swing(Ref, U), W0 = swing(Ref, Tr);
+    return m3(W, m3(m3T(W0), Tr));
+  }
+  // the shoulder girdle follows the arm (scapulohumeral rhythm ≈ 2:1 past 30°): the clavicle lifts with the arm, so the
+  // shoulder's skin is not torn as the arm goes up
+  function clavFrame(Tr, U) {
+    const dn = [-Tr[2], -Tr[5], -Tr[8]], arm = [-U[2], -U[5], -U[8]];
+    const e = Math.acos(Math.max(-1, Math.min(1, dn[0] * arm[0] + dn[1] * arm[1] + dn[2] * arm[2])));
+    const ang = Math.min(35, Math.max(0, (e * 180 / Math.PI - 30) * 0.25)) * Math.PI / 180;
+    const cx = dn[1] * arm[2] - dn[2] * arm[1], cy = dn[2] * arm[0] - dn[0] * arm[2], cz = dn[0] * arm[1] - dn[1] * arm[0];
+    return ang > 0 && Math.hypot(cx, cy, cz) > 1e-4 ? m3(rotAx(cx, cy, cz, ang), Tr) : Tr;
+  }
   const v3 = (p) => new T3.Vector3(p[1], p[2], p[0]);
   function q3(R) {                     // W rotation (row-major 3×3) → three quaternion (M R Mᵀ, M = rows y, z, x)
     const idx = [1, 2, 0], m = new T3.Matrix4();
@@ -211,6 +233,35 @@
   }
   const ORDER = ['pelvis', 'spine_01', 'spine_02', 'spine_03', 'neck_01', 'head', 'clavicle_l', 'upperarm_l', 'lowerarm_l', 'hand_l',
     'clavicle_r', 'upperarm_r', 'lowerarm_r', 'hand_r', 'thigh_l', 'calf_l', 'foot_l', 'ball_l', 'thigh_r', 'calf_r', 'foot_r', 'ball_r'];
+  // The model's skin ties ~20 hip vertices (next to the hanging hands) to the hand / forearm bones: raise the arm and
+  // they are dragged up with it — the long spikes from the armpit to the hip (owner 2026-11-05, "shoulder / biceps
+  // defects"). A vertex nearer the body's bones than the arm's loses its arm weights to the nearest body bone.
+  function fixArmSkin(o) {
+    const sk = o.skeleton, names = sk.bones.map((x) => x.name), pos = o.geometry.attributes.position;
+    const si = o.geometry.attributes.skinIndex, sw = o.geometry.attributes.skinWeight;
+    const bp = sk.boneInverses.map((m) => new T3.Vector3().setFromMatrixPosition(m.clone().invert()));
+    const ix = (n) => names.indexOf(n), P = (n) => bp[ix(n)];
+    if (['pelvis', 'spine_03', 'upperarm_l', 'lowerarm_l', 'hand_l', 'thigh_l', 'calf_l'].some((n) => ix(n) < 0)) return;
+    const segD = (v, a, c) => { const ab = c.clone().sub(a), t = Math.max(0, Math.min(1, v.clone().sub(a).dot(ab) / ab.lengthSq())); return v.distanceTo(a.clone().add(ab.multiplyScalar(t))); };
+    const v = new T3.Vector3(); let fixed = 0;
+    for (const sd of ['l', 'r']) {
+      const S = P('upperarm_' + sd), E = P('lowerarm_' + sd), W = P('hand_' + sd), Hd = W.clone().add(W.clone().sub(E).multiplyScalar(0.6));
+      const arm = ['upperarm_', 'lowerarm_', 'hand_'].map((n) => ix(n + sd));
+      const body = [['pelvis', 'spine_03'], ['spine_03', 'neck_01'], ['thigh_' + sd, 'calf_' + sd], ['pelvis', 'thigh_' + sd]];
+      for (let i = 0; i < pos.count; i++) {
+        let w = 0; for (let k = 0; k < 4; k++) if (arm.includes(si.getComponent(i, k))) w += sw.getComponent(i, k);
+        if (w < 0.005) continue;
+        v.fromBufferAttribute(pos, i).applyMatrix4(o.bindMatrix);
+        const dArm = Math.min(segD(v, S, E), segD(v, E, W), segD(v, W, Hd));
+        let best = null, bd = Infinity;
+        for (const [a, c] of body) { const d = segD(v, P(a), P(c)); if (d < bd) { bd = d; best = ix(a); } }
+        if (bd >= dArm) continue;
+        for (let k = 0; k < 4; k++) if (arm.includes(si.getComponent(i, k))) { si.setComponent(i, k, best); }
+        fixed++;
+      }
+    }
+    if (fixed) { si.needsUpdate = true; sw.needsUpdate = true; }
+  }
   class RiggedFigure {
     constructor(style, H, onReady) {
       this.style = style; this.k = (H || 1.75) / 1.75; this.zones = {}; this.ready = false;
@@ -230,6 +281,7 @@
             else if (o.material) { o.material.roughness = Math.min(0.8, (o.material.roughness || 0.6)); }
           }
         });
+        sc.traverse((o) => { if (o.isSkinnedMesh) fixArmSkin(o); });
         this.root.updateMatrixWorld(true);
         this.bones = {}; this.rest = {}; this.restPos = {};
         for (const n of ORDER) {
@@ -255,7 +307,8 @@
         seg['foot_' + s] = feet && feet[s] && feet[s].air ? q3(R[s + 'shank']) : fy; seg['ball_' + s] = seg['foot_' + s];
         // no twisted skin (owner 2026-11-04: "the 3-D model cuts, artefacts"): the upper arm and the forearm are drawn
         // with the least turn from their parent (swing only); the forearm's twist goes to the hand, as a real wrist shows
-        const Ua = swing(R.trunk, R[s + 'upper']), Fa = swing(Ua, R[s + 'fore']);
+        const Ua = armFrame(R.trunk, R[s + 'upper'], s === 'l' ? 1 : -1), Fa = swing(Ua, R[s + 'fore']);
+        seg['clavicle_' + s] = q3(clavFrame(R.trunk, R[s + 'upper']));
         seg['upperarm_' + s] = q3(Ua); seg['lowerarm_' + s] = q3(Fa); seg['hand_' + s] = q3(R[s + 'fore']);
       }
       const world = {};

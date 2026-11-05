@@ -11,6 +11,8 @@
   const ROLES = ['back', 'lwrist', 'rwrist', 'lshank', 'rshank'];
   // the recording layout for teaching the arms: the two leg sensors go on the upper arms (outer side, mid upper arm)
   const ROLES_TEACH = ['back', 'lwrist', 'rwrist', 'lupper', 'rupper'];
+  // 7 sensors: the five + both upper arms (outer side, mid upper arm) — the upper arm measured, not guessed (1.16)
+  const ROLES7 = ['back', 'lwrist', 'rwrist', 'lshank', 'rshank', 'lupper', 'rupper'];
   const ROLE_BG = { back: 'гръб', lwrist: 'лява китка', rwrist: 'дясна китка', lshank: 'ляв глезен', rshank: 'десен глезен',
     lupper: 'лява мишница', rupper: 'дясна мишница' };
   const ROLE_LED = { back: 'white', lwrist: 'red', rwrist: 'green', lshank: 'magenta', rshank: 'cyan', lupper: 'yellow', rupper: 'blue' };
@@ -1212,7 +1214,7 @@
       return mul(mul(M, rz(spin)), rx(tilt));
     };
     const rig = {};
-    const ids = ['A1F0', 'B2E1', 'C3D2', 'D4C3', 'E5B4'];
+    const ids = ['A1F0', 'B2E1', 'C3D2', 'D4C3', 'E5B4', 'F6A5', '07F6'];
     const roles = (roleSet || ROLES).slice().sort(() => rnd() - 0.5);    // the test does not know who is where
     roles.forEach((r, i) => {
       const spin = (rnd() * 2 - 1) * Math.PI, tilt = (rnd() * 2 - 1) * 8 * D2R;
@@ -1428,7 +1430,7 @@
     return { t, R: m.R, q: mToQ(mul(rz(r.psi), m.R)), gyro: sc(w, R2D), acc: sc(mv(T(m.R), acc), 1 / G), still: false };
   }
 
-  const api = { ROLES, ROLES_TEACH, ROLE_BG, ROLE_LED, Calibration, Body, RepCounter, ArmPrior, decodeFrame, bodyDims,
+  const api = { ROLES, ROLES_TEACH, ROLES7, ROLE_BG, ROLE_LED, Calibration, Body, RepCounter, ArmPrior, decodeFrame, bodyDims,
     sim: { SCRIPT, scriptAt, scriptLength, simBody, makeRig, simSample, ikLeg, scriptFrame, blendFrames, sensorOnFrame, truthAngles, Mocap, Timeline },
     placeOf, LEVELS, FRONT,
     m: { mul, T, mv, rot, rx, ry, rz, logm, expm, qToM, mToQ, yawOf, angBetween, add, sub, sc, dot, cross, norm, unit, D2R, R2D } };

@@ -1092,7 +1092,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L95 ## Left out on purpose
   - L103 ## Safety
 
-`docs/xems-motion.md` (435L)
+`docs/xems-motion.md` (440L)
   - L1 # XEMS Motion — body pose from five XIAO nRF52840 Sense sensors
   - L21 ## The app — "XEMS Движение" for Android (owner 2026-11-03: everything installable, as easy as possible)
   - L41 ### 1.1 / firmware 2 — "nothing lights, nothing is found" (owner's first try, 2026-11-04)
@@ -1106,22 +1106,23 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L162 ### 1.9 — the principle for long use (owner, 2026-11-04: "simple, working for long; no small error may build up")
   - L181 ### 1.10 — calibration from held poses; the shoulder in 3-D (owner, 2026-11-05)
   - L196 ### 1.11 — the figure shows the calibration (owner, 2026-11-05: "a clip of exactly what to repeat")
-  - L203 ### AI (Gemini) — where it fits and where not
-  - L210 ## Design in one picture
-  - L223 ## Hardware and placement
-  - L233 ## Sensor firmware (`fusion.h`, `xems_motion.ino`)
-  - L244 ## Calibration (≈ 6 s, one tap) — finds places, headings, zero
-  - L258 ## Pose solver (`Body.solve`, per back-sensor sample, < 1 ms)
-  - L277 ## Offline test (`sh scripts/motion-sim/run.sh`, ≈ 10 s)
-  - L294 ## Real movements — CMU motion capture (owner 2026-11-03: "precise movement templates")
-  - L333 ## The figure: the VR workout's android (owner 2026-11-03: "use the model we had, don't make a new one")
-  - L347 ## The 3-D body (owner 2026-11-03: "a 3-D model that moves in sync with the body")
-  - L364 ## Precision today — what to trust (5 sensors)
-  - L371 ## Arms: the learned corrector (owner 2026-11-03: "make the arms as accurate as the legs")
-  - L388 ### Tested: dead reckoning of the elbow from the zero pose (owner's idea, 2026-11-03)
-  - L401 ### Teacher recordings — exact arms with the same 5 sensors (built 2026-11-03)
-  - L417 ## Limits with five sensors (honest)
-  - L426 ## Roadmap
+  - L203 ### 1.12 — phone screens (owner, 2026-11-05: "the screen does not scroll on a phone")
+  - L208 ### AI (Gemini) — where it fits and where not
+  - L215 ## Design in one picture
+  - L228 ## Hardware and placement
+  - L238 ## Sensor firmware (`fusion.h`, `xems_motion.ino`)
+  - L249 ## Calibration (≈ 6 s, one tap) — finds places, headings, zero
+  - L263 ## Pose solver (`Body.solve`, per back-sensor sample, < 1 ms)
+  - L282 ## Offline test (`sh scripts/motion-sim/run.sh`, ≈ 10 s)
+  - L299 ## Real movements — CMU motion capture (owner 2026-11-03: "precise movement templates")
+  - L338 ## The figure: the VR workout's android (owner 2026-11-03: "use the model we had, don't make a new one")
+  - L352 ## The 3-D body (owner 2026-11-03: "a 3-D model that moves in sync with the body")
+  - L369 ## Precision today — what to trust (5 sensors)
+  - L376 ## Arms: the learned corrector (owner 2026-11-03: "make the arms as accurate as the legs")
+  - L393 ### Tested: dead reckoning of the elbow from the zero pose (owner's idea, 2026-11-03)
+  - L406 ### Teacher recordings — exact arms with the same 5 sensors (built 2026-11-03)
+  - L422 ## Limits with five sensors (honest)
+  - L431 ## Roadmap
 
 `docs/xems-part-strength.md` (212L)
   - L1 # Избрани мускулни групи: сила на импулсите само за тях (v1.1.85, двата импулса поотделно от 1.1.366)

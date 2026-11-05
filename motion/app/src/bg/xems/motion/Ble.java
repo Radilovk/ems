@@ -56,6 +56,7 @@ final class Ble {
     final ScanCb scanCb = new ScanCb();
     BluetoothLeScanner scanner;
     boolean scanning, wanted;
+    int extraLooks;
     /** every Bluetooth device heard and every sensor heard while looking — shown, so "nothing found" is explained */
     final java.util.HashSet<String> seen = new java.util.HashSet<String>(), seenXems = new java.util.HashSet<String>();
 
@@ -130,7 +131,8 @@ final class Ble {
     /** a scan ended: while fewer than five sensors are with us, look again in 3 s (sensors switched on later) */
     void scanEnded() {
         stopScan();
-        if (wanted && online() < 5) {
+        // up to 7 sensors (the five + both upper arms); with five or more online, a few more looks, then quiet (battery)
+        if (wanted && (online() < 5 || (online() < 7 && extraLooks++ < 10))) {
             main.postDelayed(new Rescan(), 3000);
         }
     }

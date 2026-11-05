@@ -266,6 +266,22 @@ as a straight arm forward (twist-test: 79°) — the forearm alone cannot tell t
 can (the physics alone gets it right, but then misses raises). Next with the owner's raw log (-raw.jsonl) replayed
 against the clip.
 
+### 1.16 — the owner's raw log replayed against the clip; 7 sensors (2026-11-05)
+`node scripts/motion/replay.js <raw.jsonl> <out.csv> [--old | --keep-places]` replays a real recording through
+today's solver (the calibration redone from its own samples with the wizard's rules, or kept), FORE=1 adds what the
+wrist sensors themselves say. On the owner's log (place: breastbone): **the wrist sensors and the calibration are
+right** — the forearm's elevation from the sensor matches the clip's arm (straight raises: 74–77° vs 74–79°); **the
+error is all in the GUESSED upper arm** (shown 33–56° with a bent elbow). Tried on the real signals: the per-movement
+physics alone (k ≈ 0 every time: it reads every raise as a curl — elbows 70–95°), without the trunk sensor's
+acceleration (same), the centripetal radius a/ω² (0.07–0.4 m for straight arms, should be ~0.55 — too noisy), a pull
+toward a straighter arm (CMU elbows 19° → 31°). None removes it: with 5 sensors the upper arm is not measured.
+(The offline recalibration also swapped the wrists here — the recorded places kept: `--keep-places`.)
+**7 sensors** (`ROLES7`: + both upper arms, outer side, mid upper arm): the upper arm is measured. Offline, CMU:
+squats with arms forward elbow 41° → 3.5°, shoulder 40° → 2°; arms overhead 30° → 2.8°; bends 23° → 2.8°; punches
+18° → 2.6°; scripted: every arm error 1.6–5°. The app calibrates 7 places by itself when 7 sensors are on line
+(LED: upper arms yellow / blue) and keeps looking for up to 7 (10 more looks once 5 are on line). Android allows ~7
+Bluetooth LE connections at once — 7 is its practical limit.
+
 ### AI (Gemini) — where it fits and where not
 Not for the live figure: a cloud model answers in 0.5–3 s, needs the network, costs per call and does not return
 reliable joint angles — the figure must follow the body in < 50 ms. "Natural" comes from local models learned from

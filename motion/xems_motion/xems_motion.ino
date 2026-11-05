@@ -27,7 +27,7 @@
 #include <Wire.h>
 #include "fusion.h"
 
-#define FW_VER "8"
+#define FW_VER "9"
 #define IMU_ADDR 0x6A
 #define IMU_RATE 208.f
 
@@ -95,6 +95,8 @@ static bool imuBegin() {
   imuWrite(0x12, 0x44);                     // BDU + IF_INC
   imuWrite(0x10, 0x54);                     // CTRL1_XL 208 Hz, ±16 g (ankle landings)
   imuWrite(0x11, 0x5C);                     // CTRL2_G 208 Hz, ±2000 °/s (fast punches)
+  imuWrite(0x0D, 0x02);                     // INT1_CTRL: gyro data ready → INT1 (fw 9: the CPU sleeps until it)
+  pinMode(PIN_LSM6DS3TR_C_INT1, INPUT);
   Wire1.setClock(400000);
   return true;
 }
@@ -186,6 +188,7 @@ static void feed(char c, char *line, uint8_t &len) {
 // the motion chip as a shake detector (AN5130 wake-up): accel only, 26 Hz low power (CTRL6_C XL_HM_MODE), gyro off,
 // slope over 1 g at ±2 g (WAKE_UP_THS 32 × FS/64) — a deliberate shake, not a bag being carried; latched on INT1
 static void imuShakeOnly() {
+  imuWrite(0x0D, 0x00);                     // no data-ready on INT1 while it only watches for a shake
   imuWrite(0x11, 0x00);                     // CTRL2_G gyro off
   imuWrite(0x15, 0x10);                     // CTRL6_C accel low-power mode
   imuWrite(0x10, 0x20);                     // CTRL1_XL 26 Hz, ±2 g
@@ -198,7 +201,8 @@ static void imuShakeOnly() {
 }
 static void imuRun() {                      // back to streaming (the setup values)
   imuWrite(0x5E, 0x00); imuWrite(0x58, 0x00); imuWrite(0x15, 0x00);
-  imuWrite(0x10, 0x54); imuWrite(0x11, 0x5C);
+  imuWrite(0x10, 0x54); imuWrite(0x11, 0x5C); imuWrite(0x0D, 0x02);
+  pinMode(PIN_LSM6DS3TR_C_INT1, INPUT);
   fus.reset();
 }
 // deep sleep (System OFF), woken by the shake on INT1, the USB cable or RST
@@ -320,8 +324,11 @@ void loop() {
     return;
   }
   uint8_t st = 0;
-  markStage(2);                 // a freeze in the chip's I2C from here on is a chip freeze (watchdog → skip it)
-  if (imuOk) imuRead(0x1E, &st, 1);
+  // fw 9: the chip raises INT1 when a sample is ready; until then the CPU sleeps (delay at the end). A missing
+  // INT1 (never seen yet) cannot stall the stream: after 20 ms it reads anyway, as fw 8 did all the time.
+  static uint32_t lastRead = 0;
+  const bool ready = imuOk && (digitalRead(PIN_LSM6DS3TR_C_INT1) || millis() - lastRead > 20);
+  if (ready) { lastRead = millis(); markStage(2); imuRead(0x1E, &st, 1); }   // a freeze in the chip's I2C = chip freeze
   if ((st & 3) == 3) {
     uint8_t r[12];
     if (imuRead(0x22, r, 12) == 12) {
@@ -356,7 +363,7 @@ void loop() {
       }
     }
   }
-  markStage(0);
+  if (ready) markStage(0);
   while (Serial.available()) feed(Serial.read(), usbLine, usbLen);
   if (btOk) while (bleuart.available()) feed(bleuart.read(), bleLine, bleLen);
   uint32_t now = millis();
@@ -381,4 +388,6 @@ void loop() {
   if (conn || Serial) lastConn = now;
   if (btOk && now - lastConn > 300000UL) enterStandby();
   else if (batPct >= 0 && batPct < 3 && !Serial) goSleep();
+  // battery (fw 9): nothing to read yet → the CPU sleeps ~1 ms (FreeRTOS tickless idle) instead of asking the chip
+  if (imuOk && !digitalRead(PIN_LSM6DS3TR_C_INT1)) delay(1);
 }

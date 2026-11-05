@@ -416,6 +416,17 @@
         A[side + 'Elbow'] = angBetween(mv(U, [0, 0, -1]), mv(Ft, [0, 0, -1])) * R2D;
         A[side + 'Shank'] = angBetween(mv(shanks[side], [0, 0, 1]), [0, 0, 1]) * R2D;
       }
+      // arm-teaching mode: the measured upper arm next to what the corrector reads → a personal prototype (only when the
+      // arm has moved ≥ 8° since the last one kept: many different poses, not thousands of the same)
+      if (this.onLearn && this.armPrior) for (const side of ['l', 'r']) {
+        const up = this.role[side + 'upper'] && this.seg(side + 'upper'), a = this.arm[side];
+        if (!up || !a.feat) continue;
+        let Ur = mul(T(Tr), up.R); if (side === 'r') Ur = [Ur[0], -Ur[1], Ur[2], -Ur[3], Ur[4], -Ur[5], Ur[6], -Ur[7], Ur[8]];
+        const last = (this.learnLast = this.learnLast || {})[side];
+        if (last && angBetween([last[2], last[5], last[8]], [Ur[2], Ur[5], Ur[8]]) < 8 * D2R && angBetween(last.d, a.feat.d) < 8 * D2R) continue;
+        Ur.d = a.feat.d; this.learnLast[side] = Ur;
+        this.onLearn(this.armPrior.vec(a.feat), Ur);
+      }
       // speeds: angular speed of each measured segment (°/s) and of the main joints
       const V = {};
       for (const r of ROLES) if (S[r]) V[r] = norm(S[r].w) * R2D;
@@ -934,6 +945,18 @@
         let c = this.cells.get(k); if (!c) this.cells.set(k, (c = [])); c.push(i);
       }
     }
+    // THIS person's own arm poses (owner 2026-11-05: "learn by itself, with our minimal help"): recorded in the
+    // arm-teaching mode (upper-arm sensors = truth), kept on the phone, searched together with the generic ones as
+    // equals (offline: this person's own routine, curls 15° → 4°; movements they never taught: unchanged, 19.2° vs
+    // 19.2° — preferring them (×0.6) made those worse, 23°)
+    addPersonal(x, U) {
+      if (!this.pX) { this.pX = []; this.pU = []; }
+      const j = this.pX.length; this.pX.push(Float32Array.from(x)); this.pU.push(Float32Array.from(U));
+      const k = this.cellKey(Math.round(x[0] / 0.35), Math.round(x[1] / 0.35), Math.round(x[2] / 0.35));
+      let c = this.cells.get(k); if (!c) this.cells.set(k, (c = [])); c.push(-(j + 1));
+    }
+    clearPersonal() { if (!this.pX) return; for (const c of this.cells.values()) for (let i = c.length - 1; i >= 0; i--) if (c[i] < 0) c.splice(i, 1); this.pX = this.pU = null; }
+    personalCount() { return this.pX ? this.pX.length : 0; }
     // the search vector (left-arm convention, trunk frame): forearm direction, its twist, turn rate, the wrist's push,
     // and the physics' own upper-arm direction
     vec(f) {
@@ -954,23 +977,29 @@
       const all = cand.length < k;
       for (let j = 0, N = all ? this.n : cand.length; j < N; j++) {
         const i = all ? j : cand[j];
-        const o = i * this.dim;
         let d = 0;
-        for (let j = 0; j < this.dim; j++) { const e = X[o + j] - x[j]; d += wv ? wv[j] * e * e : e * e; if (best.length === k && d >= best[k - 1][0]) break; }
+        if (i < 0) {                          // a personal prototype
+          const px = this.pX[-i - 1];
+          for (let q = 0; q < this.dim; q++) { const e = px[q] - x[q]; d += wv ? wv[q] * e * e : e * e; }
+          d *= 0.7;                          // preferred: as if 0.6× as far
+        } else {
+          const o = i * this.dim;
+          for (let q = 0; q < this.dim; q++) { const e = X[o + q] - x[q]; d += wv ? wv[q] * e * e : e * e; if (best.length === k && d >= best[k - 1][0]) break; }
+        }
         if (best.length < k || d < best[k - 1][0]) {
           best.push([d, i]); best.sort((a, b) => a[0] - b[0]); if (best.length > k) best.pop();
         }
       }
       let z = [0, 0, 0], y = [0, 0, 0], ws = 0;
       for (const [d, i] of best) {
-        const w = 1 / (d + 0.004), U = this.U, o = i * 9;
+        const pers = i < 0, U = pers ? this.pU[-i - 1] : this.U, o = pers ? 0 : i * 9, w = 1 / (d + 0.004);
         z = add(z, sc([U[o + 2], U[o + 5], U[o + 8]], w)); y = add(y, sc([U[o + 1], U[o + 4], U[o + 7]], w)); ws += w;
       }
       z = unit(z); y = unit(sub(y, sc(z, dot(y, z)))); const xx = cross(y, z);
       const R = [xx[0], y[0], z[0], xx[1], y[1], z[1], xx[2], y[2], z[2]];
       // how much the neighbours agree on where the upper arm is (rad): a held arm-forward pose is ambiguous
       let spread = 0;
-      for (const [d, i] of best) { const o = i * 9; spread += Math.acos(Math.max(-1, Math.min(1, -(this.U[o + 2] * -z[0] + this.U[o + 5] * -z[1] + this.U[o + 8] * -z[2])))) / best.length; }
+      for (const [d, i] of best) { const U = i < 0 ? this.pU[-i - 1] : this.U, o = i < 0 ? 0 : i * 9; spread += Math.acos(Math.max(-1, Math.min(1, -(U[o + 2] * -z[0] + U[o + 5] * -z[1] + U[o + 8] * -z[2])))) / best.length; }
       R.dist = Math.sqrt(best[0][0]); R.spread = spread;
       return R;
     }

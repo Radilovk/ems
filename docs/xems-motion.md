@@ -205,6 +205,21 @@ The side columns scroll on their own (the stage stays put); on a short landscape
 squeezes its content (its inline `flex:1; min-height:0` overridden), the calibration panel is compact (≤ 70 % of the
 height, scrolls). Checked at 780×360 and 915×412: every control reachable, no sideways page scroll.
 
+### 1.13 / firmware 9 — battery; the arms learn the person (owner, 2026-11-05)
+**Battery.** Phone: the figure is drawn 30×/s (was 60) and not at all while the app is hidden (the solver still runs
+on every sample); Bluetooth looks at full power only while no sensor is connected, then balanced. Sensor (fw 9): the
+CPU no longer asks the motion chip non-stop over I2C — the chip raises INT1 when a sample is ready (INT1_CTRL
+gyro data-ready) and the CPU sleeps ~1 ms at a time in between (FreeRTOS tickless idle); a missing INT1 cannot
+stall the stream (it reads anyway after 20 ms). Not measured on hardware yet.
+**Self-learning arms.** "Запис за ръцете" (the two shank sensors on the upper arms) now learns on the phone: every
+measured upper-arm pose next to what the corrector reads (`Body.onLearn`, kept when the arm moved ≥ 8°) becomes a
+personal prototype (`ArmPrior.addPersonal`), stored in localStorage (`xm-arms-v1`, newest 8000) and searched with
+the generic ones in every later session. Offline (`TEACH=1 LEARN_OUT=… / PERSONAL=…`): after one taught session of
+the person's routine, their normal 5-sensor session — curls 15° → 4°, raises 10° → 4.5°, squats 9° → 3° (elbow);
+movements never taught: unchanged (19.2°). Preferring the personal ones (×0.6) made untaught movements worse (23°)
+— so they count as equals. One person per phone for now. Personal proportions (limb lengths) not done: the 5
+sensors give orientations only; lengths need a reference (e.g. the camera) — later.
+
 ### AI (Gemini) — where it fits and where not
 Not for the live figure: a cloud model answers in 0.5–3 s, needs the network, costs per call and does not return
 reliable joint angles — the figure must follow the body in < 50 ms. "Natural" comes from local models learned from

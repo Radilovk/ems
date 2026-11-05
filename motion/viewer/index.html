@@ -239,7 +239,7 @@ function probeResult(t) {
     (t.startsWith('other') ? 'На сензора има друг софтуер. Натисни „Зареди“.' : 'Проверката не стана: ' + t);
   $('fwtext').textContent = msg;
 }
-const FW_APP = 8;           // the firmware inside this app (motion/xems_motion FW_VER)
+const FW_APP = 9;           // the firmware inside this app (motion/xems_motion FW_VER)
 function nativeScan() {
   scanStart = Date.now();
   const r = NATIVE.scan();
@@ -472,12 +472,30 @@ function demoTitle() {
 // upper arm). The page shows the measured upper arms; '● Запис' saves the raw log that
 // scripts/motion/train-recordings.js learns from (docs/xems-motion.md "Teacher recordings")
 let teach = false;
+// what the arm-teaching mode learns stays on this phone (localStorage, newest 8000 poses) and is used in every session
+const ARMS_KEY = 'xm-arms-v1', ARMS_MAX = 8000;
+let armsMine = [];
+try { armsMine = JSON.parse(localStorage.getItem(ARMS_KEY) || '[]'); } catch (e) { armsMine = []; }
+function armsLoad() { const P = body.armPrior; if (!P) return; P.clearPersonal(); for (const [x, U] of armsMine) P.addPersonal(x, U); }
+let armsDirty = 0;
+function armsLearn(x, U) {
+  armsMine.push([Array.from(x, (v) => +v.toFixed(3)), U.slice(0, 9).map((v) => +v.toFixed(3))]);
+  if (armsMine.length > ARMS_MAX) armsMine.splice(0, armsMine.length - ARMS_MAX);
+  if (body.armPrior) body.armPrior.addPersonal(x, U);
+  if (++armsDirty >= 25) armsSave();
+  $('teach').textContent = 'Запис за ръцете: вкл. · научени ' + armsMine.length;
+}
+function armsSave() { armsDirty = 0; try { localStorage.setItem(ARMS_KEY, JSON.stringify(armsMine)); } catch (e) { armsMine.splice(0, armsMine.length >> 2); } }
+armsLoad();
+addEventListener('pagehide', () => { if (armsDirty) armsSave(); }); document.addEventListener('visibilitychange', () => { if (document.hidden && armsDirty) armsSave(); });
+if (armsMine.length) $('teach').textContent = 'Запис за ръцете: изкл. · научени ' + armsMine.length;
 const NOTE_NORMAL = $('note').textContent;
 $('teach').onclick = () => {
   teach = !teach;
-  $('teach').textContent = teach ? 'Запис за ръцете: вкл.' : 'Запис за ръцете: изкл.';
+  $('teach').textContent = teach ? 'Запис за ръцете: вкл. · научени ' + armsMine.length : 'Запис за ръцете: изкл.' + (armsMine.length ? ' · научени ' + armsMine.length : '');
+  if (!teach && armsDirty) armsSave();
   $('teach').classList.toggle('main', teach);
-  $('note').textContent = teach ? 'Запис за ръцете: гръб и китки както винаги, двата сензора от глезените — на мишниците, от външната страна, по средата. Калибрирай, натисни „● Запис“ и прави упражненията за ръце (по 1–2 минути всяко), после изпрати файла …-raw.jsonl.' : NOTE_NORMAL;
+  $('note').textContent = teach ? 'Учене на ръцете: гръб и китки както винаги, двата сензора от глезените — на мишниците, от външната страна, по средата. Калибрирай и прави обичайните упражнения за ръце 3–5 минути: телефонът сам запомня как движиш ръцете и после ги показва по-точно и с 5-те сензора на местата им.' : NOTE_NORMAL;
 };
 
 // ---------- calibration wizard: zero pose → slow squat with the arms forward
@@ -487,7 +505,7 @@ $('wcancel').onclick = () => { wiz = null; cal = null; $('wiz').style.display = 
 $('wok').onclick = () => { $('wiz').style.display = 'none'; wiz = null; };
 function startCal(fromDemo) {
   if (demo && !fromDemo) demo.t0 = performance.now() / 1000;          // demo: replay its own calibration
-  if (!demo) body = new X.Body({ height: userH / 100, place });   // real sensors: the client's own size, the 5th's place
+  if (!demo) { body = new X.Body({ height: userH / 100, place }); if (teach) body.onLearn = armsLearn; }   // real sensors: the client's size, the 5th's place
   cal = new X.Calibration({ roles: teach ? X.ROLES_TEACH : X.ROLES, place }); calRaw = []; $('wchk').textContent = '';
   wiz = { phase: 'stand', since: performance.now(), stillSince: 0, moved: false };
   $('wiz').style.display = 'flex'; $('wok').style.display = 'none'; $('wr').textContent = '';
@@ -751,8 +769,16 @@ function render3d() {
   $('empty').textContent = pose ? '' : Object.keys(sensors).length ? 'Калибрирай, за да се появи фигурата' : 'Свържи сензорите или пусни демо';
 }
 const GUIDE = {};
-function loop() { wizTick(); if (b3) render3d(); else render(); drawPanels(); requestAnimationFrame(loop); }
-drawSensors(); loop();
+// battery (owner 2026-11-05): the figure is drawn 30× a second (not 60) and not at all while the app is hidden —
+// the solver keeps running on every sample either way
+let lastDraw = 0;
+function loop(ts) {
+  requestAnimationFrame(loop);
+  if (document.hidden || ts - lastDraw < 31) return;
+  lastDraw = ts;
+  wizTick(); if (b3) render3d(); else render(); drawPanels();
+}
+drawSensors(); requestAnimationFrame(loop);
 </script>
 </body>
 </html>

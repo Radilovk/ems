@@ -349,7 +349,7 @@ public final class AutoSim {
     /** Owner (1.1.287): a passive session says the goal of every phase and what the current does. */
     static void passiveTexts() {
         String[] ids = {AutoCatalog.CELLULITE, AutoCatalog.DRAIN, AutoCatalog.PASSIVE_METABOLIC, AutoCatalog.BACK_PAIN,
-                AutoCatalog.POSTPARTUM, AutoCatalog.RECOVERY, AutoCatalog.FACE};
+                AutoCatalog.POSTPARTUM, AutoCatalog.RECOVERY, AutoCatalog.FACE, AutoCatalog.FACE_TONE};
         for (String id : ids) {
             AutoModel.Input in = input(AiModel.Sex.FEMALE, 35, 62, 166, AiModel.Fitness.MID, 6, -1);
             in.programId = id;
@@ -524,44 +524,60 @@ public final class AutoSim {
         check(e.getCurrent().frac == 0, "drain: refill pause after the wave");
     }
 
-    /** Face (docs/xems-face.md): only the arms channel ever carries current, 100 µs everywhere, 70 Hz 3 : 6 s, 2-min recovery. */
+    /**
+     * Face (docs/xems-face.md): only the arms channel ever carries current, 100 µs everywhere, never under 20 Hz
+     * (no twitches on the face), 2-min recovery; lift = 70 Hz 3 s with a pause ≥ 2× (fast fibres), tone = 35 Hz with
+     * a longer hold than the lift and a pause ≥ the hold.
+     */
     static void face() {
-        for (AiModel.Sex sex : new AiModel.Sex[] {AiModel.Sex.FEMALE, AiModel.Sex.MALE}) {
-            for (int sessions : new int[] {0, 10}) {
-                AutoModel.Input in = input(sex, 45, 65, 168, AiModel.Fitness.MID, sessions, -1);
-                in.goal = AutoModel.Goal.TONE;
-                in.kind = AutoModel.Kind.PASSIVE;
-                in.programId = AutoCatalog.FACE;
-                in.focus.add("abs");
-                AutoModel.Plan plan = AutoPlanner.build(in, 70);
-                check(plan.recoveryS == AutoCatalog.FACE_RECOVERY_S, "face: recovery 2 min");
-                for (int i = 0; i < AutoModel.CHANNELS; i++) {
-                    check(i == AutoModel.ARMS ? plan.zones[i] > 0 : plan.zones[i] == 0 && plan.zoneLocked[i],
-                            "face: channel " + i + " " + plan.zones[i]);
-                }
-                boolean lift = false;
-                for (AutoModel.Phase ph : plan.phases) {
-                    for (AutoModel.Step st : ph.steps) {
-                        check(st.pwUs == AutoCatalog.FACE_PW, "face: " + ph.id + " at 100 µs (" + st.pwUs + ")");
-                        check(st.zones == null, "face: no step of its own zones");
-                        if (st.hz >= 20) {
-                            lift = true;
-                            check(st.hz == 70 && st.onS == 3 && st.offS >= 2 * st.onS, "face: 70 Hz 3 s, pause ≥ 2× ("
-                                    + st.hz + " " + st.onS + ":" + st.offS + ")");
+        for (String id : new String[] {AutoCatalog.FACE, AutoCatalog.FACE_TONE}) {
+            boolean lift = AutoCatalog.FACE.equals(id);
+            for (AiModel.Sex sex : new AiModel.Sex[] {AiModel.Sex.FEMALE, AiModel.Sex.MALE}) {
+                for (int sessions : new int[] {0, 10}) {
+                    AutoModel.Input in = input(sex, 45, 65, 168, AiModel.Fitness.MID, sessions, -1);
+                    in.goal = AutoModel.Goal.TONE;
+                    in.kind = AutoModel.Kind.PASSIVE;
+                    in.programId = id;
+                    in.focus.add("abs");
+                    AutoModel.Plan plan = AutoPlanner.build(in, 70);
+                    check(plan.recoveryS == AutoCatalog.FACE_RECOVERY_S, id + ": recovery 2 min");
+                    for (int i = 0; i < AutoModel.CHANNELS; i++) {
+                        check(i == AutoModel.ARMS ? plan.zones[i] > 0 : plan.zones[i] == 0 && plan.zoneLocked[i],
+                                id + ": channel " + i + " " + plan.zones[i]);
+                    }
+                    boolean main = false;
+                    for (AutoModel.Phase ph : plan.phases) {
+                        for (AutoModel.Step st : ph.steps) {
+                            String at = id + "/" + ph.id;
+                            check(st.pwUs == AutoCatalog.FACE_PW, at + ": 100 µs (" + st.pwUs + ")");
+                            check(st.hz >= AutoCatalog.FACE_HZ_MIN, at + ": ≥ 20 Hz on the face (" + st.hz + ")");
+                            check(st.zones == null, at + ": no step of its own zones");
+                            check(st.rampUpMs >= 500 && st.rampDownMs >= 500, at + ": soft rise and fall");
+                            if ("MAIN".equals(ph.id)) {
+                                main = true;
+                                if (lift) {
+                                    check(st.hz == 70 && st.onS == 3 && st.offS >= 2 * st.onS,
+                                            at + ": 70 Hz 3 s, pause ≥ 2× (" + st.hz + " " + st.onS + ":" + st.offS + ")");
+                                } else {
+                                    check(st.hz == 35 && st.onS >= 4 && st.offS >= st.onS,
+                                            at + ": 35 Hz ≥ 4 s, pause ≥ hold (" + st.hz + " " + st.onS + ":" + st.offS + ")");
+                                }
+                            }
                         }
                     }
-                }
-                check(lift, "face: has the lift");
-                AutoEngine e = new AutoEngine(plan);
-                long t = 0;
-                e.start(t);
-                while (e.getState() == AutoEngine.State.RUN && t < 3_600_000L) {
-                    AutoEngine.Cmd c = e.getCurrent();
-                    check(c.pwUs <= AutoCatalog.FACE_PW, "face: engine width " + c.pwUs);
-                    check(c.zones == null, "face: engine keeps the plan zones");
-                    t += Math.max(1000, c.durationMs());
-                    e.tick(t - 1);
-                    e.onCycle(t);
+                    check(main, id + ": has its main part");
+                    AutoEngine e = new AutoEngine(plan);
+                    long t = 0;
+                    e.start(t);
+                    while (e.getState() == AutoEngine.State.RUN && t < 3_600_000L) {
+                        AutoEngine.Cmd c = e.getCurrent();
+                        check(c.pwUs <= AutoCatalog.FACE_PW, id + ": engine width " + c.pwUs);
+                        check(c.frac <= 0 || c.hz >= AutoCatalog.FACE_HZ_MIN, id + ": engine Hz " + c.hz);
+                        check(c.zones == null, id + ": engine keeps the plan zones");
+                        t += Math.max(1000, c.durationMs());
+                        e.tick(t - 1);
+                        e.onCycle(t);
+                    }
                 }
             }
         }

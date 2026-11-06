@@ -203,7 +203,7 @@ public final class AutoPlanner {
             plan.zoneLocked[CHEST] = true;
             plan.note("Кърмене: гърдите са изключени", "Breastfeeding: chest channel off");
         }
-        if (AutoCatalog.FACE.equals(p.id)) {
+        if (AutoCatalog.isFace(p)) {
             // face pads on the arm outputs: no other channel may ever carry current in this program
             for (int i = 0; i < CHANNELS; i++) {
                 if (i != ARMS) {

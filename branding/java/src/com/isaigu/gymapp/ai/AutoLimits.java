@@ -33,8 +33,7 @@ public final class AutoLimits {
 
     /** Auto's floor for this plan: the face runs its own narrow pulse (small pads, thin muscle), the body ≥ 150 µs. */
     public static int pwMin(Plan plan) {
-        return plan != null && plan.program != null && AutoCatalog.FACE.equals(plan.program.id)
-                ? AutoCatalog.FACE_PW : PW_MIN;
+        return plan != null && AutoCatalog.isFace(plan.program) ? AutoCatalog.FACE_PW : PW_MIN;
     }
 
     /** L1: longest ON of a tetanic step (f ≥ 20 Hz). */

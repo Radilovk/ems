@@ -57,6 +57,10 @@ public final class AutoCues {
         }
         String id = plan.program.id;
         String p = ph.id != null ? ph.id : "";
+        if (ph.isCooldown() && AutoCatalog.isFace(plan.program)) {
+            return AiText.t("Отпускане: меки кратки стягания на половин сила — мускулът излиза от работата без умора.",
+                    "Let go: soft short holds at half strength — the muscle leaves the work without fatigue.");
+        }
         if (ph.isCooldown()) {
             return AiText.t("Възстановяване: пулсът и дишането се успокояват, мускулите се отпускат и се изчистват от продуктите на умората.",
                     "Recovery: the HR and breathing settle, the muscles relax and clear the products of fatigue.");
@@ -103,8 +107,12 @@ public final class AutoCues {
             return AiText.t("Тонус на мускулите под кожата — по-стегнат вид.", "Tone of the muscles under the skin — a firmer look.");
         }
         if (AutoCatalog.FACE.equals(id)) {
-            return AiText.t("Повдигане: скуловите мускули се съкращават и почиват — с времето стават по-плътни и държат бузите нагоре.",
-                    "Lift: the cheek muscles contract and rest — over time they thicken and hold the cheeks up.");
+            return AiText.t("Повдигане: силни кратки съкращения с дълга почивка — скуловият мускул става по-плътен и държи бузата нагоре.",
+                    "Lift: short strong contractions with long rests — the cheek muscle thickens and holds the cheek up.");
+        }
+        if (AutoCatalog.FACE_TONE.equals(id)) {
+            return AiText.t("Тонус: по-дълги меки съкращения — мускулите на лицето стават по-издръжливи и пазят постигнатото.",
+                    "Tone: longer soft contractions — the face muscles grow more enduring and keep what was gained.");
         }
         if (AutoCatalog.RECOVERY.equals(id)) {
             return AiText.t("Масаж: по-добър кръвоток, отпускане и по-бързо възстановяване след натоварване.",

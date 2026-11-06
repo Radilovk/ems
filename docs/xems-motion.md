@@ -282,6 +282,25 @@ squats with arms forward elbow 41° → 3.5°, shoulder 40° → 2°; arms overh
 (LED: upper arms yellow / blue) and keeps looking for up to 7 (10 more looks once 5 are on line). Android allows ~7
 Bluetooth LE connections at once — 7 is its practical limit.
 
+### 1.17 — 5 sensors minimum, 6 at most; better computation, not more sensors (owner, 2026-11-05)
+The owner fixes the hardware: wrists, ankles, upper back (T1) and — optionally — one low on the back (lumbar). No
+upper-arm sensors (the 7-sensor mode stays in the code for the offline tests only).
+**The arm physics' speed made drift-free.** On the owner's real raises the integrated wrist speed still read
+1.6–3.8 m/s with the arm stopped at the top (≈ 0.2 g left over during the fast turn), so the physics read every raise
+as a curl. The k fit now removes a constant + a straight line in time from the mismatch per axis (`DRIFT=0` = old).
+Physics alone, scripted: raises 14° → 4.9°, laterals 14° → 1.9°, squats 17° → 3.4°. Blended with the corrector by its
+own confidence (`PHYS_W`), offline improves (scripted 8.6° → 4–5°, CMU elbows 19.3° → 16.4°) but the owner's real log
+gets 2° worse — kept OFF (`PHYS_W=0`) until more real recordings with video decide it.
+Checked and NOT the cause on the owner's log: arrival-time bursts (frames arrive at 15-ms connection events, 0 / 15 /
+30 ms apart — re-timing by the frame counter changed nothing offline, `BURST` model), the gyro scale (integrated vs
+orientation change 1.04–1.09).
+**The 6th sensor (lumbar)** — `ROLES6`, role `pelvis`, LED yellow: recognised (the two back sensors told apart by how
+far each turned in the squat: the chest leans further than the pelvis tilts) and recorded, but **not used by the
+figure yet**: offline (CMU) with the measured pelvis, jumps / punches / knee-to-elbow improved (18 → 11°, 13 → 6°,
+17 → 13°) but deep squats and bends got worse (7.5 → 20°, 13 → 29°), average 10.8° → 12.2°; its vertical travel as
+the pelvis height was far worse (up to 90°). `USE_PELVIS=1` / `usePelvis` switches it on for tuning. The scripted
+person's pelvis now tilts 0.35 × the chest's lean (as real people) for these tests.
+
 ### AI (Gemini) — where it fits and where not
 Not for the live figure: a cloud model answers in 0.5–3 s, needs the network, costs per call and does not return
 reliable joint angles — the figure must follow the body in < 50 ms. "Natural" comes from local models learned from

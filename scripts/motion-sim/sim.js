@@ -21,6 +21,7 @@ const RATE = 208;
 const PLACE = (() => { const v = process.env.PLACE || 'T1'; return M.FRONT[v] ? { v, front: true } : { v }; })();
 const TEACH = process.env.TEACH === '1';
 const SEVEN = process.env.SEVEN === '1';      // SEVEN=1: 7 sensors (both upper arms too)
+const SIX = process.env.SIX === '1';          // SIX=1: 6 sensors (+ lumbar: the pelvis)
 const BODY = { place: PLACE, rigidSpine: process.env.RIGID === '1' };
 
 function source() {
@@ -40,7 +41,7 @@ const N = Math.floor(src.len * RATE) - 8;
 if (mode === 'gen') {
   // TEACH=1: the arm-teaching layout (the two shank sensors on the upper arms) — LEARN_OUT=<file> keeps what the
 // phone would learn from it; PERSONAL=<file> runs a normal session with those personal arm poses
-const rig = M.sim.makeRig(+process.env.RIGSEED || 11, TEACH ? M.ROLES_TEACH : SEVEN ? M.ROLES7 : null, PLACE);
+const rig = M.sim.makeRig(+process.env.RIGSEED || 11, TEACH ? M.ROLES_TEACH : SEVEN ? M.ROLES7 : SIX ? M.ROLES6 : null, PLACE);
   let seed = 3;
   const rnd = () => { seed = (seed * 16807) % 2147483647; return seed / 2147483647; };
   const gauss = () => { let u = 0; for (let i = 0; i < 6; i++) u += rnd(); return (u - 3) * Math.SQRT2; };
@@ -100,7 +101,7 @@ let fail = 0;
 const ok = (cond, msg) => { console.log((cond ? '  ✓ ' : '  ✗ ') + msg); if (!cond) fail++; };
 
 // 1) calibration: zero pose (0–3 s), the movement (3–8 s), finish at 9.5 s
-const cal = new M.Calibration({ place: PLACE, roles: TEACH ? M.ROLES_TEACH : SEVEN ? M.ROLES7 : M.ROLES });
+const cal = new M.Calibration({ place: PLACE, roles: TEACH ? M.ROLES_TEACH : SEVEN ? M.ROLES7 : SIX ? M.ROLES6 : M.ROLES });
 let k = 0;
 for (; tOf(k) < 9.5 && k < nF; k++) {
   if (cal.phase === 'stand' && tOf(k) >= 2.8) cal.standDone();
@@ -113,7 +114,7 @@ for (const id of ids) console.log('  ' + id + ' → ' + (res.assign[id] || '?') 
 ok(ids.every((id) => res.assign[id] === rig[id]), 'all five sensors found on the right place');
 
 // 2) pose through the rest of the session; truth reps counted by the same counter on the true angles
-const body = new M.Body({ height: src.height, ...BODY });
+const body = new M.Body({ height: src.height, ...BODY, ...(process.env.NOPRIOR ? { armPrior: null } : {}) });
 const learned = [];
 if (process.env.LEARN_OUT) body.onLearn = (x, U) => learned.push([Array.from(x, (v) => +v.toFixed(4)), U.slice(0, 9).map((v) => +v.toFixed(4))]);
 if (process.env.PERSONAL && body.armPrior) { body.armPrior.clearPersonal(); for (const [x, U] of JSON.parse(fs.readFileSync(process.env.PERSONAL))) body.armPrior.addPersonal(x, U); }

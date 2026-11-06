@@ -20,6 +20,7 @@ on:
       - "vr-workout/**"
       - "vr-bridge/prebuilt/**"
       - "motion/**"
+      - "scripts/vr-legs/**"
       - ".github/workflows/design-tools-pages.yml"
   workflow_dispatch:
 
@@ -68,6 +69,9 @@ jobs:
           # twice: the first pass extracts the models' textures, the second imports them
           $G --headless --path . --import || true
           $G --headless --path . --import || true
+
+      - name: Test the sensor legs (phone VrLink ⇄ game MotionLink + PlayerBody, headless)
+        run: GODOT=~/godot/Godot_v4.4.1-stable_linux.x86_64 sh scripts/vr-legs/run.sh
 
       - name: Build the browser version (WebXR)
         run: |

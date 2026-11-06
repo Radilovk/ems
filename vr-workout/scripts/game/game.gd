@@ -411,6 +411,8 @@ func _hands_status() -> String:
 			parts.append("%s ръка (камери) ✓" % name[side])
 		else:
 			parts.append("%s: няма" % name[side])
+	if body.legs_src == "sensors":
+		parts.append("крака: сензори ✓")
 	return "  ·  ".join(parts)
 
 
@@ -419,6 +421,13 @@ func _hands_events(delta: float) -> void:
 	for ch in body.changes:
 		var side: String = ch[0]
 		var to: String = ch[2]
+		if side == "legs":                             # the XEMS Motion sensors (phone app over the Wi-Fi)
+			if to == "sensors":
+				stage._show_toast("Сензорите за краката са свързани ✓ — ритници, колене и клекове с истинско движение")
+				sfx.play("pass", null, -4.0)
+			elif ch[1] == "sensors" and not (st in [St.MENU, St.IDLE, St.SUMMARY]):
+				stage._show_toast("Сензорите за краката се изгубиха — виж телефона (същата Wi-Fi мрежа)")
+			continue
 		var nm: String = "Лявата" if side == "left" else "Дясната"
 		if clock < 1.0 and to != "foot":
 			continue                                   # the first frames: everything appears at once

@@ -98,6 +98,7 @@ body > .col:first-child #sensors { overflow:visible; }
     <div class="row" id="hrow"><button id="hm" style="flex:0 0 44px">−</button><div id="hval" style="text-align:center;align-self:center">Ръст 175 см</div><button id="hp" style="flex:0 0 44px">+</button></div>
     <button id="placebtn" title="точното място на 5-ия сензор: прешлен, гръб или корем">5-и сензор: гръб T1</button>
     <div id="status" style="display:none"></div>
+    <div id="vrst" class="sub" style="display:none;color:var(--ok);font-weight:600"></div>
     <div id="sensors"></div>
     <button id="cal" class="main" disabled>Калибрирай</button>
     <div class="row"><button id="rec" disabled>● Запис</button><button id="sleep" title="сензорите заспиват; отварянето на приложението или силно разклащане ги събужда">💤 Приспи</button><button id="theme" style="flex:0 0 44px">◐</button></div>
@@ -422,8 +423,31 @@ function showAnat(p) {
   if (txt === anatShown) return; anatShown = txt;
   $('anat').innerHTML = txt; $('anat').style.display = txt ? 'block' : 'none';
 }
+// ---------- legs for the VR game (XEMS Studio on the Quest): the headset announces itself on the Wi-Fi, the app sends
+// it every solved pose — knees and feet relative to the head, in the body's own frame (forward, left, up; metres) and
+// their speeds — the game puts them under its own (exactly tracked) head and predicts them forward by their age.
+// docs/xems-motion.md "VR legs"
+let vrHost = '', vrCheck = 0, vrPrev = null;
+function vrSendPose(p, t) {
+  if (!NATIVE || !NATIVE.vrLinked) return;
+  const now = performance.now();
+  if (now - vrCheck > 1000) { vrCheck = now; const h = NATIVE.vrLinked(); if (h !== vrHost) { vrHost = h; drawVr(); } }
+  if (!vrHost || !p) return;
+  const M = X.m, Rb = M.rz(-p.yaw * Math.PI / 180), J = p.J, H = J.head;
+  const loc = (q) => M.mv(Rb, M.sub(q, H));
+  const foot = (s) => M.add(J[s + 'ankle'], M.sc(M.sub(J[s + 'toe'], J[s + 'ankle']), 0.5));
+  const L = { kl: loc(J.lknee), kr: loc(J.rknee), fl: loc(foot('l')), fr: loc(foot('r')) };
+  const V = {};
+  if (vrPrev && t > vrPrev.t) for (const k in L) V[k] = M.sc(M.sub(L[k], vrPrev.L[k]), 1 / (t - vrPrev.t));
+  vrPrev = { t, L };
+  const r3 = (v) => v ? v.map((x) => Math.round(x * 1000) / 1000) : [0, 0, 0];
+  NATIVE.vrSend(JSON.stringify({ v: 1, t: Math.round(now), eye: +(H[2] - Math.min(J.lankle[2], J.rankle[2]) + body.dim.ankleH).toFixed(3), H: +body.dim.H.toFixed(3),
+    L: Object.fromEntries(Object.entries(L).map(([k, v]) => [k, r3(v)])), V: Object.fromEntries(Object.keys(L).map((k) => [k, r3(V[k])])),
+    air: [p.feet.l.air ? 1 : 0, p.feet.r.air ? 1 : 0] }));
+}
+function drawVr() { const el = $('vrst'); if (el) { el.textContent = vrHost ? '🥽 VR играта получава краката ✓' : ''; el.style.display = vrHost ? '' : 'none'; } }
 function step(t) {
-  pose = body.solve(t); showAnat(pose);
+  pose = body.solve(t); showAnat(pose); vrSendPose(pose, t);
   if (rec && pose) rec.push([t.toFixed(3), ...ANG.map(([k]) => (pose.A[k] || 0).toFixed(1)), pose.rep.count].join(','));
 }
 

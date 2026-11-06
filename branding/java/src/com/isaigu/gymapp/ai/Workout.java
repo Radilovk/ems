@@ -534,8 +534,8 @@ public final class Workout {
             out.add(w);
         }
         for (AutoCatalog.Program prog : AutoCatalog.all()) {
-            if (prog.isActive()) {
-                continue;
+            if (prog.isActive() || AutoCatalog.FACE.equals(prog.id)) {
+                continue;      // the face only through Auto: a map run has no channel lock (docs/xems-face.md)
             }
             try {
                 AutoModel.Input in = new AutoModel.Input();

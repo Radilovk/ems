@@ -102,6 +102,10 @@ public final class AutoCues {
         if (AutoCatalog.CELLULITE.equals(id)) {
             return AiText.t("Тонус на мускулите под кожата — по-стегнат вид.", "Tone of the muscles under the skin — a firmer look.");
         }
+        if (AutoCatalog.FACE.equals(id)) {
+            return AiText.t("Повдигане: скуловите мускули се съкращават и почиват — с времето стават по-плътни и държат бузите нагоре.",
+                    "Lift: the cheek muscles contract and rest — over time they thicken and hold the cheeks up.");
+        }
         if (AutoCatalog.RECOVERY.equals(id)) {
             return AiText.t("Масаж: по-добър кръвоток, отпускане и по-бързо възстановяване след натоварване.",
                     "Massage: better blood flow, relaxation and faster recovery after training.");

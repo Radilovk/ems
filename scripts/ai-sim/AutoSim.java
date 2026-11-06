@@ -57,6 +57,7 @@ public final class AutoSim {
         dose();
         pauseReentry();
         drainWave();
+        face();
         cues();
         setsAndStops();
         dynamics();
@@ -122,7 +123,7 @@ public final class AutoSim {
         check(sum == plan.totalS, tag + ": phases add up to the total (" + sum + " vs " + plan.totalS + ")");
         check(plan.activeS <= AutoPlanner.maxSeconds(plan.program, in.goal, in), tag + ": active ≤ max");
         check(plan.activeS <= AutoPlanner.ACTIVE_MAX_S, tag + ": active part ≤ 20 min (" + plan.activeS + ")");
-        check(plan.recoveryS == AutoPlanner.RECOVERY_S, tag + ": passive recovery = 10 min (" + plan.recoveryS + ")");
+        check(plan.recoveryS == AutoCatalog.recoveryS(plan.program), tag + ": passive recovery = 10 min, face 2 (" + plan.recoveryS + ")");
         check(plan.totalS == plan.activeS + plan.recoveryS, tag + ": total = active + recovery");
         check(plan.phases.get(plan.phases.size() - 1).isCooldown(), tag + ": the recovery is last");
         if (plan.program.isActive() && in.sessions == 0) {
@@ -235,7 +236,7 @@ public final class AutoSim {
         }
         check(c.hz >= 70 ? c.pwUs <= 400 : true, at + ": L4 pw ≤ 400 at ≥ 70 Hz");
         check(c.hz >= 100 ? c.pwUs <= 300 : true, at + ": L4 pw ≤ 300 at ≥ 100 Hz");
-        check(c.pwUs >= 150 && c.pwUs <= 400, at + ": L5 pw in 150–400");
+        check(c.pwUs >= AutoLimits.pwMin(plan) && c.pwUs <= 400, at + ": L5 pw in " + AutoLimits.pwMin(plan) + "–400");
         check(plan.input.age < 60 || c.hz <= 85, at + ": 60+ ≤ 85 Hz");
         check(c.onS >= 1 && c.offS >= 1, at + ": device ON/OFF ≥ 1 s");
         check(c.hz < 20 || c.offS >= SafeLimits.minOff(c.hz, c.onS, c.pauseHz, c.pauseSigma),
@@ -348,7 +349,7 @@ public final class AutoSim {
     /** Owner (1.1.287): a passive session says the goal of every phase and what the current does. */
     static void passiveTexts() {
         String[] ids = {AutoCatalog.CELLULITE, AutoCatalog.DRAIN, AutoCatalog.PASSIVE_METABOLIC, AutoCatalog.BACK_PAIN,
-                AutoCatalog.POSTPARTUM, AutoCatalog.RECOVERY};
+                AutoCatalog.POSTPARTUM, AutoCatalog.RECOVERY, AutoCatalog.FACE};
         for (String id : ids) {
             AutoModel.Input in = input(AiModel.Sex.FEMALE, 35, 62, 166, AiModel.Fitness.MID, 6, -1);
             in.programId = id;
@@ -523,6 +524,49 @@ public final class AutoSim {
         check(e.getCurrent().frac == 0, "drain: refill pause after the wave");
     }
 
+    /** Face (docs/xems-face.md): only the arms channel ever carries current, 100 µs everywhere, 70 Hz 3 : 6 s, 2-min recovery. */
+    static void face() {
+        for (AiModel.Sex sex : new AiModel.Sex[] {AiModel.Sex.FEMALE, AiModel.Sex.MALE}) {
+            for (int sessions : new int[] {0, 10}) {
+                AutoModel.Input in = input(sex, 45, 65, 168, AiModel.Fitness.MID, sessions, -1);
+                in.goal = AutoModel.Goal.TONE;
+                in.kind = AutoModel.Kind.PASSIVE;
+                in.programId = AutoCatalog.FACE;
+                in.focus.add("abs");
+                AutoModel.Plan plan = AutoPlanner.build(in, 70);
+                check(plan.recoveryS == AutoCatalog.FACE_RECOVERY_S, "face: recovery 2 min");
+                for (int i = 0; i < AutoModel.CHANNELS; i++) {
+                    check(i == AutoModel.ARMS ? plan.zones[i] > 0 : plan.zones[i] == 0 && plan.zoneLocked[i],
+                            "face: channel " + i + " " + plan.zones[i]);
+                }
+                boolean lift = false;
+                for (AutoModel.Phase ph : plan.phases) {
+                    for (AutoModel.Step st : ph.steps) {
+                        check(st.pwUs == AutoCatalog.FACE_PW, "face: " + ph.id + " at 100 µs (" + st.pwUs + ")");
+                        check(st.zones == null, "face: no step of its own zones");
+                        if (st.hz >= 20) {
+                            lift = true;
+                            check(st.hz == 70 && st.onS == 3 && st.offS >= 2 * st.onS, "face: 70 Hz 3 s, pause ≥ 2× ("
+                                    + st.hz + " " + st.onS + ":" + st.offS + ")");
+                        }
+                    }
+                }
+                check(lift, "face: has the lift");
+                AutoEngine e = new AutoEngine(plan);
+                long t = 0;
+                e.start(t);
+                while (e.getState() == AutoEngine.State.RUN && t < 3_600_000L) {
+                    AutoEngine.Cmd c = e.getCurrent();
+                    check(c.pwUs <= AutoCatalog.FACE_PW, "face: engine width " + c.pwUs);
+                    check(c.zones == null, "face: engine keeps the plan zones");
+                    t += Math.max(1000, c.durationMs());
+                    e.tick(t - 1);
+                    e.onCycle(t);
+                }
+            }
+        }
+    }
+
     /** Hint card texts: every phase of every program has a hint and both cues; "next" names the next phase. */
     static void cues() {
         for (AutoCatalog.Program p : AutoCatalog.all()) {
@@ -572,7 +616,7 @@ public final class AutoSim {
                     in.sessions = 10;
                     in.sex = p.maleOnly ? AiModel.Sex.MALE : AiModel.Sex.FEMALE;
                     int[] t = AutoCatalog.times(p, g, in);
-                    check(t[2] == AutoPlanner.RECOVERY_S, p.id + ": recovery " + t[2]);
+                    check(t[2] == AutoCatalog.recoveryS(p), p.id + ": recovery " + t[2]);
                     check(t[0] + t[1] == AutoPlanner.maxSeconds(p, g, in), p.id + "/" + g + ": warm " + t[0] + " + main " + t[1]
                             + " ≠ " + AutoPlanner.maxSeconds(p, g, in));
                     check(t[0] > 0 && t[0] < t[1], p.id + ": warm-up " + t[0] + " main " + t[1]);

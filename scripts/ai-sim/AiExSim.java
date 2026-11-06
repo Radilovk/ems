@@ -69,6 +69,7 @@ public final class AiExSim {
             check(!w.longerThanSession(), w.id + ": a ready program fits one session (" + w.minutes() + " of "
                     + w.sessionMinutes() + " min)");
             check(!w.blocks.isEmpty(), w.id + ": has blocks");
+            check(!("preset:" + com.isaigu.gymapp.ai.AutoCatalog.FACE).equals(w.id), "face is not a map (no channel lock in a map run)");
             if (w.isPassive()) {
                 passive++;
                 check(w.exerciseBlocks() == 0, w.id + ": passive, no exercises");

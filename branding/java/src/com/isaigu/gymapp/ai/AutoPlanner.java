@@ -12,6 +12,7 @@ import com.isaigu.gymapp.ai.AutoModel.Step;
 import java.util.List;
 
 import static com.isaigu.gymapp.ai.AutoModel.ABS;
+import static com.isaigu.gymapp.ai.AutoModel.ARMS;
 import static com.isaigu.gymapp.ai.AutoModel.CHANNELS;
 import static com.isaigu.gymapp.ai.AutoModel.CHEST;
 
@@ -201,6 +202,17 @@ public final class AutoPlanner {
             plan.zones[CHEST] = 0;
             plan.zoneLocked[CHEST] = true;
             plan.note("Кърмене: гърдите са изключени", "Breastfeeding: chest channel off");
+        }
+        if (AutoCatalog.FACE.equals(p.id)) {
+            // face pads on the arm outputs: no other channel may ever carry current in this program
+            for (int i = 0; i < CHANNELS; i++) {
+                if (i != ARMS) {
+                    plan.zones[i] = 0;
+                    plan.zoneLocked[i] = true;
+                }
+            }
+            plan.note("Лице: работи само каналът на ръцете (електродите на лицето)",
+                    "Face: only the arms channel works (the face pads)");
         }
         if (AutoCatalog.POSTPARTUM.equals(p.id) && in.extra.diastasis) {
             plan.zones[ABS] = Math.min(plan.zones[ABS], 40);

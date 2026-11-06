@@ -44,6 +44,15 @@ public final class AutoCatalog {
     public static final String PASSIVE_METABOLIC = "passive_metabolic";
     public static final String BACK_PAIN = "back_pain";
     public static final String RECOVERY = "recovery";
+    /**
+     * Face (owner, 2026-11-06 — docs/xems-face.md): the face pads hang on the arms outputs (left arm → left cheek,
+     * right arm → right cheek), every other channel is off and locked. 70 Hz / 100 µs, 3 s : 6 s (Slendertone Face /
+     * Kavanagh 2012); the arms divider (÷4 at 100 µs) keeps the current low.
+     */
+    public static final String FACE = "face";
+    /** Face: pulse width (µs) of every step, and its recovery (s) — a small muscle, no 10-min body recovery. */
+    public static final int FACE_PW = 100;
+    public static final int FACE_RECOVERY_S = 120;
     /** Men's goals (owner's decision): muscle mass, and chest · shoulders · arms. */
     public static final String MASS = "mass";
     public static final String UPPER = "upper";
@@ -183,9 +192,14 @@ public final class AutoCatalog {
                 Kind.PASSIVE, AutoModel.zones(80, 90, 90, 90, 50, 70, 80, 80, 40, 60)));
         p.cr10Lo = 3; p.cr10Hi = 5; p.xCap = 0.45;
 
+        p = add(new Program(FACE, "Лице", "Face",
+                "Скулови мускули: стягане и повдигане · електроди на изходите за ръце", "Cheek muscles: tone and lift · pads on the arm outputs",
+                Kind.PASSIVE, AutoModel.zones(0, 0, 0, 0, 0, 0, 0, 0, 0, 100)));
+        p.cr10Lo = 3; p.cr10Hi = 4; p.xCap = 0.45; p.impulse = AutoDynamics.GENTLE;
+
         // difficulty (owner, 1.1.336; design values): what the program asks of the body — the feeling it aims at,
         // the explosive / metabolic work. Green = easy, amber = medium, red = hard.
-        for (String id : new String[] {BACK_ACTIVE, SENIOR, POSTPARTUM, DRAIN, BACK_PAIN, RECOVERY}) {
+        for (String id : new String[] {BACK_ACTIVE, SENIOR, POSTPARTUM, DRAIN, BACK_PAIN, RECOVERY, FACE}) {
             get(id).level = 1;
         }
         for (String id : new String[] {POWER, CARDIO, MASS}) {
@@ -218,6 +232,11 @@ public final class AutoCatalog {
         return new int[] {warm, main, rec};
     }
 
+    /** The passive recovery after the active part, s: 10 min for the body, 2 min for the face. */
+    public static int recoveryS(Program p) {
+        return p != null && FACE.equals(p.id) ? FACE_RECOVERY_S : AutoPlanner.RECOVERY_S;
+    }
+
     private static Program add(Program p) {
         ALL.add(p);
         return p;
@@ -243,7 +262,7 @@ public final class AutoCatalog {
             case TONE:
                 ids = kind == Kind.ACTIVE
                         ? new String[] {GENERAL, MASS, UPPER, GLUTES_LEGS, CORE, POWER}
-                        : new String[] {CELLULITE, POSTPARTUM, PASSIVE_METABOLIC};
+                        : new String[] {CELLULITE, POSTPARTUM, PASSIVE_METABOLIC, FACE};
                 break;
             case SLIM:
                 ids = kind == Kind.ACTIVE
@@ -375,6 +394,8 @@ public final class AutoCatalog {
             case CELLULITE:
             case PASSIVE_METABOLIC:
                 return 1500;
+            case FACE:
+                return 1080;
             default:
                 return 1200;
         }
@@ -582,6 +603,27 @@ public final class AutoCatalog {
                 cooldown(out, total, 0.15, 3);
                 break;
             }
+            case FACE: {
+                // 2 min single twitches, then the lift: 70 Hz fused 3 s, 6 s rest (face muscles are fast and tire fast)
+                Phase w = phase(out, "WARMUP", "Загряване", "Warm-up", 0.11, total, 0.6, 0.7);
+                w.envStart = 0.6;
+                w.envEnd = 0.7;
+                w.hintBg = "Седни удобно, лицето отпуснато";
+                w.hintEn = "Sit comfortably, face relaxed";
+                w.steps.add(twitch(6, FACE_PW, 10, 1, 1.0));
+                Phase m = phase(out, "MAIN", "Повдигане", "Lift", 0.89, total, 0.9, 0.9);
+                m.hintBg = "Лицето отпуснато — ъглите на устата се повдигат сами; без болка";
+                m.hintEn = "Face relaxed — the mouth corners lift by themselves; no pain";
+                Step lift = tet(70, FACE_PW, 3, 6);
+                lift.rampUpMs = 500;
+                lift.rampDownMs = 500;
+                m.steps.add(lift);
+                Phase c = phase(out, "COOLDOWN", "Отпускане", "Relax", 0.10, total, 0.5, 0.5);
+                c.envStart = 0.5;
+                c.envEnd = 0.5;
+                c.steps.add(twitch(4, FACE_PW, 10, 1, 1.0));
+                break;
+            }
             default: { // RECOVERY
                 Phase w = phase(out, "WARMUP", "Загряване", "Warm-up", 0.15, total, 0.5, 0.8);
                 w.envStart = 0.5;
@@ -595,6 +637,13 @@ public final class AutoCatalog {
             }
         }
         fixDurations(out, total);
+        if (FACE.equals(p.id)) {
+            for (Phase ph : out) {
+                if (ph.isCooldown()) {
+                    ph.durationS = FACE_RECOVERY_S;
+                }
+            }
+        }
         return out;
     }
 

@@ -7,8 +7,8 @@ package com.isaigu.gymapp.wearable.bluetens;
  * 300 µs from 100 Hz, rest pulses ≤ 10 Hz. Strength (1–60) stays with the person on the screen.
  */
 public final class BluetensPrograms {
-    public static final int RECOVER = 0, MASSAGE = 1, RELIEF = 2, ACTIVATE = 3, WARMUP = 4;
-    public static final int[] ALL = {RECOVER, MASSAGE, RELIEF, ACTIVATE, WARMUP};
+    public static final int RECOVER = 0, MASSAGE = 1, RELIEF = 2, ACTIVATE = 3, WARMUP = 4, FACE = 5;
+    public static final int[] ALL = {RECOVER, MASSAGE, RELIEF, ACTIVATE, WARMUP, FACE};
     public static final int[] MINUTES = {10, 15, 20, 30};
 
     private BluetensPrograms() {}
@@ -19,6 +19,7 @@ public final class BluetensPrograms {
             case MASSAGE: return bg ? "Масаж" : "Massage";
             case RELIEF: return bg ? "Облекчаване" : "Relief";
             case ACTIVATE: return bg ? "Активиране" : "Activation";
+            case FACE: return bg ? "Лице" : "Face";
             default: return bg ? "Загряване" : "Warm-up";
         }
     }
@@ -30,6 +31,8 @@ public final class BluetensPrograms {
             case MASSAGE: return bg ? "Меко месене и потупване" : "Soft kneading and tapping";
             case RELIEF: return bg ? "Бързи тръпки, които заглушават болката" : "Quick tingles that quiet the pain";
             case ACTIVATE: return bg ? "Кратки силни свивания с дълга почивка" : "Short strong contractions, long rest";
+            case FACE: return bg ? "Бузата се повдига за 3 s и почива 6 s · един уред на страна"
+                    : "The cheek lifts for 3 s and rests 6 s · one pad per side";
             default: return bg ? "Вълна от бавно към по-бързо и обратно" : "A wave from slow to quicker and back";
         }
     }
@@ -44,6 +47,14 @@ public final class BluetensPrograms {
                     : "100 Hz bursts (7 and 5 pulses) 2–3 times a second · 150 µs";
             case ACTIVATE: return bg ? "50 Hz · 300 µs за 4 s с плавно качване, 6 s почивка на 4 Hz"
                     : "50 Hz · 300 µs for 4 s with a soft rise, 6 s rest at 4 Hz";
+            case FACE: return bg ? "70 Hz · 100 µs за 3 s с плавно качване и спускане, 6 s тишина; 2 min 6 Hz в началото и 4 Hz в края. "
+                    + "Електроди: пред ухото на нивото на скулата и по средата на бузата под нея — двойката е от една страна, "
+                    + "никога от буза до буза; ≥ 2 cm от окото. Сила: докато ъгълът на устата се повдигне, без болка. "
+                    + "Първите 2 седмици 10 min 3 пъти седмично, после 20 min 5 пъти."
+                    : "70 Hz · 100 µs for 3 s with a soft rise and fall, 6 s silence; 2 min 6 Hz at the start and 4 Hz at the end. "
+                    + "Pads: in front of the ear at cheekbone level and mid-cheek below it — the pair on one side, "
+                    + "never cheek to cheek; ≥ 2 cm from the eye. Strength: until the mouth corner lifts, no pain. "
+                    + "First 2 weeks 10 min 3 times a week, then 20 min 5 times.";
             default: return bg ? "4 → 12 → 4 Hz · 250 µs" : "4 → 12 → 4 Hz · 250 µs";
         }
     }
@@ -53,6 +64,7 @@ public final class BluetensPrograms {
             case MASSAGE: return 15;
             case ACTIVATE: return 15;
             case WARMUP: return 10;
+            case FACE: return 10;
             default: return 20;
         }
     }
@@ -63,6 +75,7 @@ public final class BluetensPrograms {
             case MASSAGE: return 0xFFA78BFA;
             case RELIEF: return 0xFF34D399;
             case ACTIVATE: return 0xFFF59E0B;
+            case FACE: return 0xFFF472B6;
             default: return 0xFFFB7185;
         }
     }
@@ -75,6 +88,7 @@ public final class BluetensPrograms {
             case MASSAGE: code = "MAS"; break;
             case RELIEF: code = "REL"; break;
             case ACTIVATE: code = "ACT"; break;
+            case FACE: code = "FAC"; break;
             default: code = "WRM"; break;
         }
         return "X" + code + minutes;
@@ -88,6 +102,7 @@ public final class BluetensPrograms {
             case RELIEF: relief(lok, totalMs); break;
             case ACTIVATE: activate(lok, totalMs); break;
             case WARMUP: warmup(lok, totalMs); break;
+            case FACE: face(lok, totalMs); break;
             default: recover(lok, totalMs); break;
         }
         return lok;
@@ -143,6 +158,30 @@ public final class BluetensPrograms {
         BluetensLok.block(out, 1, 0, 250, 30, 3 * 120);               // 3 Hz · 2 min
         fill(lok, cyc, total, in.ms() + out.ms());
     }
+
+    /**
+     * Face (docs/xems-face.md, Slendertone Face / Kavanagh 2012): 70 Hz · 100 µs, 3.3 s with a 0.4 s rise and fall,
+     * then 6 s silence (face muscles are fast and tire fast). One pad per side — never cheek to cheek.
+     */
+    static void face(BluetensLok lok, double total) {
+        BluetensLok.Section in = lok.section(1);
+        BluetensLok.block(in, 1, 0, 100, 60, 6 * 120);                // 6 Hz · 2 min
+        BluetensLok.Section cyc = lok.section(1);
+        int[] rise = {50, 65, 80, 90};
+        for (int w : rise) {
+            BluetensLok.block(cyc, 1, 0, w, 700, 7);                  // 0.1 s each — soft rise 0.4 s
+        }
+        BluetensLok.block(cyc, 1, 0, FACE_US, 700, 175);              // 70 Hz · 2.5 s
+        for (int i = rise.length - 1; i >= 0; i--) {
+            BluetensLok.block(cyc, 1, i == 0 ? 6000 : 0, rise[i], 700, 7);   // soft fall 0.4 s, then 6 s silence
+        }
+        BluetensLok.Section out = lok.section(1);
+        BluetensLok.block(out, 1, 0, 100, 40, 4 * 120);               // 4 Hz · 2 min
+        fill(lok, cyc, total, in.ms() + out.ms());
+    }
+
+    /** The face program's pulse width, µs. */
+    public static final int FACE_US = 100;
 
     static void warmup(BluetensLok lok, double total) {
         BluetensLok.Section cyc = lok.section(1);

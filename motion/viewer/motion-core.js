@@ -13,9 +13,11 @@
   const ROLES_TEACH = ['back', 'lwrist', 'rwrist', 'lupper', 'rupper'];
   // 7 sensors: the five + both upper arms (outer side, mid upper arm) — the upper arm measured, not guessed (1.16)
   const ROLES7 = ['back', 'lwrist', 'rwrist', 'lshank', 'rshank', 'lupper', 'rupper'];
-  const ROLE_BG = { back: 'гръб', lwrist: 'лява китка', rwrist: 'дясна китка', lshank: 'ляв глезен', rshank: 'десен глезен',
+  // 6 sensors (owner 2026-11-05: "5 minimum, 6 maximum"): the five + one low on the back (lumbar) — the pelvis measured
+  const ROLES6 = ['back', 'lwrist', 'rwrist', 'lshank', 'rshank', 'pelvis'];
+  const ROLE_BG = { pelvis: 'кръст', back: 'гръб', lwrist: 'лява китка', rwrist: 'дясна китка', lshank: 'ляв глезен', rshank: 'десен глезен',
     lupper: 'лява мишница', rupper: 'дясна мишница' };
-  const ROLE_LED = { back: 'white', lwrist: 'red', rwrist: 'green', lshank: 'magenta', rshank: 'cyan', lupper: 'yellow', rupper: 'blue' };
+  const ROLE_LED = { pelvis: 'yellow', back: 'white', lwrist: 'red', rwrist: 'green', lshank: 'magenta', rshank: 'cyan', lupper: 'yellow', rupper: 'blue' };
   // ---------- where the fifth sensor sits (owner 2026-11-04: "let me say exactly where — belly, waist, which vertebra")
   // s = height on the spine, 0 = S1 (sacrum) … 1 = T1; front = on the belly / breastbone (board bottom to the body).
   const LEVELS = { C7: 1.04, T1: 1 };
@@ -195,7 +197,7 @@
       }
       const roleCost = (r, f, flip) => {
         const d = flip ? -f.d : f.d;
-        if (r === 'back') return 3 * Math.abs(d) + (f.ang > 75 ? 2 : 0);
+        if (r === 'back' || r === 'pelvis') return 3 * Math.abs(d) + (f.ang > 75 ? 2 : 0);
         const big = Math.max(0, (60 - f.ang) / 20), mid = Math.max(0, (f.ang - 60) / 20);
         if (r === 'lwrist' || r === 'lupper') return Math.abs(d + 1) + big;
         if (r === 'rwrist' || r === 'rupper') return Math.abs(d - 1) + big;
@@ -214,6 +216,12 @@
         });
       }
       const assign = forced || (best ? best.map : {});
+      // two sensors on the back: the one that turned more in the squat is the upper one (the chest leans further than
+      // the pelvis tilts — real people, CMU: bend ≈ 0.45 × lean)
+      if (!forced) {
+        const ib = Object.keys(assign).find((id) => assign[id] === 'back'), ip = Object.keys(assign).find((id) => assign[id] === 'pelvis');
+        if (ib && ip && feat[ip].ang > feat[ib].ang) { assign[ib] = 'pelvis'; assign[ip] = 'back'; }
+      }
       // the board normal is assumed to point away from the body; the back sensor tells if this hardware is the other
       // way round (its normal must point backward = against "forward" = left × up)
       let flip = best ? best.flip : false;
@@ -266,6 +274,7 @@
       this.dim = bodyDims(opt.height || 1.75);
       this.place = placeOf(opt.place);
       this.rigidSpine = !!opt.rigidSpine;
+      this.usePelvis = !!opt.usePelvis || (typeof process !== 'undefined' && process.env && process.env.USE_PELVIS === '1');
       this.armPrior = opt.armPrior !== undefined ? opt.armPrior : defaultArmPrior();
       this.cal = null;
       this.last = {};                                         // id → latest sample
@@ -354,15 +363,20 @@
       if (!this.cal) return null;
       const d = this.dim, dt = this.prevT == null ? 0.02 : Math.max(0.005, Math.min(0.1, t - this.prevT));
       this.prevT = t;
-      let S = {}; for (const r of ROLES) S[r] = this.seg(r);
+      // the 6th (lumbar) sensor is recognised and recorded, but not used yet: offline it helped jumps / punches and hurt
+      // deep squats / bends (CMU knees 10.8° → 12.2° on average) — to be tuned on real 6-sensor recordings (1.17)
+      const segs = () => { const o = {}; for (const r of ROLES6) o[r] = this.seg(r); if (!this.usePelvis) o.pelvis = null; return o; };
+      let S = segs();
       const viol = {};                                        // role → how far past a human limit (°) this frame
-      if (this.anatomyYaw(S, dt, viol)) { S = {}; for (const r of ROLES) S[r] = this.seg(r); }
-      const sp = this.sp = this.spine(S.back ? S.back.R : I3());
+      if (this.anatomyYaw(S, dt, viol)) S = segs();
+      // a lumbar sensor (6 sensors): the pelvis measured, the chest from the upper back — no spine model
+      const sp = this.sp = S.pelvis && S.back ? { Rs: S.back.R, f: 0, Tth: S.back.R, Tpv: S.pelvis.R, Tmid: slerpM(S.pelvis.R, S.back.R, 0.5) }
+        : this.spine(S.back ? S.back.R : I3());
       const Tr = sp.Tth;                                       // the chest: shoulders, arms, head
       const shanks = { l: S.lshank ? S.lshank.R : I3(), r: S.rshank ? S.rshank.R : I3() };
       // feet: ankle point tracked with zero-velocity updates
       for (const side of ['l', 'r']) if (S[side + 'shank']) this.trackFoot(side, S[side + 'shank'], dt, t);
-      if (S.back) this.trackHeight(S.back, dt);
+      if (S.back) this.trackHeight(S.back, dt);   // (from the lumbar sensor: knees far worse offline — kept on the back)
       // legs: knee flexion κ (thigh hinged to the shank) from chain closure at the pelvis + balance
       const armsR = {};
       for (const side of ['l', 'r']) {
@@ -399,6 +413,7 @@
           if (e) this.yawFix[id] = (this.yawFix[id] || 0) + e * k2;
         };
         pull('lshank', shanks.l, 25 * D2R); pull('rshank', shanks.r, 25 * D2R);
+        if (S.pelvis) pull('pelvis', S.pelvis.R, 15 * D2R);
         for (const r of ['lwrist', 'rwrist']) if (S[r] && mv(S[r].R, [0, 0, 1])[2] > 0.94 && S[r].still) pull(r, S[r].R, 20 * D2R);
       }
       if (this.standStill > 1 && !this.foot.l.moving && !this.foot.r.moving) {
@@ -697,16 +712,29 @@
           for (let k = 0; k <= 1.0001; k += 0.1) {
             const Us = upperAt(k);
             const X = Us.map((U, j) => add(mv(U, [0, 0, -d.upper]), mv(a.buf[j].F, [0, 0, -Lf])));
+            // The measured speed (integrated acceleration) drifts: on the owner's real raises it still read 1.6–3.8 m/s
+            // with the arm stopped at the top (≈ 0.2 g left over from the sensor's tilt during the fast turn). So the
+            // part of the mismatch that is a constant plus a straight line in time (any steady leftover acceleration)
+            // is fitted away per axis, and only the SHAPE of the speed decides k (DRIFT=0: the old way).
+            const R = [];
+            for (let j = 1; j < n - 1; j++) R.push(sub(sc(sub(X[j + 1], X[j - 1]), 1 / (2 * dt)), a.buf[j].vm));
             let e = 0;
-            for (let j = 1; j < n - 1; j++) {
-              const pv = sc(sub(X[j + 1], X[j - 1]), 1 / (2 * dt));
-              const r = sub(sub(pv, a.buf[j].vm), sub([0, 0, 0], [0, 0, 0]));
-              e += dot(r, r);
+            if (NO_DRIFTFIT) for (const r of R) e += dot(r, r);
+            else {
+              const m = R.length, tm = (m - 1) / 2; let stt = 0; for (let j = 0; j < m; j++) stt += (j - tm) ** 2;
+              for (let ax = 0; ax < 3; ax++) {
+                let mu = 0, st = 0; for (let j = 0; j < m; j++) mu += R[j][ax] / m;
+                for (let j = 0; j < m; j++) st += (j - tm) * (R[j][ax] - mu);
+                const b = stt > 0 ? st / stt : 0;
+                for (let j = 0; j < m; j++) { const q = R[j][ax] - mu - b * (j - tm); e += q * q; }
+              }
             }
             if (e < bestE) { bestE = e; bestK = k; }
             worstE = Math.max(worstE, e);
           }
           if (worstE > 1.3 * bestE) a.k += (bestK - a.k) * Math.min(1, dt * 8);
+          // how clearly the motion picked its k (0 = every k fits alike … 1 = only one fits)
+          a.kConf = worstE > 0 ? 1 - bestE / worstE : 0;
         }
         const Us = upperAt(a.k);
         a.U = ortho(Us[Us.length - 1]);
@@ -777,7 +805,12 @@
         // itself (a palm turn) leaves the upper arm where it is (twist-test.js: was up to 80° off), a still arm keeps it;
         // a moving one follows at once
         const gate = NO_UNTWIST ? 1 : Math.max(0, Math.min(1, (swing - 0.12) / 0.5));
-        a.Uout = a.Uout ? ortho(slerpM(a.Uout, Up, Math.min(1, gate * dt / 0.06))) : Up;
+        a.Up = a.Up ? ortho(slerpM(a.Up, Up, Math.min(1, gate * dt / 0.06))) : Up;
+        // the per-movement physics (its speed now drift-free) where it was sure of itself, the corrector elsewhere
+        // (offline, each alone: physics best in squats-with-arms-forward / overhead / raises, the corrector in
+        // twists / punches)
+        const wP = PHYS_W >= 0 ? Math.max(0, Math.min(1, (((a.kConf || 0) - PHYS_C0) / PHYS_C1))) * PHYS_W : 0;
+        a.Uout = wP > 0 ? ortho(slerpM(a.Up, ortho(a.U), wP)) : a.Up;
       } else a.Uout = a.U;
       // a forearm hanging straight down BY GRAVITY, quiet: a relaxed arm hangs straight, whatever the trunk does
       // (owner's video: bent forward, arms hanging — the elbow came out 91° instead of ~25°: in the trunk's frame a
@@ -803,7 +836,8 @@
     // the feet that carry it. Grid + refine (≈3 k evaluations, < 1 ms).
     // pelvis height at zero travel of the back sensor for this trunk lean (standing pelvis height + lean geometry)
     pelvisZ0(Tr) {
-      const d = this.dim, off = (R) => this.sensorRel(R)[2];
+      const d = this.dim;
+      const off = (R) => this.sensorRel(R)[2];
       return d.ankleH + d.shank + d.thigh + off(I3()) - off(this.sp ? this.sp.Rs : Tr);
     }
 
@@ -945,6 +979,9 @@
     return [A / det, -(b * i - c * h) / det, (b * f - c * e) / det, B / det, (a * i - c * g) / det, -(a * f - c * d) / det, C / det, -(a * h - b * g) / det, (a * e - b * d) / det];
   }
   const NO_UNTWIST = typeof process !== 'undefined' && process.env && process.env.NO_UNTWIST === '1';
+  const envN = (k, d) => (typeof process !== 'undefined' && process.env && process.env[k] != null ? +process.env[k] : d);
+  const PHYS_W = envN('PHYS_W', 0), PHYS_C0 = envN('PHYS_C0', 0.3), PHYS_C1 = envN('PHYS_C1', 0.5);
+  const NO_DRIFTFIT = typeof process !== 'undefined' && process.env && process.env.DRIFT === '0';
   const NO_HANG = typeof process !== 'undefined' && process.env && process.env.NO_HANG === '1';
   const NO_CALTEACH = typeof process !== 'undefined' && process.env && process.env.NO_CALTEACH === '1';
   const ARMS_STATE = typeof process !== 'undefined' && process.env && process.env.ARMS === 'state';
@@ -1220,6 +1257,7 @@
       const spin = (rnd() * 2 - 1) * Math.PI, tilt = (rnd() * 2 - 1) * 8 * D2R;
       let M;
       if (r === 'back') M = mount([place && place.front ? 1 : -1, 0, 0], [0, 0, 1], spin, (rnd() * 2 - 1) * 15 * D2R);
+      else if (r === 'pelvis') M = mount([-1, 0, 0], [0, 0, 1], spin, (rnd() * 2 - 1) * 15 * D2R);
       else if (r === 'lwrist' || r === 'lshank' || r === 'lupper') M = mount([0, 1, 0], [0, 0, -1], spin, tilt);
       else M = mount([0, -1, 0], [0, 0, -1], spin, tilt);
       rig[ids[i]] = { role: r, M, psi: (rnd() * 2 - 1) * Math.PI, place };
@@ -1230,7 +1268,9 @@
   // ---------- one pose, whatever made it (the scripted person or a real mocap recording): segment rotations in W
   // (identity in the zero pose; z = towards the body / up) and joint points. Sensors, truth and the "ghost" use it.
   function scriptFrame(b, d) {
-    const R = { trunk: b.Tr, pelvis: b.Tr }, J = {};
+    // the pelvis tilts less than the chest leans (a mild spine bend, as real people: CMU ≈ 0.45 × lean)
+    const lean = Math.atan2(b.Tr[2], b.Tr[8]);
+    const R = { trunk: b.Tr, pelvis: mul(b.Tr, ry(-0.35 * lean)) }, J = {};
     J.pelvis = b.P; J.neck = add(b.P, mv(b.Tr, [0, 0, d.trunk])); J.head = add(J.neck, mv(b.Tr, [0, 0, d.neck + d.head * 0.6]));
     for (const s of ['l', 'r']) {
       const sgn = s === 'l' ? 1 : -1, L = b.legs[s];
@@ -1252,6 +1292,7 @@
   // where each sensor sits on a frame (and which segment carries it)
   function sensorOnFrame(f, role, place) {
     const s = role[0] === 'l' ? 'l' : 'r', sgn = s === 'l' ? 1 : -1;
+    if (role === 'pelvis') { const R = f.R.pelvis || f.R.trunk; return { R, p: add(f.J.pelvis, mv(R, [-0.1, 0, 0.1])) }; }
     if (role === 'back') {                // on the spine at its level: orientation between pelvis and chest, point on it
       const pl = placeOf(place), Rp = f.R.pelvis || f.R.trunk;
       const R = pl.s >= 1 ? f.R.trunk : slerpM(Rp, f.R.trunk, pl.s);
@@ -1430,7 +1471,7 @@
     return { t, R: m.R, q: mToQ(mul(rz(r.psi), m.R)), gyro: sc(w, R2D), acc: sc(mv(T(m.R), acc), 1 / G), still: false };
   }
 
-  const api = { ROLES, ROLES_TEACH, ROLES7, ROLE_BG, ROLE_LED, Calibration, Body, RepCounter, ArmPrior, decodeFrame, bodyDims,
+  const api = { ROLES, ROLES_TEACH, ROLES7, ROLES6, ROLE_BG, ROLE_LED, Calibration, Body, RepCounter, ArmPrior, decodeFrame, bodyDims,
     sim: { SCRIPT, scriptAt, scriptLength, simBody, makeRig, simSample, ikLeg, scriptFrame, blendFrames, sensorOnFrame, truthAngles, Mocap, Timeline },
     placeOf, LEVELS, FRONT,
     m: { mul, T, mv, rot, rx, ry, rz, logm, expm, qToM, mToQ, yawOf, angBetween, add, sub, sc, dot, cross, norm, unit, D2R, R2D } };

@@ -103,7 +103,7 @@ body > .col:first-child #sensors { overflow:visible; }
     <div class="row"><button id="rec" disabled>● Запис</button><button id="sleep" title="сензорите заспиват; отварянето на приложението или силно разклащане ги събужда">💤 Приспи</button><button id="theme" style="flex:0 0 44px">◐</button></div>
     <button id="fwbtn" style="display:none">Фърмуер на сензор (USB)</button>
     <button id="teach" title="двата сензора от глезените отиват на мишниците — записът учи ръцете">Запис за ръцете: изкл.</button>
-    <div class="sub" id="note">Сложи сензорите с долната страна към тялото: китките като часовник, подбедриците от външната страна над глезена, петия — където си избрал (бутонът „5-и сензор“). С 6-и и 7-и сензор на мишниците (отвън, по средата) ръцете се мерят точно.</div>
+    <div class="sub" id="note">Сложи сензорите с долната страна към тялото: китките като часовник, подбедриците от външната страна над глезена, петия — където си избрал (бутонът „5-и сензор“). 6-и сензор (по избор): ниско на кръста — записва се за настройка.</div>
   </div>
 </div>
 <div class="card" id="stage"><canvas id="gl"></canvas><canvas id="cv"></canvas><div id="empty"></div>
@@ -506,9 +506,10 @@ $('wok').onclick = () => { $('wiz').style.display = 'none'; wiz = null; };
 function startCal(fromDemo) {
   if (demo && !fromDemo) demo.t0 = performance.now() / 1000;          // demo: replay its own calibration
   if (!demo) { body = new X.Body({ height: userH / 100, place }); if (teach) body.onLearn = armsLearn; }   // real sensors: the client's size, the 5th's place
-  // 7 sensors on line (both upper arms too): the upper arm is MEASURED — offline 3° instead of 20–40° (1.16)
+  // 6 sensors on line (owner: 5 minimum, 6 at most — the 6th low on the back, lumbar): its place is found and it is
+  // recorded; the figure still uses the five until the 6th is tuned on real recordings (docs/xems-motion.md 1.17)
   const nOn = Object.values(sensors).filter((x) => x.state === 'на линия' || x.state === 'демо').length;
-  cal = new X.Calibration({ roles: teach ? X.ROLES_TEACH : nOn >= 7 ? X.ROLES7 : X.ROLES, place }); calRaw = []; $('wchk').textContent = '';
+  cal = new X.Calibration({ roles: teach ? X.ROLES_TEACH : nOn >= 6 ? X.ROLES6 : X.ROLES, place }); calRaw = []; $('wchk').textContent = '';
   wiz = { phase: 'stand', since: performance.now(), stillSince: 0, moved: false };
   $('wiz').style.display = 'flex'; $('wok').style.display = 'none'; $('wr').textContent = '';
   for (const id in sensors) send(id, 'led off');

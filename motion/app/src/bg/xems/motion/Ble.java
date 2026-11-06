@@ -131,8 +131,8 @@ final class Ble {
     /** a scan ended: while fewer than five sensors are with us, look again in 3 s (sensors switched on later) */
     void scanEnded() {
         stopScan();
-        // up to 7 sensors (the five + both upper arms); with five or more online, a few more looks, then quiet (battery)
-        if (wanted && (online() < 5 || (online() < 7 && extraLooks++ < 10))) {
+        // up to 6 sensors (the five + one low on the back); with five online, a few more looks, then quiet (battery)
+        if (wanted && (online() < 5 || (online() < 6 && extraLooks++ < 10))) {
             main.postDelayed(new Rescan(), 3000);
         }
     }

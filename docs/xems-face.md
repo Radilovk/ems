@@ -228,7 +228,25 @@ keep-out zones and that the pads of the sites a procedure uses together never ov
 - Tests: AutoSim `face()` — all eight programs: exactly their sites, locked others, no personal offsets, widths, ≥ 20 Hz
   (the jaw's sensory 2 Hz excepted), each rhythm, every safety invariant (`runPlan`), engine commands inside the sites.
 
-## 10. Open
+## 10. XBody — next (owner, 2026-11-06: XEMS and Bluetens now; the XBody unit later, with a new firmware)
+The XBody board already speaks the same model as the XEMS suit (docs/xbody-protocol.md): 10 channels, a level per
+channel (`Levels[10]`, % ×10) and a master, one Hz (1–1000) and one width (50–400 µs) for all, impulse / pause. So
+the face connector's ten sites F1–F10 and the eight procedures fit it as they are. What it takes:
+- **One source of truth.** The XBody panel is Qt / C++ (`xbody/panel`, its own ports such as `safe::apply`). Do not
+  re-type the procedures there: export them from Java (`FaceProgram` + `AutoCatalog.phases` for the FACE_IDS: sites,
+  per-step Hz / µs / on / off / ramps / site masks) to a JSON the panel reads, and a test that the export and the
+  Java plans match (as `ai/SafeLimits` ↔ `safe::apply` today).
+- **Face mode on the board.** The equivalent of `ChannelStrengthScale.setFace`: a gentler output for all channels
+  (the new firmware's own divider or a lower `ImpulseAmplification`), set only while a face procedure runs.
+- **Firmware asks:** galvanically isolated channels (confirm on the XBody output stage as on XEMS); widths 100 / 200 /
+  250 µs exactly; a soft rise / fall ≥ 0.3 s per impulse; per-channel levels changeable while it runs; ideally bursts
+  (the jaw's 7 × 100 Hz twice a second — XEMS plays it as plain 2 Hz).
+- **Panel screen** (800 × 600, XBody's look): the same flow — effect → placement (sockets on the picture) → strength
+  (master + per-site share) → the run — drawn from `FaceArt`'s numbers (sites, pads, keep-out) exported with the
+  procedures.
+- The bench test (mA per level step on face pads) is needed on XBody too.
+
+## 11. Open
 1. Strength → mA for both units (0.5–1 kΩ, USB scope, 100 µs) → a hard face cap; tells whether "µs" is one phase.
 2. Face pads (≈ 3 cm² Ag/AgCl) with the arm-cable / Bluetens connector.
 3. A tablet screenshot of the studio (built offline; the picture layer is checked as SVG only).

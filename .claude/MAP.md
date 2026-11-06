@@ -1062,7 +1062,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L106 ## Tests
   - L112 ## Not yet
 
-`docs/xems-face.md` (241L)
+`docs/xems-face.md` (259L)
   - L1 # Face — facial stimulation (owner, 2026-11-06, 1.1.500-ai)
   - L12 ## 1. Physiology the programs stand on
   - L50 ## 2. Who not (asked once, not a central block)
@@ -1081,8 +1081,9 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L198 ### 9.2 Sites = sockets (`FaceArt` sites = `AutoCatalog.F_*` = suit channels 0–9; "L" = the client's left)
   - L210 ### 9.3 Procedures (`FaceProgram`: `xemsSites()`, `bluetensSites()`; Auto ids `AutoCatalog.FACE_IDS`)
   - L222 ### 9.4 Studio
-  - L231 ## 10. Open
-  - L236 ## Sources
+  - L231 ## 10. XBody — next (owner, 2026-11-06: XEMS and Bluetens now; the XBody unit later, with a new firmware)
+  - L249 ## 11. Open
+  - L254 ## Sources
 
 `docs/xems-focus-board.md` (129L)
   - L1 # Training screen — focus layout (1.1.412)

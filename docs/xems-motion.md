@@ -329,6 +329,19 @@ headless, `vr-workout/test/legs_test.gd`) against a stand-in phone: knees and fe
 within 2 cm of where it must be. The game says it out loud: "Сензорите за краката са свързани ✓ …" (and when lost,
 during play), and the hands status line shows "крака: сензори ✓".
 
+### 1.19 — kicks: knee up, the shin snaps out — measured and drawn (owner, 2026-11-06)
+A front kick is two motions: the thigh raised (chamber) — not measured, solved — and the shin snapping out — measured
+by the shank sensor itself. Offline the scripted person now does front kicks (`kick` block, left then right:
+chamber → strike → chamber → floor, `kickPath`). First result: the lifted foot 9.3 cm off on average but **48 cm at
+the strike**, its knee 12.9° — the foot tracker threw away any foot more than 0.8 m from where it started or higher
+than 0.7 m ("implausible"), exactly where a kick goes, and put the foot back on the floor. Now the limits are a kick's
+reach (0.65 × height ahead and up): **foot 5.1 cm (worst 10 cm), knee 5.8°**, kicks counted 2 / 2 (was 4 / 2); every
+other movement unchanged (CMU knees the same or better).
+**Drawn in the game:** the phone now also sends the hips and where each foot points (the shin sensor's own forward
+axis — it turns with the shin, so a kick points the boot up); the game orients the shin guard and the boot by it (was:
+the player's forward) and draws the **thigh** (the shin guard again, hip → knee) whenever the sensors give the hip.
+`body.hip_pos`, `body.foot_dir`; checked by `legs_test.gd` (CI).
+
 ### AI (Gemini) — where it fits and where not
 Not for the live figure: a cloud model answers in 0.5–3 s, needs the network, costs per call and does not return
 reliable joint angles — the figure must follow the body in < 50 ms. "Natural" comes from local models learned from

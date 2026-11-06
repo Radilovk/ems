@@ -527,11 +527,11 @@ func _leg() -> Dictionary:
 	_leg_mats.append(plate)
 	var glow := _unshaded(GLOVE_GLOW)
 	var out := {}
-	for part in ["shin", "knee", "boot"]:
+	for part in ["shin", "knee", "boot", "thigh"]:       # thigh: the shin guard again, hip → knee (sensor legs only)
 		var holder := Node3D.new()
 		holder.top_level = true
 		add_child(holder)
-		var meshes: Dictionary = _leg_meshes[part]
+		var meshes: Dictionary = _leg_meshes["shin" if part == "thigh" else part]
 		for k in meshes:
 			var mi := MeshInstance3D.new()
 			mi.mesh = meshes[k]
@@ -637,7 +637,9 @@ func update(body: PlayerBody, frame: Node3D, mult: int, min_speed: Dictionary, e
 		var f: Vector3 = frame.to_global(body.pos[fl])
 		var len := maxf(k.distance_to(f), 0.15)
 		var y := (k - f) / len                              # the shin's axis, ankle → knee
-		var ahead := -frame.global_basis.z                  # the player's forward: the plates face it
+		var ahead := -frame.global_basis.z                  # the player's forward: the plates face it …
+		if body.foot_dir.has(s):
+			ahead = body.foot_dir[s]                        # … or, with the sensors, where this foot really points
 		ahead = (ahead - y * ahead.dot(y))
 		if ahead.length() < 0.1:
 			ahead = Vector3.FORWARD - y * Vector3.FORWARD.dot(y)
@@ -649,6 +651,18 @@ func update(body: PlayerBody, frame: Node3D, mult: int, min_speed: Dictionary, e
 		knee.global_transform = Transform3D(b, k - z * 0.06 - y * 0.02)
 		var boot: Node3D = parts.boot
 		boot.global_transform = Transform3D(b, f)
+		# the thigh (sensor legs: the hip is known): hip → knee, facing the same way
+		var thigh: Node3D = parts.thigh
+		thigh.visible = body.hip_pos.has(s)
+		if thigh.visible:
+			var h: Vector3 = frame.to_global(body.hip_pos[s])
+			var tl := maxf(h.distance_to(k), 0.15)
+			var ty := (h - k) / tl
+			var ta := ahead - ty * ahead.dot(ty)
+			if ta.length() < 0.1:
+				ta = -frame.global_basis.z - ty * (-frame.global_basis.z).dot(ty)
+			var tz := -ta.normalized()
+			thigh.global_transform = Transform3D(Basis(ty.cross(tz).normalized(), ty, tz) * Basis.from_scale(Vector3(1.15, (tl - 0.12) / _shin_len, 1.15)), k + ty * 0.07)
 		var halo: Node3D = parts.halo
 		halo.global_position = Vector3(f.x, frame.global_position.y + 0.012, f.z)
 		halo.scale = Vector3.ONE * clampf(1.2 - (f.y - frame.global_position.y) * 1.5, 0.3, 1.2)

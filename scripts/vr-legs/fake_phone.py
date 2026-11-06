@@ -13,7 +13,7 @@ while time.time() - t0 < 8:
     except socket.timeout: pass
     if target is None and time.time() - t0 > 1.5: target, how = ('127.0.0.1', 47812), 'fallback (no broadcast here)'
     if target:
-        m = {'v': 1, 't': int(time.time() * 1000), 'H': 1.75, 'L': {'kl': [0.05, 0.1, -1.2], 'kr': [0.05, -0.1, -1.2], 'fl': [0.1, 0.1, -1.6], 'fr': [0.1, -0.1, -1.6]},
+        m = {'v': 1, 't': int(time.time() * 1000), 'H': 1.75, 'L': {'kl': [0.05, 0.1, -1.2], 'kr': [0.05, -0.1, -1.2], 'fl': [0.1, 0.1, -1.6], 'fr': [0.1, -0.1, -1.6], 'hl': [0.0, 0.1, -0.75], 'hr': [0.0, -0.1, -0.75]}, 'D': {'fl': [1, 0, 0], 'fr': [1, 0, 0]},
              'V': {'kl': [0, 0, 0], 'kr': [0, 0, 0], 'fl': [0, 0, 0], 'fr': [0, 0, 0]}, 'air': [0, 0]}
         s.sendto(json.dumps(m).encode(), target)
 print('fake phone: sent to %s (%s)' % (target, how))

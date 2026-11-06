@@ -141,6 +141,10 @@ for (; k < nF; k++) {
     add2(blk, 'hand cm', 100 * norm(sub(sub(pose.J[s + 'wrist'], pose.J.neck), sub(f.J[s + 'wrist'], f.J.neck))));
   }
   add2(blk, 'trunk', pose.A.trunkLean - A.trunkLean);
+  if (blk === 'kick') for (const sd of ['l', 'r']) {      // the kicking foot vs truth (relative to the neck), when lifted
+    const lifted = f.J[sd + 'ankle'][2] - Math.min(f.J.lankle[2], f.J.rankle[2]) > 0.05;
+    if (lifted) { add2('kickfoot', 'cm', 100 * norm(sub(sub(pose.J[sd + 'ankle'], pose.J.neck), sub(f.J[sd + 'ankle'], f.J.neck)))); add2('kickfoot', 'knee', pose.A[sd + 'Knee'] - A[sd + 'Knee']); }
+  }
   if (process.env.LAPS) { const lap = 'lap ' + (1 + Math.floor(t / M.sim.scriptLength()));
     for (const s of ['l', 'r']) { add2(lap, 'knee', pose.A[s + 'Knee'] - A[s + 'Knee']); add2(lap, 'elbow', pose.A[s + 'Elbow'] - A[s + 'Elbow']); add2(lap, 'shoulder', pose.A[s + 'ShElev'] - A[s + 'ShElev']); }
     add2(lap, 'trunk', pose.A.trunkLean - A.trunkLean); }
@@ -161,6 +165,7 @@ if (MOCAP) {
   console.log(line);
   process.exit(0);
 }
+if (err.kickfoot) { const kf = err.kickfoot; delete err.kickfoot; console.log('kick: lifted foot off by ' + mean(kf.cm).toFixed(1) + ' cm (max ' + Math.max(...kf.cm).toFixed(0) + '), its knee ' + mean(kf.knee).toFixed(1) + '°'); }
 console.log('\nmean error per exercise (angles °, hand position vs. neck cm):');
 console.log('  ' + 'exercise'.padEnd(22) + ['knee', 'elbow', 'shoulder', 'trunk', 'hand cm'].map((x) => x.padStart(9)).join('') + '   reps found / true');
 for (const blk in err) {

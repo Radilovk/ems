@@ -232,10 +232,20 @@ keep-out zones and that the pads of the sites a procedure uses together never ov
 The XBody board already speaks the same model as the XEMS suit (docs/xbody-protocol.md): 10 channels, a level per
 channel (`Levels[10]`, % ×10) and a master, one Hz (1–1000) and one width (50–400 µs) for all, impulse / pause. So
 the face connector's ten sites F1–F10 and the eight procedures fit it as they are. What it takes:
-- **One source of truth.** The XBody panel is Qt / C++ (`xbody/panel`, its own ports such as `safe::apply`). Do not
-  re-type the procedures there: export them from Java (`FaceProgram` + `AutoCatalog.phases` for the FACE_IDS: sites,
-  per-step Hz / µs / on / off / ramps / site masks) to a JSON the panel reads, and a test that the export and the
-  Java plans match (as `ai/SafeLimits` ↔ `safe::apply` today).
+- **One source of truth — built (1.1.503-ai): `branding/face/procedures.json`** (`format: xems-face/1`), made by
+  `bash scripts/face-sim/export.sh` (`scripts/face-sim/FaceExport.java`): picture geometry (size, px/cm, mirror axis),
+  limits (motor ≥ 20 Hz, widths 100 / 200 / 250 µs, recovery 120 s, pad sizes, ≤ 3 Bluetens), the ten sites (socket,
+  suit channel, names, pad centres and angle), the keep-out points, and the eight procedures — names, tags, texts
+  (how / placement / strength goal, BG + EN), evidence, tint, glyph, course, XEMS sites, Bluetens sites and files
+  (`BluetensPrograms.faceFile`, now the one place for that map), and the **plan exactly as the automatic mode builds
+  it** after its limits, for a reference client (woman, 45 y, 10 sessions): phases (duration, φ, envelope, wave,
+  hint) and every step (Hz, µs, on / off, ramps, σ, site mask). Never edited by hand.
+  **Match test** (`bash scripts/face-sim/run.sh`): the committed file must equal a fresh export byte for byte
+  ("stale — run export.sh"), and `scripts/face-sim/check_procedures.py` re-checks it independently the way the panel
+  will read it: sockets / channels, plan zones = the procedure's sites, totals, the let-go last, widths per procedure,
+  1–120 Hz, ≤ 300 µs from 100 Hz, ≥ 20 Hz (the jaw excepted), fused ≤ 6 s (≥ 50 Hz) / 10 s, rise ≥ 0.3 s, pause ≥
+  hold, no step outside the sites, every pad outside the keep-out zones. XBody's panel adds its own C++ reader test
+  against the same file when it is built.
 - **Face mode on the board.** The equivalent of `ChannelStrengthScale.setFace`: a gentler output for all channels
   (the new firmware's own divider or a lower `ImpulseAmplification`), set only while a face procedure runs.
 - **Firmware asks:** galvanically isolated channels (confirm on the XBody output stage as on XEMS); widths 100 / 200 /

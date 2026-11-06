@@ -23,24 +23,9 @@ public final class BluetensFace implements FaceDevice {
         this.page = page;
     }
 
-    /** The file a device runs: by the procedure, its site and how many devices take part. */
+    /** The file a device runs (BluetensPrograms.faceFile — one place, also exported for XBody). */
     static int padProgram(int program, int site, int devices) {
-        boolean chin = site == FaceArt.CHIN;
-        switch (program) {
-            case FaceProgram.FIRM: return BluetensPrograms.FACE_TONE;
-            case FaceProgram.OVAL: return chin ? BluetensPrograms.CHIN : BluetensPrograms.FACE;
-            case FaceProgram.DRAIN:
-                // the chin opens first; the cheeks follow half a cycle later (with two devices: the cheeks take turns)
-                if (chin) {
-                    return BluetensPrograms.FACE_DRAIN;
-                }
-                return devices >= 3 || site == FaceArt.ZM_R ? BluetensPrograms.FACE_DRAIN_B : BluetensPrograms.FACE_DRAIN;
-            case FaceProgram.RELAX: return BluetensPrograms.FACE_RELAX;
-            case FaceProgram.CALM: return site == FaceArt.FOREHEAD ? BluetensPrograms.FACE_RELAX : BluetensPrograms.JAW;
-            case FaceProgram.JAW_RELAX: return BluetensPrograms.JAW;
-            case FaceProgram.CONTOUR: return BluetensPrograms.CHIN;
-            default: return BluetensPrograms.FACE;
-        }
+        return BluetensPrograms.faceFile(program, site, devices);
     }
 
     /** The widest pulse of a file (its "full" level on the picture). */

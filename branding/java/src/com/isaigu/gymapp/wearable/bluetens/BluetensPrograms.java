@@ -220,6 +220,30 @@ public final class BluetensPrograms {
             + "the lower 2–3 cm further towards the mouth corner (not on the lip). Not in front of the ear — the nerve there "
             + "reaches the eye (blinking). The pair on one side; left and right cheek — a pad each, its own strength.";
 
+    /**
+     * The file a Bluetens device runs in a face procedure (docs/xems-face.md §9): by the procedure
+     * ({@code FaceProgram} id), the device's site ({@code FaceArt} site) and how many devices take part.
+     */
+    public static int faceFile(int program, int site, int devices) {
+        boolean chin = site == com.isaigu.gymapp.wearable.face.FaceArt.CHIN;
+        switch (program) {
+            case com.isaigu.gymapp.wearable.face.FaceProgram.FIRM: return FACE_TONE;
+            case com.isaigu.gymapp.wearable.face.FaceProgram.OVAL: return chin ? CHIN : FACE;
+            case com.isaigu.gymapp.wearable.face.FaceProgram.DRAIN:
+                // the chin opens first; the cheeks follow half a cycle later (with two devices: the cheeks take turns)
+                if (chin) {
+                    return FACE_DRAIN;
+                }
+                return devices >= 3 || site == com.isaigu.gymapp.wearable.face.FaceArt.ZM_R ? FACE_DRAIN_B : FACE_DRAIN;
+            case com.isaigu.gymapp.wearable.face.FaceProgram.RELAX: return FACE_RELAX;
+            case com.isaigu.gymapp.wearable.face.FaceProgram.CALM:
+                return site == com.isaigu.gymapp.wearable.face.FaceArt.FOREHEAD ? FACE_RELAX : JAW;
+            case com.isaigu.gymapp.wearable.face.FaceProgram.JAW_RELAX: return JAW;
+            case com.isaigu.gymapp.wearable.face.FaceProgram.CONTOUR: return CHIN;
+            default: return FACE;
+        }
+    }
+
     /** Face pulse width, µs (facial NMES 10–100 µs per phase — Efthimiou 2024). */
     public static final int FACE_US = 100;
     /** Under the chin: thicker tissue over the suprahyoid muscles. */

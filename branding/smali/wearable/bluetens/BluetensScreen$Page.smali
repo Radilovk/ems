@@ -6097,7 +6097,7 @@
     .registers 12
 
     .prologue
-    const/4 v8, 0x2
+    const/4 v8, 0x3
 
     const/4 v4, 0x1
 

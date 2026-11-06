@@ -18,17 +18,27 @@ public interface FaceDevice {
 
     String clientName();
 
-    /** Strength channels: 1 on XEMS (both cheeks on the arms channel), one per pad on Bluetens. */
+    /** The procedure's channels: XEMS — its sites on the face connector; Bluetens — the devices it uses (≤ 3). */
     int channels();
 
-    /** The channel's side of the face: 0 = the person's right, 1 = the left, −1 = both (XEMS) / the chin. */
-    int sideOf(int ch);
+    /** The face site of a channel ({@link FaceArt} sites = sockets F1–F10). */
+    int siteOf(int ch);
+
+    /** The label on the channel's pads: "F3" (XEMS socket) / "2" (the second Bluetens). */
+    String socket(int ch);
 
     String channelName(int ch, boolean bg);
+
+    /** XEMS: one master strength (−1) and each site's share; Bluetens: each device its own strength. */
+    boolean hasMaster();
+
+    /** The procedure picked on the effect step (the channels follow it). */
+    void select(int program);
 
     /** Ready to work (a pad connected, the suit linked); the reason otherwise (shown where the fix is). */
     String notReady(int program, boolean bg);
 
+    /** The strength of a channel: XEMS — the site's share %, ch −1 = the master; Bluetens — the device's level. */
     int strength(int ch);
 
     int maxStrength();
@@ -71,8 +81,11 @@ public interface FaceDevice {
     /** Share of the planned work that was done, 0…1 (for the course: a session counts from 0.6). */
     double doneShare();
 
-    /** The moment now: phase, contraction, times. */
+    /** The moment now: phase, contraction, times (the first channel). */
     FaceTimeline.State state(long now);
+
+    /** How strongly a channel works now, 0…1 (its own timeline / the step's share of its site). */
+    float level(int ch, long now);
 
     /** The three phases' lengths, ms (wake-up, work, let-go) for the ring. */
     long[] phases();

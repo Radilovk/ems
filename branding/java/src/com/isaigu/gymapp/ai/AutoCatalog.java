@@ -45,33 +45,56 @@ public final class AutoCatalog {
     public static final String BACK_PAIN = "back_pain";
     public static final String RECOVERY = "recovery";
     /**
-     * Face (owner, 2026-11-06 — docs/xems-face.md): the face pads hang on the arms outputs (left arm → left cheek,
-     * right arm → right cheek), every other channel is off and locked; the arms divider (÷4 at 100 µs) keeps the
-     * current low. Two goals: FACE = lift (zygomaticus hypertrophy, 70 Hz 3 s : 6 s — Kavanagh 2012 RCT), FACE_TONE =
-     * tone / fatigue resistance (35 Hz 4 s : 5 s — maintenance after the course). Never under 20 Hz on the face
-     * (Efthimiou 2024: single twitches are uncomfortable and visible) — no low-Hz warm-up or cool-down.
+     * Face (owner, 2026-11-06 — docs/xems-face.md §9): the face connector puts the ten channels on ten face sites
+     * (sockets F1–F10, galvanically isolated channels). Every face program names its sites; the rest are 0 and locked;
+     * the encoder's face mode gives every channel the gentle divider. Motor programs never under 20 Hz on the face
+     * (Efthimiou 2024); the sensory ones (forehead, jaw) are a tingle, the muscle must not move.
      */
+    public static final int F_ZM_L = 0, F_ZM_R = 1, F_NL_L = 2, F_NL_R = 3, F_LC_L = 4, F_LC_R = 5,
+            F_JAW_L = 6, F_JAW_R = 7, F_FOREHEAD = 8, F_CHIN = 9;
+    /** Lifting 3D: zygomaticus major + the nasolabial lifters + the lower cheek, both sides — 70 Hz 3 : 6 (Kavanagh 2012). */
     public static final String FACE = "face";
+    /** Firm contour: the same six sites, 35 Hz 4 : 5 — fatigue resistance, the upkeep after the lift. */
     public static final String FACE_TONE = "face_tone";
-    /** Depuff: a muscle pump — 30 Hz, 1 s : 2 s (NMES reduces oedema: systematic review; the face, same mechanism). */
+    /** Lifting of the oval: the cheeks, then under the chin, 3 s each — every muscle 3 : 6. */
+    public static final String FACE_OVAL = "face_oval";
+    /** Lymph wave: the chin opens, then nasolabial → lower cheek → cheekbone, the previous at 50 % (a muscle pump wave). */
     public static final String FACE_DRAIN = "face_drain";
-    /**
-     * The "botox effect": a SENSORY current on the forehead (60 Hz, 250 µs — the approved supraorbital device's
-     * settings), the muscle must not move; afferent input lowers muscle tone (TENS meta-analyses). Inside the suit's
-     * limits it runs 4 s : 4 s.
-     */
+    /** Botox effect: sensory 60 Hz · 250 µs on the forehead (the approved supraorbital device's settings), 4 : 4. */
     public static final String FACE_RELAX = "face_relax";
+    /** Calm face: sensory on the forehead and both masseters, 60 ↔ 80 Hz alternating (habituation). */
+    public static final String FACE_CALM = "face_calm";
+    /** Relaxed jaw: both masseters, sensory low rate (2 Hz plain — the suit has no bursts; ULF-TENS-like). */
+    public static final String FACE_JAW = "face_jaw";
+    /** Firm chin: under the chin, 30 Hz · 200 µs, 4 : 8. */
+    public static final String FACE_CHIN = "face_chin";
     public static final int FACE_RELAX_PW = 250;
-    /** Face: pulse width (µs) of every step (facial NMES 10–100 µs per phase), and its recovery (s). */
+    public static final int FACE_JAW_PW = 250;
+    public static final int FACE_CHIN_PW = 200;
+    /** Face: the motor pulse width (facial NMES 10–100 µs per phase), and the recovery (s). */
     public static final int FACE_PW = 100;
     public static final int FACE_RECOVERY_S = 120;
-    /** Lowest frequency any face step may have (Hz). */
+    /** Lowest frequency of a motor face step (Hz); the jaw's low-rate sensory steps are the one exception. */
     public static final int FACE_HZ_MIN = 20;
 
-    /** A face program: arms channel only, narrow pulse, short recovery. */
+    public static final String[] FACE_IDS = {FACE, FACE_TONE, FACE_OVAL, FACE_DRAIN, FACE_RELAX, FACE_CALM, FACE_JAW, FACE_CHIN};
+
+    /** A face program: its own sites only, narrow pulse, short recovery. */
     public static boolean isFace(Program p) {
-        return p != null && (FACE.equals(p.id) || FACE_TONE.equals(p.id) || FACE_DRAIN.equals(p.id) || FACE_RELAX.equals(p.id));
+        return p != null && p.id.startsWith("face");
     }
+
+    /** Channel shares for the given sites (100 %), every other channel 0. */
+    static int[] sites(int... f) {
+        int[] z = new int[CHANNELS];
+        for (int k : f) {
+            z[k] = 100;
+        }
+        return z;
+    }
+
+    static final int[] CHEEKS = {F_ZM_L, F_ZM_R, F_NL_L, F_NL_R, F_LC_L, F_LC_R};
+
     /** Men's goals (owner's decision): muscle mass, and chest · shoulders · arms. */
     public static final String MASS = "mass";
     public static final String UPPER = "upper";
@@ -213,31 +236,40 @@ public final class AutoCatalog {
                 Kind.PASSIVE, AutoModel.zones(80, 90, 90, 90, 50, 70, 80, 80, 40, 60)));
         p.cr10Lo = 3; p.cr10Hi = 5; p.xCap = 0.45;
 
-        p = add(new Program(FACE, "Лице · Лифтинг", "Face · Lift",
-                "Лифтинг · Стегнат овал · Детокс от отоци · Ботокс ефект — избор в студиото за лице",
-                "Lift · Firm contour · Depuff · Botox effect — chosen in the face studio",
-                Kind.PASSIVE, AutoModel.zones(0, 0, 0, 0, 0, 0, 0, 0, 0, 100)));
-        p.cr10Lo = 3; p.cr10Hi = 4; p.xCap = 0.45; p.impulse = AutoDynamics.GENTLE; p.asksFace = true;
-
+        p = add(new Program(FACE, "Лице · Лифтинг 3D", "Face · Lift 3D",
+                "Лифтинг 3D · Овал · Детокс · Ботокс ефект · Спокойно лице — избор в студиото за лице",
+                "Lift 3D · Oval · Depuff · Botox effect · Calm face — chosen in the face studio",
+                Kind.PASSIVE, sites(CHEEKS)));
+        face(p, 3, 4);
         p = add(new Program(FACE_TONE, "Лице · Стегнат овал", "Face · Firm contour",
-                "Еластичност, която пази лифтинга", "Elasticity that keeps the lift",
-                Kind.PASSIVE, AutoModel.zones(0, 0, 0, 0, 0, 0, 0, 0, 0, 100)));
-        p.cr10Lo = 2; p.cr10Hi = 3; p.xCap = 0.45; p.impulse = AutoDynamics.GENTLE; p.asksFace = true;
-
-        p = add(new Program(FACE_DRAIN, "Лице · Детокс от отоци", "Face · Depuff",
+                "Еластичност, която пази лифтинга", "Elasticity that keeps the lift", Kind.PASSIVE, sites(CHEEKS)));
+        face(p, 2, 3);
+        p = add(new Program(FACE_OVAL, "Лице · Лифтинг на овала", "Face · Oval lift",
+                "Скули и брадичка в една сесия", "Cheekbones and chin in one session",
+                Kind.PASSIVE, sites(F_ZM_L, F_ZM_R, F_NL_L, F_NL_R, F_LC_L, F_LC_R, F_CHIN)));
+        face(p, 3, 4);
+        p = add(new Program(FACE_DRAIN, "Лице · Лимфодренаж", "Face · Lymph wave",
                 "По-малко подпухване, по-ясни черти", "Less puffiness, clearer features",
-                Kind.PASSIVE, AutoModel.zones(0, 0, 0, 0, 0, 0, 0, 0, 0, 100)));
-        p.cr10Lo = 2; p.cr10Hi = 3; p.xCap = 0.45; p.impulse = AutoDynamics.GENTLE; p.asksFace = true;
-
+                Kind.PASSIVE, sites(F_NL_L, F_NL_R, F_LC_L, F_LC_R, F_ZM_L, F_ZM_R, F_CHIN)));
+        face(p, 2, 3);
         p = add(new Program(FACE_RELAX, "Лице · Ботокс ефект", "Face · Botox effect",
                 "Отпусната мимика, по-гладко чело · без игла", "Relaxed expression, smoother forehead · no needle",
-                Kind.PASSIVE, AutoModel.zones(0, 0, 0, 0, 0, 0, 0, 0, 0, 100)));
-        p.cr10Lo = 1; p.cr10Hi = 2; p.xCap = 0.45; p.impulse = AutoDynamics.GENTLE; p.asksFace = true;
+                Kind.PASSIVE, sites(F_FOREHEAD)));
+        face(p, 1, 2);
+        p = add(new Program(FACE_CALM, "Лице · Спокойно лице", "Face · Calm face",
+                "Без напрежение в челото и челюстта", "No tension in the forehead and jaw",
+                Kind.PASSIVE, sites(F_FOREHEAD, F_JAW_L, F_JAW_R)));
+        face(p, 1, 2);
+        p = add(new Program(FACE_JAW, "Лице · Отпусната челюст", "Face · Relaxed jaw",
+                "По-мек долен овал, без напрежение", "A softer jawline, no tension", Kind.PASSIVE, sites(F_JAW_L, F_JAW_R)));
+        face(p, 1, 2);
+        p = add(new Program(FACE_CHIN, "Лице · Стегната брадичка", "Face · Firm chin",
+                "По-стегнат профил под брадичката", "A firmer profile under the chin", Kind.PASSIVE, sites(F_CHIN)));
+        face(p, 3, 4);
 
         // difficulty (owner, 1.1.336; design values): what the program asks of the body — the feeling it aims at,
         // the explosive / metabolic work. Green = easy, amber = medium, red = hard.
-        for (String id : new String[] {BACK_ACTIVE, SENIOR, POSTPARTUM, DRAIN, BACK_PAIN, RECOVERY, FACE, FACE_TONE,
-                FACE_DRAIN, FACE_RELAX}) {
+        for (String id : new String[] {BACK_ACTIVE, SENIOR, POSTPARTUM, DRAIN, BACK_PAIN, RECOVERY}) {
             get(id).level = 1;
         }
         for (String id : new String[] {POWER, CARDIO, MASS}) {
@@ -287,14 +319,80 @@ public final class AutoCatalog {
         return s;
     }
 
+    /** A face step on its own sites (the others silent this step). */
+    private static Step faceStep(int hz, int pw, int on, int off, int rampMs, int[] zones) {
+        Step s = faceStep(hz, pw, on, off, rampMs);
+        s.zones = zones;
+        return s;
+    }
+
+    /** A wave step of the lymph pump: {@code on} at 100 %, {@code prev} at 50 % (they still press), 1 s : 1 s. */
+    private static Step faceWave(int[] on, int[] prev) {
+        int[] z = new int[CHANNELS];
+        if (prev != null) {
+            for (int c : prev) {
+                z[c] = 50;
+            }
+        }
+        for (int c : on) {
+            z[c] = 100;
+        }
+        return faceStep(30, FACE_PW, 1, 1, 300, z);
+    }
+
+    /** A silent step of the face (output 0): the vessels refill between the waves. */
+    private static Step faceSilence(int seconds) {
+        Step s = new Step(30, FACE_PW, 1, Math.max(1, seconds - 1));
+        s.sigma = 0;
+        s.zones = new int[CHANNELS];
+        return s;
+    }
+
     /** The face's let-go: 2 min of short, soft 30 Hz holds at half strength — still ≥ 20 Hz, no twitches. */
     private static void faceCooldown(List<Phase> out, int total) {
+        faceCooldown(out, total, FACE_PW);
+    }
+
+    private static void faceCooldown(List<Phase> out, int total, int pw) {
         Phase c = phase(out, "COOLDOWN", "Отпускане", "Let go", 0.10, total, 0.5, 0.5);
         c.envStart = 0.5;
         c.envEnd = 0.5;
         c.hintBg = "Отпусни лицето — само меки кратки стягания";
         c.hintEn = "Let the face go — only soft short holds";
-        c.steps.add(faceStep(30, 2, 8));
+        c.steps.add(faceStep(30, pw, 2, 8, 500));
+    }
+
+    /** A sensory program's three parts: a slow wake-up, the work, a fade at half (the steps given by the caller). */
+    private static void sensory(List<Phase> out, int total, String mainBg, String mainEn, String hintBg, String hintEn,
+                                Step... steps) {
+        Phase w = phase(out, "WARMUP", "Включване", "Wake-up", 0.08, total, 0.6, 0.9);
+        w.envStart = 0.6;
+        w.envEnd = 0.9;
+        w.hintBg = "Затвори очи — само изтръпване, нищо не мърда";
+        w.hintEn = "Close the eyes — only a tingle, nothing moves";
+        w.steps.add(steps[0].copy());
+        Phase m = phase(out, "MAIN", mainBg, mainEn, 0.92, total, 1.0, 1.0);
+        m.hintBg = hintBg;
+        m.hintEn = hintEn;
+        for (Step s : steps) {
+            m.steps.add(s.copy());
+        }
+        Phase c = phase(out, "COOLDOWN", "Затихване", "Fade out", 0.10, total, 0.5, 0.5);
+        c.envStart = 0.5;
+        c.envEnd = 0.5;
+        c.hintBg = "Остани отпуснат още малко";
+        c.hintEn = "Stay relaxed a little longer";
+        c.steps.add(steps[0].copy());
+    }
+
+    /** The face programs' common settings: gentle, level 1, the face question on the client step. */
+    private static void face(Program p, int cr10Lo, int cr10Hi) {
+        p.cr10Lo = cr10Lo;
+        p.cr10Hi = cr10Hi;
+        p.xCap = 0.45;
+        p.impulse = AutoDynamics.GENTLE;
+        p.asksFace = true;
+        p.level = 1;
     }
 
     private static Program add(Program p) {
@@ -459,12 +557,17 @@ public final class AutoCatalog {
             case PASSIVE_METABOLIC:
                 return 1500;
             case FACE:
+            case FACE_OVAL:
                 return 1080;
             case FACE_TONE:
                 return 780;
             case FACE_DRAIN:
+            case FACE_CHIN:
                 return 720;
+            case FACE_JAW:
+                return 900;
             case FACE_RELAX:
+            case FACE_CALM:
                 return 1200;
             default:
                 return 1200;
@@ -673,70 +776,95 @@ public final class AutoCatalog {
                 cooldown(out, total, 0.15, 3);
                 break;
             }
-            case FACE: {
-                // Recruitment ramp at the working frequency (no twitches under 20 Hz on the face), then the lift:
-                // 70 Hz fused 3 s, 6 s rest — the mimetic muscles are fast (IIA-rich) and tire within seconds above 50 Hz.
+            case FACE:
+            case FACE_TONE: {
+                // Lifting 3D (70 Hz 3 : 6) / firm contour (35 Hz 4 : 5) on the six cheek sites together
+                boolean lift = FACE.equals(p.id);
+                int hz = lift ? 70 : 35;
                 Phase w = phase(out, "WARMUP", "Включване", "Wake-up", 0.11, total, 0.6, 0.8);
                 w.envStart = 0.6;
                 w.envEnd = 0.8;
-                w.hintBg = "Седни удобно, лицето отпуснато — ъгълът на устата трябва да тръгне леко нагоре";
-                w.hintEn = "Sit comfortably, face relaxed — the mouth corner should start to lift";
-                w.steps.add(faceStep(70, 2, 8));
-                Phase m = phase(out, "MAIN", "Повдигане", "Lift", 0.89, total, 0.9, 0.9);
-                m.hintBg = "Лицето отпуснато — бузата се повдига сама; без болка, без мигане";
-                m.hintEn = "Face relaxed — the cheek lifts by itself; no pain, no blinking";
-                m.steps.add(faceStep(70, 3, 6));
+                w.hintBg = "Седни удобно, лицето отпуснато — ъглите на устата тръгват леко нагоре";
+                w.hintEn = "Sit comfortably, face relaxed — the mouth corners start to lift";
+                w.steps.add(faceStep(hz, 2, 8));
+                Phase m = phase(out, "MAIN", lift ? "Лифтинг" : "Стегнат овал", lift ? "Lift" : "Firm contour", 0.89, total,
+                        lift ? 0.9 : 0.8, lift ? 0.9 : 0.8);
+                m.hintBg = lift ? "Лицето отпуснато — бузите се повдигат сами; без болка, без мигане"
+                        : "Меко, равномерно стягане — усеща се, не боли";
+                m.hintEn = lift ? "Face relaxed — the cheeks lift by themselves; no pain, no blinking"
+                        : "A soft, even hold — felt, never painful";
+                m.steps.add(lift ? faceStep(70, 3, 6) : faceStep(35, 4, 5));
                 faceCooldown(out, total);
                 break;
             }
-            case FACE_TONE: {
-                // 35 Hz: an almost fused contraction that fatigues far slower than 70 Hz — long holds, short rests
-                Phase w = phase(out, "WARMUP", "Включване", "Wake-up", 0.15, total, 0.6, 0.7);
+            case FACE_OVAL: {
+                // the cheeks 3 s, then under the chin 3 s: each muscle works 3 s and rests 6
+                Phase w = phase(out, "WARMUP", "Включване", "Wake-up", 0.11, total, 0.6, 0.8);
                 w.envStart = 0.6;
-                w.envEnd = 0.7;
-                w.hintBg = "Седни удобно, лицето отпуснато";
-                w.hintEn = "Sit comfortably, face relaxed";
-                w.steps.add(faceStep(35, 3, 7));
-                Phase m = phase(out, "MAIN", "Тонус", "Tone", 0.85, total, 0.8, 0.8);
-                m.hintBg = "Меко, равномерно стягане — трябва да се чувства, не да боли";
-                m.hintEn = "A soft, even tension — felt, never painful";
-                m.steps.add(faceStep(35, 4, 5));
+                w.envEnd = 0.8;
+                w.hintBg = "Седни изправен, лицето отпуснато";
+                w.hintEn = "Sit up, face relaxed";
+                w.steps.add(faceStep(70, FACE_PW, 2, 3, 500, sites(CHEEKS)));
+                w.steps.add(faceStep(50, FACE_PW, 2, 3, 500, sites(F_CHIN)));
+                Phase m = phase(out, "MAIN", "Скули и брадичка", "Cheekbones and chin", 0.89, total, 0.9, 0.9);
+                m.hintBg = "Бузите, после брадичката — без храна и вода, без болка";
+                m.hintEn = "The cheeks, then the chin — no food or drink, no pain";
+                m.steps.add(faceStep(70, FACE_PW, 3, 3, 500, sites(CHEEKS)));
+                m.steps.add(faceStep(50, FACE_PW, 3, 3, 500, sites(F_CHIN)));
                 faceCooldown(out, total);
                 break;
             }
             case FACE_DRAIN: {
-                // the pump: short soft holds, twice as long a release; 30 Hz is fused enough, still far from fatigue
-                Phase w = phase(out, "WARMUP", "Включване", "Wake-up", 0.12, total, 0.6, 0.7);
-                w.envStart = 0.6;
-                w.envEnd = 0.7;
-                w.hintBg = "Седни удобно, главата леко назад";
-                w.hintEn = "Sit comfortably, head slightly back";
-                w.steps.add(faceStep(30, FACE_PW, 1, 3, 300));
-                Phase m = phase(out, "MAIN", "Помпа", "Pump", 0.88, total, 0.8, 0.8);
-                m.hintBg = "Бузата ритмично се повдига — течността тръгва към лимфните възли";
-                m.hintEn = "The cheek lifts rhythmically — the fluid moves to the lymph nodes";
-                m.steps.add(faceStep(30, FACE_PW, 1, 2, 300));
+                // open the nodes' way first (under the chin), then the wave towards them; the previous site keeps pressing
+                Phase o = phase(out, "OPEN", "Отваряне", "Opening", 0.15, total, 0.8, 0.8);
+                o.wave = true;
+                o.hintBg = "Главата леко назад — първо се отваря пътят под брадичката";
+                o.hintEn = "Head slightly back — first the way under the chin opens";
+                o.steps.add(faceWave(new int[] {F_CHIN}, null));
+                o.steps.add(faceSilence(2));
+                Phase m = phase(out, "WAVE", "Лимфна вълна", "Lymph wave", 0.85, total, 0.8, 0.8);
+                m.wave = true;
+                m.hintBg = "Вълната тръгва от носа към челюстта и ухото — само се отпусни";
+                m.hintEn = "The wave runs from the nose to the jaw and the ear — just relax";
+                m.steps.add(faceWave(new int[] {F_NL_L, F_NL_R}, null));
+                m.steps.add(faceWave(new int[] {F_LC_L, F_LC_R}, new int[] {F_NL_L, F_NL_R}));
+                m.steps.add(faceWave(new int[] {F_ZM_L, F_ZM_R}, new int[] {F_LC_L, F_LC_R}));
+                m.steps.add(faceWave(new int[] {F_CHIN}, new int[] {F_ZM_L, F_ZM_R}));
+                m.steps.add(faceSilence(3));                   // the vessels refill
                 faceCooldown(out, total);
                 break;
             }
-            case FACE_RELAX: {
-                // sensory only: the strength is a tingle (the calibration stops before the brows move)
-                Phase w = phase(out, "WARMUP", "Включване", "Wake-up", 0.08, total, 0.6, 0.9);
+            case FACE_RELAX:
+                sensory(out, total, "Отпускане на мимиката", "Expression relax",
+                        "Затвори очи, отпусни челото — токът работи по нервите",
+                        "Close the eyes, let the forehead go — the current works on the nerves",
+                        faceStep(60, FACE_RELAX_PW, 4, 4, 1000));
+                break;
+            case FACE_CALM:
+                sensory(out, total, "Спокойно лице", "Calm face",
+                        "Отпусни челото и челюстта, зъбите да не се допират",
+                        "Let the forehead and the jaw go, teeth apart",
+                        faceStep(60, FACE_RELAX_PW, 4, 4, 1000), faceStep(80, FACE_RELAX_PW, 4, 4, 1000));
+                break;
+            case FACE_JAW: {
+                // the jaw: low-rate single impulses (the suit has no bursts) — a deep, slow tapping, sensory
+                Step s = twitch(2, FACE_JAW_PW, 10, 1, 1.0);
+                sensory(out, total, "Отпусната челюст", "Relaxed jaw",
+                        "Отпусни челюстта, зъбите да не се допират", "Let the jaw hang, teeth apart", s);
+                break;
+            }
+            case FACE_CHIN: {
+                Phase w = phase(out, "WARMUP", "Включване", "Wake-up", 0.11, total, 0.6, 0.8);
                 w.envStart = 0.6;
-                w.envEnd = 0.9;
-                w.hintBg = "Затвори очи — само изтръпване, веждите не мърдат";
-                w.hintEn = "Close the eyes — only a tingle, the brows stay still";
-                w.steps.add(faceStep(60, FACE_RELAX_PW, 4, 4, 1000));
-                Phase m = phase(out, "MAIN", "Отпускане на мимиката", "Expression relax", 0.92, total, 1.0, 1.0);
-                m.hintBg = "Затвори очи, отпусни челото — токът работи по нервите";
-                m.hintEn = "Close the eyes, let the forehead go — the current works on the nerves";
-                m.steps.add(faceStep(60, FACE_RELAX_PW, 4, 4, 1000));
-                Phase c = phase(out, "COOLDOWN", "Затихване", "Fade out", 0.10, total, 0.5, 0.5);
-                c.envStart = 0.5;
-                c.envEnd = 0.5;
-                c.hintBg = "Остани с отпуснато чело още малко";
-                c.hintEn = "Keep the forehead relaxed a little longer";
-                c.steps.add(faceStep(60, FACE_RELAX_PW, 4, 4, 1000));
+                w.envEnd = 0.8;
+                w.hintBg = "Седни изправен, без храна и вода";
+                w.hintEn = "Sit up, no food or drink";
+                w.steps.add(faceStep(30, FACE_CHIN_PW, 2, 6, 500));
+                Phase m = phase(out, "MAIN", "Стегната брадичка", "Firm chin", 0.89, total, 0.9, 0.9);
+                m.hintBg = "Под брадичката се стяга — не преглъщай по време на стягането";
+                m.hintEn = "It tightens under the chin — do not swallow during the hold";
+                m.steps.add(faceStep(30, FACE_CHIN_PW, 4, 8, 500));
+                faceCooldown(out, total, FACE_CHIN_PW);
                 break;
             }
             default: { // RECOVERY

@@ -57,6 +57,9 @@ public final class AutoCues {
         }
         String id = plan.program.id;
         String p = ph.id != null ? ph.id : "";
+        if (AutoCatalog.isFace(plan.program) && !ph.isCooldown()) {
+            return faceGoal(id, p);
+        }
         if (ph.isCooldown() && AutoCatalog.isFace(plan.program)) {
             return AiText.t("Отпускане: меки кратки стягания на половин сила — мускулът излиза от работата без умора.",
                     "Let go: soft short holds at half strength — the muscle leaves the work without fatigue.");
@@ -106,27 +109,48 @@ public final class AutoCues {
         if (AutoCatalog.CELLULITE.equals(id)) {
             return AiText.t("Тонус на мускулите под кожата — по-стегнат вид.", "Tone of the muscles under the skin — a firmer look.");
         }
-        if (AutoCatalog.FACE.equals(id)) {
-            return AiText.t("Повдигане: силни кратки съкращения с дълга почивка — скуловият мускул става по-плътен и държи бузата нагоре.",
-                    "Lift: short strong contractions with long rests — the cheek muscle thickens and holds the cheek up.");
-        }
-        if (AutoCatalog.FACE_DRAIN.equals(id)) {
-            return AiText.t("Детокс: ритмичните стягания изпомпват задържаната течност към лимфните възли — лицето изглежда по-свежо.",
-                    "Depuff: rhythmic holds pump the held fluid to the lymph nodes — the face looks fresher.");
-        }
-        if (AutoCatalog.FACE_RELAX.equals(id)) {
-            return AiText.t("Ботокс ефект: нежният ток по сетивните нерви сваля тонуса на мимическите мускули — челото се отпуска.",
-                    "Botox effect: the gentle current on the sensory nerves lowers the tone of the expression muscles.");
-        }
-        if (AutoCatalog.FACE_TONE.equals(id)) {
-            return AiText.t("Стегнат овал: по-дълги меки стягания — мускулите на лицето стават по-издръжливи и пазят лифтинга.",
-                    "Tone: longer soft contractions — the face muscles grow more enduring and keep what was gained.");
-        }
         if (AutoCatalog.RECOVERY.equals(id)) {
             return AiText.t("Масаж: по-добър кръвоток, отпускане и по-бързо възстановяване след натоварване.",
                     "Massage: better blood flow, relaxation and faster recovery after training.");
         }
         return plan.program.desc();
+    }
+
+    /** The face programs' goal line (docs/xems-face.md §9), by program and phase. */
+    static String faceGoal(String id, String phase) {
+        if (AutoCatalog.FACE_DRAIN.equals(id)) {
+            return "OPEN".equals(phase)
+                    ? AiText.t("Отваряне: първо се раздвижва пътят под брадичката, за да има къде да се оттече течността.",
+                    "Opening: the way under the chin moves first, so the fluid has somewhere to go.")
+                    : AiText.t("Лимфна вълна: мускулите се стягат един след друг от носа към челюстта и ухото и изпомпват задържаната течност.",
+                    "Lymph wave: the muscles tighten one after another from the nose to the jaw and the ear and pump the held fluid.");
+        }
+        if (AutoCatalog.FACE_TONE.equals(id)) {
+            return AiText.t("Стегнат овал: по-дълги меки стягания — мускулите на лицето стават издръжливи и пазят лифтинга.",
+                    "Firm contour: longer soft holds — the face muscles grow enduring and keep the lift.");
+        }
+        if (AutoCatalog.FACE_OVAL.equals(id)) {
+            return AiText.t("Лифтинг на овала: скулите и брадичката се редуват — всеки мускул работи 3 s и почива 6.",
+                    "Oval lift: the cheekbones and the chin take turns — every muscle works 3 s and rests 6.");
+        }
+        if (AutoCatalog.FACE_RELAX.equals(id)) {
+            return AiText.t("Ботокс ефект: нежният ток по сетивните нерви сваля тонуса на мимическите мускули — челото се отпуска.",
+                    "Botox effect: the gentle current on the sensory nerves lowers the tone of the expression muscles.");
+        }
+        if (AutoCatalog.FACE_CALM.equals(id)) {
+            return AiText.t("Спокойно лице: сетивният ток по челото и челюстта сваля напрежението — честотата се сменя, за да не привикне.",
+                    "Calm face: the sensory current on the forehead and the jaw lowers the tension — the rate changes so it never wears off.");
+        }
+        if (AutoCatalog.FACE_JAW.equals(id)) {
+            return AiText.t("Отпусната челюст: бавни импулси в дъвкателния мускул — тонусът му в покой спада.",
+                    "Relaxed jaw: slow impulses in the masseter — its resting tone drops.");
+        }
+        if (AutoCatalog.FACE_CHIN.equals(id)) {
+            return AiText.t("Стегната брадичка: мускулите под брадичката се стягат и оформят профила.",
+                    "Firm chin: the muscles under the chin tighten and shape the profile.");
+        }
+        return AiText.t("Лифтинг 3D: скулите, назолабиалната зона и долната буза работят заедно — по-плътна опора за цялата средна част.",
+                "Lift 3D: the cheekbones, the nasolabial area and the lower cheek work together — fuller support for the whole mid-face.");
     }
 
     /** What the current impulse does in the body (by its frequency, the wave and the 2nd impulse). */
@@ -164,7 +188,7 @@ public final class AutoCues {
             return AiText.t("Пауза — съдовете се пълнят", "Pause — the vessels refill");
         }
         if (ph != null && ph.wave) {
-            return AiText.t("Вълна: ", "Wave: ") + waveZones(c);
+            return AiText.t("Вълна: ", "Wave: ") + (AutoCatalog.isFace(plan.program) ? faceZones(c) : waveZones(c));
         }
         if (c.hz < 20) {
             return AiText.t("Ритмично потрепване — отпусни се", "Rhythmic twitching — relax");
@@ -190,6 +214,30 @@ public final class AutoCues {
     }
 
     /** The zones at 100 % in a wave step (e.g. "Прасец", "Задно + предно бедро"). */
+    /** The face connector's sites (F1–F10, AutoCatalog.F_*). */
+    static String[] faceSiteNames() {
+        return new String[] {AiText.t("скула Л", "cheekbone L"), AiText.t("скула Д", "cheekbone R"),
+                AiText.t("назолабиална Л", "nasolabial L"), AiText.t("назолабиална Д", "nasolabial R"),
+                AiText.t("долна буза Л", "lower cheek L"), AiText.t("долна буза Д", "lower cheek R"),
+                AiText.t("челюст Л", "jaw L"), AiText.t("челюст Д", "jaw R"), AiText.t("чело", "forehead"),
+                AiText.t("брадичка", "chin")};
+    }
+
+    /** The face's wave step by its sites: "назолабиална Л + назолабиална Д". */
+    public static String faceZones(AutoEngine.Cmd c) {
+        if (c == null || c.zones == null) {
+            return "";
+        }
+        String[] n = faceSiteNames();
+        StringBuilder sb = new StringBuilder();
+        for (int ch = 0; ch < c.zones.length && ch < n.length; ch++) {
+            if (c.zones[ch] >= 100) {
+                sb.append(sb.length() > 0 ? " + " : "").append(n[ch]);
+            }
+        }
+        return sb.toString();
+    }
+
     public static String waveZones(AutoEngine.Cmd c) {
         if (c == null || c.zones == null) {
             return "";

@@ -44,7 +44,7 @@ import java.util.Set;
  */
 public final class BluetensScreen {
     static final String PREFS = "xems_bluetens";
-    static final int MAX_PADS = 2;
+    static final int MAX_PADS = 3;
     /** Live mode swaps between two files so the one playing is never overwritten. */
     static final String LIVE_A = "XLIVA", LIVE_B = "XLIVB";
 
@@ -1792,13 +1792,13 @@ public final class BluetensScreen {
             String[] lines = b ? new String[] {
                     "• Електродите — на чиста, суха кожа, върху мускула, не върху става или кост.",
                     "• Започва от сила 1. Качвай, докато е приятно — никога до болка.",
-                    "• Duo: двете устройства тръгват заедно, силата е отделна за всяко.",
+                    "• До 3 устройства: тръгват заедно, силата е отделна за всяко.",
                     "• „—“ свива прозореца: устройствата продължават, а ти работиш в XEMS. Докосни балончето, за да го отвориш.",
                     "• ✕ затваря прозореца и спира устройствата."}
                     : new String[] {
                     "• Electrodes on clean, dry skin over the muscle — not on a joint or bone.",
                     "• It starts at strength 1. Raise it until it feels good — never to pain.",
-                    "• Duo: both pads start together; each has its own strength.",
+                    "• Up to 3 pads: they start together; each has its own strength.",
                     "• “—” folds the window: the pads keep going while you work in XEMS. Tap the pill to open it again.",
                     "• ✕ closes the window and stops the pads."};
             if (ld != null && (b ? ld[0] : ld[1]).length() > 0) {

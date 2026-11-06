@@ -176,62 +176,57 @@ always ≥ 20 Hz on the face) and **sensory** (only the skin's nerves; the stren
   rhythm checks; BluetensSim checks every face file's widths (100 / 200 / 250 / 150 µs), ≥ 20 Hz, rest ratios;
   face-sim checks the forehead and jaw pads' distances.
 
-## 9. Multi-channel face — concept (owner, 2026-11-06; proposal, not built yet)
-New hardware: a **face connector for the XEMS suit** — all 10 channels, each one bipolar pair (two pads side by
-side), freely placed on the face; and **up to 3 Bluetens** at once. Channels sit next to each other, not mirrored.
+## 9. Multi-channel face (owner, 2026-11-06; built in 1.1.502-ai)
+New hardware: a **face connector for the XEMS suit** — all 10 channels, each one bipolar pair, on ten face sites
+(sockets F1–F10); and **up to 3 Bluetens** at once. Channels sit next to each other, not only mirrored.
+**The channels are galvanically isolated** (owner) — both sides may work at the same moment; Bluetens devices are
+separate batteries anyway.
 
-### 9.1 What the hardware allows and forbids
+### 9.1 What the hardware allows
 | | XEMS suit, 10 channels | Bluetens × 3 |
 |---|---|---|
 | Hz / width / shape | **one for all channels** at a moment (steps may change it) | each device its own file |
-| strength | per channel (the zones %, the trainer's per-channel setting) | per device |
-| rhythm | channel masks per step: waves, alternation (Auto `Step.zones`, as the body's drainage wave) | per device; offsets between files (the drainage wave) |
-| isolation | **none between channels** (docs/xems-bodytech.md "Pulse slots": a strong channel leaks into a neighbour's electrode and to far electrodes) | separate batteries: no path between devices |
-| kinds at once | one kind per moment (no sensory channel next to a motor one at a different Hz) | any mix (each device its own program) |
+| strength | a master + each site's share (`AutoSession.adjustChannel`, 20–100 %, 10 % a step) | per device |
+| rhythm | site masks per step: waves, turns (Auto `Step.zones`) | per device; offsets between files (the drainage) |
+| kinds at once | one kind per moment | any mix (forehead sensory + jaws bursts) |
 
-**Safety architecture (XEMS multi-channel):**
-1. **Never both cheeks at the same moment.** The procedures alternate: left side → right side → rest (3 s each = 3 : 6
-   per side — exactly the lift's rhythm). A leak then stays on one side of the face; nothing crosses the head.
-   Midline channels (forehead across the middle, under the chin) work alone, never with a side.
-2. **Face mode in the encoder** (`ChannelStrengthScale`): every face channel gets the arms divider (÷4 at 100 µs) and
-   no body balance correction — 10 equal, gentle channels; a channel not in the program is 0 and locked.
-3. **Pulse slots on** (where the suit has them, docs/xems-bodytech.md): channels that do pulse together are spread in
-   time — the weak, even leak.
-4. **Bench test before the first face** (oscilloscope + 1 kΩ loads on two channels): drive one, measure what appears
-   on the other's pads at 0 %; and the mA per strength step. Until then: one side and the midline only.
+Safety, both devices: the encoder's **face mode** (`ChannelStrengthScale.setFace`, set by `AutoSession` for a face
+plan, cleared on close): every channel gets the gentle divider (÷4 at 100 µs), no body balance correction; sites not
+in the program are 0 and locked (`AutoPlanner`: the program's sites exactly, no personal offsets — a "legs" focus
+never reaches a cheek). Still open: the bench test of mA per strength step (no face cap in mA until then).
 
-### 9.2 Channel map of the face connector (sockets F1–F10, printed on it)
+### 9.2 Sites = sockets (`FaceArt` sites = `AutoCatalog.F_*` = suit channels 0–9; "L" = the client's left)
 | F | site | muscle / nerve | kind |
 |---|---|---|---|
 | F1 / F2 | cheekbone L / R | zygomaticus major | motor |
 | F3 / F4 | nasolabial L / R (low on the muscle, ≥ 2 cm from the eye) | zygomaticus minor · levator labii superioris | motor |
-| F5 / F6 | lower cheek L / R (lateral to the mouth corner) | risorius · buccinator (the pump towards the jaw nodes) | motor |
-| F7 / F8 | jaw L / R | masseter | **sensory only** (strengthening it widens the jaw) |
+| F5 / F6 | lower cheek L / R (beside the mouth corner, ≥ 1 cm from it) | risorius · buccinator | motor |
+| F7 / F8 | jaw L / R | masseter | **sensory only** (strengthening widens the jaw) |
 | F9 | forehead, across the middle, 2 fingers above the brows | n. supraorbitalis / supratrochlearis | **sensory only** |
 | F10 | under the chin, across the midline | digastric · mylohyoid | motor |
-The suit's channel order is fixed in software (`FaceMap`: F1 = suit channel 0 … F10 = 9), so a program names sites,
-never body zones.
+Connector pads 12 × 16 mm (three pairs fit a cheek); Bluetens' own 16 × 19 mm. face-sim checks every site against the
+keep-out zones and that the pads of the sites a procedure uses together never overlap.
 
-### 9.3 Procedures (XEMS 10-ch · Bluetens up to 3)
-| Procedure (result) | XEMS channels · rhythm | Bluetens devices | Evidence |
+### 9.3 Procedures (`FaceProgram`: `xemsSites()`, `bluetensSites()`; Auto ids `AutoCatalog.FACE_IDS`)
+| Procedure (result) | XEMS | Bluetens (device → site, file) | Evidence |
 |---|---|---|---|
-| **Лифтинг 3D** — повдигнати скули и назолабиална зона | F1 F3 F5 ↔ F2 F4 F6, 70 Hz, L 3 s → R 3 s → rest 3 s | 2: cheeks | ●●● ZM · ●●○ the others |
-| **Лифтинг на овала** — скули + стегната брадичка в една сесия | L (F1 F3 F5) → R (F2 F4 F6) → chin F10, 3 s each, 70 → 50 Hz under the chin | 3: cheeks + chin | ●●○ |
-| **Стегнат овал** — еластичност, пази лифтинга | same sides, 35 Hz, 5 s per side | 2 | ●●○ |
-| **Лимфодренажна вълна** — по-малко подпухване, ясни черти | open F10 (chin) → per side F3 → F5 (to the jaw nodes), F1 (to the ear) — 30 Hz, 1 s steps, the previous at 50 %, then refill rest | 3: chin opens, cheeks follow 1.5 s apart | ●●○ NMES oedema + sequential compression |
-| **Ботокс ефект** — отпусната мимика на челото | F9 sensory 60 Hz · 250 µs | 1: forehead | ●●○ |
-| **Спокойно лице** — без напрежение в челото и челюстта | F9 → F7 → F8 sensory, 60 ↔ 80 Hz alternating every minute (habituation) | 3: forehead + jaws (jaws as bursts) | ●●○ TENS tone, TMD |
-| **Отпусната челюст** — по-мек долен овал | F7 ↔ F8 sensory low-rate (2 Hz plain on XEMS; bursts on Bluetens) | 2 | ●●○ |
-| **Стегната брадичка** — по-стегнат профил | F10, 30 Hz · 200 µs, 4 : 8 | 1 | ●○○ |
+| **Лифтинг 3D** — повдигнати скули, по-мека назолабиална гънка | F1–F6, 70 Hz · 100 µs · 3 : 6 (`face`) | 1 cheek L, 2 cheek R (`XFLF`) | ●●● ZM · ●●○ the others |
+| **Лифтинг на овала** — скули + брадичка | F1–F6 3 s ↔ F10 3 s (50 Hz), each muscle 3 : 6 (`face_oval`) | + 3 chin (`XCHN`) | ●●○ |
+| **Стегнат овал** | F1–F6, 35 Hz · 4 : 5 (`face_tone`) | 2 cheeks (`XFTN`) | ●●○ |
+| **Детокс от отоци** — лимфна вълна | open F10, then F3/F4 → F5/F6 → F1/F2 → F10, 30 Hz 1 s, the previous at 50 %, silent refill (`face_drain`) | 1–2 cheeks `XFDR`/`XFDB`; with 3: chin `XFDR` opens, cheeks `XFDB` 1.5 s later | ●●○ |
+| **Ботокс ефект** | F9 sensory 60 Hz · 250 µs · 4 : 4 (`face_relax`) | 1 forehead (`XFRX`) | ●●○ |
+| **Спокойно лице** | F9 + F7 + F8 sensory, 60 ↔ 80 Hz (`face_calm`) | 1 forehead `XFRX`, 2–3 jaws `XJAW` | ●●○ |
+| **Отпусната челюст** | F7 + F8, 2 Hz plain · 250 µs (no bursts on the suit) (`face_jaw`) | 2 jaws (`XJAW` bursts) | ●●○ |
+| **Стегната брадичка** | F10, 30 Hz · 200 µs · 4 : 8 (`face_chin`) | 1 chin (`XCHN`) | ●○○ |
 
-### 9.4 What the app needs (when the connector exists)
-- `FaceMap` (sites, sockets, suit channel index) + `FaceArt` sites for all ten (picture landmarks, ≥ 2 cm from the eye).
-- Auto face programs by site masks per step (alternation, waves); the engine and `SafeLimits` stay as they are.
-- `ChannelStrengthScale` face mode; per-channel calibration in the studio (a compact grid of the program's channels).
-- Studio: a "connector" step — which socket to which site, shown on the picture; per-device site assignment for 3 Bluetens
-  (`BluetensScreen.MAX_PADS` 2 → 3).
-- Tests: no step drives a left and a right side channel together; midline channels alone; every site's pads clear of
-  the keep-out zones.
+### 9.4 Studio
+- Placement: a two-column table socket / device → site (with each Bluetens battery, "не е свързано" for a missing
+  one); the picture labels the pads the same (F3 / 2).
+- Strength: XEMS — the master big + a compact share per site (3 a row); Bluetens — one big stepper per device (≤ 3).
+- The picture: every working site glows by its own level (XEMS: the step's share of the site × the hold; Bluetens:
+  each device's own file), the wave visibly runs across the sites.
+- Tests: AutoSim `face()` — all eight programs: exactly their sites, locked others, no personal offsets, widths, ≥ 20 Hz
+  (the jaw's sensory 2 Hz excepted), each rhythm, every safety invariant (`runPlan`), engine commands inside the sites.
 
 ## 10. Open
 1. Strength → mA for both units (0.5–1 kΩ, USB scope, 100 µs) → a hard face cap; tells whether "µs" is one phase.

@@ -137,11 +137,11 @@ public final class FaceStudio {
         TextView primary;
         TextView hint;
         FaceRing ring;
-        final TextView[] values = new TextView[2];
+        final TextView[] values = new TextView[12];
         TextView pauseBtn;
         TextView stopBtn;
         TextView statusLine;
-        int[] lastShown = {-1, -1};
+        final int[] lastShown = new int[12];
 
         Studio(Activity a, FaceDevice dev, int program) {
             this.a = a;
@@ -155,6 +155,7 @@ public final class FaceStudio {
             if (!ok) {
                 this.program = dev.programs()[0];
             }
+            dev.select(this.program);
         }
 
         int dp(float v) {
@@ -228,8 +229,8 @@ public final class FaceStudio {
         String subtitle() {
             String name = dev.clientName();
             String d = dev.kind() == FaceDevice.XEMS
-                    ? tr("Костюм XEMS · електродите на изходите за ръце", "XEMS suit · pads on the arm outputs")
-                    : tr("Bluetens · по едно устройство на буза", "Bluetens · a pad per cheek");
+                    ? tr("Костюм XEMS · букса за лице F1–F10", "XEMS suit · face connector F1–F10")
+                    : tr("Bluetens · до 3 устройства", "Bluetens · up to 3 pads");
             return name != null && name.length() > 0 ? name + "  ·  " + d : d;
         }
 
@@ -289,15 +290,13 @@ public final class FaceStudio {
             step = st;
             right.removeAllViews();
             s.footer.removeAllViews();
-            values[0] = null;
-            values[1] = null;
+            java.util.Arrays.fill(values, null);
             ring = null;
             pauseBtn = null;
             stopBtn = null;
             statusLine = null;
-            lastShown[0] = -1;
-            lastShown[1] = -1;
-            face.focusChin(prog().target == FaceProgram.CHIN);
+            java.util.Arrays.fill(lastShown, -1);
+            face.focusChin(prog().id == FaceProgram.CONTOUR);
             if (st <= STRENGTH) {
                 right.addView(progress(st), XemsUi.matchWrap(a, 0));
             }
@@ -309,7 +308,7 @@ public final class FaceStudio {
                 default: buildDone(); break;
             }
             floor.removeAllViews();
-            if (st != DONE) {
+            if (st != DONE && (st != PICK || dev.programs().length <= 4)) {
                 floor.addView(courseCard(), XemsUi.matchWrap(a, 0));     // the course on the floor: no empty half-screen
             }
             updateCaption();
@@ -381,7 +380,7 @@ public final class FaceStudio {
             boolean on = p.id == program;
             boolean b = bg();
             LinearLayout card = XemsUi.vertical(a);
-            card.setPadding(dp(14), dp(12), dp(10), dp(12));
+            card.setPadding(dp(14), dp(10), dp(10), dp(10));
             float r = dp(18);
             card.setBackgroundDrawable(XemsUi.ripple(on
                     ? XemsUi.rounded(XemsUi.alpha(p.tint, 0x24), r, XemsUi.alpha(p.tint, 0xDD), dp(2))
@@ -409,11 +408,12 @@ public final class FaceStudio {
             head.addView(info, new LinearLayout.LayoutParams(dp(34), dp(34)));
             card.addView(head);
             TextView tag = XemsUi.text(a, p.tag(b), 14.5f, XemsUi.TEXT, false);
-            tag.setMaxLines(2);
-            tag.setPadding(0, dp(8), 0, 0);
+            tag.setSingleLine(true);
+            tag.setEllipsize(TextUtils.TruncateAt.END);
+            tag.setPadding(0, dp(6), 0, 0);
             card.addView(tag);
             LinearLayout chips = XemsUi.horizontal(a);
-            chips.setPadding(0, dp(8), 0, 0);
+            chips.setPadding(0, dp(6), 0, 0);
             TextView c1 = XemsUi.badge(a, p.rhythm(b), on ? p.tint : XemsUi.MUTED);
             c1.setSingleLine(true);
             chips.addView(c1);
@@ -476,24 +476,7 @@ public final class FaceStudio {
                 right.addView(placeRow(i == 0 ? "✓" : String.valueOf(i), lines[i], i == 0 ? XemsUi.GO_TEXT : XemsUi.ACCENT),
                         XemsUi.matchWrap(a, 10));
             }
-            if (dev.kind() == FaceDevice.XEMS) {
-                boolean fh = p.target == FaceProgram.FOREHEAD;
-                right.addView(placeRow("⇄", fh
-                        ? tr("Кабелите за ръцете: левият към лявата половина на челото, десният към дясната. Другите канали са изключени.",
-                        "The arm cables: left to the left half of the forehead, right to the right. Every other channel is off.")
-                        : tr("Кабелите за ръцете: левият към лявата буза, десният към дясната. Другите канали са изключени.",
-                        "The arm cables: left to the left cheek, right to the right. Every other channel is off."), XemsUi.AMBER),
-                        XemsUi.matchWrap(a, 10));
-            } else {
-                for (int ch = 0; ch < Math.max(1, dev.channels()); ch++) {
-                    if (dev.channels() == 0) {
-                        break;
-                    }
-                    int bat = dev.battery(ch);
-                    right.addView(placeRow("◉", dev.channelName(ch, b) + "  ·  Bluetens ✓" + (bat >= 0 ? "  ·  " + bat + " %" : ""),
-                            XemsUi.GO_TEXT), XemsUi.matchWrap(a, 10));
-                }
-            }
+            right.addView(socketTable(b), XemsUi.matchWrap(a, 14));
             String why = dev.notReady(program, b);
             if (why != null) {
                 TextView w = XemsUi.text(a, why, 14, XemsUi.AMBER, true);
@@ -534,6 +517,44 @@ public final class FaceStudio {
             enable(primary, ok);
         }
 
+        /**
+         * Which socket (XEMS: F1–F10 of the face connector) or which device (Bluetens 1–3) goes to which site — a
+         * compact two-column table; the picture shows the same labels on the pads.
+         */
+        View socketTable(boolean b) {
+            LinearLayout t = XemsUi.vertical(a);
+            int n = dev.kind() == FaceDevice.XEMS ? dev.channels() : prog().bluetensSites().length;
+            LinearLayout row = null;
+            for (int ch = 0; ch < n; ch++) {
+                if (ch % 2 == 0) {
+                    row = XemsUi.horizontal(a);
+                    t.addView(row, XemsUi.matchWrap(a, ch == 0 ? 0 : 8));
+                }
+                boolean live = dev.kind() == FaceDevice.XEMS || ch < dev.channels();
+                int tint = live ? XemsUi.ACCENT : XemsUi.MUTED;
+                LinearLayout cell = XemsUi.horizontal(a);
+                cell.setGravity(Gravity.CENTER_VERTICAL);
+                TextView sk = XemsUi.text(a, dev.socket(ch), 13, live ? XemsUi.ON_ACCENT : XemsUi.MUTED, true);
+                sk.setGravity(Gravity.CENTER);
+                sk.setBackgroundDrawable(XemsUi.rounded(live ? tint : XemsUi.alpha(tint, 0x30), dp(8), 0, 0));
+                cell.addView(sk, new LinearLayout.LayoutParams(dp(40), dp(30)));
+                String name = FaceProgram.siteName(dev.kind() == FaceDevice.XEMS ? dev.siteOf(ch) : prog().bluetensSites()[ch], b);
+                if (dev.kind() == FaceDevice.BLUETENS) {
+                    int bat = live ? dev.battery(ch) : -1;
+                    name += live ? (bat >= 0 ? "  ·  " + bat + " %" : "  ·  ✓") : tr("  ·  не е свързано", "  ·  not connected");
+                }
+                TextView nm = XemsUi.text(a, name, 14.5f, live ? XemsUi.TEXT : XemsUi.MUTED, false);
+                nm.setPadding(dp(10), 0, dp(6), 0);
+                cell.addView(nm, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+                row.addView(cell, lp);
+            }
+            if (n % 2 == 1 && row != null) {
+                row.addView(new View(a), new LinearLayout.LayoutParams(0, 1, 1f));
+            }
+            return t;
+        }
+
         View placeRow(String num, String line, int tint) {
             LinearLayout r = XemsUi.horizontal(a);
             r.setGravity(Gravity.CENTER_VERTICAL);
@@ -570,50 +591,114 @@ public final class FaceStudio {
                 right.addView(XemsUi.text(a, prepareError, 15, XemsUi.DANGER, true), XemsUi.matchWrap(a, 14));
             }
             right.addView(strengthRow(), XemsUi.matchWrap(a, 18));
-            if (dev.kind() == FaceDevice.XEMS) {
-                TextView n = XemsUi.text(a, tr("Една сила за двете бузи — затова електродите стоят еднакво от двете страни.",
-                        "One strength for both cheeks — so the pads sit the same on both sides."), 13, XemsUi.MUTED, false);
-                right.addView(n, XemsUi.matchWrap(a, 12));
-            }
             ghost(tr("←  Назад", "←  Back"), new Back(this));
             primary = footer(dev.kind() == FaceDevice.XEMS ? tr("▶  Старт", "▶  Start") : tr("✓  Добре е · продължи", "✓  Good · go on"),
                     XemsUi.PRIMARY, new Start(this));
             enable(primary, false);
         }
 
-        /** One big stepper per channel: − value + (hold = fast). */
+        /**
+         * XEMS: one big master (the whole procedure) and a compact share for every site (100 % = as the program asks,
+         * lower one that feels stronger); Bluetens: one big stepper per device. − may be held, + is one step per tap.
+         */
         View strengthRow() {
+            LinearLayout box = XemsUi.vertical(a);
+            values[0] = null;
+            if (dev.hasMaster()) {
+                box.addView(bigStepper(-1, tr("Сила на процедурата", "Procedure strength")), XemsUi.matchWrap(a, 0));
+                int n = dev.channels();
+                if (n > 1) {
+                    TextView cap = XemsUi.text(a, tr("Дял на всяко място — намали там, където се усеща по-силно",
+                            "Each site's share — lower where it feels stronger"), 13, XemsUi.MUTED, false);
+                    box.addView(cap, XemsUi.matchWrap(a, 12));
+                    LinearLayout row = null;
+                    for (int ch = 0; ch < n; ch++) {
+                        if (ch % 3 == 0) {
+                            row = XemsUi.horizontal(a);
+                            box.addView(row, XemsUi.matchWrap(a, 6));
+                        }
+                        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+                        if (ch % 3 > 0) {
+                            lp.leftMargin = dp(8);
+                        }
+                        row.addView(smallStepper(ch), lp);
+                    }
+                    for (int k = n % 3; k > 0 && k < 3; k++) {
+                        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, 1, 1f);
+                        lp.leftMargin = dp(8);
+                        row.addView(new View(a), lp);
+                    }
+                }
+                return box;
+            }
             LinearLayout r = XemsUi.horizontal(a);
             int n = Math.max(1, dev.channels());
-            for (int ch = 0; ch < n && ch < 2; ch++) {
-                LinearLayout col = XemsUi.vertical(a);
-                col.setGravity(Gravity.CENTER_HORIZONTAL);
-                col.setPadding(dp(10), dp(12), dp(10), dp(14));
-                col.setBackgroundDrawable(XemsUi.glass(a, dp(18)));
-                TextView name = XemsUi.text(a, dev.channelName(ch, bg()), 14, XemsUi.MUTED, true);
-                name.setGravity(Gravity.CENTER);
-                col.addView(name);
-                LinearLayout st = XemsUi.horizontal(a);
-                st.setGravity(Gravity.CENTER);
-                TextView minus = XemsUi.iconButton(a, "−", XemsUi.SURFACE, XemsUi.TEXT, 60);
-                TextView plus = XemsUi.iconButton(a, "+", XemsUi.SURFACE, XemsUi.TEXT, 60);
-                // − may be held (fast down); + is one step per tap — never a run-away on the face
-                XemsUi.repeatOnHold(minus, new StepCh(this, ch), -1);
-                plus.setOnClickListener(new PlusTap(this, ch));
-                TextView v = XemsUi.text(a, "0", 44, XemsUi.TEXT, true);
-                v.setGravity(Gravity.CENTER);
-                values[ch] = v;
-                st.addView(minus, new LinearLayout.LayoutParams(dp(60), dp(60)));
-                st.addView(v, new LinearLayout.LayoutParams(dp(104), ViewGroup.LayoutParams.WRAP_CONTENT));
-                st.addView(plus, new LinearLayout.LayoutParams(dp(60), dp(60)));
-                col.addView(st, XemsUi.matchWrap(a, 8));
+            for (int ch = 0; ch < n && ch < 3; ch++) {
                 LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
                 if (ch > 0) {
-                    lp.leftMargin = dp(12);
+                    lp.leftMargin = dp(10);
                 }
-                r.addView(col, lp);
+                r.addView(bigStepper(ch, dev.socket(ch) + " · " + dev.channelName(ch, bg())), lp);
             }
-            return r;
+            box.addView(r);
+            return box;
+        }
+
+        /** A big stepper (ch −1 = the master). */
+        View bigStepper(int ch, String label) {
+            LinearLayout col = XemsUi.vertical(a);
+            col.setGravity(Gravity.CENTER_HORIZONTAL);
+            col.setPadding(dp(8), dp(10), dp(8), dp(12));
+            col.setBackgroundDrawable(XemsUi.glass(a, dp(18)));
+            TextView name = XemsUi.text(a, label, 13.5f, XemsUi.MUTED, true);
+            name.setGravity(Gravity.CENTER);
+            name.setSingleLine(true);
+            name.setEllipsize(TextUtils.TruncateAt.END);
+            col.addView(name);
+            LinearLayout st = XemsUi.horizontal(a);
+            st.setGravity(Gravity.CENTER);
+            TextView minus = XemsUi.iconButton(a, "−", XemsUi.SURFACE, XemsUi.TEXT, 56);
+            TextView plus = XemsUi.iconButton(a, "+", XemsUi.SURFACE, XemsUi.TEXT, 56);
+            XemsUi.repeatOnHold(minus, new StepCh(this, ch), -1);
+            plus.setOnClickListener(new PlusTap(this, ch));
+            TextView v = XemsUi.text(a, "0", 40, XemsUi.TEXT, true);
+            v.setGravity(Gravity.CENTER);
+            values[slot(ch)] = v;
+            st.addView(minus, new LinearLayout.LayoutParams(dp(56), dp(56)));
+            st.addView(v, new LinearLayout.LayoutParams(dp(92), ViewGroup.LayoutParams.WRAP_CONTENT));
+            st.addView(plus, new LinearLayout.LayoutParams(dp(56), dp(56)));
+            col.addView(st, XemsUi.matchWrap(a, 6));
+            return col;
+        }
+
+        /** A site's share: "F3 назолабиална · лява   − 90 % +". */
+        View smallStepper(int ch) {
+            LinearLayout c = XemsUi.horizontal(a);
+            c.setGravity(Gravity.CENTER_VERTICAL);
+            c.setPadding(dp(8), dp(6), dp(6), dp(6));
+            c.setBackgroundDrawable(XemsUi.rounded(XemsUi.SURFACE, dp(14), XemsUi.STROKE, dp(1)));
+            TextView sk = XemsUi.text(a, dev.socket(ch), 12, XemsUi.ON_ACCENT, true);
+            sk.setGravity(Gravity.CENTER);
+            sk.setBackgroundDrawable(XemsUi.rounded(XemsUi.ACCENT, dp(7), 0, 0));
+            c.addView(sk, new LinearLayout.LayoutParams(dp(34), dp(24)));
+            TextView minus = XemsUi.iconButton(a, "−", XemsUi.CARD, XemsUi.TEXT, 40);
+            TextView plus = XemsUi.iconButton(a, "+", XemsUi.CARD, XemsUi.TEXT, 40);
+            XemsUi.repeatOnHold(minus, new StepCh(this, ch), -1);
+            plus.setOnClickListener(new PlusTap(this, ch));
+            TextView v = XemsUi.text(a, "100 %", 15, XemsUi.TEXT, true);
+            v.setGravity(Gravity.CENTER);
+            values[slot(ch)] = v;
+            LinearLayout.LayoutParams ml = new LinearLayout.LayoutParams(dp(40), dp(40));
+            ml.leftMargin = dp(6);
+            c.addView(minus, ml);
+            c.addView(v, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+            c.addView(plus, new LinearLayout.LayoutParams(dp(40), dp(40)));
+            return c;
+        }
+
+        /** values[0] = the master (or Bluetens 1), values[1 + ch] = a site / device. */
+        int slot(int ch) {
+            return dev.hasMaster() ? ch + 1 : ch;
         }
 
         /** Bluetens minutes, derived: the lift grows from 10 to 20 after two weeks; the forehead 20 (as the approved
@@ -825,13 +910,15 @@ public final class FaceStudio {
                 }
                 statusLine.setText(line);
             }
-            for (int ch = 0; ch < 2; ch++) {
-                if (values[ch] != null) {
-                    int v = dev.strength(ch);
-                    if (v != lastShown[ch]) {
-                        lastShown[ch] = v;
-                        values[ch].setText(String.valueOf(v));
-                    }
+            for (int k = 0; k < values.length; k++) {
+                if (values[k] == null) {
+                    continue;
+                }
+                int ch = dev.hasMaster() ? k - 1 : k;
+                int v = dev.strength(ch);
+                if (v != lastShown[k]) {
+                    lastShown[k] = v;
+                    values[k].setText(dev.hasMaster() && ch >= 0 ? v + " %" : String.valueOf(v));
                 }
             }
             if (step == STRENGTH) {
@@ -870,11 +957,10 @@ public final class FaceStudio {
             boolean b = bg();
             FaceProgram p = prog();
             if (step == PLACE) {
-                boolean fh = p.target == FaceProgram.FOREHEAD;
-                caption.setText(fh ? tr("1 и 2 — на челото, над веждите", "1 and 2 — on the forehead, above the brows")
-                        : tr("1 и 2 — двойката е от една страна", "1 and 2 — the pair stays on one side"));
-                captionSub.setText(fh ? tr("⊘ не: по-близо от 2 пръста до окото", "⊘ never: closer than 2 fingers to the eye")
-                        : tr("⊘ не: около окото, пред ухото, отстрани на шията", "⊘ never: around the eye, in front of the ear, the side of the neck"));
+                caption.setText(dev.kind() == FaceDevice.XEMS
+                        ? tr("Всяко гнездо F — на своето място, двойката по мускула", "Each F socket on its site, the pair along the muscle")
+                        : tr("Всяко устройство — на своето място", "Each pad on its site"));
+                captionSub.setText(tr("⊘ не: около окото, пред ухото, отстрани на шията", "⊘ never: around the eye, in front of the ear, the side of the neck"));
             } else {
                 caption.setText(p.muscle(b));
                 captionSub.setText(p.latin);
@@ -893,6 +979,7 @@ public final class FaceStudio {
                 return;
             }
             program = id;
+            dev.select(id);
             prepared = false;
             go(PICK);
         }
@@ -975,24 +1062,45 @@ public final class FaceStudio {
         @Override
         public void fill(FaceArt.Scene s, long now) {
             FaceProgram p = v.prog();
-            s.target = p.target;
+            boolean xems = v.dev.kind() == FaceDevice.XEMS;
+            s.clear();
             s.hz = p.hz;
             s.pads = true;
             s.nogo = v.step == PLACE;
             s.placing = v.step == PLACE;
             s.muscle = true;
-            s.side[0] = true;
-            s.side[1] = true;
             s.drain = p.id == FaceProgram.DRAIN;
             s.sensory = p.sensory;
-            s.pairs2 = v.dev.kind() == FaceDevice.XEMS;
+            s.small = xems;
             s.outline = v.step == RUN || v.step == STRENGTH;
+            // the procedure's sites, labelled as they are plugged (F1… / the device's number)
+            int[] sites = xems ? p.xemsSites() : p.bluetensSites();
+            int live = xems ? sites.length : v.dev.channels();
+            for (int k = 0; k < sites.length; k++) {
+                s.on[sites[k]] = true;
+                s.label[sites[k]] = xems ? "F" + (sites[k] + 1) : String.valueOf(k + 1);
+                s.dim[sites[k]] = !xems && k >= live && v.step != PICK && v.step != PLACE;
+            }
             if (v.step == PICK || v.step == DONE) {
                 // a preview of the effect: the program's own rhythm, gently (a sensory one: a steady shimmer)
-                FaceTimeline.State st = p.sensory ? steady() : FaceTimeline.cycle((long) (s.t * 1000), p.onS, p.offS, 500, 500, p.hz);
-                float lv = v.step == DONE ? 0f : st.level * 0.85f;
-                s.level[0] = lv;
-                s.level[1] = lv;
+                for (int k = 0; k < sites.length; k++) {
+                    float lv;
+                    if (v.step == DONE) {
+                        lv = 0f;
+                    } else if (p.sensory) {
+                        lv = 0.8f;
+                    } else if (p.id == FaceProgram.OVAL) {
+                        // the cheeks, then the chin: 3 s each
+                        long t = (long) (s.t * 1000) + (sites[k] == FaceArt.CHIN ? 3000 : 0);
+                        lv = FaceTimeline.cycle(t, 3, 3, 500, 500, p.hz).level * 0.85f;
+                    } else if (p.id == FaceProgram.DRAIN) {
+                        // the wave: each site a little later than the one before
+                        lv = FaceTimeline.cycle((long) (s.t * 1000) - k * 600L, 1, 2, 300, 300, p.hz).level * 0.85f;
+                    } else {
+                        lv = FaceTimeline.cycle((long) (s.t * 1000), p.onS, p.offS, 500, 500, p.hz).level * 0.85f;
+                    }
+                    s.level[sites[k]] = lv;
+                }
                 return;
             }
             if (v.step == PLACE) {
@@ -1002,24 +1110,13 @@ public final class FaceStudio {
             if (st.hz > 0) {
                 s.hz = st.hz;
             }
-            int n = v.dev.channels();
-            if ((p.target == FaceProgram.CHEEK || p.target == FaceProgram.JAW) && v.dev.kind() == FaceDevice.BLUETENS) {
-                s.side[0] = false;
-                s.side[1] = false;
-                for (int ch = 0; ch < n; ch++) {
-                    int side = v.dev.sideOf(ch);
-                    if (side >= 0) {
-                        // the drainage's second cheek runs half a cycle later: the picture shows the wave
-                        FaceTimeline.State sc = p.id == FaceProgram.DRAIN && ch == 1 && v.dev.active() ? v.dev.state(now - 1500) : st;
-                        s.side[side] = true;
-                        s.level[side] = v.dev.strength(ch) > 0 ? level(p, sc) : 0f;
-                    }
-                }
+            if (!v.dev.active()) {
                 return;
             }
-            float lv = v.dev.strength(0) > 0 ? level(p, st) : 0f;
-            s.level[0] = lv;
-            s.level[1] = lv;
+            for (int ch = 0; ch < v.dev.channels(); ch++) {
+                float lv = v.dev.level(ch, now);
+                s.level[v.dev.siteOf(ch)] = p.sensory ? (lv > 0 ? 0.8f : 0f) : lv;
+            }
         }
 
         /** A sensory current does not contract: the picture shows a steady shimmer while it flows. */

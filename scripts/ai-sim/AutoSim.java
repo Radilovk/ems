@@ -130,7 +130,7 @@ public final class AutoSim {
             check(plan.activeS <= 720, tag + ": first active session ≤ 12 min");
             check(plan.phiMax <= 0.7 + 1e-9, tag + ": first session φ ≤ 0.7");
         }
-        if (in.extra.breastfeeding) {
+        if (in.extra.breastfeeding && !AutoCatalog.isFace(plan.program)) {
             check(plan.zones[AutoModel.CHEST] == 0 && plan.zoneLocked[AutoModel.CHEST], tag + ": chest off");
         }
         check(plan.hrCap <= plan.hrMax, tag + ": HR cap ≤ HR max");
@@ -350,7 +350,8 @@ public final class AutoSim {
     static void passiveTexts() {
         String[] ids = {AutoCatalog.CELLULITE, AutoCatalog.DRAIN, AutoCatalog.PASSIVE_METABOLIC, AutoCatalog.BACK_PAIN,
                 AutoCatalog.POSTPARTUM, AutoCatalog.RECOVERY, AutoCatalog.FACE, AutoCatalog.FACE_TONE,
-                AutoCatalog.FACE_DRAIN, AutoCatalog.FACE_RELAX};
+                AutoCatalog.FACE_OVAL, AutoCatalog.FACE_DRAIN, AutoCatalog.FACE_RELAX, AutoCatalog.FACE_CALM,
+                AutoCatalog.FACE_JAW, AutoCatalog.FACE_CHIN};
         for (String id : ids) {
             AutoModel.Input in = input(AiModel.Sex.FEMALE, 35, 62, 166, AiModel.Fitness.MID, 6, -1);
             in.programId = id;
@@ -526,63 +527,75 @@ public final class AutoSim {
     }
 
     /**
-     * Face (docs/xems-face.md): only the arms channel ever carries current, 100 µs everywhere, never under 20 Hz
-     * (no twitches on the face), 2-min recovery; lift = 70 Hz 3 s with a pause ≥ 2× (fast fibres), tone = 35 Hz with
-     * a longer hold than the lift and a pause ≥ the hold.
+     * Face (docs/xems-face.md §9): every face program drives exactly its own sites (F1–F10), the rest 0 and locked,
+     * whatever the client's focus; motor steps ≥ 20 Hz at their width (the jaw's low-rate sensory steps excepted);
+     * each program's own rhythm; every engine command inside the sites and the width; every safety invariant of a
+     * full run; recovery 2 min; botox / filler < 2 weeks blocks.
      */
     static void face() {
-        for (String id : new String[] {AutoCatalog.FACE, AutoCatalog.FACE_TONE, AutoCatalog.FACE_DRAIN, AutoCatalog.FACE_RELAX}) {
-            boolean lift = AutoCatalog.FACE.equals(id);
-            boolean drain = AutoCatalog.FACE_DRAIN.equals(id);
-            boolean relax = AutoCatalog.FACE_RELAX.equals(id);
-            int pw = relax ? AutoCatalog.FACE_RELAX_PW : AutoCatalog.FACE_PW;
+        for (String id : AutoCatalog.FACE_IDS) {
+            AutoCatalog.Program prog = AutoCatalog.get(id);
+            boolean jaw = AutoCatalog.FACE_JAW.equals(id);
+            boolean sensoryWide = AutoCatalog.FACE_RELAX.equals(id) || AutoCatalog.FACE_CALM.equals(id);
+            int pw = sensoryWide ? AutoCatalog.FACE_RELAX_PW : jaw ? AutoCatalog.FACE_JAW_PW
+                    : AutoCatalog.FACE_CHIN.equals(id) ? AutoCatalog.FACE_CHIN_PW : AutoCatalog.FACE_PW;
+            check(prog != null && AutoCatalog.isFace(prog) && prog.asksFace, id + ": a face program asking the face question");
             for (AiModel.Sex sex : new AiModel.Sex[] {AiModel.Sex.FEMALE, AiModel.Sex.MALE}) {
                 for (int sessions : new int[] {0, 10}) {
                     AutoModel.Input in = input(sex, 45, 65, 168, AiModel.Fitness.MID, sessions, -1);
                     in.goal = AutoModel.Goal.TONE;
                     in.kind = AutoModel.Kind.PASSIVE;
                     in.programId = id;
+                    in.focus.add("legs");
                     in.focus.add("abs");
-                    runPlan(in, true);                         // every safety invariant of a full run (L1–L5, 60+, totals)
+                    runPlan(in, true);
                     AutoModel.Plan plan = AutoPlanner.build(in, 70);
                     check(plan.recoveryS == AutoCatalog.FACE_RECOVERY_S, id + ": recovery 2 min");
                     for (int i = 0; i < AutoModel.CHANNELS; i++) {
-                        check(i == AutoModel.ARMS ? plan.zones[i] > 0 : plan.zones[i] == 0 && plan.zoneLocked[i],
-                                id + ": channel " + i + " " + plan.zones[i]);
+                        check(plan.zones[i] == prog.zones[i], id + ": site " + i + " " + plan.zones[i] + " ≠ " + prog.zones[i]);
+                        check(prog.zones[i] > 0 || plan.zoneLocked[i], id + ": site " + i + " off and locked");
                     }
                     boolean main = false;
                     for (AutoModel.Phase ph : plan.phases) {
                         for (AutoModel.Step st : ph.steps) {
                             String at = id + "/" + ph.id;
+                            if (st.sigma <= 0) {
+                                continue;
+                            }
                             check(st.pwUs == pw, at + ": " + pw + " µs (" + st.pwUs + ")");
-                            check(st.hz >= AutoCatalog.FACE_HZ_MIN, at + ": ≥ 20 Hz on the face (" + st.hz + ")");
-                            check(st.zones == null, at + ": no step of its own zones");
-                            check(st.rampUpMs >= 300 && st.rampDownMs >= 300, at + ": soft rise and fall");
-                            if ("MAIN".equals(ph.id)) {
-                                main = true;
-                                if (lift) {
-                                    check(st.hz == 70 && st.onS == 3 && st.offS >= 2 * st.onS,
-                                            at + ": 70 Hz 3 s, pause ≥ 2× (" + st.hz + " " + st.onS + ":" + st.offS + ")");
-                                } else if (drain) {
-                                    check(st.hz == 30 && st.onS == 1 && st.offS >= 2 * st.onS,
-                                            at + ": pump 30 Hz 1 s, release ≥ 2× (" + st.hz + " " + st.onS + ":" + st.offS + ")");
-                                } else if (relax) {
-                                    check(st.hz == 60 && st.offS >= st.onS, at + ": sensory 60 Hz, pause ≥ hold (" + st.hz + " " + st.onS + ":" + st.offS + ")");
-                                } else {
-                                    check(st.hz == 35 && st.onS >= 4 && st.offS >= st.onS,
-                                            at + ": 35 Hz ≥ 4 s, pause ≥ hold (" + st.hz + " " + st.onS + ":" + st.offS + ")");
+                            check(jaw || st.hz >= AutoCatalog.FACE_HZ_MIN, at + ": ≥ 20 Hz on the face (" + st.hz + ")");
+                            check(jaw || (st.rampUpMs >= 300 && st.rampDownMs >= 300), at + ": soft rise and fall");
+                            if (st.zones != null) {
+                                for (int i = 0; i < AutoModel.CHANNELS; i++) {
+                                    check(st.zones[i] == 0 || prog.zones[i] > 0, at + ": step drives site " + i + " outside the program");
                                 }
+                            }
+                            if (!"MAIN".equals(ph.id) && !"WAVE".equals(ph.id)) {
+                                continue;
+                            }
+                            main = true;
+                            String r = " (" + st.hz + " Hz " + st.onS + ":" + st.offS + ")";
+                            if (AutoCatalog.FACE.equals(id)) {
+                                check(st.hz == 70 && st.onS == 3 && st.offS >= 6, at + ": 70 Hz 3 : 6" + r);
+                            } else if (AutoCatalog.FACE_TONE.equals(id)) {
+                                check(st.hz == 35 && st.onS == 4 && st.offS >= 4, at + ": 35 Hz 4 : ≥ 4" + r);
+                            } else if (AutoCatalog.FACE_OVAL.equals(id)) {
+                                // each step's muscles rest their own pause + the other step: ≥ 2× the hold
+                                check(st.onS == 3 && st.offS + 6 >= 2 * st.onS && st.zones != null, at + ": 3 s, alternating" + r);
+                            } else if (AutoCatalog.FACE_DRAIN.equals(id)) {
+                                check(st.hz == 30 && st.onS == 1, at + ": pump 30 Hz 1 s" + r);
+                            } else if (sensoryWide) {
+                                check((st.hz == 60 || st.hz == 80) && st.offS >= st.onS, at + ": sensory 60/80 Hz" + r);
+                            } else if (jaw) {
+                                check(st.hz <= 4, at + ": low-rate jaw" + r);
+                            } else {
+                                check(st.hz == 30 && st.onS == 4 && st.offS >= 8, at + ": chin 30 Hz 4 : 8" + r);
                             }
                         }
                     }
                     check(main, id + ": has its main part");
                     in.extra.injectable = true;
                     check(AutoCatalog.blockReason(plan.program, in.goal, in) != null, id + ": botox / filler < 2 weeks blocks");
-                    check(AutoCatalog.blockReason(plan.program, in.goal, in, false) == null, id + ": the card stays (asked on the client step)");
-                    AutoModel.Input other = input(sex, 45, 65, 168, AiModel.Fitness.MID, sessions, -1);
-                    other.extra.injectable = true;
-                    check(AutoCatalog.blockReason(AutoCatalog.get(AutoCatalog.RECOVERY), AutoModel.Goal.HEALTH, other) == null,
-                            "botox does not block the body programs");
                     in.extra.injectable = false;
                     AutoEngine e = new AutoEngine(plan);
                     long t = 0;
@@ -590,8 +603,12 @@ public final class AutoSim {
                     while (e.getState() == AutoEngine.State.RUN && t < 3_600_000L) {
                         AutoEngine.Cmd c = e.getCurrent();
                         check(c.pwUs <= pw, id + ": engine width " + c.pwUs);
-                        check(c.frac <= 0 || c.hz >= AutoCatalog.FACE_HZ_MIN, id + ": engine Hz " + c.hz);
-                        check(c.zones == null, id + ": engine keeps the plan zones");
+                        check(jaw || c.frac <= 0 || c.hz >= AutoCatalog.FACE_HZ_MIN, id + ": engine Hz " + c.hz);
+                        if (c.zones != null) {
+                            for (int i = 0; i < AutoModel.CHANNELS; i++) {
+                                check(c.zones[i] == 0 || prog.zones[i] > 0, id + ": engine drives site " + i);
+                            }
+                        }
                         t += Math.max(1000, c.durationMs());
                         e.tick(t - 1);
                         e.onCycle(t);
@@ -599,6 +616,10 @@ public final class AutoSim {
                 }
             }
         }
+        AutoModel.Input other = input(AiModel.Sex.FEMALE, 45, 65, 168, AiModel.Fitness.MID, 10, -1);
+        other.extra.injectable = true;
+        check(AutoCatalog.blockReason(AutoCatalog.get(AutoCatalog.RECOVERY), AutoModel.Goal.HEALTH, other) == null,
+                "botox does not block the body programs");
     }
 
     /** Hint card texts: every phase of every program has a hint and both cues; "next" names the next phase. */

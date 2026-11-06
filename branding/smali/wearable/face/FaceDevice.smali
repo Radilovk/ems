@@ -43,7 +43,13 @@
 .method public abstract finished()Z
 .end method
 
+.method public abstract hasMaster()Z
+.end method
+
 .method public abstract kind()I
+.end method
+
+.method public abstract level(IJ)F
 .end method
 
 .method public abstract maxStrength()I
@@ -70,7 +76,13 @@
 .method public abstract running()Z
 .end method
 
-.method public abstract sideOf(I)I
+.method public abstract select(I)V
+.end method
+
+.method public abstract siteOf(I)I
+.end method
+
+.method public abstract socket(I)Ljava/lang/String;
 .end method
 
 .method public abstract start(Landroid/content/Context;)V

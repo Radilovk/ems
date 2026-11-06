@@ -205,7 +205,7 @@
 
     aput-object v2, v1, v9
 
-    const-string v2, "\u2022 Duo: \u0434\u0432\u0435\u0442\u0435 \u0443\u0441\u0442\u0440\u043e\u0439\u0441\u0442\u0432\u0430 \u0442\u0440\u044a\u0433\u0432\u0430\u0442 \u0437\u0430\u0435\u0434\u043d\u043e, \u0441\u0438\u043b\u0430\u0442\u0430 \u0435 \u043e\u0442\u0434\u0435\u043b\u043d\u0430 \u0437\u0430 \u0432\u0441\u044f\u043a\u043e."
+    const-string v2, "\u2022 \u0414\u043e 3 \u0443\u0441\u0442\u0440\u043e\u0439\u0441\u0442\u0432\u0430: \u0442\u0440\u044a\u0433\u0432\u0430\u0442 \u0437\u0430\u0435\u0434\u043d\u043e, \u0441\u0438\u043b\u0430\u0442\u0430 \u0435 \u043e\u0442\u0434\u0435\u043b\u043d\u0430 \u0437\u0430 \u0432\u0441\u044f\u043a\u043e."
 
     aput-object v2, v1, v12
 
@@ -520,7 +520,7 @@
 
     aput-object v2, v1, v9
 
-    const-string v2, "\u2022 Duo: both pads start together; each has its own strength."
+    const-string v2, "\u2022 Up to 3 pads: they start together; each has its own strength."
 
     aput-object v2, v1, v12
 

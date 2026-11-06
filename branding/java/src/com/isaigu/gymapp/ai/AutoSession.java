@@ -527,6 +527,7 @@ public final class AutoSession {
         if (plan == null) {
             buildPlan();
         }
+        faceMode();
         stage = Stage.CALIB;
         AutoEngine.Cmd c = calibrationCmd();
         for (Row r : rows) {
@@ -631,6 +632,7 @@ public final class AutoSession {
                 plan.limitAge = Math.max(plan.limitAge, com.isaigu.gymapp.wearable.SafeGuard.age(it.data.trainUser));
             }
         }
+        faceMode();
         engine = new AutoEngine(plan);
         startEnergy();
         long now = System.currentTimeMillis();
@@ -745,6 +747,7 @@ public final class AutoSession {
         if (stage == Stage.RUNNING || stage == Stage.CALIB) {
             end();
         }
+        setFace(false);
         stopTicker();
         AutoHints.hide();
         AiRamp.clear();
@@ -1213,6 +1216,44 @@ public final class AutoSession {
     // ================================================================ energy (docs/xems-ems-physiology.md §4)
 
     // ================================================================ the face studio (wearable/face/FaceAuto)
+
+    /** The encoder's face mode follows the plan: on for a face program (every channel gently divided), else off. */
+    private static void faceMode() {
+        setFace(plan != null && AutoCatalog.isFace(plan.program));
+    }
+
+    private static void setFace(boolean on) {
+        try {
+            com.isaigu.gymapp.train.utils.ChannelStrengthScale.setFace(on);
+        } catch (Throwable t) {
+            WearableBleDiagLog.log("auto", "face mode: " + t);
+        }
+    }
+
+    /** One face site's share on every row, 10 % a step (100 % = as the program asks; the master strength stays). */
+    public static void adjustChannel(int ch, int delta) {
+        if (ch < 0 || ch >= AutoModel.CHANNELS) {
+            return;
+        }
+        for (Row r : rows) {
+            r.zoneRatio[ch] = Math.max(20, Math.min(100, r.zoneRatio[ch] + (delta > 0 ? 10 : -10)));
+        }
+        if (stage == Stage.CALIB) {
+            writeRows(written != null ? written : calibrationCmd(), true);
+        } else if (stage == Stage.RUNNING && engine != null && engine.getState() == AutoEngine.State.RUN && written != null) {
+            writeRows(written, false);
+        }
+    }
+
+    /** The leader's share of a site, % (100 = as the program asks). */
+    public static int channelShare(int ch) {
+        return rows.isEmpty() || ch < 0 || ch >= AutoModel.CHANNELS ? 100 : rows.get(0).zoneRatio[ch];
+    }
+
+    /** The zones the leader's step asks for now (null = none written yet). */
+    public static int[] leaderZones() {
+        return rows.isEmpty() || rows.get(0).writtenZones == null ? null : rows.get(0).writtenZones.clone();
+    }
 
     /** When the leader's impulse cycle last began (the device's hook; 0 = not yet). */
     public static long lastCycleMs() {

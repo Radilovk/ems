@@ -43,7 +43,7 @@
 
 .field static final LIVE_B:Ljava/lang/String; = "XLIVB"
 
-.field static final MAX_PADS:I = 0x2
+.field static final MAX_PADS:I = 0x3
 
 .field static final PREFS:Ljava/lang/String; = "xems_bluetens"
 

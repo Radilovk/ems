@@ -33,44 +33,55 @@ public final class FaceAuto implements FaceDevice {
     }
 
     public int channels() {
-        return 1;
+        return FaceProgram.get(program).xemsSites().length;
     }
 
-    public int sideOf(int ch) {
-        return -1;
+    public int siteOf(int ch) {
+        int[] s = FaceProgram.get(program).xemsSites();
+        return s[Math.max(0, Math.min(s.length - 1, ch))];
+    }
+
+    public String socket(int ch) {
+        return "F" + (siteOf(ch) + 1);
     }
 
     public String channelName(int ch, boolean bg) {
-        return bg ? "Двете бузи" : "Both cheeks";
+        return FaceProgram.siteName(siteOf(ch), bg);
+    }
+
+    public boolean hasMaster() {
+        return true;
+    }
+
+    /** The studio picked another procedure (before the strength step): the sites follow it. */
+    public void select(int program) {
+        this.program = program;
     }
 
     static String autoId(int program) {
         switch (program) {
             case FaceProgram.FIRM: return AutoCatalog.FACE_TONE;
+            case FaceProgram.OVAL: return AutoCatalog.FACE_OVAL;
             case FaceProgram.DRAIN: return AutoCatalog.FACE_DRAIN;
             case FaceProgram.RELAX: return AutoCatalog.FACE_RELAX;
+            case FaceProgram.CALM: return AutoCatalog.FACE_CALM;
+            case FaceProgram.JAW_RELAX: return AutoCatalog.FACE_JAW;
+            case FaceProgram.CONTOUR: return AutoCatalog.FACE_CHIN;
             default: return AutoCatalog.FACE;
         }
     }
 
     /** The studio's procedure for an Auto program id. */
     static int programOf(String autoId) {
-        if (AutoCatalog.FACE_TONE.equals(autoId)) {
-            return FaceProgram.FIRM;
-        }
-        if (AutoCatalog.FACE_DRAIN.equals(autoId)) {
-            return FaceProgram.DRAIN;
-        }
-        if (AutoCatalog.FACE_RELAX.equals(autoId)) {
-            return FaceProgram.RELAX;
+        for (int p : FaceProgram.XEMS) {
+            if (autoId(p).equals(autoId)) {
+                return p;
+            }
         }
         return FaceProgram.LIFT;
     }
 
     public String notReady(int program, boolean bg) {
-        if (program == FaceProgram.CONTOUR || program == FaceProgram.JAW_RELAX) {
-            return bg ? "Тази процедура е само с Bluetens" : "This one is Bluetens only";
-        }
         String c = AutoSession.getStage() == AutoSession.Stage.IDLE ? AutoSession.conflict() : null;
         if (c != null) {
             return c;
@@ -79,7 +90,7 @@ public final class FaceAuto implements FaceDevice {
     }
 
     public int strength(int ch) {
-        return AutoSession.leaderStrength();
+        return ch < 0 ? AutoSession.leaderStrength() : AutoSession.channelShare(siteOf(ch));
     }
 
     public int maxStrength() {
@@ -91,6 +102,10 @@ public final class FaceAuto implements FaceDevice {
     }
 
     public void step(int ch, int dir) {
+        if (ch >= 0) {
+            AutoSession.adjustChannel(siteOf(ch), dir);                 // the site's share, 10 % a step
+            return;
+        }
         if (AutoSession.getStage() == AutoSession.Stage.CALIB) {
             AutoSession.adjustCalibration(-1, dir);
         } else if (AutoSession.getStage() == AutoSession.Stage.RUNNING) {
@@ -215,6 +230,19 @@ public final class FaceAuto implements FaceDevice {
             st.leftMs = Math.round(e.phaseRemainingS() * 1000);
         }
         return st;
+    }
+
+    /** A site works now: the step's share of it (a wave moves it), times the hold's rise and fall. */
+    public float level(int ch, long now) {
+        FaceTimeline.State st = state(now);
+        int site = siteOf(ch);
+        int[] z = AutoSession.leaderZones();
+        if (z == null) {
+            AutoModel.Plan p = AutoSession.getPlan();
+            z = p != null ? p.zones : null;
+        }
+        float share = z != null && site < z.length ? Math.min(100, z[site]) / 100f : 1f;
+        return AutoSession.leaderStrength() > 0 ? st.level * share : 0f;
     }
 
     private static AutoModel.Step mainStep() {

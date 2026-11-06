@@ -15,9 +15,47 @@ public final class FaceProgram {
     /** Where it works. */
     public static final int CHEEK = 0, CHIN = 1, FOREHEAD = 2, JAW = 3;
 
-    public static final int LIFT = 0, FIRM = 1, DRAIN = 2, RELAX = 3, JAW_RELAX = 4, CONTOUR = 5;
-    public static final int[] XEMS = {LIFT, FIRM, DRAIN, RELAX};
-    public static final int[] BLUETENS = {LIFT, FIRM, DRAIN, RELAX, JAW_RELAX, CONTOUR};
+    public static final int LIFT = 0, FIRM = 1, DRAIN = 2, RELAX = 3, JAW_RELAX = 4, CONTOUR = 5, OVAL = 6, CALM = 7;
+    /** The order on the effect step (the lift first; the sensory ones last). */
+    public static final int[] XEMS = {LIFT, OVAL, FIRM, DRAIN, RELAX, CALM, JAW_RELAX, CONTOUR};
+    public static final int[] BLUETENS = XEMS;
+
+    /** XEMS (the face connector): the sites (= sockets F1–F10, {@link FaceArt} sites) each procedure drives. */
+    public int[] xemsSites() {
+        switch (id) {
+            case LIFT:
+            case FIRM: return new int[] {FaceArt.ZM_L, FaceArt.ZM_R, FaceArt.NL_L, FaceArt.NL_R, FaceArt.LC_L, FaceArt.LC_R};
+            case OVAL: return new int[] {FaceArt.ZM_L, FaceArt.ZM_R, FaceArt.NL_L, FaceArt.NL_R, FaceArt.LC_L, FaceArt.LC_R, FaceArt.CHIN};
+            case DRAIN: return new int[] {FaceArt.CHIN, FaceArt.NL_L, FaceArt.NL_R, FaceArt.LC_L, FaceArt.LC_R, FaceArt.ZM_L, FaceArt.ZM_R};
+            case RELAX: return new int[] {FaceArt.FOREHEAD};
+            case CALM: return new int[] {FaceArt.FOREHEAD, FaceArt.JAW_L, FaceArt.JAW_R};
+            case JAW_RELAX: return new int[] {FaceArt.JAW_L, FaceArt.JAW_R};
+            default: return new int[] {FaceArt.CHIN};
+        }
+    }
+
+    /** Bluetens: the site of each device, in the order they are switched on (up to 3; fewer run the first ones). */
+    public int[] bluetensSites() {
+        switch (id) {
+            case LIFT:
+            case FIRM: return new int[] {FaceArt.ZM_L, FaceArt.ZM_R};
+            case OVAL: return new int[] {FaceArt.ZM_L, FaceArt.ZM_R, FaceArt.CHIN};
+            case DRAIN: return new int[] {FaceArt.ZM_L, FaceArt.ZM_R, FaceArt.CHIN};
+            case RELAX: return new int[] {FaceArt.FOREHEAD};
+            case CALM: return new int[] {FaceArt.FOREHEAD, FaceArt.JAW_L, FaceArt.JAW_R};
+            case JAW_RELAX: return new int[] {FaceArt.JAW_L, FaceArt.JAW_R};
+            default: return new int[] {FaceArt.CHIN};
+        }
+    }
+
+    /** A site's plain name: "скула · лява". */
+    public static String siteName(int site, boolean bg) {
+        String[] b = {"скула · лява", "скула · дясна", "назолабиална · лява", "назолабиална · дясна", "долна буза · лява",
+                "долна буза · дясна", "челюст · лява", "челюст · дясна", "чело", "под брадичката"};
+        String[] e = {"cheekbone · left", "cheekbone · right", "nasolabial · left", "nasolabial · right", "lower cheek · left",
+                "lower cheek · right", "jaw · left", "jaw · right", "forehead", "under the chin"};
+        return (bg ? b : e)[Math.max(0, Math.min(9, site))];
+    }
 
     public final int id;
     public final int target;
@@ -65,9 +103,10 @@ public final class FaceProgram {
 
     private static final FaceProgram[] ALL = {
             // Kavanagh 2012 RCT: 20 min, 5×/week, 12 weeks → zygomaticus +18.6 %; ours 2 weeks × 3 then × 5 = 56
-            new FaceProgram(LIFT, CHEEK, false, "Лифтинг", "Lift",
-                    "Повдигнати, по-плътни скули", "Lifted, fuller cheekbones",
-                    "Голям скулов мускул", "Zygomaticus major", "m. zygomaticus major",
+            new FaceProgram(LIFT, CHEEK, false, "Лифтинг 3D", "Lift 3D",
+                    "Повдигнати скули, по-мека бразда", "Lifted cheekbones, a softer fold",
+                    "Скулови мускули и повдигачите на устната", "Cheek and lip-lifting muscles",
+                    "m. zygomaticus major et minor · m. levator labii sup.",
                     70, 3, 6, 0xFFFF6F91, "↗", 3, 2, 1, 12, 56),
             new FaceProgram(FIRM, CHEEK, false, "Стегнат овал", "Firm contour",
                     "Еластичност, която пази лифтинга", "Elasticity that keeps the lift",
@@ -77,9 +116,18 @@ public final class FaceProgram {
                     "По-малко подпухване, по-ясни черти", "Less puffiness, clearer features",
                     "Мускулна помпа на бузата", "Cheek muscle pump", "m. zygomaticus · m. buccinator",
                     30, 1, 2, 0xFF38BDF8, "≋", 2, 1, 1, 0, 0),
+            new FaceProgram(OVAL, CHEEK, false, "Лифтинг на овала", "Oval lift",
+                    "Скули и стегната брадичка наведнъж", "Cheekbones and a firm chin at once",
+                    "Скулови и надподезични мускули", "Cheek and suprahyoid muscles", "m. zygomaticus · m. digastricus",
+                    70, 3, 6, 0xFFFB7185, "◎", 2, 2, 1, 12, 56),
+            new FaceProgram(CALM, FOREHEAD, true, "Спокойно лице", "Calm face",
+                    "Без напрежение в челото и челюстта", "No tension in the forehead and the jaw",
+                    "Сетивни нерви на челото и дъвкателните мускули", "Forehead nerves and the masseters",
+                    "n. supraorbitalis · m. masseter",
+                    60, 0, 0, 0xFF2DD4BF, "◌", 2, 1, 1, 0, 0),
             // supraorbital TENS (Cefaly: 60 Hz, 250–300 µs, 20 min daily) + TENS lowers muscle tone (meta-analyses)
             new FaceProgram(RELAX, FOREHEAD, true, "Ботокс ефект", "Botox effect",
-                    "Отпусната мимика, по-гладко чело · без игла", "Relaxed expression, smoother forehead · no needle",
+                    "Гладко чело без игла", "A smooth forehead, no needle",
                     "Сетивни нерви на челото", "Forehead sensory nerves", "n. supraorbitalis · n. supratrochlearis",
                     60, 0, 0, 0xFFF5B021, "∿", 2, 1, 1, 0, 0),
             // TENS on the masseter lowers its resting EMG (RCT in TMD, short term)
@@ -93,7 +141,12 @@ public final class FaceProgram {
                     30, 4, 8, 0xFF818CF8, "◡", 1, 2, 2, 0, 0)};
 
     public static FaceProgram get(int id) {
-        return ALL[Math.max(0, Math.min(ALL.length - 1, id))];
+        for (FaceProgram p : ALL) {
+            if (p.id == id) {
+                return p;
+            }
+        }
+        return ALL[0];
     }
 
     public String name(boolean bg) {
@@ -116,7 +169,13 @@ public final class FaceProgram {
     /** The rhythm, short (a chip): "70 Hz · 3/6 s", "60 Hz · нежно", "серии 2/s". */
     public String rhythm(boolean bg) {
         if (id == JAW_RELAX) {
-            return bg ? "серии · 2 в секунда" : "bursts · 2 a second";
+            return bg ? "бавни импулси · 2/s" : "slow impulses · 2/s";
+        }
+        if (id == CALM) {
+            return bg ? "60 ↔ 80 Hz · без движение" : "60 ↔ 80 Hz · no movement";
+        }
+        if (id == OVAL) {
+            return bg ? "70 Hz · скули ↔ брадичка" : "70 Hz · cheeks ↔ chin";
         }
         if (sensory) {
             return hz + (bg ? " Hz · без движение" : " Hz · no movement");
@@ -130,6 +189,8 @@ public final class FaceProgram {
             case LIFT: return bg ? "курс 12 седмици" : "12-week course";
             case FIRM: return bg ? "2–3 пъти седмично" : "2–3 times a week";
             case DRAIN: return bg ? "сутрин · преди събитие" : "mornings · before an event";
+            case OVAL: return bg ? "курс 12 седмици" : "12-week course";
+            case CALM: return bg ? "20 мин · вечер" : "20 min · evenings";
             case RELAX: return bg ? "20 мин дневно" : "20 min daily";
             case JAW_RELAX: return bg ? "при напрежение" : "when tense";
             default: return bg ? "3 пъти седмично" : "3 times a week";
@@ -153,8 +214,10 @@ public final class FaceProgram {
     public String how(boolean bg) {
         switch (id) {
             case LIFT:
-                return bg ? "Импулсът възбужда двигателните разклонения на лицевия нерв (n. facialis) и скуловият мускул се "
-                        + "съкращава сам — 3 секунди работа, 6 секунди отдих, защото лицевите мускули са бързи и се уморяват бързо. "
+                return bg ? "Лифтинг 3D работи с трите мускула, които държат средната част на лицето: големия скулов, "
+                        + "повдигачите на горната устна (назолабиалната зона) и мускулите на долната буза. "
+                        + "Импулсът възбужда двигателните разклонения на лицевия нерв (n. facialis) и мускулите се "
+                        + "съкращават сами — 3 секунди работа, 6 секунди отдих, защото лицевите мускули са бързи и се уморяват бързо. "
                         + "Мускулите на лицето нямат сухожилия: те са вплетени в кожата. По-плътният мускул дава опора отвътре "
                         + "там, където с годините изтъняват мастните възглавнички — бузата стои по-високо, скулата е по-изразена. "
                         + "В клинично проучване (12 седмици, 5 пъти седмично) мускулът е станал с около 18 % по-дебел."
@@ -190,14 +253,30 @@ public final class FaceProgram {
                         + "the forehead and the frown relax, expression lines soften. That such current lowers muscle tone is "
                         + "proven (meta-analyses); placement and settings match the approved medical forehead device. The effect "
                         + "lasts hours and builds with regular use. It does not replace botulinum toxin.";
+            case OVAL:
+                return bg ? "Скулите и мускулите под брадичката работят на смени — 3 секунди скулите, 3 секунди брадичката: всеки "
+                        + "мускул почива двойно по-дълго, отколкото работи. Скулите получават лифтинга (клинично проучване: "
+                        + "+18 % дебелина за 12 седмици), брадичката — стягане на ъгъла между нея и шията. Цял овал в една "
+                        + "сесия. Мускулите под брадичката са и мускулите на преглъщането — седнал, без храна и вода."
+                        : "The cheeks and the muscles under the chin take turns — 3 seconds each, so every muscle rests twice as "
+                        + "long as it works. The cheeks get the lift (a clinical trial: +18 % thickness in 12 weeks), the chin a "
+                        + "firmer angle to the neck. The whole oval in one session; seated, no food or drink.";
+            case CALM:
+                return bg ? "Нежен сетивен ток едновременно по челото и по двата дъвкателни мускула — там, където лицето държи "
+                        + "напрежението от деня. Сетивният поток сваля тонуса на мускулите (доказано за такъв ток); "
+                        + "честотата се сменя между 60 и 80 Hz, за да не привикнат нервите. Челото се отпуска, челюстта се "
+                        + "разтваря, чертите омекват. Идеално вечер или след стрес."
+                        : "A gentle sensory current on the forehead and both masseters at once — where the face holds the day's "
+                        + "tension. The sensory input lowers muscle tone (proven for such current); the rate alternates 60 ↔ 80 Hz "
+                        + "so the nerves do not get used to it. Best in the evening or after stress.";
             case JAW_RELAX:
-                return bg ? "Серии от бързи импулси, по две в секунда, върху дъвкателния мускул (m. masseter) — усещат се като "
-                        + "дълбоко, ритмично потупване. В клинично проучване при напрежение в челюстта този ток намалява "
-                        + "активността на мускула в покой. Резултат: отпусната челюст, по-мек долен овал, по-малко напрежение "
-                        + "от стискане на зъби."
-                        : "Bursts of quick impulses, two a second, on the masseter — felt as a deep rhythmic tapping. In a clinical "
-                        + "trial in jaw tension this current lowered the muscle's resting activity: a relaxed jaw, a softer lower "
-                        + "face, less clenching tension.";
+                return bg ? "Бавни ритмични импулси, два пъти в секунда, върху дъвкателния мускул (m. masseter) — при Bluetens "
+                        + "като кратки серии — усещат се като дълбоко потупване. В клинично проучване при напрежение в челюстта "
+                        + "такъв ток намалява активността на мускула в покой. Резултат: отпусната челюст, по-мек долен овал, "
+                        + "по-малко напрежение от стискане на зъби. Укрепване на този мускул никога: то разширява челюстта."
+                        : "Slow rhythmic impulses, twice a second, on the masseter (on Bluetens as short bursts) — felt as a deep "
+                        + "tapping. In a clinical trial in jaw tension such current lowered the muscle's resting activity: a "
+                        + "relaxed jaw, a softer lower face. Never strengthening this muscle: that widens the jaw.";
             default:
                 return bg ? "Двустомашният и челюстно-подезичният мускул (m. digastricus, m. mylohyoideus) повдигат подезичната "
                         + "кост; стягането им оформя ъгъла между брадичката и шията. Това са и мускулите на преглъщането — "
@@ -207,8 +286,23 @@ public final class FaceProgram {
         }
     }
 
-    /** Where the pads go — three short lines next to the picture. {@code pairs2} = XEMS: two pairs (both arm cables). */
+    /** Where the pads go — three short lines next to the picture. {@code pairs2} = XEMS (the connector's sockets). */
     public String[] place(boolean bg, boolean pairs2) {
+        if (id == CALM) {
+            return bg ? new String[] {"Почисти челото и бузите, без крем",
+                    "Чело — два пръста над веждите · челюст — стисни зъби и сложи на мускула",
+                    "Никога към окото, никога отстрани на шията"}
+                    : new String[] {"Clean the forehead and the cheeks, no cream",
+                    "Forehead — two fingers above the brows · jaw — clench and place on the muscle",
+                    "Never towards the eye, never on the side of the neck"};
+        }
+        if (id == OVAL || (pairs2 && (id == LIFT || id == FIRM || id == DRAIN))) {
+            return bg ? new String[] {"Почисти лицето, без крем",
+                    "Всяка двойка — по линията на мускула си, както на картината",
+                    "Нищо по-близо от 2 пръста до окото, нищо на устната"}
+                    : new String[] {"Clean the face, no cream", "Each pair along its muscle, as in the picture",
+                    "Nothing closer than 2 fingers to the eye, nothing on the lip"};
+        }
         switch (target) {
             case CHIN:
                 return bg ? new String[] {"Почисти кожата под брадичката",
@@ -218,10 +312,10 @@ public final class FaceProgram {
                         "Between the chin bone and the hyoid — never on the side of the neck"};
             case FOREHEAD:
                 return bg ? new String[] {"Почисти челото, без крем",
-                        pairs2 ? "Всяка двойка на своята половина на челото, 1 до 2" : "1 и 2 — на челото, от двете страни на средата",
+                        "Двойката — на челото, от двете страни на средата",
                         "Два пръста над веждите, под косата — никога към окото"}
                         : new String[] {"Clean the forehead, no cream",
-                        pairs2 ? "Each pair on its half of the forehead, 1 beside 2" : "1 and 2 — on the forehead, either side of the middle",
+                        "The pair on the forehead, either side of the middle",
                         "Two fingers above the brows, below the hair — never towards the eye"};
             case JAW:
                 return bg ? new String[] {"Стисни зъби — под пръстите се надува дъвкателният мускул",
@@ -250,6 +344,8 @@ public final class FaceProgram {
             case CONTOUR:
                 return bg ? "Качвай, докато под брадичката се усети ясно стягане — без болка"
                         : "Raise until a clear tightening is felt under the chin — no pain";
+            case CALM:
+                return bg ? "Качвай до ясно, приятно изтръпване — нищо не мърда" : "Raise to a clear, pleasant tingle — nothing moves";
             case DRAIN:
                 return bg ? "Качвай, докато бузата ритмично се повдига — меко, без болка" : "Raise until the cheek lifts rhythmically — soft, no pain";
             default:
@@ -262,6 +358,7 @@ public final class FaceProgram {
     public String runHint(boolean on, boolean bg) {
         if (sensory) {
             return id == RELAX ? (bg ? "Затвори очи, отпусни челото — токът работи по нервите" : "Close the eyes, let the forehead go")
+                    : id == CALM ? (bg ? "Затвори очи, отпусни челото и челюстта" : "Close the eyes, let the forehead and the jaw go")
                     : (bg ? "Отпусни челюстта, зъбите да не се допират" : "Let the jaw hang, teeth apart");
         }
         if (id == DRAIN) {

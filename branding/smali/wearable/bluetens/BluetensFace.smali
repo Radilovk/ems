@@ -17,7 +17,7 @@
 
 .field private program:I
 
-.field private timeline:Lcom/isaigu/gymapp/wearable/face/FaceTimeline;
+.field private final timeline:[Lcom/isaigu/gymapp/wearable/face/FaceTimeline;
 
 
 # direct methods
@@ -25,18 +25,25 @@
     .registers 3
 
     .prologue
-    .line 20
+    .line 22
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 15
+    .line 16
+    const/4 v0, 0x3
+
+    new-array v0, v0, [Lcom/isaigu/gymapp/wearable/face/FaceTimeline;
+
+    iput-object v0, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensFace;->timeline:[Lcom/isaigu/gymapp/wearable/face/FaceTimeline;
+
+    .line 17
     const/4 v0, 0x0
 
     iput v0, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensFace;->program:I
 
-    .line 21
+    .line 23
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensFace;->page:Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;
 
-    .line 22
+    .line 24
     return-void
 .end method
 
@@ -44,41 +51,44 @@
     .registers 2
 
     .prologue
-    .line 37
+    .line 48
     packed-switch p0, :pswitch_data_10
 
-    .line 41
+    .line 52
+    :pswitch_3
     const/16 v0, 0x64
 
     :goto_5
     return v0
 
-    .line 38
+    .line 49
     :pswitch_6
     const/16 v0, 0xc8
 
     goto :goto_5
 
-    .line 39
+    .line 50
     :pswitch_9
     const/16 v0, 0xfa
 
     goto :goto_5
 
-    .line 40
+    .line 51
     :pswitch_c
     const/16 v0, 0x96
 
     goto :goto_5
 
-    .line 37
+    .line 48
     nop
 
     :pswitch_data_10
-    .packed-switch 0x3
+    .packed-switch 0x7
+        :pswitch_6
+        :pswitch_3
+        :pswitch_3
         :pswitch_9
         :pswitch_c
-        :pswitch_6
     .end packed-switch
 .end method
 
@@ -86,7 +96,7 @@
     .registers 2
 
     .prologue
-    .line 52
+    .line 58
     const/4 v0, 0x5
 
     if-eq p0, v0, :cond_19
@@ -131,10 +141,10 @@
     .registers 7
 
     .prologue
-    .line 74
+    .line 90
     const/4 v0, 0x0
 
-    .line 75
+    .line 91
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensFace;->page:Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;
 
     iget-object v1, v1, Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;->pads:Ljava/util/List;
@@ -158,7 +168,7 @@
 
     check-cast v0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Pad;
 
-    .line 76
+    .line 92
     iget-object v3, v0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Pad;->link:Lcom/isaigu/gymapp/wearable/bluetens/BluetensLink;
 
     iget v3, v3, Lcom/isaigu/gymapp/wearable/bluetens/BluetensLink;->state:I
@@ -167,24 +177,24 @@
 
     if-ne v3, v4, :cond_26
 
-    .line 77
+    .line 93
     if-ne v1, p1, :cond_20
 
-    .line 83
+    .line 99
     :goto_1f
     return-object v0
 
-    .line 80
+    .line 96
     :cond_20
     add-int/lit8 v0, v1, 0x1
 
     :goto_22
     move v1, v0
 
-    .line 82
+    .line 98
     goto :goto_a
 
-    .line 83
+    .line 99
     :cond_24
     const/4 v0, 0x0
 
@@ -196,83 +206,281 @@
     goto :goto_22
 .end method
 
-.method static padProgram(I)I
-    .registers 2
+.method static padProgram(III)I
+    .registers 9
 
     .prologue
-    .line 25
-    packed-switch p0, :pswitch_data_12
+    const/16 v3, 0x9
 
-    .line 31
-    const/4 v0, 0x5
-
-    :goto_4
-    return v0
-
-    .line 26
-    :pswitch_5
-    const/4 v0, 0x6
-
-    goto :goto_4
-
-    .line 27
-    :pswitch_7
-    const/16 v0, 0x8
-
-    goto :goto_4
-
-    .line 28
-    :pswitch_a
-    const/16 v0, 0xa
-
-    goto :goto_4
-
-    .line 29
-    :pswitch_d
-    const/16 v0, 0xb
-
-    goto :goto_4
-
-    .line 30
-    :pswitch_10
     const/4 v0, 0x7
 
-    goto :goto_4
+    const/4 v1, 0x5
 
-    .line 25
-    :pswitch_data_12
+    const/4 v5, 0x1
+
+    const/16 v2, 0x8
+
+    .line 28
+    if-ne p1, v3, :cond_f
+
+    move v4, v5
+
+    .line 29
+    :goto_a
+    packed-switch p0, :pswitch_data_32
+
+    move v0, v1
+
+    .line 42
+    :cond_e
+    :goto_e
+    :pswitch_e
+    return v0
+
+    .line 28
+    :cond_f
+    const/4 v4, 0x0
+
+    goto :goto_a
+
+    .line 30
+    :pswitch_11
+    const/4 v0, 0x6
+
+    goto :goto_e
+
+    .line 31
+    :pswitch_13
+    if-nez v4, :cond_e
+
+    move v0, v1
+
+    goto :goto_e
+
+    .line 34
+    :pswitch_17
+    if-eqz v4, :cond_1b
+
+    move v0, v2
+
+    .line 35
+    goto :goto_e
+
+    .line 37
+    :cond_1b
+    const/4 v0, 0x3
+
+    if-ge p2, v0, :cond_20
+
+    if-ne p1, v5, :cond_22
+
+    :cond_20
+    move v0, v3
+
+    goto :goto_e
+
+    :cond_22
+    move v0, v2
+
+    goto :goto_e
+
+    .line 38
+    :pswitch_24
+    const/16 v0, 0xa
+
+    goto :goto_e
+
+    .line 39
+    :pswitch_27
+    if-ne p1, v2, :cond_2c
+
+    const/16 v0, 0xa
+
+    goto :goto_e
+
+    :cond_2c
+    const/16 v0, 0xb
+
+    goto :goto_e
+
+    .line 40
+    :pswitch_2f
+    const/16 v0, 0xb
+
+    goto :goto_e
+
+    .line 29
+    :pswitch_data_32
     .packed-switch 0x1
-        :pswitch_5
-        :pswitch_7
-        :pswitch_a
-        :pswitch_d
-        :pswitch_10
+        :pswitch_11
+        :pswitch_17
+        :pswitch_24
+        :pswitch_2f
+        :pswitch_e
+        :pswitch_13
+        :pswitch_27
     .end packed-switch
 .end method
 
-.method static single(I)Z
+.method private ready()I
+    .registers 5
+
+    .prologue
+    .line 80
+    const/4 v0, 0x0
+
+    .line 81
+    iget-object v1, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensFace;->page:Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;
+
+    iget-object v1, v1, Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;->pads:Ljava/util/List;
+
+    invoke-interface {v1}, Ljava/util/List;->iterator()Ljava/util/Iterator;
+
+    move-result-object v2
+
+    move v1, v0
+
+    :goto_a
+    invoke-interface {v2}, Ljava/util/Iterator;->hasNext()Z
+
+    move-result v0
+
+    if-eqz v0, :cond_21
+
+    invoke-interface {v2}, Ljava/util/Iterator;->next()Ljava/lang/Object;
+
+    move-result-object v0
+
+    check-cast v0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Pad;
+
+    .line 82
+    iget-object v0, v0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Pad;->link:Lcom/isaigu/gymapp/wearable/bluetens/BluetensLink;
+
+    iget v0, v0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensLink;->state:I
+
+    const/4 v3, 0x2
+
+    if-ne v0, v3, :cond_22
+
+    .line 83
+    add-int/lit8 v0, v1, 0x1
+
+    :goto_1f
+    move v1, v0
+
+    .line 85
+    goto :goto_a
+
+    .line 86
+    :cond_21
+    return v1
+
+    :cond_22
+    move v0, v1
+
+    goto :goto_1f
+.end method
+
+.method private sites()[I
     .registers 2
 
     .prologue
-    .line 47
-    const/4 v0, 0x5
+    .line 103
+    iget v0, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensFace;->program:I
 
-    if-eq p0, v0, :cond_6
+    invoke-static {v0}, Lcom/isaigu/gymapp/wearable/face/FaceProgram;->get(I)Lcom/isaigu/gymapp/wearable/face/FaceProgram;
 
-    const/4 v0, 0x3
+    move-result-object v0
 
-    if-ne p0, v0, :cond_8
+    invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/face/FaceProgram;->bluetensSites()[I
 
-    :cond_6
-    const/4 v0, 0x1
+    move-result-object v0
 
-    :goto_7
-    return v0
+    return-object v0
+.end method
 
-    :cond_8
-    const/4 v0, 0x0
+.method private stateOf(IJ)Lcom/isaigu/gymapp/wearable/face/FaceTimeline$State;
+    .registers 10
 
-    goto :goto_7
+    .prologue
+    const-wide/16 v0, 0x0
+
+    .line 267
+    if-ltz p1, :cond_2d
+
+    iget-object v2, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensFace;->timeline:[Lcom/isaigu/gymapp/wearable/face/FaceTimeline;
+
+    array-length v2, v2
+
+    if-ge p1, v2, :cond_2d
+
+    iget-object v2, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensFace;->timeline:[Lcom/isaigu/gymapp/wearable/face/FaceTimeline;
+
+    aget-object v2, v2, p1
+
+    move-object v3, v2
+
+    .line 268
+    :goto_e
+    if-eqz v3, :cond_1e
+
+    iget-object v2, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensFace;->page:Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;
+
+    iget-boolean v2, v2, Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;->running:Z
+
+    if-eqz v2, :cond_1e
+
+    iget-object v2, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensFace;->page:Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;
+
+    iget-wide v4, v2, Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;->startedAt:J
+
+    cmp-long v2, v4, v0
+
+    if-gtz v2, :cond_30
+
+    .line 269
+    :cond_1e
+    new-instance v2, Lcom/isaigu/gymapp/wearable/face/FaceTimeline$State;
+
+    invoke-direct {v2}, Lcom/isaigu/gymapp/wearable/face/FaceTimeline$State;-><init>()V
+
+    .line 270
+    if-eqz v3, :cond_29
+
+    invoke-virtual {v3}, Lcom/isaigu/gymapp/wearable/face/FaceTimeline;->totalMs()J
+
+    move-result-wide v0
+
+    :cond_29
+    iput-wide v0, v2, Lcom/isaigu/gymapp/wearable/face/FaceTimeline$State;->totalMs:J
+
+    move-object v0, v2
+
+    .line 273
+    :goto_2c
+    return-object v0
+
+    .line 267
+    :cond_2d
+    const/4 v2, 0x0
+
+    move-object v3, v2
+
+    goto :goto_e
+
+    .line 273
+    :cond_30
+    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensFace;->page:Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;
+
+    iget-wide v0, v0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;->startedAt:J
+
+    sub-long v0, p2, v0
+
+    invoke-virtual {v3, v0, v1}, Lcom/isaigu/gymapp/wearable/face/FaceTimeline;->at(J)Lcom/isaigu/gymapp/wearable/face/FaceTimeline$State;
+
+    move-result-object v0
+
+    goto :goto_2c
 .end method
 
 
@@ -281,7 +489,7 @@
     .registers 2
 
     .prologue
-    .line 208
+    .line 219
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensFace;->page:Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;
 
     iget-boolean v0, v0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;->running:Z
@@ -293,12 +501,12 @@
     .registers 3
 
     .prologue
-    .line 149
+    .line 156
     invoke-direct {p0, p1}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensFace;->pad(I)Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Pad;
 
     move-result-object v0
 
-    .line 150
+    .line 157
     if-eqz v0, :cond_f
 
     iget-object v0, v0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Pad;->link:Lcom/isaigu/gymapp/wearable/bluetens/BluetensLink;
@@ -318,35 +526,11 @@
     goto :goto_e
 .end method
 
-.method public blocks(Ljava/lang/String;)Z
-    .registers 3
-
-    .prologue
-    .line 136
-    if-eqz p1, :cond_a
-
-    invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensFace;->channels()I
-
-    move-result v0
-
-    if-nez v0, :cond_a
-
-    const/4 v0, 0x1
-
-    :goto_9
-    return v0
-
-    :cond_a
-    const/4 v0, 0x0
-
-    goto :goto_9
-.end method
-
 .method public canPause()Z
     .registers 2
 
     .prologue
-    .line 216
+    .line 227
     const/4 v0, 0x0
 
     return v0
@@ -358,7 +542,7 @@
     .prologue
     const/4 v0, 0x0
 
-    .line 200
+    .line 211
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensFace;->page:Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;
 
     iget-boolean v1, v1, Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;->running:Z
@@ -381,7 +565,7 @@
     .registers 2
 
     .prologue
-    .line 274
+    .line 294
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensFace;->page:Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;
 
     iget-boolean v0, v0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;->running:Z
@@ -392,207 +576,59 @@
 
     if-nez v0, :cond_f
 
-    .line 275
+    .line 295
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensFace;->page:Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;->stopAll()V
 
-    .line 277
+    .line 297
     :cond_f
     return-void
 .end method
 
 .method public channelName(IZ)Ljava/lang/String;
-    .registers 5
+    .registers 4
 
     .prologue
-    .line 105
-    iget v0, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensFace;->program:I
-
-    const/4 v1, 0x5
-
-    if-ne v0, v1, :cond_d
-
-    .line 106
-    if-eqz p2, :cond_a
-
-    const-string v0, "\u041f\u043e\u0434 \u0431\u0440\u0430\u0434\u0438\u0447\u043a\u0430\u0442\u0430"
-
-    .line 114
-    :goto_9
-    return-object v0
-
-    .line 106
-    :cond_a
-    const-string v0, "Under the chin"
-
-    goto :goto_9
-
-    .line 108
-    :cond_d
-    iget v0, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensFace;->program:I
-
-    const/4 v1, 0x3
-
-    if-ne v0, v1, :cond_1a
-
-    .line 109
-    if-eqz p2, :cond_17
-
-    const-string v0, "\u0427\u0435\u043b\u043e"
-
-    goto :goto_9
-
-    :cond_17
-    const-string v0, "Forehead"
-
-    goto :goto_9
-
-    .line 111
-    :cond_1a
-    iget v0, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensFace;->program:I
-
-    const/4 v1, 0x4
-
-    if-ne v0, v1, :cond_31
-
-    .line 112
-    if-nez p1, :cond_29
-
-    if-eqz p2, :cond_26
-
-    const-string v0, "\u041b\u044f\u0432\u0430 \u0447\u0435\u043b\u044e\u0441\u0442"
-
-    goto :goto_9
-
-    :cond_26
-    const-string v0, "Left jaw"
-
-    goto :goto_9
-
-    :cond_29
-    if-eqz p2, :cond_2e
-
-    const-string v0, "\u0414\u044f\u0441\u043d\u0430 \u0447\u0435\u043b\u044e\u0441\u0442"
-
-    goto :goto_9
-
-    :cond_2e
-    const-string v0, "Right jaw"
-
-    goto :goto_9
-
-    .line 114
-    :cond_31
-    if-nez p1, :cond_3b
-
-    if-eqz p2, :cond_38
-
-    const-string v0, "\u041b\u044f\u0432\u0430 \u0431\u0443\u0437\u0430"
-
-    goto :goto_9
-
-    :cond_38
-    const-string v0, "Left cheek"
-
-    goto :goto_9
-
-    :cond_3b
-    if-eqz p2, :cond_40
-
-    const-string v0, "\u0414\u044f\u0441\u043d\u0430 \u0431\u0443\u0437\u0430"
-
-    goto :goto_9
-
-    :cond_40
-    const-string v0, "Right cheek"
-
-    goto :goto_9
-.end method
-
-.method public channels()I
-    .registers 5
-
-    .prologue
-    const/4 v3, 0x2
-
-    .line 87
-    const/4 v0, 0x0
-
-    .line 88
-    iget-object v1, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensFace;->page:Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;
-
-    iget-object v1, v1, Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;->pads:Ljava/util/List;
-
-    invoke-interface {v1}, Ljava/util/List;->iterator()Ljava/util/Iterator;
-
-    move-result-object v2
-
-    move v1, v0
-
-    :goto_b
-    invoke-interface {v2}, Ljava/util/Iterator;->hasNext()Z
+    .line 120
+    invoke-virtual {p0, p1}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensFace;->siteOf(I)I
 
     move-result v0
 
-    if-eqz v0, :cond_21
-
-    invoke-interface {v2}, Ljava/util/Iterator;->next()Ljava/lang/Object;
+    invoke-static {v0, p2}, Lcom/isaigu/gymapp/wearable/face/FaceProgram;->siteName(IZ)Ljava/lang/String;
 
     move-result-object v0
 
-    check-cast v0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Pad;
+    return-object v0
+.end method
 
-    .line 89
-    iget-object v0, v0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Pad;->link:Lcom/isaigu/gymapp/wearable/bluetens/BluetensLink;
+.method public channels()I
+    .registers 3
 
-    iget v0, v0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensLink;->state:I
+    .prologue
+    .line 107
+    invoke-direct {p0}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensFace;->sites()[I
 
-    if-ne v0, v3, :cond_33
+    move-result-object v0
 
-    .line 90
-    add-int/lit8 v0, v1, 0x1
+    array-length v0, v0
 
-    :goto_1f
-    move v1, v0
-
-    .line 92
-    goto :goto_b
-
-    .line 93
-    :cond_21
-    iget v0, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensFace;->program:I
-
-    invoke-static {v0}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensFace;->single(I)Z
-
-    move-result v0
-
-    if-eqz v0, :cond_2e
-
-    const/4 v0, 0x1
-
-    invoke-static {v0, v1}, Ljava/lang/Math;->min(II)I
+    invoke-direct {p0}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensFace;->ready()I
 
     move-result v1
 
-    :cond_2e
-    invoke-static {v3, v1}, Ljava/lang/Math;->min(II)I
+    invoke-static {v0, v1}, Ljava/lang/Math;->min(II)I
 
     move-result v0
 
     return v0
-
-    :cond_33
-    move v0, v1
-
-    goto :goto_1f
 .end method
 
 .method public clientName()Ljava/lang/String;
     .registers 2
 
     .prologue
-    .line 70
+    .line 76
     const-string v0, ""
 
     return-object v0
@@ -602,7 +638,7 @@
     .registers 2
 
     .prologue
-    .line 66
+    .line 72
     const-string v0, "bt"
 
     return-object v0
@@ -612,10 +648,14 @@
     .registers 9
 
     .prologue
-    .line 244
-    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensFace;->timeline:Lcom/isaigu/gymapp/wearable/face/FaceTimeline;
+    const/4 v7, 0x0
 
-    if-eqz v0, :cond_e
+    .line 255
+    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensFace;->timeline:[Lcom/isaigu/gymapp/wearable/face/FaceTimeline;
+
+    aget-object v0, v0, v7
+
+    if-eqz v0, :cond_11
 
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensFace;->page:Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;
 
@@ -625,26 +665,26 @@
 
     cmp-long v0, v0, v2
 
-    if-gtz v0, :cond_11
+    if-gtz v0, :cond_14
 
-    .line 245
-    :cond_e
+    .line 256
+    :cond_11
     const-wide/16 v0, 0x0
 
-    .line 248
-    :goto_10
+    .line 259
+    :goto_13
     return-wide v0
 
-    .line 247
-    :cond_11
+    .line 258
+    :cond_14
     iget-boolean v0, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensFace;->ended:Z
 
-    if-eqz v0, :cond_32
+    if-eqz v0, :cond_37
 
     iget-wide v0, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensFace;->endedAt:J
 
-    .line 248
-    :goto_17
+    .line 259
+    :goto_1a
     const-wide/high16 v2, 0x3ff0000000000000L    # 1.0
 
     iget-object v4, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensFace;->page:Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;
@@ -657,7 +697,9 @@
 
     const-wide/16 v4, 0x1
 
-    iget-object v6, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensFace;->timeline:Lcom/isaigu/gymapp/wearable/face/FaceTimeline;
+    iget-object v6, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensFace;->timeline:[Lcom/isaigu/gymapp/wearable/face/FaceTimeline;
+
+    aget-object v6, v6, v7
 
     invoke-virtual {v6}, Lcom/isaigu/gymapp/wearable/face/FaceTimeline;->totalMs()J
 
@@ -675,22 +717,22 @@
 
     move-result-wide v0
 
-    goto :goto_10
+    goto :goto_13
 
-    .line 247
-    :cond_32
+    .line 258
+    :cond_37
     invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
 
     move-result-wide v0
 
-    goto :goto_17
+    goto :goto_1a
 .end method
 
 .method public finished()Z
     .registers 5
 
     .prologue
-    .line 236
+    .line 247
     iget-boolean v0, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensFace;->ended:Z
 
     if-nez v0, :cond_21
@@ -715,21 +757,31 @@
 
     if-lez v0, :cond_21
 
-    .line 237
+    .line 248
     const/4 v0, 0x1
 
     iput-boolean v0, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensFace;->ended:Z
 
-    .line 238
+    .line 249
     invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
 
     move-result-wide v0
 
     iput-wide v0, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensFace;->endedAt:J
 
-    .line 240
+    .line 251
     :cond_21
     iget-boolean v0, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensFace;->ended:Z
+
+    return v0
+.end method
+
+.method public hasMaster()Z
+    .registers 2
+
+    .prologue
+    .line 124
+    const/4 v0, 0x0
 
     return v0
 .end method
@@ -738,17 +790,43 @@
     .registers 2
 
     .prologue
-    .line 58
+    .line 64
     const/4 v0, 0x1
 
     return v0
+.end method
+
+.method public level(IJ)F
+    .registers 6
+
+    .prologue
+    .line 277
+    invoke-virtual {p0, p1}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensFace;->strength(I)I
+
+    move-result v0
+
+    if-lez v0, :cond_d
+
+    invoke-direct {p0, p1, p2, p3}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensFace;->stateOf(IJ)Lcom/isaigu/gymapp/wearable/face/FaceTimeline$State;
+
+    move-result-object v0
+
+    iget v0, v0, Lcom/isaigu/gymapp/wearable/face/FaceTimeline$State;->level:F
+
+    :goto_c
+    return v0
+
+    :cond_d
+    const/4 v0, 0x0
+
+    goto :goto_c
 .end method
 
 .method public maxStrength()I
     .registers 2
 
     .prologue
-    .line 145
+    .line 152
     const/16 v0, 0x3c
 
     return v0
@@ -758,110 +836,126 @@
     .registers 7
 
     .prologue
-    const/4 v3, 0x2
+    .line 133
+    iput p1, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensFace;->program:I
 
-    .line 118
-    const/4 v0, 0x0
-
-    .line 119
-    iget-object v1, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensFace;->page:Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;
-
-    iget-object v1, v1, Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;->pads:Ljava/util/List;
-
-    invoke-interface {v1}, Ljava/util/List;->iterator()Ljava/util/Iterator;
-
-    move-result-object v2
-
-    move v1, v0
-
-    :goto_b
-    invoke-interface {v2}, Ljava/util/Iterator;->hasNext()Z
+    .line 134
+    invoke-direct {p0}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensFace;->ready()I
 
     move-result v0
 
-    if-eqz v0, :cond_21
+    .line 135
+    invoke-direct {p0}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensFace;->sites()[I
 
-    invoke-interface {v2}, Ljava/util/Iterator;->next()Ljava/lang/Object;
+    move-result-object v1
 
-    move-result-object v0
+    array-length v1, v1
 
-    check-cast v0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Pad;
+    .line 136
+    if-nez v0, :cond_15
 
-    .line 120
-    iget-object v0, v0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Pad;->link:Lcom/isaigu/gymapp/wearable/bluetens/BluetensLink;
-
-    iget v0, v0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensLink;->state:I
-
-    if-ne v0, v3, :cond_3d
-
-    .line 121
-    add-int/lit8 v0, v1, 0x1
-
-    :goto_1f
-    move v1, v0
-
-    .line 123
-    goto :goto_b
-
-    .line 124
-    :cond_21
-    if-nez v1, :cond_2b
-
-    .line 125
-    if-eqz p2, :cond_28
+    .line 137
+    if-eqz p2, :cond_12
 
     const-string v0, "\u0412\u043a\u043b\u044e\u0447\u0438 \u0443\u0441\u0442\u0440\u043e\u0439\u0441\u0442\u0432\u043e Bluetens \u2014 \u0442\u043e \u0441\u0435 \u0441\u0432\u044a\u0440\u0437\u0432\u0430 \u0441\u0430\u043c\u043e"
 
-    .line 131
-    :goto_27
+    .line 143
+    :goto_11
     return-object v0
 
-    .line 125
-    :cond_28
+    .line 137
+    :cond_12
     const-string v0, "Switch on a Bluetens pad \u2014 it connects by itself"
 
-    goto :goto_27
+    goto :goto_11
 
-    .line 127
-    :cond_2b
-    invoke-static {p1}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensFace;->single(I)Z
+    .line 139
+    :cond_15
+    if-ge v0, v1, :cond_5b
 
-    move-result v0
+    .line 140
+    if-eqz p2, :cond_3d
 
-    if-nez v0, :cond_3b
+    new-instance v2, Ljava/lang/StringBuilder;
 
-    if-ge v1, v3, :cond_3b
+    invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
 
-    .line 128
-    if-eqz p2, :cond_38
+    const-string v3, "\u0421\u0432\u044a\u0440\u0437\u0430\u043d\u0438 "
 
-    const-string v0, "\u0421\u0430\u043c\u043e \u0435\u0434\u043d\u043e \u0443\u0441\u0442\u0440\u043e\u0439\u0441\u0442\u0432\u043e: \u0449\u0435 \u0440\u0430\u0431\u043e\u0442\u0438 \u0435\u0434\u043d\u0430\u0442\u0430 \u0441\u0442\u0440\u0430\u043d\u0430. \u0417\u0430 \u0434\u0432\u0435\u0442\u0435 \u2014 \u0432\u043a\u043b\u044e\u0447\u0438 \u0432\u0442\u043e\u0440\u043e."
+    invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    goto :goto_27
+    move-result-object v2
 
-    .line 129
-    :cond_38
-    const-string v0, "One pad only: one side works. For both \u2014 switch on a second."
+    invoke-virtual {v2, v0}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
 
-    goto :goto_27
+    move-result-object v0
 
-    .line 131
-    :cond_3b
+    const-string v2, " \u043e\u0442 "
+
+    invoke-virtual {v0, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    const-string v1, " \u0443\u0441\u0442\u0440\u043e\u0439\u0441\u0442\u0432\u0430: \u0449\u0435 \u0440\u0430\u0431\u043e\u0442\u044f\u0442 \u043f\u044a\u0440\u0432\u0438\u0442\u0435 \u043c\u0435\u0441\u0442\u0430. \u0417\u0430 \u0432\u0441\u0438\u0447\u043a\u0438 \u2014 \u0432\u043a\u043b\u044e\u0447\u0438 \u043e\u0449\u0435."
+
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v0
+
+    goto :goto_11
+
+    .line 141
+    :cond_3d
+    new-instance v2, Ljava/lang/StringBuilder;
+
+    invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
+
+    invoke-virtual {v2, v0}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    const-string v2, " of "
+
+    invoke-virtual {v0, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    const-string v1, " pads connected: the first sites work. For all \u2014 switch on more."
+
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v0
+
+    goto :goto_11
+
+    .line 143
+    :cond_5b
     const/4 v0, 0x0
 
-    goto :goto_27
-
-    :cond_3d
-    move v0, v1
-
-    goto :goto_1f
+    goto :goto_11
 .end method
 
 .method public pause()V
     .registers 1
 
     .prologue
-    .line 225
+    .line 236
     return-void
 .end method
 
@@ -869,7 +963,7 @@
     .registers 2
 
     .prologue
-    .line 220
+    .line 231
     const/4 v0, 0x0
 
     return v0
@@ -881,24 +975,26 @@
     .prologue
     const/4 v2, 0x0
 
-    .line 261
+    .line 281
     const/4 v0, 0x3
 
     new-array v4, v0, [J
 
-    .line 262
-    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensFace;->timeline:Lcom/isaigu/gymapp/wearable/face/FaceTimeline;
+    .line 282
+    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensFace;->timeline:[Lcom/isaigu/gymapp/wearable/face/FaceTimeline;
 
-    if-nez v0, :cond_a
+    aget-object v0, v0, v2
+
+    if-nez v0, :cond_c
 
     move-object v0, v4
 
-    .line 270
-    :goto_9
+    .line 290
+    :goto_b
     return-object v0
 
-    .line 265
-    :cond_a
+    .line 285
+    :cond_c
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensFace;->page:Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;
 
     iget v0, v0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;->program:I
@@ -913,23 +1009,23 @@
 
     move v1, v2
 
-    .line 266
-    :goto_17
+    .line 286
+    :goto_19
     iget-object v0, v5, Lcom/isaigu/gymapp/wearable/bluetens/BluetensLok;->sections:Ljava/util/List;
 
     invoke-interface {v0}, Ljava/util/List;->size()I
 
     move-result v0
 
-    if-ge v1, v0, :cond_4b
+    if-ge v1, v0, :cond_4d
 
-    .line 267
-    if-nez v1, :cond_3b
+    .line 287
+    if-nez v1, :cond_3d
 
     move v3, v2
 
-    .line 268
-    :goto_22
+    .line 288
+    :goto_24
     aget-wide v6, v4, v3
 
     iget-object v0, v5, Lcom/isaigu/gymapp/wearable/bluetens/BluetensLok;->sections:Ljava/util/List;
@@ -952,15 +1048,15 @@
 
     aput-wide v6, v4, v3
 
-    .line 266
+    .line 286
     add-int/lit8 v0, v1, 0x1
 
     move v1, v0
 
-    goto :goto_17
+    goto :goto_19
 
-    .line 267
-    :cond_3b
+    .line 287
+    :cond_3d
     iget-object v0, v5, Lcom/isaigu/gymapp/wearable/bluetens/BluetensLok;->sections:Ljava/util/List;
 
     invoke-interface {v0}, Ljava/util/List;->size()I
@@ -969,322 +1065,295 @@
 
     add-int/lit8 v0, v0, -0x1
 
-    if-ne v1, v0, :cond_48
+    if-ne v1, v0, :cond_4a
 
     const/4 v0, 0x2
 
     move v3, v0
 
-    goto :goto_22
+    goto :goto_24
 
-    :cond_48
+    :cond_4a
     const/4 v0, 0x1
 
     move v3, v0
 
-    goto :goto_22
+    goto :goto_24
 
-    :cond_4b
+    :cond_4d
     move-object v0, v4
 
-    .line 270
-    goto :goto_9
+    .line 290
+    goto :goto_b
 .end method
 
 .method public prepare(IIZ)Ljava/lang/String;
-    .registers 13
+    .registers 16
 
     .prologue
-    const/4 v8, 0x1
+    const/4 v1, 0x0
 
-    const/4 v7, 0x2
+    const/4 v3, 0x0
 
-    const/4 v2, 0x0
-
-    .line 161
+    .line 168
     iput p1, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensFace;->program:I
 
-    .line 162
+    .line 169
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensFace;->channels()I
 
     move-result v0
 
-    if-nez v0, :cond_10
+    .line 170
+    if-nez v0, :cond_f
 
-    .line 163
+    .line 171
     invoke-virtual {p0, p1, p3}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensFace;->notReady(IZ)Ljava/lang/String;
 
     move-result-object v0
 
-    .line 196
-    :goto_f
+    .line 207
+    :goto_e
     return-object v0
 
-    .line 165
-    :cond_10
-    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensFace;->page:Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;
-
-    iget-boolean v0, v0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;->running:Z
-
-    if-eqz v0, :cond_23
-
-    .line 167
-    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensFace;->page:Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;
-
-    invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;->stopAll()V
-
-    .line 168
-    if-eqz p3, :cond_20
-
-    const-string v0, "\u041d\u0430 \u0443\u0441\u0442\u0440\u043e\u0439\u0441\u0442\u0432\u043e\u0442\u043e \u0432\u044a\u0440\u0432\u0435\u0448\u0435 \u0434\u0440\u0443\u0433\u0430 \u043f\u0440\u043e\u0433\u0440\u0430\u043c\u0430 \u2014 \u0441\u043f\u0440\u044f\u043d\u0430 \u0435. \u041d\u0430\u0442\u0438\u0441\u043d\u0438 \u201e\u041d\u0430\u0437\u0430\u0434\u201c \u0438 \u043f\u0430\u043a \u201e\u043a\u044a\u043c \u0441\u0438\u043b\u0430\u0442\u0430\u201c."
-
-    goto :goto_f
-
-    .line 169
-    :cond_20
-    const-string v0, "Another program was running on the pad \u2014 it is stopped. Tap Back, then to the strength again."
-
-    goto :goto_f
-
-    .line 171
-    :cond_23
-    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensFace;->page:Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;
-
-    iput-boolean v2, v0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;->mine:Z
-
-    .line 172
-    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensFace;->page:Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;
-
-    iput-boolean v2, v0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;->live:Z
-
     .line 173
-    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensFace;->page:Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;
+    :cond_f
+    iget-object v2, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensFace;->page:Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;
 
-    iput-boolean v2, v0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;->libTab:Z
+    iget-boolean v2, v2, Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;->running:Z
 
-    .line 174
-    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensFace;->page:Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;
-
-    invoke-static {p1}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensFace;->padProgram(I)I
-
-    move-result v1
-
-    iput v1, v0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;->program:I
+    if-eqz v2, :cond_22
 
     .line 175
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensFace;->page:Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;
 
-    iput p2, v0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;->minutes:I
+    invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;->stopAll()V
 
     .line 176
-    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensFace;->page:Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;
+    if-eqz p3, :cond_1f
 
-    iget-object v0, v0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;->prefs:Landroid/content/SharedPreferences;
+    const-string v0, "\u041d\u0430 \u0443\u0441\u0442\u0440\u043e\u0439\u0441\u0442\u0432\u043e\u0442\u043e \u0432\u044a\u0440\u0432\u0435\u0448\u0435 \u0434\u0440\u0443\u0433\u0430 \u043f\u0440\u043e\u0433\u0440\u0430\u043c\u0430 \u2014 \u0441\u043f\u0440\u044f\u043d\u0430 \u0435. \u041d\u0430\u0442\u0438\u0441\u043d\u0438 \u201e\u041d\u0430\u0437\u0430\u0434\u201c \u0438 \u043f\u0430\u043a \u201e\u043a\u044a\u043c \u0441\u0438\u043b\u0430\u0442\u0430\u201c."
 
-    invoke-interface {v0}, Landroid/content/SharedPreferences;->edit()Landroid/content/SharedPreferences$Editor;
-
-    move-result-object v0
-
-    const-string v1, "program"
-
-    iget-object v3, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensFace;->page:Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;
-
-    iget v3, v3, Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;->program:I
-
-    invoke-interface {v0, v1, v3}, Landroid/content/SharedPreferences$Editor;->putInt(Ljava/lang/String;I)Landroid/content/SharedPreferences$Editor;
-
-    move-result-object v0
-
-    const-string v1, "minutes"
-
-    invoke-interface {v0, v1, p2}, Landroid/content/SharedPreferences$Editor;->putInt(Ljava/lang/String;I)Landroid/content/SharedPreferences$Editor;
-
-    move-result-object v0
-
-    const-string v1, "mine"
-
-    invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences$Editor;->putBoolean(Ljava/lang/String;Z)Landroid/content/SharedPreferences$Editor;
-
-    move-result-object v0
-
-    const-string v1, "live"
+    goto :goto_e
 
     .line 177
-    invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences$Editor;->putBoolean(Ljava/lang/String;Z)Landroid/content/SharedPreferences$Editor;
+    :cond_1f
+    const-string v0, "Another program was running on the pad \u2014 it is stopped. Tap Back, then to the strength again."
 
-    move-result-object v0
-
-    const-string v1, "lib"
-
-    invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences$Editor;->putBoolean(Ljava/lang/String;Z)Landroid/content/SharedPreferences$Editor;
-
-    move-result-object v0
-
-    invoke-interface {v0}, Landroid/content/SharedPreferences$Editor;->apply()V
-
-    .line 178
-    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensFace;->page:Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;
-
-    iget v0, v0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;->program:I
-
-    invoke-static {v0, p2}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensPrograms;->build(II)Lcom/isaigu/gymapp/wearable/bluetens/BluetensLok;
-
-    move-result-object v5
+    goto :goto_e
 
     .line 179
-    invoke-static {p1}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensFace;->fullUs(I)I
+    :cond_22
+    iget-object v2, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensFace;->page:Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;
 
-    move-result v0
-
-    invoke-static {v5, v0}, Lcom/isaigu/gymapp/wearable/face/FaceTimeline;->of(Lcom/isaigu/gymapp/wearable/bluetens/BluetensLok;I)Lcom/isaigu/gymapp/wearable/face/FaceTimeline;
-
-    move-result-object v0
-
-    iput-object v0, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensFace;->timeline:Lcom/isaigu/gymapp/wearable/face/FaceTimeline;
+    iput-boolean v3, v2, Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;->mine:Z
 
     .line 180
-    iput-boolean v2, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensFace;->begun:Z
+    iget-object v2, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensFace;->page:Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;
+
+    iput-boolean v3, v2, Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;->live:Z
 
     .line 181
-    iput-boolean v2, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensFace;->ended:Z
+    iget-object v2, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensFace;->page:Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;
+
+    iput-boolean v3, v2, Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;->libTab:Z
+
+    .line 182
+    invoke-virtual {p0, v3}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensFace;->siteOf(I)I
+
+    move-result v2
+
+    invoke-static {p1, v2, v0}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensFace;->padProgram(III)I
+
+    move-result v2
+
+    .line 183
+    iget-object v4, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensFace;->page:Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;
+
+    iput v2, v4, Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;->program:I
 
     .line 184
-    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensFace;->page:Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;
+    iget-object v2, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensFace;->page:Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;
 
-    iget-object v0, v0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;->pads:Ljava/util/List;
+    iput p2, v2, Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;->minutes:I
 
-    invoke-interface {v0}, Ljava/util/List;->iterator()Ljava/util/Iterator;
+    .line 185
+    iget-object v2, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensFace;->page:Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;
+
+    iget-object v2, v2, Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;->prefs:Landroid/content/SharedPreferences;
+
+    invoke-interface {v2}, Landroid/content/SharedPreferences;->edit()Landroid/content/SharedPreferences$Editor;
+
+    move-result-object v2
+
+    const-string v4, "program"
+
+    iget-object v5, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensFace;->page:Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;
+
+    iget v5, v5, Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;->program:I
+
+    invoke-interface {v2, v4, v5}, Landroid/content/SharedPreferences$Editor;->putInt(Ljava/lang/String;I)Landroid/content/SharedPreferences$Editor;
+
+    move-result-object v2
+
+    const-string v4, "minutes"
+
+    invoke-interface {v2, v4, p2}, Landroid/content/SharedPreferences$Editor;->putInt(Ljava/lang/String;I)Landroid/content/SharedPreferences$Editor;
+
+    move-result-object v2
+
+    const-string v4, "mine"
+
+    invoke-interface {v2, v4, v3}, Landroid/content/SharedPreferences$Editor;->putBoolean(Ljava/lang/String;Z)Landroid/content/SharedPreferences$Editor;
+
+    move-result-object v2
+
+    const-string v4, "live"
+
+    .line 186
+    invoke-interface {v2, v4, v3}, Landroid/content/SharedPreferences$Editor;->putBoolean(Ljava/lang/String;Z)Landroid/content/SharedPreferences$Editor;
+
+    move-result-object v2
+
+    const-string v4, "lib"
+
+    invoke-interface {v2, v4, v3}, Landroid/content/SharedPreferences$Editor;->putBoolean(Ljava/lang/String;Z)Landroid/content/SharedPreferences$Editor;
+
+    move-result-object v2
+
+    invoke-interface {v2}, Landroid/content/SharedPreferences$Editor;->apply()V
+
+    .line 187
+    iput-boolean v3, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensFace;->begun:Z
+
+    .line 188
+    iput-boolean v3, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensFace;->ended:Z
+
+    .line 189
+    const-wide/16 v4, 0x0
+
+    move v2, v3
+
+    .line 191
+    :goto_72
+    if-ge v2, v0, :cond_b1
+
+    .line 192
+    invoke-direct {p0, v2}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensFace;->pad(I)Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Pad;
 
     move-result-object v6
 
-    move v1, v2
-
-    :cond_87
-    :goto_87
-    invoke-interface {v6}, Ljava/util/Iterator;->hasNext()Z
-
-    move-result v0
-
-    if-eqz v0, :cond_d1
-
-    invoke-interface {v6}, Ljava/util/Iterator;->next()Ljava/lang/Object;
-
-    move-result-object v0
-
-    check-cast v0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Pad;
-
-    .line 185
-    iget-object v3, v0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Pad;->link:Lcom/isaigu/gymapp/wearable/bluetens/BluetensLink;
-
-    iget v3, v3, Lcom/isaigu/gymapp/wearable/bluetens/BluetensLink;->state:I
-
-    if-ne v3, v7, :cond_87
-
-    invoke-static {p1}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensFace;->single(I)Z
-
-    move-result v3
-
-    if-eqz v3, :cond_a1
-
-    if-ge v1, v8, :cond_87
-
-    :cond_a1
-    if-ge v1, v7, :cond_87
-
-    .line 188
-    if-ne p1, v7, :cond_c7
-
-    if-ne v1, v8, :cond_c7
-
-    const/16 v3, 0x9
-
-    .line 189
-    :goto_a9
-    iget-object v4, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensFace;->page:Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;
-
-    iget v4, v4, Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;->program:I
-
-    if-ne v3, v4, :cond_cc
-
-    move-object v4, v5
-
-    .line 190
-    :goto_b0
-    iget-object v0, v0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Pad;->link:Lcom/isaigu/gymapp/wearable/bluetens/BluetensLink;
-
-    iget-object v0, v0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensLink;->shell:Lcom/isaigu/gymapp/wearable/bluetens/BluetensShell;
-
-    invoke-static {v3, p2}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensPrograms;->fileName(II)Ljava/lang/String;
-
-    move-result-object v3
-
-    invoke-virtual {v4}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensLok;->build()Ljava/lang/String;
-
-    move-result-object v4
-
-    invoke-static {v4}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensShell;->ascii(Ljava/lang/String;)[B
-
-    move-result-object v4
-
-    invoke-virtual {v0, v3, v4}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensShell;->start(Ljava/lang/String;[B)V
-
-    .line 191
-    add-int/lit8 v0, v1, 0x1
-
-    move v1, v0
-
-    .line 192
-    goto :goto_87
-
-    .line 188
-    :cond_c7
-    iget-object v3, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensFace;->page:Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;
-
-    iget v3, v3, Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;->program:I
-
-    goto :goto_a9
-
-    .line 189
-    :cond_cc
-    invoke-static {v3, p2}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensPrograms;->build(II)Lcom/isaigu/gymapp/wearable/bluetens/BluetensLok;
-
-    move-result-object v4
-
-    goto :goto_b0
-
     .line 193
-    :cond_d1
-    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensFace;->page:Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;
+    invoke-virtual {p0, v2}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensFace;->siteOf(I)I
 
-    invoke-virtual {v5}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensLok;->ms()D
+    move-result v7
+
+    invoke-static {p1, v7, v0}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensFace;->padProgram(III)I
+
+    move-result v7
+
+    .line 194
+    invoke-static {v7, p2}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensPrograms;->build(II)Lcom/isaigu/gymapp/wearable/bluetens/BluetensLok;
+
+    move-result-object v8
+
+    .line 195
+    iget-object v9, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensFace;->timeline:[Lcom/isaigu/gymapp/wearable/face/FaceTimeline;
+
+    invoke-static {v7}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensFace;->fullUs(I)I
+
+    move-result v10
+
+    invoke-static {v8, v10}, Lcom/isaigu/gymapp/wearable/face/FaceTimeline;->of(Lcom/isaigu/gymapp/wearable/bluetens/BluetensLok;I)Lcom/isaigu/gymapp/wearable/face/FaceTimeline;
+
+    move-result-object v10
+
+    aput-object v10, v9, v2
+
+    .line 196
+    invoke-virtual {v8}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensLok;->ms()D
+
+    move-result-wide v10
+
+    double-to-long v10, v10
+
+    invoke-static {v4, v5, v10, v11}, Ljava/lang/Math;->max(JJ)J
 
     move-result-wide v4
 
-    double-to-long v4, v4
+    .line 197
+    if-eqz v6, :cond_ae
+
+    .line 198
+    iget-object v6, v6, Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Pad;->link:Lcom/isaigu/gymapp/wearable/bluetens/BluetensLink;
+
+    iget-object v6, v6, Lcom/isaigu/gymapp/wearable/bluetens/BluetensLink;->shell:Lcom/isaigu/gymapp/wearable/bluetens/BluetensShell;
+
+    invoke-static {v7, p2}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensPrograms;->fileName(II)Ljava/lang/String;
+
+    move-result-object v7
+
+    invoke-virtual {v8}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensLok;->build()Ljava/lang/String;
+
+    move-result-object v8
+
+    invoke-static {v8}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensShell;->ascii(Ljava/lang/String;)[B
+
+    move-result-object v8
+
+    invoke-virtual {v6, v7, v8}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensShell;->start(Ljava/lang/String;[B)V
+
+    .line 191
+    :cond_ae
+    add-int/lit8 v2, v2, 0x1
+
+    goto :goto_72
+
+    .line 201
+    :cond_b1
+    :goto_b1
+    iget-object v2, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensFace;->timeline:[Lcom/isaigu/gymapp/wearable/face/FaceTimeline;
+
+    array-length v2, v2
+
+    if-ge v0, v2, :cond_bd
+
+    .line 202
+    iget-object v2, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensFace;->timeline:[Lcom/isaigu/gymapp/wearable/face/FaceTimeline;
+
+    aput-object v1, v2, v0
+
+    .line 201
+    add-int/lit8 v0, v0, 0x1
+
+    goto :goto_b1
+
+    .line 204
+    :cond_bd
+    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensFace;->page:Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;
 
     iput-wide v4, v0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;->lengthMs:J
 
-    .line 194
+    .line 205
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensFace;->page:Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;
 
-    iput-boolean v2, v0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;->finished:Z
+    iput-boolean v3, v0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;->finished:Z
 
-    .line 195
+    .line 206
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensFace;->page:Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;->render()V
 
-    .line 196
-    const/4 v0, 0x0
+    move-object v0, v1
 
-    goto/16 :goto_f
+    .line 207
+    goto/16 :goto_e
 .end method
 
 .method public programs()[I
     .registers 2
 
     .prologue
-    .line 62
+    .line 68
     sget-object v0, Lcom/isaigu/gymapp/wearable/face/FaceProgram;->BLUETENS:[I
 
     return-object v0
@@ -1294,7 +1363,7 @@
     .registers 2
 
     .prologue
-    .line 212
+    .line 223
     iget-boolean v0, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensFace;->begun:Z
 
     if-eqz v0, :cond_c
@@ -1316,137 +1385,105 @@
     goto :goto_b
 .end method
 
-.method public sideOf(I)I
+.method public select(I)V
+    .registers 2
+
+    .prologue
+    .line 129
+    iput p1, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensFace;->program:I
+
+    .line 130
+    return-void
+.end method
+
+.method public siteOf(I)I
+    .registers 5
+
+    .prologue
+    .line 111
+    invoke-direct {p0}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensFace;->sites()[I
+
+    move-result-object v0
+
+    .line 112
+    const/4 v1, 0x0
+
+    array-length v2, v0
+
+    add-int/lit8 v2, v2, -0x1
+
+    invoke-static {v2, p1}, Ljava/lang/Math;->min(II)I
+
+    move-result v2
+
+    invoke-static {v1, v2}, Ljava/lang/Math;->max(II)I
+
+    move-result v1
+
+    aget v0, v0, v1
+
+    return v0
+.end method
+
+.method public socket(I)Ljava/lang/String;
     .registers 3
 
     .prologue
-    .line 98
-    iget v0, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensFace;->program:I
+    .line 116
+    add-int/lit8 v0, p1, 0x1
 
-    invoke-static {v0}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensFace;->single(I)Z
+    invoke-static {v0}, Ljava/lang/String;->valueOf(I)Ljava/lang/String;
 
-    move-result v0
+    move-result-object v0
 
-    if-eqz v0, :cond_a
-
-    .line 99
-    const/4 v0, -0x1
-
-    .line 101
-    :goto_9
-    return v0
-
-    :cond_a
-    if-nez p1, :cond_e
-
-    const/4 v0, 0x1
-
-    goto :goto_9
-
-    :cond_e
-    const/4 v0, 0x0
-
-    goto :goto_9
+    return-object v0
 .end method
 
 .method public start(Landroid/content/Context;)V
     .registers 3
 
     .prologue
-    .line 204
+    .line 215
     const/4 v0, 0x1
 
     iput-boolean v0, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensFace;->begun:Z
 
-    .line 205
+    .line 216
     return-void
 .end method
 
 .method public state(J)Lcom/isaigu/gymapp/wearable/face/FaceTimeline$State;
-    .registers 8
+    .registers 4
 
     .prologue
-    const-wide/16 v0, 0x0
+    .line 263
+    const/4 v0, 0x0
 
-    .line 252
-    iget-object v2, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensFace;->timeline:Lcom/isaigu/gymapp/wearable/face/FaceTimeline;
-
-    if-eqz v2, :cond_14
-
-    iget-object v2, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensFace;->page:Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;
-
-    iget-boolean v2, v2, Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;->running:Z
-
-    if-eqz v2, :cond_14
-
-    iget-object v2, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensFace;->page:Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;
-
-    iget-wide v2, v2, Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;->startedAt:J
-
-    cmp-long v2, v2, v0
-
-    if-gtz v2, :cond_27
-
-    .line 253
-    :cond_14
-    new-instance v2, Lcom/isaigu/gymapp/wearable/face/FaceTimeline$State;
-
-    invoke-direct {v2}, Lcom/isaigu/gymapp/wearable/face/FaceTimeline$State;-><init>()V
-
-    .line 254
-    iget-object v3, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensFace;->timeline:Lcom/isaigu/gymapp/wearable/face/FaceTimeline;
-
-    if-eqz v3, :cond_23
-
-    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensFace;->timeline:Lcom/isaigu/gymapp/wearable/face/FaceTimeline;
-
-    invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/face/FaceTimeline;->totalMs()J
-
-    move-result-wide v0
-
-    :cond_23
-    iput-wide v0, v2, Lcom/isaigu/gymapp/wearable/face/FaceTimeline$State;->totalMs:J
-
-    move-object v0, v2
-
-    .line 257
-    :goto_26
-    return-object v0
-
-    :cond_27
-    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensFace;->timeline:Lcom/isaigu/gymapp/wearable/face/FaceTimeline;
-
-    iget-object v1, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensFace;->page:Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;
-
-    iget-wide v2, v1, Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;->startedAt:J
-
-    sub-long v2, p1, v2
-
-    invoke-virtual {v0, v2, v3}, Lcom/isaigu/gymapp/wearable/face/FaceTimeline;->at(J)Lcom/isaigu/gymapp/wearable/face/FaceTimeline$State;
+    invoke-direct {p0, v0, p1, p2}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensFace;->stateOf(IJ)Lcom/isaigu/gymapp/wearable/face/FaceTimeline$State;
 
     move-result-object v0
 
-    goto :goto_26
+    return-object v0
 .end method
 
 .method public step(II)V
     .registers 5
 
     .prologue
-    .line 154
+    .line 161
     invoke-direct {p0, p1}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensFace;->pad(I)Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Pad;
 
     move-result-object v0
 
-    .line 155
+    .line 162
     if-eqz v0, :cond_b
 
-    .line 156
+    .line 163
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensFace;->page:Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;
 
     invoke-virtual {v1, v0, p2}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;->step(Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Pad;I)V
 
-    .line 158
+    .line 165
     :cond_b
     return-void
 .end method
@@ -1455,12 +1492,12 @@
     .registers 2
 
     .prologue
-    .line 228
+    .line 239
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensFace;->page:Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;->stopAll()V
 
-    .line 229
+    .line 240
     return-void
 .end method
 
@@ -1468,7 +1505,7 @@
     .registers 3
 
     .prologue
-    .line 232
+    .line 243
     if-eqz p1, :cond_5
 
     const-string v0, "\u25a0  \u041a\u0440\u0430\u0439"
@@ -1486,12 +1523,12 @@
     .registers 4
 
     .prologue
-    .line 140
+    .line 147
     invoke-direct {p0, p1}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensFace;->pad(I)Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Pad;
 
     move-result-object v0
 
-    .line 141
+    .line 148
     if-eqz v0, :cond_15
 
     iget-object v1, v0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Pad;->link:Lcom/isaigu/gymapp/wearable/bluetens/BluetensLink;

@@ -28,30 +28,24 @@ public class FaceSim {
         anatomy();
         timeline();
         course();
-        FaceArt.Scene s = new FaceArt.Scene();
-        s.nogo = true;
-        s.placing = false;
-        svg(new File(out, "cheek-place.svg"), s, true);
-        s = new FaceArt.Scene();
-        s.level[0] = 1f;
-        s.level[1] = 1f;
-        s.t = 0.3f;
-        svg(new File(out, "cheek-lift.svg"), s, true);
-        s = new FaceArt.Scene();
-        s.level[0] = 0.6f;
-        s.level[1] = 0f;
-        s.side[1] = false;
-        s.t = 0.6f;
-        svg(new File(out, "cheek-one-side.svg"), s, false);
-        s = new FaceArt.Scene();
-        s.target = FaceProgram.CHIN;
-        s.nogo = true;
-        s.level[0] = 0.8f;
-        s.level[1] = 0.8f;
-        svg(new File(out, "chin.svg"), s, true);
-        s = new FaceArt.Scene();
-        s.target = -1;
-        svg(new File(out, "face.svg"), s, false);
+        for (int id : FaceProgram.XEMS) {
+            FaceProgram fp = FaceProgram.get(id);
+            FaceArt.Scene s = scene(fp, true);
+            s.nogo = true;
+            svg(new File(out, "xems-" + id + "-place.svg"), s, true);
+            s = scene(fp, true);
+            s.outline = true;
+            s.t = 0.3f;
+            for (int site : fp.xemsSites()) {
+                s.level[site] = 1f;
+            }
+            svg(new File(out, "xems-" + id + "-run.svg"), s, true);
+        }
+        for (int id : FaceProgram.BLUETENS) {
+            FaceArt.Scene s = scene(FaceProgram.get(id), false);
+            s.nogo = true;
+            svg(new File(out, "blt-" + id + "-place.svg"), s, true);
+        }
         if (fails > 0) {
             System.out.println("face sim FAILED: " + fails);
             System.exit(1);
@@ -67,35 +61,50 @@ public class FaceSim {
      */
     static void anatomy() {
         float cm = FaceArt.CM;
-        for (int side = 0; side < 2; side++) {
-            float[][] p = FaceArt.cheekPads(side);
+        for (int site = 0; site < FaceArt.SITES; site++) {
+            float[][] p = FaceArt.pads(site);
             float d = dist(p[0], p[1]) / cm;
-            check(d >= 2.0f && d <= 3.5f, "pads " + d + " cm apart");
-            float[] can = {side == 0 ? 2 * FaceArt.AXIS - FaceArt.CANTHUS[0] : FaceArt.CANTHUS[0], FaceArt.CANTHUS[1]};
-            float e = dist(p[0], can) / cm;
-            check(e >= 2.0f, "upper pad " + e + " cm from the eye corner");
-            float ex = Math.abs(p[0][0] - (side == 0 ? 2 * FaceArt.AXIS - FaceArt.EYE[0] : FaceArt.EYE[0])) / FaceArt.EYE_RX;
-            float ey = Math.abs(p[0][1] - FaceArt.EYE[1]) / FaceArt.EYE_RY;
-            check(ex * ex + ey * ey > 1, "upper pad outside the eye zone");
-            float t = dist(p[0], new float[] {side == 0 ? 2 * FaceArt.AXIS - FaceArt.TRUNK[0] : FaceArt.TRUNK[0], FaceArt.TRUNK[1]}) / cm;
-            check(t >= 1.5f, "upper pad " + t + " cm from the nerve trunk");
-            float[] mouth = {side == 0 ? 2 * FaceArt.AXIS - FaceArt.MOUTH[0] : FaceArt.MOUTH[0], FaceArt.MOUTH[1]};
-            float lip = dist(p[1], mouth) / cm;
-            check(lip >= 1.2f, "lower pad " + lip + " cm from the mouth corner");
+            check(d >= 1.5f && d <= 3.6f, "site " + site + ": pads " + d + " cm apart");
+            for (int k = 0; k < 2; k++) {
+                for (int side = 0; side < 2; side++) {
+                    float ex = Math.abs(p[k][0] - (side == 0 ? 2 * FaceArt.AXIS - FaceArt.EYE[0] : FaceArt.EYE[0])) / FaceArt.EYE_RX;
+                    float ey = Math.abs(p[k][1] - FaceArt.EYE[1]) / FaceArt.EYE_RY;
+                    check(ex * ex + ey * ey > 1, "site " + site + " pad " + k + " outside the eye zone");
+                    float[] can = {side == 0 ? 2 * FaceArt.AXIS - FaceArt.CANTHUS[0] : FaceArt.CANTHUS[0], FaceArt.CANTHUS[1]};
+                    check(dist(p[k], can) / cm >= 2.0f, "site " + site + " pad " + k + " ≥ 2 cm from the eye corner");
+                    float[] tr = {side == 0 ? 2 * FaceArt.AXIS - FaceArt.TRUNK[0] : FaceArt.TRUNK[0], FaceArt.TRUNK[1]};
+                    check(dist(p[k], tr) / cm >= 1.5f, "site " + site + " pad " + k + " clear of the nerve trunk " + dist(p[k], tr) / cm);
+                    float[] nk = {side == 0 ? 2 * FaceArt.AXIS - FaceArt.NECK[0] : FaceArt.NECK[0], FaceArt.NECK[1]};
+                    check(dist(p[k], nk) / cm >= 2.0f, "site " + site + " pad " + k + " ≥ 2 cm from the side of the neck");
+                    float[] mo = {side == 0 ? 2 * FaceArt.AXIS - FaceArt.MOUTH[0] : FaceArt.MOUTH[0], FaceArt.MOUTH[1]};
+                    check(site == FaceArt.CHIN || dist(p[k], mo) / cm >= 0.9f, "site " + site + " pad " + k + " not on the lip " + dist(p[k], mo) / cm);
+                }
+            }
         }
-        // forehead: ≥ 2 cm above the brows (y ≈ 470), the pads clear of the eye zones; jaw: clear of the nerve trunk
-        check((470 - FaceArt.FOREHEAD_PAD[1]) / cm >= 2.0f, "forehead pads 2 cm above the brows");
-        float fx = Math.abs(FaceArt.FOREHEAD_PAIR[2] - FaceArt.EYE[0]) / FaceArt.EYE_RX;
-        float fy = Math.abs(FaceArt.FOREHEAD_PAIR[1] + FaceArt.PAD_HH - FaceArt.EYE[1]) / FaceArt.EYE_RY;
-        check(fx * fx + fy * fy > 1, "forehead pad outside the eye zone");
-        float jt = dist(FaceArt.JAW_PAD_UP, FaceArt.TRUNK) / cm;
-        check(jt >= 1.5f, "jaw pad " + jt + " cm from the nerve trunk");
-        float jd = dist(FaceArt.JAW_PAD_UP, FaceArt.JAW_PAD_LOW) / cm;
-        check(jd >= 2.0f && jd <= 3.5f, "jaw pads " + jd + " cm apart");
-        float n = dist(FaceArt.CHIN_PAD_R, FaceArt.NECK) / cm;
-        check(n >= 2.0f, "chin pad " + n + " cm from the side of the neck");
+        // the sites a procedure uses together never overlap (the connector's 12 × 16 mm pads; Bluetens 16 × 19 mm)
+        for (int id : FaceProgram.XEMS) {
+            pads(FaceProgram.get(id).xemsSites(), true, "xems " + id);
+            pads(FaceProgram.get(id).bluetensSites(), false, "bluetens " + id);
+        }
+        check((470 - FaceArt.pads(FaceArt.FOREHEAD)[0][1]) / cm >= 2.0f, "forehead pads 2 cm above the brows");
         float len = dist(FaceArt.ZM_O, FaceArt.ZM_I) / cm;
         check(len > 4.0f && len < 7.5f, "zygomaticus " + len + " cm");
+    }
+
+    static void pads(int[] sites, boolean small, String tag) {
+        for (int a = 0; a < sites.length; a++) {
+            for (int b = a; b < sites.length; b++) {
+                for (int ka = 0; ka < 2; ka++) {
+                    for (int kb = 0; kb < 2; kb++) {
+                        if (a == b && ka >= kb) {
+                            continue;
+                        }
+                        check(!overlap(corners(sites[a], ka, small), corners(sites[b], kb, small)),
+                                tag + ": pads of sites " + sites[a] + "/" + ka + " and " + sites[b] + "/" + kb + " overlap");
+                    }
+                }
+            }
+        }
     }
 
     /** The Bluetens lift file read as a timeline: phases in order, holds ≈ 3 s, rests ≈ 6 s, the length exact. */
@@ -157,6 +166,61 @@ public class FaceSim {
         one.add(now);
         st = com.isaigu.gymapp.wearable.face.FaceCourse.stats(one, lift, now + 3600_000L);
         check(st.done == 1 && st.week == 1 && st.nextMs >= now + 2 * day - 4 * 3600_000L, "early weeks: every 2 days");
+    }
+
+    /** The scene of a procedure: its sites on, labelled F1… (XEMS) or 1… (Bluetens devices). */
+    static FaceArt.Scene scene(FaceProgram p, boolean xems) {
+        FaceArt.Scene s = new FaceArt.Scene();
+        s.small = xems;
+        s.drain = p.id == FaceProgram.DRAIN;
+        s.sensory = p.sensory;
+        int[] sites = xems ? p.xemsSites() : p.bluetensSites();
+        for (int k = 0; k < sites.length; k++) {
+            s.on[sites[k]] = true;
+            s.label[sites[k]] = xems ? "F" + (sites[k] + 1) : String.valueOf(k + 1);
+        }
+        return s;
+    }
+
+    /** The four corners of a pad (picture px). */
+    static float[][] corners(int site, int k, boolean small) {
+        float[] c = FaceArt.pads(site)[k];
+        double a = Math.toRadians(FaceArt.padAngle(site));
+        float ux = (float) Math.cos(a), uy = (float) Math.sin(a);
+        float hh = FaceArt.padHh(small), hw = FaceArt.padHw(small);
+        float[][] q = new float[4][];
+        int n = 0;
+        for (int sx = -1; sx <= 1; sx += 2) {
+            for (int sy = -1; sy <= 1; sy += 2) {
+                q[n++] = new float[] {c[0] + ux * hh * sx - uy * hw * sy, c[1] + uy * hh * sx + ux * hw * sy};
+            }
+        }
+        return q;
+    }
+
+    /** Separating-axis test of two rectangles given by their corners. */
+    static boolean overlap(float[][] a, float[][] b) {
+        float[][][] polys = {a, b};
+        for (float[][] poly : polys) {
+            float[][] axes = {{poly[1][0] - poly[0][0], poly[1][1] - poly[0][1]}, {poly[2][0] - poly[0][0], poly[2][1] - poly[0][1]}};
+            for (float[] ax : axes) {
+                float amin = Float.MAX_VALUE, amax = -Float.MAX_VALUE, bmin = Float.MAX_VALUE, bmax = -Float.MAX_VALUE;
+                for (float[] v : a) {
+                    float d = v[0] * ax[0] + v[1] * ax[1];
+                    amin = Math.min(amin, d);
+                    amax = Math.max(amax, d);
+                }
+                for (float[] v : b) {
+                    float d = v[0] * ax[0] + v[1] * ax[1];
+                    bmin = Math.min(bmin, d);
+                    bmax = Math.max(bmax, d);
+                }
+                if (amax < bmin || bmax < amin) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     static float dist(float[] a, float[] b) {

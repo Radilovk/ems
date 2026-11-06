@@ -1062,7 +1062,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L106 ## Tests
   - L112 ## Not yet
 
-`docs/xems-face.md` (189L)
+`docs/xems-face.md` (246L)
   - L1 # Face — facial stimulation (owner, 2026-11-06, 1.1.500-ai)
   - L12 ## 1. Physiology the programs stand on
   - L50 ## 2. Who not (asked once, not a central block)
@@ -1076,8 +1076,13 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L107 ### Bluetens — `wearable/bluetens/BluetensPrograms.FACE` (`XFLF`), `FACE_TONE` (`XFTN`), `CHIN` (`XCHN`)
   - L113 ## 6. The face studio (1.1.498-ai, `wearable/face/`)
   - L151 ## 7. The procedure catalogue (1.1.500-ai — owner: "words that mean something for aesthetics, more procedures")
-  - L179 ## 8. Open
-  - L184 ## Sources
+  - L179 ## 9. Multi-channel face — concept (owner, 2026-11-06; proposal, not built yet)
+  - L183 ### 9.1 What the hardware allows and forbids
+  - L203 ### 9.2 Channel map of the face connector (sockets F1–F10, printed on it)
+  - L215 ### 9.3 Procedures (XEMS 10-ch · Bluetens up to 3)
+  - L227 ### 9.4 What the app needs (when the connector exists)
+  - L236 ## 10. Open
+  - L241 ## Sources
 
 `docs/xems-focus-board.md` (129L)
   - L1 # Training screen — focus layout (1.1.412)

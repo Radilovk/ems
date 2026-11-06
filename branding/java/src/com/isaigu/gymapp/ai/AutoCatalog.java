@@ -92,6 +92,8 @@ public final class AutoCatalog {
         /** Men's programs: a woman's menu does not show them. */
         public boolean maleOnly;
         public boolean asksBack;
+        /** The face programs ask about botox / fillers in the last 2 weeks on the client step. */
+        public boolean asksFace;
         public boolean asksPostpartum;
         /** Variants shown as a choice on the plan step (DRAIN: standard / sensitive). */
         public String[] variantsBg;
@@ -206,13 +208,13 @@ public final class AutoCatalog {
                 "Скуловият мускул става по-плътен и държи бузата · 12 седмици · електроди на изходите за ръце",
                 "The cheek muscle thickens and holds the cheek · 12 weeks · pads on the arm outputs",
                 Kind.PASSIVE, AutoModel.zones(0, 0, 0, 0, 0, 0, 0, 0, 0, 100)));
-        p.cr10Lo = 3; p.cr10Hi = 4; p.xCap = 0.45; p.impulse = AutoDynamics.GENTLE;
+        p.cr10Lo = 3; p.cr10Hi = 4; p.xCap = 0.45; p.impulse = AutoDynamics.GENTLE; p.asksFace = true;
 
         p = add(new Program(FACE_TONE, "Лице · Тонус", "Face · Tone",
                 "Издръжлив тонус, без умора · поддръжка след курса · електроди на изходите за ръце",
                 "Lasting tone without fatigue · upkeep after the course · pads on the arm outputs",
                 Kind.PASSIVE, AutoModel.zones(0, 0, 0, 0, 0, 0, 0, 0, 0, 100)));
-        p.cr10Lo = 2; p.cr10Hi = 3; p.xCap = 0.45; p.impulse = AutoDynamics.GENTLE;
+        p.cr10Lo = 2; p.cr10Hi = 3; p.xCap = 0.45; p.impulse = AutoDynamics.GENTLE; p.asksFace = true;
 
         // difficulty (owner, 1.1.336; design values): what the program asks of the body — the feeling it aims at,
         // the explosive / metabolic work. Green = easy, amber = medium, red = hard.
@@ -395,6 +397,10 @@ public final class AutoCatalog {
         }
         if (!answered) {
             return null;
+        }
+        if (p.asksFace && in.extra.injectable) {
+            return AiText.t("Ботокс или филър до 2 седмици — днес без лице",
+                    "Botox or filler within 2 weeks — no face today");
         }
         if (p.asksBack && in.extra.anyBackRedFlag()) {
             return AiText.t("Сигнал за тревога за гърба — първо лекар",

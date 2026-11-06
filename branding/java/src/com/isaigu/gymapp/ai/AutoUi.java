@@ -420,6 +420,14 @@ public final class AutoUi {
                         AutoSession.saveHeight(host, in.heightCm);
                     }
                     AutoSession.buildPlan();
+                    if (AutoCatalog.isFace(AutoCatalog.get(in.programId)) && host != null) {
+                        // the face has its own page (docs/xems-face.md): the session stays, the sheet goes;
+                        // the studio starts at the placement (effect chosen here, the face question answered here)
+                        Activity h = host;
+                        dismiss();
+                        com.isaigu.gymapp.wearable.face.FaceStudio.openAuto(h, in.programId);
+                        return;
+                    }
                     // The strength is set on the training screen itself (owner, 1.1.336): the sheet steps aside,
                     // the impulses run at the calibration, the board waits for ▶ Старт.
                     AutoSession.beginCalibration();
@@ -868,6 +876,13 @@ public final class AutoUi {
             pp.addView(toggle(c, AiText.t("Диастаза (≥ 2 пръста)", "Diastasis (≥ 2 fingers)"), null, in.extra.diastasis, 3));
             body.addView(pp, XemsUi.matchWrap(c, 12));
         }
+        if (p != null && p.asksFace) {
+            LinearLayout fc = XemsUi.card(c);
+            fc.addView(toggle(c, AiText.t("Ботокс или филър в лицето през последните 2 седмици", "Botox or filler in the face within 2 weeks"),
+                    AiText.t("токът засилва и разнася действието им — днес без лице", "the current strengthens and spreads them — no face today"),
+                    in.extra.injectable, 20));
+            body.addView(fc, XemsUi.matchWrap(c, 12));
+        }
         if (p != null && p.asksBack) {
             LinearLayout bk = XemsUi.card(c);
             bk.addView(XemsUi.label(c, AiText.t("Гръб: има ли някое от тези?", "Back: any of these?")));
@@ -921,7 +936,8 @@ public final class AutoUi {
         body.addView(todayGrid, XemsUi.matchWrap(c, 6));
 
         boolean ready = pb == null;
-        footer(c, AiText.t("Към настройване  ›", "To setup  ›"), true);
+        footer(c, p != null && p.asksFace ? AiText.t("Към лицето  ›", "To the face  ›")
+                : AiText.t("Към настройване  ›", "To setup  ›"), true);
         enable(ready);
     }
 
@@ -1905,13 +1921,6 @@ public final class AutoUi {
                 if (arg < menu.size()) {
                     in.programId = menu.get(arg).id;
                     modId = null;
-                    if (AutoCatalog.isFace(menu.get(arg)) && host != null) {
-                        // the face has its own page (docs/xems-face.md): the session stays, the sheet goes
-                        Activity h = host;
-                        dismiss();
-                        com.isaigu.gymapp.wearable.face.FaceStudio.openAuto(h, in.programId);
-                        return;
-                    }
                 }
                 break;
             }
@@ -1956,6 +1965,7 @@ public final class AutoUi {
                     case 1: in.extra.cesarean = v; break;
                     case 2: in.extra.breastfeeding = v; break;
                     case 3: in.extra.diastasis = v; break;
+                    case 20: in.extra.injectable = v; break;
                     case 10: in.extra.backAcute = v; break;
                     case 11: in.extra.backRadiating = v; break;
                     case 12: in.extra.backTrauma = v; break;

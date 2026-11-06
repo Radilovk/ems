@@ -40,10 +40,13 @@ public final class FaceStudio {
 
     // ================================================================ entry points
 
-    /** From the automatic mode: a face card was picked (the session is in its setup). */
+    /**
+     * From the automatic mode's client step: the effect was chosen there and the face question answered there
+     * (botox / filler — {@code AutoModel.Extra.injectable} blocks before this), so the studio starts at the placement.
+     */
     public static void openAuto(Activity a, String autoProgramId) {
         int p = "face_tone".equals(autoProgramId) ? FaceProgram.TONE : FaceProgram.LIFT;
-        open(a, new FaceAuto(), p);
+        open(a, new FaceAuto(), p, PLACE);
     }
 
     /** From the Bluetens page: its face card. */
@@ -53,16 +56,17 @@ public final class FaceStudio {
             c.reshow(a);
             return;
         }
-        open(a, d, FaceProgram.LIFT);
+        open(a, d, FaceProgram.LIFT, PICK);
     }
 
-    private static void open(Activity a, FaceDevice d, int program) {
+    private static void open(Activity a, FaceDevice d, int program, int step) {
         try {
             Studio old = current;
             if (old != null && !old.closed) {
                 old.close();
             }
             current = new Studio(a, d, program);
+            current.step = step;
             current.show();
         } catch (Throwable t) {
             XemsGuard.report("FaceStudio.open", t);
@@ -418,15 +422,20 @@ public final class FaceStudio {
                 TextView w = XemsUi.text(a, why, 14, XemsUi.AMBER, true);
                 right.addView(w, XemsUi.matchWrap(a, 12));
             }
+            if (dev.kind() == FaceDevice.XEMS) {
+                // asked on Auto's client step already (a "yes" blocks there): shown, not asked again
+                right.addView(placeRow("✓", tr("Ботокс / филър до 2 седмици: не", "Botox / filler within 2 weeks: no"),
+                        XemsUi.GO_TEXT), XemsUi.matchWrap(a, 10));
+                ghost(tr("←  Ефект", "←  Effect"), new Next(this, PICK));
+                primary = footer(tr("Към силата  →", "To the strength  →"), XemsUi.PRIMARY, new Next(this, STRENGTH));
+                return;
+            }
             // the face's one question: the confirmation is the primary button (fewest steps)
             LinearLayout q = XemsUi.vertical(a);
             q.setPadding(dp(16), dp(14), dp(16), dp(14));
             q.setBackgroundDrawable(XemsUi.rounded(XemsUi.alpha(contra ? XemsUi.DANGER : XemsUi.AMBER, 0x1C), dp(16),
                     XemsUi.alpha(contra ? XemsUi.DANGER : XemsUi.AMBER, 0x88), dp(1)));
-            String question = dev.kind() == FaceDevice.XEMS
-                    ? tr("Ботокс или филър в лицето през последните 2 седмици?",
-                    "Botox or filler in the face within the last 2 weeks?")
-                    : tr("Ботокс или филър през последните 2 седмици, пейсмейкър, бременност, епилепсия или раздразнена кожа?",
+            String question = tr("Ботокс или филър през последните 2 седмици, пейсмейкър, бременност, епилепсия или раздразнена кожа?",
                     "Botox or filler within 2 weeks, a pacemaker, pregnancy, epilepsy or irritated skin?");
             q.addView(XemsUi.text(a, question, 15, XemsUi.TEXT, true));
             if (contra) {

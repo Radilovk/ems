@@ -28,16 +28,16 @@
     .registers 3
 
     .prologue
-    .line 1007
+    .line 1016
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 1008
+    .line 1017
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$HowInfo;->v:Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;
 
-    .line 1009
+    .line 1018
     iput p2, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$HowInfo;->id:I
 
-    .line 1010
+    .line 1019
     return-void
 .end method
 
@@ -47,19 +47,19 @@
     .registers 8
 
     .prologue
-    .line 1014
+    .line 1023
     iget v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$HowInfo;->id:I
 
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/face/FaceProgram;->get(I)Lcom/isaigu/gymapp/wearable/face/FaceProgram;
 
     move-result-object v0
 
-    .line 1015
+    .line 1024
     invoke-static {}, Lcom/isaigu/gymapp/wearable/face/FaceStudio;->bg()Z
 
     move-result v1
 
-    .line 1016
+    .line 1025
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$HowInfo;->v:Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;
 
     iget-object v2, v2, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->a:Landroid/app/Activity;
@@ -152,7 +152,7 @@
 
     move-result-object v4
 
-    .line 1017
+    .line 1026
     invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/wearable/face/FaceProgram;->course(Z)Ljava/lang/String;
 
     move-result-object v0
@@ -165,9 +165,9 @@
 
     move-result-object v0
 
-    .line 1016
+    .line 1025
     invoke-static {v2, v3, v0}, Lcom/isaigu/gymapp/wearable/face/FaceStudio;->sheet(Landroid/app/Activity;Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 1018
+    .line 1027
     return-void
 .end method

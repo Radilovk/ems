@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 877
+    .line 886
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 878
+    .line 887
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Scene;->v:Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;
 
-    .line 879
+    .line 888
     return-void
 .end method
 
@@ -52,27 +52,27 @@
 
     const/4 v7, 0x1
 
-    .line 883
+    .line 892
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Scene;->v:Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->prog()Lcom/isaigu/gymapp/wearable/face/FaceProgram;
 
     move-result-object v5
 
-    .line 884
+    .line 893
     iget v0, v5, Lcom/isaigu/gymapp/wearable/face/FaceProgram;->target:I
 
     iput v0, p1, Lcom/isaigu/gymapp/wearable/face/FaceArt$Scene;->target:I
 
-    .line 885
+    .line 894
     iget v0, v5, Lcom/isaigu/gymapp/wearable/face/FaceProgram;->hz:I
 
     iput v0, p1, Lcom/isaigu/gymapp/wearable/face/FaceArt$Scene;->hz:I
 
-    .line 886
+    .line 895
     iput-boolean v7, p1, Lcom/isaigu/gymapp/wearable/face/FaceArt$Scene;->pads:Z
 
-    .line 887
+    .line 896
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Scene;->v:Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;
 
     iget v0, v0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->step:I
@@ -84,7 +84,7 @@
     :goto_1d
     iput-boolean v0, p1, Lcom/isaigu/gymapp/wearable/face/FaceArt$Scene;->nogo:Z
 
-    .line 888
+    .line 897
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Scene;->v:Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;
 
     iget v0, v0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->step:I
@@ -96,20 +96,20 @@
     :goto_26
     iput-boolean v0, p1, Lcom/isaigu/gymapp/wearable/face/FaceArt$Scene;->placing:Z
 
-    .line 889
+    .line 898
     iput-boolean v7, p1, Lcom/isaigu/gymapp/wearable/face/FaceArt$Scene;->muscle:Z
 
-    .line 890
+    .line 899
     iget-object v0, p1, Lcom/isaigu/gymapp/wearable/face/FaceArt$Scene;->side:[Z
 
     aput-boolean v7, v0, v8
 
-    .line 891
+    .line 900
     iget-object v0, p1, Lcom/isaigu/gymapp/wearable/face/FaceArt$Scene;->side:[Z
 
     aput-boolean v7, v0, v7
 
-    .line 892
+    .line 901
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Scene;->v:Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;
 
     iget v0, v0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->step:I
@@ -122,7 +122,7 @@
 
     if-ne v0, v10, :cond_6a
 
-    .line 894
+    .line 903
     :cond_3e
     iget v0, p1, Lcom/isaigu/gymapp/wearable/face/FaceArt$Scene;->t:F
 
@@ -144,7 +144,7 @@
 
     move-result-object v0
 
-    .line 895
+    .line 904
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Scene;->v:Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;
 
     iget v1, v1, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->step:I
@@ -153,18 +153,18 @@
 
     move v0, v9
 
-    .line 896
+    .line 905
     :goto_56
     iget-object v1, p1, Lcom/isaigu/gymapp/wearable/face/FaceArt$Scene;->level:[F
 
     aput v0, v1, v8
 
-    .line 897
+    .line 906
     iget-object v1, p1, Lcom/isaigu/gymapp/wearable/face/FaceArt$Scene;->level:[F
 
     aput v0, v1, v7
 
-    .line 923
+    .line 932
     :cond_5e
     :goto_5e
     return-void
@@ -172,16 +172,16 @@
     :cond_5f
     move v0, v8
 
-    .line 887
+    .line 896
     goto :goto_1d
 
     :cond_61
     move v0, v8
 
-    .line 888
+    .line 897
     goto :goto_26
 
-    .line 895
+    .line 904
     :cond_63
     iget v0, v0, Lcom/isaigu/gymapp/wearable/face/FaceTimeline$State;->level:F
 
@@ -191,7 +191,7 @@
 
     goto :goto_56
 
-    .line 900
+    .line 909
     :cond_6a
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Scene;->v:Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;
 
@@ -199,7 +199,7 @@
 
     if-eq v0, v7, :cond_5e
 
-    .line 903
+    .line 912
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Scene;->v:Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dev:Lcom/isaigu/gymapp/wearable/face/FaceDevice;
@@ -218,18 +218,18 @@
 
     move-result-object v0
 
-    .line 904
+    .line 913
     :goto_82
     iget v1, v0, Lcom/isaigu/gymapp/wearable/face/FaceTimeline$State;->hz:I
 
     if-lez v1, :cond_8a
 
-    .line 905
+    .line 914
     iget v1, v0, Lcom/isaigu/gymapp/wearable/face/FaceTimeline$State;->hz:I
 
     iput v1, p1, Lcom/isaigu/gymapp/wearable/face/FaceArt$Scene;->hz:I
 
-    .line 907
+    .line 916
     :cond_8a
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Scene;->v:Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;
 
@@ -239,7 +239,7 @@
 
     move-result v2
 
-    .line 908
+    .line 917
     iget v1, v5, Lcom/isaigu/gymapp/wearable/face/FaceProgram;->target:I
 
     if-nez v1, :cond_d3
@@ -254,21 +254,21 @@
 
     if-ne v1, v7, :cond_d3
 
-    .line 909
+    .line 918
     iget-object v1, p1, Lcom/isaigu/gymapp/wearable/face/FaceArt$Scene;->side:[Z
 
     aput-boolean v8, v1, v8
 
-    .line 910
+    .line 919
     iget-object v1, p1, Lcom/isaigu/gymapp/wearable/face/FaceArt$Scene;->side:[Z
 
     aput-boolean v8, v1, v7
 
-    .line 911
+    .line 920
     :goto_a8
     if-ge v8, v2, :cond_5e
 
-    .line 912
+    .line 921
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Scene;->v:Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;
 
     iget-object v1, v1, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dev:Lcom/isaigu/gymapp/wearable/face/FaceDevice;
@@ -277,15 +277,15 @@
 
     move-result v3
 
-    .line 913
+    .line 922
     if-ltz v3, :cond_c8
 
-    .line 914
+    .line 923
     iget-object v1, p1, Lcom/isaigu/gymapp/wearable/face/FaceArt$Scene;->side:[Z
 
     aput-boolean v7, v1, v3
 
-    .line 915
+    .line 924
     iget-object v4, p1, Lcom/isaigu/gymapp/wearable/face/FaceArt$Scene;->level:[F
 
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Scene;->v:Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;
@@ -303,13 +303,13 @@
     :goto_c6
     aput v1, v4, v3
 
-    .line 911
+    .line 920
     :cond_c8
     add-int/lit8 v8, v8, 0x1
 
     goto :goto_a8
 
-    .line 903
+    .line 912
     :cond_cb
     new-instance v0, Lcom/isaigu/gymapp/wearable/face/FaceTimeline$State;
 
@@ -320,10 +320,10 @@
     :cond_d1
     move v1, v9
 
-    .line 915
+    .line 924
     goto :goto_c6
 
-    .line 920
+    .line 929
     :cond_d3
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Scene;->v:Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;
 
@@ -337,13 +337,13 @@
 
     iget v9, v0, Lcom/isaigu/gymapp/wearable/face/FaceTimeline$State;->level:F
 
-    .line 921
+    .line 930
     :cond_df
     iget-object v0, p1, Lcom/isaigu/gymapp/wearable/face/FaceArt$Scene;->level:[F
 
     aput v9, v0, v8
 
-    .line 922
+    .line 931
     iget-object v0, p1, Lcom/isaigu/gymapp/wearable/face/FaceArt$Scene;->level:[F
 
     aput v9, v0, v7

@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 1133
+    .line 1142
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 1134
+    .line 1143
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Start;->v:Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;
 
-    .line 1135
+    .line 1144
     return-void
 .end method
 
@@ -42,11 +42,11 @@
     .registers 3
 
     .prologue
-    .line 1139
+    .line 1148
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Start;->v:Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->start()V
 
-    .line 1140
+    .line 1149
     return-void
 .end method

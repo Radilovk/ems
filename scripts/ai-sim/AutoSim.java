@@ -566,6 +566,14 @@ public final class AutoSim {
                         }
                     }
                     check(main, id + ": has its main part");
+                    in.extra.injectable = true;
+                    check(AutoCatalog.blockReason(plan.program, in.goal, in) != null, id + ": botox / filler < 2 weeks blocks");
+                    check(AutoCatalog.blockReason(plan.program, in.goal, in, false) == null, id + ": the card stays (asked on the client step)");
+                    AutoModel.Input other = input(sex, 45, 65, 168, AiModel.Fitness.MID, sessions, -1);
+                    other.extra.injectable = true;
+                    check(AutoCatalog.blockReason(AutoCatalog.get(AutoCatalog.RECOVERY), AutoModel.Goal.HEALTH, other) == null,
+                            "botox does not block the body programs");
+                    in.extra.injectable = false;
                     AutoEngine e = new AutoEngine(plan);
                     long t = 0;
                     e.start(t);

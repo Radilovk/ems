@@ -107,8 +107,11 @@ Strength: from 0, slowly, until the mouth corner lifts visibly; stay at that thr
 
 ## 6. The face studio (1.1.498-ai, `wearable/face/`)
 One full-screen page for both devices (owner: "a completely different interface, aesthetic, for clients and staff").
-- **Entry.** XEMS: Auto → Пасивна → Стягане → a face card → `FaceStudio.openAuto` (the Auto sheet closes, the
-  session stays; `FaceStudio.ownsAuto()` keeps `AutoUi` / `AutoBoard` / `AutoHints` away, `AutoUi.open` / `show`
+- **Entry.** XEMS: Auto → Пасивна → Стягане → a face card → the client step, which asks the face question
+  (1.1.499: toggle "Ботокс или филър в лицето през последните 2 седмици" — `AutoCatalog.Program.asksFace`,
+  `AutoModel.Extra.injectable`; "yes" blocks the face programs in `AutoCatalog.blockReason`, the button says
+  "Към лицето ›") → `FaceStudio.openAuto` opens at the placement (the answer shown as ✓, not asked again; the Auto
+  sheet closes, the session stays; `FaceStudio.ownsAuto()` keeps `AutoUi` / `AutoBoard` / `AutoHints` away, `AutoUi.open` / `show`
   bring the studio back, `AutoUi.onFinished` hands the end to it). Bluetens: the page's **Лице ›** card
   (`BluetensScreen.faceCard`; the three face files are no longer in its list) → `FaceStudio.openDevice(BluetensFace)`.
 - **Left: the picture.** The owner's image `branding/face/face.webp` (→ assets/xems/face/, `apply-exercise-assets.py`)

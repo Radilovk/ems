@@ -25,4 +25,6 @@ func _init() -> void:
 	var got: Vector3 = body.pos["knee_l"]
 	var err := got.distance_to(want)
 	print("legs_test: knee_l %s (want %s, off %.3f m) · feet %s %s · after %d ms" % [got, want, err, body.pos["foot_l"], body.pos["foot_r"], Time.get_ticks_msec() - t0])
-	quit(0 if err < 0.02 else 1)
+	var hip_ok: bool = body.hip_pos.has("l") and body.foot_dir.has("l") and (body.foot_dir["l"] as Vector3).dot(Vector3(0, 0, -1)) > 0.9
+	print("legs_test: hip_l %s · foot_dir_l %s" % [body.hip_pos.get("l"), body.foot_dir.get("l")])
+	quit(0 if err < 0.02 and hip_ok else 1)

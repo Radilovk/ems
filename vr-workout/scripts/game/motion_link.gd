@@ -10,7 +10,7 @@ class_name MotionLink
 extends RefCounted
 
 const ASK_PORT := 47811
-const KEYS := {"kl": "knee_l", "kr": "knee_r", "fl": "foot_l", "fr": "foot_r"}
+const KEYS := {"kl": "knee_l", "kr": "knee_r", "fl": "foot_l", "fr": "foot_r", "hl": "hip_l", "hr": "hip_r"}
 const MAX_AGE := 0.3                    # s: older than this = no legs from here
 const PREDICT_MAX := 0.06               # s
 
@@ -65,7 +65,8 @@ func fresh() -> bool:
 	return on and not last.is_empty() and (Time.get_ticks_msec() - recv_ms) / 1000.0 < MAX_AGE
 
 
-## World positions of the knees and feet ({"knee_l": Vector3, …}) and their speeds (m/s), or {} without fresh data.
+## World positions of the knees, feet and hips ({"pos": {"knee_l": Vector3, …}}), their speeds (m/s) and where the feet
+## point ({"dir": {"l": Vector3, "r": …}}), or {} without fresh data.
 ## head: the headset's world position; fwd: the body's heading (horizontal unit vector, world); stand_h: the player's
 ## head height standing (the game's calibration).
 func limbs(head: Vector3, fwd: Vector3, stand_h: float) -> Dictionary:
@@ -77,7 +78,7 @@ func limbs(head: Vector3, fwd: Vector3, stand_h: float) -> Dictionary:
 	var age: float = clampf((Time.get_ticks_msec() - recv_ms) / 1000.0 + float(last.get("_extra", 0.0)) + 0.02, 0.0, PREDICT_MAX)
 	var L: Dictionary = last.get("L", {})
 	var V: Dictionary = last.get("V", {})
-	var out := {"pos": {}, "speed": {}}
+	var out := {"pos": {}, "speed": {}, "dir": {}}
 	for k in KEYS:
 		if not L.has(k):
 			continue
@@ -87,4 +88,12 @@ func limbs(head: Vector3, fwd: Vector3, stand_h: float) -> Dictionary:
 		var vv := fwd * float(v[0]) + left * float(v[1]) + Vector3.UP * float(v[2])
 		out.pos[KEYS[k]] = head + (p + vv * age) * s
 		out.speed[KEYS[k]] = vv.length() * s
+	# where each foot points (heel → toes), from the shin sensor: the boot and the shin guard face it
+	var D: Dictionary = last.get("D", {})
+	for k in ["fl", "fr"]:
+		if D.has(k):
+			var d: Array = D[k]
+			var dv := fwd * float(d[0]) + left * float(d[1]) + Vector3.UP * float(d[2])
+			if dv.length() > 0.1:
+				out.dir[k.substr(1)] = dv.normalized()
 	return out

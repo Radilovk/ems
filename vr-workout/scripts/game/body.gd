@@ -41,6 +41,8 @@ var feet_allowed := true                # the settings let a low controller beco
 var on_foot := {"left": false, "right": false}    # this controller is strapped to a foot
 var foot_xform := {"left": Transform3D(), "right": Transform3D()}  # world pose of a foot controller
 var link := MotionLink.new()           # the XEMS Motion sensors' legs (Wi-Fi), when the phone app sends them
+var hip_pos := {}                       # "l"/"r" -> the hip joint (frame space), from the sensors only
+var foot_dir := {}                      # "l"/"r" -> where the foot points (world direction), from the sensors only
 var legs_src := "none"                  # where the knees / feet come from now: sensors · controller · estimate · none
 var _fwd := Vector3(0, 0, -1)           # the body's heading (world): the head's, smoothed (a head turn alone is not a body turn)
 var _low := {"left": 0.0, "right": 0.0}
@@ -180,6 +182,14 @@ func update(delta: float) -> void:
 	if (ls == "sensors") != (legs_src == "sensors"):
 		changes.append(["legs", legs_src, ls])          # the game says it: sensors found / lost
 	legs_src = ls
+	hip_pos.clear()
+	foot_dir.clear()
+	if not xl.is_empty():
+		for sd in ["l", "r"]:
+			if xl.pos.has("hip_" + sd):
+				hip_pos[sd] = to_frame * (xl.pos["hip_" + sd] as Vector3)
+			if xl.dir.has(sd):
+				foot_dir[sd] = xl.dir[sd]
 	for l in LIMBS:
 		var p := Vector3.ZERO
 		var ok := false

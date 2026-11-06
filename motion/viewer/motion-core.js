@@ -640,7 +640,8 @@
       f.vMax = Math.max(f.vMax, norm(f.v));
       // shown while moving only if it looks like a foot (≤ 0.8 m away, ≤ 0.7 m up); else the foot stays put
       const dp = sub(f.pi, f.pStart);
-      f.p = norm(dp) < 0.8 && f.pi[2] > -0.05 && f.pi[2] < 0.7 ? f.pi.slice() : f.pStart.slice();
+      // (a front kick reaches ~0.9 m ahead and up to hip height and beyond: the VR game's kicks, 2026-11-06)
+      f.p = norm(dp) < KICK_REACH * this.dim.H && f.pi[2] > -0.05 && f.pi[2] < KICK_UP * this.dim.H ? f.pi.slice() : f.pStart.slice();
       const Tm = t - f.t0;
       // a foot at speed is never calm for long: calm + slow = landed; calm for 0.5 s at "speed" = that speed is drift
       // (fw 8's hit flag as "landed now" was tried: it cut the drift correction short — jump squats 13° → 19°; not used)
@@ -982,6 +983,7 @@
   const envN = (k, d) => (typeof process !== 'undefined' && process.env && process.env[k] != null ? +process.env[k] : d);
   const PHYS_W = envN('PHYS_W', 0), PHYS_C0 = envN('PHYS_C0', 0.3), PHYS_C1 = envN('PHYS_C1', 0.5);
   const NO_DRIFTFIT = typeof process !== 'undefined' && process.env && process.env.DRIFT === '0';
+  const KICK_REACH = envN('KICK_REACH', 0.65), KICK_UP = envN('KICK_UP', 0.65);      // × height
   const NO_HANG = typeof process !== 'undefined' && process.env && process.env.NO_HANG === '1';
   const NO_CALTEACH = typeof process !== 'undefined' && process.env && process.env.NO_CALTEACH === '1';
   const ARMS_STATE = typeof process !== 'undefined' && process.env && process.env.ARMS === 'state';
@@ -1144,7 +1146,20 @@
     ['knee', 5, (u) => ({ kneeUp: sm(u * 5 / 1.2) - sm((u * 5 - 3.6) / 1.2) })],
     ['stand', 2, () => ({})],
     ['twist', 6, (u) => ({ twist: 35 * Math.sin((2 * Math.PI * u * 6) / 3), arms: { l: { f: 60, e: 80 }, r: { f: 60, e: 80 } } })],
+    ['stand', 1.5, () => ({})],
+    // front kicks for the VR game (owner 2026-11-06): knee up (chamber) → the shin snaps out → back → down; left, right
+    ['kick', 8, (u) => { const t = u * 8, side = t < 4 ? 'L' : 'R', k = kickPath((t % 4) / 2); return { ['kick' + side]: k }; }],
   ];
+  // one front kick, ph 0…1 (a kick lasts 2 s): the foot (ground-relative, × leg length) through chamber → strike →
+  // chamber → floor, and how much weight left that foot (1 = all on the other)
+  function kickPath(ph) {
+    const K = [[0, [0, 0], 0], [0.25, [0.42, 0.40], 1], [0.42, [0.80, 0.55], 1], [0.58, [0.42, 0.40], 1], [0.82, [0, 0], 1], [1, [0, 0], 0]];
+    if (ph >= 1) return { x: 0, z: 0, w: 0 };
+    let i = 0; while (i < K.length - 2 && ph > K[i + 1][0]) i++;
+    const [a0, p0, w0] = K[i], [a1, p1, w1] = K[i + 1], e = ease((ph - a0) / (a1 - a0));
+    const w = ph < 0.08 ? ease(ph / 0.08) : ph > 0.9 ? ease((1 - ph) / 0.1) : 1;
+    return { x: p0[0] + (p1[0] - p0[0]) * e, z: p0[1] + (p1[1] - p0[1]) * e, w };
+  }
   // the calibration, shown by the figure for the user to copy (owner 2026-11-05: "a clip of exactly what to repeat"):
   // stand still → arms straight forward + half squat → HOLD → back up → arms out to the sides → HOLD → down.
   const ease = (u) => (u <= 0 ? 0 : u >= 1 ? 1 : u * u * (3 - 2 * u));
@@ -1189,6 +1204,8 @@
     let Pz = d.ankleH + legLen - 0.0005 - 0.38 * squat * d.H / 1.75 - 0.3 * lunge * d.H / 1.75 - 0.1 * lstep;   // stepping out bends the knees a little
     const kneeUp = p.kneeUp || 0;
     if (kneeUp > 0) feet.l = [0.8 * kneeUp * d.thigh, d.hipW, 0.75 * kneeUp * d.thigh];
+    if (p.kickL) feet.l = [p.kickL.x * legLen, d.hipW, p.kickL.z * legLen];
+    if (p.kickR) feet.r = [p.kickR.x * legLen, -d.hipW, p.kickR.z * legLen];
     // arms
     const arms = {};
     for (const side of ['l', 'r']) {
@@ -1201,8 +1218,9 @@
       arms[side] = { U, F };
     }
     // pelvis x: balance the body over the supporting feet (same mass model as the solver)
-    const one = sm(kneeUp * 4);          // weight moves onto the right foot as the left one leaves the floor
-    const supX = (1 - one) * (feet.l[0] + feet.r[0]) / 2 + one * feet.r[0] + d.footFwd;
+    const one = Math.max(sm(kneeUp * 4), p.kickL ? p.kickL.w : 0);   // weight onto the right foot as the left one leaves the floor
+    const oneR = p.kickR ? p.kickR.w : 0;                              // … and onto the left for a right kick
+    const supX = (1 - one - oneR) * (feet.l[0] + feet.r[0]) / 2 + one * feet.r[0] + oneR * feet.l[0] + d.footFwd;
     let lo = -0.6, hi = 0.6, Px = 0, legs = null;
     for (let it = 0; it < 40; it++) {
       Px = (lo + hi) / 2;

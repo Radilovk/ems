@@ -436,14 +436,16 @@ function vrSendPose(p, t) {
   const M = X.m, Rb = M.rz(-p.yaw * Math.PI / 180), J = p.J, H = J.head;
   const loc = (q) => M.mv(Rb, M.sub(q, H));
   const foot = (s) => M.add(J[s + 'ankle'], M.sc(M.sub(J[s + 'toe'], J[s + 'ankle']), 0.5));
-  const L = { kl: loc(J.lknee), kr: loc(J.rknee), fl: loc(foot('l')), fr: loc(foot('r')) };
+  const L = { kl: loc(J.lknee), kr: loc(J.rknee), fl: loc(foot('l')), fr: loc(foot('r')), hl: loc(J.lhip), hr: loc(J.rhip) };
+  // where each foot points: the shin sensor's own forward axis (it turns with the shin — a kick points the boot up)
+  const D = { fl: M.mv(Rb, M.mv(p.R.lshank, [1, 0, 0])), fr: M.mv(Rb, M.mv(p.R.rshank, [1, 0, 0])) };
   const V = {};
   if (vrPrev && t > vrPrev.t) for (const k in L) V[k] = M.sc(M.sub(L[k], vrPrev.L[k]), 1 / (t - vrPrev.t));
   vrPrev = { t, L };
   const r3 = (v) => v ? v.map((x) => Math.round(x * 1000) / 1000) : [0, 0, 0];
   NATIVE.vrSend(JSON.stringify({ v: 1, t: Math.round(now), eye: +(H[2] - Math.min(J.lankle[2], J.rankle[2]) + body.dim.ankleH).toFixed(3), H: +body.dim.H.toFixed(3),
     L: Object.fromEntries(Object.entries(L).map(([k, v]) => [k, r3(v)])), V: Object.fromEntries(Object.keys(L).map((k) => [k, r3(V[k])])),
-    air: [p.feet.l.air ? 1 : 0, p.feet.r.air ? 1 : 0] }));
+    D: { fl: r3(D.fl), fr: r3(D.fr) }, air: [p.feet.l.air ? 1 : 0, p.feet.r.air ? 1 : 0] }));
 }
 function drawVr() { const el = $('vrst'); if (el) { el.textContent = vrHost ? '🥽 VR играта получава краката ✓' : ''; el.style.display = vrHost ? '' : 'none'; } }
 function step(t) {

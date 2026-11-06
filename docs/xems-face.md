@@ -48,6 +48,11 @@ which is why discomfort, not current, limits the face. Narrow pulses favour larg
 **RMS check.** 70 Hz × 2 × 100 µs = 1.4 % duty → I_rms = 0.118 · I_peak; 25 mA peak on 3 cm² ≈ 1.0 mA/cm².
 
 ## 2. Who not (asked once, not a central block)
+Where it is asked: XEMS — the Auto client step (botox / filler; the rest is in the client record); Bluetens — the face
+studio's placement question, and the Bluetens page's ⓘ carries the whole list as "Кога не — попитай преди
+електродите" (`BluetensScreen.contraCard`, 1.1.501: pacemaker / implant, pregnancy — not on belly, low back, pelvis,
+epilepsy, wound / irritated skin / reduced feeling, recent surgery / leg thrombosis, face: botox or filler < 2 weeks,
+facial palsy; never around the eyes, the neck, across the chest).
 From the review: pregnancy, pacemaker / implanted electronics, epilepsy, recent facial surgery, broken or
 irritated skin. Added here:
 - **Botulinum toxin in the area < 2 weeks**: uptake into the nerve endings is activity-dependent — stimulation after

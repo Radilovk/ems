@@ -1723,6 +1723,41 @@ public final class BluetensScreen {
         }
     }
 
+    /**
+     * "Кога не" — the contraindications, asked of the client before the pads go on (Bluetens has no client record:
+     * the trainer asks; the face studio asks the face part itself). Same list as docs/xems-face.md §2.
+     */
+    static View contraCard(android.app.Activity a, boolean b) {
+        LinearLayout c = XemsUi.vertical(a);
+        c.setPadding(XemsUi.dp(a, 16), XemsUi.dp(a, 12), XemsUi.dp(a, 16), XemsUi.dp(a, 14));
+        c.setBackgroundDrawable(XemsUi.rounded(XemsUi.alpha(XemsUi.AMBER, 0x1A), XemsUi.dp(a, 16),
+                XemsUi.alpha(XemsUi.AMBER, 0x88), XemsUi.dp(a, 1)));
+        c.addView(XemsUi.text(a, b ? "Кога не — попитай преди електродите" : "When not — ask before the pads go on", 16,
+                XemsUi.AMBER, true));
+        String[] l = b ? new String[] {
+                "• Пейсмейкър, дефибрилатор или друг имплант с електроника — никъде по тялото",
+                "• Бременност — не върху корема, кръста и таза",
+                "• Епилепсия",
+                "• Рана, раздразнена кожа, обрив, изгаряне, намалена чувствителност в зоната",
+                "• Скорошна операция в зоната, тромбоза на крака",
+                "• Лице: ботокс или филър през последните 2 седмици, парализа на лицевия нерв",
+                "• Никога: около очите, отпред и отстрани на шията, през гърдите от едната към другата страна"}
+                : new String[] {
+                "• A pacemaker, defibrillator or other electronic implant — nowhere on the body",
+                "• Pregnancy — not on the belly, lower back or pelvis",
+                "• Epilepsy",
+                "• A wound, irritated skin, rash, burn or reduced feeling in the area",
+                "• Recent surgery in the area, a leg thrombosis",
+                "• Face: botox or filler within 2 weeks, facial palsy",
+                "• Never: around the eyes, the front and side of the neck, across the chest side to side"};
+        for (String x : l) {
+            TextView t = XemsUi.text(a, x, 14.5f, XemsUi.TEXT, false);
+            t.setPadding(0, XemsUi.dp(a, 6), 0, 0);
+            c.addView(t);
+        }
+        return c;
+    }
+
     static final class Info implements View.OnClickListener {
         final Page v;
 
@@ -1757,14 +1792,12 @@ public final class BluetensScreen {
             String[] lines = b ? new String[] {
                     "• Електродите — на чиста, суха кожа, върху мускула, не върху става или кост.",
                     "• Започва от сила 1. Качвай, докато е приятно — никога до болка.",
-                    "• Не върху гърдите при пейсмейкър, не по време на бременност, не върху рани.",
                     "• Duo: двете устройства тръгват заедно, силата е отделна за всяко.",
                     "• „—“ свива прозореца: устройствата продължават, а ти работиш в XEMS. Докосни балончето, за да го отвориш.",
                     "• ✕ затваря прозореца и спира устройствата."}
                     : new String[] {
                     "• Electrodes on clean, dry skin over the muscle — not on a joint or bone.",
                     "• It starts at strength 1. Raise it until it feels good — never to pain.",
-                    "• Not on the chest with a pacemaker, not in pregnancy, not on wounds.",
                     "• Duo: both pads start together; each has its own strength.",
                     "• “—” folds the window: the pads keep going while you work in XEMS. Tap the pill to open it again.",
                     "• ✕ closes the window and stops the pads."};
@@ -1781,6 +1814,7 @@ public final class BluetensScreen {
             for (String l : lines) {
                 s.body.addView(XemsUi.text(v.a, l, 15, XemsUi.TEXT, false), XemsUi.matchWrap(v.a, 8));
             }
+            s.body.addView(contraCard(v.a, b), XemsUi.matchWrap(v.a, 16));
             XemsUi.fitHeight(v.a, s, 0.9f);
             s.dialog.show();
         }

@@ -389,7 +389,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `BluetensProgram.java` (272L, compile:music-sync*,wearable) — A Bluetens program the trainer makes (owner, 2026-10-13: "I want control over the parameters, with programs I create — …
 - `BluetensPrograms.java` (340L, compile:music-sync*,wearable) — XEMS's own programs for the Bluetens pads — built here, never copied from the vendor (docs/xems-bluetens.md).
 - `BluetensScan.java` (99L, compile:music-sync*,wearable) — Finds Bluetens pads while the screen is open ({@link BluetensAdvert} tells a pad); results on the main thread.
-- `BluetensScreen.java` (1789L, compile:music-sync*,wearable) — The Bluetens page (dock → "Bluetens"): a tool of its own, apart from the suit and its training — owner, 2026-10-13.
+- `BluetensScreen.java` (1823L, compile:music-sync*,wearable) — The Bluetens page (dock → "Bluetens"): a tool of its own, apart from the suit and its training — owner, 2026-10-13.
 - `BluetensShell.java` (657L, compile:music-sync*,wearable) — The conversation with one Bluetens pad — pure Java, no Android (the BLE link only moves bytes; the offline test drives …
 - `BluetensStore.java` (78L, compile:music-sync*,wearable) — The trainer's own Bluetens programs on this tablet (prefs "xems_bluetens", key "progs": one line each).
 
@@ -1062,22 +1062,22 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L106 ## Tests
   - L112 ## Not yet
 
-`docs/xems-face.md` (184L)
+`docs/xems-face.md` (189L)
   - L1 # Face — facial stimulation (owner, 2026-11-06, 1.1.500-ai)
   - L12 ## 1. Physiology the programs stand on
   - L50 ## 2. Who not (asked once, not a central block)
-  - L59 ## 3. Programs
-  - L60 ### Лице · Повдигане (both devices) — hypertrophy of the ZM
-  - L70 ### Лице · Тонус (both devices) — fatigue resistance, upkeep after the course
-  - L75 ### Под брадичката (Bluetens only) — suprahyoid (digastric, mylohyoid, geniohyoid)
-  - L82 ## 4. Placement (cheek, both devices)
-  - L89 ## 5. Code
-  - L90 ### XEMS — `ai/AutoCatalog.FACE`, `FACE_TONE` (`isFace`)
-  - L102 ### Bluetens — `wearable/bluetens/BluetensPrograms.FACE` (`XFLF`), `FACE_TONE` (`XFTN`), `CHIN` (`XCHN`)
-  - L108 ## 6. The face studio (1.1.498-ai, `wearable/face/`)
-  - L146 ## 7. The procedure catalogue (1.1.500-ai — owner: "words that mean something for aesthetics, more procedures")
-  - L174 ## 8. Open
-  - L179 ## Sources
+  - L64 ## 3. Programs
+  - L65 ### Лице · Повдигане (both devices) — hypertrophy of the ZM
+  - L75 ### Лице · Тонус (both devices) — fatigue resistance, upkeep after the course
+  - L80 ### Под брадичката (Bluetens only) — suprahyoid (digastric, mylohyoid, geniohyoid)
+  - L87 ## 4. Placement (cheek, both devices)
+  - L94 ## 5. Code
+  - L95 ### XEMS — `ai/AutoCatalog.FACE`, `FACE_TONE` (`isFace`)
+  - L107 ### Bluetens — `wearable/bluetens/BluetensPrograms.FACE` (`XFLF`), `FACE_TONE` (`XFTN`), `CHIN` (`XCHN`)
+  - L113 ## 6. The face studio (1.1.498-ai, `wearable/face/`)
+  - L151 ## 7. The procedure catalogue (1.1.500-ai — owner: "words that mean something for aesthetics, more procedures")
+  - L179 ## 8. Open
+  - L184 ## Sources
 
 `docs/xems-focus-board.md` (129L)
   - L1 # Training screen — focus layout (1.1.412)

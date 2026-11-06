@@ -53,6 +53,15 @@ public final class AutoCatalog {
      */
     public static final String FACE = "face";
     public static final String FACE_TONE = "face_tone";
+    /** Depuff: a muscle pump — 30 Hz, 1 s : 2 s (NMES reduces oedema: systematic review; the face, same mechanism). */
+    public static final String FACE_DRAIN = "face_drain";
+    /**
+     * The "botox effect": a SENSORY current on the forehead (60 Hz, 250 µs — the approved supraorbital device's
+     * settings), the muscle must not move; afferent input lowers muscle tone (TENS meta-analyses). Inside the suit's
+     * limits it runs 4 s : 4 s.
+     */
+    public static final String FACE_RELAX = "face_relax";
+    public static final int FACE_RELAX_PW = 250;
     /** Face: pulse width (µs) of every step (facial NMES 10–100 µs per phase), and its recovery (s). */
     public static final int FACE_PW = 100;
     public static final int FACE_RECOVERY_S = 120;
@@ -61,7 +70,7 @@ public final class AutoCatalog {
 
     /** A face program: arms channel only, narrow pulse, short recovery. */
     public static boolean isFace(Program p) {
-        return p != null && (FACE.equals(p.id) || FACE_TONE.equals(p.id));
+        return p != null && (FACE.equals(p.id) || FACE_TONE.equals(p.id) || FACE_DRAIN.equals(p.id) || FACE_RELAX.equals(p.id));
     }
     /** Men's goals (owner's decision): muscle mass, and chest · shoulders · arms. */
     public static final String MASS = "mass";
@@ -204,21 +213,31 @@ public final class AutoCatalog {
                 Kind.PASSIVE, AutoModel.zones(80, 90, 90, 90, 50, 70, 80, 80, 40, 60)));
         p.cr10Lo = 3; p.cr10Hi = 5; p.xCap = 0.45;
 
-        p = add(new Program(FACE, "Лице · Повдигане", "Face · Lift",
-                "Скуловият мускул става по-плътен и държи бузата · 12 седмици · електроди на изходите за ръце",
-                "The cheek muscle thickens and holds the cheek · 12 weeks · pads on the arm outputs",
+        p = add(new Program(FACE, "Лице · Лифтинг", "Face · Lift",
+                "Лифтинг · Стегнат овал · Детокс от отоци · Ботокс ефект — избор в студиото за лице",
+                "Lift · Firm contour · Depuff · Botox effect — chosen in the face studio",
                 Kind.PASSIVE, AutoModel.zones(0, 0, 0, 0, 0, 0, 0, 0, 0, 100)));
         p.cr10Lo = 3; p.cr10Hi = 4; p.xCap = 0.45; p.impulse = AutoDynamics.GENTLE; p.asksFace = true;
 
-        p = add(new Program(FACE_TONE, "Лице · Тонус", "Face · Tone",
-                "Издръжлив тонус, без умора · поддръжка след курса · електроди на изходите за ръце",
-                "Lasting tone without fatigue · upkeep after the course · pads on the arm outputs",
+        p = add(new Program(FACE_TONE, "Лице · Стегнат овал", "Face · Firm contour",
+                "Еластичност, която пази лифтинга", "Elasticity that keeps the lift",
                 Kind.PASSIVE, AutoModel.zones(0, 0, 0, 0, 0, 0, 0, 0, 0, 100)));
         p.cr10Lo = 2; p.cr10Hi = 3; p.xCap = 0.45; p.impulse = AutoDynamics.GENTLE; p.asksFace = true;
 
+        p = add(new Program(FACE_DRAIN, "Лице · Детокс от отоци", "Face · Depuff",
+                "По-малко подпухване, по-ясни черти", "Less puffiness, clearer features",
+                Kind.PASSIVE, AutoModel.zones(0, 0, 0, 0, 0, 0, 0, 0, 0, 100)));
+        p.cr10Lo = 2; p.cr10Hi = 3; p.xCap = 0.45; p.impulse = AutoDynamics.GENTLE; p.asksFace = true;
+
+        p = add(new Program(FACE_RELAX, "Лице · Ботокс ефект", "Face · Botox effect",
+                "Отпусната мимика, по-гладко чело · без игла", "Relaxed expression, smoother forehead · no needle",
+                Kind.PASSIVE, AutoModel.zones(0, 0, 0, 0, 0, 0, 0, 0, 0, 100)));
+        p.cr10Lo = 1; p.cr10Hi = 2; p.xCap = 0.45; p.impulse = AutoDynamics.GENTLE; p.asksFace = true;
+
         // difficulty (owner, 1.1.336; design values): what the program asks of the body — the feeling it aims at,
         // the explosive / metabolic work. Green = easy, amber = medium, red = hard.
-        for (String id : new String[] {BACK_ACTIVE, SENIOR, POSTPARTUM, DRAIN, BACK_PAIN, RECOVERY, FACE, FACE_TONE}) {
+        for (String id : new String[] {BACK_ACTIVE, SENIOR, POSTPARTUM, DRAIN, BACK_PAIN, RECOVERY, FACE, FACE_TONE,
+                FACE_DRAIN, FACE_RELAX}) {
             get(id).level = 1;
         }
         for (String id : new String[] {POWER, CARDIO, MASS}) {
@@ -258,9 +277,13 @@ public final class AutoCatalog {
 
     /** One face step: narrow pulse, soft 0.5 s rise and fall (no jolt on the face). */
     private static Step faceStep(int hz, int on, int off) {
-        Step s = tet(Math.max(FACE_HZ_MIN, hz), FACE_PW, on, off);
-        s.rampUpMs = 500;
-        s.rampDownMs = 500;
+        return faceStep(hz, FACE_PW, on, off, 500);
+    }
+
+    private static Step faceStep(int hz, int pw, int on, int off, int rampMs) {
+        Step s = tet(Math.max(FACE_HZ_MIN, hz), pw, on, off);
+        s.rampUpMs = rampMs;
+        s.rampDownMs = rampMs;
         return s;
     }
 
@@ -299,7 +322,7 @@ public final class AutoCatalog {
             case TONE:
                 ids = kind == Kind.ACTIVE
                         ? new String[] {GENERAL, MASS, UPPER, GLUTES_LEGS, CORE, POWER}
-                        : new String[] {CELLULITE, POSTPARTUM, PASSIVE_METABOLIC, FACE, FACE_TONE};
+                        : new String[] {CELLULITE, POSTPARTUM, PASSIVE_METABOLIC, FACE};
                 break;
             case SLIM:
                 ids = kind == Kind.ACTIVE
@@ -439,6 +462,10 @@ public final class AutoCatalog {
                 return 1080;
             case FACE_TONE:
                 return 780;
+            case FACE_DRAIN:
+                return 720;
+            case FACE_RELAX:
+                return 1200;
             default:
                 return 1200;
         }
@@ -675,6 +702,41 @@ public final class AutoCatalog {
                 m.hintEn = "A soft, even tension — felt, never painful";
                 m.steps.add(faceStep(35, 4, 5));
                 faceCooldown(out, total);
+                break;
+            }
+            case FACE_DRAIN: {
+                // the pump: short soft holds, twice as long a release; 30 Hz is fused enough, still far from fatigue
+                Phase w = phase(out, "WARMUP", "Включване", "Wake-up", 0.12, total, 0.6, 0.7);
+                w.envStart = 0.6;
+                w.envEnd = 0.7;
+                w.hintBg = "Седни удобно, главата леко назад";
+                w.hintEn = "Sit comfortably, head slightly back";
+                w.steps.add(faceStep(30, FACE_PW, 1, 3, 300));
+                Phase m = phase(out, "MAIN", "Помпа", "Pump", 0.88, total, 0.8, 0.8);
+                m.hintBg = "Бузата ритмично се повдига — течността тръгва към лимфните възли";
+                m.hintEn = "The cheek lifts rhythmically — the fluid moves to the lymph nodes";
+                m.steps.add(faceStep(30, FACE_PW, 1, 2, 300));
+                faceCooldown(out, total);
+                break;
+            }
+            case FACE_RELAX: {
+                // sensory only: the strength is a tingle (the calibration stops before the brows move)
+                Phase w = phase(out, "WARMUP", "Включване", "Wake-up", 0.08, total, 0.6, 0.9);
+                w.envStart = 0.6;
+                w.envEnd = 0.9;
+                w.hintBg = "Затвори очи — само изтръпване, веждите не мърдат";
+                w.hintEn = "Close the eyes — only a tingle, the brows stay still";
+                w.steps.add(faceStep(60, FACE_RELAX_PW, 4, 4, 1000));
+                Phase m = phase(out, "MAIN", "Отпускане на мимиката", "Expression relax", 0.92, total, 1.0, 1.0);
+                m.hintBg = "Затвори очи, отпусни челото — токът работи по нервите";
+                m.hintEn = "Close the eyes, let the forehead go — the current works on the nerves";
+                m.steps.add(faceStep(60, FACE_RELAX_PW, 4, 4, 1000));
+                Phase c = phase(out, "COOLDOWN", "Затихване", "Fade out", 0.10, total, 0.5, 0.5);
+                c.envStart = 0.5;
+                c.envEnd = 0.5;
+                c.hintBg = "Остани с отпуснато чело още малко";
+                c.hintEn = "Keep the forehead relaxed a little longer";
+                c.steps.add(faceStep(60, FACE_RELAX_PW, 4, 4, 1000));
                 break;
             }
             default: { // RECOVERY

@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 966
+    .line 1072
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 967
+    .line 1073
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$BackKey;->v:Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;
 
-    .line 968
+    .line 1074
     return-void
 .end method
 
@@ -46,7 +46,7 @@
 
     const/4 v0, 0x1
 
-    .line 972
+    .line 1078
     if-ne p2, v2, :cond_a
 
     invoke-virtual {p3}, Landroid/view/KeyEvent;->getAction()I
@@ -55,21 +55,21 @@
 
     if-eq v1, v0, :cond_f
 
-    .line 973
+    .line 1079
     :cond_a
     if-ne p2, v2, :cond_d
 
-    .line 980
+    .line 1086
     :goto_c
     return v0
 
-    .line 973
+    .line 1079
     :cond_d
     const/4 v0, 0x0
 
     goto :goto_c
 
-    .line 975
+    .line 1081
     :cond_f
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$BackKey;->v:Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;
 
@@ -85,7 +85,7 @@
 
     if-ne v1, v2, :cond_22
 
-    .line 976
+    .line 1082
     :cond_1c
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$BackKey;->v:Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;
 
@@ -93,7 +93,7 @@
 
     goto :goto_c
 
-    .line 978
+    .line 1084
     :cond_22
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$BackKey;->v:Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;
 

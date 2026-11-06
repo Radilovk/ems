@@ -607,7 +607,8 @@ public final class AutoUi {
                     pickedLine = p.desc();
                 }
                 String art = p.isActive() ? ProgramArt.templateKey(in.sex) : ProgramArt.passiveKey(in.sex);
-                strip.addView(programCard(c, on, p.level, art, (p == rec ? "★ " : "") + p.name(), null,
+                String label = AutoCatalog.isFace(p) ? AiText.t("Лице · естетични процедури", "Face · aesthetic procedures") : p.name();
+                strip.addView(programCard(c, on, p.level, art, (p == rec ? "★ " : "") + label, null,
                         AutoCatalog.times(p, in.goal, in), null, new Act(A_PROGRAM, i)), cardParams(c));
                 shown++;
             }

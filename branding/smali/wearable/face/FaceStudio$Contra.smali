@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 1095
+    .line 1206
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 1096
+    .line 1207
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Contra;->v:Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;
 
-    .line 1097
+    .line 1208
     return-void
 .end method
 
@@ -44,7 +44,7 @@
     .prologue
     const/4 v1, 0x1
 
-    .line 1101
+    .line 1212
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Contra;->v:Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;
 
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Contra;->v:Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;
@@ -58,15 +58,15 @@
     :goto_a
     iput-boolean v0, v2, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->contra:Z
 
-    .line 1102
+    .line 1213
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Contra;->v:Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;
 
     invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->go(I)V
 
-    .line 1103
+    .line 1214
     return-void
 
-    .line 1101
+    .line 1212
     :cond_12
     const/4 v0, 0x0
 

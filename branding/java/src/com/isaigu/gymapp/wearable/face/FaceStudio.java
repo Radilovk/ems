@@ -41,12 +41,12 @@ public final class FaceStudio {
     // ================================================================ entry points
 
     /**
-     * From the automatic mode's client step: the effect was chosen there and the face question answered there
-     * (botox / filler — {@code AutoModel.Extra.injectable} blocks before this), so the studio starts at the placement.
+     * From the automatic mode's client step: the face question was answered there (botox / filler —
+     * {@code AutoModel.Extra.injectable} blocks before this); the studio starts at the effect (the one card in Auto
+     * stands for all four).
      */
     public static void openAuto(Activity a, String autoProgramId) {
-        int p = "face_tone".equals(autoProgramId) ? FaceProgram.TONE : FaceProgram.LIFT;
-        open(a, new FaceAuto(), p, PLACE);
+        open(a, new FaceAuto(), FaceAuto.programOf(autoProgramId), PICK);
     }
 
     /** From the Bluetens page: its face card. */
@@ -129,6 +129,8 @@ public final class FaceStudio {
         boolean recorded;
 
         FaceView face;
+        int faceH;
+        LinearLayout floor;
         TextView caption;
         TextView captionSub;
         LinearLayout right;
@@ -179,7 +181,8 @@ public final class FaceStudio {
             LinearLayout row = XemsUi.horizontal(a);
             row.setGravity(Gravity.TOP);
             DisplayMetrics dm = a.getResources().getDisplayMetrics();
-            int faceH = Math.max(dp(380), (int) (dm.heightPixels * 0.70f));
+            // the picture fills the page's height (header and footer aside); the right column is just as tall
+            faceH = Math.max(dp(380), dm.heightPixels - dp(178));
             FrameLayout left = new FrameLayout(a);
             face = new FaceView(a);
             face.setColors(XemsUi.dark ? 0xFF5EEAFF : 0xFF37D0EB, 0xFFFF6F91, 0xFFFF5A5A);
@@ -197,10 +200,19 @@ public final class FaceStudio {
             left.addView(cap, cp);
             row.addView(left, new LinearLayout.LayoutParams(0, faceH, 1f));
 
+            // the right column: the step (scrolls if it must) over the course card on the floor, as tall as the picture
+            LinearLayout column = XemsUi.vertical(a);
+            android.widget.ScrollView sc = new android.widget.ScrollView(a);
+            sc.setVerticalScrollBarEnabled(false);
+            sc.setOverScrollMode(View.OVER_SCROLL_NEVER);
             right = XemsUi.vertical(a);
-            LinearLayout.LayoutParams rp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1.12f);
+            sc.addView(right);
+            column.addView(sc, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
+            floor = XemsUi.vertical(a);
+            column.addView(floor, XemsUi.matchWrap(a, 10));
+            LinearLayout.LayoutParams rp = new LinearLayout.LayoutParams(0, faceH, 1.12f);
             rp.leftMargin = dp(24);
-            row.addView(right, rp);
+            row.addView(column, rp);
             s.body.addView(row, XemsUi.matchWrap(a, 4));
 
             hint = XemsUi.text(a, "", 14, XemsUi.MUTED, false);
@@ -296,6 +308,10 @@ public final class FaceStudio {
                 case RUN: buildRun(); break;
                 default: buildDone(); break;
             }
+            floor.removeAllViews();
+            if (st != DONE) {
+                floor.addView(courseCard(), XemsUi.matchWrap(a, 0));     // the course on the floor: no empty half-screen
+            }
             updateCaption();
             updateBadge();
             XemsUi.enter(right);
@@ -339,20 +355,33 @@ public final class FaceStudio {
 
         void buildPick() {
             right.addView(title(tr("Какъв ефект търсим днес?", "What effect today?")));
-            for (int id : dev.programs()) {
-                right.addView(programCard(FaceProgram.get(id)), XemsUi.matchWrap(a, 12));
+            int[] ids = dev.programs();
+            LinearLayout rowL = null;
+            for (int k = 0; k < ids.length; k++) {
+                if (k % 2 == 0) {
+                    rowL = XemsUi.horizontal(a);
+                    right.addView(rowL, XemsUi.matchWrap(a, k == 0 ? 6 : 10));
+                }
+                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1f);
+                if (k % 2 == 1) {
+                    lp.leftMargin = dp(10);
+                }
+                rowL.addView(programCard(FaceProgram.get(ids[k])), lp);
             }
-            statusLine = XemsUi.text(a, "", 14, XemsUi.MUTED, false);
-            right.addView(statusLine, XemsUi.matchWrap(a, 14));
+            if (ids.length % 2 == 1 && rowL != null) {
+                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, 1, 1f);
+                lp.leftMargin = dp(10);
+                rowL.addView(new View(a), lp);
+            }
             primary = footer(tr("Към поставянето  →", "To the placement  →"), XemsUi.PRIMARY, new Next(this, PLACE));
         }
 
+        /** A compact card: the mark, the name, the promise, two short chips; ⓘ = how it works and how sure. */
         View programCard(FaceProgram p) {
             boolean on = p.id == program;
             boolean b = bg();
-            LinearLayout card = XemsUi.horizontal(a);
-            card.setGravity(Gravity.CENTER_VERTICAL);
-            card.setPadding(dp(16), dp(14), dp(10), dp(14));
+            LinearLayout card = XemsUi.vertical(a);
+            card.setPadding(dp(14), dp(12), dp(10), dp(12));
             float r = dp(18);
             card.setBackgroundDrawable(XemsUi.ripple(on
                     ? XemsUi.rounded(XemsUi.alpha(p.tint, 0x24), r, XemsUi.alpha(p.tint, 0xDD), dp(2))
@@ -360,36 +389,80 @@ public final class FaceStudio {
             card.setClickable(true);
             card.setOnClickListener(new Pick(this, p.id));
             XemsUi.pressable(card);
-            TextView mark = XemsUi.text(a, p.id == FaceProgram.LIFT ? "↗" : p.id == FaceProgram.TONE ? "≈" : "◡", 22,
-                    on ? 0xFFFFFFFF : p.tint, true);
-            mark.setGravity(Gravity.CENTER);
-            mark.setBackgroundDrawable(XemsUi.rounded(on ? p.tint : XemsUi.alpha(p.tint, 0x30), dp(24), 0, 0));
-            card.addView(mark, new LinearLayout.LayoutParams(dp(48), dp(48)));
-            LinearLayout texts = XemsUi.vertical(a);
-            texts.setPadding(dp(14), 0, dp(6), 0);
             LinearLayout head = XemsUi.horizontal(a);
             head.setGravity(Gravity.CENTER_VERTICAL);
-            head.addView(XemsUi.text(a, p.name(b), 19, on ? p.tint : XemsUi.TEXT, true));
-            TextView res = XemsUi.text(a, "  ·  " + p.result(b), 15, XemsUi.TEXT, false);
-            head.addView(res);
-            texts.addView(head);
-            TextView mus = XemsUi.text(a, p.muscle(b) + "  ·  " + p.latin, 13, XemsUi.MUTED, false);
-            mus.setPadding(0, dp(3), 0, 0);
-            texts.addView(mus);
-            LinearLayout chips = XemsUi.horizontal(a);
-            chips.setPadding(0, dp(8), 0, 0);
-            chips.addView(XemsUi.badge(a, p.rhythm(b), on ? p.tint : XemsUi.MUTED));
-            TextView c2 = XemsUi.badge(a, p.course(b), on ? XemsUi.ACCENT : XemsUi.MUTED);
-            LinearLayout.LayoutParams cl = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-            cl.leftMargin = dp(8);
-            chips.addView(c2, cl);
-            texts.addView(chips);
-            card.addView(texts, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+            TextView mark = XemsUi.text(a, p.glyph, 19, on ? 0xFFFFFFFF : p.tint, true);
+            mark.setGravity(Gravity.CENTER);
+            mark.setBackgroundDrawable(XemsUi.rounded(on ? p.tint : XemsUi.alpha(p.tint, 0x30), dp(19), 0, 0));
+            head.addView(mark, new LinearLayout.LayoutParams(dp(38), dp(38)));
+            LinearLayout names = XemsUi.vertical(a);
+            names.setPadding(dp(10), 0, dp(4), 0);
+            TextView nm = XemsUi.text(a, p.name(b), 18, on ? p.tint : XemsUi.TEXT, true);
+            nm.setSingleLine(true);
+            nm.setEllipsize(TextUtils.TruncateAt.END);
+            names.addView(nm);
+            TextView st = XemsUi.text(a, p.stars(), 11, on ? p.tint : XemsUi.MUTED, false);
+            names.addView(st);
+            head.addView(names, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
             TextView info = XemsUi.iconButton(a, "i", XemsUi.SURFACE, XemsUi.TEXT, 34);
             info.setOnClickListener(new HowInfo(this, p.id));
-            card.addView(info, new LinearLayout.LayoutParams(dp(48), dp(48)));
-            info.setLayoutParams(new LinearLayout.LayoutParams(dp(40), dp(40)));
+            head.addView(info, new LinearLayout.LayoutParams(dp(34), dp(34)));
+            card.addView(head);
+            TextView tag = XemsUi.text(a, p.tag(b), 14.5f, XemsUi.TEXT, false);
+            tag.setMaxLines(2);
+            tag.setPadding(0, dp(8), 0, 0);
+            card.addView(tag);
+            LinearLayout chips = XemsUi.horizontal(a);
+            chips.setPadding(0, dp(8), 0, 0);
+            TextView c1 = XemsUi.badge(a, p.rhythm(b), on ? p.tint : XemsUi.MUTED);
+            c1.setSingleLine(true);
+            chips.addView(c1);
+            TextView c2 = XemsUi.badge(a, p.course(b), on ? XemsUi.ACCENT : XemsUi.MUTED);
+            c2.setSingleLine(true);
+            c2.setEllipsize(TextUtils.TruncateAt.END);
+            LinearLayout.LayoutParams cl = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+            cl.leftMargin = dp(6);
+            chips.addView(c2, cl);
+            card.addView(chips);
             return card;
+        }
+
+        /** The floor of the column: the client's course of this procedure — where, the bar, the next good time. */
+        View courseCard() {
+            boolean b = bg();
+            FaceProgram p = prog();
+            FaceCourse.Stats st = stats();
+            long now = System.currentTimeMillis();
+            LinearLayout c = XemsUi.vertical(a);
+            c.setPadding(dp(16), dp(12), dp(16), dp(14));
+            c.setBackgroundDrawable(XemsUi.rounded(XemsUi.alpha(p.tint, 0x14), dp(16), XemsUi.alpha(p.tint, 0x55), dp(1)));
+            LinearLayout top = XemsUi.horizontal(a);
+            top.setGravity(Gravity.CENTER_VERTICAL);
+            top.addView(XemsUi.text(a, p.name(b), 14, p.tint, true));
+            TextView line = XemsUi.text(a, "  ·  " + FaceCourse.line(st, b), 14, XemsUi.TEXT, false);
+            top.addView(line, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+            c.addView(top);
+            if (st.planned > 0) {
+                LinearLayout.LayoutParams bl = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(8));
+                bl.topMargin = dp(10);
+                c.addView(courseBar(st, p), bl);
+            }
+            String next;
+            int col = XemsUi.MUTED;
+            if (st.finished && program == FaceProgram.LIFT) {
+                next = tr("Курсът е завършен — „Стегнат овал“ 2–3 пъти седмично пази ефекта",
+                        "The course is complete — Firm contour 2–3 times a week keeps the effect");
+                col = XemsUi.GO_TEXT;
+            } else if (st.nextMs > now) {
+                next = tr("Мускулът се възстановява — най-добре ", "The muscle recovers — best ") + when(st.nextMs, now, b);
+                col = XemsUi.AMBER;
+            } else {
+                next = p.course(b) + "  ·  " + p.muscle(b);
+            }
+            TextView n = XemsUi.text(a, next, 13, col, false);
+            n.setPadding(0, dp(8), 0, 0);
+            c.addView(n);
+            return c;
         }
 
         // ---------------------------------------------------------------- 2 · the pads
@@ -398,13 +471,17 @@ public final class FaceStudio {
             boolean b = bg();
             FaceProgram p = prog();
             right.addView(title(tr("Поставяне на електродите", "Placing the pads")));
-            String[] lines = p.place(b);
+            String[] lines = p.place(b, dev.kind() == FaceDevice.XEMS);
             for (int i = 0; i < lines.length; i++) {
                 right.addView(placeRow(i == 0 ? "✓" : String.valueOf(i), lines[i], i == 0 ? XemsUi.GO_TEXT : XemsUi.ACCENT),
                         XemsUi.matchWrap(a, 10));
             }
             if (dev.kind() == FaceDevice.XEMS) {
-                right.addView(placeRow("⇄", tr("Кабелите за ръцете: левият към лявата буза, десният към дясната. Другите канали са изключени.",
+                boolean fh = p.target == FaceProgram.FOREHEAD;
+                right.addView(placeRow("⇄", fh
+                        ? tr("Кабелите за ръцете: левият към лявата половина на челото, десният към дясната. Другите канали са изключени.",
+                        "The arm cables: left to the left half of the forehead, right to the right. Every other channel is off.")
+                        : tr("Кабелите за ръцете: левият към лявата буза, десният към дясната. Другите канали са изключени.",
                         "The arm cables: left to the left cheek, right to the right. Every other channel is off."), XemsUi.AMBER),
                         XemsUi.matchWrap(a, 10));
             } else {
@@ -539,12 +616,15 @@ public final class FaceStudio {
             return r;
         }
 
+        /** Bluetens minutes, derived: the lift grows from 10 to 20 after two weeks; the forehead 20 (as the approved
+         *  device), the jaw 15, the rest 10. */
         int minutes() {
-            FaceCourse.Stats st = stats();
-            if (program == FaceProgram.LIFT) {
-                return st.week >= 3 ? 20 : 10;
+            switch (program) {
+                case FaceProgram.LIFT: return stats().week >= 3 ? 20 : 10;
+                case FaceProgram.RELAX: return 20;
+                case FaceProgram.JAW_RELAX: return 15;
+                default: return 10;
             }
-            return 10;
         }
 
         // ---------------------------------------------------------------- the run
@@ -557,7 +637,10 @@ public final class FaceStudio {
             ring.setColors(XemsUi.ACCENT, 0xFFFF6F91, XemsUi.TEXT, XemsUi.MUTED, XemsUi.alpha(XemsUi.MUTED, 0x30));
             ring.setWords(new String[] {tr("Включване", "Wake-up"), prog().name(b), tr("Отпускане", "Let go")},
                     tr("СТЯГАНЕ", "HOLD"), tr("ОТДИХ", "REST"), tr("ПАУЗА", "PAUSED"));
-            r.addView(ring, new LinearLayout.LayoutParams(dp(300), dp(300)));
+            if (prog().sensory) {
+                ring.setSteady(prog().id == FaceProgram.RELAX ? tr("НЕЖЕН ТОК", "GENTLE CURRENT") : tr("ПОТУПВАНЕ", "TAPPING"));
+            }
+            r.addView(ring, new LinearLayout.LayoutParams(dp(310), dp(310)));
             LinearLayout side = XemsUi.vertical(a);
             side.setPadding(dp(18), 0, 0, 0);
             statusLine = XemsUi.text(a, "", 15, XemsUi.TEXT, false);
@@ -622,8 +705,8 @@ public final class FaceStudio {
                 box.addView(nx);
             }
             if (st.finished && program == FaceProgram.LIFT) {
-                TextView up = XemsUi.text(a, tr("Курсът за повдигане е завършен — оттук „Тонус“ 2–3 пъти седмично пази ефекта.",
-                        "The lift course is complete — from here Tone 2–3 times a week keeps the effect."), 15, XemsUi.GO_TEXT, false);
+                TextView up = XemsUi.text(a, tr("Курсът за лифтинг е завършен — оттук „Стегнат овал“ 2–3 пъти седмично пази ефекта.",
+                        "The lift course is complete — from here Firm contour 2–3 times a week keeps the effect."), 15, XemsUi.GO_TEXT, false);
                 up.setGravity(Gravity.CENTER);
                 up.setPadding(0, dp(10), 0, 0);
                 box.addView(up);
@@ -771,8 +854,7 @@ public final class FaceStudio {
                 if (stopBtn != null) {
                     stopBtn.setText(dev.stopLabel(b));
                 }
-                hint.setText(st.on ? tr("Лицето отпуснато — мускулът работи сам", "Face relaxed — the muscle works by itself")
-                        : tr("Отдих — кръвта се връща в мускула", "Rest — the blood returns to the muscle"));
+                hint.setText(prog().runHint(st.on, b));
                 if (dev.finished()) {
                     toDone();
                 }
@@ -781,15 +863,18 @@ public final class FaceStudio {
 
         String runLine(FaceTimeline.State st, boolean b) {
             FaceProgram p = prog();
-            return p.name(b) + "\n" + p.muscle(b) + "\n" + st.hz + " Hz  ·  " + p.onS + " s / " + p.offS + " s";
+            return p.name(b) + "\n" + p.tag(b) + "\n" + p.rhythm(b);
         }
 
         void updateCaption() {
             boolean b = bg();
             FaceProgram p = prog();
             if (step == PLACE) {
-                caption.setText(tr("1 и 2 — двойката е от една страна", "1 and 2 — the pair stays on one side"));
-                captionSub.setText(tr("⊘ не: около окото, пред ухото, отстрани на шията", "⊘ never: around the eye, in front of the ear, the side of the neck"));
+                boolean fh = p.target == FaceProgram.FOREHEAD;
+                caption.setText(fh ? tr("1 и 2 — на челото, над веждите", "1 and 2 — on the forehead, above the brows")
+                        : tr("1 и 2 — двойката е от една страна", "1 and 2 — the pair stays on one side"));
+                captionSub.setText(fh ? tr("⊘ не: по-близо от 2 пръста до окото", "⊘ never: closer than 2 fingers to the eye")
+                        : tr("⊘ не: около окото, пред ухото, отстрани на шията", "⊘ never: around the eye, in front of the ear, the side of the neck"));
             } else {
                 caption.setText(p.muscle(b));
                 captionSub.setText(p.latin);
@@ -898,9 +983,13 @@ public final class FaceStudio {
             s.muscle = true;
             s.side[0] = true;
             s.side[1] = true;
+            s.drain = p.id == FaceProgram.DRAIN;
+            s.sensory = p.sensory;
+            s.pairs2 = v.dev.kind() == FaceDevice.XEMS;
+            s.outline = v.step == RUN || v.step == STRENGTH;
             if (v.step == PICK || v.step == DONE) {
-                // a preview of the effect: the program's own rhythm, gently
-                FaceTimeline.State st = FaceTimeline.cycle((long) (s.t * 1000), p.onS, p.offS, 500, 500, p.hz);
+                // a preview of the effect: the program's own rhythm, gently (a sensory one: a steady shimmer)
+                FaceTimeline.State st = p.sensory ? steady() : FaceTimeline.cycle((long) (s.t * 1000), p.onS, p.offS, 500, 500, p.hz);
                 float lv = v.step == DONE ? 0f : st.level * 0.85f;
                 s.level[0] = lv;
                 s.level[1] = lv;
@@ -914,21 +1003,38 @@ public final class FaceStudio {
                 s.hz = st.hz;
             }
             int n = v.dev.channels();
-            if (p.target == FaceProgram.CHEEK && v.dev.kind() == FaceDevice.BLUETENS) {
+            if ((p.target == FaceProgram.CHEEK || p.target == FaceProgram.JAW) && v.dev.kind() == FaceDevice.BLUETENS) {
                 s.side[0] = false;
                 s.side[1] = false;
                 for (int ch = 0; ch < n; ch++) {
                     int side = v.dev.sideOf(ch);
                     if (side >= 0) {
+                        // the drainage's second cheek runs half a cycle later: the picture shows the wave
+                        FaceTimeline.State sc = p.id == FaceProgram.DRAIN && ch == 1 && v.dev.active() ? v.dev.state(now - 1500) : st;
                         s.side[side] = true;
-                        s.level[side] = v.dev.strength(ch) > 0 ? st.level : 0f;
+                        s.level[side] = v.dev.strength(ch) > 0 ? level(p, sc) : 0f;
                     }
                 }
                 return;
             }
-            float lv = v.dev.strength(0) > 0 ? st.level : 0f;
+            float lv = v.dev.strength(0) > 0 ? level(p, st) : 0f;
             s.level[0] = lv;
             s.level[1] = lv;
+        }
+
+        /** A sensory current does not contract: the picture shows a steady shimmer while it flows. */
+        static float level(FaceProgram p, FaceTimeline.State st) {
+            if (p.sensory) {
+                return st.on || st.leftMs > 0 ? 0.8f : 0f;
+            }
+            return st.level;
+        }
+
+        static FaceTimeline.State steady() {
+            FaceTimeline.State st = new FaceTimeline.State();
+            st.on = true;
+            st.level = 0.8f;
+            return st;
         }
     }
 
@@ -992,18 +1098,23 @@ public final class FaceStudio {
         public void onClick(View view) {
             boolean b = bg();
             sheet(v.a, tr("Лицеви процедури", "Face procedures"), b
-                    ? "Електрическият импулс възбужда двигателните разклонения на лицевия нерв и мимическите мускули се "
-                    + "съкращават сами — без усилие и без бръчки от мимика. Мускулите на лицето нямат сухожилия: те се "
-                    + "захващат директно за кожата, затова по-плътният мускул дава повече опора отвътре.\n\n"
-                    + "Честотата е винаги 20 Hz и нагоре (под 20 Hz на лицето има неприятни потрепвания), импулсът е тесен "
-                    + "(100 µs), а силата стига само до видимо движение — без болка.\n\n"
+                    ? "Два вида ток, две цели.\n\n"
+                    + "Двигателен — лифтинг, стегнат овал, детокс, контур: импулсът възбужда двигателните разклонения на "
+                    + "лицевия нерв и мускулите се съкращават сами, без усилие и без бръчки от мимика. Мускулите на лицето "
+                    + "нямат сухожилия — вплетени са в кожата, затова по-плътният мускул дава опора отвътре. Честотата е "
+                    + "винаги 20 Hz и нагоре: под нея лицето потрепва неприятно.\n\n"
+                    + "Сетивен — ботокс ефект, отпусната челюст: токът докосва само нервите на кожата, мускулът не мърда. "
+                    + "Сетивният поток сваля тонуса на мускулите — лицето се отпуска.\n\n"
+                    + "●●● доказано на лицето · ●●○ доказано за механизма · ●○○ логика без измерване.\n\n"
                     + "Днес без лице: ботокс или филър през последните 2 седмици, пейсмейкър, бременност, епилепсия, "
                     + "скорошна операция на лицето, раздразнена кожа, парализа на лицевия нерв."
-                    : "The electric impulse excites the motor branches of the facial nerve and the face muscles contract by "
-                    + "themselves — no effort, no expression lines. Face muscles have no tendons: they attach straight to the "
-                    + "skin, so a fuller muscle gives more support from within.\n\n"
-                    + "The rate is always 20 Hz or more (under 20 Hz the face twitches unpleasantly), the pulse narrow "
-                    + "(100 µs), and the strength only up to visible movement — no pain.\n\n"
+                    : "Two kinds of current, two aims.\n\n"
+                    + "Motor — lift, firm contour, depuff, contour: the impulse excites the motor branches of the facial nerve "
+                    + "and the muscles contract by themselves, no effort, no expression lines. Face muscles weave into the skin, "
+                    + "so a fuller muscle supports from within. Always 20 Hz or more.\n\n"
+                    + "Sensory — botox effect, relaxed jaw: only the skin's nerves are touched, the muscle does not move; the "
+                    + "sensory input lowers muscle tone.\n\n"
+                    + "●●● proven on the face · ●●○ the mechanism proven · ●○○ rationale only.\n\n"
                     + "Not today: botox or filler within 2 weeks, a pacemaker, pregnancy, epilepsy, recent facial surgery, "
                     + "irritated skin, facial palsy.");
         }
@@ -1022,8 +1133,8 @@ public final class FaceStudio {
         public void onClick(View view) {
             FaceProgram p = FaceProgram.get(id);
             boolean b = bg();
-            sheet(v.a, p.name(b) + " · " + p.result(b), p.how(b) + "\n\n" + p.muscle(b) + " · " + p.latin + "\n" + p.rhythm(b)
-                    + "\n" + p.course(b));
+            sheet(v.a, p.name(b) + " · " + p.tag(b), p.how(b) + "\n\n" + p.muscle(b) + " · " + p.latin + "\n" + p.rhythm(b)
+                    + "  ·  " + p.course(b) + "\n" + p.evidenceText(b));
         }
     }
 

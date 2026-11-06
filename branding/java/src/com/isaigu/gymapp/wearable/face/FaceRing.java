@@ -21,6 +21,8 @@ public final class FaceRing extends View {
     private String[] names = {"", "", ""};
     private String onWord = "", offWord = "", pausedWord = "";
     private boolean paused;
+    /** A sensory current: one steady word in the pill (no hold / rest beat to count). */
+    private String steady;
     private int accent = 0xFF37D0EB, rose = 0xFFFF6F91, ink = 0xFFE6F3FF, muted = 0xFF93AFC6, track = 0x22FFFFFF;
     /** The hold / rest's own length (for the inner arc), ms. */
     private long beatMs = 1;
@@ -45,6 +47,11 @@ public final class FaceRing extends View {
         onWord = on;
         offWord = off;
         pausedWord = paused;
+    }
+
+    public void setSteady(String word) {
+        steady = word;
+        invalidate();
     }
 
     public void set(long[] phases, FaceTimeline.State st, boolean paused) {
@@ -100,8 +107,8 @@ public final class FaceRing extends View {
         p.setStrokeWidth(4 * d);
         p.setColor(track);
         c.drawArc(box, -90, 360, false, p);
-        int beat = st.on ? rose : accent;
-        if (!paused && st.leftMs > 0) {
+        int beat = steady != null ? accent : st.on ? rose : accent;
+        if (!paused && st.leftMs > 0 && steady == null) {
             p.setColor(beat);
             c.drawArc(box, -90, 360f * Math.min(1f, st.leftMs / (float) Math.max(1, beatMs)), false, p);
         }
@@ -118,7 +125,8 @@ public final class FaceRing extends View {
         p.setTextSize(size * 0.068f);
         p.setColor(muted);
         c.drawText(names[Math.max(0, Math.min(2, st.phase))], cx, cy + size * 0.085f, p);
-        String beatWord = paused ? pausedWord : (st.on ? onWord : offWord) + "  " + Math.max(1, (st.leftMs + 999) / 1000);
+        String beatWord = paused ? pausedWord : steady != null ? steady
+                : (st.on ? onWord : offWord) + "  " + Math.max(1, (st.leftMs + 999) / 1000);
         p.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD));
         p.setTextSize(size * 0.064f);
         float tw = p.measureText(beatWord) + size * 0.09f;

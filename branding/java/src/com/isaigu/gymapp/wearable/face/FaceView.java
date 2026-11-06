@@ -223,6 +223,10 @@ public final class FaceView extends View {
             case FaceArt.RIPPLE:
                 stroke(c, accent, a, 3f * scale);
                 return;
+            case FaceArt.FLOW:
+                fill(c, accent, a * 0.25f);
+                stroke(c, accent, a, 3f * scale);
+                return;
             case FaceArt.CORNER:
                 paint.setStyle(Paint.Style.STROKE);
                 paint.setColor(0xFFFFFFFF);

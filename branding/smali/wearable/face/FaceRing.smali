@@ -38,6 +38,8 @@
 
 .field private st:Lcom/isaigu/gymapp/wearable/face/FaceTimeline$State;
 
+.field private steady:Ljava/lang/String;
+
 .field private track:I
 
 
@@ -50,7 +52,7 @@
 
     const/4 v3, 0x1
 
-    .line 31
+    .line 33
     invoke-direct {p0, p1}, Landroid/view/View;-><init>(Landroid/content/Context;)V
 
     .line 16
@@ -113,7 +115,7 @@
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceRing;->pausedWord:Ljava/lang/String;
 
-    .line 24
+    .line 26
     const v0, -0xc82f15
 
     iput v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceRing;->accent:I
@@ -134,12 +136,12 @@
 
     iput v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceRing;->track:I
 
-    .line 26
+    .line 28
     const-wide/16 v0, 0x1
 
     iput-wide v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceRing;->beatMs:J
 
-    .line 32
+    .line 34
     invoke-virtual {p1}, Landroid/content/Context;->getResources()Landroid/content/res/Resources;
 
     move-result-object v0
@@ -152,7 +154,7 @@
 
     iput v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceRing;->d:F
 
-    .line 33
+    .line 35
     return-void
 .end method
 
@@ -160,7 +162,7 @@
     .registers 4
 
     .prologue
-    .line 139
+    .line 147
     const-wide/16 v0, 0xa
 
     cmp-long v0, p0, v0
@@ -202,36 +204,36 @@
     .registers 28
 
     .prologue
-    .line 64
+    .line 71
     invoke-virtual/range {p0 .. p0}, Lcom/isaigu/gymapp/wearable/face/FaceRing;->getWidth()I
 
     move-result v2
 
     int-to-float v2, v2
 
-    .line 65
+    .line 72
     invoke-virtual/range {p0 .. p0}, Lcom/isaigu/gymapp/wearable/face/FaceRing;->getHeight()I
 
     move-result v3
 
     int-to-float v3, v3
 
-    .line 66
+    .line 73
     invoke-static {v2, v3}, Ljava/lang/Math;->min(FF)F
 
     move-result v12
 
-    .line 67
+    .line 74
     const/high16 v4, 0x40000000    # 2.0f
 
     div-float v13, v2, v4
 
-    .line 68
+    .line 75
     const/high16 v2, 0x40000000    # 2.0f
 
     div-float v14, v3, v2
 
-    .line 69
+    .line 76
     const/high16 v2, 0x41600000    # 14.0f
 
     move-object/from16 v0, p0
@@ -240,14 +242,14 @@
 
     mul-float v15, v2, v3
 
-    .line 70
+    .line 77
     const/high16 v2, 0x40000000    # 2.0f
 
     div-float v2, v12, v2
 
     sub-float v16, v2, v15
 
-    .line 71
+    .line 78
     move-object/from16 v0, p0
 
     iget-object v2, v0, Lcom/isaigu/gymapp/wearable/face/FaceRing;->box:Landroid/graphics/RectF;
@@ -262,7 +264,7 @@
 
     invoke-virtual {v2, v3, v4, v5, v6}, Landroid/graphics/RectF;->set(FFFF)V
 
-    .line 72
+    .line 79
     const-wide/16 v2, 0x1
 
     move-object/from16 v0, p0
@@ -297,13 +299,13 @@
 
     move-result-wide v18
 
-    .line 73
+    .line 80
     const/high16 v17, 0x40800000    # 4.0f
 
-    .line 74
+    .line 81
     const/high16 v10, -0x3d4c0000    # -90.0f
 
-    .line 75
+    .line 82
     move-object/from16 v0, p0
 
     iget-object v2, v0, Lcom/isaigu/gymapp/wearable/face/FaceRing;->p:Landroid/graphics/Paint;
@@ -312,7 +314,7 @@
 
     invoke-virtual {v2, v3}, Landroid/graphics/Paint;->setStyle(Landroid/graphics/Paint$Style;)V
 
-    .line 76
+    .line 83
     move-object/from16 v0, p0
 
     iget-object v2, v0, Lcom/isaigu/gymapp/wearable/face/FaceRing;->p:Landroid/graphics/Paint;
@@ -321,14 +323,14 @@
 
     invoke-virtual {v2, v3}, Landroid/graphics/Paint;->setStrokeCap(Landroid/graphics/Paint$Cap;)V
 
-    .line 77
+    .line 84
     move-object/from16 v0, p0
 
     iget-object v2, v0, Lcom/isaigu/gymapp/wearable/face/FaceRing;->p:Landroid/graphics/Paint;
 
     invoke-virtual {v2, v15}, Landroid/graphics/Paint;->setStrokeWidth(F)V
 
-    .line 78
+    .line 85
     const-wide/16 v2, 0x0
 
     move-object/from16 v0, p0
@@ -347,10 +349,10 @@
 
     move-result-wide v20
 
-    .line 79
+    .line 86
     const-wide/16 v8, 0x0
 
-    .line 80
+    .line 87
     const/4 v2, 0x3
 
     new-array v0, v2, [I
@@ -381,7 +383,7 @@
 
     aput v3, v22, v2
 
-    .line 81
+    .line 88
     const/4 v2, 0x0
 
     move v11, v2
@@ -391,7 +393,7 @@
 
     if-ge v11, v2, :cond_152
 
-    .line 82
+    .line 89
     move-object/from16 v0, p0
 
     iget-object v2, v0, Lcom/isaigu/gymapp/wearable/face/FaceRing;->phases:[J
@@ -408,7 +410,7 @@
 
     move v4, v10
 
-    .line 81
+    .line 88
     :goto_ae
     add-int/lit8 v5, v11, 0x1
 
@@ -420,7 +422,7 @@
 
     goto :goto_9d
 
-    .line 85
+    .line 92
     :cond_b4
     const/high16 v2, 0x43b40000    # 360.0f
 
@@ -442,7 +444,7 @@
 
     sub-float v5, v2, v17
 
-    .line 86
+    .line 93
     move-object/from16 v0, p0
 
     iget-object v2, v0, Lcom/isaigu/gymapp/wearable/face/FaceRing;->p:Landroid/graphics/Paint;
@@ -453,7 +455,7 @@
 
     invoke-virtual {v2, v3}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 87
+    .line 94
     move-object/from16 v0, p0
 
     iget-object v3, v0, Lcom/isaigu/gymapp/wearable/face/FaceRing;->box:Landroid/graphics/RectF;
@@ -474,7 +476,7 @@
 
     invoke-virtual/range {v2 .. v7}, Landroid/graphics/Canvas;->drawArc(Landroid/graphics/RectF;FFZLandroid/graphics/Paint;)V
 
-    .line 88
+    .line 95
     const-wide/16 v2, 0x0
 
     move-object/from16 v0, p0
@@ -495,14 +497,14 @@
 
     move-result-wide v6
 
-    .line 89
+    .line 96
     const-wide/16 v2, 0x0
 
     cmp-long v2, v6, v2
 
     if-lez v2, :cond_136
 
-    .line 90
+    .line 97
     move-object/from16 v0, p0
 
     iget-object v2, v0, Lcom/isaigu/gymapp/wearable/face/FaceRing;->p:Landroid/graphics/Paint;
@@ -511,7 +513,7 @@
 
     invoke-virtual {v2, v3}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 91
+    .line 98
     move-object/from16 v0, p0
 
     iget-object v3, v0, Lcom/isaigu/gymapp/wearable/face/FaceRing;->p:Landroid/graphics/Paint;
@@ -529,7 +531,7 @@
     :goto_114
     invoke-virtual {v3, v2}, Landroid/graphics/Paint;->setAlpha(I)V
 
-    .line 92
+    .line 99
     move-object/from16 v0, p0
 
     iget-object v3, v0, Lcom/isaigu/gymapp/wearable/face/FaceRing;->box:Landroid/graphics/RectF;
@@ -564,7 +566,7 @@
 
     invoke-virtual/range {v2 .. v7}, Landroid/graphics/Canvas;->drawArc(Landroid/graphics/RectF;FFZLandroid/graphics/Paint;)V
 
-    .line 94
+    .line 101
     :cond_136
     const/high16 v2, 0x43b40000    # 360.0f
 
@@ -586,7 +588,7 @@
 
     add-float v4, v10, v2
 
-    .line 95
+    .line 102
     move-object/from16 v0, p0
 
     iget-object v2, v0, Lcom/isaigu/gymapp/wearable/face/FaceRing;->phases:[J
@@ -597,13 +599,13 @@
 
     goto/16 :goto_ae
 
-    .line 91
+    .line 98
     :cond_14f
     const/16 v2, 0x96
 
     goto :goto_114
 
-    .line 98
+    .line 105
     :cond_152
     const v2, 0x3fcccccd    # 1.6f
 
@@ -611,7 +613,7 @@
 
     sub-float v2, v16, v2
 
-    .line 99
+    .line 106
     move-object/from16 v0, p0
 
     iget-object v3, v0, Lcom/isaigu/gymapp/wearable/face/FaceRing;->box:Landroid/graphics/RectF;
@@ -626,7 +628,7 @@
 
     invoke-virtual {v3, v4, v5, v6, v2}, Landroid/graphics/RectF;->set(FFFF)V
 
-    .line 100
+    .line 107
     move-object/from16 v0, p0
 
     iget-object v2, v0, Lcom/isaigu/gymapp/wearable/face/FaceRing;->p:Landroid/graphics/Paint;
@@ -641,7 +643,7 @@
 
     invoke-virtual {v2, v3}, Landroid/graphics/Paint;->setStrokeWidth(F)V
 
-    .line 101
+    .line 108
     move-object/from16 v0, p0
 
     iget-object v2, v0, Lcom/isaigu/gymapp/wearable/face/FaceRing;->p:Landroid/graphics/Paint;
@@ -652,7 +654,7 @@
 
     invoke-virtual {v2, v3}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 102
+    .line 109
     move-object/from16 v0, p0
 
     iget-object v3, v0, Lcom/isaigu/gymapp/wearable/face/FaceRing;->box:Landroid/graphics/RectF;
@@ -671,28 +673,26 @@
 
     invoke-virtual/range {v2 .. v7}, Landroid/graphics/Canvas;->drawArc(Landroid/graphics/RectF;FFZLandroid/graphics/Paint;)V
 
-    .line 103
+    .line 110
     move-object/from16 v0, p0
 
-    iget-object v2, v0, Lcom/isaigu/gymapp/wearable/face/FaceRing;->st:Lcom/isaigu/gymapp/wearable/face/FaceTimeline$State;
+    iget-object v2, v0, Lcom/isaigu/gymapp/wearable/face/FaceRing;->steady:Ljava/lang/String;
 
-    iget-boolean v2, v2, Lcom/isaigu/gymapp/wearable/face/FaceTimeline$State;->on:Z
-
-    if-eqz v2, :cond_357
+    if-eqz v2, :cond_35b
 
     move-object/from16 v0, p0
 
-    iget v2, v0, Lcom/isaigu/gymapp/wearable/face/FaceRing;->rose:I
+    iget v2, v0, Lcom/isaigu/gymapp/wearable/face/FaceRing;->accent:I
 
     move v8, v2
 
-    .line 104
-    :goto_19e
+    .line 111
+    :goto_19c
     move-object/from16 v0, p0
 
     iget-boolean v2, v0, Lcom/isaigu/gymapp/wearable/face/FaceRing;->paused:Z
 
-    if-nez v2, :cond_1e7
+    if-nez v2, :cond_1eb
 
     move-object/from16 v0, p0
 
@@ -704,16 +704,22 @@
 
     cmp-long v2, v2, v4
 
-    if-lez v2, :cond_1e7
+    if-lez v2, :cond_1eb
 
-    .line 105
+    move-object/from16 v0, p0
+
+    iget-object v2, v0, Lcom/isaigu/gymapp/wearable/face/FaceRing;->steady:Ljava/lang/String;
+
+    if-nez v2, :cond_1eb
+
+    .line 112
     move-object/from16 v0, p0
 
     iget-object v2, v0, Lcom/isaigu/gymapp/wearable/face/FaceRing;->p:Landroid/graphics/Paint;
 
     invoke-virtual {v2, v8}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 106
+    .line 113
     move-object/from16 v0, p0
 
     iget-object v3, v0, Lcom/isaigu/gymapp/wearable/face/FaceRing;->box:Landroid/graphics/RectF;
@@ -766,8 +772,8 @@
 
     invoke-virtual/range {v2 .. v7}, Landroid/graphics/Canvas;->drawArc(Landroid/graphics/RectF;FFZLandroid/graphics/Paint;)V
 
-    .line 109
-    :cond_1e7
+    .line 116
+    :cond_1eb
     move-object/from16 v0, p0
 
     iget-object v2, v0, Lcom/isaigu/gymapp/wearable/face/FaceRing;->p:Landroid/graphics/Paint;
@@ -776,7 +782,7 @@
 
     invoke-virtual {v2, v3}, Landroid/graphics/Paint;->setStyle(Landroid/graphics/Paint$Style;)V
 
-    .line 110
+    .line 117
     move-object/from16 v0, p0
 
     iget-object v2, v0, Lcom/isaigu/gymapp/wearable/face/FaceRing;->p:Landroid/graphics/Paint;
@@ -785,7 +791,7 @@
 
     invoke-virtual {v2, v3}, Landroid/graphics/Paint;->setTextAlign(Landroid/graphics/Paint$Align;)V
 
-    .line 111
+    .line 118
     move-object/from16 v0, p0
 
     iget-object v2, v0, Lcom/isaigu/gymapp/wearable/face/FaceRing;->p:Landroid/graphics/Paint;
@@ -800,7 +806,7 @@
 
     invoke-virtual {v2, v3}, Landroid/graphics/Paint;->setTypeface(Landroid/graphics/Typeface;)Landroid/graphics/Typeface;
 
-    .line 112
+    .line 119
     const-wide/16 v2, 0x0
 
     move-object/from16 v0, p0
@@ -821,7 +827,7 @@
 
     move-result-wide v2
 
-    .line 113
+    .line 120
     new-instance v4, Ljava/lang/StringBuilder;
 
     invoke-direct {v4}, Ljava/lang/StringBuilder;-><init>()V
@@ -860,7 +866,7 @@
 
     move-result-object v2
 
-    .line 114
+    .line 121
     move-object/from16 v0, p0
 
     iget-object v3, v0, Lcom/isaigu/gymapp/wearable/face/FaceRing;->p:Landroid/graphics/Paint;
@@ -871,7 +877,7 @@
 
     invoke-virtual {v3, v4}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 115
+    .line 122
     move-object/from16 v0, p0
 
     iget-object v3, v0, Lcom/isaigu/gymapp/wearable/face/FaceRing;->p:Landroid/graphics/Paint;
@@ -882,7 +888,7 @@
 
     invoke-virtual {v3, v4}, Landroid/graphics/Paint;->setTextSize(F)V
 
-    .line 116
+    .line 123
     const v3, 0x3ca3d70a    # 0.02f
 
     mul-float/2addr v3, v12
@@ -897,7 +903,7 @@
 
     invoke-virtual {v0, v2, v13, v3, v4}, Landroid/graphics/Canvas;->drawText(Ljava/lang/String;FFLandroid/graphics/Paint;)V
 
-    .line 117
+    .line 124
     move-object/from16 v0, p0
 
     iget-object v2, v0, Lcom/isaigu/gymapp/wearable/face/FaceRing;->p:Landroid/graphics/Paint;
@@ -906,7 +912,7 @@
 
     invoke-virtual {v2, v3}, Landroid/graphics/Paint;->setTypeface(Landroid/graphics/Typeface;)Landroid/graphics/Typeface;
 
-    .line 118
+    .line 125
     move-object/from16 v0, p0
 
     iget-object v2, v0, Lcom/isaigu/gymapp/wearable/face/FaceRing;->p:Landroid/graphics/Paint;
@@ -917,7 +923,7 @@
 
     invoke-virtual {v2, v3}, Landroid/graphics/Paint;->setTextSize(F)V
 
-    .line 119
+    .line 126
     move-object/from16 v0, p0
 
     iget-object v2, v0, Lcom/isaigu/gymapp/wearable/face/FaceRing;->p:Landroid/graphics/Paint;
@@ -928,7 +934,7 @@
 
     invoke-virtual {v2, v3}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 120
+    .line 127
     move-object/from16 v0, p0
 
     iget-object v2, v0, Lcom/isaigu/gymapp/wearable/face/FaceRing;->names:[Ljava/lang/String;
@@ -967,19 +973,19 @@
 
     invoke-virtual {v0, v2, v13, v3, v4}, Landroid/graphics/Canvas;->drawText(Ljava/lang/String;FFLandroid/graphics/Paint;)V
 
-    .line 121
+    .line 128
     move-object/from16 v0, p0
 
     iget-boolean v2, v0, Lcom/isaigu/gymapp/wearable/face/FaceRing;->paused:Z
 
-    if-eqz v2, :cond_35e
+    if-eqz v2, :cond_371
 
     move-object/from16 v0, p0
 
     iget-object v2, v0, Lcom/isaigu/gymapp/wearable/face/FaceRing;->pausedWord:Ljava/lang/String;
 
-    .line 122
-    :goto_2b2
+    .line 130
+    :goto_2b6
     move-object/from16 v0, p0
 
     iget-object v3, v0, Lcom/isaigu/gymapp/wearable/face/FaceRing;->p:Landroid/graphics/Paint;
@@ -994,7 +1000,7 @@
 
     invoke-virtual {v3, v4}, Landroid/graphics/Paint;->setTypeface(Landroid/graphics/Typeface;)Landroid/graphics/Typeface;
 
-    .line 123
+    .line 131
     move-object/from16 v0, p0
 
     iget-object v3, v0, Lcom/isaigu/gymapp/wearable/face/FaceRing;->p:Landroid/graphics/Paint;
@@ -1005,7 +1011,7 @@
 
     invoke-virtual {v3, v4}, Landroid/graphics/Paint;->setTextSize(F)V
 
-    .line 124
+    .line 132
     move-object/from16 v0, p0
 
     iget-object v3, v0, Lcom/isaigu/gymapp/wearable/face/FaceRing;->p:Landroid/graphics/Paint;
@@ -1020,19 +1026,19 @@
 
     add-float/2addr v3, v4
 
-    .line 125
+    .line 133
     const v4, 0x3de147ae    # 0.11f
 
     mul-float/2addr v4, v12
 
-    .line 126
+    .line 134
     const v5, 0x3e4ccccd    # 0.2f
 
     mul-float/2addr v5, v12
 
     add-float/2addr v5, v14
 
-    .line 127
+    .line 135
     move-object/from16 v0, p0
 
     iget-object v6, v0, Lcom/isaigu/gymapp/wearable/face/FaceRing;->box:Landroid/graphics/RectF;
@@ -1063,26 +1069,26 @@
 
     invoke-virtual {v6, v7, v9, v3, v10}, Landroid/graphics/RectF;->set(FFFF)V
 
-    .line 128
+    .line 136
     move-object/from16 v0, p0
 
     iget-boolean v3, v0, Lcom/isaigu/gymapp/wearable/face/FaceRing;->paused:Z
 
-    if-eqz v3, :cond_307
+    if-eqz v3, :cond_30b
 
     move-object/from16 v0, p0
 
     iget v8, v0, Lcom/isaigu/gymapp/wearable/face/FaceRing;->muted:I
 
-    .line 129
-    :cond_307
+    .line 137
+    :cond_30b
     move-object/from16 v0, p0
 
     iget-object v3, v0, Lcom/isaigu/gymapp/wearable/face/FaceRing;->p:Landroid/graphics/Paint;
 
     invoke-virtual {v3, v8}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 130
+    .line 138
     move-object/from16 v0, p0
 
     iget-object v3, v0, Lcom/isaigu/gymapp/wearable/face/FaceRing;->p:Landroid/graphics/Paint;
@@ -1091,7 +1097,7 @@
 
     invoke-virtual {v3, v6}, Landroid/graphics/Paint;->setAlpha(I)V
 
-    .line 131
+    .line 139
     move-object/from16 v0, p0
 
     iget-object v3, v0, Lcom/isaigu/gymapp/wearable/face/FaceRing;->box:Landroid/graphics/RectF;
@@ -1112,14 +1118,14 @@
 
     invoke-virtual {v0, v3, v6, v4, v7}, Landroid/graphics/Canvas;->drawRoundRect(Landroid/graphics/RectF;FFLandroid/graphics/Paint;)V
 
-    .line 132
+    .line 140
     move-object/from16 v0, p0
 
     iget-object v3, v0, Lcom/isaigu/gymapp/wearable/face/FaceRing;->p:Landroid/graphics/Paint;
 
     invoke-virtual {v3, v8}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 133
+    .line 141
     move-object/from16 v0, p0
 
     iget-object v3, v0, Lcom/isaigu/gymapp/wearable/face/FaceRing;->p:Landroid/graphics/Paint;
@@ -1128,7 +1134,7 @@
 
     invoke-virtual {v3, v4}, Landroid/graphics/Paint;->setAlpha(I)V
 
-    .line 134
+    .line 142
     move-object/from16 v0, p0
 
     iget-object v3, v0, Lcom/isaigu/gymapp/wearable/face/FaceRing;->p:Landroid/graphics/Paint;
@@ -1137,7 +1143,7 @@
 
     move-result-object v3
 
-    .line 135
+    .line 143
     iget v4, v3, Landroid/graphics/Paint$FontMetrics;->ascent:F
 
     iget v3, v3, Landroid/graphics/Paint$FontMetrics;->descent:F
@@ -1158,21 +1164,52 @@
 
     invoke-virtual {v0, v2, v13, v3, v4}, Landroid/graphics/Canvas;->drawText(Ljava/lang/String;FFLandroid/graphics/Paint;)V
 
-    .line 136
+    .line 144
     return-void
 
-    .line 103
-    :cond_357
+    .line 110
+    :cond_35b
+    move-object/from16 v0, p0
+
+    iget-object v2, v0, Lcom/isaigu/gymapp/wearable/face/FaceRing;->st:Lcom/isaigu/gymapp/wearable/face/FaceTimeline$State;
+
+    iget-boolean v2, v2, Lcom/isaigu/gymapp/wearable/face/FaceTimeline$State;->on:Z
+
+    if-eqz v2, :cond_36a
+
+    move-object/from16 v0, p0
+
+    iget v2, v0, Lcom/isaigu/gymapp/wearable/face/FaceRing;->rose:I
+
+    move v8, v2
+
+    goto/16 :goto_19c
+
+    :cond_36a
     move-object/from16 v0, p0
 
     iget v2, v0, Lcom/isaigu/gymapp/wearable/face/FaceRing;->accent:I
 
     move v8, v2
 
-    goto/16 :goto_19e
+    goto/16 :goto_19c
 
-    .line 121
-    :cond_35e
+    .line 128
+    :cond_371
+    move-object/from16 v0, p0
+
+    iget-object v2, v0, Lcom/isaigu/gymapp/wearable/face/FaceRing;->steady:Ljava/lang/String;
+
+    if-eqz v2, :cond_37d
+
+    move-object/from16 v0, p0
+
+    iget-object v2, v0, Lcom/isaigu/gymapp/wearable/face/FaceRing;->steady:Ljava/lang/String;
+
+    goto/16 :goto_2b6
+
+    .line 129
+    :cond_37d
     new-instance v3, Ljava/lang/StringBuilder;
 
     invoke-direct {v3}, Ljava/lang/StringBuilder;-><init>()V
@@ -1183,13 +1220,13 @@
 
     iget-boolean v2, v2, Lcom/isaigu/gymapp/wearable/face/FaceTimeline$State;->on:Z
 
-    if-eqz v2, :cond_395
+    if-eqz v2, :cond_3b4
 
     move-object/from16 v0, p0
 
     iget-object v2, v0, Lcom/isaigu/gymapp/wearable/face/FaceRing;->onWord:Ljava/lang/String;
 
-    :goto_36f
+    :goto_38e
     invoke-virtual {v3, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     move-result-object v2
@@ -1228,24 +1265,24 @@
 
     move-result-object v2
 
-    goto/16 :goto_2b2
+    goto/16 :goto_2b6
 
-    :cond_395
+    :cond_3b4
     move-object/from16 v0, p0
 
     iget-object v2, v0, Lcom/isaigu/gymapp/wearable/face/FaceRing;->offWord:Ljava/lang/String;
 
-    goto :goto_36f
+    goto :goto_38e
 .end method
 
 .method public set([JLcom/isaigu/gymapp/wearable/face/FaceTimeline$State;Z)V
     .registers 8
 
     .prologue
-    .line 51
+    .line 58
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/face/FaceRing;->phases:[J
 
-    .line 52
+    .line 59
     iget-boolean v0, p2, Lcom/isaigu/gymapp/wearable/face/FaceTimeline$State;->on:Z
 
     iget-boolean v1, p0, Lcom/isaigu/gymapp/wearable/face/FaceRing;->lastOn:Z
@@ -1260,7 +1297,7 @@
 
     if-lez v0, :cond_1e
 
-    .line 53
+    .line 60
     :cond_10
     const-wide/16 v0, 0x1
 
@@ -1272,27 +1309,27 @@
 
     iput-wide v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceRing;->beatStartLeft:J
 
-    .line 54
+    .line 61
     iget-wide v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceRing;->beatStartLeft:J
 
     iput-wide v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceRing;->beatMs:J
 
-    .line 56
+    .line 63
     :cond_1e
     iget-boolean v0, p2, Lcom/isaigu/gymapp/wearable/face/FaceTimeline$State;->on:Z
 
     iput-boolean v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceRing;->lastOn:Z
 
-    .line 57
+    .line 64
     iput-object p2, p0, Lcom/isaigu/gymapp/wearable/face/FaceRing;->st:Lcom/isaigu/gymapp/wearable/face/FaceTimeline$State;
 
-    .line 58
+    .line 65
     iput-boolean p3, p0, Lcom/isaigu/gymapp/wearable/face/FaceRing;->paused:Z
 
-    .line 59
+    .line 66
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/face/FaceRing;->invalidate()V
 
-    .line 60
+    .line 67
     return-void
 .end method
 
@@ -1300,22 +1337,36 @@
     .registers 6
 
     .prologue
-    .line 36
+    .line 38
     iput p1, p0, Lcom/isaigu/gymapp/wearable/face/FaceRing;->accent:I
 
-    .line 37
+    .line 39
     iput p2, p0, Lcom/isaigu/gymapp/wearable/face/FaceRing;->rose:I
 
-    .line 38
+    .line 40
     iput p3, p0, Lcom/isaigu/gymapp/wearable/face/FaceRing;->ink:I
 
-    .line 39
+    .line 41
     iput p4, p0, Lcom/isaigu/gymapp/wearable/face/FaceRing;->muted:I
 
-    .line 40
+    .line 42
     iput p5, p0, Lcom/isaigu/gymapp/wearable/face/FaceRing;->track:I
 
-    .line 41
+    .line 43
+    return-void
+.end method
+
+.method public setSteady(Ljava/lang/String;)V
+    .registers 2
+
+    .prologue
+    .line 53
+    iput-object p1, p0, Lcom/isaigu/gymapp/wearable/face/FaceRing;->steady:Ljava/lang/String;
+
+    .line 54
+    invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/face/FaceRing;->invalidate()V
+
+    .line 55
     return-void
 .end method
 
@@ -1323,18 +1374,18 @@
     .registers 5
 
     .prologue
-    .line 44
+    .line 46
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/face/FaceRing;->names:[Ljava/lang/String;
 
-    .line 45
+    .line 47
     iput-object p2, p0, Lcom/isaigu/gymapp/wearable/face/FaceRing;->onWord:Ljava/lang/String;
 
-    .line 46
+    .line 48
     iput-object p3, p0, Lcom/isaigu/gymapp/wearable/face/FaceRing;->offWord:Ljava/lang/String;
 
-    .line 47
+    .line 49
     iput-object p4, p0, Lcom/isaigu/gymapp/wearable/face/FaceRing;->pausedWord:Ljava/lang/String;
 
-    .line 48
+    .line 50
     return-void
 .end method

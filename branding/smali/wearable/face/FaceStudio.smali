@@ -242,35 +242,21 @@
     .registers 5
 
     .prologue
-    const/4 v1, 0x1
-
-    .line 48
-    const-string v0, "face_tone"
-
-    invoke-virtual {v0, p1}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
-
-    move-result v0
-
-    if-eqz v0, :cond_13
-
-    move v0, v1
-
     .line 49
-    :goto_a
-    new-instance v2, Lcom/isaigu/gymapp/wearable/face/FaceAuto;
+    new-instance v0, Lcom/isaigu/gymapp/wearable/face/FaceAuto;
 
-    invoke-direct {v2}, Lcom/isaigu/gymapp/wearable/face/FaceAuto;-><init>()V
+    invoke-direct {v0}, Lcom/isaigu/gymapp/wearable/face/FaceAuto;-><init>()V
 
-    invoke-static {p0, v2, v0, v1}, Lcom/isaigu/gymapp/wearable/face/FaceStudio;->open(Landroid/app/Activity;Lcom/isaigu/gymapp/wearable/face/FaceDevice;II)V
+    invoke-static {p1}, Lcom/isaigu/gymapp/wearable/face/FaceAuto;->programOf(Ljava/lang/String;)I
+
+    move-result v1
+
+    const/4 v2, 0x0
+
+    invoke-static {p0, v0, v1, v2}, Lcom/isaigu/gymapp/wearable/face/FaceStudio;->open(Landroid/app/Activity;Lcom/isaigu/gymapp/wearable/face/FaceDevice;II)V
 
     .line 50
     return-void
-
-    .line 48
-    :cond_13
-    const/4 v0, 0x0
-
-    goto :goto_a
 .end method
 
 .method public static openDevice(Landroid/app/Activity;Lcom/isaigu/gymapp/wearable/face/FaceDevice;)V
@@ -352,7 +338,7 @@
     .registers 7
 
     .prologue
-    .line 1033
+    .line 1144
     const/4 v0, 0x0
 
     const/16 v1, 0x280
@@ -362,7 +348,7 @@
 
     move-result-object v0
 
-    .line 1034
+    .line 1145
     const/high16 v1, 0x41700000    # 15.0f
 
     sget v2, Lcom/isaigu/gymapp/widget/XemsUi;->TEXT:I
@@ -373,14 +359,14 @@
 
     move-result-object v1
 
-    .line 1035
+    .line 1146
     const/4 v2, 0x0
 
     const v3, 0x3f970a3d    # 1.18f
 
     invoke-virtual {v1, v2, v3}, Landroid/widget/TextView;->setLineSpacing(FF)V
 
-    .line 1036
+    .line 1147
     iget-object v2, v0, Lcom/isaigu/gymapp/widget/XemsUi$Shell;->body:Landroid/widget/LinearLayout;
 
     const/4 v3, 0x4
@@ -391,34 +377,34 @@
 
     invoke-virtual {v2, v1, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 1037
+    .line 1148
     iget-object v1, v0, Lcom/isaigu/gymapp/widget/XemsUi$Shell;->footer:Landroid/widget/LinearLayout;
 
     const/16 v2, 0x8
 
     invoke-virtual {v1, v2}, Landroid/widget/LinearLayout;->setVisibility(I)V
 
-    .line 1038
+    .line 1149
     iget-object v1, v0, Lcom/isaigu/gymapp/widget/XemsUi$Shell;->dialog:Landroid/app/Dialog;
 
     invoke-virtual {v1}, Landroid/app/Dialog;->show()V
 
-    .line 1039
+    .line 1150
     const v1, 0x3f5c28f6    # 0.86f
 
     invoke-static {p0, v0, v1}, Lcom/isaigu/gymapp/widget/XemsUi;->fitHeight(Landroid/app/Activity;Lcom/isaigu/gymapp/widget/XemsUi$Shell;F)V
     :try_end_33
     .catch Ljava/lang/Throwable; {:try_start_3 .. :try_end_33} :catch_34
 
-    .line 1043
+    .line 1154
     :goto_33
     return-void
 
-    .line 1040
+    .line 1151
     :catch_34
     move-exception v0
 
-    .line 1041
+    .line 1152
     const-string v1, "FaceStudio.sheet"
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V
@@ -452,15 +438,15 @@
 
     const/4 v6, 0x1
 
-    .line 860
+    .line 945
     invoke-static {}, Ljava/util/Calendar;->getInstance()Ljava/util/Calendar;
 
     move-result-object v0
 
-    .line 861
+    .line 946
     invoke-virtual {v0, p2, p3}, Ljava/util/Calendar;->setTimeInMillis(J)V
 
-    .line 862
+    .line 947
     invoke-virtual {v0, v7}, Ljava/util/Calendar;->get(I)I
 
     move-result v1
@@ -473,10 +459,10 @@
 
     add-int/2addr v1, v2
 
-    .line 863
+    .line 948
     invoke-virtual {v0, p0, p1}, Ljava/util/Calendar;->setTimeInMillis(J)V
 
-    .line 864
+    .line 949
     invoke-virtual {v0, v7}, Ljava/util/Calendar;->get(I)I
 
     move-result v2
@@ -489,7 +475,7 @@
 
     add-int/2addr v2, v3
 
-    .line 865
+    .line 950
     new-instance v3, Ljava/lang/StringBuilder;
 
     invoke-direct {v3}, Ljava/lang/StringBuilder;-><init>()V
@@ -530,31 +516,31 @@
 
     move-result-object v3
 
-    .line 866
+    .line 951
     cmp-long v4, p0, p2
 
     if-gtz v4, :cond_59
 
-    .line 867
+    .line 952
     if-eqz p4, :cond_56
 
     const-string v0, "\u0434\u043d\u0435\u0441"
 
-    .line 878
+    .line 963
     :goto_55
     return-object v0
 
-    .line 867
+    .line 952
     :cond_56
     const-string v0, "today"
 
     goto :goto_55
 
-    .line 869
+    .line 954
     :cond_59
     if-ne v2, v1, :cond_74
 
-    .line 870
+    .line 955
     new-instance v1, Ljava/lang/StringBuilder;
 
     invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
@@ -583,13 +569,13 @@
 
     goto :goto_64
 
-    .line 872
+    .line 957
     :cond_74
     add-int/lit8 v1, v1, 0x1
 
     if-ne v2, v1, :cond_91
 
-    .line 873
+    .line 958
     new-instance v1, Ljava/lang/StringBuilder;
 
     invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
@@ -618,7 +604,7 @@
 
     goto :goto_81
 
-    .line 875
+    .line 960
     :cond_91
     const/16 v1, 0x8
 
@@ -662,7 +648,7 @@
 
     aput-object v2, v1, v8
 
-    .line 876
+    .line 961
     const/16 v2, 0x8
 
     new-array v2, v2, [Ljava/lang/String;
@@ -705,12 +691,12 @@
 
     aput-object v4, v2, v8
 
-    .line 877
+    .line 962
     invoke-virtual {v0, v8}, Ljava/util/Calendar;->get(I)I
 
     move-result v0
 
-    .line 878
+    .line 963
     new-instance v4, Ljava/lang/StringBuilder;
 
     invoke-direct {v4}, Ljava/lang/StringBuilder;-><init>()V

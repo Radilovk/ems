@@ -22,13 +22,36 @@ public final class BluetensFace implements FaceDevice {
     }
 
     static int padProgram(int program) {
-        return program == FaceProgram.TONE ? BluetensPrograms.FACE_TONE
-                : program == FaceProgram.CONTOUR ? BluetensPrograms.CHIN : BluetensPrograms.FACE;
+        switch (program) {
+            case FaceProgram.FIRM: return BluetensPrograms.FACE_TONE;
+            case FaceProgram.DRAIN: return BluetensPrograms.FACE_DRAIN;
+            case FaceProgram.RELAX: return BluetensPrograms.FACE_RELAX;
+            case FaceProgram.JAW_RELAX: return BluetensPrograms.JAW;
+            case FaceProgram.CONTOUR: return BluetensPrograms.CHIN;
+            default: return BluetensPrograms.FACE;
+        }
+    }
+
+    /** The widest pulse of the program (its "full" level on the picture). */
+    static int fullUs(int program) {
+        switch (program) {
+            case FaceProgram.CONTOUR: return BluetensPrograms.CHIN_US;
+            case FaceProgram.RELAX: return BluetensPrograms.RELAX_US;
+            case FaceProgram.JAW_RELAX: return BluetensPrograms.JAW_US;
+            default: return BluetensPrograms.FACE_US;
+        }
+    }
+
+    /** One device works the whole area (the chin, the forehead across its middle); the others a device per side. */
+    static boolean single(int program) {
+        return program == FaceProgram.CONTOUR || program == FaceProgram.RELAX;
     }
 
     /** Is this page program one of the face ones (they live in the studio, not in the list). */
     static boolean isFace(int p) {
-        return p == BluetensPrograms.FACE || p == BluetensPrograms.FACE_TONE || p == BluetensPrograms.CHIN;
+        return p == BluetensPrograms.FACE || p == BluetensPrograms.FACE_TONE || p == BluetensPrograms.CHIN
+                || p == BluetensPrograms.FACE_DRAIN || p == BluetensPrograms.FACE_DRAIN_B
+                || p == BluetensPrograms.FACE_RELAX || p == BluetensPrograms.JAW;
     }
 
     public int kind() {
@@ -67,12 +90,12 @@ public final class BluetensFace implements FaceDevice {
                 k++;
             }
         }
-        return Math.min(2, program == FaceProgram.CONTOUR ? Math.min(1, k) : k);
+        return Math.min(2, single(program) ? Math.min(1, k) : k);
     }
 
     /** The first pad is the left cheek (the person's), the second the right; the chin has one. */
     public int sideOf(int ch) {
-        if (program == FaceProgram.CONTOUR) {
+        if (single(program)) {
             return -1;
         }
         return ch == 0 ? 1 : 0;
@@ -81,6 +104,12 @@ public final class BluetensFace implements FaceDevice {
     public String channelName(int ch, boolean bg) {
         if (program == FaceProgram.CONTOUR) {
             return bg ? "Под брадичката" : "Under the chin";
+        }
+        if (program == FaceProgram.RELAX) {
+            return bg ? "Чело" : "Forehead";
+        }
+        if (program == FaceProgram.JAW_RELAX) {
+            return ch == 0 ? (bg ? "Лява челюст" : "Left jaw") : (bg ? "Дясна челюст" : "Right jaw");
         }
         return ch == 0 ? (bg ? "Лява буза" : "Left cheek") : (bg ? "Дясна буза" : "Right cheek");
     }
@@ -95,9 +124,9 @@ public final class BluetensFace implements FaceDevice {
         if (k == 0) {
             return bg ? "Включи устройство Bluetens — то се свързва само" : "Switch on a Bluetens pad — it connects by itself";
         }
-        if (program != FaceProgram.CONTOUR && k < 2) {
-            return bg ? "Само едно устройство: ще работи една буза. За двете — включи второ."
-                    : "One pad only: one cheek works. For both — switch on a second.";
+        if (!single(program) && k < 2) {
+            return bg ? "Само едно устройство: ще работи едната страна. За двете — включи второ."
+                    : "One pad only: one side works. For both — switch on a second.";
         }
         return null;
     }
@@ -147,10 +176,23 @@ public final class BluetensFace implements FaceDevice {
         page.prefs.edit().putInt("program", page.program).putInt("minutes", minutes).putBoolean("mine", false)
                 .putBoolean("live", false).putBoolean("lib", false).apply();
         BluetensLok lok = BluetensPrograms.build(page.program, minutes);
-        timeline = FaceTimeline.of(lok, program == FaceProgram.CONTOUR ? BluetensPrograms.CHIN_US : BluetensPrograms.FACE_US);
+        timeline = FaceTimeline.of(lok, fullUs(program));
         begun = false;
         ended = false;
-        page.go();
+        // each pad its own file: the drainage's second cheek runs half a cycle later (a wave); else the same file
+        int n = 0;
+        for (BluetensScreen.Pad pad : page.pads) {
+            if (pad.link.state != BluetensLink.READY || (single(program) && n >= 1) || n >= 2) {
+                continue;
+            }
+            int prog = program == FaceProgram.DRAIN && n == 1 ? BluetensPrograms.FACE_DRAIN_B : page.program;
+            BluetensLok l = prog == page.program ? lok : BluetensPrograms.build(prog, minutes);
+            pad.link.shell.start(BluetensPrograms.fileName(prog, minutes), BluetensShell.ascii(l.build()));
+            n++;
+        }
+        page.lengthMs = (long) lok.ms();
+        page.finished = false;
+        page.render();
         return null;
     }
 

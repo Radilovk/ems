@@ -45,12 +45,31 @@ public final class FaceAuto implements FaceDevice {
     }
 
     static String autoId(int program) {
-        return program == FaceProgram.TONE ? AutoCatalog.FACE_TONE : AutoCatalog.FACE;
+        switch (program) {
+            case FaceProgram.FIRM: return AutoCatalog.FACE_TONE;
+            case FaceProgram.DRAIN: return AutoCatalog.FACE_DRAIN;
+            case FaceProgram.RELAX: return AutoCatalog.FACE_RELAX;
+            default: return AutoCatalog.FACE;
+        }
+    }
+
+    /** The studio's procedure for an Auto program id. */
+    static int programOf(String autoId) {
+        if (AutoCatalog.FACE_TONE.equals(autoId)) {
+            return FaceProgram.FIRM;
+        }
+        if (AutoCatalog.FACE_DRAIN.equals(autoId)) {
+            return FaceProgram.DRAIN;
+        }
+        if (AutoCatalog.FACE_RELAX.equals(autoId)) {
+            return FaceProgram.RELAX;
+        }
+        return FaceProgram.LIFT;
     }
 
     public String notReady(int program, boolean bg) {
-        if (program == FaceProgram.CONTOUR) {
-            return bg ? "Контурът е само с Bluetens" : "Contour is Bluetens only";
+        if (program == FaceProgram.CONTOUR || program == FaceProgram.JAW_RELAX) {
+            return bg ? "Тази процедура е само с Bluetens" : "This one is Bluetens only";
         }
         String c = AutoSession.getStage() == AutoSession.Stage.IDLE ? AutoSession.conflict() : null;
         if (c != null) {
@@ -168,10 +187,12 @@ public final class FaceAuto implements FaceDevice {
         FaceTimeline.State st;
         long since = now - AutoSession.lastCycleMs();
         if (AutoSession.getStage() == AutoSession.Stage.CALIB) {
-            FaceProgram p = FaceProgram.get(program);
-            st = AutoSession.lastCycleMs() > 0 && since < 30000
-                    ? FaceTimeline.cycle(since, p.onS == 5 ? 4 : p.onS, p.offS, 500, 500, p.hz) : new FaceTimeline.State();
-            st.hz = p.hz;
+            // the calibration runs the plan's main step: the picture follows that very rhythm
+            AutoModel.Step m = mainStep();
+            int hz = m != null ? m.hz : FaceProgram.get(program).hz;
+            st = m != null && AutoSession.lastCycleMs() > 0 && since < 30000
+                    ? FaceTimeline.cycle(since, m.onS, m.offS, m.rampUpMs, m.rampDownMs, hz) : new FaceTimeline.State();
+            st.hz = hz;
             st.phase = 1;
             return st;
         }
@@ -194,6 +215,19 @@ public final class FaceAuto implements FaceDevice {
             st.leftMs = Math.round(e.phaseRemainingS() * 1000);
         }
         return st;
+    }
+
+    private static AutoModel.Step mainStep() {
+        AutoModel.Plan p = AutoSession.getPlan();
+        if (p == null) {
+            return null;
+        }
+        for (AutoModel.Phase ph : p.phases) {
+            if ("MAIN".equals(ph.id) && !ph.steps.isEmpty()) {
+                return ph.steps.get(0);
+            }
+        }
+        return null;
     }
 
     public long[] phases() {

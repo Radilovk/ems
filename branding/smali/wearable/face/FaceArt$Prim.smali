@@ -41,33 +41,33 @@
     .prologue
     const/high16 v0, 0x3f800000    # 1.0f
 
-    .line 79
+    .line 89
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 65
+    .line 75
     iput v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceArt$Prim;->alpha:F
 
-    .line 66
+    .line 76
     iput v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceArt$Prim;->width:F
 
-    .line 80
+    .line 90
     iput p1, p0, Lcom/isaigu/gymapp/wearable/face/FaceArt$Prim;->role:I
 
-    .line 81
+    .line 91
     const/4 v0, 0x0
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceArt$Prim;->path:[F
 
-    .line 82
+    .line 92
     iput-object p2, p0, Lcom/isaigu/gymapp/wearable/face/FaceArt$Prim;->text:Ljava/lang/String;
 
-    .line 83
+    .line 93
     iput p3, p0, Lcom/isaigu/gymapp/wearable/face/FaceArt$Prim;->x:F
 
-    .line 84
+    .line 94
     iput p4, p0, Lcom/isaigu/gymapp/wearable/face/FaceArt$Prim;->y:F
 
-    .line 85
+    .line 95
     return-void
 .end method
 
@@ -79,35 +79,35 @@
 
     const/4 v1, 0x0
 
-    .line 70
+    .line 80
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 65
+    .line 75
     iput v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceArt$Prim;->alpha:F
 
-    .line 66
+    .line 76
     iput v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceArt$Prim;->width:F
 
-    .line 71
+    .line 81
     iput p1, p0, Lcom/isaigu/gymapp/wearable/face/FaceArt$Prim;->role:I
 
-    .line 72
+    .line 82
     iput-object p2, p0, Lcom/isaigu/gymapp/wearable/face/FaceArt$Prim;->path:[F
 
-    .line 73
+    .line 83
     iput-boolean p3, p0, Lcom/isaigu/gymapp/wearable/face/FaceArt$Prim;->fill:Z
 
-    .line 74
+    .line 84
     const/4 v0, 0x0
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceArt$Prim;->text:Ljava/lang/String;
 
-    .line 75
+    .line 85
     iput v1, p0, Lcom/isaigu/gymapp/wearable/face/FaceArt$Prim;->x:F
 
-    .line 76
+    .line 86
     iput v1, p0, Lcom/isaigu/gymapp/wearable/face/FaceArt$Prim;->y:F
 
-    .line 77
+    .line 87
     return-void
 .end method

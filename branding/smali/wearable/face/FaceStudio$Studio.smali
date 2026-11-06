@@ -29,6 +29,10 @@
 
 .field face:Lcom/isaigu/gymapp/wearable/face/FaceView;
 
+.field faceH:I
+
+.field floor:Landroid/widget/LinearLayout;
+
 .field hint:Landroid/widget/TextView;
 
 .field lastShown:[I
@@ -75,7 +79,7 @@
 
     const/4 v1, 0x0
 
-    .line 144
+    .line 146
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     .line 119
@@ -99,28 +103,28 @@
     .line 123
     iput v1, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->step:I
 
-    .line 138
+    .line 140
     new-array v0, v3, [Landroid/widget/TextView;
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->values:[Landroid/widget/TextView;
 
-    .line 142
+    .line 144
     new-array v0, v3, [I
 
     fill-array-data v0, :array_56
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->lastShown:[I
 
-    .line 145
+    .line 147
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->a:Landroid/app/Activity;
 
-    .line 146
+    .line 148
     iput-object p2, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dev:Lcom/isaigu/gymapp/wearable/face/FaceDevice;
 
-    .line 147
+    .line 149
     iput p3, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->program:I
 
-    .line 148
+    .line 150
     invoke-virtual {p1}, Landroid/app/Activity;->getApplicationContext()Landroid/content/Context;
 
     move-result-object v0
@@ -133,7 +137,7 @@
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->prefs:Landroid/content/SharedPreferences;
 
-    .line 150
+    .line 152
     invoke-interface {p2}, Lcom/isaigu/gymapp/wearable/face/FaceDevice;->programs()[I
 
     move-result-object v4
@@ -149,7 +153,7 @@
 
     aget v0, v4, v2
 
-    .line 151
+    .line 153
     if-ne v0, p3, :cond_49
 
     const/4 v0, 0x1
@@ -157,7 +161,7 @@
     :goto_44
     or-int/2addr v3, v0
 
-    .line 150
+    .line 152
     add-int/lit8 v0, v2, 0x1
 
     move v2, v0
@@ -167,14 +171,14 @@
     :cond_49
     move v0, v1
 
-    .line 151
+    .line 153
     goto :goto_44
 
-    .line 153
+    .line 155
     :cond_4b
     if-nez v3, :cond_55
 
-    .line 154
+    .line 156
     invoke-interface {p2}, Lcom/isaigu/gymapp/wearable/face/FaceDevice;->programs()[I
 
     move-result-object v0
@@ -183,11 +187,11 @@
 
     iput v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->program:I
 
-    .line 156
+    .line 158
     :cond_55
     return-void
 
-    .line 142
+    .line 144
     :array_56
     .array-data 4
         -0x1
@@ -199,18 +203,18 @@
     .registers 3
 
     .prologue
-    .line 715
+    .line 798
     if-nez p0, :cond_3
 
-    .line 720
+    .line 803
     :goto_2
     return-void
 
-    .line 718
+    .line 801
     :cond_3
     invoke-virtual {p0, p1}, Landroid/widget/TextView;->setEnabled(Z)V
 
-    .line 719
+    .line 802
     if-eqz p1, :cond_e
 
     const/high16 v0, 0x3f800000    # 1.0f
@@ -236,21 +240,21 @@
 
     const/4 v2, 0x0
 
-    .line 823
+    .line 908
     iget v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->step:I
 
     const/4 v1, 0x2
 
     if-ne v0, v1, :cond_24
 
-    .line 824
+    .line 909
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dev:Lcom/isaigu/gymapp/wearable/face/FaceDevice;
 
     instance-of v0, v0, Lcom/isaigu/gymapp/wearable/face/FaceAuto;
 
     if-eqz v0, :cond_1e
 
-    .line 825
+    .line 910
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoSession;->getStage()Lcom/isaigu/gymapp/ai/AutoSession$Stage;
 
     move-result-object v0
@@ -259,23 +263,23 @@
 
     if-ne v0, v1, :cond_18
 
-    .line 826
+    .line 911
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoSession;->stop()V
 
-    .line 831
+    .line 916
     :cond_18
     :goto_18
     iput-boolean v2, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->prepared:Z
 
-    .line 832
+    .line 917
     invoke-virtual {p0, v3}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->go(I)V
 
-    .line 836
+    .line 921
     :cond_1d
     :goto_1d
     return-void
 
-    .line 829
+    .line 914
     :cond_1e
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dev:Lcom/isaigu/gymapp/wearable/face/FaceDevice;
 
@@ -283,13 +287,13 @@
 
     goto :goto_18
 
-    .line 833
+    .line 918
     :cond_24
     iget v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->step:I
 
     if-ne v0, v3, :cond_1d
 
-    .line 834
+    .line 919
     invoke-virtual {p0, v2}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->go(I)V
 
     goto :goto_1d
@@ -309,32 +313,32 @@
 
     const/4 v10, 0x0
 
-    .line 595
+    .line 678
     invoke-static {}, Lcom/isaigu/gymapp/wearable/face/FaceStudio;->bg()Z
 
     move-result v1
 
-    .line 596
+    .line 679
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->prog()Lcom/isaigu/gymapp/wearable/face/FaceProgram;
 
     move-result-object v2
 
-    .line 597
+    .line 680
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->stats()Lcom/isaigu/gymapp/wearable/face/FaceCourse$Stats;
 
     move-result-object v3
 
-    .line 598
+    .line 681
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->a:Landroid/app/Activity;
 
     invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsUi;->vertical(Landroid/content/Context;)Landroid/widget/LinearLayout;
 
     move-result-object v4
 
-    .line 599
+    .line 682
     invoke-virtual {v4, v12}, Landroid/widget/LinearLayout;->setGravity(I)V
 
-    .line 600
+    .line 683
     const/high16 v0, 0x41f00000    # 30.0f
 
     invoke-virtual {p0, v0}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dp(F)I
@@ -343,7 +347,7 @@
 
     invoke-virtual {v4, v10, v0, v10, v10}, Landroid/widget/LinearLayout;->setPadding(IIII)V
 
-    .line 601
+    .line 684
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->a:Landroid/app/Activity;
 
     const-string v5, "\u2713"
@@ -356,10 +360,10 @@
 
     move-result-object v0
 
-    .line 602
+    .line 685
     invoke-virtual {v0, v11}, Landroid/widget/TextView;->setGravity(I)V
 
-    .line 603
+    .line 686
     sget v5, Lcom/isaigu/gymapp/widget/XemsUi;->GO:I
 
     const/high16 v6, 0x42300000    # 44.0f
@@ -376,7 +380,7 @@
 
     invoke-virtual {v0, v5}, Landroid/widget/TextView;->setBackgroundDrawable(Landroid/graphics/drawable/Drawable;)V
 
-    .line 604
+    .line 687
     new-instance v5, Landroid/widget/LinearLayout$LayoutParams;
 
     const/high16 v6, 0x42b00000    # 88.0f
@@ -395,13 +399,13 @@
 
     invoke-virtual {v4, v0, v5}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 605
+    .line 688
     iget-boolean v5, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->recorded:Z
 
-    .line 606
+    .line 689
     if-eqz v5, :cond_1a9
 
-    .line 607
+    .line 690
     iget v0, v3, Lcom/isaigu/gymapp/wearable/face/FaceCourse$Stats;->planned:I
 
     if-lez v0, :cond_180
@@ -462,7 +466,7 @@
 
     move-result-object v0
 
-    .line 610
+    .line 693
     :goto_99
     iget-object v6, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->a:Landroid/app/Activity;
 
@@ -474,27 +478,27 @@
 
     move-result-object v0
 
-    .line 611
+    .line 694
     invoke-virtual {v0, v11}, Landroid/widget/TextView;->setGravity(I)V
 
-    .line 612
+    .line 695
     invoke-virtual {p0, v13}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dp(F)I
 
     move-result v6
 
     invoke-virtual {v0, v10, v6, v10, v10}, Landroid/widget/TextView;->setPadding(IIII)V
 
-    .line 613
+    .line 696
     invoke-virtual {v4, v0}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
-    .line 614
+    .line 697
     iget v0, v3, Lcom/isaigu/gymapp/wearable/face/FaceCourse$Stats;->planned:I
 
     if-lez v0, :cond_cc
 
     if-eqz v5, :cond_cc
 
-    .line 615
+    .line 698
     invoke-virtual {p0, v3, v2}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->courseBar(Lcom/isaigu/gymapp/wearable/face/FaceCourse$Stats;Lcom/isaigu/gymapp/wearable/face/FaceProgram;)Landroid/view/View;
 
     move-result-object v0
@@ -515,7 +519,7 @@
 
     invoke-virtual {v4, v0, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 617
+    .line 700
     :cond_cc
     iget-wide v6, v3, Lcom/isaigu/gymapp/wearable/face/FaceCourse$Stats;->nextMs:J
 
@@ -525,7 +529,7 @@
 
     if-lez v0, :cond_10e
 
-    .line 618
+    .line 701
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->a:Landroid/app/Activity;
 
     new-instance v2, Ljava/lang/StringBuilder;
@@ -570,20 +574,20 @@
 
     move-result-object v0
 
-    .line 620
+    .line 703
     invoke-virtual {v0, v11}, Landroid/widget/TextView;->setGravity(I)V
 
-    .line 621
+    .line 704
     invoke-virtual {p0, v13}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dp(F)I
 
     move-result v1
 
     invoke-virtual {v0, v10, v1, v10, v10}, Landroid/widget/TextView;->setPadding(IIII)V
 
-    .line 622
+    .line 705
     invoke-virtual {v4, v0}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
-    .line 624
+    .line 707
     :cond_10e
     iget-boolean v0, v3, Lcom/isaigu/gymapp/wearable/face/FaceCourse$Stats;->finished:Z
 
@@ -593,12 +597,12 @@
 
     if-nez v0, :cond_135
 
-    .line 625
+    .line 708
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->a:Landroid/app/Activity;
 
-    const-string v1, "\u041a\u0443\u0440\u0441\u044a\u0442 \u0437\u0430 \u043f\u043e\u0432\u0434\u0438\u0433\u0430\u043d\u0435 \u0435 \u0437\u0430\u0432\u044a\u0440\u0448\u0435\u043d \u2014 \u043e\u0442\u0442\u0443\u043a \u201e\u0422\u043e\u043d\u0443\u0441\u201c 2\u20133 \u043f\u044a\u0442\u0438 \u0441\u0435\u0434\u043c\u0438\u0447\u043d\u043e \u043f\u0430\u0437\u0438 \u0435\u0444\u0435\u043a\u0442\u0430."
+    const-string v1, "\u041a\u0443\u0440\u0441\u044a\u0442 \u0437\u0430 \u043b\u0438\u0444\u0442\u0438\u043d\u0433 \u0435 \u0437\u0430\u0432\u044a\u0440\u0448\u0435\u043d \u2014 \u043e\u0442\u0442\u0443\u043a \u201e\u0421\u0442\u0435\u0433\u043d\u0430\u0442 \u043e\u0432\u0430\u043b\u201c 2\u20133 \u043f\u044a\u0442\u0438 \u0441\u0435\u0434\u043c\u0438\u0447\u043d\u043e \u043f\u0430\u0437\u0438 \u0435\u0444\u0435\u043a\u0442\u0430."
 
-    const-string v2, "The lift course is complete \u2014 from here Tone 2\u20133 times a week keeps the effect."
+    const-string v2, "The lift course is complete \u2014 from here Firm contour 2\u20133 times a week keeps the effect."
 
     invoke-static {v1, v2}, Lcom/isaigu/gymapp/wearable/face/FaceStudio;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
@@ -612,20 +616,20 @@
 
     move-result-object v0
 
-    .line 627
+    .line 710
     invoke-virtual {v0, v11}, Landroid/widget/TextView;->setGravity(I)V
 
-    .line 628
+    .line 711
     invoke-virtual {p0, v14}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dp(F)I
 
     move-result v1
 
     invoke-virtual {v0, v10, v1, v10, v10}, Landroid/widget/TextView;->setPadding(IIII)V
 
-    .line 629
+    .line 712
     invoke-virtual {v4, v0}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
-    .line 631
+    .line 714
     :cond_135
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->a:Landroid/app/Activity;
 
@@ -645,20 +649,20 @@
 
     move-result-object v0
 
-    .line 633
+    .line 716
     invoke-virtual {v0, v11}, Landroid/widget/TextView;->setGravity(I)V
 
-    .line 634
+    .line 717
     invoke-virtual {p0, v13}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dp(F)I
 
     move-result v1
 
     invoke-virtual {v0, v10, v1, v10, v10}, Landroid/widget/TextView;->setPadding(IIII)V
 
-    .line 635
+    .line 718
     invoke-virtual {v4, v0}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
-    .line 636
+    .line 719
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->right:Landroid/widget/LinearLayout;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->a:Landroid/app/Activity;
@@ -669,7 +673,7 @@
 
     invoke-virtual {v0, v4, v1}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 637
+    .line 720
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->s:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/widget/XemsUi$Shell;->footer:Landroid/widget/LinearLayout;
@@ -682,7 +686,7 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
-    .line 638
+    .line 721
     const-string v0, "\u0413\u043e\u0442\u043e\u0432\u043e"
 
     const-string v1, "Done"
@@ -701,10 +705,10 @@
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->primary:Landroid/widget/TextView;
 
-    .line 639
+    .line 722
     return-void
 
-    .line 608
+    .line 691
     :cond_180
     new-instance v0, Ljava/lang/StringBuilder;
 
@@ -746,7 +750,7 @@
 
     goto/16 :goto_99
 
-    .line 609
+    .line 692
     :cond_1a9
     const-string v0, "\u0421\u043f\u0440\u044f\u043d\u043e \u0440\u0430\u043d\u043e \u2014 \u043d\u0435 \u0441\u0435 \u0431\u0440\u043e\u0438 \u0432 \u043a\u0443\u0440\u0441\u0430"
 
@@ -760,123 +764,181 @@
 .end method
 
 .method buildPick()V
-    .registers 9
+    .registers 11
 
     .prologue
-    const/4 v1, 0x0
+    const/high16 v9, 0x41200000    # 10.0f
 
-    .line 341
+    const/high16 v8, 0x3f800000    # 1.0f
+
+    const/4 v7, 0x1
+
+    const/4 v3, 0x0
+
+    .line 357
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->right:Landroid/widget/LinearLayout;
 
-    const-string v2, "\u041a\u0430\u043a\u044a\u0432 \u0435\u0444\u0435\u043a\u0442 \u0442\u044a\u0440\u0441\u0438\u043c \u0434\u043d\u0435\u0441?"
+    const-string v1, "\u041a\u0430\u043a\u044a\u0432 \u0435\u0444\u0435\u043a\u0442 \u0442\u044a\u0440\u0441\u0438\u043c \u0434\u043d\u0435\u0441?"
 
-    const-string v3, "What effect today?"
+    const-string v2, "What effect today?"
 
-    invoke-static {v2, v3}, Lcom/isaigu/gymapp/wearable/face/FaceStudio;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+    invoke-static {v1, v2}, Lcom/isaigu/gymapp/wearable/face/FaceStudio;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
-    move-result-object v2
+    move-result-object v1
 
-    invoke-virtual {p0, v2}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->title(Ljava/lang/String;)Landroid/widget/TextView;
+    invoke-virtual {p0, v1}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->title(Ljava/lang/String;)Landroid/widget/TextView;
 
-    move-result-object v2
+    move-result-object v1
 
-    invoke-virtual {v0, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
+    invoke-virtual {v0, v1}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
-    .line 342
+    .line 358
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dev:Lcom/isaigu/gymapp/wearable/face/FaceDevice;
 
     invoke-interface {v0}, Lcom/isaigu/gymapp/wearable/face/FaceDevice;->programs()[I
 
-    move-result-object v2
+    move-result-object v4
 
-    array-length v3, v2
+    .line 359
+    const/4 v0, 0x0
 
-    move v0, v1
+    move v2, v3
 
-    :goto_1a
-    if-ge v0, v3, :cond_36
+    .line 360
+    :goto_1f
+    array-length v1, v4
 
-    aget v4, v2, v0
+    if-ge v2, v1, :cond_5f
 
-    .line 343
+    .line 361
+    rem-int/lit8 v1, v2, 0x2
+
+    if-nez v1, :cond_3b
+
+    .line 362
+    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->a:Landroid/app/Activity;
+
+    invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsUi;->horizontal(Landroid/content/Context;)Landroid/widget/LinearLayout;
+
+    move-result-object v1
+
+    .line 363
     iget-object v5, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->right:Landroid/widget/LinearLayout;
-
-    invoke-static {v4}, Lcom/isaigu/gymapp/wearable/face/FaceProgram;->get(I)Lcom/isaigu/gymapp/wearable/face/FaceProgram;
-
-    move-result-object v4
-
-    invoke-virtual {p0, v4}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->programCard(Lcom/isaigu/gymapp/wearable/face/FaceProgram;)Landroid/view/View;
-
-    move-result-object v4
 
     iget-object v6, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->a:Landroid/app/Activity;
 
-    const/16 v7, 0xc
+    if-nez v2, :cond_5c
 
-    invoke-static {v6, v7}, Lcom/isaigu/gymapp/widget/XemsUi;->matchWrap(Landroid/content/Context;I)Landroid/widget/LinearLayout$LayoutParams;
+    const/4 v0, 0x6
 
-    move-result-object v6
-
-    invoke-virtual {v5, v4, v6}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
-
-    .line 342
-    add-int/lit8 v0, v0, 0x1
-
-    goto :goto_1a
-
-    .line 345
-    :cond_36
-    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->a:Landroid/app/Activity;
-
-    const-string v2, ""
-
-    const/high16 v3, 0x41600000    # 14.0f
-
-    sget v4, Lcom/isaigu/gymapp/widget/XemsUi;->MUTED:I
-
-    invoke-static {v0, v2, v3, v4, v1}, Lcom/isaigu/gymapp/widget/XemsUi;->text(Landroid/content/Context;Ljava/lang/String;FIZ)Landroid/widget/TextView;
+    :goto_33
+    invoke-static {v6, v0}, Lcom/isaigu/gymapp/widget/XemsUi;->matchWrap(Landroid/content/Context;I)Landroid/widget/LinearLayout$LayoutParams;
 
     move-result-object v0
 
-    iput-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->statusLine:Landroid/widget/TextView;
+    invoke-virtual {v5, v1, v0}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 346
-    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->right:Landroid/widget/LinearLayout;
+    move-object v0, v1
 
-    iget-object v2, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->statusLine:Landroid/widget/TextView;
+    .line 365
+    :cond_3b
+    new-instance v1, Landroid/widget/LinearLayout$LayoutParams;
 
-    iget-object v3, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->a:Landroid/app/Activity;
+    const/4 v5, -0x1
 
-    const/16 v4, 0xe
+    invoke-direct {v1, v3, v5, v8}, Landroid/widget/LinearLayout$LayoutParams;-><init>(IIF)V
 
-    invoke-static {v3, v4}, Lcom/isaigu/gymapp/widget/XemsUi;->matchWrap(Landroid/content/Context;I)Landroid/widget/LinearLayout$LayoutParams;
+    .line 366
+    rem-int/lit8 v5, v2, 0x2
 
-    move-result-object v3
+    if-ne v5, v7, :cond_4b
 
-    invoke-virtual {v0, v2, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
+    .line 367
+    invoke-virtual {p0, v9}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dp(F)I
 
-    .line 347
+    move-result v5
+
+    iput v5, v1, Landroid/widget/LinearLayout$LayoutParams;->leftMargin:I
+
+    .line 369
+    :cond_4b
+    aget v5, v4, v2
+
+    invoke-static {v5}, Lcom/isaigu/gymapp/wearable/face/FaceProgram;->get(I)Lcom/isaigu/gymapp/wearable/face/FaceProgram;
+
+    move-result-object v5
+
+    invoke-virtual {p0, v5}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->programCard(Lcom/isaigu/gymapp/wearable/face/FaceProgram;)Landroid/view/View;
+
+    move-result-object v5
+
+    invoke-virtual {v0, v5, v1}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
+
+    .line 360
+    add-int/lit8 v1, v2, 0x1
+
+    move v2, v1
+
+    goto :goto_1f
+
+    .line 363
+    :cond_5c
+    const/16 v0, 0xa
+
+    goto :goto_33
+
+    .line 371
+    :cond_5f
+    array-length v1, v4
+
+    rem-int/lit8 v1, v1, 0x2
+
+    if-ne v1, v7, :cond_7b
+
+    if-eqz v0, :cond_7b
+
+    .line 372
+    new-instance v1, Landroid/widget/LinearLayout$LayoutParams;
+
+    invoke-direct {v1, v3, v7, v8}, Landroid/widget/LinearLayout$LayoutParams;-><init>(IIF)V
+
+    .line 373
+    invoke-virtual {p0, v9}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dp(F)I
+
+    move-result v2
+
+    iput v2, v1, Landroid/widget/LinearLayout$LayoutParams;->leftMargin:I
+
+    .line 374
+    new-instance v2, Landroid/view/View;
+
+    iget-object v4, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->a:Landroid/app/Activity;
+
+    invoke-direct {v2, v4}, Landroid/view/View;-><init>(Landroid/content/Context;)V
+
+    invoke-virtual {v0, v2, v1}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
+
+    .line 376
+    :cond_7b
     const-string v0, "\u041a\u044a\u043c \u043f\u043e\u0441\u0442\u0430\u0432\u044f\u043d\u0435\u0442\u043e  \u2192"
 
-    const-string v2, "To the placement  \u2192"
+    const-string v1, "To the placement  \u2192"
 
-    invoke-static {v0, v2}, Lcom/isaigu/gymapp/wearable/face/FaceStudio;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/face/FaceStudio;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v0
 
-    new-instance v2, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Next;
+    new-instance v1, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Next;
 
-    const/4 v3, 0x1
+    invoke-direct {v1, p0, v7}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Next;-><init>(Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;I)V
 
-    invoke-direct {v2, p0, v3}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Next;-><init>(Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;I)V
-
-    invoke-virtual {p0, v0, v1, v2}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->footer(Ljava/lang/String;ILandroid/view/View$OnClickListener;)Landroid/widget/TextView;
+    invoke-virtual {p0, v0, v3, v1}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->footer(Ljava/lang/String;ILandroid/view/View$OnClickListener;)Landroid/widget/TextView;
 
     move-result-object v0
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->primary:Landroid/widget/TextView;
 
-    .line 348
+    .line 377
     return-void
 .end method
 
@@ -884,34 +946,34 @@
     .registers 14
 
     .prologue
-    const/high16 v12, 0x41800000    # 16.0f
+    const/16 v12, 0xa
 
-    const/16 v11, 0xa
-
-    const/4 v4, 0x1
+    const/4 v11, 0x2
 
     const/high16 v10, 0x41600000    # 14.0f
 
-    const/4 v1, 0x0
+    const/4 v1, 0x1
 
-    .line 398
+    const/4 v2, 0x0
+
+    .line 471
     invoke-static {}, Lcom/isaigu/gymapp/wearable/face/FaceStudio;->bg()Z
 
     move-result v5
 
-    .line 399
+    .line 472
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->prog()Lcom/isaigu/gymapp/wearable/face/FaceProgram;
 
-    move-result-object v0
+    move-result-object v6
 
-    .line 400
-    iget-object v2, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->right:Landroid/widget/LinearLayout;
+    .line 473
+    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->right:Landroid/widget/LinearLayout;
 
     const-string v3, "\u041f\u043e\u0441\u0442\u0430\u0432\u044f\u043d\u0435 \u043d\u0430 \u0435\u043b\u0435\u043a\u0442\u0440\u043e\u0434\u0438\u0442\u0435"
 
-    const-string v6, "Placing the pads"
+    const-string v4, "Placing the pads"
 
-    invoke-static {v3, v6}, Lcom/isaigu/gymapp/wearable/face/FaceStudio;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+    invoke-static {v3, v4}, Lcom/isaigu/gymapp/wearable/face/FaceStudio;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v3
 
@@ -919,131 +981,162 @@
 
     move-result-object v3
 
-    invoke-virtual {v2, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
+    invoke-virtual {v0, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
-    .line 401
-    invoke-virtual {v0, v5}, Lcom/isaigu/gymapp/wearable/face/FaceProgram;->place(Z)[Ljava/lang/String;
-
-    move-result-object v6
-
-    move v0, v1
-
-    .line 402
-    :goto_26
-    array-length v2, v6
-
-    if-ge v0, v2, :cond_4d
-
-    .line 403
-    iget-object v7, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->right:Landroid/widget/LinearLayout;
-
-    if-nez v0, :cond_45
-
-    const-string v2, "\u2713"
-
-    :goto_2f
-    aget-object v8, v6, v0
-
-    if-nez v0, :cond_4a
-
-    sget v3, Lcom/isaigu/gymapp/widget/XemsUi;->GO_TEXT:I
-
-    :goto_35
-    invoke-virtual {p0, v2, v8, v3}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->placeRow(Ljava/lang/String;Ljava/lang/String;I)Landroid/view/View;
-
-    move-result-object v2
-
-    iget-object v3, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->a:Landroid/app/Activity;
-
-    .line 404
-    invoke-static {v3, v11}, Lcom/isaigu/gymapp/widget/XemsUi;->matchWrap(Landroid/content/Context;I)Landroid/widget/LinearLayout$LayoutParams;
-
-    move-result-object v3
-
-    .line 403
-    invoke-virtual {v7, v2, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
-
-    .line 402
-    add-int/lit8 v0, v0, 0x1
-
-    goto :goto_26
-
-    .line 403
-    :cond_45
-    invoke-static {v0}, Ljava/lang/String;->valueOf(I)Ljava/lang/String;
-
-    move-result-object v2
-
-    goto :goto_2f
-
-    :cond_4a
-    sget v3, Lcom/isaigu/gymapp/widget/XemsUi;->ACCENT:I
-
-    goto :goto_35
-
-    .line 406
-    :cond_4d
+    .line 474
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dev:Lcom/isaigu/gymapp/wearable/face/FaceDevice;
 
     invoke-interface {v0}, Lcom/isaigu/gymapp/wearable/face/FaceDevice;->kind()I
 
     move-result v0
 
-    if-nez v0, :cond_d7
+    if-nez v0, :cond_4d
 
-    .line 407
-    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->right:Landroid/widget/LinearLayout;
+    move v0, v1
 
-    const-string v2, "\u21c4"
+    :goto_29
+    invoke-virtual {v6, v5, v0}, Lcom/isaigu/gymapp/wearable/face/FaceProgram;->place(ZZ)[Ljava/lang/String;
 
-    const-string v3, "\u041a\u0430\u0431\u0435\u043b\u0438\u0442\u0435 \u0437\u0430 \u0440\u044a\u0446\u0435\u0442\u0435: \u043b\u0435\u0432\u0438\u044f\u0442 \u043a\u044a\u043c \u043b\u044f\u0432\u0430\u0442\u0430 \u0431\u0443\u0437\u0430, \u0434\u0435\u0441\u043d\u0438\u044f\u0442 \u043a\u044a\u043c \u0434\u044f\u0441\u043d\u0430\u0442\u0430. \u0414\u0440\u0443\u0433\u0438\u0442\u0435 \u043a\u0430\u043d\u0430\u043b\u0438 \u0441\u0430 \u0438\u0437\u043a\u043b\u044e\u0447\u0435\u043d\u0438."
+    move-result-object v7
 
-    const-string v6, "The arm cables: left to the left cheek, right to the right. Every other channel is off."
+    move v0, v2
 
-    invoke-static {v3, v6}, Lcom/isaigu/gymapp/wearable/face/FaceStudio;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+    .line 475
+    :goto_2e
+    array-length v3, v7
+
+    if-ge v0, v3, :cond_57
+
+    .line 476
+    iget-object v8, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->right:Landroid/widget/LinearLayout;
+
+    if-nez v0, :cond_4f
+
+    const-string v3, "\u2713"
+
+    :goto_37
+    aget-object v9, v7, v0
+
+    if-nez v0, :cond_54
+
+    sget v4, Lcom/isaigu/gymapp/widget/XemsUi;->GO_TEXT:I
+
+    :goto_3d
+    invoke-virtual {p0, v3, v9, v4}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->placeRow(Ljava/lang/String;Ljava/lang/String;I)Landroid/view/View;
 
     move-result-object v3
 
-    sget v6, Lcom/isaigu/gymapp/widget/XemsUi;->AMBER:I
+    iget-object v4, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->a:Landroid/app/Activity;
 
-    invoke-virtual {p0, v2, v3, v6}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->placeRow(Ljava/lang/String;Ljava/lang/String;I)Landroid/view/View;
+    .line 477
+    invoke-static {v4, v12}, Lcom/isaigu/gymapp/widget/XemsUi;->matchWrap(Landroid/content/Context;I)Landroid/widget/LinearLayout$LayoutParams;
 
-    move-result-object v2
+    move-result-object v4
 
-    iget-object v3, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->a:Landroid/app/Activity;
+    .line 476
+    invoke-virtual {v8, v3, v4}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 409
-    invoke-static {v3, v11}, Lcom/isaigu/gymapp/widget/XemsUi;->matchWrap(Landroid/content/Context;I)Landroid/widget/LinearLayout$LayoutParams;
+    .line 475
+    add-int/lit8 v0, v0, 0x1
+
+    goto :goto_2e
+
+    :cond_4d
+    move v0, v2
+
+    .line 474
+    goto :goto_29
+
+    .line 476
+    :cond_4f
+    invoke-static {v0}, Ljava/lang/String;->valueOf(I)Ljava/lang/String;
 
     move-result-object v3
 
-    .line 407
-    invoke-virtual {v0, v2, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
+    goto :goto_37
 
-    .line 420
-    :cond_70
+    :cond_54
+    sget v4, Lcom/isaigu/gymapp/widget/XemsUi;->ACCENT:I
+
+    goto :goto_3d
+
+    .line 479
+    :cond_57
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dev:Lcom/isaigu/gymapp/wearable/face/FaceDevice;
 
-    iget v2, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->program:I
+    invoke-interface {v0}, Lcom/isaigu/gymapp/wearable/face/FaceDevice;->kind()I
 
-    invoke-interface {v0, v2, v5}, Lcom/isaigu/gymapp/wearable/face/FaceDevice;->notReady(IZ)Ljava/lang/String;
+    move-result v0
 
-    move-result-object v2
+    if-nez v0, :cond_f3
 
-    .line 421
-    if-eqz v2, :cond_8f
+    .line 480
+    iget v0, v6, Lcom/isaigu/gymapp/wearable/face/FaceProgram;->target:I
 
-    .line 422
-    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->a:Landroid/app/Activity;
+    if-ne v0, v11, :cond_e7
 
-    sget v3, Lcom/isaigu/gymapp/widget/XemsUi;->AMBER:I
+    move v0, v1
 
-    invoke-static {v0, v2, v10, v3, v4}, Lcom/isaigu/gymapp/widget/XemsUi;->text(Landroid/content/Context;Ljava/lang/String;FIZ)Landroid/widget/TextView;
+    .line 481
+    :goto_64
+    iget-object v3, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->right:Landroid/widget/LinearLayout;
+
+    const-string v4, "\u21c4"
+
+    if-eqz v0, :cond_ea
+
+    .line 482
+    const-string v0, "\u041a\u0430\u0431\u0435\u043b\u0438\u0442\u0435 \u0437\u0430 \u0440\u044a\u0446\u0435\u0442\u0435: \u043b\u0435\u0432\u0438\u044f\u0442 \u043a\u044a\u043c \u043b\u044f\u0432\u0430\u0442\u0430 \u043f\u043e\u043b\u043e\u0432\u0438\u043d\u0430 \u043d\u0430 \u0447\u0435\u043b\u043e\u0442\u043e, \u0434\u0435\u0441\u043d\u0438\u044f\u0442 \u043a\u044a\u043c \u0434\u044f\u0441\u043d\u0430\u0442\u0430. \u0414\u0440\u0443\u0433\u0438\u0442\u0435 \u043a\u0430\u043d\u0430\u043b\u0438 \u0441\u0430 \u0438\u0437\u043a\u043b\u044e\u0447\u0435\u043d\u0438."
+
+    const-string v6, "The arm cables: left to the left half of the forehead, right to the right. Every other channel is off."
+
+    invoke-static {v0, v6}, Lcom/isaigu/gymapp/wearable/face/FaceStudio;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v0
 
-    .line 423
-    iget-object v3, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->right:Landroid/widget/LinearLayout;
+    .line 484
+    :goto_72
+    sget v6, Lcom/isaigu/gymapp/widget/XemsUi;->AMBER:I
+
+    .line 481
+    invoke-virtual {p0, v4, v0, v6}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->placeRow(Ljava/lang/String;Ljava/lang/String;I)Landroid/view/View;
+
+    move-result-object v0
+
+    iget-object v4, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->a:Landroid/app/Activity;
+
+    .line 486
+    invoke-static {v4, v12}, Lcom/isaigu/gymapp/widget/XemsUi;->matchWrap(Landroid/content/Context;I)Landroid/widget/LinearLayout$LayoutParams;
+
+    move-result-object v4
+
+    .line 481
+    invoke-virtual {v3, v0, v4}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
+
+    .line 497
+    :cond_81
+    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dev:Lcom/isaigu/gymapp/wearable/face/FaceDevice;
+
+    iget v3, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->program:I
+
+    invoke-interface {v0, v3, v5}, Lcom/isaigu/gymapp/wearable/face/FaceDevice;->notReady(IZ)Ljava/lang/String;
+
+    move-result-object v3
+
+    .line 498
+    if-eqz v3, :cond_a0
+
+    .line 499
+    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->a:Landroid/app/Activity;
+
+    sget v4, Lcom/isaigu/gymapp/widget/XemsUi;->AMBER:I
+
+    invoke-static {v0, v3, v10, v4, v1}, Lcom/isaigu/gymapp/widget/XemsUi;->text(Landroid/content/Context;Ljava/lang/String;FIZ)Landroid/widget/TextView;
+
+    move-result-object v0
+
+    .line 500
+    iget-object v4, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->right:Landroid/widget/LinearLayout;
 
     iget-object v5, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->a:Landroid/app/Activity;
 
@@ -1053,22 +1146,22 @@
 
     move-result-object v5
 
-    invoke-virtual {v3, v0, v5}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
+    invoke-virtual {v4, v0, v5}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 425
-    :cond_8f
+    .line 502
+    :cond_a0
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dev:Lcom/isaigu/gymapp/wearable/face/FaceDevice;
 
     invoke-interface {v0}, Lcom/isaigu/gymapp/wearable/face/FaceDevice;->kind()I
 
     move-result v0
 
-    if-nez v0, :cond_143
+    if-nez v0, :cond_15f
 
-    .line 427
+    .line 504
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->right:Landroid/widget/LinearLayout;
 
-    const-string v2, "\u2713"
+    const-string v1, "\u2713"
 
     const-string v3, "\u0411\u043e\u0442\u043e\u043a\u0441 / \u0444\u0438\u043b\u044a\u0440 \u0434\u043e 2 \u0441\u0435\u0434\u043c\u0438\u0446\u0438: \u043d\u0435"
 
@@ -1080,95 +1173,111 @@
 
     sget v4, Lcom/isaigu/gymapp/widget/XemsUi;->GO_TEXT:I
 
-    invoke-virtual {p0, v2, v3, v4}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->placeRow(Ljava/lang/String;Ljava/lang/String;I)Landroid/view/View;
+    invoke-virtual {p0, v1, v3, v4}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->placeRow(Ljava/lang/String;Ljava/lang/String;I)Landroid/view/View;
 
-    move-result-object v2
+    move-result-object v1
 
     iget-object v3, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->a:Landroid/app/Activity;
 
-    .line 428
-    invoke-static {v3, v11}, Lcom/isaigu/gymapp/widget/XemsUi;->matchWrap(Landroid/content/Context;I)Landroid/widget/LinearLayout$LayoutParams;
+    .line 505
+    invoke-static {v3, v12}, Lcom/isaigu/gymapp/widget/XemsUi;->matchWrap(Landroid/content/Context;I)Landroid/widget/LinearLayout$LayoutParams;
 
     move-result-object v3
 
-    .line 427
-    invoke-virtual {v0, v2, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
+    .line 504
+    invoke-virtual {v0, v1, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 429
+    .line 506
     const-string v0, "\u2190  \u0415\u0444\u0435\u043a\u0442"
 
-    const-string v2, "\u2190  Effect"
+    const-string v1, "\u2190  Effect"
 
-    invoke-static {v0, v2}, Lcom/isaigu/gymapp/wearable/face/FaceStudio;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/face/FaceStudio;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v0
 
-    new-instance v2, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Next;
+    new-instance v1, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Next;
 
-    invoke-direct {v2, p0, v1}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Next;-><init>(Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;I)V
+    invoke-direct {v1, p0, v2}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Next;-><init>(Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;I)V
 
-    invoke-virtual {p0, v0, v2}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->ghost(Ljava/lang/String;Landroid/view/View$OnClickListener;)V
+    invoke-virtual {p0, v0, v1}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->ghost(Ljava/lang/String;Landroid/view/View$OnClickListener;)V
 
-    .line 430
+    .line 507
     const-string v0, "\u041a\u044a\u043c \u0441\u0438\u043b\u0430\u0442\u0430  \u2192"
 
-    const-string v2, "To the strength  \u2192"
+    const-string v1, "To the strength  \u2192"
 
-    invoke-static {v0, v2}, Lcom/isaigu/gymapp/wearable/face/FaceStudio;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/face/FaceStudio;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v0
 
-    new-instance v2, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Next;
+    new-instance v1, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Next;
 
-    const/4 v3, 0x2
+    invoke-direct {v1, p0, v11}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Next;-><init>(Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;I)V
 
-    invoke-direct {v2, p0, v3}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Next;-><init>(Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;I)V
-
-    invoke-virtual {p0, v0, v1, v2}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->footer(Ljava/lang/String;ILandroid/view/View$OnClickListener;)Landroid/widget/TextView;
+    invoke-virtual {p0, v0, v2, v1}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->footer(Ljava/lang/String;ILandroid/view/View$OnClickListener;)Landroid/widget/TextView;
 
     move-result-object v0
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->primary:Landroid/widget/TextView;
 
-    .line 458
-    :goto_d6
+    .line 535
+    :goto_e6
     return-void
 
-    :cond_d7
-    move v0, v1
+    :cond_e7
+    move v0, v2
 
-    .line 411
-    :goto_d8
-    iget-object v2, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dev:Lcom/isaigu/gymapp/wearable/face/FaceDevice;
+    .line 480
+    goto/16 :goto_64
 
-    invoke-interface {v2}, Lcom/isaigu/gymapp/wearable/face/FaceDevice;->channels()I
+    .line 484
+    :cond_ea
+    const-string v0, "\u041a\u0430\u0431\u0435\u043b\u0438\u0442\u0435 \u0437\u0430 \u0440\u044a\u0446\u0435\u0442\u0435: \u043b\u0435\u0432\u0438\u044f\u0442 \u043a\u044a\u043c \u043b\u044f\u0432\u0430\u0442\u0430 \u0431\u0443\u0437\u0430, \u0434\u0435\u0441\u043d\u0438\u044f\u0442 \u043a\u044a\u043c \u0434\u044f\u0441\u043d\u0430\u0442\u0430. \u0414\u0440\u0443\u0433\u0438\u0442\u0435 \u043a\u0430\u043d\u0430\u043b\u0438 \u0441\u0430 \u0438\u0437\u043a\u043b\u044e\u0447\u0435\u043d\u0438."
 
-    move-result v2
+    const-string v6, "The arm cables: left to the left cheek, right to the right. Every other channel is off."
 
-    invoke-static {v4, v2}, Ljava/lang/Math;->max(II)I
+    invoke-static {v0, v6}, Lcom/isaigu/gymapp/wearable/face/FaceStudio;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
-    move-result v2
+    move-result-object v0
 
-    if-ge v0, v2, :cond_70
+    goto :goto_72
 
-    .line 412
-    iget-object v2, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dev:Lcom/isaigu/gymapp/wearable/face/FaceDevice;
+    :cond_f3
+    move v0, v2
 
-    invoke-interface {v2}, Lcom/isaigu/gymapp/wearable/face/FaceDevice;->channels()I
+    .line 488
+    :goto_f4
+    iget-object v3, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dev:Lcom/isaigu/gymapp/wearable/face/FaceDevice;
 
-    move-result v2
+    invoke-interface {v3}, Lcom/isaigu/gymapp/wearable/face/FaceDevice;->channels()I
 
-    if-eqz v2, :cond_70
+    move-result v3
 
-    .line 415
-    iget-object v2, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dev:Lcom/isaigu/gymapp/wearable/face/FaceDevice;
+    invoke-static {v1, v3}, Ljava/lang/Math;->max(II)I
 
-    invoke-interface {v2, v0}, Lcom/isaigu/gymapp/wearable/face/FaceDevice;->battery(I)I
+    move-result v3
 
-    move-result v2
+    if-ge v0, v3, :cond_81
 
-    .line 416
-    iget-object v3, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->right:Landroid/widget/LinearLayout;
+    .line 489
+    iget-object v3, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dev:Lcom/isaigu/gymapp/wearable/face/FaceDevice;
+
+    invoke-interface {v3}, Lcom/isaigu/gymapp/wearable/face/FaceDevice;->channels()I
+
+    move-result v3
+
+    if-eqz v3, :cond_81
+
+    .line 492
+    iget-object v3, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dev:Lcom/isaigu/gymapp/wearable/face/FaceDevice;
+
+    invoke-interface {v3, v0}, Lcom/isaigu/gymapp/wearable/face/FaceDevice;->battery(I)I
+
+    move-result v3
+
+    .line 493
+    iget-object v4, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->right:Landroid/widget/LinearLayout;
 
     const-string v6, "\u25c9"
 
@@ -1192,7 +1301,7 @@
 
     move-result-object v7
 
-    if-ltz v2, :cond_140
+    if-ltz v3, :cond_15c
 
     new-instance v8, Ljava/lang/StringBuilder;
 
@@ -1204,66 +1313,68 @@
 
     move-result-object v8
 
-    invoke-virtual {v8, v2}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+    invoke-virtual {v8, v3}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
 
-    move-result-object v2
+    move-result-object v3
 
     const-string v8, " %"
 
-    invoke-virtual {v2, v8}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    invoke-virtual {v3, v8}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    move-result-object v2
+    move-result-object v3
 
-    invoke-virtual {v2}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+    invoke-virtual {v3}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
-    move-result-object v2
+    move-result-object v3
 
-    :goto_126
-    invoke-virtual {v7, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    :goto_142
+    invoke-virtual {v7, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    move-result-object v2
+    move-result-object v3
 
-    invoke-virtual {v2}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+    invoke-virtual {v3}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
-    move-result-object v2
+    move-result-object v3
 
     sget v7, Lcom/isaigu/gymapp/widget/XemsUi;->GO_TEXT:I
 
-    invoke-virtual {p0, v6, v2, v7}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->placeRow(Ljava/lang/String;Ljava/lang/String;I)Landroid/view/View;
+    invoke-virtual {p0, v6, v3, v7}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->placeRow(Ljava/lang/String;Ljava/lang/String;I)Landroid/view/View;
 
-    move-result-object v2
+    move-result-object v3
 
     iget-object v6, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->a:Landroid/app/Activity;
 
-    .line 417
-    invoke-static {v6, v11}, Lcom/isaigu/gymapp/widget/XemsUi;->matchWrap(Landroid/content/Context;I)Landroid/widget/LinearLayout$LayoutParams;
+    .line 494
+    invoke-static {v6, v12}, Lcom/isaigu/gymapp/widget/XemsUi;->matchWrap(Landroid/content/Context;I)Landroid/widget/LinearLayout$LayoutParams;
 
     move-result-object v6
 
-    .line 416
-    invoke-virtual {v3, v2, v6}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
+    .line 493
+    invoke-virtual {v4, v3, v6}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 411
+    .line 488
     add-int/lit8 v0, v0, 0x1
 
-    goto :goto_d8
+    goto :goto_f4
 
-    .line 416
-    :cond_140
-    const-string v2, ""
+    .line 493
+    :cond_15c
+    const-string v3, ""
 
-    goto :goto_126
+    goto :goto_142
 
-    .line 434
-    :cond_143
+    .line 511
+    :cond_15f
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->a:Landroid/app/Activity;
 
     invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsUi;->vertical(Landroid/content/Context;)Landroid/widget/LinearLayout;
 
-    move-result-object v3
+    move-result-object v4
 
-    .line 435
-    invoke-virtual {p0, v12}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dp(F)I
+    .line 512
+    const/high16 v0, 0x41800000    # 16.0f
+
+    invoke-virtual {p0, v0}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dp(F)I
 
     move-result v0
 
@@ -1271,7 +1382,9 @@
 
     move-result v5
 
-    invoke-virtual {p0, v12}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dp(F)I
+    const/high16 v6, 0x41800000    # 16.0f
+
+    invoke-virtual {p0, v6}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dp(F)I
 
     move-result v6
 
@@ -1279,36 +1392,38 @@
 
     move-result v7
 
-    invoke-virtual {v3, v0, v5, v6, v7}, Landroid/widget/LinearLayout;->setPadding(IIII)V
+    invoke-virtual {v4, v0, v5, v6, v7}, Landroid/widget/LinearLayout;->setPadding(IIII)V
 
-    .line 436
+    .line 513
     iget-boolean v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->contra:Z
 
-    if-eqz v0, :cond_248
+    if-eqz v0, :cond_267
 
     sget v0, Lcom/isaigu/gymapp/widget/XemsUi;->DANGER:I
 
-    :goto_162
+    :goto_182
     const/16 v5, 0x1c
 
     invoke-static {v0, v5}, Lcom/isaigu/gymapp/widget/XemsUi;->alpha(II)I
 
     move-result v5
 
-    invoke-virtual {p0, v12}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dp(F)I
+    const/high16 v0, 0x41800000    # 16.0f
+
+    invoke-virtual {p0, v0}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dp(F)I
 
     move-result v0
 
     int-to-float v6, v0
 
-    .line 437
+    .line 514
     iget-boolean v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->contra:Z
 
-    if-eqz v0, :cond_24c
+    if-eqz v0, :cond_26b
 
     sget v0, Lcom/isaigu/gymapp/widget/XemsUi;->DANGER:I
 
-    :goto_173
+    :goto_195
     const/16 v7, 0x88
 
     invoke-static {v0, v7}, Lcom/isaigu/gymapp/widget/XemsUi;->alpha(II)I
@@ -1321,14 +1436,14 @@
 
     move-result v7
 
-    .line 436
+    .line 513
     invoke-static {v5, v6, v0, v7}, Lcom/isaigu/gymapp/widget/XemsUi;->rounded(IFII)Landroid/graphics/drawable/GradientDrawable;
 
     move-result-object v0
 
-    invoke-virtual {v3, v0}, Landroid/widget/LinearLayout;->setBackgroundDrawable(Landroid/graphics/drawable/Drawable;)V
+    invoke-virtual {v4, v0}, Landroid/widget/LinearLayout;->setBackgroundDrawable(Landroid/graphics/drawable/Drawable;)V
 
-    .line 438
+    .line 515
     const-string v0, "\u0411\u043e\u0442\u043e\u043a\u0441 \u0438\u043b\u0438 \u0444\u0438\u043b\u044a\u0440 \u043f\u0440\u0435\u0437 \u043f\u043e\u0441\u043b\u0435\u0434\u043d\u0438\u0442\u0435 2 \u0441\u0435\u0434\u043c\u0438\u0446\u0438, \u043f\u0435\u0439\u0441\u043c\u0435\u0439\u043a\u044a\u0440, \u0431\u0440\u0435\u043c\u0435\u043d\u043d\u043e\u0441\u0442, \u0435\u043f\u0438\u043b\u0435\u043f\u0441\u0438\u044f \u0438\u043b\u0438 \u0440\u0430\u0437\u0434\u0440\u0430\u0437\u043d\u0435\u043d\u0430 \u043a\u043e\u0436\u0430?"
 
     const-string v5, "Botox or filler within 2 weeks, a pacemaker, pregnancy, epilepsy or irritated skin?"
@@ -1337,25 +1452,25 @@
 
     move-result-object v0
 
-    .line 440
+    .line 517
     iget-object v5, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->a:Landroid/app/Activity;
 
     const/high16 v6, 0x41700000    # 15.0f
 
     sget v7, Lcom/isaigu/gymapp/widget/XemsUi;->TEXT:I
 
-    invoke-static {v5, v0, v6, v7, v4}, Lcom/isaigu/gymapp/widget/XemsUi;->text(Landroid/content/Context;Ljava/lang/String;FIZ)Landroid/widget/TextView;
+    invoke-static {v5, v0, v6, v7, v1}, Lcom/isaigu/gymapp/widget/XemsUi;->text(Landroid/content/Context;Ljava/lang/String;FIZ)Landroid/widget/TextView;
 
     move-result-object v0
 
-    invoke-virtual {v3, v0}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
+    invoke-virtual {v4, v0}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
-    .line 441
+    .line 518
     iget-boolean v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->contra:Z
 
-    if-eqz v0, :cond_1bb
+    if-eqz v0, :cond_1dd
 
-    .line 442
+    .line 519
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->a:Landroid/app/Activity;
 
     const-string v5, "\u0414\u043d\u0435\u0441 \u0431\u0435\u0437 \u043b\u0438\u0446\u0435. \u0421\u043b\u0435\u0434 \u0431\u043e\u0442\u043e\u043a\u0441 \u0438\u043b\u0438 \u0444\u0438\u043b\u044a\u0440 \u2014 2 \u0441\u0435\u0434\u043c\u0438\u0446\u0438: \u0442\u043e\u043a\u044a\u0442 \u0437\u0430\u0441\u0438\u043b\u0432\u0430 \u0438 \u0440\u0430\u0437\u043d\u0430\u0441\u044f \u0434\u0435\u0439\u0441\u0442\u0432\u0438\u0435\u0442\u043e \u0438\u043c."
@@ -1368,24 +1483,24 @@
 
     sget v6, Lcom/isaigu/gymapp/widget/XemsUi;->DANGER:I
 
-    invoke-static {v0, v5, v10, v6, v1}, Lcom/isaigu/gymapp/widget/XemsUi;->text(Landroid/content/Context;Ljava/lang/String;FIZ)Landroid/widget/TextView;
+    invoke-static {v0, v5, v10, v6, v2}, Lcom/isaigu/gymapp/widget/XemsUi;->text(Landroid/content/Context;Ljava/lang/String;FIZ)Landroid/widget/TextView;
 
     move-result-object v0
 
-    .line 445
+    .line 522
     const/high16 v5, 0x40c00000    # 6.0f
 
     invoke-virtual {p0, v5}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dp(F)I
 
     move-result v5
 
-    invoke-virtual {v0, v1, v5, v1, v1}, Landroid/widget/TextView;->setPadding(IIII)V
+    invoke-virtual {v0, v2, v5, v2, v2}, Landroid/widget/TextView;->setPadding(IIII)V
 
-    .line 446
-    invoke-virtual {v3, v0}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
+    .line 523
+    invoke-virtual {v4, v0}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
-    .line 448
-    :cond_1bb
+    .line 525
+    :cond_1dd
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->right:Landroid/widget/LinearLayout;
 
     iget-object v5, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->a:Landroid/app/Activity;
@@ -1396,29 +1511,29 @@
 
     move-result-object v5
 
-    invoke-virtual {v0, v3, v5}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
+    invoke-virtual {v0, v4, v5}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 449
+    .line 526
     const-string v0, "\u2190  \u041d\u0430\u0437\u0430\u0434"
 
-    const-string v3, "\u2190  Back"
+    const-string v4, "\u2190  Back"
 
-    invoke-static {v0, v3}, Lcom/isaigu/gymapp/wearable/face/FaceStudio;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+    invoke-static {v0, v4}, Lcom/isaigu/gymapp/wearable/face/FaceStudio;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v0
 
-    new-instance v3, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Next;
+    new-instance v4, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Next;
 
-    invoke-direct {v3, p0, v1}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Next;-><init>(Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;I)V
+    invoke-direct {v4, p0, v2}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Next;-><init>(Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;I)V
 
-    invoke-virtual {p0, v0, v3}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->ghost(Ljava/lang/String;Landroid/view/View$OnClickListener;)V
+    invoke-virtual {p0, v0, v4}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->ghost(Ljava/lang/String;Landroid/view/View$OnClickListener;)V
 
-    .line 450
-    iget-object v3, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->a:Landroid/app/Activity;
+    .line 527
+    iget-object v4, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->a:Landroid/app/Activity;
 
     iget-boolean v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->contra:Z
 
-    if-eqz v0, :cond_250
+    if-eqz v0, :cond_26f
 
     const-string v0, "\u041f\u0440\u043e\u043c\u0435\u043d\u0438 \u043e\u0442\u0433\u043e\u0432\u043e\u0440\u0430"
 
@@ -1428,22 +1543,20 @@
 
     move-result-object v0
 
-    :goto_1e6
-    const/4 v5, 0x2
-
-    invoke-static {v3, v0, v5}, Lcom/isaigu/gymapp/widget/XemsUi;->button(Landroid/content/Context;Ljava/lang/String;I)Landroid/widget/TextView;
+    :goto_208
+    invoke-static {v4, v0, v11}, Lcom/isaigu/gymapp/widget/XemsUi;->button(Landroid/content/Context;Ljava/lang/String;I)Landroid/widget/TextView;
 
     move-result-object v0
 
-    .line 451
-    new-instance v3, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Contra;
+    .line 528
+    new-instance v4, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Contra;
 
-    invoke-direct {v3, p0}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Contra;-><init>(Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;)V
+    invoke-direct {v4, p0}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Contra;-><init>(Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;)V
 
-    invoke-virtual {v0, v3}, Landroid/widget/TextView;->setOnClickListener(Landroid/view/View$OnClickListener;)V
+    invoke-virtual {v0, v4}, Landroid/widget/TextView;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
-    .line 452
-    new-instance v3, Landroid/widget/LinearLayout$LayoutParams;
+    .line 529
+    new-instance v4, Landroid/widget/LinearLayout$LayoutParams;
 
     const/4 v5, -0x2
 
@@ -1453,51 +1566,49 @@
 
     move-result v6
 
-    invoke-direct {v3, v5, v6}, Landroid/widget/LinearLayout$LayoutParams;-><init>(II)V
+    invoke-direct {v4, v5, v6}, Landroid/widget/LinearLayout$LayoutParams;-><init>(II)V
 
-    .line 453
+    .line 530
     const/high16 v5, 0x41400000    # 12.0f
 
     invoke-virtual {p0, v5}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dp(F)I
 
     move-result v5
 
-    iput v5, v3, Landroid/widget/LinearLayout$LayoutParams;->leftMargin:I
+    iput v5, v4, Landroid/widget/LinearLayout$LayoutParams;->leftMargin:I
 
-    .line 454
+    .line 531
     iget-object v5, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->s:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
 
     iget-object v5, v5, Lcom/isaigu/gymapp/widget/XemsUi$Shell;->footer:Landroid/widget/LinearLayout;
 
-    invoke-virtual {v5, v0, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
+    invoke-virtual {v5, v0, v4}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 455
+    .line 532
     const-string v0, "\u2713  \u041d\u0435 \u00b7 \u043a\u044a\u043c \u0441\u0438\u043b\u0430\u0442\u0430"
 
-    const-string v3, "\u2713  No \u00b7 to the strength"
+    const-string v4, "\u2713  No \u00b7 to the strength"
 
-    invoke-static {v0, v3}, Lcom/isaigu/gymapp/wearable/face/FaceStudio;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+    invoke-static {v0, v4}, Lcom/isaigu/gymapp/wearable/face/FaceStudio;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v0
 
-    new-instance v3, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Next;
+    new-instance v4, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Next;
 
-    const/4 v5, 0x2
+    invoke-direct {v4, p0, v11}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Next;-><init>(Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;I)V
 
-    invoke-direct {v3, p0, v5}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Next;-><init>(Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;I)V
-
-    invoke-virtual {p0, v0, v1, v3}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->footer(Ljava/lang/String;ILandroid/view/View$OnClickListener;)Landroid/widget/TextView;
+    invoke-virtual {p0, v0, v2, v4}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->footer(Ljava/lang/String;ILandroid/view/View$OnClickListener;)Landroid/widget/TextView;
 
     move-result-object v0
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->primary:Landroid/widget/TextView;
 
-    .line 456
+    .line 533
     iget-boolean v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->contra:Z
 
-    if-nez v0, :cond_241
+    if-nez v0, :cond_278
 
-    if-eqz v2, :cond_230
+    if-eqz v3, :cond_250
 
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dev:Lcom/isaigu/gymapp/wearable/face/FaceDevice;
 
@@ -1505,16 +1616,16 @@
 
     move-result v0
 
-    if-lez v0, :cond_241
+    if-lez v0, :cond_278
 
-    :cond_230
+    :cond_250
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dev:Lcom/isaigu/gymapp/wearable/face/FaceDevice;
 
     invoke-interface {v0}, Lcom/isaigu/gymapp/wearable/face/FaceDevice;->kind()I
 
     move-result v0
 
-    if-eqz v0, :cond_240
+    if-eqz v0, :cond_260
 
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dev:Lcom/isaigu/gymapp/wearable/face/FaceDevice;
 
@@ -1522,33 +1633,31 @@
 
     move-result v0
 
-    if-lez v0, :cond_241
+    if-lez v0, :cond_278
 
-    :cond_240
-    move v1, v4
-
-    .line 457
-    :cond_241
+    .line 534
+    :cond_260
+    :goto_260
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->primary:Landroid/widget/TextView;
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->enable(Landroid/widget/TextView;Z)V
 
-    goto/16 :goto_d6
+    goto/16 :goto_e6
 
-    .line 436
-    :cond_248
+    .line 513
+    :cond_267
     sget v0, Lcom/isaigu/gymapp/widget/XemsUi;->AMBER:I
 
-    goto/16 :goto_162
+    goto/16 :goto_182
 
-    .line 437
-    :cond_24c
+    .line 514
+    :cond_26b
     sget v0, Lcom/isaigu/gymapp/widget/XemsUi;->AMBER:I
 
-    goto/16 :goto_173
+    goto/16 :goto_195
 
-    .line 450
-    :cond_250
+    .line 527
+    :cond_26f
     const-string v0, "\u0414\u0430, \u0438\u043c\u0430"
 
     const-string v5, "Yes"
@@ -1557,14 +1666,20 @@
 
     move-result-object v0
 
-    goto :goto_1e6
+    goto :goto_208
+
+    :cond_278
+    move v1, v2
+
+    .line 533
+    goto :goto_260
 .end method
 
 .method buildRun()V
     .registers 15
 
     .prologue
-    const/high16 v13, 0x43960000    # 300.0f
+    const/high16 v13, 0x439b0000    # 310.0f
 
     const/high16 v12, 0x41800000    # 16.0f
 
@@ -1574,24 +1689,24 @@
 
     const/4 v9, 0x0
 
-    .line 553
+    .line 633
     invoke-static {}, Lcom/isaigu/gymapp/wearable/face/FaceStudio;->bg()Z
 
     move-result v6
 
-    .line 554
+    .line 634
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->a:Landroid/app/Activity;
 
     invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsUi;->horizontal(Landroid/content/Context;)Landroid/widget/LinearLayout;
 
     move-result-object v7
 
-    .line 555
+    .line 635
     const/16 v0, 0x10
 
     invoke-virtual {v7, v0}, Landroid/widget/LinearLayout;->setGravity(I)V
 
-    .line 556
+    .line 636
     new-instance v0, Lcom/isaigu/gymapp/wearable/face/FaceRing;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->a:Landroid/app/Activity;
@@ -1600,7 +1715,7 @@
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->ring:Lcom/isaigu/gymapp/wearable/face/FaceRing;
 
-    .line 557
+    .line 637
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->ring:Lcom/isaigu/gymapp/wearable/face/FaceRing;
 
     sget v1, Lcom/isaigu/gymapp/widget/XemsUi;->ACCENT:I
@@ -1621,7 +1736,7 @@
 
     invoke-virtual/range {v0 .. v5}, Lcom/isaigu/gymapp/wearable/face/FaceRing;->setColors(IIIII)V
 
-    .line 558
+    .line 638
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->ring:Lcom/isaigu/gymapp/wearable/face/FaceRing;
 
     const/4 v1, 0x3
@@ -1666,7 +1781,7 @@
 
     const-string v3, "HOLD"
 
-    .line 559
+    .line 639
     invoke-static {v2, v3}, Lcom/isaigu/gymapp/wearable/face/FaceStudio;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v2
@@ -1687,10 +1802,44 @@
 
     move-result-object v4
 
-    .line 558
+    .line 638
     invoke-virtual {v0, v1, v2, v3, v4}, Lcom/isaigu/gymapp/wearable/face/FaceRing;->setWords([Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 560
+    .line 640
+    invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->prog()Lcom/isaigu/gymapp/wearable/face/FaceProgram;
+
+    move-result-object v0
+
+    iget-boolean v0, v0, Lcom/isaigu/gymapp/wearable/face/FaceProgram;->sensory:Z
+
+    if-eqz v0, :cond_95
+
+    .line 641
+    iget-object v1, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->ring:Lcom/isaigu/gymapp/wearable/face/FaceRing;
+
+    invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->prog()Lcom/isaigu/gymapp/wearable/face/FaceProgram;
+
+    move-result-object v0
+
+    iget v0, v0, Lcom/isaigu/gymapp/wearable/face/FaceProgram;->id:I
+
+    const/4 v2, 0x3
+
+    if-ne v0, v2, :cond_17a
+
+    const-string v0, "\u041d\u0415\u0416\u0415\u041d \u0422\u041e\u041a"
+
+    const-string v2, "GENTLE CURRENT"
+
+    invoke-static {v0, v2}, Lcom/isaigu/gymapp/wearable/face/FaceStudio;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
+
+    :goto_92
+    invoke-virtual {v1, v0}, Lcom/isaigu/gymapp/wearable/face/FaceRing;->setSteady(Ljava/lang/String;)V
+
+    .line 643
+    :cond_95
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->ring:Lcom/isaigu/gymapp/wearable/face/FaceRing;
 
     new-instance v1, Landroid/widget/LinearLayout$LayoutParams;
@@ -1707,14 +1856,14 @@
 
     invoke-virtual {v7, v0, v1}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 561
+    .line 644
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->a:Landroid/app/Activity;
 
     invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsUi;->vertical(Landroid/content/Context;)Landroid/widget/LinearLayout;
 
     move-result-object v0
 
-    .line 562
+    .line 645
     const/high16 v1, 0x41900000    # 18.0f
 
     invoke-virtual {p0, v1}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dp(F)I
@@ -1723,7 +1872,7 @@
 
     invoke-virtual {v0, v1, v9, v9, v9}, Landroid/widget/LinearLayout;->setPadding(IIII)V
 
-    .line 563
+    .line 646
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->a:Landroid/app/Activity;
 
     const-string v2, ""
@@ -1738,12 +1887,12 @@
 
     iput-object v1, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->statusLine:Landroid/widget/TextView;
 
-    .line 564
+    .line 647
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->statusLine:Landroid/widget/TextView;
 
     invoke-virtual {v0, v1}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
-    .line 565
+    .line 648
     new-instance v1, Landroid/widget/LinearLayout$LayoutParams;
 
     const/4 v2, -0x2
@@ -1752,7 +1901,7 @@
 
     invoke-virtual {v7, v0, v1}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 566
+    .line 649
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->right:Landroid/widget/LinearLayout;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->a:Landroid/app/Activity;
@@ -1765,7 +1914,7 @@
 
     invoke-virtual {v0, v7, v1}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 567
+    .line 650
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->right:Landroid/widget/LinearLayout;
 
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->strengthRow()Landroid/view/View;
@@ -1782,16 +1931,16 @@
 
     invoke-virtual {v0, v1, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 568
+    .line 651
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dev:Lcom/isaigu/gymapp/wearable/face/FaceDevice;
 
     invoke-interface {v0}, Lcom/isaigu/gymapp/wearable/face/FaceDevice;->canPause()Z
 
     move-result v0
 
-    if-eqz v0, :cond_108
+    if-eqz v0, :cond_126
 
-    .line 569
+    .line 652
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->a:Landroid/app/Activity;
 
     const-string v1, "\u275a\u275a  \u041f\u0430\u0443\u0437\u0430"
@@ -1810,7 +1959,7 @@
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->pauseBtn:Landroid/widget/TextView;
 
-    .line 570
+    .line 653
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->pauseBtn:Landroid/widget/TextView;
 
     new-instance v1, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Pause;
@@ -1819,7 +1968,7 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
-    .line 571
+    .line 654
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->s:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/widget/XemsUi$Shell;->footer:Landroid/widget/LinearLayout;
@@ -1838,8 +1987,8 @@
 
     invoke-virtual {v0, v1, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 573
-    :cond_108
+    .line 656
+    :cond_126
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->s:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/widget/XemsUi$Shell;->footer:Landroid/widget/LinearLayout;
@@ -1856,7 +2005,7 @@
 
     invoke-virtual {v0, v1, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 574
+    .line 657
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->hint:Landroid/widget/TextView;
 
     invoke-virtual {p0, v12}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dp(F)I
@@ -1869,7 +2018,7 @@
 
     invoke-virtual {v0, v1, v9, v2, v9}, Landroid/widget/TextView;->setPadding(IIII)V
 
-    .line 575
+    .line 658
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->a:Landroid/app/Activity;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dev:Lcom/isaigu/gymapp/wearable/face/FaceDevice;
@@ -1886,7 +2035,7 @@
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->stopBtn:Landroid/widget/TextView;
 
-    .line 576
+    .line 659
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->stopBtn:Landroid/widget/TextView;
 
     new-instance v1, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Stop;
@@ -1895,7 +2044,7 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
-    .line 577
+    .line 660
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->s:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/widget/XemsUi$Shell;->footer:Landroid/widget/LinearLayout;
@@ -1918,13 +2067,25 @@
 
     invoke-virtual {v0, v1, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 578
+    .line 661
     const/4 v0, 0x0
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->primary:Landroid/widget/TextView;
 
-    .line 579
+    .line 662
     return-void
+
+    .line 641
+    :cond_17a
+    const-string v0, "\u041f\u041e\u0422\u0423\u041f\u0412\u0410\u041d\u0415"
+
+    const-string v2, "TAPPING"
+
+    invoke-static {v0, v2}, Lcom/isaigu/gymapp/wearable/face/FaceStudio;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
+
+    goto/16 :goto_92
 .end method
 
 .method buildStrength()V
@@ -1941,22 +2102,22 @@
 
     const/4 v2, 0x0
 
-    .line 476
+    .line 553
     invoke-static {}, Lcom/isaigu/gymapp/wearable/face/FaceStudio;->bg()Z
 
     move-result v3
 
-    .line 477
+    .line 554
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->prog()Lcom/isaigu/gymapp/wearable/face/FaceProgram;
 
     move-result-object v4
 
-    .line 478
+    .line 555
     iget-boolean v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->prepared:Z
 
     if-nez v0, :cond_29
 
-    .line 479
+    .line 556
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dev:Lcom/isaigu/gymapp/wearable/face/FaceDevice;
 
     iget v5, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->program:I
@@ -1971,7 +2132,7 @@
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->prepareError:Ljava/lang/String;
 
-    .line 480
+    .line 557
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->prepareError:Ljava/lang/String;
 
     if-nez v0, :cond_138
@@ -1981,7 +2142,7 @@
     :goto_27
     iput-boolean v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->prepared:Z
 
-    .line 482
+    .line 559
     :cond_29
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->right:Landroid/widget/LinearLayout;
 
@@ -1999,19 +2160,19 @@
 
     invoke-virtual {v0, v5}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
-    .line 483
+    .line 560
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->a:Landroid/app/Activity;
 
     invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsUi;->horizontal(Landroid/content/Context;)Landroid/widget/LinearLayout;
 
     move-result-object v0
 
-    .line 484
+    .line 561
     const/16 v5, 0x10
 
     invoke-virtual {v0, v5}, Landroid/widget/LinearLayout;->setGravity(I)V
 
-    .line 485
+    .line 562
     invoke-virtual {p0, v10}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dp(F)I
 
     move-result v5
@@ -2030,7 +2191,7 @@
 
     invoke-virtual {v0, v5, v6, v7, v8}, Landroid/widget/LinearLayout;->setPadding(IIII)V
 
-    .line 486
+    .line 563
     iget v5, v4, Lcom/isaigu/gymapp/wearable/face/FaceProgram;->tint:I
 
     const/16 v6, 0x1e
@@ -2063,7 +2224,7 @@
 
     invoke-virtual {v0, v5}, Landroid/widget/LinearLayout;->setBackgroundDrawable(Landroid/graphics/drawable/Drawable;)V
 
-    .line 487
+    .line 564
     iget-object v5, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->a:Landroid/app/Activity;
 
     const-string v6, "\u25c9"
@@ -2078,7 +2239,7 @@
 
     invoke-virtual {v0, v5}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
-    .line 488
+    .line 565
     iget-object v5, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->a:Landroid/app/Activity;
 
     invoke-virtual {v4, v3}, Lcom/isaigu/gymapp/wearable/face/FaceProgram;->strengthGoal(Z)Ljava/lang/String;
@@ -2093,14 +2254,14 @@
 
     move-result-object v3
 
-    .line 489
+    .line 566
     invoke-virtual {p0, v9}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dp(F)I
 
     move-result v4
 
     invoke-virtual {v3, v4, v2, v2, v2}, Landroid/widget/TextView;->setPadding(IIII)V
 
-    .line 490
+    .line 567
     new-instance v4, Landroid/widget/LinearLayout$LayoutParams;
 
     const/4 v5, -0x2
@@ -2109,7 +2270,7 @@
 
     invoke-virtual {v0, v3, v4}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 491
+    .line 568
     iget-object v3, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->right:Landroid/widget/LinearLayout;
 
     iget-object v4, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->a:Landroid/app/Activity;
@@ -2122,12 +2283,12 @@
 
     invoke-virtual {v3, v0, v4}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 492
+    .line 569
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->prepareError:Ljava/lang/String;
 
     if-eqz v0, :cond_cf
 
-    .line 493
+    .line 570
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->right:Landroid/widget/LinearLayout;
 
     iget-object v3, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->a:Landroid/app/Activity;
@@ -2152,7 +2313,7 @@
 
     invoke-virtual {v0, v1, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 495
+    .line 572
     :cond_cf
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->right:Landroid/widget/LinearLayout;
 
@@ -2170,7 +2331,7 @@
 
     invoke-virtual {v0, v1, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 496
+    .line 573
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dev:Lcom/isaigu/gymapp/wearable/face/FaceDevice;
 
     invoke-interface {v0}, Lcom/isaigu/gymapp/wearable/face/FaceDevice;->kind()I
@@ -2179,7 +2340,7 @@
 
     if-nez v0, :cond_107
 
-    .line 497
+    .line 574
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->a:Landroid/app/Activity;
 
     const-string v1, "\u0415\u0434\u043d\u0430 \u0441\u0438\u043b\u0430 \u0437\u0430 \u0434\u0432\u0435\u0442\u0435 \u0431\u0443\u0437\u0438 \u2014 \u0437\u0430\u0442\u043e\u0432\u0430 \u0435\u043b\u0435\u043a\u0442\u0440\u043e\u0434\u0438\u0442\u0435 \u0441\u0442\u043e\u044f\u0442 \u0435\u0434\u043d\u0430\u043a\u0432\u043e \u043e\u0442 \u0434\u0432\u0435\u0442\u0435 \u0441\u0442\u0440\u0430\u043d\u0438."
@@ -2198,7 +2359,7 @@
 
     move-result-object v0
 
-    .line 499
+    .line 576
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->right:Landroid/widget/LinearLayout;
 
     iget-object v3, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->a:Landroid/app/Activity;
@@ -2211,7 +2372,7 @@
 
     invoke-virtual {v1, v0, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 501
+    .line 578
     :cond_107
     const-string v0, "\u2190  \u041d\u0430\u0437\u0430\u0434"
 
@@ -2227,7 +2388,7 @@
 
     invoke-virtual {p0, v0, v1}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->ghost(Ljava/lang/String;Landroid/view/View$OnClickListener;)V
 
-    .line 502
+    .line 579
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dev:Lcom/isaigu/gymapp/wearable/face/FaceDevice;
 
     invoke-interface {v0}, Lcom/isaigu/gymapp/wearable/face/FaceDevice;->kind()I
@@ -2255,21 +2416,21 @@
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->primary:Landroid/widget/TextView;
 
-    .line 504
+    .line 581
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->primary:Landroid/widget/TextView;
 
     invoke-static {v0, v2}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->enable(Landroid/widget/TextView;Z)V
 
-    .line 505
+    .line 582
     return-void
 
     :cond_138
     move v0, v2
 
-    .line 480
+    .line 557
     goto/16 :goto_27
 
-    .line 502
+    .line 579
     :cond_13b
     const-string v0, "\u2713  \u0414\u043e\u0431\u0440\u0435 \u0435 \u00b7 \u043f\u0440\u043e\u0434\u044a\u043b\u0436\u0438"
 
@@ -2286,15 +2447,15 @@
     .registers 3
 
     .prologue
-    .line 262
+    .line 274
     const/4 v0, 0x1
 
     iput-boolean v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->closed:Z
 
-    .line 263
+    .line 275
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->hide()V
 
-    .line 265
+    .line 277
     :try_start_6
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dev:Lcom/isaigu/gymapp/wearable/face/FaceDevice;
 
@@ -2302,7 +2463,7 @@
     :try_end_b
     .catch Ljava/lang/Throwable; {:try_start_6 .. :try_end_b} :catch_16
 
-    .line 269
+    .line 281
     :goto_b
     # getter for: Lcom/isaigu/gymapp/wearable/face/FaceStudio;->current:Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/face/FaceStudio;->access$000()Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;
@@ -2311,21 +2472,21 @@
 
     if-ne v0, p0, :cond_15
 
-    .line 270
+    .line 282
     const/4 v0, 0x0
 
     # setter for: Lcom/isaigu/gymapp/wearable/face/FaceStudio;->current:Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/face/FaceStudio;->access$002(Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;)Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;
 
-    .line 272
+    .line 284
     :cond_15
     return-void
 
-    .line 266
+    .line 278
     :catch_16
     move-exception v0
 
-    .line 267
+    .line 279
     const-string v1, "FaceStudio.cancel"
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V
@@ -2337,7 +2498,7 @@
     .registers 3
 
     .prologue
-    .line 250
+    .line 262
     iget v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->step:I
 
     const/4 v1, 0x3
@@ -2352,14 +2513,14 @@
 
     if-eqz v0, :cond_11
 
-    .line 251
+    .line 263
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->hide()V
 
-    .line 259
+    .line 271
     :goto_10
     return-void
 
-    .line 254
+    .line 266
     :cond_11
     iget v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->step:I
 
@@ -2367,12 +2528,12 @@
 
     if-ne v0, v1, :cond_1a
 
-    .line 255
+    .line 267
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->finishDone()V
 
     goto :goto_10
 
-    .line 258
+    .line 270
     :cond_1a
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->close()V
 
@@ -2391,17 +2552,17 @@
 
     const/4 v5, 0x0
 
-    .line 642
+    .line 725
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->a:Landroid/app/Activity;
 
     invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsUi;->horizontal(Landroid/content/Context;)Landroid/widget/LinearLayout;
 
     move-result-object v0
 
-    .line 643
+    .line 726
     invoke-virtual {v0, v5, v5, v5, v5}, Landroid/widget/LinearLayout;->setPadding(IIII)V
 
-    .line 644
+    .line 727
     sget v1, Lcom/isaigu/gymapp/widget/XemsUi;->MUTED:I
 
     const/16 v2, 0x30
@@ -2422,14 +2583,14 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/LinearLayout;->setBackgroundDrawable(Landroid/graphics/drawable/Drawable;)V
 
-    .line 645
+    .line 728
     new-instance v1, Landroid/view/View;
 
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->a:Landroid/app/Activity;
 
     invoke-direct {v1, v2}, Landroid/view/View;-><init>(Landroid/content/Context;)V
 
-    .line 646
+    .line 729
     iget v2, p2, Lcom/isaigu/gymapp/wearable/face/FaceProgram;->tint:I
 
     invoke-virtual {p0, v3}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dp(F)I
@@ -2444,7 +2605,7 @@
 
     invoke-virtual {v1, v2}, Landroid/view/View;->setBackgroundDrawable(Landroid/graphics/drawable/Drawable;)V
 
-    .line 647
+    .line 730
     iget v2, p1, Lcom/isaigu/gymapp/wearable/face/FaceCourse$Stats;->done:I
 
     int-to-float v2, v2
@@ -2465,14 +2626,14 @@
 
     move-result v2
 
-    .line 648
+    .line 731
     new-instance v3, Landroid/widget/LinearLayout$LayoutParams;
 
     invoke-direct {v3, v5, v7, v2}, Landroid/widget/LinearLayout$LayoutParams;-><init>(IIF)V
 
     invoke-virtual {v0, v1, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 649
+    .line 732
     new-instance v1, Landroid/view/View;
 
     iget-object v3, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->a:Landroid/app/Activity;
@@ -2487,18 +2648,344 @@
 
     invoke-virtual {v0, v1, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 650
+    .line 733
     invoke-virtual {v0, v5, v5, v5, v5}, Landroid/widget/LinearLayout;->setPadding(IIII)V
 
-    .line 651
+    .line 734
     return-object v0
+.end method
+
+.method courseCard()Landroid/view/View;
+    .registers 16
+
+    .prologue
+    const/high16 v14, 0x41000000    # 8.0f
+
+    const/high16 v13, 0x3f800000    # 1.0f
+
+    const/high16 v10, 0x41800000    # 16.0f
+
+    const/high16 v12, 0x41600000    # 14.0f
+
+    const/4 v11, 0x0
+
+    .line 432
+    invoke-static {}, Lcom/isaigu/gymapp/wearable/face/FaceStudio;->bg()Z
+
+    move-result v1
+
+    .line 433
+    invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->prog()Lcom/isaigu/gymapp/wearable/face/FaceProgram;
+
+    move-result-object v2
+
+    .line 434
+    invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->stats()Lcom/isaigu/gymapp/wearable/face/FaceCourse$Stats;
+
+    move-result-object v3
+
+    .line 435
+    invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
+
+    move-result-wide v4
+
+    .line 436
+    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->a:Landroid/app/Activity;
+
+    invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsUi;->vertical(Landroid/content/Context;)Landroid/widget/LinearLayout;
+
+    move-result-object v6
+
+    .line 437
+    invoke-virtual {p0, v10}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dp(F)I
+
+    move-result v0
+
+    const/high16 v7, 0x41400000    # 12.0f
+
+    invoke-virtual {p0, v7}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dp(F)I
+
+    move-result v7
+
+    invoke-virtual {p0, v10}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dp(F)I
+
+    move-result v8
+
+    invoke-virtual {p0, v12}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dp(F)I
+
+    move-result v9
+
+    invoke-virtual {v6, v0, v7, v8, v9}, Landroid/widget/LinearLayout;->setPadding(IIII)V
+
+    .line 438
+    iget v0, v2, Lcom/isaigu/gymapp/wearable/face/FaceProgram;->tint:I
+
+    const/16 v7, 0x14
+
+    invoke-static {v0, v7}, Lcom/isaigu/gymapp/widget/XemsUi;->alpha(II)I
+
+    move-result v0
+
+    invoke-virtual {p0, v10}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dp(F)I
+
+    move-result v7
+
+    int-to-float v7, v7
+
+    iget v8, v2, Lcom/isaigu/gymapp/wearable/face/FaceProgram;->tint:I
+
+    const/16 v9, 0x55
+
+    invoke-static {v8, v9}, Lcom/isaigu/gymapp/widget/XemsUi;->alpha(II)I
+
+    move-result v8
+
+    invoke-virtual {p0, v13}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dp(F)I
+
+    move-result v9
+
+    invoke-static {v0, v7, v8, v9}, Lcom/isaigu/gymapp/widget/XemsUi;->rounded(IFII)Landroid/graphics/drawable/GradientDrawable;
+
+    move-result-object v0
+
+    invoke-virtual {v6, v0}, Landroid/widget/LinearLayout;->setBackgroundDrawable(Landroid/graphics/drawable/Drawable;)V
+
+    .line 439
+    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->a:Landroid/app/Activity;
+
+    invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsUi;->horizontal(Landroid/content/Context;)Landroid/widget/LinearLayout;
+
+    move-result-object v0
+
+    .line 440
+    const/16 v7, 0x10
+
+    invoke-virtual {v0, v7}, Landroid/widget/LinearLayout;->setGravity(I)V
+
+    .line 441
+    iget-object v7, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->a:Landroid/app/Activity;
+
+    invoke-virtual {v2, v1}, Lcom/isaigu/gymapp/wearable/face/FaceProgram;->name(Z)Ljava/lang/String;
+
+    move-result-object v8
+
+    iget v9, v2, Lcom/isaigu/gymapp/wearable/face/FaceProgram;->tint:I
+
+    const/4 v10, 0x1
+
+    invoke-static {v7, v8, v12, v9, v10}, Lcom/isaigu/gymapp/widget/XemsUi;->text(Landroid/content/Context;Ljava/lang/String;FIZ)Landroid/widget/TextView;
+
+    move-result-object v7
+
+    invoke-virtual {v0, v7}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
+
+    .line 442
+    iget-object v7, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->a:Landroid/app/Activity;
+
+    new-instance v8, Ljava/lang/StringBuilder;
+
+    invoke-direct {v8}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v9, "  \u00b7  "
+
+    invoke-virtual {v8, v9}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v8
+
+    invoke-static {v3, v1}, Lcom/isaigu/gymapp/wearable/face/FaceCourse;->line(Lcom/isaigu/gymapp/wearable/face/FaceCourse$Stats;Z)Ljava/lang/String;
+
+    move-result-object v9
+
+    invoke-virtual {v8, v9}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v8
+
+    invoke-virtual {v8}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v8
+
+    sget v9, Lcom/isaigu/gymapp/widget/XemsUi;->TEXT:I
+
+    invoke-static {v7, v8, v12, v9, v11}, Lcom/isaigu/gymapp/widget/XemsUi;->text(Landroid/content/Context;Ljava/lang/String;FIZ)Landroid/widget/TextView;
+
+    move-result-object v7
+
+    .line 443
+    new-instance v8, Landroid/widget/LinearLayout$LayoutParams;
+
+    const/4 v9, -0x2
+
+    invoke-direct {v8, v11, v9, v13}, Landroid/widget/LinearLayout$LayoutParams;-><init>(IIF)V
+
+    invoke-virtual {v0, v7, v8}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
+
+    .line 444
+    invoke-virtual {v6, v0}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
+
+    .line 445
+    iget v0, v3, Lcom/isaigu/gymapp/wearable/face/FaceCourse$Stats;->planned:I
+
+    if-lez v0, :cond_b7
+
+    .line 446
+    new-instance v0, Landroid/widget/LinearLayout$LayoutParams;
+
+    const/4 v7, -0x1
+
+    invoke-virtual {p0, v14}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dp(F)I
+
+    move-result v8
+
+    invoke-direct {v0, v7, v8}, Landroid/widget/LinearLayout$LayoutParams;-><init>(II)V
+
+    .line 447
+    const/high16 v7, 0x41200000    # 10.0f
+
+    invoke-virtual {p0, v7}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dp(F)I
+
+    move-result v7
+
+    iput v7, v0, Landroid/widget/LinearLayout$LayoutParams;->topMargin:I
+
+    .line 448
+    invoke-virtual {p0, v3, v2}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->courseBar(Lcom/isaigu/gymapp/wearable/face/FaceCourse$Stats;Lcom/isaigu/gymapp/wearable/face/FaceProgram;)Landroid/view/View;
+
+    move-result-object v7
+
+    invoke-virtual {v6, v7, v0}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
+
+    .line 451
+    :cond_b7
+    sget v0, Lcom/isaigu/gymapp/widget/XemsUi;->MUTED:I
+
+    .line 452
+    iget-boolean v7, v3, Lcom/isaigu/gymapp/wearable/face/FaceCourse$Stats;->finished:Z
+
+    if-eqz v7, :cond_de
+
+    iget v7, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->program:I
+
+    if-nez v7, :cond_de
+
+    .line 453
+    const-string v0, "\u041a\u0443\u0440\u0441\u044a\u0442 \u0435 \u0437\u0430\u0432\u044a\u0440\u0448\u0435\u043d \u2014 \u201e\u0421\u0442\u0435\u0433\u043d\u0430\u0442 \u043e\u0432\u0430\u043b\u201c 2\u20133 \u043f\u044a\u0442\u0438 \u0441\u0435\u0434\u043c\u0438\u0447\u043d\u043e \u043f\u0430\u0437\u0438 \u0435\u0444\u0435\u043a\u0442\u0430"
+
+    const-string v1, "The course is complete \u2014 Firm contour 2\u20133 times a week keeps the effect"
+
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/face/FaceStudio;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v1
+
+    .line 455
+    sget v0, Lcom/isaigu/gymapp/widget/XemsUi;->GO_TEXT:I
+
+    .line 462
+    :goto_cb
+    iget-object v2, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->a:Landroid/app/Activity;
+
+    const/high16 v3, 0x41500000    # 13.0f
+
+    invoke-static {v2, v1, v3, v0, v11}, Lcom/isaigu/gymapp/widget/XemsUi;->text(Landroid/content/Context;Ljava/lang/String;FIZ)Landroid/widget/TextView;
+
+    move-result-object v0
+
+    .line 463
+    invoke-virtual {p0, v14}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dp(F)I
+
+    move-result v1
+
+    invoke-virtual {v0, v11, v1, v11, v11}, Landroid/widget/TextView;->setPadding(IIII)V
+
+    .line 464
+    invoke-virtual {v6, v0}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
+
+    .line 465
+    return-object v6
+
+    .line 456
+    :cond_de
+    iget-wide v8, v3, Lcom/isaigu/gymapp/wearable/face/FaceCourse$Stats;->nextMs:J
+
+    cmp-long v7, v8, v4
+
+    if-lez v7, :cond_106
+
+    .line 457
+    new-instance v0, Ljava/lang/StringBuilder;
+
+    invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v2, "\u041c\u0443\u0441\u043a\u0443\u043b\u044a\u0442 \u0441\u0435 \u0432\u044a\u0437\u0441\u0442\u0430\u043d\u043e\u0432\u044f\u0432\u0430 \u2014 \u043d\u0430\u0439-\u0434\u043e\u0431\u0440\u0435 "
+
+    const-string v7, "The muscle recovers \u2014 best "
+
+    invoke-static {v2, v7}, Lcom/isaigu/gymapp/wearable/face/FaceStudio;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v2
+
+    invoke-virtual {v0, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    iget-wide v2, v3, Lcom/isaigu/gymapp/wearable/face/FaceCourse$Stats;->nextMs:J
+
+    invoke-static {v2, v3, v4, v5, v1}, Lcom/isaigu/gymapp/wearable/face/FaceStudio;->when(JJZ)Ljava/lang/String;
+
+    move-result-object v1
+
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v1
+
+    .line 458
+    sget v0, Lcom/isaigu/gymapp/widget/XemsUi;->AMBER:I
+
+    goto :goto_cb
+
+    .line 460
+    :cond_106
+    new-instance v3, Ljava/lang/StringBuilder;
+
+    invoke-direct {v3}, Ljava/lang/StringBuilder;-><init>()V
+
+    invoke-virtual {v2, v1}, Lcom/isaigu/gymapp/wearable/face/FaceProgram;->course(Z)Ljava/lang/String;
+
+    move-result-object v4
+
+    invoke-virtual {v3, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v3
+
+    const-string v4, "  \u00b7  "
+
+    invoke-virtual {v3, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v3
+
+    invoke-virtual {v2, v1}, Lcom/isaigu/gymapp/wearable/face/FaceProgram;->muscle(Z)Ljava/lang/String;
+
+    move-result-object v1
+
+    invoke-virtual {v3, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v1
+
+    invoke-virtual {v1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v1
+
+    goto :goto_cb
 .end method
 
 .method dp(F)I
     .registers 3
 
     .prologue
-    .line 159
+    .line 161
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->a:Landroid/app/Activity;
 
     invoke-static {v0, p1}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
@@ -2512,15 +2999,15 @@
     .registers 3
 
     .prologue
-    .line 670
+    .line 753
     const/4 v0, 0x1
 
     iput-boolean v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->closed:Z
 
-    .line 671
+    .line 754
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->hide()V
 
-    .line 672
+    .line 755
     # getter for: Lcom/isaigu/gymapp/wearable/face/FaceStudio;->current:Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/face/FaceStudio;->access$000()Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;
 
@@ -2528,13 +3015,13 @@
 
     if-ne v0, p0, :cond_10
 
-    .line 673
+    .line 756
     const/4 v0, 0x0
 
     # setter for: Lcom/isaigu/gymapp/wearable/face/FaceStudio;->current:Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/face/FaceStudio;->access$002(Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;)Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;
 
-    .line 675
+    .line 758
     :cond_10
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dev:Lcom/isaigu/gymapp/wearable/face/FaceDevice;
 
@@ -2544,40 +3031,40 @@
 
     if-nez v0, :cond_1e
 
-    .line 677
+    .line 760
     :try_start_18
     invoke-static {}, Lcom/isaigu/gymapp/wearable/SessionRecorder;->finishAssisted()V
     :try_end_1b
     .catch Ljava/lang/Throwable; {:try_start_18 .. :try_end_1b} :catch_1f
 
-    .line 682
+    .line 765
     :goto_1b
     :try_start_1b
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoSession;->close()V
     :try_end_1e
     .catch Ljava/lang/Throwable; {:try_start_1b .. :try_end_1e} :catch_26
 
-    .line 687
+    .line 770
     :cond_1e
     :goto_1e
     return-void
 
-    .line 678
+    .line 761
     :catch_1f
     move-exception v0
 
-    .line 679
+    .line 762
     const-string v1, "FaceStudio.report"
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V
 
     goto :goto_1b
 
-    .line 683
+    .line 766
     :catch_26
     move-exception v0
 
-    .line 684
+    .line 767
     const-string v1, "FaceStudio.closeAuto"
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V
@@ -2595,7 +3082,7 @@
 
     const/4 v5, 0x0
 
-    .line 698
+    .line 781
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->hint:Landroid/widget/TextView;
 
     invoke-virtual {v0}, Landroid/widget/TextView;->getParent()Landroid/view/ViewParent;
@@ -2604,7 +3091,7 @@
 
     if-nez v0, :cond_2e
 
-    .line 699
+    .line 782
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->s:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/widget/XemsUi$Shell;->footer:Landroid/widget/LinearLayout;
@@ -2623,7 +3110,7 @@
 
     invoke-virtual {v0, v1, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 700
+    .line 783
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->hint:Landroid/widget/TextView;
 
     invoke-virtual {p0, v6}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dp(F)I
@@ -2636,7 +3123,7 @@
 
     invoke-virtual {v0, v1, v5, v2, v5}, Landroid/widget/TextView;->setPadding(IIII)V
 
-    .line 702
+    .line 785
     :cond_2e
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->a:Landroid/app/Activity;
 
@@ -2644,10 +3131,10 @@
 
     move-result-object v0
 
-    .line 703
+    .line 786
     invoke-virtual {v0, p3}, Landroid/widget/TextView;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
-    .line 704
+    .line 787
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->s:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
 
     iget-object v1, v1, Lcom/isaigu/gymapp/widget/XemsUi$Shell;->footer:Landroid/widget/LinearLayout;
@@ -2668,7 +3155,7 @@
 
     invoke-virtual {v1, v0, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 705
+    .line 788
     return-object v0
 .end method
 
@@ -2676,7 +3163,7 @@
     .registers 8
 
     .prologue
-    .line 709
+    .line 792
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->a:Landroid/app/Activity;
 
     const/4 v1, 0x3
@@ -2685,10 +3172,10 @@
 
     move-result-object v0
 
-    .line 710
+    .line 793
     invoke-virtual {v0, p2}, Landroid/widget/TextView;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
-    .line 711
+    .line 794
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->s:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
 
     iget-object v1, v1, Lcom/isaigu/gymapp/widget/XemsUi$Shell;->footer:Landroid/widget/LinearLayout;
@@ -2707,7 +3194,7 @@
 
     invoke-virtual {v1, v0, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 712
+    .line 795
     return-void
 .end method
 
@@ -2723,54 +3210,54 @@
 
     const/4 v3, 0x0
 
-    .line 277
+    .line 289
     iput p1, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->step:I
 
-    .line 278
+    .line 290
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->right:Landroid/widget/LinearLayout;
 
     invoke-virtual {v2}, Landroid/widget/LinearLayout;->removeAllViews()V
 
-    .line 279
+    .line 291
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->s:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
 
     iget-object v2, v2, Lcom/isaigu/gymapp/widget/XemsUi$Shell;->footer:Landroid/widget/LinearLayout;
 
     invoke-virtual {v2}, Landroid/widget/LinearLayout;->removeAllViews()V
 
-    .line 280
+    .line 292
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->values:[Landroid/widget/TextView;
 
     aput-object v3, v2, v1
 
-    .line 281
+    .line 293
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->values:[Landroid/widget/TextView;
 
     aput-object v3, v2, v0
 
-    .line 282
+    .line 294
     iput-object v3, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->ring:Lcom/isaigu/gymapp/wearable/face/FaceRing;
 
-    .line 283
+    .line 295
     iput-object v3, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->pauseBtn:Landroid/widget/TextView;
 
-    .line 284
+    .line 296
     iput-object v3, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->stopBtn:Landroid/widget/TextView;
 
-    .line 285
+    .line 297
     iput-object v3, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->statusLine:Landroid/widget/TextView;
 
-    .line 286
+    .line 298
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->lastShown:[I
 
     aput v4, v2, v1
 
-    .line 287
+    .line 299
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->lastShown:[I
 
     aput v4, v2, v0
 
-    .line 288
+    .line 300
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->face:Lcom/isaigu/gymapp/wearable/face/FaceView;
 
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->prog()Lcom/isaigu/gymapp/wearable/face/FaceProgram;
@@ -2779,20 +3266,53 @@
 
     iget v3, v3, Lcom/isaigu/gymapp/wearable/face/FaceProgram;->target:I
 
-    if-ne v3, v0, :cond_5e
+    if-ne v3, v0, :cond_75
 
     :goto_34
     invoke-virtual {v2, v0}, Lcom/isaigu/gymapp/wearable/face/FaceView;->focusChin(Z)V
 
-    .line 289
+    .line 301
     const/4 v0, 0x2
 
     if-gt p1, v0, :cond_49
 
-    .line 290
+    .line 302
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->right:Landroid/widget/LinearLayout;
 
     invoke-virtual {p0, p1}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->progress(I)Landroid/view/View;
+
+    move-result-object v2
+
+    iget-object v3, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->a:Landroid/app/Activity;
+
+    invoke-static {v3, v1}, Lcom/isaigu/gymapp/widget/XemsUi;->matchWrap(Landroid/content/Context;I)Landroid/widget/LinearLayout$LayoutParams;
+
+    move-result-object v3
+
+    invoke-virtual {v0, v2, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
+
+    .line 304
+    :cond_49
+    packed-switch p1, :pswitch_data_88
+
+    .line 309
+    invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->buildDone()V
+
+    .line 311
+    :goto_4f
+    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->floor:Landroid/widget/LinearLayout;
+
+    invoke-virtual {v0}, Landroid/widget/LinearLayout;->removeAllViews()V
+
+    .line 312
+    const/4 v0, 0x4
+
+    if-eq p1, v0, :cond_66
+
+    .line 313
+    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->floor:Landroid/widget/LinearLayout;
+
+    invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->courseCard()Landroid/view/View;
 
     move-result-object v2
 
@@ -2804,68 +3324,63 @@
 
     invoke-virtual {v0, v2, v1}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 292
-    :cond_49
-    packed-switch p1, :pswitch_data_70
-
-    .line 297
-    invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->buildDone()V
-
-    .line 299
-    :goto_4f
+    .line 315
+    :cond_66
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->updateCaption()V
 
-    .line 300
+    .line 316
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->updateBadge()V
 
-    .line 301
+    .line 317
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->right:Landroid/widget/LinearLayout;
 
     invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsUi;->enter(Landroid/view/View;)V
 
-    .line 302
+    .line 318
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->refresh()V
 
-    .line 303
+    .line 319
     return-void
 
-    :cond_5e
+    :cond_75
     move v0, v1
 
-    .line 288
+    .line 300
     goto :goto_34
 
-    .line 293
-    :pswitch_60
+    .line 305
+    :pswitch_77
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->buildPick()V
 
     goto :goto_4f
 
-    .line 294
-    :pswitch_64
+    .line 306
+    :pswitch_7b
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->buildPlace()V
 
     goto :goto_4f
 
-    .line 295
-    :pswitch_68
+    .line 307
+    :pswitch_7f
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->buildStrength()V
 
     goto :goto_4f
 
-    .line 296
-    :pswitch_6c
+    .line 308
+    :pswitch_83
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->buildRun()V
 
     goto :goto_4f
 
-    .line 292
-    :pswitch_data_70
+    .line 304
+    nop
+
+    :pswitch_data_88
     .packed-switch 0x0
-        :pswitch_60
-        :pswitch_64
-        :pswitch_68
-        :pswitch_6c
+        :pswitch_77
+        :pswitch_7b
+        :pswitch_7f
+        :pswitch_83
     .end packed-switch
 .end method
 
@@ -2873,20 +3388,20 @@
     .registers 3
 
     .prologue
-    .line 239
+    .line 251
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->main:Landroid/os/Handler;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->tick:Lcom/isaigu/gymapp/wearable/face/FaceStudio$Tick;
 
     invoke-virtual {v0, v1}, Landroid/os/Handler;->removeCallbacks(Ljava/lang/Runnable;)V
 
-    .line 241
+    .line 253
     :try_start_7
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->s:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
 
     if-eqz v0, :cond_12
 
-    .line 242
+    .line 254
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->s:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/widget/XemsUi$Shell;->dialog:Landroid/app/Dialog;
@@ -2895,12 +3410,12 @@
     :try_end_12
     .catch Ljava/lang/Throwable; {:try_start_7 .. :try_end_12} :catch_13
 
-    .line 246
+    .line 258
     :cond_12
     :goto_12
     return-void
 
-    .line 244
+    .line 256
     :catch_13
     move-exception v0
 
@@ -2908,40 +3423,67 @@
 .end method
 
 .method minutes()I
-    .registers 4
+    .registers 5
 
     .prologue
-    const/16 v0, 0xa
-
-    .line 543
-    invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->stats()Lcom/isaigu/gymapp/wearable/face/FaceCourse$Stats;
-
-    move-result-object v1
-
-    .line 544
-    iget v2, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->program:I
-
-    if-nez v2, :cond_11
-
-    .line 545
-    iget v1, v1, Lcom/isaigu/gymapp/wearable/face/FaceCourse$Stats;->week:I
-
-    const/4 v2, 0x3
-
-    if-lt v1, v2, :cond_11
-
     const/16 v0, 0x14
 
-    .line 547
-    :cond_11
+    const/16 v1, 0xa
+
+    .line 622
+    iget v2, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->program:I
+
+    packed-switch v2, :pswitch_data_1a
+
+    :pswitch_9
+    move v0, v1
+
+    .line 626
+    :cond_a
+    :goto_a
+    :pswitch_a
     return v0
+
+    .line 623
+    :pswitch_b
+    invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->stats()Lcom/isaigu/gymapp/wearable/face/FaceCourse$Stats;
+
+    move-result-object v2
+
+    iget v2, v2, Lcom/isaigu/gymapp/wearable/face/FaceCourse$Stats;->week:I
+
+    const/4 v3, 0x3
+
+    if-ge v2, v3, :cond_a
+
+    move v0, v1
+
+    goto :goto_a
+
+    .line 625
+    :pswitch_16
+    const/16 v0, 0xf
+
+    goto :goto_a
+
+    .line 622
+    nop
+
+    :pswitch_data_1a
+    .packed-switch 0x0
+        :pswitch_b
+        :pswitch_9
+        :pswitch_9
+        :pswitch_a
+        :pswitch_16
+    .end packed-switch
 .end method
 
 .method next(I)V
     .registers 3
 
     .prologue
-    .line 816
+    .line 901
     const/4 v0, 0x2
 
     if-ne p1, v0, :cond_8
@@ -2950,11 +3492,11 @@
 
     if-eqz v0, :cond_8
 
-    .line 820
+    .line 905
     :goto_7
     return-void
 
-    .line 819
+    .line 904
     :cond_8
     invoke-virtual {p0, p1}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->go(I)V
 
@@ -2967,7 +3509,7 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 807
+    .line 892
     iget v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->program:I
 
     if-eq p1, v0, :cond_9
@@ -2976,19 +3518,19 @@
 
     if-eqz v0, :cond_a
 
-    .line 813
+    .line 898
     :cond_9
     :goto_9
     return-void
 
-    .line 810
+    .line 895
     :cond_a
     iput p1, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->program:I
 
-    .line 811
+    .line 896
     iput-boolean v1, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->prepared:Z
 
-    .line 812
+    .line 897
     invoke-virtual {p0, v1}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->go(I)V
 
     goto :goto_9
@@ -3006,19 +3548,19 @@
 
     const/4 v6, 0x0
 
-    .line 461
+    .line 538
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->a:Landroid/app/Activity;
 
     invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsUi;->horizontal(Landroid/content/Context;)Landroid/widget/LinearLayout;
 
     move-result-object v0
 
-    .line 462
+    .line 539
     const/16 v1, 0x10
 
     invoke-virtual {v0, v1}, Landroid/widget/LinearLayout;->setGravity(I)V
 
-    .line 463
+    .line 540
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->a:Landroid/app/Activity;
 
     const/high16 v2, 0x41600000    # 14.0f
@@ -3029,12 +3571,12 @@
 
     move-result-object v1
 
-    .line 464
+    .line 541
     const/16 v2, 0x11
 
     invoke-virtual {v1, v2}, Landroid/widget/TextView;->setGravity(I)V
 
-    .line 465
+    .line 542
     const/16 v2, 0x26
 
     invoke-static {p3, v2}, Lcom/isaigu/gymapp/widget/XemsUi;->alpha(II)I
@@ -3063,7 +3605,7 @@
 
     invoke-virtual {v1, v2}, Landroid/widget/TextView;->setBackgroundDrawable(Landroid/graphics/drawable/Drawable;)V
 
-    .line 466
+    .line 543
     new-instance v2, Landroid/widget/LinearLayout$LayoutParams;
 
     invoke-virtual {p0, v9}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dp(F)I
@@ -3078,7 +3620,7 @@
 
     invoke-virtual {v0, v1, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 467
+    .line 544
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->a:Landroid/app/Activity;
 
     sget v2, Lcom/isaigu/gymapp/widget/XemsUi;->TEXT:I
@@ -3087,7 +3629,7 @@
 
     move-result-object v1
 
-    .line 468
+    .line 545
     const/high16 v2, 0x41400000    # 12.0f
 
     invoke-virtual {p0, v2}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dp(F)I
@@ -3096,7 +3638,7 @@
 
     invoke-virtual {v1, v2, v6, v6, v6}, Landroid/widget/TextView;->setPadding(IIII)V
 
-    .line 469
+    .line 546
     new-instance v2, Landroid/widget/LinearLayout$LayoutParams;
 
     const/4 v3, -0x2
@@ -3105,7 +3647,7 @@
 
     invoke-virtual {v0, v1, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 470
+    .line 547
     return-object v0
 .end method
 
@@ -3113,7 +3655,7 @@
     .registers 2
 
     .prologue
-    .line 163
+    .line 165
     iget v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->program:I
 
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/face/FaceProgram;->get(I)Lcom/isaigu/gymapp/wearable/face/FaceProgram;
@@ -3127,79 +3669,76 @@
     .registers 15
 
     .prologue
-    const/4 v12, -0x2
+    const/high16 v10, 0x41200000    # 10.0f
 
-    const/high16 v9, 0x41600000    # 14.0f
+    const/high16 v12, 0x41000000    # 8.0f
 
-    const/high16 v11, 0x42400000    # 48.0f
+    const/high16 v11, 0x3f800000    # 1.0f
 
     const/4 v1, 0x1
 
     const/4 v2, 0x0
 
-    .line 351
+    .line 381
     iget v0, p1, Lcom/isaigu/gymapp/wearable/face/FaceProgram;->id:I
 
     iget v3, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->program:I
 
-    if-ne v0, v3, :cond_1bc
+    if-ne v0, v3, :cond_192
 
     move v0, v1
 
-    .line 352
-    :goto_e
+    .line 382
+    :goto_f
     invoke-static {}, Lcom/isaigu/gymapp/wearable/face/FaceStudio;->bg()Z
 
-    move-result v5
+    move-result v4
 
-    .line 353
+    .line 383
     iget-object v3, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->a:Landroid/app/Activity;
 
-    invoke-static {v3}, Lcom/isaigu/gymapp/widget/XemsUi;->horizontal(Landroid/content/Context;)Landroid/widget/LinearLayout;
+    invoke-static {v3}, Lcom/isaigu/gymapp/widget/XemsUi;->vertical(Landroid/content/Context;)Landroid/widget/LinearLayout;
 
-    move-result-object v6
+    move-result-object v5
 
-    .line 354
-    const/16 v3, 0x10
-
-    invoke-virtual {v6, v3}, Landroid/widget/LinearLayout;->setGravity(I)V
-
-    .line 355
-    const/high16 v3, 0x41800000    # 16.0f
+    .line 384
+    const/high16 v3, 0x41600000    # 14.0f
 
     invoke-virtual {p0, v3}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dp(F)I
 
     move-result v3
 
-    invoke-virtual {p0, v9}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dp(F)I
+    const/high16 v6, 0x41400000    # 12.0f
 
-    move-result v4
+    invoke-virtual {p0, v6}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dp(F)I
 
-    const/high16 v7, 0x41200000    # 10.0f
+    move-result v6
 
-    invoke-virtual {p0, v7}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dp(F)I
+    invoke-virtual {p0, v10}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dp(F)I
 
     move-result v7
 
-    invoke-virtual {p0, v9}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dp(F)I
+    const/high16 v8, 0x41400000    # 12.0f
+
+    invoke-virtual {p0, v8}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dp(F)I
 
     move-result v8
 
-    invoke-virtual {v6, v3, v4, v7, v8}, Landroid/widget/LinearLayout;->setPadding(IIII)V
+    invoke-virtual {v5, v3, v6, v7, v8}, Landroid/widget/LinearLayout;->setPadding(IIII)V
 
-    .line 356
+    .line 385
     const/high16 v3, 0x41900000    # 18.0f
 
     invoke-virtual {p0, v3}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dp(F)I
 
     move-result v3
 
-    int-to-float v4, v3
+    int-to-float v6, v3
 
-    .line 357
-    if-eqz v0, :cond_1bf
+    .line 386
+    if-eqz v0, :cond_195
 
-    .line 358
+    .line 387
     iget v3, p1, Lcom/isaigu/gymapp/wearable/face/FaceProgram;->tint:I
 
     const/16 v7, 0x24
@@ -3222,461 +3761,411 @@
 
     move-result v8
 
-    invoke-static {v3, v4, v7, v8}, Lcom/isaigu/gymapp/widget/XemsUi;->rounded(IFII)Landroid/graphics/drawable/GradientDrawable;
+    invoke-static {v3, v6, v7, v8}, Lcom/isaigu/gymapp/widget/XemsUi;->rounded(IFII)Landroid/graphics/drawable/GradientDrawable;
 
     move-result-object v3
 
-    .line 359
-    :goto_57
+    .line 388
+    :goto_55
     iget v7, p1, Lcom/isaigu/gymapp/wearable/face/FaceProgram;->tint:I
 
-    .line 357
-    invoke-static {v3, v7, v4}, Lcom/isaigu/gymapp/widget/XemsUi;->ripple(Landroid/graphics/drawable/Drawable;IF)Landroid/graphics/drawable/Drawable;
+    .line 386
+    invoke-static {v3, v7, v6}, Lcom/isaigu/gymapp/widget/XemsUi;->ripple(Landroid/graphics/drawable/Drawable;IF)Landroid/graphics/drawable/Drawable;
 
     move-result-object v3
 
-    invoke-virtual {v6, v3}, Landroid/widget/LinearLayout;->setBackgroundDrawable(Landroid/graphics/drawable/Drawable;)V
+    invoke-virtual {v5, v3}, Landroid/widget/LinearLayout;->setBackgroundDrawable(Landroid/graphics/drawable/Drawable;)V
 
-    .line 360
-    invoke-virtual {v6, v1}, Landroid/widget/LinearLayout;->setClickable(Z)V
+    .line 389
+    invoke-virtual {v5, v1}, Landroid/widget/LinearLayout;->setClickable(Z)V
 
-    .line 361
+    .line 390
     new-instance v3, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Pick;
 
-    iget v4, p1, Lcom/isaigu/gymapp/wearable/face/FaceProgram;->id:I
+    iget v6, p1, Lcom/isaigu/gymapp/wearable/face/FaceProgram;->id:I
 
-    invoke-direct {v3, p0, v4}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Pick;-><init>(Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;I)V
+    invoke-direct {v3, p0, v6}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Pick;-><init>(Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;I)V
 
-    invoke-virtual {v6, v3}, Landroid/widget/LinearLayout;->setOnClickListener(Landroid/view/View$OnClickListener;)V
+    invoke-virtual {v5, v3}, Landroid/widget/LinearLayout;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
-    .line 362
-    invoke-static {v6}, Lcom/isaigu/gymapp/widget/XemsUi;->pressable(Landroid/view/View;)V
+    .line 391
+    invoke-static {v5}, Lcom/isaigu/gymapp/widget/XemsUi;->pressable(Landroid/view/View;)V
 
-    .line 363
-    iget-object v7, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->a:Landroid/app/Activity;
-
-    iget v3, p1, Lcom/isaigu/gymapp/wearable/face/FaceProgram;->id:I
-
-    if-nez v3, :cond_1cf
-
-    const-string v3, "\u2197"
-
-    move-object v4, v3
-
-    :goto_79
-    const/high16 v8, 0x41b00000    # 22.0f
-
-    .line 364
-    if-eqz v0, :cond_1dd
-
-    const/4 v3, -0x1
-
-    .line 363
-    :goto_7e
-    invoke-static {v7, v4, v8, v3, v1}, Lcom/isaigu/gymapp/widget/XemsUi;->text(Landroid/content/Context;Ljava/lang/String;FIZ)Landroid/widget/TextView;
-
-    move-result-object v4
-
-    .line 365
-    const/16 v3, 0x11
-
-    invoke-virtual {v4, v3}, Landroid/widget/TextView;->setGravity(I)V
-
-    .line 366
-    if-eqz v0, :cond_1e1
-
-    iget v3, p1, Lcom/isaigu/gymapp/wearable/face/FaceProgram;->tint:I
-
-    :goto_8b
-    const/high16 v7, 0x41c00000    # 24.0f
-
-    invoke-virtual {p0, v7}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dp(F)I
-
-    move-result v7
-
-    int-to-float v7, v7
-
-    invoke-static {v3, v7, v2, v2}, Lcom/isaigu/gymapp/widget/XemsUi;->rounded(IFII)Landroid/graphics/drawable/GradientDrawable;
-
-    move-result-object v3
-
-    invoke-virtual {v4, v3}, Landroid/widget/TextView;->setBackgroundDrawable(Landroid/graphics/drawable/Drawable;)V
-
-    .line 367
-    new-instance v3, Landroid/widget/LinearLayout$LayoutParams;
-
-    invoke-virtual {p0, v11}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dp(F)I
-
-    move-result v7
-
-    invoke-virtual {p0, v11}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dp(F)I
-
-    move-result v8
-
-    invoke-direct {v3, v7, v8}, Landroid/widget/LinearLayout$LayoutParams;-><init>(II)V
-
-    invoke-virtual {v6, v4, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
-
-    .line 368
-    iget-object v3, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->a:Landroid/app/Activity;
-
-    invoke-static {v3}, Lcom/isaigu/gymapp/widget/XemsUi;->vertical(Landroid/content/Context;)Landroid/widget/LinearLayout;
-
-    move-result-object v4
-
-    .line 369
-    invoke-virtual {p0, v9}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dp(F)I
-
-    move-result v3
-
-    const/high16 v7, 0x40c00000    # 6.0f
-
-    invoke-virtual {p0, v7}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dp(F)I
-
-    move-result v7
-
-    invoke-virtual {v4, v3, v2, v7, v2}, Landroid/widget/LinearLayout;->setPadding(IIII)V
-
-    .line 370
+    .line 392
     iget-object v3, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->a:Landroid/app/Activity;
 
     invoke-static {v3}, Lcom/isaigu/gymapp/widget/XemsUi;->horizontal(Landroid/content/Context;)Landroid/widget/LinearLayout;
 
-    move-result-object v7
+    move-result-object v6
 
-    .line 371
+    .line 393
     const/16 v3, 0x10
 
-    invoke-virtual {v7, v3}, Landroid/widget/LinearLayout;->setGravity(I)V
+    invoke-virtual {v6, v3}, Landroid/widget/LinearLayout;->setGravity(I)V
 
-    .line 372
-    iget-object v8, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->a:Landroid/app/Activity;
+    .line 394
+    iget-object v7, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->a:Landroid/app/Activity;
 
-    invoke-virtual {p1, v5}, Lcom/isaigu/gymapp/wearable/face/FaceProgram;->name(Z)Ljava/lang/String;
+    iget-object v8, p1, Lcom/isaigu/gymapp/wearable/face/FaceProgram;->glyph:Ljava/lang/String;
 
-    move-result-object v9
+    const/high16 v9, 0x41980000    # 19.0f
 
-    const/high16 v10, 0x41980000    # 19.0f
+    if-eqz v0, :cond_1a3
 
-    if-eqz v0, :cond_1eb
+    const/4 v3, -0x1
+
+    :goto_82
+    invoke-static {v7, v8, v9, v3, v1}, Lcom/isaigu/gymapp/widget/XemsUi;->text(Landroid/content/Context;Ljava/lang/String;FIZ)Landroid/widget/TextView;
+
+    move-result-object v7
+
+    .line 395
+    const/16 v3, 0x11
+
+    invoke-virtual {v7, v3}, Landroid/widget/TextView;->setGravity(I)V
+
+    .line 396
+    if-eqz v0, :cond_1a7
 
     iget v3, p1, Lcom/isaigu/gymapp/wearable/face/FaceProgram;->tint:I
 
-    :goto_d3
-    invoke-static {v8, v9, v10, v3, v1}, Lcom/isaigu/gymapp/widget/XemsUi;->text(Landroid/content/Context;Ljava/lang/String;FIZ)Landroid/widget/TextView;
-
-    move-result-object v1
-
-    invoke-virtual {v7, v1}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
-
-    .line 373
-    iget-object v1, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->a:Landroid/app/Activity;
-
-    new-instance v3, Ljava/lang/StringBuilder;
-
-    invoke-direct {v3}, Ljava/lang/StringBuilder;-><init>()V
-
-    const-string v8, "  \u00b7  "
-
-    invoke-virtual {v3, v8}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v3
-
-    invoke-virtual {p1, v5}, Lcom/isaigu/gymapp/wearable/face/FaceProgram;->result(Z)Ljava/lang/String;
-
-    move-result-object v8
-
-    invoke-virtual {v3, v8}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v3
-
-    invoke-virtual {v3}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
-
-    move-result-object v3
-
-    const/high16 v8, 0x41700000    # 15.0f
-
-    sget v9, Lcom/isaigu/gymapp/widget/XemsUi;->TEXT:I
-
-    invoke-static {v1, v3, v8, v9, v2}, Lcom/isaigu/gymapp/widget/XemsUi;->text(Landroid/content/Context;Ljava/lang/String;FIZ)Landroid/widget/TextView;
-
-    move-result-object v1
-
-    .line 374
-    invoke-virtual {v7, v1}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
-
-    .line 375
-    invoke-virtual {v4, v7}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
-
-    .line 376
-    iget-object v1, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->a:Landroid/app/Activity;
-
-    new-instance v3, Ljava/lang/StringBuilder;
-
-    invoke-direct {v3}, Ljava/lang/StringBuilder;-><init>()V
-
-    invoke-virtual {p1, v5}, Lcom/isaigu/gymapp/wearable/face/FaceProgram;->muscle(Z)Ljava/lang/String;
-
-    move-result-object v7
-
-    invoke-virtual {v3, v7}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v3
-
-    const-string v7, "  \u00b7  "
-
-    invoke-virtual {v3, v7}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v3
-
-    iget-object v7, p1, Lcom/isaigu/gymapp/wearable/face/FaceProgram;->latin:Ljava/lang/String;
-
-    invoke-virtual {v3, v7}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v3
-
-    invoke-virtual {v3}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
-
-    move-result-object v3
-
-    const/high16 v7, 0x41500000    # 13.0f
-
-    sget v8, Lcom/isaigu/gymapp/widget/XemsUi;->MUTED:I
-
-    invoke-static {v1, v3, v7, v8, v2}, Lcom/isaigu/gymapp/widget/XemsUi;->text(Landroid/content/Context;Ljava/lang/String;FIZ)Landroid/widget/TextView;
-
-    move-result-object v1
-
-    .line 377
-    const/high16 v3, 0x40400000    # 3.0f
-
-    invoke-virtual {p0, v3}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dp(F)I
-
-    move-result v3
-
-    invoke-virtual {v1, v2, v3, v2, v2}, Landroid/widget/TextView;->setPadding(IIII)V
-
-    .line 378
-    invoke-virtual {v4, v1}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
-
-    .line 379
-    iget-object v1, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->a:Landroid/app/Activity;
-
-    invoke-static {v1}, Lcom/isaigu/gymapp/widget/XemsUi;->horizontal(Landroid/content/Context;)Landroid/widget/LinearLayout;
-
-    move-result-object v3
-
-    .line 380
-    const/high16 v1, 0x41000000    # 8.0f
-
-    invoke-virtual {p0, v1}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dp(F)I
-
-    move-result v1
-
-    invoke-virtual {v3, v2, v1, v2, v2}, Landroid/widget/LinearLayout;->setPadding(IIII)V
-
-    .line 381
-    iget-object v7, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->a:Landroid/app/Activity;
-
-    invoke-virtual {p1, v5}, Lcom/isaigu/gymapp/wearable/face/FaceProgram;->rhythm(Z)Ljava/lang/String;
-
-    move-result-object v8
-
-    if-eqz v0, :cond_1ef
-
-    iget v1, p1, Lcom/isaigu/gymapp/wearable/face/FaceProgram;->tint:I
-
-    :goto_14d
-    invoke-static {v7, v8, v1}, Lcom/isaigu/gymapp/widget/XemsUi;->badge(Landroid/content/Context;Ljava/lang/String;I)Landroid/widget/TextView;
-
-    move-result-object v1
-
-    invoke-virtual {v3, v1}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
-
-    .line 382
-    iget-object v1, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->a:Landroid/app/Activity;
-
-    invoke-virtual {p1, v5}, Lcom/isaigu/gymapp/wearable/face/FaceProgram;->course(Z)Ljava/lang/String;
-
-    move-result-object v5
-
-    if-eqz v0, :cond_1f3
-
-    sget v0, Lcom/isaigu/gymapp/widget/XemsUi;->ACCENT:I
-
-    :goto_15e
-    invoke-static {v1, v5, v0}, Lcom/isaigu/gymapp/widget/XemsUi;->badge(Landroid/content/Context;Ljava/lang/String;I)Landroid/widget/TextView;
-
-    move-result-object v0
-
-    .line 383
-    new-instance v1, Landroid/widget/LinearLayout$LayoutParams;
-
-    invoke-direct {v1, v12, v12}, Landroid/widget/LinearLayout$LayoutParams;-><init>(II)V
-
-    .line 384
-    const/high16 v5, 0x41000000    # 8.0f
-
-    invoke-virtual {p0, v5}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dp(F)I
-
-    move-result v5
-
-    iput v5, v1, Landroid/widget/LinearLayout$LayoutParams;->leftMargin:I
-
-    .line 385
-    invoke-virtual {v3, v0, v1}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
-
-    .line 386
-    invoke-virtual {v4, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
-
-    .line 387
-    new-instance v0, Landroid/widget/LinearLayout$LayoutParams;
-
-    const/high16 v1, 0x3f800000    # 1.0f
-
-    invoke-direct {v0, v2, v12, v1}, Landroid/widget/LinearLayout$LayoutParams;-><init>(IIF)V
-
-    invoke-virtual {v6, v4, v0}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
-
-    .line 388
-    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->a:Landroid/app/Activity;
-
-    const-string v1, "i"
-
-    sget v2, Lcom/isaigu/gymapp/widget/XemsUi;->SURFACE:I
-
-    sget v3, Lcom/isaigu/gymapp/widget/XemsUi;->TEXT:I
-
-    const/16 v4, 0x22
-
-    invoke-static {v0, v1, v2, v3, v4}, Lcom/isaigu/gymapp/widget/XemsUi;->iconButton(Landroid/content/Context;Ljava/lang/String;III)Landroid/widget/TextView;
-
-    move-result-object v0
-
-    .line 389
-    new-instance v1, Lcom/isaigu/gymapp/wearable/face/FaceStudio$HowInfo;
-
-    iget v2, p1, Lcom/isaigu/gymapp/wearable/face/FaceProgram;->id:I
-
-    invoke-direct {v1, p0, v2}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$HowInfo;-><init>(Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;I)V
-
-    invoke-virtual {v0, v1}, Landroid/widget/TextView;->setOnClickListener(Landroid/view/View$OnClickListener;)V
-
-    .line 390
-    new-instance v1, Landroid/widget/LinearLayout$LayoutParams;
-
-    invoke-virtual {p0, v11}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dp(F)I
-
-    move-result v2
-
-    invoke-virtual {p0, v11}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dp(F)I
-
-    move-result v3
-
-    invoke-direct {v1, v2, v3}, Landroid/widget/LinearLayout$LayoutParams;-><init>(II)V
-
-    invoke-virtual {v6, v0, v1}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
-
-    .line 391
-    new-instance v1, Landroid/widget/LinearLayout$LayoutParams;
-
-    const/high16 v2, 0x42200000    # 40.0f
-
-    invoke-virtual {p0, v2}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dp(F)I
-
-    move-result v2
-
-    const/high16 v3, 0x42200000    # 40.0f
-
-    invoke-virtual {p0, v3}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dp(F)I
-
-    move-result v3
-
-    invoke-direct {v1, v2, v3}, Landroid/widget/LinearLayout$LayoutParams;-><init>(II)V
-
-    invoke-virtual {v0, v1}, Landroid/widget/TextView;->setLayoutParams(Landroid/view/ViewGroup$LayoutParams;)V
-
-    .line 392
-    return-object v6
-
-    :cond_1bc
-    move v0, v2
-
-    .line 351
-    goto/16 :goto_e
-
-    .line 359
-    :cond_1bf
-    sget v3, Lcom/isaigu/gymapp/widget/XemsUi;->SURFACE:I
-
-    sget v7, Lcom/isaigu/gymapp/widget/XemsUi;->STROKE:I
-
-    const/high16 v8, 0x3f800000    # 1.0f
+    :goto_8f
+    const/high16 v8, 0x41980000    # 19.0f
 
     invoke-virtual {p0, v8}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dp(F)I
 
     move-result v8
 
-    invoke-static {v3, v4, v7, v8}, Lcom/isaigu/gymapp/widget/XemsUi;->rounded(IFII)Landroid/graphics/drawable/GradientDrawable;
+    int-to-float v8, v8
+
+    invoke-static {v3, v8, v2, v2}, Lcom/isaigu/gymapp/widget/XemsUi;->rounded(IFII)Landroid/graphics/drawable/GradientDrawable;
 
     move-result-object v3
 
-    goto/16 :goto_57
+    invoke-virtual {v7, v3}, Landroid/widget/TextView;->setBackgroundDrawable(Landroid/graphics/drawable/Drawable;)V
 
-    .line 363
-    :cond_1cf
-    iget v3, p1, Lcom/isaigu/gymapp/wearable/face/FaceProgram;->id:I
+    .line 397
+    new-instance v3, Landroid/widget/LinearLayout$LayoutParams;
 
-    if-ne v3, v1, :cond_1d8
+    const/high16 v8, 0x42180000    # 38.0f
 
-    const-string v3, "\u2248"
+    invoke-virtual {p0, v8}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dp(F)I
 
-    move-object v4, v3
+    move-result v8
 
-    goto/16 :goto_79
+    const/high16 v9, 0x42180000    # 38.0f
 
-    :cond_1d8
-    const-string v3, "\u25e1"
+    invoke-virtual {p0, v9}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dp(F)I
 
-    move-object v4, v3
+    move-result v9
 
-    goto/16 :goto_79
+    invoke-direct {v3, v8, v9}, Landroid/widget/LinearLayout$LayoutParams;-><init>(II)V
 
-    .line 364
-    :cond_1dd
-    iget v3, p1, Lcom/isaigu/gymapp/wearable/face/FaceProgram;->tint:I
+    invoke-virtual {v6, v7, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    goto/16 :goto_7e
+    .line 398
+    iget-object v3, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->a:Landroid/app/Activity;
 
-    .line 366
-    :cond_1e1
-    iget v3, p1, Lcom/isaigu/gymapp/wearable/face/FaceProgram;->tint:I
+    invoke-static {v3}, Lcom/isaigu/gymapp/widget/XemsUi;->vertical(Landroid/content/Context;)Landroid/widget/LinearLayout;
 
-    const/16 v7, 0x30
+    move-result-object v7
 
-    invoke-static {v3, v7}, Lcom/isaigu/gymapp/widget/XemsUi;->alpha(II)I
+    .line 399
+    invoke-virtual {p0, v10}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dp(F)I
 
     move-result v3
 
-    goto/16 :goto_8b
+    const/high16 v8, 0x40800000    # 4.0f
 
-    .line 372
-    :cond_1eb
-    sget v3, Lcom/isaigu/gymapp/widget/XemsUi;->TEXT:I
+    invoke-virtual {p0, v8}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dp(F)I
 
-    goto/16 :goto_d3
+    move-result v8
+
+    invoke-virtual {v7, v3, v2, v8, v2}, Landroid/widget/LinearLayout;->setPadding(IIII)V
+
+    .line 400
+    iget-object v8, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->a:Landroid/app/Activity;
+
+    invoke-virtual {p1, v4}, Lcom/isaigu/gymapp/wearable/face/FaceProgram;->name(Z)Ljava/lang/String;
+
+    move-result-object v9
+
+    const/high16 v10, 0x41900000    # 18.0f
+
+    if-eqz v0, :cond_1b1
+
+    iget v3, p1, Lcom/isaigu/gymapp/wearable/face/FaceProgram;->tint:I
+
+    :goto_d0
+    invoke-static {v8, v9, v10, v3, v1}, Lcom/isaigu/gymapp/widget/XemsUi;->text(Landroid/content/Context;Ljava/lang/String;FIZ)Landroid/widget/TextView;
+
+    move-result-object v3
+
+    .line 401
+    invoke-virtual {v3, v1}, Landroid/widget/TextView;->setSingleLine(Z)V
+
+    .line 402
+    sget-object v8, Landroid/text/TextUtils$TruncateAt;->END:Landroid/text/TextUtils$TruncateAt;
+
+    invoke-virtual {v3, v8}, Landroid/widget/TextView;->setEllipsize(Landroid/text/TextUtils$TruncateAt;)V
+
+    .line 403
+    invoke-virtual {v7, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
+
+    .line 404
+    iget-object v8, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->a:Landroid/app/Activity;
+
+    invoke-virtual {p1}, Lcom/isaigu/gymapp/wearable/face/FaceProgram;->stars()Ljava/lang/String;
+
+    move-result-object v9
+
+    const/high16 v10, 0x41300000    # 11.0f
+
+    if-eqz v0, :cond_1b5
+
+    iget v3, p1, Lcom/isaigu/gymapp/wearable/face/FaceProgram;->tint:I
+
+    :goto_eb
+    invoke-static {v8, v9, v10, v3, v2}, Lcom/isaigu/gymapp/widget/XemsUi;->text(Landroid/content/Context;Ljava/lang/String;FIZ)Landroid/widget/TextView;
+
+    move-result-object v3
+
+    .line 405
+    invoke-virtual {v7, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
+
+    .line 406
+    new-instance v3, Landroid/widget/LinearLayout$LayoutParams;
+
+    const/4 v8, -0x2
+
+    invoke-direct {v3, v2, v8, v11}, Landroid/widget/LinearLayout$LayoutParams;-><init>(IIF)V
+
+    invoke-virtual {v6, v7, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
+
+    .line 407
+    iget-object v3, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->a:Landroid/app/Activity;
+
+    const-string v7, "i"
+
+    sget v8, Lcom/isaigu/gymapp/widget/XemsUi;->SURFACE:I
+
+    sget v9, Lcom/isaigu/gymapp/widget/XemsUi;->TEXT:I
+
+    const/16 v10, 0x22
+
+    invoke-static {v3, v7, v8, v9, v10}, Lcom/isaigu/gymapp/widget/XemsUi;->iconButton(Landroid/content/Context;Ljava/lang/String;III)Landroid/widget/TextView;
+
+    move-result-object v3
+
+    .line 408
+    new-instance v7, Lcom/isaigu/gymapp/wearable/face/FaceStudio$HowInfo;
+
+    iget v8, p1, Lcom/isaigu/gymapp/wearable/face/FaceProgram;->id:I
+
+    invoke-direct {v7, p0, v8}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$HowInfo;-><init>(Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;I)V
+
+    invoke-virtual {v3, v7}, Landroid/widget/TextView;->setOnClickListener(Landroid/view/View$OnClickListener;)V
+
+    .line 409
+    new-instance v7, Landroid/widget/LinearLayout$LayoutParams;
+
+    const/high16 v8, 0x42080000    # 34.0f
+
+    invoke-virtual {p0, v8}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dp(F)I
+
+    move-result v8
+
+    const/high16 v9, 0x42080000    # 34.0f
+
+    invoke-virtual {p0, v9}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dp(F)I
+
+    move-result v9
+
+    invoke-direct {v7, v8, v9}, Landroid/widget/LinearLayout$LayoutParams;-><init>(II)V
+
+    invoke-virtual {v6, v3, v7}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
+
+    .line 410
+    invoke-virtual {v5, v6}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
+
+    .line 411
+    iget-object v3, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->a:Landroid/app/Activity;
+
+    invoke-virtual {p1, v4}, Lcom/isaigu/gymapp/wearable/face/FaceProgram;->tag(Z)Ljava/lang/String;
+
+    move-result-object v6
+
+    const/high16 v7, 0x41680000    # 14.5f
+
+    sget v8, Lcom/isaigu/gymapp/widget/XemsUi;->TEXT:I
+
+    invoke-static {v3, v6, v7, v8, v2}, Lcom/isaigu/gymapp/widget/XemsUi;->text(Landroid/content/Context;Ljava/lang/String;FIZ)Landroid/widget/TextView;
+
+    move-result-object v3
+
+    .line 412
+    const/4 v6, 0x2
+
+    invoke-virtual {v3, v6}, Landroid/widget/TextView;->setMaxLines(I)V
+
+    .line 413
+    invoke-virtual {p0, v12}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dp(F)I
+
+    move-result v6
+
+    invoke-virtual {v3, v2, v6, v2, v2}, Landroid/widget/TextView;->setPadding(IIII)V
+
+    .line 414
+    invoke-virtual {v5, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
+
+    .line 415
+    iget-object v3, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->a:Landroid/app/Activity;
+
+    invoke-static {v3}, Lcom/isaigu/gymapp/widget/XemsUi;->horizontal(Landroid/content/Context;)Landroid/widget/LinearLayout;
+
+    move-result-object v6
+
+    .line 416
+    invoke-virtual {p0, v12}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dp(F)I
+
+    move-result v3
+
+    invoke-virtual {v6, v2, v3, v2, v2}, Landroid/widget/LinearLayout;->setPadding(IIII)V
+
+    .line 417
+    iget-object v7, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->a:Landroid/app/Activity;
+
+    invoke-virtual {p1, v4}, Lcom/isaigu/gymapp/wearable/face/FaceProgram;->rhythm(Z)Ljava/lang/String;
+
+    move-result-object v8
+
+    if-eqz v0, :cond_1b9
+
+    iget v3, p1, Lcom/isaigu/gymapp/wearable/face/FaceProgram;->tint:I
+
+    :goto_15d
+    invoke-static {v7, v8, v3}, Lcom/isaigu/gymapp/widget/XemsUi;->badge(Landroid/content/Context;Ljava/lang/String;I)Landroid/widget/TextView;
+
+    move-result-object v3
+
+    .line 418
+    invoke-virtual {v3, v1}, Landroid/widget/TextView;->setSingleLine(Z)V
+
+    .line 419
+    invoke-virtual {v6, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
+
+    .line 420
+    iget-object v3, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->a:Landroid/app/Activity;
+
+    invoke-virtual {p1, v4}, Lcom/isaigu/gymapp/wearable/face/FaceProgram;->course(Z)Ljava/lang/String;
+
+    move-result-object v4
+
+    if-eqz v0, :cond_1bc
+
+    sget v0, Lcom/isaigu/gymapp/widget/XemsUi;->ACCENT:I
+
+    :goto_171
+    invoke-static {v3, v4, v0}, Lcom/isaigu/gymapp/widget/XemsUi;->badge(Landroid/content/Context;Ljava/lang/String;I)Landroid/widget/TextView;
+
+    move-result-object v0
+
+    .line 421
+    invoke-virtual {v0, v1}, Landroid/widget/TextView;->setSingleLine(Z)V
+
+    .line 422
+    sget-object v1, Landroid/text/TextUtils$TruncateAt;->END:Landroid/text/TextUtils$TruncateAt;
+
+    invoke-virtual {v0, v1}, Landroid/widget/TextView;->setEllipsize(Landroid/text/TextUtils$TruncateAt;)V
+
+    .line 423
+    new-instance v1, Landroid/widget/LinearLayout$LayoutParams;
+
+    const/4 v3, -0x2
+
+    invoke-direct {v1, v2, v3, v11}, Landroid/widget/LinearLayout$LayoutParams;-><init>(IIF)V
+
+    .line 424
+    const/high16 v2, 0x40c00000    # 6.0f
+
+    invoke-virtual {p0, v2}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dp(F)I
+
+    move-result v2
+
+    iput v2, v1, Landroid/widget/LinearLayout$LayoutParams;->leftMargin:I
+
+    .line 425
+    invoke-virtual {v6, v0, v1}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
+
+    .line 426
+    invoke-virtual {v5, v6}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
+
+    .line 427
+    return-object v5
+
+    :cond_192
+    move v0, v2
 
     .line 381
-    :cond_1ef
-    sget v1, Lcom/isaigu/gymapp/widget/XemsUi;->MUTED:I
+    goto/16 :goto_f
 
-    goto/16 :goto_14d
+    .line 388
+    :cond_195
+    sget v3, Lcom/isaigu/gymapp/widget/XemsUi;->SURFACE:I
 
-    .line 382
-    :cond_1f3
+    sget v7, Lcom/isaigu/gymapp/widget/XemsUi;->STROKE:I
+
+    invoke-virtual {p0, v11}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dp(F)I
+
+    move-result v8
+
+    invoke-static {v3, v6, v7, v8}, Lcom/isaigu/gymapp/widget/XemsUi;->rounded(IFII)Landroid/graphics/drawable/GradientDrawable;
+
+    move-result-object v3
+
+    goto/16 :goto_55
+
+    .line 394
+    :cond_1a3
+    iget v3, p1, Lcom/isaigu/gymapp/wearable/face/FaceProgram;->tint:I
+
+    goto/16 :goto_82
+
+    .line 396
+    :cond_1a7
+    iget v3, p1, Lcom/isaigu/gymapp/wearable/face/FaceProgram;->tint:I
+
+    const/16 v8, 0x30
+
+    invoke-static {v3, v8}, Lcom/isaigu/gymapp/widget/XemsUi;->alpha(II)I
+
+    move-result v3
+
+    goto/16 :goto_8f
+
+    .line 400
+    :cond_1b1
+    sget v3, Lcom/isaigu/gymapp/widget/XemsUi;->TEXT:I
+
+    goto/16 :goto_d0
+
+    .line 404
+    :cond_1b5
+    sget v3, Lcom/isaigu/gymapp/widget/XemsUi;->MUTED:I
+
+    goto/16 :goto_eb
+
+    .line 417
+    :cond_1b9
+    sget v3, Lcom/isaigu/gymapp/widget/XemsUi;->MUTED:I
+
+    goto :goto_15d
+
+    .line 420
+    :cond_1bc
     sget v0, Lcom/isaigu/gymapp/widget/XemsUi;->MUTED:I
 
-    goto/16 :goto_15e
+    goto :goto_171
 .end method
 
 .method progress(I)Landroid/view/View;
@@ -3693,19 +4182,19 @@
 
     const/4 v2, 0x0
 
-    .line 307
+    .line 323
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->a:Landroid/app/Activity;
 
     invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsUi;->horizontal(Landroid/content/Context;)Landroid/widget/LinearLayout;
 
     move-result-object v7
 
-    .line 308
+    .line 324
     const/16 v0, 0x10
 
     invoke-virtual {v7, v0}, Landroid/widget/LinearLayout;->setGravity(I)V
 
-    .line 309
+    .line 325
     const/4 v0, 0x3
 
     new-array v8, v0, [Ljava/lang/String;
@@ -3744,24 +4233,24 @@
 
     move v6, v2
 
-    .line 310
+    .line 326
     :goto_36
     const/4 v0, 0x3
 
     if-ge v6, v0, :cond_f0
 
-    .line 311
+    .line 327
     if-ne v6, p1, :cond_c5
 
     move v5, v1
 
-    .line 312
+    .line 328
     :goto_3c
     if-ge v6, p1, :cond_c8
 
     move v0, v1
 
-    .line 313
+    .line 329
     :goto_3f
     iget-object v9, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->a:Landroid/app/Activity;
 
@@ -3781,17 +4270,17 @@
 
     move-result-object v3
 
-    .line 314
+    .line 330
     const/16 v4, 0x11
 
     invoke-virtual {v3, v4}, Landroid/widget/TextView;->setGravity(I)V
 
-    .line 315
+    .line 331
     if-eqz v5, :cond_de
 
     sget v0, Lcom/isaigu/gymapp/widget/XemsUi;->ACCENT:I
 
-    .line 316
+    .line 332
     :goto_57
     invoke-virtual {p0, v11}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dp(F)I
 
@@ -3799,14 +4288,14 @@
 
     int-to-float v4, v4
 
-    .line 315
+    .line 331
     invoke-static {v0, v4, v2, v2}, Lcom/isaigu/gymapp/widget/XemsUi;->rounded(IFII)Landroid/graphics/drawable/GradientDrawable;
 
     move-result-object v0
 
     invoke-virtual {v3, v0}, Landroid/widget/TextView;->setBackgroundDrawable(Landroid/graphics/drawable/Drawable;)V
 
-    .line 317
+    .line 333
     new-instance v0, Landroid/widget/LinearLayout$LayoutParams;
 
     invoke-virtual {p0, v12}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dp(F)I
@@ -3821,7 +4310,7 @@
 
     invoke-virtual {v7, v3, v0}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 318
+    .line 334
     iget-object v3, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->a:Landroid/app/Activity;
 
     aget-object v4, v8, v6
@@ -3837,7 +4326,7 @@
 
     move-result-object v0
 
-    .line 319
+    .line 335
     const/high16 v3, 0x41000000    # 8.0f
 
     invoke-virtual {p0, v3}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dp(F)I
@@ -3850,22 +4339,22 @@
 
     invoke-virtual {v0, v3, v2, v4, v2}, Landroid/widget/TextView;->setPadding(IIII)V
 
-    .line 320
+    .line 336
     invoke-virtual {v7, v0}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
-    .line 321
+    .line 337
     const/4 v0, 0x2
 
     if-ge v6, v0, :cond_c0
 
-    .line 322
+    .line 338
     new-instance v0, Landroid/view/View;
 
     iget-object v3, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->a:Landroid/app/Activity;
 
     invoke-direct {v0, v3}, Landroid/view/View;-><init>(Landroid/content/Context;)V
 
-    .line 323
+    .line 339
     sget v3, Lcom/isaigu/gymapp/widget/XemsUi;->MUTED:I
 
     const/16 v4, 0x44
@@ -3876,7 +4365,7 @@
 
     invoke-virtual {v0, v3}, Landroid/view/View;->setBackgroundColor(I)V
 
-    .line 324
+    .line 340
     new-instance v3, Landroid/widget/LinearLayout$LayoutParams;
 
     const/high16 v4, 0x41e00000    # 28.0f
@@ -3893,17 +4382,17 @@
 
     invoke-direct {v3, v4, v5}, Landroid/widget/LinearLayout$LayoutParams;-><init>(II)V
 
-    .line 325
+    .line 341
     invoke-virtual {p0, v10}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dp(F)I
 
     move-result v4
 
     iput v4, v3, Landroid/widget/LinearLayout$LayoutParams;->rightMargin:I
 
-    .line 326
+    .line 342
     invoke-virtual {v7, v0, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 310
+    .line 326
     :cond_c0
     add-int/lit8 v0, v6, 0x1
 
@@ -3914,16 +4403,16 @@
     :cond_c5
     move v5, v2
 
-    .line 311
+    .line 327
     goto/16 :goto_3c
 
     :cond_c8
     move v0, v2
 
-    .line 312
+    .line 328
     goto/16 :goto_3f
 
-    .line 313
+    .line 329
     :cond_cb
     add-int/lit8 v3, v6, 0x1
 
@@ -3947,7 +4436,7 @@
 
     goto/16 :goto_4a
 
-    .line 315
+    .line 331
     :cond_de
     if-eqz v0, :cond_ea
 
@@ -3967,13 +4456,13 @@
 
     goto :goto_e2
 
-    .line 318
+    .line 334
     :cond_ed
     sget v0, Lcom/isaigu/gymapp/widget/XemsUi;->MUTED:I
 
     goto :goto_7d
 
-    .line 329
+    .line 345
     :cond_f0
     return-object v7
 .end method
@@ -3982,17 +4471,17 @@
     .registers 7
 
     .prologue
-    .line 655
+    .line 738
     iget-boolean v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->recorded:Z
 
     if-eqz v0, :cond_5
 
-    .line 667
+    .line 750
     :cond_4
     :goto_4
     return-void
 
-    .line 658
+    .line 741
     :cond_5
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dev:Lcom/isaigu/gymapp/wearable/face/FaceDevice;
 
@@ -4000,14 +4489,14 @@
 
     move-result-wide v0
 
-    .line 659
+    .line 742
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dev:Lcom/isaigu/gymapp/wearable/face/FaceDevice;
 
     invoke-interface {v2}, Lcom/isaigu/gymapp/wearable/face/FaceDevice;->courseKey()Ljava/lang/String;
 
     move-result-object v2
 
-    .line 660
+    .line 743
     const-wide v4, 0x3fe3333333333333L    # 0.6
 
     cmpg-double v0, v0, v4
@@ -4022,7 +4511,7 @@
 
     if-eqz v0, :cond_4
 
-    .line 663
+    .line 746
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->prefs:Landroid/content/SharedPreferences;
 
     new-instance v1, Ljava/lang/StringBuilder;
@@ -4059,7 +4548,7 @@
 
     move-result-object v0
 
-    .line 664
+    .line 747
     invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
 
     move-result-wide v4
@@ -4070,7 +4559,7 @@
 
     invoke-interface {v0, v1}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    .line 665
+    .line 748
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->prefs:Landroid/content/SharedPreferences;
 
     invoke-interface {v1}, Landroid/content/SharedPreferences;->edit()Landroid/content/SharedPreferences$Editor;
@@ -4111,7 +4600,7 @@
 
     invoke-interface {v0}, Landroid/content/SharedPreferences$Editor;->apply()V
 
-    .line 666
+    .line 749
     const/4 v0, 0x1
 
     iput-boolean v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->recorded:Z
@@ -4127,7 +4616,7 @@
 
     const/4 v1, 0x0
 
-    .line 725
+    .line 808
     iget-boolean v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->closed:Z
 
     if-nez v0, :cond_a
@@ -4136,23 +4625,23 @@
 
     if-nez v0, :cond_b
 
-    .line 780
+    .line 862
     :cond_a
     :goto_a
     return-void
 
-    .line 728
+    .line 811
     :cond_b
     invoke-static {}, Lcom/isaigu/gymapp/wearable/face/FaceStudio;->bg()Z
 
     move-result v2
 
-    .line 729
+    .line 812
     invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
 
     move-result-wide v4
 
-    .line 730
+    .line 813
     iget v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->step:I
 
     if-nez v0, :cond_6e
@@ -4161,24 +4650,24 @@
 
     if-eqz v0, :cond_6e
 
-    .line 731
+    .line 814
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->stats()Lcom/isaigu/gymapp/wearable/face/FaceCourse$Stats;
 
     move-result-object v3
 
-    .line 732
+    .line 815
     invoke-static {v3, v2}, Lcom/isaigu/gymapp/wearable/face/FaceCourse;->line(Lcom/isaigu/gymapp/wearable/face/FaceCourse$Stats;Z)Ljava/lang/String;
 
     move-result-object v0
 
-    .line 733
+    .line 816
     iget-wide v6, v3, Lcom/isaigu/gymapp/wearable/face/FaceCourse$Stats;->nextMs:J
 
     cmp-long v6, v6, v4
 
     if-lez v6, :cond_95
 
-    .line 734
+    .line 817
     new-instance v6, Ljava/lang/StringBuilder;
 
     invoke-direct {v6}, Ljava/lang/StringBuilder;-><init>()V
@@ -4207,7 +4696,7 @@
 
     iget-wide v6, v3, Lcom/isaigu/gymapp/wearable/face/FaceCourse$Stats;->nextMs:J
 
-    .line 735
+    .line 818
     invoke-static {v6, v7, v4, v5, v2}, Lcom/isaigu/gymapp/wearable/face/FaceStudio;->when(JJZ)Ljava/lang/String;
 
     move-result-object v6
@@ -4220,14 +4709,14 @@
 
     move-result-object v0
 
-    .line 736
+    .line 819
     iget-object v6, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->statusLine:Landroid/widget/TextView;
 
     sget v7, Lcom/isaigu/gymapp/widget/XemsUi;->AMBER:I
 
     invoke-virtual {v6, v7}, Landroid/widget/TextView;->setTextColor(I)V
 
-    .line 740
+    .line 823
     :goto_59
     iget-boolean v3, v3, Lcom/isaigu/gymapp/wearable/face/FaceCourse$Stats;->finished:Z
 
@@ -4237,7 +4726,7 @@
 
     if-nez v3, :cond_69
 
-    .line 741
+    .line 824
     const-string v0, "\u041a\u0443\u0440\u0441\u044a\u0442 \u0435 \u0437\u0430\u0432\u044a\u0440\u0448\u0435\u043d \u2014 \u0437\u0430 \u043f\u043e\u0434\u0434\u0440\u044a\u0436\u043a\u0430 \u0438\u0437\u0431\u0435\u0440\u0438 \u201e\u0422\u043e\u043d\u0443\u0441\u201c"
 
     const-string v3, "The course is complete \u2014 for upkeep pick Tone"
@@ -4246,7 +4735,7 @@
 
     move-result-object v0
 
-    .line 743
+    .line 826
     :cond_69
     iget-object v3, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->statusLine:Landroid/widget/TextView;
 
@@ -4255,37 +4744,37 @@
     :cond_6e
     move v0, v1
 
-    .line 745
+    .line 828
     :goto_6f
     if-ge v0, v8, :cond_9d
 
-    .line 746
+    .line 829
     iget-object v3, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->values:[Landroid/widget/TextView;
 
     aget-object v3, v3, v0
 
     if-eqz v3, :cond_92
 
-    .line 747
+    .line 830
     iget-object v3, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dev:Lcom/isaigu/gymapp/wearable/face/FaceDevice;
 
     invoke-interface {v3, v0}, Lcom/isaigu/gymapp/wearable/face/FaceDevice;->strength(I)I
 
     move-result v3
 
-    .line 748
+    .line 831
     iget-object v6, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->lastShown:[I
 
     aget v6, v6, v0
 
     if-eq v3, v6, :cond_92
 
-    .line 749
+    .line 832
     iget-object v6, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->lastShown:[I
 
     aput v3, v6, v0
 
-    .line 750
+    .line 833
     iget-object v6, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->values:[Landroid/widget/TextView;
 
     aget-object v6, v6, v0
@@ -4296,13 +4785,13 @@
 
     invoke-virtual {v6, v3}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 745
+    .line 828
     :cond_92
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_6f
 
-    .line 738
+    .line 821
     :cond_95
     iget-object v6, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->statusLine:Landroid/widget/TextView;
 
@@ -4312,18 +4801,18 @@
 
     goto :goto_59
 
-    .line 754
+    .line 837
     :cond_9d
     iget v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->step:I
 
     if-ne v0, v8, :cond_cc
 
-    .line 755
+    .line 838
     iget-object v3, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->primary:Landroid/widget/TextView;
 
     iget-boolean v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->prepared:Z
 
-    if-eqz v0, :cond_13f
+    if-eqz v0, :cond_13d
 
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dev:Lcom/isaigu/gymapp/wearable/face/FaceDevice;
 
@@ -4331,19 +4820,19 @@
 
     move-result v0
 
-    if-eqz v0, :cond_13f
+    if-eqz v0, :cond_13d
 
     const/4 v0, 0x1
 
     :goto_b0
     invoke-static {v3, v0}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->enable(Landroid/widget/TextView;Z)V
 
-    .line 756
+    .line 839
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->hint:Landroid/widget/TextView;
 
     iget-boolean v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->prepared:Z
 
-    if-eqz v0, :cond_14c
+    if-eqz v0, :cond_149
 
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dev:Lcom/isaigu/gymapp/wearable/face/FaceDevice;
 
@@ -4351,9 +4840,9 @@
 
     move-result v0
 
-    if-nez v0, :cond_142
+    if-nez v0, :cond_140
 
-    .line 757
+    .line 840
     const-string v0, "\u041a\u043e\u0441\u0442\u044e\u043c\u044a\u0442 \u0434\u0430\u0432\u0430 \u0440\u0438\u0442\u044a\u043c\u0430 \u043d\u0430 \u043f\u0440\u043e\u0433\u0440\u0430\u043c\u0430\u0442\u0430 \u2014 \u043a\u0430\u0447\u0432\u0430\u0439 \u043f\u043e \u0435\u0434\u043d\u043e"
 
     const-string v3, "The suit runs the program\'s rhythm \u2014 raise one step at a time"
@@ -4362,11 +4851,11 @@
 
     move-result-object v0
 
-    .line 756
+    .line 839
     :goto_c9
     invoke-virtual {v1, v0}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 760
+    .line 843
     :cond_cc
     iget v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->step:I
 
@@ -4374,19 +4863,19 @@
 
     if-ne v0, v1, :cond_a
 
-    .line 761
+    .line 844
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dev:Lcom/isaigu/gymapp/wearable/face/FaceDevice;
 
     invoke-interface {v0, v4, v5}, Lcom/isaigu/gymapp/wearable/face/FaceDevice;->state(J)Lcom/isaigu/gymapp/wearable/face/FaceTimeline$State;
 
     move-result-object v1
 
-    .line 762
+    .line 845
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->ring:Lcom/isaigu/gymapp/wearable/face/FaceRing;
 
     if-eqz v0, :cond_ec
 
-    .line 763
+    .line 846
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->ring:Lcom/isaigu/gymapp/wearable/face/FaceRing;
 
     iget-object v3, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dev:Lcom/isaigu/gymapp/wearable/face/FaceDevice;
@@ -4403,13 +4892,13 @@
 
     invoke-virtual {v0, v3, v1, v4}, Lcom/isaigu/gymapp/wearable/face/FaceRing;->set([JLcom/isaigu/gymapp/wearable/face/FaceTimeline$State;Z)V
 
-    .line 765
+    .line 848
     :cond_ec
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->statusLine:Landroid/widget/TextView;
 
     if-eqz v0, :cond_f9
 
-    .line 766
+    .line 849
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->statusLine:Landroid/widget/TextView;
 
     invoke-virtual {p0, v1, v2}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->runLine(Lcom/isaigu/gymapp/wearable/face/FaceTimeline$State;Z)Ljava/lang/String;
@@ -4418,13 +4907,13 @@
 
     invoke-virtual {v0, v3}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 768
+    .line 851
     :cond_f9
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->pauseBtn:Landroid/widget/TextView;
 
     if-eqz v0, :cond_112
 
-    .line 769
+    .line 852
     iget-object v3, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->pauseBtn:Landroid/widget/TextView;
 
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dev:Lcom/isaigu/gymapp/wearable/face/FaceDevice;
@@ -4433,7 +4922,7 @@
 
     move-result v0
 
-    if-eqz v0, :cond_150
+    if-eqz v0, :cond_14d
 
     const-string v0, "\u25b6  \u041f\u0440\u043e\u0434\u044a\u043b\u0436\u0438"
 
@@ -4446,43 +4935,40 @@
     :goto_10f
     invoke-virtual {v3, v0}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 771
+    .line 854
     :cond_112
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->stopBtn:Landroid/widget/TextView;
 
     if-eqz v0, :cond_121
 
-    .line 772
+    .line 855
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->stopBtn:Landroid/widget/TextView;
 
     iget-object v3, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dev:Lcom/isaigu/gymapp/wearable/face/FaceDevice;
 
     invoke-interface {v3, v2}, Lcom/isaigu/gymapp/wearable/face/FaceDevice;->stopLabel(Z)Ljava/lang/String;
 
-    move-result-object v2
+    move-result-object v3
 
-    invoke-virtual {v0, v2}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
+    invoke-virtual {v0, v3}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 774
+    .line 857
     :cond_121
-    iget-object v2, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->hint:Landroid/widget/TextView;
+    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->hint:Landroid/widget/TextView;
 
-    iget-boolean v0, v1, Lcom/isaigu/gymapp/wearable/face/FaceTimeline$State;->on:Z
+    invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->prog()Lcom/isaigu/gymapp/wearable/face/FaceProgram;
 
-    if-eqz v0, :cond_159
+    move-result-object v3
 
-    const-string v0, "\u041b\u0438\u0446\u0435\u0442\u043e \u043e\u0442\u043f\u0443\u0441\u043d\u0430\u0442\u043e \u2014 \u043c\u0443\u0441\u043a\u0443\u043b\u044a\u0442 \u0440\u0430\u0431\u043e\u0442\u0438 \u0441\u0430\u043c"
+    iget-boolean v1, v1, Lcom/isaigu/gymapp/wearable/face/FaceTimeline$State;->on:Z
 
-    const-string v1, "Face relaxed \u2014 the muscle works by itself"
+    invoke-virtual {v3, v1, v2}, Lcom/isaigu/gymapp/wearable/face/FaceProgram;->runHint(ZZ)Ljava/lang/String;
 
-    invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/face/FaceStudio;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+    move-result-object v1
 
-    move-result-object v0
+    invoke-virtual {v0, v1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    :goto_12f
-    invoke-virtual {v2, v0}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
-
-    .line 776
+    .line 858
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dev:Lcom/isaigu/gymapp/wearable/face/FaceDevice;
 
     invoke-interface {v0}, Lcom/isaigu/gymapp/wearable/face/FaceDevice;->finished()Z
@@ -4491,19 +4977,19 @@
 
     if-eqz v0, :cond_a
 
-    .line 777
+    .line 859
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->toDone()V
 
     goto/16 :goto_a
 
-    :cond_13f
+    :cond_13d
     move v0, v1
 
-    .line 755
+    .line 838
     goto/16 :goto_b0
 
-    .line 758
-    :cond_142
+    .line 841
+    :cond_140
     const-string v0, "\u041f\u0440\u043e\u0433\u0440\u0430\u043c\u0430\u0442\u0430 \u0442\u0435\u0447\u0435 \u2014 \u043d\u0430\u0447\u0430\u043b\u043e\u0442\u043e \u0435 \u0432\u043a\u043b\u044e\u0447\u0432\u0430\u043d\u0435\u0442\u043e"
 
     const-string v3, "The program runs \u2014 it starts with the wake-up"
@@ -4512,15 +4998,15 @@
 
     move-result-object v0
 
-    goto/16 :goto_c9
+    goto :goto_c9
 
-    :cond_14c
+    :cond_149
     const-string v0, ""
 
     goto/16 :goto_c9
 
-    .line 769
-    :cond_150
+    .line 852
+    :cond_14d
     const-string v0, "\u275a\u275a  \u041f\u0430\u0443\u0437\u0430"
 
     const-string v4, "\u275a\u275a  Pause"
@@ -4530,25 +5016,13 @@
     move-result-object v0
 
     goto :goto_10f
-
-    .line 775
-    :cond_159
-    const-string v0, "\u041e\u0442\u0434\u0438\u0445 \u2014 \u043a\u0440\u044a\u0432\u0442\u0430 \u0441\u0435 \u0432\u0440\u044a\u0449\u0430 \u0432 \u043c\u0443\u0441\u043a\u0443\u043b\u0430"
-
-    const-string v1, "Rest \u2014 the blood returns to the muscle"
-
-    invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/face/FaceStudio;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object v0
-
-    goto :goto_12f
 .end method
 
 .method reshow(Landroid/app/Activity;)V
     .registers 4
 
     .prologue
-    .line 226
+    .line 238
     :try_start_0
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->s:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
 
@@ -4564,11 +5038,11 @@
 
     if-eqz v0, :cond_f
 
-    .line 236
+    .line 248
     :goto_e
     return-void
 
-    .line 229
+    .line 241
     :cond_f
     if-eqz p1, :cond_17
 
@@ -4576,10 +5050,10 @@
 
     if-eq p1, v0, :cond_17
 
-    .line 230
+    .line 242
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->a:Landroid/app/Activity;
 
-    .line 232
+    .line 244
     :cond_17
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->show()V
     :try_end_1a
@@ -4587,11 +5061,11 @@
 
     goto :goto_e
 
-    .line 233
+    .line 245
     :catch_1b
     move-exception v0
 
-    .line 234
+    .line 246
     const-string v1, "FaceStudio.reshow"
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V
@@ -4603,12 +5077,12 @@
     .registers 6
 
     .prologue
-    .line 783
+    .line 865
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->prog()Lcom/isaigu/gymapp/wearable/face/FaceProgram;
 
     move-result-object v0
 
-    .line 784
+    .line 866
     new-instance v1, Ljava/lang/StringBuilder;
 
     invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
@@ -4627,7 +5101,7 @@
 
     move-result-object v1
 
-    invoke-virtual {v0, p2}, Lcom/isaigu/gymapp/wearable/face/FaceProgram;->muscle(Z)Ljava/lang/String;
+    invoke-virtual {v0, p2}, Lcom/isaigu/gymapp/wearable/face/FaceProgram;->tag(Z)Ljava/lang/String;
 
     move-result-object v2
 
@@ -4641,39 +5115,11 @@
 
     move-result-object v1
 
-    iget v2, p1, Lcom/isaigu/gymapp/wearable/face/FaceTimeline$State;->hz:I
-
-    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
-
-    move-result-object v1
-
-    const-string v2, " Hz  \u00b7  "
-
-    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v1
-
-    iget v2, v0, Lcom/isaigu/gymapp/wearable/face/FaceProgram;->onS:I
-
-    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
-
-    move-result-object v1
-
-    const-string v2, " s / "
-
-    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v1
-
-    iget v0, v0, Lcom/isaigu/gymapp/wearable/face/FaceProgram;->offS:I
-
-    invoke-virtual {v1, v0}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+    invoke-virtual {v0, p2}, Lcom/isaigu/gymapp/wearable/face/FaceProgram;->rhythm(Z)Ljava/lang/String;
 
     move-result-object v0
 
-    const-string v1, " s"
-
-    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    invoke-virtual {v1, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     move-result-object v0
 
@@ -4685,25 +5131,25 @@
 .end method
 
 .method show()V
-    .registers 13
+    .registers 12
 
     .prologue
-    const/4 v11, 0x1
+    const/high16 v6, 0x41a00000    # 20.0f
 
-    const/4 v10, -0x2
+    const/high16 v10, 0x3f800000    # 1.0f
 
-    const/high16 v7, 0x41a00000    # 20.0f
+    const/4 v9, 0x2
 
-    const/4 v9, -0x1
+    const/4 v8, -0x1
 
-    const/4 v8, 0x0
+    const/4 v7, 0x0
 
-    .line 169
+    .line 171
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->a:Landroid/app/Activity;
 
     invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsUi;->init(Landroid/content/Context;)V
 
-    .line 170
+    .line 172
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->a:Landroid/app/Activity;
 
     const-string v1, "\u041b\u0438\u0446\u0435"
@@ -4726,19 +5172,19 @@
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->s:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
 
-    .line 171
+    .line 173
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->s:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
 
     invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsUi;->fullScreen(Lcom/isaigu/gymapp/widget/XemsUi$Shell;)V
 
-    .line 172
+    .line 174
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->s:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/widget/XemsUi$Shell;->dialog:Landroid/app/Dialog;
 
-    invoke-virtual {v0, v8}, Landroid/app/Dialog;->setCancelable(Z)V
+    invoke-virtual {v0, v7}, Landroid/app/Dialog;->setCancelable(Z)V
 
-    .line 173
+    .line 175
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->s:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/widget/XemsUi$Shell;->close:Landroid/widget/TextView;
@@ -4749,14 +5195,14 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
-    .line 174
+    .line 176
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->s:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/widget/XemsUi$Shell;->info:Landroid/widget/TextView;
 
-    invoke-virtual {v0, v8}, Landroid/widget/TextView;->setVisibility(I)V
+    invoke-virtual {v0, v7}, Landroid/widget/TextView;->setVisibility(I)V
 
-    .line 175
+    .line 177
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->s:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/widget/XemsUi$Shell;->info:Landroid/widget/TextView;
@@ -4767,33 +5213,35 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
-    .line 176
+    .line 178
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->s:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/widget/XemsUi$Shell;->badge:Landroid/widget/TextView;
 
-    invoke-virtual {v0, v8}, Landroid/widget/TextView;->setVisibility(I)V
+    invoke-virtual {v0, v7}, Landroid/widget/TextView;->setVisibility(I)V
 
-    .line 177
+    .line 179
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->s:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/widget/XemsUi$Shell;->scroll:Landroid/widget/ScrollView;
 
-    invoke-virtual {v0, v11}, Landroid/widget/ScrollView;->setFillViewport(Z)V
+    const/4 v1, 0x1
 
-    .line 179
+    invoke-virtual {v0, v1}, Landroid/widget/ScrollView;->setFillViewport(Z)V
+
+    .line 181
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->a:Landroid/app/Activity;
 
     invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsUi;->horizontal(Landroid/content/Context;)Landroid/widget/LinearLayout;
 
     move-result-object v1
 
-    .line 180
+    .line 182
     const/16 v0, 0x30
 
     invoke-virtual {v1, v0}, Landroid/widget/LinearLayout;->setGravity(I)V
 
-    .line 181
+    .line 183
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->a:Landroid/app/Activity;
 
     invoke-virtual {v0}, Landroid/app/Activity;->getResources()Landroid/content/res/Resources;
@@ -4804,7 +5252,7 @@
 
     move-result-object v0
 
-    .line 182
+    .line 185
     const/high16 v2, 0x43be0000    # 380.0f
 
     invoke-virtual {p0, v2}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dp(F)I
@@ -4813,193 +5261,251 @@
 
     iget v0, v0, Landroid/util/DisplayMetrics;->heightPixels:I
 
-    int-to-float v0, v0
+    const/high16 v3, 0x43320000    # 178.0f
 
-    const v3, 0x3f333333    # 0.7f
+    invoke-virtual {p0, v3}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dp(F)I
 
-    mul-float/2addr v0, v3
+    move-result v3
 
-    float-to-int v0, v0
+    sub-int/2addr v0, v3
 
     invoke-static {v2, v0}, Ljava/lang/Math;->max(II)I
 
-    move-result v2
+    move-result v0
 
-    .line 183
-    new-instance v3, Landroid/widget/FrameLayout;
+    iput v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->faceH:I
+
+    .line 186
+    new-instance v2, Landroid/widget/FrameLayout;
 
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->a:Landroid/app/Activity;
 
-    invoke-direct {v3, v0}, Landroid/widget/FrameLayout;-><init>(Landroid/content/Context;)V
+    invoke-direct {v2, v0}, Landroid/widget/FrameLayout;-><init>(Landroid/content/Context;)V
 
-    .line 184
+    .line 187
     new-instance v0, Lcom/isaigu/gymapp/wearable/face/FaceView;
 
-    iget-object v4, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->a:Landroid/app/Activity;
+    iget-object v3, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->a:Landroid/app/Activity;
 
-    invoke-direct {v0, v4}, Lcom/isaigu/gymapp/wearable/face/FaceView;-><init>(Landroid/content/Context;)V
+    invoke-direct {v0, v3}, Lcom/isaigu/gymapp/wearable/face/FaceView;-><init>(Landroid/content/Context;)V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->face:Lcom/isaigu/gymapp/wearable/face/FaceView;
 
-    .line 185
-    iget-object v4, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->face:Lcom/isaigu/gymapp/wearable/face/FaceView;
+    .line 188
+    iget-object v3, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->face:Lcom/isaigu/gymapp/wearable/face/FaceView;
 
     sget-boolean v0, Lcom/isaigu/gymapp/widget/XemsUi;->dark:Z
 
-    if-eqz v0, :cond_182
+    if-eqz v0, :cond_1bc
 
     const v0, -0xa11501
 
-    :goto_9a
-    const v5, -0x906f
+    :goto_9f
+    const v4, -0x906f
 
-    const v6, -0xa5a6
+    const v5, -0xa5a6
 
-    invoke-virtual {v4, v0, v5, v6}, Lcom/isaigu/gymapp/wearable/face/FaceView;->setColors(III)V
+    invoke-virtual {v3, v0, v4, v5}, Lcom/isaigu/gymapp/wearable/face/FaceView;->setColors(III)V
 
-    .line 186
+    .line 189
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->face:Lcom/isaigu/gymapp/wearable/face/FaceView;
 
-    new-instance v4, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Scene;
+    new-instance v3, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Scene;
 
-    invoke-direct {v4, p0}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Scene;-><init>(Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;)V
+    invoke-direct {v3, p0}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Scene;-><init>(Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;)V
 
-    invoke-virtual {v0, v4}, Lcom/isaigu/gymapp/wearable/face/FaceView;->setSource(Lcom/isaigu/gymapp/wearable/face/FaceView$Source;)V
+    invoke-virtual {v0, v3}, Lcom/isaigu/gymapp/wearable/face/FaceView;->setSource(Lcom/isaigu/gymapp/wearable/face/FaceView$Source;)V
 
-    .line 187
+    .line 190
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->face:Lcom/isaigu/gymapp/wearable/face/FaceView;
 
-    new-instance v4, Landroid/widget/FrameLayout$LayoutParams;
+    new-instance v3, Landroid/widget/FrameLayout$LayoutParams;
 
-    invoke-direct {v4, v9, v9}, Landroid/widget/FrameLayout$LayoutParams;-><init>(II)V
+    invoke-direct {v3, v8, v8}, Landroid/widget/FrameLayout$LayoutParams;-><init>(II)V
 
-    invoke-virtual {v3, v0, v4}, Landroid/widget/FrameLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
+    invoke-virtual {v2, v0, v3}, Landroid/widget/FrameLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 188
+    .line 191
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->a:Landroid/app/Activity;
 
     invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsUi;->vertical(Landroid/content/Context;)Landroid/widget/LinearLayout;
 
     move-result-object v0
 
-    .line 189
-    invoke-virtual {p0, v7}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dp(F)I
+    .line 192
+    invoke-virtual {p0, v6}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dp(F)I
 
-    move-result v4
-
-    invoke-virtual {p0, v7}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dp(F)I
-
-    move-result v5
-
-    const/high16 v6, 0x41800000    # 16.0f
+    move-result v3
 
     invoke-virtual {p0, v6}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dp(F)I
 
-    move-result v6
+    move-result v4
 
-    invoke-virtual {v0, v4, v8, v5, v6}, Landroid/widget/LinearLayout;->setPadding(IIII)V
+    const/high16 v5, 0x41800000    # 16.0f
 
-    .line 190
-    iget-object v4, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->a:Landroid/app/Activity;
+    invoke-virtual {p0, v5}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dp(F)I
 
-    const-string v5, ""
+    move-result v5
 
-    const/high16 v6, 0x41900000    # 18.0f
-
-    invoke-static {v4, v5, v6, v9, v11}, Lcom/isaigu/gymapp/widget/XemsUi;->text(Landroid/content/Context;Ljava/lang/String;FIZ)Landroid/widget/TextView;
-
-    move-result-object v4
-
-    iput-object v4, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->caption:Landroid/widget/TextView;
-
-    .line 191
-    iget-object v4, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->a:Landroid/app/Activity;
-
-    const-string v5, ""
-
-    const/high16 v6, 0x41500000    # 13.0f
-
-    const v7, -0x33190c01
-
-    invoke-static {v4, v5, v6, v7, v8}, Lcom/isaigu/gymapp/widget/XemsUi;->text(Landroid/content/Context;Ljava/lang/String;FIZ)Landroid/widget/TextView;
-
-    move-result-object v4
-
-    iput-object v4, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->captionSub:Landroid/widget/TextView;
-
-    .line 192
-    iget-object v4, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->captionSub:Landroid/widget/TextView;
-
-    sget-object v5, Landroid/graphics/Typeface;->DEFAULT:Landroid/graphics/Typeface;
-
-    const/4 v6, 0x2
-
-    invoke-static {v5, v6}, Landroid/graphics/Typeface;->create(Landroid/graphics/Typeface;I)Landroid/graphics/Typeface;
-
-    move-result-object v5
-
-    invoke-virtual {v4, v5}, Landroid/widget/TextView;->setTypeface(Landroid/graphics/Typeface;)V
+    invoke-virtual {v0, v3, v7, v4, v5}, Landroid/widget/LinearLayout;->setPadding(IIII)V
 
     .line 193
-    iget-object v4, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->caption:Landroid/widget/TextView;
+    iget-object v3, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->a:Landroid/app/Activity;
 
-    invoke-virtual {v0, v4}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
+    const-string v4, ""
+
+    const/high16 v5, 0x41900000    # 18.0f
+
+    const/4 v6, 0x1
+
+    invoke-static {v3, v4, v5, v8, v6}, Lcom/isaigu/gymapp/widget/XemsUi;->text(Landroid/content/Context;Ljava/lang/String;FIZ)Landroid/widget/TextView;
+
+    move-result-object v3
+
+    iput-object v3, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->caption:Landroid/widget/TextView;
 
     .line 194
-    iget-object v4, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->captionSub:Landroid/widget/TextView;
+    iget-object v3, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->a:Landroid/app/Activity;
 
-    invoke-virtual {v0, v4}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
+    const-string v4, ""
+
+    const/high16 v5, 0x41500000    # 13.0f
+
+    const v6, -0x33190c01
+
+    invoke-static {v3, v4, v5, v6, v7}, Lcom/isaigu/gymapp/widget/XemsUi;->text(Landroid/content/Context;Ljava/lang/String;FIZ)Landroid/widget/TextView;
+
+    move-result-object v3
+
+    iput-object v3, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->captionSub:Landroid/widget/TextView;
 
     .line 195
-    new-instance v4, Landroid/widget/FrameLayout$LayoutParams;
+    iget-object v3, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->captionSub:Landroid/widget/TextView;
+
+    sget-object v4, Landroid/graphics/Typeface;->DEFAULT:Landroid/graphics/Typeface;
+
+    invoke-static {v4, v9}, Landroid/graphics/Typeface;->create(Landroid/graphics/Typeface;I)Landroid/graphics/Typeface;
+
+    move-result-object v4
+
+    invoke-virtual {v3, v4}, Landroid/widget/TextView;->setTypeface(Landroid/graphics/Typeface;)V
+
+    .line 196
+    iget-object v3, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->caption:Landroid/widget/TextView;
+
+    invoke-virtual {v0, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
+
+    .line 197
+    iget-object v3, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->captionSub:Landroid/widget/TextView;
+
+    invoke-virtual {v0, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
+
+    .line 198
+    new-instance v3, Landroid/widget/FrameLayout$LayoutParams;
+
+    const/4 v4, -0x2
 
     const/16 v5, 0x50
 
-    invoke-direct {v4, v9, v10, v5}, Landroid/widget/FrameLayout$LayoutParams;-><init>(III)V
-
-    .line 197
-    invoke-virtual {v3, v0, v4}, Landroid/widget/FrameLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
-
-    .line 198
-    new-instance v0, Landroid/widget/LinearLayout$LayoutParams;
-
-    const/high16 v4, 0x3f800000    # 1.0f
-
-    invoke-direct {v0, v8, v2, v4}, Landroid/widget/LinearLayout$LayoutParams;-><init>(IIF)V
-
-    invoke-virtual {v1, v3, v0}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
+    invoke-direct {v3, v8, v4, v5}, Landroid/widget/FrameLayout$LayoutParams;-><init>(III)V
 
     .line 200
-    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->a:Landroid/app/Activity;
-
-    invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsUi;->vertical(Landroid/content/Context;)Landroid/widget/LinearLayout;
-
-    move-result-object v0
-
-    iput-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->right:Landroid/widget/LinearLayout;
+    invoke-virtual {v2, v0, v3}, Landroid/widget/FrameLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
     .line 201
     new-instance v0, Landroid/widget/LinearLayout$LayoutParams;
 
-    const v2, 0x3f8f5c29    # 1.12f
+    iget v3, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->faceH:I
 
-    invoke-direct {v0, v8, v10, v2}, Landroid/widget/LinearLayout$LayoutParams;-><init>(IIF)V
-
-    .line 202
-    const/high16 v2, 0x41c00000    # 24.0f
-
-    invoke-virtual {p0, v2}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dp(F)I
-
-    move-result v2
-
-    iput v2, v0, Landroid/widget/LinearLayout$LayoutParams;->leftMargin:I
-
-    .line 203
-    iget-object v2, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->right:Landroid/widget/LinearLayout;
+    invoke-direct {v0, v7, v3, v10}, Landroid/widget/LinearLayout$LayoutParams;-><init>(IIF)V
 
     invoke-virtual {v1, v2, v0}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
     .line 204
+    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->a:Landroid/app/Activity;
+
+    invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsUi;->vertical(Landroid/content/Context;)Landroid/widget/LinearLayout;
+
+    move-result-object v0
+
+    .line 205
+    new-instance v2, Landroid/widget/ScrollView;
+
+    iget-object v3, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->a:Landroid/app/Activity;
+
+    invoke-direct {v2, v3}, Landroid/widget/ScrollView;-><init>(Landroid/content/Context;)V
+
+    .line 206
+    invoke-virtual {v2, v7}, Landroid/widget/ScrollView;->setVerticalScrollBarEnabled(Z)V
+
+    .line 207
+    invoke-virtual {v2, v9}, Landroid/widget/ScrollView;->setOverScrollMode(I)V
+
+    .line 208
+    iget-object v3, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->a:Landroid/app/Activity;
+
+    invoke-static {v3}, Lcom/isaigu/gymapp/widget/XemsUi;->vertical(Landroid/content/Context;)Landroid/widget/LinearLayout;
+
+    move-result-object v3
+
+    iput-object v3, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->right:Landroid/widget/LinearLayout;
+
+    .line 209
+    iget-object v3, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->right:Landroid/widget/LinearLayout;
+
+    invoke-virtual {v2, v3}, Landroid/widget/ScrollView;->addView(Landroid/view/View;)V
+
+    .line 210
+    new-instance v3, Landroid/widget/LinearLayout$LayoutParams;
+
+    invoke-direct {v3, v8, v7, v10}, Landroid/widget/LinearLayout$LayoutParams;-><init>(IIF)V
+
+    invoke-virtual {v0, v2, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
+
+    .line 211
+    iget-object v2, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->a:Landroid/app/Activity;
+
+    invoke-static {v2}, Lcom/isaigu/gymapp/widget/XemsUi;->vertical(Landroid/content/Context;)Landroid/widget/LinearLayout;
+
+    move-result-object v2
+
+    iput-object v2, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->floor:Landroid/widget/LinearLayout;
+
+    .line 212
+    iget-object v2, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->floor:Landroid/widget/LinearLayout;
+
+    iget-object v3, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->a:Landroid/app/Activity;
+
+    const/16 v4, 0xa
+
+    invoke-static {v3, v4}, Lcom/isaigu/gymapp/widget/XemsUi;->matchWrap(Landroid/content/Context;I)Landroid/widget/LinearLayout$LayoutParams;
+
+    move-result-object v3
+
+    invoke-virtual {v0, v2, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
+
+    .line 213
+    new-instance v2, Landroid/widget/LinearLayout$LayoutParams;
+
+    iget v3, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->faceH:I
+
+    const v4, 0x3f8f5c29    # 1.12f
+
+    invoke-direct {v2, v7, v3, v4}, Landroid/widget/LinearLayout$LayoutParams;-><init>(IIF)V
+
+    .line 214
+    const/high16 v3, 0x41c00000    # 24.0f
+
+    invoke-virtual {p0, v3}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dp(F)I
+
+    move-result v3
+
+    iput v3, v2, Landroid/widget/LinearLayout$LayoutParams;->leftMargin:I
+
+    .line 215
+    invoke-virtual {v1, v0, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
+
+    .line 216
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->s:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/widget/XemsUi$Shell;->body:Landroid/widget/LinearLayout;
@@ -5014,7 +5520,7 @@
 
     invoke-virtual {v0, v1, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 206
+    .line 218
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->a:Landroid/app/Activity;
 
     const-string v1, ""
@@ -5023,34 +5529,32 @@
 
     sget v3, Lcom/isaigu/gymapp/widget/XemsUi;->MUTED:I
 
-    invoke-static {v0, v1, v2, v3, v8}, Lcom/isaigu/gymapp/widget/XemsUi;->text(Landroid/content/Context;Ljava/lang/String;FIZ)Landroid/widget/TextView;
+    invoke-static {v0, v1, v2, v3, v7}, Lcom/isaigu/gymapp/widget/XemsUi;->text(Landroid/content/Context;Ljava/lang/String;FIZ)Landroid/widget/TextView;
 
     move-result-object v0
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->hint:Landroid/widget/TextView;
 
-    .line 207
+    .line 219
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->hint:Landroid/widget/TextView;
 
     const/16 v1, 0x10
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setGravity(I)V
 
-    .line 208
+    .line 220
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->hint:Landroid/widget/TextView;
 
-    const/4 v1, 0x2
+    invoke-virtual {v0, v9}, Landroid/widget/TextView;->setMaxLines(I)V
 
-    invoke-virtual {v0, v1}, Landroid/widget/TextView;->setMaxLines(I)V
-
-    .line 209
+    .line 221
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->hint:Landroid/widget/TextView;
 
     sget-object v1, Landroid/text/TextUtils$TruncateAt;->END:Landroid/text/TextUtils$TruncateAt;
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setEllipsize(Landroid/text/TextUtils$TruncateAt;)V
 
-    .line 210
+    .line 222
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->s:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/widget/XemsUi$Shell;->dialog:Landroid/app/Dialog;
@@ -5061,19 +5565,19 @@
 
     invoke-virtual {v0, v1}, Landroid/app/Dialog;->setOnKeyListener(Landroid/content/DialogInterface$OnKeyListener;)V
 
-    .line 211
+    .line 223
     iget v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->step:I
 
     invoke-virtual {p0, v0}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->go(I)V
 
-    .line 212
+    .line 224
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->s:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/widget/XemsUi$Shell;->dialog:Landroid/app/Dialog;
 
     invoke-virtual {v0}, Landroid/app/Dialog;->show()V
 
-    .line 213
+    .line 225
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->main:Landroid/os/Handler;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->tick:Lcom/isaigu/gymapp/wearable/face/FaceStudio$Tick;
@@ -5082,21 +5586,21 @@
 
     invoke-virtual {v0, v1, v2, v3}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
 
-    .line 214
+    .line 226
     return-void
 
-    .line 185
-    :cond_182
+    .line 188
+    :cond_1bc
     const v0, -0xc82f15
 
-    goto/16 :goto_9a
+    goto/16 :goto_9f
 .end method
 
 .method start()V
     .registers 3
 
     .prologue
-    .line 839
+    .line 924
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dev:Lcom/isaigu/gymapp/wearable/face/FaceDevice;
 
     invoke-interface {v0}, Lcom/isaigu/gymapp/wearable/face/FaceDevice;->canStart()Z
@@ -5105,11 +5609,11 @@
 
     if-nez v0, :cond_9
 
-    .line 844
+    .line 929
     :goto_8
     return-void
 
-    .line 842
+    .line 927
     :cond_9
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dev:Lcom/isaigu/gymapp/wearable/face/FaceDevice;
 
@@ -5117,7 +5621,7 @@
 
     invoke-interface {v0, v1}, Lcom/isaigu/gymapp/wearable/face/FaceDevice;->start(Landroid/content/Context;)V
 
-    .line 843
+    .line 928
     const/4 v0, 0x3
 
     invoke-virtual {p0, v0}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->go(I)V
@@ -5129,14 +5633,14 @@
     .registers 5
 
     .prologue
-    .line 690
+    .line 773
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dev:Lcom/isaigu/gymapp/wearable/face/FaceDevice;
 
     invoke-interface {v0}, Lcom/isaigu/gymapp/wearable/face/FaceDevice;->courseKey()Ljava/lang/String;
 
     move-result-object v0
 
-    .line 691
+    .line 774
     if-eqz v0, :cond_40
 
     invoke-virtual {v0}, Ljava/lang/String;->length()I
@@ -5182,7 +5686,7 @@
 
     move-result-object v0
 
-    .line 692
+    .line 775
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->prog()Lcom/isaigu/gymapp/wearable/face/FaceProgram;
 
     move-result-object v1
@@ -5197,7 +5701,7 @@
 
     return-object v0
 
-    .line 691
+    .line 774
     :cond_40
     const-string v0, ""
 
@@ -5208,14 +5712,14 @@
     .registers 13
 
     .prologue
-    .line 509
+    .line 586
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->a:Landroid/app/Activity;
 
     invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsUi;->horizontal(Landroid/content/Context;)Landroid/widget/LinearLayout;
 
     move-result-object v1
 
-    .line 510
+    .line 587
     const/4 v0, 0x1
 
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dev:Lcom/isaigu/gymapp/wearable/face/FaceDevice;
@@ -5228,7 +5732,7 @@
 
     move-result v2
 
-    .line 511
+    .line 588
     const/4 v0, 0x0
 
     :goto_12
@@ -5238,19 +5742,19 @@
 
     if-ge v0, v3, :cond_113
 
-    .line 512
+    .line 589
     iget-object v3, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->a:Landroid/app/Activity;
 
     invoke-static {v3}, Lcom/isaigu/gymapp/widget/XemsUi;->vertical(Landroid/content/Context;)Landroid/widget/LinearLayout;
 
     move-result-object v3
 
-    .line 513
+    .line 590
     const/4 v4, 0x1
 
     invoke-virtual {v3, v4}, Landroid/widget/LinearLayout;->setGravity(I)V
 
-    .line 514
+    .line 591
     const/high16 v4, 0x41200000    # 10.0f
 
     invoke-virtual {p0, v4}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dp(F)I
@@ -5277,7 +5781,7 @@
 
     invoke-virtual {v3, v4, v5, v6, v7}, Landroid/widget/LinearLayout;->setPadding(IIII)V
 
-    .line 515
+    .line 592
     iget-object v4, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->a:Landroid/app/Activity;
 
     const/high16 v5, 0x41900000    # 18.0f
@@ -5294,7 +5798,7 @@
 
     invoke-virtual {v3, v4}, Landroid/widget/LinearLayout;->setBackgroundDrawable(Landroid/graphics/drawable/Drawable;)V
 
-    .line 516
+    .line 593
     iget-object v4, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->a:Landroid/app/Activity;
 
     iget-object v5, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dev:Lcom/isaigu/gymapp/wearable/face/FaceDevice;
@@ -5317,27 +5821,27 @@
 
     move-result-object v4
 
-    .line 517
+    .line 594
     const/16 v5, 0x11
 
     invoke-virtual {v4, v5}, Landroid/widget/TextView;->setGravity(I)V
 
-    .line 518
+    .line 595
     invoke-virtual {v3, v4}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
-    .line 519
+    .line 596
     iget-object v4, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->a:Landroid/app/Activity;
 
     invoke-static {v4}, Lcom/isaigu/gymapp/widget/XemsUi;->horizontal(Landroid/content/Context;)Landroid/widget/LinearLayout;
 
     move-result-object v4
 
-    .line 520
+    .line 597
     const/16 v5, 0x11
 
     invoke-virtual {v4, v5}, Landroid/widget/LinearLayout;->setGravity(I)V
 
-    .line 521
+    .line 598
     iget-object v5, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->a:Landroid/app/Activity;
 
     const-string v6, "\u2212"
@@ -5352,7 +5856,7 @@
 
     move-result-object v5
 
-    .line 522
+    .line 599
     iget-object v6, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->a:Landroid/app/Activity;
 
     const-string v7, "+"
@@ -5367,7 +5871,7 @@
 
     move-result-object v6
 
-    .line 524
+    .line 601
     new-instance v7, Lcom/isaigu/gymapp/wearable/face/FaceStudio$StepCh;
 
     invoke-direct {v7, p0, v0}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$StepCh;-><init>(Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;I)V
@@ -5376,14 +5880,14 @@
 
     invoke-static {v5, v7, v8}, Lcom/isaigu/gymapp/widget/XemsUi;->repeatOnHold(Landroid/view/View;Lcom/isaigu/gymapp/widget/XemsUi$OnStep;I)V
 
-    .line 525
+    .line 602
     new-instance v7, Lcom/isaigu/gymapp/wearable/face/FaceStudio$PlusTap;
 
     invoke-direct {v7, p0, v0}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$PlusTap;-><init>(Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;I)V
 
     invoke-virtual {v6, v7}, Landroid/widget/TextView;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
-    .line 526
+    .line 603
     iget-object v7, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->a:Landroid/app/Activity;
 
     const-string v8, "0"
@@ -5398,17 +5902,17 @@
 
     move-result-object v7
 
-    .line 527
+    .line 604
     const/16 v8, 0x11
 
     invoke-virtual {v7, v8}, Landroid/widget/TextView;->setGravity(I)V
 
-    .line 528
+    .line 605
     iget-object v8, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->values:[Landroid/widget/TextView;
 
     aput-object v7, v8, v0
 
-    .line 529
+    .line 606
     new-instance v8, Landroid/widget/LinearLayout$LayoutParams;
 
     const/high16 v9, 0x42700000    # 60.0f
@@ -5427,7 +5931,7 @@
 
     invoke-virtual {v4, v5, v8}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 530
+    .line 607
     new-instance v5, Landroid/widget/LinearLayout$LayoutParams;
 
     const/high16 v8, 0x42d00000    # 104.0f
@@ -5442,7 +5946,7 @@
 
     invoke-virtual {v4, v7, v5}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 531
+    .line 608
     new-instance v5, Landroid/widget/LinearLayout$LayoutParams;
 
     const/high16 v7, 0x42700000    # 60.0f
@@ -5461,7 +5965,7 @@
 
     invoke-virtual {v4, v6, v5}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 532
+    .line 609
     iget-object v5, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->a:Landroid/app/Activity;
 
     const/16 v6, 0x8
@@ -5472,7 +5976,7 @@
 
     invoke-virtual {v3, v4, v5}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 533
+    .line 610
     new-instance v4, Landroid/widget/LinearLayout$LayoutParams;
 
     const/4 v5, 0x0
@@ -5483,10 +5987,10 @@
 
     invoke-direct {v4, v5, v6, v7}, Landroid/widget/LinearLayout$LayoutParams;-><init>(IIF)V
 
-    .line 534
+    .line 611
     if-lez v0, :cond_10c
 
-    .line 535
+    .line 612
     const/high16 v5, 0x41400000    # 12.0f
 
     invoke-virtual {p0, v5}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dp(F)I
@@ -5495,16 +5999,16 @@
 
     iput v5, v4, Landroid/widget/LinearLayout$LayoutParams;->leftMargin:I
 
-    .line 537
+    .line 614
     :cond_10c
     invoke-virtual {v1, v3, v4}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 511
+    .line 588
     add-int/lit8 v0, v0, 0x1
 
     goto/16 :goto_12
 
-    .line 539
+    .line 616
     :cond_113
     return-object v1
 .end method
@@ -5513,14 +6017,14 @@
     .registers 4
 
     .prologue
-    .line 217
+    .line 229
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dev:Lcom/isaigu/gymapp/wearable/face/FaceDevice;
 
     invoke-interface {v0}, Lcom/isaigu/gymapp/wearable/face/FaceDevice;->clientName()Ljava/lang/String;
 
     move-result-object v1
 
-    .line 218
+    .line 230
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dev:Lcom/isaigu/gymapp/wearable/face/FaceDevice;
 
     invoke-interface {v0}, Lcom/isaigu/gymapp/wearable/face/FaceDevice;->kind()I
@@ -5529,7 +6033,7 @@
 
     if-nez v0, :cond_36
 
-    .line 219
+    .line 231
     const-string v0, "\u041a\u043e\u0441\u0442\u044e\u043c XEMS \u00b7 \u0435\u043b\u0435\u043a\u0442\u0440\u043e\u0434\u0438\u0442\u0435 \u043d\u0430 \u0438\u0437\u0445\u043e\u0434\u0438\u0442\u0435 \u0437\u0430 \u0440\u044a\u0446\u0435"
 
     const-string v2, "XEMS suit \u00b7 pads on the arm outputs"
@@ -5538,7 +6042,7 @@
 
     move-result-object v0
 
-    .line 221
+    .line 233
     :goto_16
     if-eqz v1, :cond_35
 
@@ -5573,7 +6077,7 @@
     :cond_35
     return-object v0
 
-    .line 220
+    .line 232
     :cond_36
     const-string v0, "Bluetens \u00b7 \u043f\u043e \u0435\u0434\u043d\u043e \u0443\u0441\u0442\u0440\u043e\u0439\u0441\u0442\u0432\u043e \u043d\u0430 \u0431\u0443\u0437\u0430"
 
@@ -5590,13 +6094,13 @@
     .registers 5
 
     .prologue
-    .line 848
+    .line 933
     :try_start_0
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->refresh()V
     :try_end_3
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_3} :catch_1f
 
-    .line 852
+    .line 937
     :goto_3
     iget-boolean v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->closed:Z
 
@@ -5616,7 +6120,7 @@
 
     if-eqz v0, :cond_1e
 
-    .line 853
+    .line 938
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->main:Landroid/os/Handler;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->tick:Lcom/isaigu/gymapp/wearable/face/FaceStudio$Tick;
@@ -5625,15 +6129,15 @@
 
     invoke-virtual {v0, v1, v2, v3}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
 
-    .line 855
+    .line 940
     :cond_1e
     return-void
 
-    .line 849
+    .line 934
     :catch_1f
     move-exception v0
 
-    .line 850
+    .line 935
     const-string v1, "FaceStudio.tick"
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V
@@ -5647,7 +6151,7 @@
     .prologue
     const/4 v4, 0x0
 
-    .line 333
+    .line 349
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->a:Landroid/app/Activity;
 
     const/high16 v1, 0x41b00000    # 22.0f
@@ -5660,7 +6164,7 @@
 
     move-result-object v0
 
-    .line 334
+    .line 350
     const/high16 v1, 0x41900000    # 18.0f
 
     invoke-virtual {p0, v1}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dp(F)I
@@ -5675,7 +6179,7 @@
 
     invoke-virtual {v0, v4, v1, v4, v2}, Landroid/widget/TextView;->setPadding(IIII)V
 
-    .line 335
+    .line 351
     return-object v0
 .end method
 
@@ -5685,7 +6189,7 @@
     .prologue
     const/4 v1, 0x4
 
-    .line 584
+    .line 667
     iget v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->step:I
 
     if-eq v0, v1, :cond_9
@@ -5694,16 +6198,16 @@
 
     if-eqz v0, :cond_a
 
-    .line 592
+    .line 675
     :cond_9
     :goto_9
     return-void
 
-    .line 587
+    .line 670
     :cond_a
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->record()V
 
-    .line 588
+    .line 671
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->s:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
 
     if-eqz v0, :cond_1b
@@ -5718,13 +6222,13 @@
 
     if-nez v0, :cond_20
 
-    .line 589
+    .line 672
     :cond_1b
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->a:Landroid/app/Activity;
 
     invoke-virtual {p0, v0}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->reshow(Landroid/app/Activity;)V
 
-    .line 591
+    .line 674
     :cond_20
     invoke-virtual {p0, v1}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->go(I)V
 
@@ -5735,12 +6239,12 @@
     .registers 4
 
     .prologue
-    .line 800
+    .line 885
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->stats()Lcom/isaigu/gymapp/wearable/face/FaceCourse$Stats;
 
     move-result-object v0
 
-    .line 801
+    .line 886
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->s:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
 
     iget-object v1, v1, Lcom/isaigu/gymapp/widget/XemsUi$Shell;->badge:Landroid/widget/TextView;
@@ -5761,7 +6265,7 @@
 
     invoke-static {v1, v0, v2}, Lcom/isaigu/gymapp/widget/XemsUi;->setBadge(Landroid/widget/TextView;Ljava/lang/String;I)V
 
-    .line 802
+    .line 887
     return-void
 .end method
 
@@ -5769,69 +6273,113 @@
     .registers 5
 
     .prologue
-    .line 788
+    const/4 v0, 0x1
+
+    .line 870
     invoke-static {}, Lcom/isaigu/gymapp/wearable/face/FaceStudio;->bg()Z
 
-    move-result v0
+    move-result v1
 
-    .line 789
+    .line 871
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->prog()Lcom/isaigu/gymapp/wearable/face/FaceProgram;
 
-    move-result-object v1
+    move-result-object v2
 
-    .line 790
-    iget v2, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->step:I
+    .line 872
+    iget v3, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->step:I
 
-    const/4 v3, 0x1
+    if-ne v3, v0, :cond_45
 
-    if-ne v2, v3, :cond_28
+    .line 873
+    iget v1, v2, Lcom/isaigu/gymapp/wearable/face/FaceProgram;->target:I
 
-    .line 791
-    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->caption:Landroid/widget/TextView;
+    const/4 v2, 0x2
 
-    const-string v1, "1 \u0438 2 \u2014 \u0434\u0432\u043e\u0439\u043a\u0430\u0442\u0430 \u0435 \u043e\u0442 \u0435\u0434\u043d\u0430 \u0441\u0442\u0440\u0430\u043d\u0430"
+    if-ne v1, v2, :cond_31
 
-    const-string v2, "1 and 2 \u2014 the pair stays on one side"
-
-    invoke-static {v1, v2}, Lcom/isaigu/gymapp/wearable/face/FaceStudio;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object v1
-
-    invoke-virtual {v0, v1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
-
-    .line 792
-    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->captionSub:Landroid/widget/TextView;
-
-    const-string v1, "\u2298 \u043d\u0435: \u043e\u043a\u043e\u043b\u043e \u043e\u043a\u043e\u0442\u043e, \u043f\u0440\u0435\u0434 \u0443\u0445\u043e\u0442\u043e, \u043e\u0442\u0441\u0442\u0440\u0430\u043d\u0438 \u043d\u0430 \u0448\u0438\u044f\u0442\u0430"
-
-    const-string v2, "\u2298 never: around the eye, in front of the ear, the side of the neck"
-
-    invoke-static {v1, v2}, Lcom/isaigu/gymapp/wearable/face/FaceStudio;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object v1
-
-    invoke-virtual {v0, v1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
-
-    .line 797
-    :goto_27
-    return-void
-
-    .line 794
-    :cond_28
+    .line 874
+    :goto_12
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->caption:Landroid/widget/TextView;
 
-    invoke-virtual {v1, v0}, Lcom/isaigu/gymapp/wearable/face/FaceProgram;->muscle(Z)Ljava/lang/String;
+    if-eqz v0, :cond_33
+
+    const-string v1, "1 \u0438 2 \u2014 \u043d\u0430 \u0447\u0435\u043b\u043e\u0442\u043e, \u043d\u0430\u0434 \u0432\u0435\u0436\u0434\u0438\u0442\u0435"
+
+    const-string v3, "1 and 2 \u2014 on the forehead, above the brows"
+
+    invoke-static {v1, v3}, Lcom/isaigu/gymapp/wearable/face/FaceStudio;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v1
+
+    :goto_1e
+    invoke-virtual {v2, v1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
+
+    .line 876
+    iget-object v1, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->captionSub:Landroid/widget/TextView;
+
+    if-eqz v0, :cond_3c
+
+    const-string v0, "\u2298 \u043d\u0435: \u043f\u043e-\u0431\u043b\u0438\u0437\u043e \u043e\u0442 2 \u043f\u0440\u044a\u0441\u0442\u0430 \u0434\u043e \u043e\u043a\u043e\u0442\u043e"
+
+    const-string v2, "\u2298 never: closer than 2 fingers to the eye"
+
+    invoke-static {v0, v2}, Lcom/isaigu/gymapp/wearable/face/FaceStudio;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v0
 
-    invoke-virtual {v2, v0}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
+    :goto_2d
+    invoke-virtual {v1, v0}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 795
-    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->captionSub:Landroid/widget/TextView;
+    .line 882
+    :goto_30
+    return-void
 
-    iget-object v1, v1, Lcom/isaigu/gymapp/wearable/face/FaceProgram;->latin:Ljava/lang/String;
+    .line 873
+    :cond_31
+    const/4 v0, 0x0
+
+    goto :goto_12
+
+    .line 875
+    :cond_33
+    const-string v1, "1 \u0438 2 \u2014 \u0434\u0432\u043e\u0439\u043a\u0430\u0442\u0430 \u0435 \u043e\u0442 \u0435\u0434\u043d\u0430 \u0441\u0442\u0440\u0430\u043d\u0430"
+
+    const-string v3, "1 and 2 \u2014 the pair stays on one side"
+
+    invoke-static {v1, v3}, Lcom/isaigu/gymapp/wearable/face/FaceStudio;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v1
+
+    goto :goto_1e
+
+    .line 877
+    :cond_3c
+    const-string v0, "\u2298 \u043d\u0435: \u043e\u043a\u043e\u043b\u043e \u043e\u043a\u043e\u0442\u043e, \u043f\u0440\u0435\u0434 \u0443\u0445\u043e\u0442\u043e, \u043e\u0442\u0441\u0442\u0440\u0430\u043d\u0438 \u043d\u0430 \u0448\u0438\u044f\u0442\u0430"
+
+    const-string v2, "\u2298 never: around the eye, in front of the ear, the side of the neck"
+
+    invoke-static {v0, v2}, Lcom/isaigu/gymapp/wearable/face/FaceStudio;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
+
+    goto :goto_2d
+
+    .line 879
+    :cond_45
+    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->caption:Landroid/widget/TextView;
+
+    invoke-virtual {v2, v1}, Lcom/isaigu/gymapp/wearable/face/FaceProgram;->muscle(Z)Ljava/lang/String;
+
+    move-result-object v1
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    goto :goto_27
+    .line 880
+    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->captionSub:Landroid/widget/TextView;
+
+    iget-object v1, v2, Lcom/isaigu/gymapp/wearable/face/FaceProgram;->latin:Ljava/lang/String;
+
+    invoke-virtual {v0, v1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
+
+    goto :goto_30
 .end method

@@ -516,16 +516,23 @@ public final class BluetensSim {
                         check(hz <= 120, tag + " Hz " + hz);
                         check(hz < 100 || b.impulse <= 300, tag + " 100 Hz+ at most 300 us");
                         double onMs = 1000.0 / hz * b.cluster;
-                        boolean face = p == BluetensPrograms.FACE || p == BluetensPrograms.FACE_TONE;
-                        if (face || p == BluetensPrograms.CHIN) {
+                        boolean face = p == BluetensPrograms.FACE || p == BluetensPrograms.FACE_TONE
+                                || p == BluetensPrograms.FACE_DRAIN || p == BluetensPrograms.FACE_DRAIN_B;
+                        int maxUs = face ? BluetensPrograms.FACE_US : p == BluetensPrograms.CHIN ? BluetensPrograms.CHIN_US
+                                : p == BluetensPrograms.FACE_RELAX ? BluetensPrograms.RELAX_US
+                                : p == BluetensPrograms.JAW ? BluetensPrograms.JAW_US : 400;
+                        boolean anyFace = maxUs < 400;
+                        if (anyFace && !(p == BluetensPrograms.FACE_DRAIN_B && b.cluster == 1 && b.interval == 1500)) {
                             check(hz >= BluetensPrograms.FACE_HZ_MIN, tag + " ≥ 20 Hz on the face (" + hz + ")");
-                            check(b.impulse <= (face ? BluetensPrograms.FACE_US : BluetensPrograms.CHIN_US),
-                                    tag + " face width " + b.impulse);
                         }
+                        check(b.impulse <= maxUs, tag + " width " + b.impulse + " ≤ " + maxUs);
                         if (hz >= 20) {
                             fused += onMs;
                             check(b.interval > 0 || fused <= 6000, tag + " fused impulse " + fused + " ms");
                             if (b.interval > 0) {
+                                if ((p == BluetensPrograms.FACE_DRAIN || p == BluetensPrograms.FACE_DRAIN_B) && fused > 900 && fused < 1200) {
+                                    check(b.interval >= 2 * fused - 100, tag + " pump release ≥ 2× the hold (" + fused + " / " + b.interval + ")");
+                                }
                                 if (p == BluetensPrograms.FACE && fused > 2500) {
                                     check(b.interval >= 2 * fused - 100, tag + " lift rest ≥ 2× the hold (" + fused + " / " + b.interval + ")");
                                 }

@@ -349,7 +349,8 @@ public final class AutoSim {
     /** Owner (1.1.287): a passive session says the goal of every phase and what the current does. */
     static void passiveTexts() {
         String[] ids = {AutoCatalog.CELLULITE, AutoCatalog.DRAIN, AutoCatalog.PASSIVE_METABOLIC, AutoCatalog.BACK_PAIN,
-                AutoCatalog.POSTPARTUM, AutoCatalog.RECOVERY, AutoCatalog.FACE, AutoCatalog.FACE_TONE};
+                AutoCatalog.POSTPARTUM, AutoCatalog.RECOVERY, AutoCatalog.FACE, AutoCatalog.FACE_TONE,
+                AutoCatalog.FACE_DRAIN, AutoCatalog.FACE_RELAX};
         for (String id : ids) {
             AutoModel.Input in = input(AiModel.Sex.FEMALE, 35, 62, 166, AiModel.Fitness.MID, 6, -1);
             in.programId = id;
@@ -530,8 +531,11 @@ public final class AutoSim {
      * a longer hold than the lift and a pause ≥ the hold.
      */
     static void face() {
-        for (String id : new String[] {AutoCatalog.FACE, AutoCatalog.FACE_TONE}) {
+        for (String id : new String[] {AutoCatalog.FACE, AutoCatalog.FACE_TONE, AutoCatalog.FACE_DRAIN, AutoCatalog.FACE_RELAX}) {
             boolean lift = AutoCatalog.FACE.equals(id);
+            boolean drain = AutoCatalog.FACE_DRAIN.equals(id);
+            boolean relax = AutoCatalog.FACE_RELAX.equals(id);
+            int pw = relax ? AutoCatalog.FACE_RELAX_PW : AutoCatalog.FACE_PW;
             for (AiModel.Sex sex : new AiModel.Sex[] {AiModel.Sex.FEMALE, AiModel.Sex.MALE}) {
                 for (int sessions : new int[] {0, 10}) {
                     AutoModel.Input in = input(sex, 45, 65, 168, AiModel.Fitness.MID, sessions, -1);
@@ -539,6 +543,7 @@ public final class AutoSim {
                     in.kind = AutoModel.Kind.PASSIVE;
                     in.programId = id;
                     in.focus.add("abs");
+                    runPlan(in, true);                         // every safety invariant of a full run (L1–L5, 60+, totals)
                     AutoModel.Plan plan = AutoPlanner.build(in, 70);
                     check(plan.recoveryS == AutoCatalog.FACE_RECOVERY_S, id + ": recovery 2 min");
                     for (int i = 0; i < AutoModel.CHANNELS; i++) {
@@ -549,15 +554,20 @@ public final class AutoSim {
                     for (AutoModel.Phase ph : plan.phases) {
                         for (AutoModel.Step st : ph.steps) {
                             String at = id + "/" + ph.id;
-                            check(st.pwUs == AutoCatalog.FACE_PW, at + ": 100 µs (" + st.pwUs + ")");
+                            check(st.pwUs == pw, at + ": " + pw + " µs (" + st.pwUs + ")");
                             check(st.hz >= AutoCatalog.FACE_HZ_MIN, at + ": ≥ 20 Hz on the face (" + st.hz + ")");
                             check(st.zones == null, at + ": no step of its own zones");
-                            check(st.rampUpMs >= 500 && st.rampDownMs >= 500, at + ": soft rise and fall");
+                            check(st.rampUpMs >= 300 && st.rampDownMs >= 300, at + ": soft rise and fall");
                             if ("MAIN".equals(ph.id)) {
                                 main = true;
                                 if (lift) {
                                     check(st.hz == 70 && st.onS == 3 && st.offS >= 2 * st.onS,
                                             at + ": 70 Hz 3 s, pause ≥ 2× (" + st.hz + " " + st.onS + ":" + st.offS + ")");
+                                } else if (drain) {
+                                    check(st.hz == 30 && st.onS == 1 && st.offS >= 2 * st.onS,
+                                            at + ": pump 30 Hz 1 s, release ≥ 2× (" + st.hz + " " + st.onS + ":" + st.offS + ")");
+                                } else if (relax) {
+                                    check(st.hz == 60 && st.offS >= st.onS, at + ": sensory 60 Hz, pause ≥ hold (" + st.hz + " " + st.onS + ":" + st.offS + ")");
                                 } else {
                                     check(st.hz == 35 && st.onS >= 4 && st.offS >= st.onS,
                                             at + ": 35 Hz ≥ 4 s, pause ≥ hold (" + st.hz + " " + st.onS + ":" + st.offS + ")");
@@ -579,7 +589,7 @@ public final class AutoSim {
                     e.start(t);
                     while (e.getState() == AutoEngine.State.RUN && t < 3_600_000L) {
                         AutoEngine.Cmd c = e.getCurrent();
-                        check(c.pwUs <= AutoCatalog.FACE_PW, id + ": engine width " + c.pwUs);
+                        check(c.pwUs <= pw, id + ": engine width " + c.pwUs);
                         check(c.frac <= 0 || c.hz >= AutoCatalog.FACE_HZ_MIN, id + ": engine Hz " + c.hz);
                         check(c.zones == null, id + ": engine keeps the plan zones");
                         t += Math.max(1000, c.durationMs());

@@ -235,14 +235,16 @@
 .end method
 
 .method private draw(Landroid/graphics/Canvas;Lcom/isaigu/gymapp/wearable/face/FaceArt$Prim;)V
-    .registers 10
+    .registers 11
 
     .prologue
     const/4 v1, 0x0
 
-    const/high16 v6, 0x40400000    # 3.0f
+    const/high16 v7, 0x3e800000    # 0.25f
 
-    const/high16 v5, 0x437f0000    # 255.0f
+    const/high16 v6, 0x437f0000    # 255.0f
+
+    const/high16 v5, 0x40400000    # 3.0f
 
     const/4 v4, -0x1
 
@@ -266,18 +268,18 @@
 
     cmpg-float v0, v2, v0
 
-    if-gtz v0, :cond_1b
+    if-gtz v0, :cond_1d
 
-    .line 237
-    :cond_1a
-    :goto_1a
+    .line 241
+    :cond_1c
+    :goto_1c
     return-void
 
     .line 177
-    :cond_1b
+    :cond_1d
     iget-object v0, p2, Lcom/isaigu/gymapp/wearable/face/FaceArt$Prim;->text:Ljava/lang/String;
 
-    if-eqz v0, :cond_5d
+    if-eqz v0, :cond_5f
 
     .line 178
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceView;->text:Landroid/graphics/Paint;
@@ -300,7 +302,7 @@
     .line 180
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceView;->text:Landroid/graphics/Paint;
 
-    mul-float v1, v5, v2
+    mul-float v1, v6, v2
 
     float-to-int v1, v1
 
@@ -344,10 +346,10 @@
 
     invoke-virtual {p1, v1, v2, v0, v3}, Landroid/graphics/Canvas;->drawText(Ljava/lang/String;FFLandroid/graphics/Paint;)V
 
-    goto :goto_1a
+    goto :goto_1c
 
     .line 185
-    :cond_5d
+    :cond_5f
     iget-object v0, p2, Lcom/isaigu/gymapp/wearable/face/FaceArt$Prim;->path:[F
 
     invoke-direct {p0, v0}, Lcom/isaigu/gymapp/wearable/face/FaceView;->toPath([F)V
@@ -357,11 +359,11 @@
 
     iget-boolean v0, p2, Lcom/isaigu/gymapp/wearable/face/FaceArt$Prim;->dashed:Z
 
-    if-eqz v0, :cond_91
+    if-eqz v0, :cond_93
 
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceView;->dash:Landroid/graphics/DashPathEffect;
 
-    :goto_6a
+    :goto_6c
     invoke-virtual {v3, v0}, Landroid/graphics/Paint;->setPathEffect(Landroid/graphics/PathEffect;)Landroid/graphics/PathEffect;
 
     .line 187
@@ -397,22 +399,22 @@
     .line 191
     iget v1, p2, Lcom/isaigu/gymapp/wearable/face/FaceArt$Prim;->role:I
 
-    packed-switch v1, :pswitch_data_156
+    packed-switch v1, :pswitch_data_166
 
-    .line 235
-    :pswitch_8d
+    .line 239
+    :pswitch_8f
     invoke-direct {p0, p1, v4, v2, v0}, Lcom/isaigu/gymapp/wearable/face/FaceView;->stroke(Landroid/graphics/Canvas;IFF)V
 
-    goto :goto_1a
+    goto :goto_1c
 
-    :cond_91
+    :cond_93
     move-object v0, v1
 
     .line 186
-    goto :goto_6a
+    goto :goto_6c
 
     .line 194
-    :pswitch_93
+    :pswitch_95
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceView;->paint:Landroid/graphics/Paint;
 
     sget-object v1, Landroid/graphics/Paint$Style;->STROKE:Landroid/graphics/Paint$Style;
@@ -422,10 +424,10 @@
     .line 195
     const/4 v0, 0x3
 
-    :goto_9b
+    :goto_9d
     const/4 v1, 0x1
 
-    if-lt v0, v1, :cond_1a
+    if-lt v0, v1, :cond_1c
 
     .line 196
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/face/FaceView;->paint:Landroid/graphics/Paint;
@@ -437,7 +439,7 @@
     .line 197
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/face/FaceView;->paint:Landroid/graphics/Paint;
 
-    mul-float v3, v5, v2
+    mul-float v3, v6, v2
 
     const v4, 0x3df5c28f    # 0.12f
 
@@ -478,10 +480,10 @@
     .line 195
     add-int/lit8 v0, v0, -0x1
 
-    goto :goto_9b
+    goto :goto_9d
 
     .line 203
-    :pswitch_cc
+    :pswitch_ce
     iget v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceView;->rose:I
 
     const v1, 0x3f666666    # 0.9f
@@ -490,10 +492,10 @@
 
     invoke-direct {p0, p1, v0, v1}, Lcom/isaigu/gymapp/wearable/face/FaceView;->fill(Landroid/graphics/Canvas;IF)V
 
-    goto/16 :goto_1a
+    goto/16 :goto_1c
 
     .line 206
-    :pswitch_d7
+    :pswitch_d9
     const/16 v0, -0x1e18
 
     const v1, 0x4019999a    # 2.4f
@@ -508,10 +510,10 @@
 
     invoke-direct {p0, p1, v0, v2, v1}, Lcom/isaigu/gymapp/wearable/face/FaceView;->stroke(Landroid/graphics/Canvas;IFF)V
 
-    goto/16 :goto_1a
+    goto/16 :goto_1c
 
     .line 209
-    :pswitch_e7
+    :pswitch_e9
     iget v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceView;->danger:I
 
     const v1, 0x4059999a    # 3.4f
@@ -526,10 +528,10 @@
 
     invoke-direct {p0, p1, v0, v2, v1}, Lcom/isaigu/gymapp/wearable/face/FaceView;->stroke(Landroid/graphics/Canvas;IFF)V
 
-    goto/16 :goto_1a
+    goto/16 :goto_1c
 
     .line 212
-    :pswitch_f7
+    :pswitch_f9
     iget v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceView;->accent:I
 
     const v1, 0x3f0ccccd    # 0.55f
@@ -538,22 +540,22 @@
 
     invoke-direct {p0, p1, v0, v1}, Lcom/isaigu/gymapp/wearable/face/FaceView;->fill(Landroid/graphics/Canvas;IF)V
 
-    goto/16 :goto_1a
+    goto/16 :goto_1c
 
     .line 215
-    :pswitch_102
+    :pswitch_104
     const v0, -0x170401
 
     iget v1, p0, Lcom/isaigu/gymapp/wearable/face/FaceView;->scale:F
 
-    mul-float/2addr v1, v6
+    mul-float/2addr v1, v5
 
     invoke-direct {p0, p1, v0, v2, v1}, Lcom/isaigu/gymapp/wearable/face/FaceView;->stroke(Landroid/graphics/Canvas;IFF)V
 
-    goto/16 :goto_1a
+    goto/16 :goto_1c
 
     .line 218
-    :pswitch_10d
+    :pswitch_10f
     iget v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceView;->accent:I
 
     const/high16 v1, 0x40a00000    # 5.0f
@@ -564,53 +566,70 @@
 
     invoke-direct {p0, p1, v0, v2, v1}, Lcom/isaigu/gymapp/wearable/face/FaceView;->stroke(Landroid/graphics/Canvas;IFF)V
 
-    goto/16 :goto_1a
+    goto/16 :goto_1c
 
     .line 221
-    :pswitch_119
+    :pswitch_11b
     invoke-direct {p0, p1, v4, v2}, Lcom/isaigu/gymapp/wearable/face/FaceView;->fill(Landroid/graphics/Canvas;IF)V
 
-    goto/16 :goto_1a
+    goto/16 :goto_1c
 
     .line 224
-    :pswitch_11e
+    :pswitch_120
     iget v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceView;->accent:I
 
     iget v1, p0, Lcom/isaigu/gymapp/wearable/face/FaceView;->scale:F
 
-    mul-float/2addr v1, v6
+    mul-float/2addr v1, v5
 
     invoke-direct {p0, p1, v0, v2, v1}, Lcom/isaigu/gymapp/wearable/face/FaceView;->stroke(Landroid/graphics/Canvas;IFF)V
 
-    goto/16 :goto_1a
+    goto/16 :goto_1c
 
     .line 227
-    :pswitch_128
+    :pswitch_12a
+    iget v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceView;->accent:I
+
+    mul-float v1, v2, v7
+
+    invoke-direct {p0, p1, v0, v1}, Lcom/isaigu/gymapp/wearable/face/FaceView;->fill(Landroid/graphics/Canvas;IF)V
+
+    .line 228
+    iget v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceView;->accent:I
+
+    iget v1, p0, Lcom/isaigu/gymapp/wearable/face/FaceView;->scale:F
+
+    mul-float/2addr v1, v5
+
+    invoke-direct {p0, p1, v0, v2, v1}, Lcom/isaigu/gymapp/wearable/face/FaceView;->stroke(Landroid/graphics/Canvas;IFF)V
+
+    goto/16 :goto_1c
+
+    .line 231
+    :pswitch_13b
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceView;->paint:Landroid/graphics/Paint;
 
     sget-object v1, Landroid/graphics/Paint$Style;->STROKE:Landroid/graphics/Paint$Style;
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setStyle(Landroid/graphics/Paint$Style;)V
 
-    .line 228
+    .line 232
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceView;->paint:Landroid/graphics/Paint;
 
     invoke-virtual {v0, v4}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 229
+    .line 233
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceView;->paint:Landroid/graphics/Paint;
 
-    mul-float v1, v5, v2
+    mul-float v1, v6, v2
 
-    const/high16 v3, 0x3e800000    # 0.25f
-
-    mul-float/2addr v1, v3
+    mul-float/2addr v1, v7
 
     float-to-int v1, v1
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setAlpha(I)V
 
-    .line 230
+    .line 234
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceView;->paint:Landroid/graphics/Paint;
 
     const/high16 v1, 0x41900000    # 18.0f
@@ -621,35 +640,34 @@
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setStrokeWidth(F)V
 
-    .line 231
+    .line 235
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceView;->path:Landroid/graphics/Path;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/face/FaceView;->paint:Landroid/graphics/Paint;
 
     invoke-virtual {p1, v0, v1}, Landroid/graphics/Canvas;->drawPath(Landroid/graphics/Path;Landroid/graphics/Paint;)V
 
-    .line 232
+    .line 236
     invoke-direct {p0, p1, v4, v2}, Lcom/isaigu/gymapp/wearable/face/FaceView;->fill(Landroid/graphics/Canvas;IF)V
 
-    goto/16 :goto_1a
+    goto/16 :goto_1c
 
     .line 191
-    nop
-
-    :pswitch_data_156
+    :pswitch_data_166
     .packed-switch 0x6
-        :pswitch_cc
-        :pswitch_d7
-        :pswitch_93
-        :pswitch_e7
-        :pswitch_f7
-        :pswitch_102
-        :pswitch_8d
-        :pswitch_10d
-        :pswitch_119
-        :pswitch_11e
-        :pswitch_8d
-        :pswitch_128
+        :pswitch_ce
+        :pswitch_d9
+        :pswitch_95
+        :pswitch_e9
+        :pswitch_f9
+        :pswitch_104
+        :pswitch_8f
+        :pswitch_10f
+        :pswitch_11b
+        :pswitch_120
+        :pswitch_8f
+        :pswitch_13b
+        :pswitch_12a
     .end packed-switch
 .end method
 
@@ -657,19 +675,19 @@
     .registers 8
 
     .prologue
-    .line 240
+    .line 244
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceView;->paint:Landroid/graphics/Paint;
 
     sget-object v1, Landroid/graphics/Paint$Style;->FILL:Landroid/graphics/Paint$Style;
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setStyle(Landroid/graphics/Paint$Style;)V
 
-    .line 241
+    .line 245
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceView;->paint:Landroid/graphics/Paint;
 
     invoke-virtual {v0, p2}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 242
+    .line 246
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceView;->paint:Landroid/graphics/Paint;
 
     const/high16 v1, 0x437f0000    # 255.0f
@@ -692,14 +710,14 @@
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setAlpha(I)V
 
-    .line 243
+    .line 247
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceView;->path:Landroid/graphics/Path;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/face/FaceView;->paint:Landroid/graphics/Paint;
 
     invoke-virtual {p1, v0, v1}, Landroid/graphics/Canvas;->drawPath(Landroid/graphics/Path;Landroid/graphics/Paint;)V
 
-    .line 244
+    .line 248
     return-void
 .end method
 
@@ -830,19 +848,19 @@
     .prologue
     const/high16 v4, 0x3f800000    # 1.0f
 
-    .line 247
+    .line 251
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceView;->paint:Landroid/graphics/Paint;
 
     sget-object v1, Landroid/graphics/Paint$Style;->STROKE:Landroid/graphics/Paint$Style;
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setStyle(Landroid/graphics/Paint$Style;)V
 
-    .line 248
+    .line 252
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceView;->paint:Landroid/graphics/Paint;
 
     invoke-virtual {v0, p2}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 249
+    .line 253
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceView;->paint:Landroid/graphics/Paint;
 
     const/high16 v1, 0x437f0000    # 255.0f
@@ -863,7 +881,7 @@
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setAlpha(I)V
 
-    .line 250
+    .line 254
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceView;->paint:Landroid/graphics/Paint;
 
     invoke-static {v4, p4}, Ljava/lang/Math;->max(FF)F
@@ -872,14 +890,14 @@
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setStrokeWidth(F)V
 
-    .line 251
+    .line 255
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceView;->path:Landroid/graphics/Path;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/face/FaceView;->paint:Landroid/graphics/Paint;
 
     invoke-virtual {p1, v0, v1}, Landroid/graphics/Canvas;->drawPath(Landroid/graphics/Path;Landroid/graphics/Paint;)V
 
-    .line 252
+    .line 256
     return-void
 .end method
 
@@ -887,33 +905,33 @@
     .registers 10
 
     .prologue
-    .line 255
+    .line 259
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceView;->path:Landroid/graphics/Path;
 
     invoke-virtual {v0}, Landroid/graphics/Path;->reset()V
 
-    .line 256
+    .line 260
     const/4 v0, 0x0
 
     move v7, v0
 
-    .line 257
+    .line 261
     :goto_7
     array-length v0, p1
 
     if-ge v7, v0, :cond_8e
 
-    .line 258
+    .line 262
     aget v0, p1, v7
 
-    .line 259
+    .line 263
     const/4 v1, 0x0
 
     cmpl-float v1, v0, v1
 
     if-nez v1, :cond_2a
 
-    .line 260
+    .line 264
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceView;->path:Landroid/graphics/Path;
 
     add-int/lit8 v1, v7, 0x1
@@ -934,16 +952,16 @@
 
     invoke-virtual {v0, v1, v2}, Landroid/graphics/Path;->moveTo(FF)V
 
-    .line 261
+    .line 265
     add-int/lit8 v0, v7, 0x3
 
     :goto_28
     move v7, v0
 
-    .line 272
+    .line 276
     goto :goto_7
 
-    .line 262
+    .line 266
     :cond_2a
     const/high16 v1, 0x3f800000    # 1.0f
 
@@ -951,7 +969,7 @@
 
     if-nez v1, :cond_48
 
-    .line 263
+    .line 267
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceView;->path:Landroid/graphics/Path;
 
     add-int/lit8 v1, v7, 0x1
@@ -972,12 +990,12 @@
 
     invoke-virtual {v0, v1, v2}, Landroid/graphics/Path;->lineTo(FF)V
 
-    .line 264
+    .line 268
     add-int/lit8 v0, v7, 0x3
 
     goto :goto_28
 
-    .line 265
+    .line 269
     :cond_48
     const/high16 v1, 0x40000000    # 2.0f
 
@@ -985,7 +1003,7 @@
 
     if-nez v0, :cond_86
 
-    .line 266
+    .line 270
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceView;->path:Landroid/graphics/Path;
 
     add-int/lit8 v1, v7, 0x1
@@ -1038,23 +1056,23 @@
 
     invoke-virtual/range {v0 .. v6}, Landroid/graphics/Path;->cubicTo(FFFFFF)V
 
-    .line 267
+    .line 271
     add-int/lit8 v0, v7, 0x7
 
     goto :goto_28
 
-    .line 269
+    .line 273
     :cond_86
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceView;->path:Landroid/graphics/Path;
 
     invoke-virtual {v0}, Landroid/graphics/Path;->close()V
 
-    .line 270
+    .line 274
     add-int/lit8 v0, v7, 0x1
 
     goto :goto_28
 
-    .line 273
+    .line 277
     :cond_8e
     return-void
 .end method

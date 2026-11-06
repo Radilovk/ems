@@ -32,6 +32,8 @@ public final class FaceArt {
     public static final int SPARK = 14;
     public static final int RIPPLE = 15;
     public static final int CORNER = 17;
+    /** Fluid moving towards the lymph nodes (drainage). */
+    public static final int FLOW = 18;
 
     // path commands in a float[]: M x y | L x y | C x1 y1 x2 y2 x y | Z
     public static final float M = 0, L = 1, C = 2, Z = 3;
@@ -53,6 +55,14 @@ public final class FaceArt {
         public int hz = 70;
         /** The placement step: the pads blink with their numbers. */
         public boolean placing;
+        /** The run: the pads only as outlines, so the working muscle shows through. */
+        public boolean outline;
+        /** Drainage: the fluid's way to the nodes in front of the ear and under the jaw. */
+        public boolean drain;
+        /** A sensory current (no contraction): the nerves shimmer, nothing shortens. */
+        public boolean sensory;
+        /** XEMS on the forehead: both arm cables → a pair on each half (else one pair across the middle). */
+        public boolean pairs2;
     }
 
     /** One primitive: a path (or a label) with its role, opacity and width factor. */
@@ -107,6 +117,14 @@ public final class FaceArt {
     public static final float[] NECK = {748, 1168};
     /** Under the chin: the two pads (viewer's left, right). */
     public static final float[] CHIN_PAD_L = {552, 1082}, CHIN_PAD_R = {648, 1082};
+    /** Forehead (frontalis, sensory nerves above the brows): pads ≥ 2 cm above the brows, below the hair. */
+    public static final float[] FOREHEAD_PAD = {675, 342};
+    public static final float[] FOREHEAD_PAIR = {675, 342, 772, 342};
+    /** Masseter (viewer's right): the muscle from the zygomatic arch to the jaw angle, and its two pads. */
+    public static final float[] MASS_TOP = {850, 735}, MASS_LOW = {806, 915};
+    public static final float[] JAW_PAD_UP = {836, 772}, JAW_PAD_LOW = {813, 872};
+    /** Lymph nodes the drainage pumps towards: in front of the ear, under the jaw (viewer's right). */
+    public static final float[] NODE_EAR = {872, 690}, NODE_JAW = {790, 965};
     /** How far the insertion moves towards the origin at full contraction (share of the muscle length). */
     public static final float SHORTEN = 0.11f;
     /** Pad half sizes, true to scale: 19 mm across the muscle, 16 mm along it. */
@@ -143,7 +161,19 @@ public final class FaceArt {
         if (s.target == FaceProgram.CHEEK && s.muscle) {
             for (int side = 0; side < 2; side++) {
                 zygomaticus(out, s, side);
-                lift(out, s, side);
+                if (s.drain) {
+                    flow(out, s, side);
+                } else {
+                    lift(out, s, side);
+                }
+            }
+        }
+        if (s.target == FaceProgram.FOREHEAD && s.muscle) {
+            forehead(out, s);
+        }
+        if (s.target == FaceProgram.JAW && s.muscle) {
+            for (int side = 0; side < 2; side++) {
+                masseter(out, s, side);
             }
         }
         if (s.pads && s.target >= 0) {
@@ -258,6 +288,114 @@ public final class FaceArt {
         }
     }
 
+    /** Drainage: drops of fluid running from the cheek to the node in front of the ear and to the one under the jaw. */
+    private static void flow(List<Prim> out, Scene s, int side) {
+        float lv = s.level[side];
+        if (!s.side[side]) {
+            return;
+        }
+        float[] from = lerp(ZM_O, ZM_I, 0.5f);
+        float[][] to = {NODE_EAR, NODE_JAW};
+        for (int k = 0; k < 2; k++) {
+            float[] a = from.clone();
+            float[] b = to[k].clone();
+            if (side == 0) {
+                a[0] = mx(a[0]);
+                b[0] = mx(b[0]);
+            }
+            float[] line = {M, a[0], a[1], L, b[0], b[1]};
+            Prim p = new Prim(ARROW, line, false);
+            p.dashed = true;
+            p.alpha = 0.35f + 0.4f * lv;
+            p.width = 0.6f;
+            out.add(p);
+            Prim node = new Prim(FLOW, circle(b[0], b[1], 0.22f * CM), false);
+            node.alpha = 0.5f + 0.5f * lv;
+            out.add(node);
+            for (int d = 0; d < 3; d++) {
+                float ph = frac(s.t * (0.45f + 0.5f * lv) + d / 3f);
+                float[] q = lerp(a, b, ph);
+                Prim drop = new Prim(SPARK, circle(q[0], q[1], 4.5f), true);
+                drop.alpha = (0.35f + 0.65f * lv) * (float) Math.sin(ph * Math.PI);
+                out.add(drop);
+            }
+        }
+    }
+
+    /** Forehead: the frontalis as a soft sheet; a sensory current makes it shimmer around the pads (no contraction). */
+    private static void forehead(List<Prim> out, Scene s) {
+        float lv = Math.max(s.level[0], s.level[1]);
+        float[] sheet = {M, 600, 262, C, 700, 262, 800, 300, 820, 380, C, 760, 410, 680, 420, 620, 425,
+                L, 580, 425, C, 520, 420, 440, 410, 380, 380, C, 400, 300, 500, 262, 600, 262, Z};
+        if (lv > 0.02f) {
+            Prim g = new Prim(GLOW, sheet, true);
+            g.alpha = 0.35f * lv;
+            out.add(g);
+        }
+        Prim m = new Prim(MUSCLE, sheet, true);
+        m.alpha = 0.18f + 0.12f * lv;
+        out.add(m);
+        for (int k = -3; k <= 3; k++) {
+            float x = 600 + k * 52;
+            float[] f = {M, x, 280 + Math.abs(k) * 10, C, x + k * 4, 330, x + k * 6, 380, x + k * 8, 418 - Math.abs(k) * 4};
+            Prim fp = new Prim(FIBRE, f, false);
+            fp.alpha = 0.3f + 0.2f * lv;
+            fp.width = 0.7f;
+            out.add(fp);
+        }
+        if (lv > 0.05f) {
+            // the tingle: quick sparks scattered over the forehead
+            for (int k = 0; k < 10; k++) {
+                float ph = frac(s.t * 1.7f + k * 0.137f);
+                float x = 430 + frac(k * 0.618f + 0.11f) * 340;
+                float y = 300 + frac(k * 0.382f + s.t * 0.05f) * 100;
+                Prim sp = new Prim(SPARK, circle(x, y, 3.5f), true);
+                sp.alpha = lv * (float) Math.sin(ph * Math.PI);
+                out.add(sp);
+            }
+        }
+    }
+
+    /** Masseter: a thick spindle from the zygomatic arch to the jaw angle; the bursts beat in it. */
+    private static void masseter(List<Prim> out, Scene s, int side) {
+        float lv = s.level[side];
+        boolean on = s.side[side];
+        float[] o = MASS_TOP.clone();
+        float[] i = MASS_LOW.clone();
+        if (side == 0) {
+            o[0] = mx(o[0]);
+            i[0] = mx(i[0]);
+        }
+        float dx = i[0] - o[0];
+        float dy = i[1] - o[1];
+        float len = (float) Math.sqrt(dx * dx + dy * dy);
+        float nx = -dy / len;
+        float ny = dx / len;
+        float w = 0.6f * CM;
+        float[] m = lerp(o, i, 0.5f);
+        float[] sp = {M, o[0] + nx * w * 0.6f, o[1] + ny * w * 0.6f,
+                C, m[0] + nx * w * 1.2f, m[1] + ny * w * 1.2f, m[0] + nx * w * 1.1f, m[1] + ny * w * 1.1f, i[0] + nx * w * 0.7f, i[1] + ny * w * 0.7f,
+                L, i[0] - nx * w * 0.7f, i[1] - ny * w * 0.7f,
+                C, m[0] - nx * w * 1.1f, m[1] - ny * w * 1.1f, m[0] - nx * w * 1.2f, m[1] - ny * w * 1.2f, o[0] - nx * w * 0.6f, o[1] - ny * w * 0.6f, Z};
+        float dim = on ? 1f : 0.35f;
+        if (lv > 0.02f && on) {
+            Prim g = new Prim(GLOW, sp, true);
+            g.alpha = 0.6f * lv;
+            out.add(g);
+        }
+        Prim body = new Prim(MUSCLE, sp, true);
+        body.alpha = (0.3f + 0.35f * lv) * dim;
+        out.add(body);
+        for (int k = -2; k <= 2; k++) {
+            float off = k * w * 0.4f;
+            float[] f = {M, o[0] + nx * off * 0.6f, o[1] + ny * off * 0.6f, L, i[0] + nx * off * 0.8f, i[1] + ny * off * 0.8f};
+            Prim fp = new Prim(FIBRE, f, false);
+            fp.alpha = (0.35f + 0.5f * lv) * dim;
+            fp.width = 0.7f;
+            out.add(fp);
+        }
+    }
+
     // ---------------------------------------------------------------- pads and keep-out zones
 
     private static void pads(List<Prim> out, Scene s) {
@@ -265,6 +403,34 @@ public final class FaceArt {
         if (s.target == FaceProgram.CHIN) {
             pad(out, s, CHIN_PAD_L, 0, 1, blink, true, 0);
             pad(out, s, CHIN_PAD_R, 0, 2, blink, true, 1);
+            return;
+        }
+        if (s.target == FaceProgram.FOREHEAD) {
+            if (s.pairs2) {
+                for (int side = 0; side < 2; side++) {
+                    float a = side == 0 ? mx(FOREHEAD_PAIR[2]) : FOREHEAD_PAIR[0];
+                    float b = side == 0 ? mx(FOREHEAD_PAIR[0]) : FOREHEAD_PAIR[2];
+                    pad(out, s, new float[] {a, FOREHEAD_PAIR[1]}, 0, 1, blink, s.side[side], side);
+                    pad(out, s, new float[] {b, FOREHEAD_PAIR[1]}, 0, 2, blink, s.side[side], side);
+                }
+            } else {
+                pad(out, s, new float[] {mx(FOREHEAD_PAD[0]), FOREHEAD_PAD[1]}, 0, 1, blink, true, 0);
+                pad(out, s, FOREHEAD_PAD, 0, 2, blink, true, 1);
+            }
+            return;
+        }
+        if (s.target == FaceProgram.JAW) {
+            for (int side = 0; side < 2; side++) {
+                float ang = (float) Math.toDegrees(Math.atan2(MASS_LOW[1] - MASS_TOP[1], (MASS_LOW[0] - MASS_TOP[0]) * (side == 0 ? -1 : 1)));
+                float[] u = JAW_PAD_UP.clone();
+                float[] d = JAW_PAD_LOW.clone();
+                if (side == 0) {
+                    u[0] = mx(u[0]);
+                    d[0] = mx(d[0]);
+                }
+                pad(out, s, u, ang, 1, blink, s.side[side], side);
+                pad(out, s, d, ang, 2, blink, s.side[side], side);
+            }
             return;
         }
         for (int side = 0; side < 2; side++) {
@@ -286,10 +452,11 @@ public final class FaceArt {
         }
         float[] box = roundRect(c[0], c[1], PAD_HW, PAD_HH, 0.3f * CM, angDeg);
         Prim p = new Prim(PAD, box, true);
-        p.alpha = (on ? 1f : 0.3f) * blink;
+        p.alpha = (on ? (s.outline ? 0.12f : 0.55f) : 0.2f) * blink;
         out.add(p);
         Prim e = new Prim(PAD_LINE, box, false);
-        e.alpha = (on ? 1f : 0.3f) * blink;
+        e.alpha = (on ? (s.outline ? 0.7f : 1f) : 0.3f) * blink;
+        e.dashed = s.outline;
         out.add(e);
         Prim l = new Prim(LABEL, String.valueOf(number), c[0], c[1]);
         l.alpha = on ? 1f : 0.4f;
@@ -299,6 +466,20 @@ public final class FaceArt {
     private static void nogo(List<Prim> out, Scene s) {
         for (int side = 0; side < 2; side++) {
             float cx = side == 0 ? mx(EYE[0]) : EYE[0];
+            if (s.target == FaceProgram.FOREHEAD) {
+                Prim e = new Prim(NOGO, ellipse(cx, EYE[1], EYE_RX, EYE_RY), false);
+                e.dashed = true;
+                e.alpha = 0.8f;
+                out.add(e);
+                continue;
+            }
+            if (s.target == FaceProgram.JAW) {
+                float tx = side == 0 ? mx(TRUNK[0]) : TRUNK[0];
+                out.add(nogoMark(tx, TRUNK[1]));
+                float nx = side == 0 ? mx(NECK[0]) : NECK[0];
+                out.add(nogoMark(nx, NECK[1]));
+                continue;
+            }
             if (s.target == FaceProgram.CHEEK) {
                 Prim e = new Prim(NOGO, ellipse(cx, EYE[1], EYE_RX, EYE_RY), false);
                 e.dashed = true;

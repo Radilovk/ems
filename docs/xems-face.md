@@ -1,4 +1,4 @@
-# Face — facial muscle stimulation (owner, 2026-11-06, 1.1.498-ai)
+# Face — facial stimulation (owner, 2026-11-06, 1.1.500-ai)
 
 Cosmetic NMES of the mimetic muscles. Two devices with different reach, so different programs:
 
@@ -143,7 +143,35 @@ One full-screen page for both devices (owner: "a completely different interface,
   the Bluetens lift timeline (holds 3 s, rests 6 s, ≥ 20 Hz, phases in order), the course math; SVGs of the scenes
   over the picture to look at.
 
-## 7. Open
+## 7. The procedure catalogue (1.1.500-ai — owner: "words that mean something for aesthetics, more procedures")
+`wearable/face/FaceProgram` — the cards speak to cosmeticians and clients: name, the visible result, two short
+chips (rhythm · when), ●●● how sure; the physiology behind ⓘ. Two kinds of current: **motor** (the muscle contracts,
+always ≥ 20 Hz on the face) and **sensory** (only the skin's nerves; the strength is a tingle, the muscle must not move).
+
+| Procedure (result) | Current | XEMS (Auto id) | Bluetens (file) | Evidence |
+|---|---|---|---|---|
+| **Лифтинг** — повдигнати, по-плътни скули | motor 70 Hz · 100 µs · 3 : 6 s | `face` | `XFLF` | ●●● Kavanagh 2012 RCT on the face |
+| **Стегнат овал** — еластичност, която пази лифтинга | motor 35 Hz · 100 µs · 4–5 : 5 s | `face_tone` | `XFTN` | ●●○ frequency–fatigue, IIA fibres |
+| **Детокс от отоци** — по-малко подпухване | motor pump 30 Hz · 100 µs · 1 : 2 s; Bluetens: the 2nd cheek 1.5 s later (a wave, `XFDB`) | `face_drain` | `XFDR` / `XFDB` | ●●○ NMES reduces oedema (Burgess 2019 systematic review; limbs) |
+| **Ботокс ефект** — отпусната мимика, по-гладко чело | sensory 60 Hz · 250 µs (the approved supraorbital device: 60 Hz, 250–300 µs, 20 min); XEMS 4 : 4 s (fused-impulse limit), Bluetens 5.5 s trains, width rising over 2 min | `face_relax` | `XFRX` | ●●○ TENS lowers muscle tone (stroke/SCI meta-analyses, 100 Hz best); short-lived, not a toxin substitute |
+| **Отпусната челюст** — по-мек долен овал | sensory burst TENS: 7 × 100 Hz twice a second · 150 µs, alternating with 3/s every 20 s (frequency change delays habituation) | — | `XJAW` | ●●○ TENS lowers resting masseter EMG (TMD RCT) |
+| **Стегната брадичка** — по-стегнат профил | motor 30 Hz · 200 µs · 4 : 8 s | — | `XCHN` | ●○○ contour not measured |
+
+- **Not offered, on purpose:** strengthening the frontalis (could deepen forehead lines — critique of the HIFES
+  studies); anything around the eye; microcurrent "lifting" (no controlled evidence, out of reach).
+- XEMS: the Auto menu shows **one** card, "Лице · естетични процедури" (`AutoCatalog.FACE`); the client step asks the
+  botox / filler question; the studio opens at the effect and offers the four. Bluetens: the six.
+- Placement in the picture (`FaceArt`): forehead pads ≥ 2 cm above the brows (XEMS: a pair on each half via the two arm
+  cables; Bluetens: one pair across the middle, as the approved device); masseter pads under the cheekbone and above
+  the jaw angle, ≥ 1.5 cm from the nerve trunk; the drainage shows the fluid's way to the nodes in front of the ear and
+  under the jaw. During strength and run the pads are outlines, so the working muscle shows through.
+- Studio layout: the picture fills the page height; the right column is the step (a 2-column card grid on the
+  effect step, scrolls if it must) over a course card on its floor.
+- Tests: AutoSim `face()` runs all four XEMS programs through every safety invariant (`runPlan`) plus their own
+  rhythm checks; BluetensSim checks every face file's widths (100 / 200 / 250 / 150 µs), ≥ 20 Hz, rest ratios;
+  face-sim checks the forehead and jaw pads' distances.
+
+## 8. Open
 1. Strength → mA for both units (0.5–1 kΩ, USB scope, 100 µs) → a hard face cap; tells whether "µs" is one phase.
 2. Face pads (≈ 3 cm² Ag/AgCl) with the arm-cable / Bluetens connector.
 3. A tablet screenshot of the studio (built offline; the picture layer is checked as SVG only).

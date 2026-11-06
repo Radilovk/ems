@@ -15,6 +15,8 @@
 
 
 # instance fields
+.field public drain:Z
+
 .field public hz:I
 
 .field public final level:[F
@@ -23,9 +25,15 @@
 
 .field public nogo:Z
 
+.field public outline:Z
+
 .field public pads:Z
 
+.field public pairs2:Z
+
 .field public placing:Z
+
+.field public sensory:Z
 
 .field public final side:[Z
 
@@ -43,40 +51,40 @@
 
     const/4 v1, 0x1
 
-    .line 40
+    .line 42
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 42
+    .line 44
     const/4 v0, 0x0
 
     iput v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceArt$Scene;->target:I
 
-    .line 44
+    .line 46
     new-array v0, v2, [F
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceArt$Scene;->level:[F
 
-    .line 46
+    .line 48
     new-array v0, v2, [Z
 
     fill-array-data v0, :array_1c
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceArt$Scene;->side:[Z
 
-    .line 47
+    .line 49
     iput-boolean v1, p0, Lcom/isaigu/gymapp/wearable/face/FaceArt$Scene;->pads:Z
 
-    .line 50
+    .line 52
     iput-boolean v1, p0, Lcom/isaigu/gymapp/wearable/face/FaceArt$Scene;->muscle:Z
 
-    .line 53
+    .line 55
     const/16 v0, 0x46
 
     iput v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceArt$Scene;->hz:I
 
     return-void
 
-    .line 46
+    .line 48
     :array_1c
     .array-data 1
         0x1t

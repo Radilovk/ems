@@ -83,6 +83,15 @@ public class FaceSim {
             float lip = dist(p[1], mouth) / cm;
             check(lip >= 1.2f, "lower pad " + lip + " cm from the mouth corner");
         }
+        // forehead: ≥ 2 cm above the brows (y ≈ 470), the pads clear of the eye zones; jaw: clear of the nerve trunk
+        check((470 - FaceArt.FOREHEAD_PAD[1]) / cm >= 2.0f, "forehead pads 2 cm above the brows");
+        float fx = Math.abs(FaceArt.FOREHEAD_PAIR[2] - FaceArt.EYE[0]) / FaceArt.EYE_RX;
+        float fy = Math.abs(FaceArt.FOREHEAD_PAIR[1] + FaceArt.PAD_HH - FaceArt.EYE[1]) / FaceArt.EYE_RY;
+        check(fx * fx + fy * fy > 1, "forehead pad outside the eye zone");
+        float jt = dist(FaceArt.JAW_PAD_UP, FaceArt.TRUNK) / cm;
+        check(jt >= 1.5f, "jaw pad " + jt + " cm from the nerve trunk");
+        float jd = dist(FaceArt.JAW_PAD_UP, FaceArt.JAW_PAD_LOW) / cm;
+        check(jd >= 2.0f && jd <= 3.5f, "jaw pads " + jd + " cm apart");
         float n = dist(FaceArt.CHIN_PAD_R, FaceArt.NECK) / cm;
         check(n >= 2.0f, "chin pad " + n + " cm from the side of the neck");
         float len = dist(FaceArt.ZM_O, FaceArt.ZM_I) / cm;
@@ -195,6 +204,7 @@ public class FaceSim {
                 case FaceArt.ARROW: stroke = accent; w = 5f; break;
                 case FaceArt.SPARK: fill = "#ffffff"; break;
                 case FaceArt.RIPPLE: stroke = accent; w = 3f; break;
+                case FaceArt.FLOW: stroke = accent; fill = accent; w = 3f; break;
                 case FaceArt.CORNER: fill = "#ffffff"; extra = " filter='url(#glow)'"; break;
                 default: stroke = "#ffffff"; break;
             }

@@ -110,8 +110,16 @@ public final class AutoCues {
             return AiText.t("Повдигане: силни кратки съкращения с дълга почивка — скуловият мускул става по-плътен и държи бузата нагоре.",
                     "Lift: short strong contractions with long rests — the cheek muscle thickens and holds the cheek up.");
         }
+        if (AutoCatalog.FACE_DRAIN.equals(id)) {
+            return AiText.t("Детокс: ритмичните стягания изпомпват задържаната течност към лимфните възли — лицето изглежда по-свежо.",
+                    "Depuff: rhythmic holds pump the held fluid to the lymph nodes — the face looks fresher.");
+        }
+        if (AutoCatalog.FACE_RELAX.equals(id)) {
+            return AiText.t("Ботокс ефект: нежният ток по сетивните нерви сваля тонуса на мимическите мускули — челото се отпуска.",
+                    "Botox effect: the gentle current on the sensory nerves lowers the tone of the expression muscles.");
+        }
         if (AutoCatalog.FACE_TONE.equals(id)) {
-            return AiText.t("Тонус: по-дълги меки съкращения — мускулите на лицето стават по-издръжливи и пазят постигнатото.",
+            return AiText.t("Стегнат овал: по-дълги меки стягания — мускулите на лицето стават по-издръжливи и пазят лифтинга.",
                     "Tone: longer soft contractions — the face muscles grow more enduring and keep what was gained.");
         }
         if (AutoCatalog.RECOVERY.equals(id)) {

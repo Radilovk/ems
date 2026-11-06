@@ -8,8 +8,9 @@ package com.isaigu.gymapp.wearable.bluetens;
  */
 public final class BluetensPrograms {
     public static final int RECOVER = 0, MASSAGE = 1, RELIEF = 2, ACTIVATE = 3, WARMUP = 4,
-            FACE = 5, FACE_TONE = 6, CHIN = 7;
-    public static final int[] ALL = {RECOVER, MASSAGE, RELIEF, ACTIVATE, WARMUP, FACE, FACE_TONE, CHIN};
+            FACE = 5, FACE_TONE = 6, CHIN = 7, FACE_DRAIN = 8, FACE_DRAIN_B = 9, FACE_RELAX = 10, JAW = 11;
+    public static final int[] ALL = {RECOVER, MASSAGE, RELIEF, ACTIVATE, WARMUP, FACE, FACE_TONE, CHIN, FACE_DRAIN, FACE_DRAIN_B,
+            FACE_RELAX, JAW};
     public static final int[] MINUTES = {10, 15, 20, 30};
 
     private BluetensPrograms() {}
@@ -23,6 +24,10 @@ public final class BluetensPrograms {
             case FACE: return bg ? "Лице · Повдигане" : "Face · Lift";
             case FACE_TONE: return bg ? "Лице · Тонус" : "Face · Tone";
             case CHIN: return bg ? "Под брадичката" : "Under the chin";
+            case FACE_DRAIN:
+            case FACE_DRAIN_B: return bg ? "Детокс от отоци" : "Depuff";
+            case FACE_RELAX: return bg ? "Ботокс ефект" : "Botox effect";
+            case JAW: return bg ? "Отпусната челюст" : "Relaxed jaw";
             default: return bg ? "Загряване" : "Warm-up";
         }
     }
@@ -38,6 +43,10 @@ public final class BluetensPrograms {
                     : "The cheek lifts for 3 s and rests 6 s · a pad per cheek, its own strength";
             case FACE_TONE: return bg ? "По-дълго меко стягане · поддръжка след курса" : "Longer soft holds · upkeep after the course";
             case CHIN: return bg ? "Стягане под брадичката · седнал, без храна и вода" : "Firming under the chin · seated, no food or drink";
+            case FACE_DRAIN:
+            case FACE_DRAIN_B: return bg ? "Мускулна помпа, бузите се редуват" : "A muscle pump, the cheeks take turns";
+            case FACE_RELAX: return bg ? "Нежно изтръпване на челото" : "A gentle tingle on the forehead";
+            case JAW: return bg ? "Дълбоко ритмично потупване" : "A deep rhythmic tapping";
             default: return bg ? "Вълна от бавно към по-бързо и обратно" : "A wave from slow to quicker and back";
         }
     }
@@ -68,6 +77,13 @@ public final class BluetensPrograms {
                     : "30 Hz · 200 µs: 4 s hold, 8 s silence (small muscles — low rate). Both pads under the chin, left and right "
                     + "of the midline, between the chin bone and the hyoid; never on the side of the neck. Seated, no food or "
                     + "drink — the current moves the swallowing muscles. A contour effect is not proven.";
+            case FACE_DRAIN:
+            case FACE_DRAIN_B: return bg ? "30 Hz · 100 µs: 1 s стягане, 2 s отдих; втората буза със закъснение 1,5 s — вълна"
+                    : "30 Hz · 100 µs: 1 s hold, 2 s rest; the second cheek 1.5 s later — a wave";
+            case FACE_RELAX: return bg ? "60 Hz · 250 µs (като одобреното устройство за челото), само сетивно — без движение"
+                    : "60 Hz · 250 µs (as the approved forehead device), sensory only — no movement";
+            case JAW: return bg ? "Серии от 7 импулса при 100 Hz, 2 пъти в секунда · 150 µs; сменя се с 3 серии в секунда"
+                    : "Bursts of 7 pulses at 100 Hz, twice a second · 150 µs; alternates with 3 a second";
             default: return bg ? "4 → 12 → 4 Hz · 250 µs" : "4 → 12 → 4 Hz · 250 µs";
         }
     }
@@ -80,6 +96,10 @@ public final class BluetensPrograms {
             case FACE: return 10;
             case FACE_TONE: return 10;
             case CHIN: return 10;
+            case FACE_DRAIN:
+            case FACE_DRAIN_B: return 10;
+            case FACE_RELAX: return 20;
+            case JAW: return 15;
             default: return 20;
         }
     }
@@ -93,6 +113,10 @@ public final class BluetensPrograms {
             case FACE: return 0xFFF472B6;
             case FACE_TONE: return 0xFFE879F9;
             case CHIN: return 0xFF818CF8;
+            case FACE_DRAIN:
+            case FACE_DRAIN_B: return 0xFF38BDF8;
+            case FACE_RELAX: return 0xFFF5B021;
+            case JAW: return 0xFF34D399;
             default: return 0xFFFB7185;
         }
     }
@@ -108,6 +132,10 @@ public final class BluetensPrograms {
             case FACE: code = "FLF"; break;
             case FACE_TONE: code = "FTN"; break;
             case CHIN: code = "CHN"; break;
+            case FACE_DRAIN: code = "FDR"; break;
+            case FACE_DRAIN_B: code = "FDB"; break;
+            case FACE_RELAX: code = "FRX"; break;
+            case JAW: code = "JAW"; break;
             default: code = "WRM"; break;
         }
         return "X" + code + minutes;
@@ -124,6 +152,10 @@ public final class BluetensPrograms {
             case FACE: face(lok, totalMs); break;
             case FACE_TONE: faceTone(lok, totalMs); break;
             case CHIN: chin(lok, totalMs); break;
+            case FACE_DRAIN: drain(lok, totalMs, false); break;
+            case FACE_DRAIN_B: drain(lok, totalMs, true); break;
+            case FACE_RELAX: relax(lok, totalMs); break;
+            case JAW: jaw(lok, totalMs); break;
             default: recover(lok, totalMs); break;
         }
         return lok;
@@ -249,6 +281,51 @@ public final class BluetensPrograms {
         hold(cyc, 30, new int[] {100, 130, 160, 180}, CHIN_US, 3200, 8000);
         BluetensLok.Section out = wake(lok, 30, 140, 2000, 8000);
         fill(lok, cyc, total, in.ms() + out.ms());
+    }
+
+    /** The forehead's sensory width (the approved supraorbital device: 250–300 µs) and the masseter's bursts. */
+    public static final int RELAX_US = 250, JAW_US = 150;
+
+    /**
+     * Depuff: a muscle pump — 30 Hz · 100 µs, 1 s (0.2 s rise / fall) : 2 s; {@code late} = the second cheek, half a
+     * cycle (1.5 s) later, so the two take turns like a wave (one pad per cheek, each its own file).
+     */
+    static void drain(BluetensLok lok, double total, boolean late) {
+        if (late) {
+            BluetensLok.Section d = lok.section(1);
+            BluetensLok.block(d, 1, 1500, 50, 300, 1);                 // one faint pulse, then the half-cycle wait
+        }
+        BluetensLok.Section in = wake(lok, 30, 70, 1000, 3000);
+        BluetensLok.Section cyc = lok.section(1);
+        hold(cyc, 30, new int[] {60, 80}, FACE_US, 600, 2000);
+        BluetensLok.Section out = wake(lok, 30, 70, 2000, 8000);
+        fill(lok, cyc, total, in.ms() + out.ms() + (late ? 1500 : 0));
+    }
+
+    /**
+     * The botox effect: a sensory current on the forehead — 60 Hz, the width rising to 250 µs over the first two
+     * minutes (like the approved device's slow start), 5.5 s trains with a 0.5 s breath (the fused-impulse limit).
+     */
+    static void relax(BluetensLok lok, double total) {
+        BluetensLok.Section in = lok.section(1);
+        int[] rise = {100, 140, 180, 220};
+        for (int w : rise) {
+            BluetensLok.block(in, 5, 500, w, 600, 330);              // 5 × 6 s at each width = 2 min
+        }
+        BluetensLok.Section cyc = lok.section(1);
+        BluetensLok.block(cyc, 1, 500, RELAX_US, 600, 330);
+        fill(lok, cyc, total, in.ms());
+    }
+
+    /**
+     * Relaxed jaw: burst TENS on the masseter — 7 pulses at 100 Hz, twice a second, 150 µs, alternating every 20 s
+     * with 3 bursts a second (5 pulses) so the nerves do not get used to one rhythm.
+     */
+    static void jaw(BluetensLok lok, double total) {
+        BluetensLok.Section cyc = lok.section(1);
+        BluetensLok.block(cyc, 40, 430, JAW_US, 1000, 7);              // 7 × 100 Hz + 0.43 s ≈ 2 Hz · 20 s
+        BluetensLok.block(cyc, 60, 283, JAW_US, 1000, 5);              // 5 × 100 Hz + 0.28 s ≈ 3 Hz · 20 s
+        fill(lok, cyc, total, 0);
     }
 
     static void warmup(BluetensLok lok, double total) {

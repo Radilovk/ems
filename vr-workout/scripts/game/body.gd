@@ -176,7 +176,10 @@ func update(delta: float) -> void:
 	var legs_ok := tracker != null and tracker.has_tracking_data and (tracker.body_flags & XRBodyTracker.BODY_FLAG_LOWER_BODY_SUPPORTED) != 0
 	has_legs = legs_ok or sim.has("knee_l") or feet_on() or not xl.is_empty()
 	var feet := _foot_map()
-	legs_src = "sensors" if not xl.is_empty() else "controller" if feet_on() else "estimate" if legs_ok else "none"
+	var ls := "sensors" if not xl.is_empty() else "controller" if feet_on() else "estimate" if legs_ok else "none"
+	if (ls == "sensors") != (legs_src == "sensors"):
+		changes.append(["legs", legs_src, ls])          # the game says it: sensors found / lost
+	legs_src = ls
 	for l in LIMBS:
 		var p := Vector3.ZERO
 		var ok := false

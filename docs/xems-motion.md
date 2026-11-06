@@ -322,6 +322,12 @@ sensors (208 Hz, filtered on the chip) → BLE 7.5 ms → phone: the solver → 
   `body.legs_src` = sensors · controller · estimate · none. The browser (WebXR) version has no UDP — the Quest app only.
 - The page shows "🥽 VR играта получава краката ✓" while a headset is linked.
 Not yet measured on the devices: the total latency (expected ≈ 25–35 ms before prediction).
+**Checked, both ends for real** (`sh scripts/vr-legs/run.sh`; in CI on every build with `GODOT=…`, the build stops if
+it fails): (1) the phone's own `VrLink.java` (plain Java) heard the game's broadcast question and streamed 147 poses in
+4 s to a stand-in game — 0 lost, ≈ 1 ms on one machine; (2) the game's own `motion_link.gd` + `body.gd` (Godot 4.4.1
+headless, `vr-workout/test/legs_test.gd`) against a stand-in phone: knees and feet come from the sensors, knee_l
+within 2 cm of where it must be. The game says it out loud: "Сензорите за краката са свързани ✓ …" (and when lost,
+during play), and the hands status line shows "крака: сензори ✓".
 
 ### AI (Gemini) — where it fits and where not
 Not for the live figure: a cloud model answers in 0.5–3 s, needs the network, costs per call and does not return

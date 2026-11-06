@@ -541,7 +541,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `server/src/exercises.js` (89L) — The picker groups the admin may give an exercise ('' = the library's own).
 - `server/src/history.js` (77L) — A training id is its start time in ms: digits only, else null.
 - `server/src/index.js` (1326L) — Worker entry: routes /v1/license/activate|refresh, /v1/app/update, releases, admin API, rate limits
-- `server/src/limits.js` (29L) — Caps and rate-limit settings — stay safe on Workers free tier.
+- `server/src/limits.js` (31L) — Caps and rate-limit settings — stay safe on Workers free tier.
 - `server/src/measures.js` (110L) — The client's scale measurements: the tablet sends each weigh-in's compact result (no impedances, no name);
 - `server/src/plans.js` (28L) — Plan presets → mods / feat arrays (applied at license creation).
 - `server/src/profile.js` (84L) — Client profiles from the booking PWA → the studio's tablets (validation, studio code, cheap limiter).

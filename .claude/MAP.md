@@ -1094,7 +1094,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L95 ## Left out on purpose
   - L103 ## Safety
 
-`docs/xems-motion.md` (536L)
+`docs/xems-motion.md` (558L)
   - L1 # XEMS Motion — body pose from five XIAO nRF52840 Sense sensors
   - L21 ## The app — "XEMS Движение" for Android (owner 2026-11-03: everything installable, as easy as possible)
   - L41 ### 1.1 / firmware 2 — "nothing lights, nothing is found" (owner's first try, 2026-11-04)
@@ -1114,22 +1114,23 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L244 ### 1.15 — the owner's clip as the truth (2026-11-05)
   - L269 ### 1.16 — the owner's raw log replayed against the clip; 7 sensors (2026-11-05)
   - L285 ### 1.17 — 5 sensors minimum, 6 at most; better computation, not more sensors (owner, 2026-11-05)
-  - L304 ### AI (Gemini) — where it fits and where not
-  - L311 ## Design in one picture
-  - L324 ## Hardware and placement
-  - L334 ## Sensor firmware (`fusion.h`, `xems_motion.ino`)
-  - L345 ## Calibration (≈ 6 s, one tap) — finds places, headings, zero
-  - L359 ## Pose solver (`Body.solve`, per back-sensor sample, < 1 ms)
-  - L378 ## Offline test (`sh scripts/motion-sim/run.sh`, ≈ 10 s)
-  - L395 ## Real movements — CMU motion capture (owner 2026-11-03: "precise movement templates")
-  - L434 ## The figure: the VR workout's android (owner 2026-11-03: "use the model we had, don't make a new one")
-  - L448 ## The 3-D body (owner 2026-11-03: "a 3-D model that moves in sync with the body")
-  - L465 ## Precision today — what to trust (5 sensors)
-  - L472 ## Arms: the learned corrector (owner 2026-11-03: "make the arms as accurate as the legs")
-  - L489 ### Tested: dead reckoning of the elbow from the zero pose (owner's idea, 2026-11-03)
-  - L502 ### Teacher recordings — exact arms with the same 5 sensors (built 2026-11-03)
-  - L518 ## Limits with five sensors (honest)
-  - L527 ## Roadmap
+  - L304 ### VR legs — the sensors as the VR game's legs (1.18, owner 2026-11-06: "like a native controller: fast, exact")
+  - L326 ### AI (Gemini) — where it fits and where not
+  - L333 ## Design in one picture
+  - L346 ## Hardware and placement
+  - L356 ## Sensor firmware (`fusion.h`, `xems_motion.ino`)
+  - L367 ## Calibration (≈ 6 s, one tap) — finds places, headings, zero
+  - L381 ## Pose solver (`Body.solve`, per back-sensor sample, < 1 ms)
+  - L400 ## Offline test (`sh scripts/motion-sim/run.sh`, ≈ 10 s)
+  - L417 ## Real movements — CMU motion capture (owner 2026-11-03: "precise movement templates")
+  - L456 ## The figure: the VR workout's android (owner 2026-11-03: "use the model we had, don't make a new one")
+  - L470 ## The 3-D body (owner 2026-11-03: "a 3-D model that moves in sync with the body")
+  - L487 ## Precision today — what to trust (5 sensors)
+  - L494 ## Arms: the learned corrector (owner 2026-11-03: "make the arms as accurate as the legs")
+  - L511 ### Tested: dead reckoning of the elbow from the zero pose (owner's idea, 2026-11-03)
+  - L524 ### Teacher recordings — exact arms with the same 5 sensors (built 2026-11-03)
+  - L540 ## Limits with five sensors (honest)
+  - L549 ## Roadmap
 
 `docs/xems-part-strength.md` (212L)
   - L1 # Избрани мускулни групи: сила на импулсите само за тях (v1.1.85, двата импулса поотделно от 1.1.366)
@@ -1510,14 +1511,15 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L111 ## Limits (what still needs a hand)
   - L118 ## Build & test
 
-`vr-workout/README.md` (205L)
+`vr-workout/README.md` (211L)
   - L1 # XEMS Studio — EMS VR workout for Quest 3
   - L7 ## The game (v0.4) — on the beat, felt three ways
-  - L18 ## The chef — scenario "Готвачът" (home menu → Сценарий)
-  - L60 ## Power of a hit — every scenario (`scripts/game/power.gd`)
-  - L178 ## In the Quest browser (WebXR) — the way it ships now
-  - L192 ## Build / preview
-  - L201 ## Licences
+  - L18 ## Real legs from the XEMS Motion sensors (body.gd source 0)
+  - L24 ## The chef — scenario "Готвачът" (home menu → Сценарий)
+  - L66 ## Power of a hit — every scenario (`scripts/game/power.gd`)
+  - L184 ## In the Quest browser (WebXR) — the way it ships now
+  - L198 ## Build / preview
+  - L207 ## Licences
 
 `vr-workout/assets/CREDITS.md` (29L)
   - L1 # Asset credits

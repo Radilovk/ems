@@ -15,6 +15,12 @@ wall-and-punch) whose share grows with the level. The level (speed, gap, mix) fo
 Borrowed from the best-rated VR fitness games: punch types and guard (FitXR, Les Mills Bodycombat), timing grades,
 multiplier and rank (Beat Saber), squats and side steps (Supernatural), walls (Beat Saber's obstacles).
 
+## Real legs from the XEMS Motion sensors (body.gd source 0)
+With the phone app "XEMS Движение" running on the same Wi-Fi (sensors on the shins), the game gets measured knees and
+feet: `scripts/game/motion_link.gd` asks for them once a second (UDP broadcast "XEMS-LEGS? <port>" → 47811), the phone
+streams them back (~50/s) and the game places them under the headset's head, predicted to now. Kicks, knees, squats
+and steps then come from the legs themselves. Quest app only (no UDP in the browser). docs/xems-motion.md "VR legs".
+
 ## The chef — scenario "Готвачът" (home menu → Сценарий)
 In **one of two real places, the player's pick** (home menu → *Къде е готвачът*: **Piazza Bologni** in Palermo or
 the colourful **retro Pretville Street**, Poly Haven 8K, placed so the open ground is ahead; choosing moves you there)

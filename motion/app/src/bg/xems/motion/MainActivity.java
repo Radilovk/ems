@@ -34,6 +34,7 @@ import java.io.OutputStream;
 public class MainActivity extends Activity {
     WebView web;
     Ble ble;
+    final VrLink vr = new VrLink();
     boolean pageReady;
 
     @Override
@@ -52,6 +53,7 @@ public class MainActivity extends Activity {
         web.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
                 | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
         ble = new Ble(this, new ToPage());
+        vr.start();
         web.addJavascriptInterface(new Bridge(), "XemsNative");
         setContentView(web);
         web.loadUrl("file:///android_asset/viewer/index.html?app=1");
@@ -98,6 +100,7 @@ public class MainActivity extends Activity {
     @Override
     protected void onDestroy() {
         ble.disconnectAll();
+        vr.stop();
         super.onDestroy();
     }
 
@@ -226,6 +229,17 @@ public class MainActivity extends Activity {
         @JavascriptInterface
         public void flash(String board, boolean withSoftDevice) {
             web.post(new StartFlash(board, withSoftDevice));
+        }
+
+        /** The VR game's headset on this Wi-Fi ("" = none heard): the legs go to it (VrLink). */
+        @JavascriptInterface
+        public String vrLinked() {
+            return vr.linked();
+        }
+
+        @JavascriptInterface
+        public void vrSend(String json) {
+            vr.send(json);
         }
 
         @JavascriptInterface

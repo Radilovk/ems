@@ -3,6 +3,8 @@
 ## controller while it is tracked, else the hand itself (hand tracking: put the controllers down and play with bare
 ## fists), else nothing — so a controller that wakes up, comes back into view or is picked up again is found on its own.
 ## Knees and feet, best first:
+##   0. the XEMS Motion sensors on the shins (MotionLink: the phone app sends the solved legs over the Wi-Fi) —
+##      measured knees and feet, the hands stay the controllers / hands as always.
 ##   1. a controller strapped to an ankle — found on its own: a controller that stays low (< 55 cm) while the head is
 ##      up is a foot; lifted back to the hands it is a hand again. Real kicks and knees, measured. The hands then come
 ##      from hand tracking (the cameras), at the same time as the controllers (Meta multimodal).
@@ -38,6 +40,9 @@ var changes: Array = []                 # [side, from, to] since the last frame:
 var feet_allowed := true                # the settings let a low controller become a foot
 var on_foot := {"left": false, "right": false}    # this controller is strapped to a foot
 var foot_xform := {"left": Transform3D(), "right": Transform3D()}  # world pose of a foot controller
+var link := MotionLink.new()           # the XEMS Motion sensors' legs (Wi-Fi), when the phone app sends them
+var legs_src := "none"                  # where the knees / feet come from now: sensors · controller · estimate · none
+var _fwd := Vector3(0, 0, -1)           # the body's heading (world): the head's, smoothed (a head turn alone is not a body turn)
 var _low := {"left": 0.0, "right": 0.0}
 var _high := {"left": 0.0, "right": 0.0}
 const FOOT_LOW := 0.55                  # m above the floor: a controller held this low for FOOT_SEC is on a foot …
@@ -160,15 +165,26 @@ func update(delta: float) -> void:
 			src[side] = hs[0]
 			_seen["hand_l" if side == "left" else "hand_r"] = false     # a jump between sources is not a punch
 		hand_xform[side] = hs[1]
+	link.poll(delta)
+	if cam:
+		var f := -cam.global_transform.basis.z
+		f.y = 0.0
+		if f.length() > 0.2:
+			_fwd = _fwd.slerp(f.normalized(), clampf(delta / 0.8, 0.0, 1.0)).normalized() if delta > 0.0 else f.normalized()
+	var xl: Dictionary = link.limbs(world_head, _fwd, stand_h) if not sim.has("knee_l") else {}
 	var tracker := XRServer.get_tracker("/user/body_tracker") as XRBodyTracker
 	var legs_ok := tracker != null and tracker.has_tracking_data and (tracker.body_flags & XRBodyTracker.BODY_FLAG_LOWER_BODY_SUPPORTED) != 0
-	has_legs = legs_ok or sim.has("knee_l") or feet_on()
+	has_legs = legs_ok or sim.has("knee_l") or feet_on() or not xl.is_empty()
 	var feet := _foot_map()
+	legs_src = "sensors" if not xl.is_empty() else "controller" if feet_on() else "estimate" if legs_ok else "none"
 	for l in LIMBS:
 		var p := Vector3.ZERO
 		var ok := false
 		if sim.has(l):
 			p = sim[l]
+			ok = true
+		elif not l.begins_with("hand") and not xl.is_empty() and xl.pos.has(l):
+			p = xl.pos[l]
 			ok = true
 		elif not l.begins_with("hand") and feet.has(l.substr(l.length() - 1)):
 			var ankle: Vector3 = feet[l.substr(l.length() - 1)]
@@ -199,6 +215,8 @@ func update(delta: float) -> void:
 					var c = hands.get(SIDES[l])
 					if c is XRController3D and (c as XRController3D).get_pose() != null:
 						raw = maxf(raw, (c as XRController3D).get_pose().linear_velocity.length())   # the controller's own
+				if not xl.is_empty() and xl.speed.has(l):
+					raw = maxf(raw, float(xl.speed[l]))     # the sensors' own speed (from their motion, not the frame step)
 				vpeak[l] = maxf(raw, float(vpeak.get(l, 0.0)) - 40.0 * delta)                 # holds ~0.1 s
 				runup[l] = minf(float(runup.get(l, 0.0)) + step, RUN_MAX) if raw >= RUN_V else 0.0
 			pos[l] = f

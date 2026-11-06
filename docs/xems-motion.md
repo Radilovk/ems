@@ -301,6 +301,28 @@ figure yet**: offline (CMU) with the measured pelvis, jumps / punches / knee-to-
 the pelvis height was far worse (up to 90°). `USE_PELVIS=1` / `usePelvis` switches it on for tuning. The scripted
 person's pelvis now tilts 0.35 × the chest's lean (as real people) for these tests.
 
+### VR legs — the sensors as the VR game's legs (1.18, owner 2026-11-06: "like a native controller: fast, exact")
+Researched first: a third-party sensor cannot become a system controller on a standalone Quest (no driver path);
+trackers of the same kind (SlimeVR) reach standalone games only when the GAME takes their data over the network
+(OSC/UDP — VRChat, VRWorkout). Direct Bluetooth from a Quest app is Android-possible but not supported by Meta for
+custom devices (reconnection trouble reported) — a later step after an on-device test. Chosen: **the phone bridges
+over the Wi-Fi to our own game, and the game predicts like Meta does for its controllers.**
+```
+sensors (208 Hz, filtered on the chip) → BLE 7.5 ms → phone: the solver → UDP (Wi-Fi, DSCP EF) → XEMS Studio (Quest)
+   → knees / feet under the headset's own head, turned with its heading, scaled to the player, predicted to "now"
+```
+- Finding: the game asks "XEMS-LEGS? <port>" once a second (UDP broadcast → 47811); the phone (`VrLink.java`)
+  answers by sending every solved pose to that port (unicast). No pairing; a headset silent for 5 s is forgotten.
+- Message (JSON, ~260 B, ~50/s): `{v:1, t, eye, H, L:{kl,kr,fl,fr}, V:{…}, air:[l,r]}` — knees and feet (mid-foot)
+  relative to the head in the body's frame (forward, left, up; m), their speeds (m/s), the phone body's height.
+- Game (`vr-workout/scripts/game/motion_link.gd`, used by `body.gd`): source 0 for knees and feet, before a controller
+  strapped to an ankle and Meta's estimated legs; positions = headset head + the vectors turned by the body heading
+  (the head's, smoothed over 0.8 s — a head turn alone does not swing the legs) × (player's standing head height /
+  0.956 H) + speed × age (network age from the fastest packet seen + 20 ms; ≤ 60 ms); the hit speed is the sensors' own.
+  `body.legs_src` = sensors · controller · estimate · none. The browser (WebXR) version has no UDP — the Quest app only.
+- The page shows "🥽 VR играта получава краката ✓" while a headset is linked.
+Not yet measured on the devices: the total latency (expected ≈ 25–35 ms before prediction).
+
 ### AI (Gemini) — where it fits and where not
 Not for the live figure: a cloud model answers in 0.5–3 s, needs the network, costs per call and does not return
 reliable joint angles — the figure must follow the body in < 50 ms. "Natural" comes from local models learned from

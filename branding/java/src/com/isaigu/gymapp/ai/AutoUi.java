@@ -130,6 +130,10 @@ public final class AutoUi {
         if (a == null || a.isFinishing()) {
             return;
         }
+        if (com.isaigu.gymapp.wearable.face.FaceStudio.ownsAuto()) {
+            com.isaigu.gymapp.wearable.face.FaceStudio.bringBack(a);      // a face procedure: its own studio
+            return;
+        }
         AutoSession.Stage st = AutoSession.getStage();
         if (st == AutoSession.Stage.IDLE) {
             String conflict = AutoSession.conflict();
@@ -228,6 +232,11 @@ public final class AutoUi {
     /** The run ended (time, STOP, or from the main screen): close the board, open the client's report. */
     static void onFinished() {
         dismiss();
+        if (com.isaigu.gymapp.wearable.face.FaceStudio.ownsAuto()) {
+            // the face studio shows its own end (course, next session); its "Готово" closes Auto and the report
+            com.isaigu.gymapp.wearable.face.FaceStudio.onAutoFinished();
+            return;
+        }
         try {
             com.isaigu.gymapp.wearable.SessionRecorder.finishAssisted();
         } catch (Throwable t) {
@@ -411,6 +420,14 @@ public final class AutoUi {
                         AutoSession.saveHeight(host, in.heightCm);
                     }
                     AutoSession.buildPlan();
+                    if (AutoCatalog.isFace(AutoCatalog.get(in.programId)) && host != null) {
+                        // the face has its own page (docs/xems-face.md): the session stays, the sheet goes;
+                        // the studio starts at the placement (effect chosen here, the face question answered here)
+                        Activity h = host;
+                        dismiss();
+                        com.isaigu.gymapp.wearable.face.FaceStudio.openAuto(h, in.programId);
+                        return;
+                    }
                     // The strength is set on the training screen itself (owner, 1.1.336): the sheet steps aside,
                     // the impulses run at the calibration, the board waits for ▶ Старт.
                     AutoSession.beginCalibration();
@@ -590,7 +607,8 @@ public final class AutoUi {
                     pickedLine = p.desc();
                 }
                 String art = p.isActive() ? ProgramArt.templateKey(in.sex) : ProgramArt.passiveKey(in.sex);
-                strip.addView(programCard(c, on, p.level, art, (p == rec ? "★ " : "") + p.name(), null,
+                String label = AutoCatalog.isFace(p) ? AiText.t("Лице · естетични процедури", "Face · aesthetic procedures") : p.name();
+                strip.addView(programCard(c, on, p.level, art, (p == rec ? "★ " : "") + label, null,
                         AutoCatalog.times(p, in.goal, in), null, new Act(A_PROGRAM, i)), cardParams(c));
                 shown++;
             }
@@ -859,6 +877,13 @@ public final class AutoUi {
             pp.addView(toggle(c, AiText.t("Диастаза (≥ 2 пръста)", "Diastasis (≥ 2 fingers)"), null, in.extra.diastasis, 3));
             body.addView(pp, XemsUi.matchWrap(c, 12));
         }
+        if (p != null && p.asksFace) {
+            LinearLayout fc = XemsUi.card(c);
+            fc.addView(toggle(c, AiText.t("Ботокс или филър в лицето през последните 2 седмици", "Botox or filler in the face within 2 weeks"),
+                    AiText.t("токът засилва и разнася действието им — днес без лице", "the current strengthens and spreads them — no face today"),
+                    in.extra.injectable, 20));
+            body.addView(fc, XemsUi.matchWrap(c, 12));
+        }
         if (p != null && p.asksBack) {
             LinearLayout bk = XemsUi.card(c);
             bk.addView(XemsUi.label(c, AiText.t("Гръб: има ли някое от тези?", "Back: any of these?")));
@@ -912,7 +937,8 @@ public final class AutoUi {
         body.addView(todayGrid, XemsUi.matchWrap(c, 6));
 
         boolean ready = pb == null;
-        footer(c, AiText.t("Към настройване  ›", "To setup  ›"), true);
+        footer(c, p != null && p.asksFace ? AiText.t("Към лицето  ›", "To the face  ›")
+                : AiText.t("Към настройване  ›", "To setup  ›"), true);
         enable(ready);
     }
 
@@ -1940,6 +1966,7 @@ public final class AutoUi {
                     case 1: in.extra.cesarean = v; break;
                     case 2: in.extra.breastfeeding = v; break;
                     case 3: in.extra.diastasis = v; break;
+                    case 20: in.extra.injectable = v; break;
                     case 10: in.extra.backAcute = v; break;
                     case 11: in.extra.backRadiating = v; break;
                     case 12: in.extra.backTrauma = v; break;

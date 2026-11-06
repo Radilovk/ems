@@ -31,6 +31,11 @@ public final class AutoLimits {
     /** Strength units a person may add per cycle (G3). */
     public static final int RAISE_PER_CYCLE = 5;
 
+    /** Auto's floor for this plan: the face runs its own narrow pulse (small pads, thin muscle), the body ≥ 150 µs. */
+    public static int pwMin(Plan plan) {
+        return plan != null && AutoCatalog.isFace(plan.program) ? AutoCatalog.FACE_PW : PW_MIN;
+    }
+
     /** L1: longest ON of a tetanic step (f ≥ 20 Hz). */
     public static int onMax(Plan plan, Phase ph) {
         if (ph != null && ph.wave) {
@@ -65,7 +70,7 @@ public final class AutoLimits {
     public static Step clampStep(Step s, Step next, Plan plan, Phase ph) {
         Step c = s.copy();
         c.hz = clamp(c.hz, 1, hzMax(plan));
-        c.pwUs = clamp(c.pwUs, PW_MIN, pwMax(c.hz));
+        c.pwUs = clamp(c.pwUs, pwMin(plan), pwMax(c.hz));
         c.onS = Math.max(1, c.onS);
         c.offS = Math.max(1, c.offS);
         if (c.isTetanic() && c.sigma > 0) {

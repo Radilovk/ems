@@ -28,16 +28,16 @@
     .registers 3
 
     .prologue
-    .line 1627
+    .line 1679
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 1628
+    .line 1680
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$LibraryLoaded;->v:Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;
 
-    .line 1629
+    .line 1681
     iput-object p2, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$LibraryLoaded;->l:Lcom/isaigu/gymapp/wearable/bluetens/BluetensLibrary$Lib;
 
-    .line 1630
+    .line 1682
     return-void
 .end method
 
@@ -47,7 +47,7 @@
     .registers 3
 
     .prologue
-    .line 1635
+    .line 1687
     :try_start_0
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$LibraryLoaded;->v:Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;
 
@@ -57,15 +57,15 @@
     :try_end_7
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_7} :catch_8
 
-    .line 1639
+    .line 1691
     :goto_7
     return-void
 
-    .line 1636
+    .line 1688
     :catch_8
     move-exception v0
 
-    .line 1637
+    .line 1689
     const-string v1, "BluetensScreen.library"
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V

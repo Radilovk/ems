@@ -202,6 +202,17 @@ public final class AutoPlanner {
             plan.zoneLocked[CHEST] = true;
             plan.note("Кърмене: гърдите са изключени", "Breastfeeding: chest channel off");
         }
+        if (AutoCatalog.isFace(p)) {
+            // the face connector: each channel is a face site — exactly the program's sites, none of the body's
+            // personal offsets (a "legs" focus must never reach a cheek), every other channel off and locked
+            for (int i = 0; i < CHANNELS; i++) {
+                plan.zones[i] = p.zones[i];
+                plan.zoneMax[i] = 100;
+                plan.zoneLocked[i] = p.zones[i] == 0;
+            }
+            plan.note("Лице: работят само местата на програмата (букса F1–F10)",
+                    "Face: only the program's sites work (connector F1–F10)");
+        }
         if (AutoCatalog.POSTPARTUM.equals(p.id) && in.extra.diastasis) {
             plan.zones[ABS] = Math.min(plan.zones[ABS], 40);
             plan.zoneMax[ABS] = 40;

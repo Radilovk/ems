@@ -44,7 +44,7 @@ import java.util.Set;
  */
 public final class BluetensScreen {
     static final String PREFS = "xems_bluetens";
-    static final int MAX_PADS = 2;
+    static final int MAX_PADS = 3;
     /** Live mode swaps between two files so the one playing is never overwritten. */
     static final String LIVE_A = "XLIVA", LIVE_B = "XLIVB";
 
@@ -354,7 +354,11 @@ public final class BluetensScreen {
                 return;
             }
             boolean b = bg();
+            programList.addView(faceCard(b), XemsUi.matchWrap(a, 4));
             for (int p : BluetensPrograms.ALL) {
+                if (BluetensFace.isFace(p)) {
+                    continue;                                  // the face has its own studio (faceCard)
+                }
                 boolean sel = p == program;
                 int tint = BluetensPrograms.tint(p);
                 LinearLayout r = XemsUi.horizontal(a);
@@ -380,6 +384,41 @@ public final class BluetensScreen {
                 r.setAlpha(running && !sel ? 0.4f : 1f);
                 programList.addView(r, XemsUi.matchWrap(a, 4));
             }
+        }
+
+        /** The face procedures' entry (docs/xems-face.md): its own studio over this page, the pads stay here. */
+        View faceCard(boolean b) {
+            int tint = 0xFFFF6F91;
+            boolean on = com.isaigu.gymapp.wearable.face.FaceStudio.deviceRunning(com.isaigu.gymapp.wearable.face.FaceDevice.BLUETENS);
+            LinearLayout r = XemsUi.horizontal(a);
+            r.setGravity(Gravity.CENTER_VERTICAL);
+            r.setPadding(dp(12), dp(10), dp(12), dp(10));
+            float rad = dp(14);
+            r.setBackground(XemsUi.ripple(XemsUi.rounded(XemsUi.alpha(tint, 0x1E), rad, XemsUi.alpha(tint, 0x99), dp(1.5f)), tint, rad));
+            r.setClickable(true);
+            r.setOnClickListener(new OpenFace(this));
+            XemsUi.pressable(r);
+            TextView dot = XemsUi.text(a, "◐", 15, XemsUi.ON_ACCENT, true);
+            dot.setGravity(Gravity.CENTER);
+            dot.setBackground(XemsUi.rounded(tint, dp(13), 0, 0));
+            r.addView(dot, new LinearLayout.LayoutParams(dp(26), dp(26)));
+            LinearLayout texts = XemsUi.vertical(a);
+            texts.addView(XemsUi.text(a, on ? tr("Лице · тече  ›", "Face · running  ›") : tr("Лице  ›", "Face  ›"), 16, tint, true));
+            texts.addView(XemsUi.text(a, tr("Повдигане · Тонус · Контур — естетични процедури", "Lift · Tone · Contour — aesthetic procedures"),
+                    12.5f, XemsUi.MUTED, false));
+            LinearLayout.LayoutParams tp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+            tp.leftMargin = dp(12);
+            r.addView(texts, tp);
+            return r;
+        }
+
+        BluetensFace faceDevice;
+
+        void openFace() {
+            if (faceDevice == null) {
+                faceDevice = new BluetensFace(this);
+            }
+            com.isaigu.gymapp.wearable.face.FaceStudio.openDevice(a, faceDevice);
         }
 
         /** The trainer's own programs: tap = choose, ✎ = the manual module; ＋ makes a new one. */
@@ -1337,6 +1376,19 @@ public final class BluetensScreen {
         }
     }
 
+    static final class OpenFace implements View.OnClickListener {
+        private final Page v;
+
+        OpenFace(Page v) {
+            this.v = v;
+        }
+
+        @Override
+        public void onClick(View view) {
+            v.openFace();
+        }
+    }
+
     static final class PickProgram implements View.OnClickListener {
         final Page v;
         final int p;
@@ -1671,6 +1723,41 @@ public final class BluetensScreen {
         }
     }
 
+    /**
+     * "Кога не" — the contraindications, asked of the client before the pads go on (Bluetens has no client record:
+     * the trainer asks; the face studio asks the face part itself). Same list as docs/xems-face.md §2.
+     */
+    static View contraCard(android.app.Activity a, boolean b) {
+        LinearLayout c = XemsUi.vertical(a);
+        c.setPadding(XemsUi.dp(a, 16), XemsUi.dp(a, 12), XemsUi.dp(a, 16), XemsUi.dp(a, 14));
+        c.setBackgroundDrawable(XemsUi.rounded(XemsUi.alpha(XemsUi.AMBER, 0x1A), XemsUi.dp(a, 16),
+                XemsUi.alpha(XemsUi.AMBER, 0x88), XemsUi.dp(a, 1)));
+        c.addView(XemsUi.text(a, b ? "Кога не — попитай преди електродите" : "When not — ask before the pads go on", 16,
+                XemsUi.AMBER, true));
+        String[] l = b ? new String[] {
+                "• Пейсмейкър, дефибрилатор или друг имплант с електроника — никъде по тялото",
+                "• Бременност — не върху корема, кръста и таза",
+                "• Епилепсия",
+                "• Рана, раздразнена кожа, обрив, изгаряне, намалена чувствителност в зоната",
+                "• Скорошна операция в зоната, тромбоза на крака",
+                "• Лице: ботокс или филър през последните 2 седмици, парализа на лицевия нерв",
+                "• Никога: около очите, отпред и отстрани на шията, през гърдите от едната към другата страна"}
+                : new String[] {
+                "• A pacemaker, defibrillator or other electronic implant — nowhere on the body",
+                "• Pregnancy — not on the belly, lower back or pelvis",
+                "• Epilepsy",
+                "• A wound, irritated skin, rash, burn or reduced feeling in the area",
+                "• Recent surgery in the area, a leg thrombosis",
+                "• Face: botox or filler within 2 weeks, facial palsy",
+                "• Never: around the eyes, the front and side of the neck, across the chest side to side"};
+        for (String x : l) {
+            TextView t = XemsUi.text(a, x, 14.5f, XemsUi.TEXT, false);
+            t.setPadding(0, XemsUi.dp(a, 6), 0, 0);
+            c.addView(t);
+        }
+        return c;
+    }
+
     static final class Info implements View.OnClickListener {
         final Page v;
 
@@ -1705,15 +1792,13 @@ public final class BluetensScreen {
             String[] lines = b ? new String[] {
                     "• Електродите — на чиста, суха кожа, върху мускула, не върху става или кост.",
                     "• Започва от сила 1. Качвай, докато е приятно — никога до болка.",
-                    "• Не върху гърдите при пейсмейкър, не по време на бременност, не върху рани.",
-                    "• Duo: двете устройства тръгват заедно, силата е отделна за всяко.",
+                    "• До 3 устройства: тръгват заедно, силата е отделна за всяко.",
                     "• „—“ свива прозореца: устройствата продължават, а ти работиш в XEMS. Докосни балончето, за да го отвориш.",
                     "• ✕ затваря прозореца и спира устройствата."}
                     : new String[] {
                     "• Electrodes on clean, dry skin over the muscle — not on a joint or bone.",
                     "• It starts at strength 1. Raise it until it feels good — never to pain.",
-                    "• Not on the chest with a pacemaker, not in pregnancy, not on wounds.",
-                    "• Duo: both pads start together; each has its own strength.",
+                    "• Up to 3 pads: they start together; each has its own strength.",
                     "• “—” folds the window: the pads keep going while you work in XEMS. Tap the pill to open it again.",
                     "• ✕ closes the window and stops the pads."};
             if (ld != null && (b ? ld[0] : ld[1]).length() > 0) {
@@ -1729,6 +1814,7 @@ public final class BluetensScreen {
             for (String l : lines) {
                 s.body.addView(XemsUi.text(v.a, l, 15, XemsUi.TEXT, false), XemsUi.matchWrap(v.a, 8));
             }
+            s.body.addView(contraCard(v.a, b), XemsUi.matchWrap(v.a, 16));
             XemsUi.fitHeight(v.a, s, 0.9f);
             s.dialog.show();
         }

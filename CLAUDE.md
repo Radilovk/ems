@@ -38,7 +38,7 @@ Agent-facing files are in English on purpose (≈2–3× fewer tokens than Cyril
 - Patch scripts find anchors in vendor smali (`*_MARKER`, `OLD`/`NEW` constants) — outline shows them as `const`.
 - Tests without device: `bash scripts/ble-sim/run*.sh`, `bash scripts/ai-sim/run.sh`, `bash scripts/ai-sim/run-auto.sh`, `bash scripts/music-sim/run.sh`, `bash scripts/bluetens/run.sh`, `bash scripts/mastogo/run.sh`, `bash wiems/xems/run.sh`, `sh wiems/app/test/run.sh`, `bash scripts/fit-sim/run.sh`, `bash scripts/part-sim/run.sh`, `python3 scripts/voice-sim/run.py`, `sh scripts/voice-sim/run-dfu.sh`, `sh scripts/motion-sim/run.sh`, `sh scripts/motion-sim/run-dfu.sh`,
   `cd band-app && bash scripts/test-band.sh`, `cd server && npm test`, `python3 scripts/ui-map.py --check`,
-  `sh scripts/xbody/test.sh`, `sh scripts/xbody/test-panel.sh`.
+  `sh scripts/xbody/test.sh`, `sh scripts/xbody/test-panel.sh`, `bash scripts/face-sim/run.sh`.
 
 ## Invariants (breaking one = broken release)
 - Never edit `build/decompiled/`; change `scripts/apply-*.py`, `branding/`, or Java.
@@ -84,6 +84,7 @@ Agent-facing files are in English on purpose (≈2–3× fewer tokens than Cyril
 | Workouts = impulse maps (blocks = sets), library (302, admin picks), run by map / with AI | `docs/xems-workouts.md` |
 | "План" tab, calendar, next client | `docs/xems-plan.md` |
 | Saved program as base, personalisation, diskette | `docs/xems-program-fit.md` |
+| Face procedures (XEMS arms outputs + Bluetens), physiology, the face studio | `docs/xems-face.md` |
 | Absolute limits of every mode (pause from Hz, 2nd impulse ≤ 10 Hz, 60+ ≤ 85 Hz) | `docs/xems-safety-limits.md` |
 | Client list rows, search keyboard, quick start | `docs/xems-client-list.md` |
 | Training screen focus layout (one client, body figure, rings) | `docs/xems-focus-board.md` |

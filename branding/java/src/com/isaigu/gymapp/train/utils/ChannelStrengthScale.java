@@ -49,7 +49,25 @@ public final class ChannelStrengthScale {
         currentPulseWidth = pwUs;
     }
 
+    /**
+     * Face mode (docs/xems-face.md §9): the face connector puts every channel on the face — each gets the arms
+     * divider (÷4 at 100 µs with D = 10) and no body balance correction: ten equal, gentle channels. Set by the
+     * automatic mode while a face program owns the output, cleared when it ends.
+     */
+    private static volatile boolean face;
+
+    public static void setFace(boolean on) {
+        face = on;
+    }
+
+    public static boolean isFace() {
+        return face;
+    }
+
     public static float scaleOutput(int channelIndex, float encodedValue) {
+        if (face && channelIndex != ARMS_CHANNEL_INDEX) {
+            return Math.round(encodedValue * armsFactor(currentPulseWidth));
+        }
         if (channelIndex == ARMS_CHANNEL_INDEX) {
             // to the nearest step, not down: at ÷10 the arms have only ~10 steps and flooring cost up to a whole one
             float exact = encodedValue * armsFactor(currentPulseWidth);
@@ -65,7 +83,7 @@ public final class ChannelStrengthScale {
      * 150 µs: chest 0.91, traps 0.93, back 0.94, front thigh 0.95, calf/back thigh 0.96, lower back/abs 0.98, glutes 1.
      */
     public static float balance(int channelIndex, int pwUs) {
-        if (channelIndex < 0 || channelIndex >= CHRONAXIE.length || channelIndex == ARMS_CHANNEL_INDEX || pwUs <= 0) {
+        if (face || channelIndex < 0 || channelIndex >= CHRONAXIE.length || channelIndex == ARMS_CHANNEL_INDEX || pwUs <= 0) {
             return 1f;
         }
         float max = 0f;

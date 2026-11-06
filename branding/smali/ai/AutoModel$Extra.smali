@@ -33,6 +33,8 @@
 
 .field public diastasis:Z
 
+.field public injectable:Z
+
 .field public weeksSinceBirth:I
 
 
@@ -58,7 +60,7 @@
     .registers 2
 
     .prologue
-    .line 73
+    .line 76
     iget-boolean v0, p0, Lcom/isaigu/gymapp/ai/AutoModel$Extra;->backAcute:Z
 
     if-nez v0, :cond_18

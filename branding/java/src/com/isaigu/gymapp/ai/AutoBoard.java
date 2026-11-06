@@ -117,7 +117,7 @@ public final class AutoBoard {
     static void sync(View any) {
         boolean run = AutoSession.getStage() == AutoSession.Stage.RUNNING && AutoSession.getEngine() != null;
         boolean setup = AutoSession.getStage() == AutoSession.Stage.CALIB && AutoSession.getPlan() != null;
-        boolean want = run || setup;
+        boolean want = (run || setup) && !com.isaigu.gymapp.wearable.face.FaceStudio.ownsAuto();
         try {
             if (!want) {
                 detach();

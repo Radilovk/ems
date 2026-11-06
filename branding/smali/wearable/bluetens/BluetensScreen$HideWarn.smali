@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 1470
+    .line 1522
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 1471
+    .line 1523
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$HideWarn;->p:Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Pad;
 
-    .line 1472
+    .line 1524
     return-void
 .end method
 
@@ -42,7 +42,7 @@
     .registers 3
 
     .prologue
-    .line 1476
+    .line 1528
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$HideWarn;->p:Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Pad;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Pad;->warn:Landroid/widget/TextView;
@@ -51,6 +51,6 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setVisibility(I)V
 
-    .line 1477
+    .line 1529
     return-void
 .end method

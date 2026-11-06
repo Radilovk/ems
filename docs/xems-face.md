@@ -1,4 +1,4 @@
-# Face — facial muscle stimulation (owner, 2026-11-06, 1.1.497-ai)
+# Face — facial muscle stimulation (owner, 2026-11-06, 1.1.498-ai)
 
 Cosmetic NMES of the mimetic muscles. Two devices with different reach, so different programs:
 
@@ -105,10 +105,45 @@ Strength: from 0, slowly, until the mouth corner lifts visibly; stay at that thr
 - Test `bash scripts/bluetens/run.sh`: ≥ 20 Hz, face ≤ 100 µs, chin ≤ 200 µs, lift silence ≥ 2× hold, tone / chin
   silence ≥ hold, length of every minute choice.
 
-## 6. Open
+## 6. The face studio (1.1.498-ai, `wearable/face/`)
+One full-screen page for both devices (owner: "a completely different interface, aesthetic, for clients and staff").
+- **Entry.** XEMS: Auto → Пасивна → Стягане → a face card → `FaceStudio.openAuto` (the Auto sheet closes, the
+  session stays; `FaceStudio.ownsAuto()` keeps `AutoUi` / `AutoBoard` / `AutoHints` away, `AutoUi.open` / `show`
+  bring the studio back, `AutoUi.onFinished` hands the end to it). Bluetens: the page's **Лице ›** card
+  (`BluetensScreen.faceCard`; the three face files are no longer in its list) → `FaceStudio.openDevice(BluetensFace)`.
+- **Left: the picture.** The owner's image `branding/face/face.webp` (→ assets/xems/face/, `apply-exercise-assets.py`)
+  with the anatomy of `FaceArt` drawn over it in the picture's pixels (landmarks measured on it, ≈ 46 px = 1 cm):
+  the target muscle (zygomaticus spindle with fibres / the suprahyoid bellies), the pads true to size with their
+  numbers, the keep-out zones (⊘ eye 2 cm, in front of the ear, side of the neck). While the device works the muscle
+  shortens and glows, impulses run along the fibres at the rate's speed, ripples leave the pads and the mouth corner
+  rises with an arrow — driven by the device's real rhythm (`FaceTimeline`: the Bluetens file itself; the suit's
+  cycle hook `AutoSession.lastCycleMs`). On the effect step it previews the program's own rhythm.
+- **Right: one thing at a time** (`1 Ефект · 2 Поставяне · 3 Сила`, then the run, then done):
+  1. Effect cards: result first (“По-плътна, повдигната скула”), the muscle and its Latin name, chips with rhythm and
+     course; ⓘ = the neurophysiology in a few lines (`FaceProgram.how`). The course line under them
+     (`FaceCourse`: session N of 56 · week W, or “the muscle recovers — best tomorrow after 14:00”).
+  2. Placement: three numbered lines + (XEMS) the arm cables, (Bluetens) each pad with its battery; the one question
+     (botox / filler < 2 weeks; Bluetens adds pacemaker, pregnancy, epilepsy, irritated skin — no client record
+     there) — the primary button is the "no" (“✓ Не · към силата”), “Да, има” blocks with the reason.
+  3. Strength: the target in words (“until the mouth corner visibly lifts — no pain, no blinking”), one big stepper
+     per channel (XEMS one, Bluetens one per cheek). **+ is one step per tap** (no hold-repeat on the face), − may be
+     held. XEMS runs its calibration cycle meanwhile (▶ Старт); Bluetens already runs the wake-up (✓ Добре е).
+  4. Run: `FaceRing` — three phase arcs, time left big, phase name, the beat pill “СТЯГАНЕ 2 / ОТДИХ 5” with an inner
+     arc; the steppers stay; ❚❚ (XEMS) and ■ (XEMS: to the let-go, then end; Bluetens: end). ✕ only hides while it
+     runs; the entry brings it back.
+  5. Done: ✓, “Сесия 7 от 56 е готова” + the course bar, the next good time, “Tone keeps it” after the 56th, the
+     redness note. A session counts from 60 % of the plan (prefs `xems_face`, key `u<clientId>` / `bt`).
+     XEMS: “Готово” then closes Auto and lets the client report show.
+- Minutes on Bluetens are derived: lift 10 in weeks 1–2, then 20; tone / contour 10.
+- Test: `bash scripts/face-sim/run.sh [svg dir]` — anatomy distances on the picture (pads 2–3.5 cm apart, ≥ 2 cm from
+  the eye corner and outside its zone, clear of the nerve trunk, not on the lip, chin pads ≥ 2 cm from the neck side),
+  the Bluetens lift timeline (holds 3 s, rests 6 s, ≥ 20 Hz, phases in order), the course math; SVGs of the scenes
+  over the picture to look at.
+
+## 7. Open
 1. Strength → mA for both units (0.5–1 kΩ, USB scope, 100 µs) → a hard face cap; tells whether "µs" is one phase.
 2. Face pads (≈ 3 cm² Ag/AgCl) with the arm-cable / Bluetens connector.
-3. Contraindication question for the face (botox / fillers < 2 weeks) on the Auto client step and the Bluetens ⓘ.
+3. A tablet screenshot of the studio (built offline; the picture layer is checked as SVG only).
 
 ## Sources
 Kavanagh 2012 J Cosmet Dermatol 10.1111/jocd.12007 · Efthimiou 2024 Behav Res Methods 56:2941 (PMC11133044) ·

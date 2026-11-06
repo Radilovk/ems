@@ -31,6 +31,7 @@
         Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$PickMine;,
         Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Tab;,
         Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$PickProgram;,
+        Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$OpenFace;,
         Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Go;,
         Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$StartScan;
     }

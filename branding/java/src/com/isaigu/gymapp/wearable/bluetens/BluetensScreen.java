@@ -354,7 +354,11 @@ public final class BluetensScreen {
                 return;
             }
             boolean b = bg();
+            programList.addView(faceCard(b), XemsUi.matchWrap(a, 4));
             for (int p : BluetensPrograms.ALL) {
+                if (BluetensFace.isFace(p)) {
+                    continue;                                  // the face has its own studio (faceCard)
+                }
                 boolean sel = p == program;
                 int tint = BluetensPrograms.tint(p);
                 LinearLayout r = XemsUi.horizontal(a);
@@ -380,6 +384,41 @@ public final class BluetensScreen {
                 r.setAlpha(running && !sel ? 0.4f : 1f);
                 programList.addView(r, XemsUi.matchWrap(a, 4));
             }
+        }
+
+        /** The face procedures' entry (docs/xems-face.md): its own studio over this page, the pads stay here. */
+        View faceCard(boolean b) {
+            int tint = 0xFFFF6F91;
+            boolean on = com.isaigu.gymapp.wearable.face.FaceStudio.deviceRunning(com.isaigu.gymapp.wearable.face.FaceDevice.BLUETENS);
+            LinearLayout r = XemsUi.horizontal(a);
+            r.setGravity(Gravity.CENTER_VERTICAL);
+            r.setPadding(dp(12), dp(10), dp(12), dp(10));
+            float rad = dp(14);
+            r.setBackground(XemsUi.ripple(XemsUi.rounded(XemsUi.alpha(tint, 0x1E), rad, XemsUi.alpha(tint, 0x99), dp(1.5f)), tint, rad));
+            r.setClickable(true);
+            r.setOnClickListener(new OpenFace(this));
+            XemsUi.pressable(r);
+            TextView dot = XemsUi.text(a, "◐", 15, XemsUi.ON_ACCENT, true);
+            dot.setGravity(Gravity.CENTER);
+            dot.setBackground(XemsUi.rounded(tint, dp(13), 0, 0));
+            r.addView(dot, new LinearLayout.LayoutParams(dp(26), dp(26)));
+            LinearLayout texts = XemsUi.vertical(a);
+            texts.addView(XemsUi.text(a, on ? tr("Лице · тече  ›", "Face · running  ›") : tr("Лице  ›", "Face  ›"), 16, tint, true));
+            texts.addView(XemsUi.text(a, tr("Повдигане · Тонус · Контур — естетични процедури", "Lift · Tone · Contour — aesthetic procedures"),
+                    12.5f, XemsUi.MUTED, false));
+            LinearLayout.LayoutParams tp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+            tp.leftMargin = dp(12);
+            r.addView(texts, tp);
+            return r;
+        }
+
+        BluetensFace faceDevice;
+
+        void openFace() {
+            if (faceDevice == null) {
+                faceDevice = new BluetensFace(this);
+            }
+            com.isaigu.gymapp.wearable.face.FaceStudio.openDevice(a, faceDevice);
         }
 
         /** The trainer's own programs: tap = choose, ✎ = the manual module; ＋ makes a new one. */
@@ -1334,6 +1373,19 @@ public final class BluetensScreen {
         public void onClick(View view) {
             XemsUi.haptic(view);
             v.go();
+        }
+    }
+
+    static final class OpenFace implements View.OnClickListener {
+        private final Page v;
+
+        OpenFace(Page v) {
+            this.v = v;
+        }
+
+        @Override
+        public void onClick(View view) {
+            v.openFace();
         }
     }
 

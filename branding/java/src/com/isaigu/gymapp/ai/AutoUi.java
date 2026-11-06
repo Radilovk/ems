@@ -130,6 +130,10 @@ public final class AutoUi {
         if (a == null || a.isFinishing()) {
             return;
         }
+        if (com.isaigu.gymapp.wearable.face.FaceStudio.ownsAuto()) {
+            com.isaigu.gymapp.wearable.face.FaceStudio.bringBack(a);      // a face procedure: its own studio
+            return;
+        }
         AutoSession.Stage st = AutoSession.getStage();
         if (st == AutoSession.Stage.IDLE) {
             String conflict = AutoSession.conflict();
@@ -228,6 +232,11 @@ public final class AutoUi {
     /** The run ended (time, STOP, or from the main screen): close the board, open the client's report. */
     static void onFinished() {
         dismiss();
+        if (com.isaigu.gymapp.wearable.face.FaceStudio.ownsAuto()) {
+            // the face studio shows its own end (course, next session); its "Готово" closes Auto and the report
+            com.isaigu.gymapp.wearable.face.FaceStudio.onAutoFinished();
+            return;
+        }
         try {
             com.isaigu.gymapp.wearable.SessionRecorder.finishAssisted();
         } catch (Throwable t) {
@@ -1896,6 +1905,13 @@ public final class AutoUi {
                 if (arg < menu.size()) {
                     in.programId = menu.get(arg).id;
                     modId = null;
+                    if (AutoCatalog.isFace(menu.get(arg)) && host != null) {
+                        // the face has its own page (docs/xems-face.md): the session stays, the sheet goes
+                        Activity h = host;
+                        dismiss();
+                        com.isaigu.gymapp.wearable.face.FaceStudio.openAuto(h, in.programId);
+                        return;
+                    }
                 }
                 break;
             }

@@ -1,0 +1,217 @@
+package com.isaigu.gymapp.wearable.face;
+
+import com.isaigu.gymapp.ai.AutoCatalog;
+import com.isaigu.gymapp.ai.AutoEngine;
+import com.isaigu.gymapp.ai.AutoModel;
+import com.isaigu.gymapp.ai.AutoSession;
+
+/**
+ * The XEMS suit as a face device: the automatic mode runs the face programs ({@code AutoCatalog.FACE*}: the arms
+ * channel only, every other channel off and locked, 100 µs, ≥ 20 Hz) with all its limits; the studio is its face.
+ */
+public final class FaceAuto implements FaceDevice {
+    private int program = FaceProgram.LIFT;
+    private boolean started;
+    private boolean ended;
+    private double share;
+
+    public int kind() {
+        return XEMS;
+    }
+
+    public int[] programs() {
+        return FaceProgram.XEMS;
+    }
+
+    public String courseKey() {
+        long id = AutoSession.leaderUserId();
+        return id > 0 ? "u" + id : "";
+    }
+
+    public String clientName() {
+        return AutoSession.leaderName();
+    }
+
+    public int channels() {
+        return 1;
+    }
+
+    public int sideOf(int ch) {
+        return -1;
+    }
+
+    public String channelName(int ch, boolean bg) {
+        return bg ? "Двете бузи" : "Both cheeks";
+    }
+
+    static String autoId(int program) {
+        return program == FaceProgram.TONE ? AutoCatalog.FACE_TONE : AutoCatalog.FACE;
+    }
+
+    public String notReady(int program, boolean bg) {
+        if (program == FaceProgram.CONTOUR) {
+            return bg ? "Контурът е само с Bluetens" : "Contour is Bluetens only";
+        }
+        String c = AutoSession.getStage() == AutoSession.Stage.IDLE ? AutoSession.conflict() : null;
+        if (c != null) {
+            return c;
+        }
+        return null;
+    }
+
+    public int strength(int ch) {
+        return AutoSession.leaderStrength();
+    }
+
+    public int maxStrength() {
+        return 100;
+    }
+
+    public int battery(int ch) {
+        return -1;
+    }
+
+    public void step(int ch, int dir) {
+        if (AutoSession.getStage() == AutoSession.Stage.CALIB) {
+            AutoSession.adjustCalibration(-1, dir);
+        } else if (AutoSession.getStage() == AutoSession.Stage.RUNNING) {
+            AutoSession.nudge(dir);
+        }
+    }
+
+    public String prepare(int program, int minutes, boolean bg) {
+        this.program = program;
+        AutoModel.Input in = AutoSession.getInput();
+        if (in == null) {
+            return bg ? "Автоматичният режим не е готов" : "Auto is not ready";
+        }
+        in.goal = AutoModel.Goal.TONE;
+        in.kind = AutoModel.Kind.PASSIVE;
+        in.programId = autoId(program);
+        AutoSession.buildPlan();
+        String block = AutoSession.leaderBlock();
+        if (block != null) {
+            return block;
+        }
+        AutoSession.beginCalibration();
+        started = false;
+        ended = false;
+        share = 0;
+        return null;
+    }
+
+    public boolean canStart() {
+        return AutoSession.getStage() == AutoSession.Stage.CALIB && AutoSession.canStart();
+    }
+
+    public void start(android.content.Context c) {
+        AutoSession.startRun(c);
+        started = AutoSession.getStage() == AutoSession.Stage.RUNNING;
+    }
+
+    public boolean active() {
+        AutoSession.Stage s = AutoSession.getStage();
+        return s == AutoSession.Stage.CALIB || s == AutoSession.Stage.RUNNING;
+    }
+
+    public boolean running() {
+        return AutoSession.getStage() == AutoSession.Stage.RUNNING && AutoSession.getEngine() != null;
+    }
+
+    public boolean canPause() {
+        return running();
+    }
+
+    public boolean paused() {
+        AutoEngine e = AutoSession.getEngine();
+        return e != null && e.getState() == AutoEngine.State.USER_PAUSE;
+    }
+
+    public void pause() {
+        AutoSession.togglePause();
+    }
+
+    public void stop() {
+        AutoEngine e = AutoSession.getEngine();
+        if (e != null) {
+            share = Math.max(share, e.getElapsedS() / Math.max(1.0, e.getElapsedS() + e.getRemainingS()));
+        }
+        AutoSession.stop();
+    }
+
+    public String stopLabel(boolean bg) {
+        AutoEngine e = AutoSession.getEngine();
+        boolean cool = e != null && e.phase() != null && e.phase().isCooldown();
+        return cool ? (bg ? "■  Край" : "■  End") : (bg ? "■  Към отпускане" : "■  To the let-go");
+    }
+
+    /** The automatic mode ended its run (AutoUi.onFinished → FaceStudio). */
+    void onEnded() {
+        AutoEngine e = AutoSession.getEngine();
+        if (e != null) {
+            double total = e.getElapsedS() + e.getRemainingS();
+            share = Math.max(share, total > 0 ? e.getElapsedS() / total : 0);
+        }
+        ended = true;
+    }
+
+    public boolean finished() {
+        return ended;
+    }
+
+    public double doneShare() {
+        return share;
+    }
+
+    public FaceTimeline.State state(long now) {
+        AutoEngine e = AutoSession.getEngine();
+        FaceTimeline.State st;
+        long since = now - AutoSession.lastCycleMs();
+        if (AutoSession.getStage() == AutoSession.Stage.CALIB) {
+            FaceProgram p = FaceProgram.get(program);
+            st = AutoSession.lastCycleMs() > 0 && since < 30000
+                    ? FaceTimeline.cycle(since, p.onS == 5 ? 4 : p.onS, p.offS, 500, 500, p.hz) : new FaceTimeline.State();
+            st.hz = p.hz;
+            st.phase = 1;
+            return st;
+        }
+        if (e == null) {
+            return new FaceTimeline.State();
+        }
+        AutoEngine.Cmd c = e.getCurrent();
+        boolean run = e.getState() == AutoEngine.State.RUN && c != null && c.frac > 0;
+        st = run && AutoSession.lastCycleMs() > 0
+                ? FaceTimeline.cycle(since, c.onS, c.offS, c.rampUpMs, c.rampDownMs, c.hz) : new FaceTimeline.State();
+        if (c != null) {
+            st.hz = c.hz;
+        }
+        AutoModel.Phase ph = e.phase();
+        st.phase = ph == null ? 1 : ph.isCooldown() ? 2 : "WARMUP".equals(ph.id) ? 0 : 1;
+        st.elapsedMs = Math.round(e.getElapsedS() * 1000);
+        st.totalMs = Math.round((e.getElapsedS() + e.getRemainingS()) * 1000);
+        st.done = e.getState() == AutoEngine.State.DONE || e.getState() == AutoEngine.State.STOPPED;
+        if (!run) {
+            st.leftMs = Math.round(e.phaseRemainingS() * 1000);
+        }
+        return st;
+    }
+
+    public long[] phases() {
+        AutoModel.Plan p = AutoSession.getPlan();
+        long[] out = new long[3];
+        if (p == null) {
+            return out;
+        }
+        for (AutoModel.Phase ph : p.phases) {
+            int k = ph.isCooldown() ? 2 : "WARMUP".equals(ph.id) ? 0 : 1;
+            out[k] += ph.durationS * 1000L;
+        }
+        return out;
+    }
+
+    public void cancel() {
+        if (!started) {
+            AutoSession.close();
+        }
+    }
+}

@@ -131,6 +131,10 @@ public final class AutoSession {
 
     public static void onPulseCycle(TrainItem item) {
         try {
+            if (item != null && stage == Stage.CALIB && item == leader()) {
+                lastHookMs = System.currentTimeMillis();          // the face studio's picture follows the calibration too
+                return;
+            }
             if (item == null || item != leader() || stage != Stage.RUNNING || engine == null) {
                 return;
             }
@@ -1207,6 +1211,51 @@ public final class AutoSession {
     }
 
     // ================================================================ energy (docs/xems-ems-physiology.md §4)
+
+    // ================================================================ the face studio (wearable/face/FaceAuto)
+
+    /** When the leader's impulse cycle last began (the device's hook; 0 = not yet). */
+    public static long lastCycleMs() {
+        return lastHookMs;
+    }
+
+    /** The strength the face works at: the calibration value, then what the suit really gets. */
+    public static int leaderStrength() {
+        if (rows.isEmpty()) {
+            return 0;
+        }
+        if (stage == Stage.CALIB) {
+            return Math.max(0, rows.get(0).lastStrength);
+        }
+        Row r = leaderRow();
+        if (r == null) {
+            return 0;
+        }
+        return r.writtenStrength >= 0 ? r.writtenStrength : strengthOf(r.item);
+    }
+
+    public static String leaderName() {
+        return rows.isEmpty() ? "" : rows.get(0).name;
+    }
+
+    public static long leaderUserId() {
+        return rows.isEmpty() ? 0 : rows.get(0).userId;
+    }
+
+    /** A blocking reason for the leader (the program's own rules), null = may run. */
+    public static String leaderBlock() {
+        return rows.isEmpty() ? null : rows.get(0).block;
+    }
+
+    /** ± 5 % on every row during the run (the face's small step; the limits keep the ceiling). */
+    public static void nudge(int dir) {
+        for (Row r : rows) {
+            r.user = Math.max(0.2, Math.min(2.0, r.user + 0.05 * (dir > 0 ? 1 : -1)));
+        }
+        if (engine != null && engine.getState() == AutoEngine.State.RUN && written != null) {
+            writeRows(written, false);
+        }
+    }
 
     private static Row leaderRow() {
         TrainItem l = leader();

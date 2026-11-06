@@ -23,15 +23,15 @@
     .registers 3
 
     .prologue
-    .line 1606
+    .line 1658
     const-string v0, "bluetens-library"
 
     invoke-direct {p0, v0}, Ljava/lang/Thread;-><init>(Ljava/lang/String;)V
 
-    .line 1607
+    .line 1659
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$LibraryLoader;->v:Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;
 
-    .line 1608
+    .line 1660
     return-void
 .end method
 
@@ -41,7 +41,7 @@
     .registers 5
 
     .prologue
-    .line 1614
+    .line 1666
     :try_start_0
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$LibraryLoader;->v:Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;
 
@@ -57,7 +57,7 @@
 
     move-result-object v0
 
-    .line 1619
+    .line 1671
     :goto_c
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$LibraryLoader;->v:Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;
 
@@ -71,19 +71,19 @@
 
     invoke-virtual {v1, v2}, Landroid/os/Handler;->post(Ljava/lang/Runnable;)Z
 
-    .line 1620
+    .line 1672
     return-void
 
-    .line 1615
+    .line 1667
     :catch_1b
     move-exception v0
 
-    .line 1616
+    .line 1668
     const-string v1, "BluetensLibrary.load"
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V
 
-    .line 1617
+    .line 1669
     new-instance v0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensLibrary$Lib;
 
     invoke-direct {v0}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensLibrary$Lib;-><init>()V

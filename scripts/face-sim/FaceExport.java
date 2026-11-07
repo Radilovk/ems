@@ -64,6 +64,7 @@ public class FaceExport {
         field("bluetens_pad_mm", new int[] {16, 19});
         field("bluetens_devices_max", 3);
         field("plus_is_one_step_per_tap", true);
+        field("face_pw_max_us", 150);
         close();
     }
 
@@ -92,6 +93,8 @@ public class FaceExport {
         o.append(ind()).append("\"nerve_trunk\": ").append(pt(FaceArt.TRUNK)).append(",\n");
         o.append(ind()).append("\"neck_side\": ").append(pt(FaceArt.NECK)).append(",\n");
         o.append(ind()).append("\"mouth_corner\": ").append(pt(FaceArt.MOUTH)).append(",\n");
+        o.append(ind()).append("\"nerve_exits\": [").append(pt(FaceArt.SUPRAORBITAL)).append(", ").append(pt(FaceArt.INFRAORBITAL))
+                .append(", ").append(pt(FaceArt.MENTAL)).append("],\n");
         close();
     }
 

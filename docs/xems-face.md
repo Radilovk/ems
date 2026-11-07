@@ -256,7 +256,43 @@ the face connector's ten sites F1–F10 and the eight procedures fit it as they 
   procedures.
 - The bench test (mA per level step on face pads) is needed on XBody too.
 
-## 11. Open
+## 12. Comfort: no deep ache, no sting (owner, 2026-11-07; 1.1.504-ai)
+**The report:** on the forehead a dull, deep ache "inside the bone", even at 2 %, with wide and with small
+self-adhesive pads (the hydrogel physiotherapy kind — the right ones); the muscle does nothing.
+**Why** (the neurophysiology, not a guess):
+- It is periosteal pain. The forehead has a few mm of tissue over the frontal bone; the current runs along the bone's
+  lining, rich in thin pain fibres (Aδ, C).
+- Pain fibres need **long** pulses: their threshold falls steeply as the pulse widens (Alon et al.: 350 → 30 mA from
+  5 → 1000 µs; C-fibre chronaxie ≈ 2 ms). Short pulses excite the large fibres (touch Aβ, motor) first. Conventional
+  TENS = 50–200 µs at 80–100 Hz (Aβ, a comfortable buzz); the "acupuncture-like" kind = ≥ 200 µs at low rates, aimed
+  at Aδ / C. Our forehead program had 250 µs (copied from the supraorbital device) — on the wrong side.
+- Depth is set by the distance between the two pads (closer = shallower), not by the pulse width; a pair across the
+  whole forehead sends the current deep along the bone.
+- Where a sensory nerve leaves the bone (supraorbital notch, infraorbital and mental foramina) a pad gives a strong
+  radiating tingle / ache with little muscle work; the nasolabial pad sat 1.6 cm from the infraorbital one.
+- Every abrupt train onset is a new sting; the Bluetens forehead trains started at full intensity.
+
+**The rules (both devices; AutoSim, BluetensSim, face-sim and the procedures.json check enforce them):**
+| | before | now |
+|---|---|---|
+| Ботокс ефект, Спокойно лице | 60 Hz · 250 µs | **100 Hz · 50 µs** (Calm: 100 ↔ 80 Hz) — conventional TENS; 100 Hz is also the best rate for tone reduction (meta-analysis) |
+| Стегната брадичка | 200 µs | **150 µs** |
+| Отпусната челюст (XEMS) | 2 Hz · 250 µs | **2 Hz · 150 µs** |
+| motor cheek programs | 100 µs | 100 µs (facial NMES 10–100 µs) |
+| any face pulse | — | **≤ 150 µs** (`face_pw_max_us`) |
+| Auto's face floor | 100 µs | 50 µs (`AutoLimits.pwMin` → `SafeLimits.PW_MIN`) |
+| forehead pair | 3.4 cm apart, across the middle | **2.2 cm** centre to centre ("един пръст между тях") |
+| nasolabial pads | 1.6 cm from the infraorbital foramen | **≥ 2 cm** (lower on the muscle) |
+| nerve exits | — | keep-out rings on the picture; every pad ≥ 1.5 cm (face-sim, check_procedures.py) |
+| Bluetens forehead train | full at once | **40 → 70 → 100 Hz over 0.3 s**, 5.2 s, 0.5 s rest |
+- Studio: **„Неприятно“** in the strength step and the run — one tap lowers at once (XEMS −10 % / −3 calibration
+  steps, Bluetens −3 each); the second tap opens what to check (deep ache = stop; pads close and flat, clean skin;
+  a sting = contact; a radiating tingle = over a nerve; ache at the lowest level = not this area today). The forehead's
+  strength goal says it too: "тъпа болка навътре: свали веднага".
+- If the ache stays on a person even at 50 µs with the pads close: the forehead is not for them — the programs stay
+  as they are, the studio's sheet says so.
+
+## 13. Open
 1. Strength → mA for both units (0.5–1 kΩ, USB scope, 100 µs) → a hard face cap; tells whether "µs" is one phase.
 2. Face pads (≈ 3 cm² Ag/AgCl) with the arm-cable / Bluetens connector.
 3. A tablet screenshot of the studio (built offline; the picture layer is checked as SVG only).

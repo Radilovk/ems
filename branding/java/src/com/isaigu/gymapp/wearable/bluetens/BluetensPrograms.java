@@ -71,17 +71,17 @@ public final class BluetensPrograms {
                     + " След курса за повдигане: 10–15 min 2–3 пъти седмично."
                     : "35 Hz · 100 µs: 5 s soft hold, 5 s silence — tires far slower than 70 Hz. " + CHEEK_EN
                     + " After the lift course: 10–15 min 2–3 times a week.";
-            case CHIN: return bg ? "30 Hz · 200 µs: 4 s стягане, 8 s тишина (малки мускули — ниска честота). Двата електрода под брадичката, "
+            case CHIN: return bg ? "30 Hz · 150 µs: 4 s стягане, 8 s тишина (малки мускули — ниска честота). Двата електрода под брадичката, "
                     + "вляво и вдясно от средата, между костта на брадичката и подезичната кост; никога отстрани на шията. "
                     + "Седнал, без храна и вода — токът движи мускулите на преглъщането. Ефект за контура не е доказан."
-                    : "30 Hz · 200 µs: 4 s hold, 8 s silence (small muscles — low rate). Both pads under the chin, left and right "
+                    : "30 Hz · 150 µs: 4 s hold, 8 s silence (small muscles — low rate). Both pads under the chin, left and right "
                     + "of the midline, between the chin bone and the hyoid; never on the side of the neck. Seated, no food or "
                     + "drink — the current moves the swallowing muscles. A contour effect is not proven.";
             case FACE_DRAIN:
             case FACE_DRAIN_B: return bg ? "30 Hz · 100 µs: 1 s стягане, 2 s отдих; втората буза със закъснение 1,5 s — вълна"
                     : "30 Hz · 100 µs: 1 s hold, 2 s rest; the second cheek 1.5 s later — a wave";
-            case FACE_RELAX: return bg ? "60 Hz · 250 µs (като одобреното устройство за челото), само сетивно — без движение"
-                    : "60 Hz · 250 µs (as the approved forehead device), sensory only — no movement";
+            case FACE_RELAX: return bg ? "100 Hz · 50 µs, само сетивно — без движение; всеки цуг започва меко"
+                    : "100 Hz · 50 µs, sensory only — no movement; every train starts soft";
             case JAW: return bg ? "Серии от 7 импулса при 100 Hz, 2 пъти в секунда · 150 µs; сменя се с 3 серии в секунда"
                     : "Bursts of 7 pulses at 100 Hz, twice a second · 150 µs; alternates with 3 a second";
             default: return bg ? "4 → 12 → 4 Hz · 250 µs" : "4 → 12 → 4 Hz · 250 µs";
@@ -247,7 +247,7 @@ public final class BluetensPrograms {
     /** Face pulse width, µs (facial NMES 10–100 µs per phase — Efthimiou 2024). */
     public static final int FACE_US = 100;
     /** Under the chin: thicker tissue over the suprahyoid muscles. */
-    public static final int CHIN_US = 200;
+    public static final int CHIN_US = 150;
     /** Nothing under this rate on the face (single twitches are uncomfortable and visible). */
     public static final int FACE_HZ_MIN = 20;
 
@@ -296,19 +296,19 @@ public final class BluetensPrograms {
     }
 
     /**
-     * Under the chin (suprahyoid: digastric, mylohyoid, geniohyoid): 30 Hz · 200 µs, 4 s : 8 s. Small muscles → low rate
+     * Under the chin (suprahyoid: digastric, mylohyoid, geniohyoid): 30 Hz · 150 µs, 4 s : 8 s. Small muscles → low rate
      * (submental NMES studies use 30–80 Hz); seated, never during eating or drinking. A cosmetic effect is not proven.
      */
     static void chin(BluetensLok lok, double total) {
-        BluetensLok.Section in = wake(lok, 30, 140, 2000, 8000);
+        BluetensLok.Section in = wake(lok, 30, 100, 2000, 8000);
         BluetensLok.Section cyc = lok.section(1);
-        hold(cyc, 30, new int[] {100, 130, 160, 180}, CHIN_US, 3200, 8000);
-        BluetensLok.Section out = wake(lok, 30, 140, 2000, 8000);
+        hold(cyc, 30, new int[] {70, 100, 125, 140}, CHIN_US, 3200, 8000);
+        BluetensLok.Section out = wake(lok, 30, 100, 2000, 8000);
         fill(lok, cyc, total, in.ms() + out.ms());
     }
 
-    /** The forehead's sensory width (the approved supraorbital device: 250–300 µs) and the masseter's bursts. */
-    public static final int RELAX_US = 250, JAW_US = 150;
+    /** The forehead's sensory width (conventional TENS, docs/xems-face.md §12) and the masseter's bursts. */
+    public static final int RELAX_US = 50, JAW_US = 150;
 
     /**
      * Depuff: a muscle pump — 30 Hz · 100 µs, 1 s (0.2 s rise / fall) : 2 s; {@code late} = the second cheek, half a
@@ -327,18 +327,18 @@ public final class BluetensPrograms {
     }
 
     /**
-     * The botox effect: a sensory current on the forehead — 60 Hz, the width rising to 250 µs over the first two
-     * minutes (like the approved device's slow start), 5.5 s trains with a 0.5 s breath (the fused-impulse limit).
+     * The botox effect: a sensory current on the forehead in the conventional-TENS band — 100 Hz, 50 µs (the large
+     * touch fibres, not the pain fibres of the periosteum, which need long pulses; docs/xems-face.md §12). Every 5.5 s
+     * train starts soft — 40 → 70 → 100 Hz over 0.3 s (the width is already at its floor) — and rests 0.5 s (the
+     * fused-impulse limit), so no train begins with a sting.
      */
     static void relax(BluetensLok lok, double total) {
-        BluetensLok.Section in = lok.section(1);
-        int[] rise = {100, 140, 180, 220};
-        for (int w : rise) {
-            BluetensLok.block(in, 5, 500, w, 600, 330);              // 5 × 6 s at each width = 2 min
-        }
         BluetensLok.Section cyc = lok.section(1);
-        BluetensLok.block(cyc, 1, 500, RELAX_US, 600, 330);
-        fill(lok, cyc, total, in.ms());
+        BluetensLok.block(cyc, 1, 0, RELAX_US, 400, 4);               // 40 Hz · 0.1 s
+        BluetensLok.block(cyc, 1, 0, RELAX_US, 700, 7);               // 70 Hz · 0.1 s
+        BluetensLok.block(cyc, 1, 0, RELAX_US, 1000, 10);             // 100 Hz · 0.1 s
+        BluetensLok.block(cyc, 1, 500, RELAX_US, 1000, 520);          // 100 Hz · 5.2 s, then 0.5 s rest
+        fill(lok, cyc, total, 0);
     }
 
     /**

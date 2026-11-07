@@ -28,16 +28,16 @@
     .registers 3
 
     .prologue
-    .line 1273
+    .line 1311
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 1274
+    .line 1312
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Next;->v:Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;
 
-    .line 1275
+    .line 1313
     iput p2, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Next;->to:I
 
-    .line 1276
+    .line 1314
     return-void
 .end method
 
@@ -47,18 +47,18 @@
     .registers 4
 
     .prologue
-    .line 1280
+    .line 1318
     invoke-virtual {p1}, Landroid/view/View;->isEnabled()Z
 
     move-result v0
 
     if-nez v0, :cond_7
 
-    .line 1284
+    .line 1322
     :goto_6
     return-void
 
-    .line 1283
+    .line 1321
     :cond_7
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Next;->v:Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;
 

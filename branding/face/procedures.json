@@ -13,25 +13,26 @@
   "limits": {
     "motor_hz_min": 20,
     "motor_pw_us": 100,
-    "forehead_pw_us": 250,
-    "jaw_pw_us": 250,
-    "chin_pw_us": 200,
+    "forehead_pw_us": 50,
+    "jaw_pw_us": 150,
+    "chin_pw_us": 150,
     "recovery_s": 120,
     "connector_pad_mm": [12, 16],
     "bluetens_pad_mm": [16, 19],
     "bluetens_devices_max": 3,
-    "plus_is_one_step_per_tap": true
+    "plus_is_one_step_per_tap": true,
+    "face_pw_max_us": 150
   },
   "sites": [
     {"id": 0, "socket": "F1", "suit_channel": 0, "name_bg": "скула · лява", "name_en": "cheekbone · left", "pads": [[805.70, 706.80], [766.64, 777.36]], "pad_angle_deg": 118.97},
     {"id": 1, "socket": "F2", "suit_channel": 1, "name_bg": "скула · дясна", "name_en": "cheekbone · right", "pads": [[394.30, 706.80], [433.36, 777.36]], "pad_angle_deg": 61.03},
-    {"id": 2, "socket": "F3", "suit_channel": 2, "name_bg": "назолабиална · лява", "name_en": "nasolabial · left", "pads": [[703.36, 708.24], [690.16, 799.44]], "pad_angle_deg": 98.24},
-    {"id": 3, "socket": "F4", "suit_channel": 3, "name_bg": "назолабиална · дясна", "name_en": "nasolabial · right", "pads": [[496.64, 708.24], [509.84, 799.44]], "pad_angle_deg": 81.76},
+    {"id": 2, "socket": "F3", "suit_channel": 2, "name_bg": "назолабиална · лява", "name_en": "nasolabial · left", "pads": [[700.50, 728], [687.30, 819.20]], "pad_angle_deg": 98.24},
+    {"id": 3, "socket": "F4", "suit_channel": 3, "name_bg": "назолабиална · дясна", "name_en": "nasolabial · right", "pads": [[499.50, 728], [512.70, 819.20]], "pad_angle_deg": 81.76},
     {"id": 4, "socket": "F5", "suit_channel": 4, "name_bg": "долна буза · лява", "name_en": "lower cheek · left", "pads": [[814, 894], [734, 912]], "pad_angle_deg": 167.32},
     {"id": 5, "socket": "F6", "suit_channel": 5, "name_bg": "долна буза · дясна", "name_en": "lower cheek · right", "pads": [[386, 894], [466, 912]], "pad_angle_deg": 12.68},
     {"id": 6, "socket": "F7", "suit_channel": 6, "name_bg": "челюст · лява", "name_en": "jaw · left", "pads": [[836, 772], [813, 872]], "pad_angle_deg": 102.95},
     {"id": 7, "socket": "F8", "suit_channel": 7, "name_bg": "челюст · дясна", "name_en": "jaw · right", "pads": [[364, 772], [387, 872]], "pad_angle_deg": 77.05},
-    {"id": 8, "socket": "F9", "suit_channel": 8, "name_bg": "чело", "name_en": "forehead", "pads": [[525, 342], [675, 342]], "pad_angle_deg": 0},
+    {"id": 8, "socket": "F9", "suit_channel": 8, "name_bg": "чело", "name_en": "forehead", "pads": [[549, 342], [651, 342]], "pad_angle_deg": 0},
     {"id": 9, "socket": "F10", "suit_channel": 9, "name_bg": "под брадичката", "name_en": "under the chin", "pads": [[552, 1082], [648, 1082]], "pad_angle_deg": 0}
   ],
   "keep_out": {
@@ -39,7 +40,8 @@
     "eye_corner": [840, 550],
     "nerve_trunk": [884, 712],
     "neck_side": [748, 1168],
-    "mouth_corner": [710, 872]
+    "mouth_corner": [710, 872],
+    "nerve_exits": [[757, 478], [748, 650], [690, 985]]
   },
   "procedures": [
     {
@@ -283,7 +285,7 @@
       "evidence": 2,
       "tint": "#F5B021",
       "glyph": "∿",
-      "rhythm_bg": "60 Hz · без движение",
+      "rhythm_bg": "100 Hz · без движение",
       "course_bg": "20 мин дневно",
       "course": {
         "weeks": 0,
@@ -291,12 +293,12 @@
         "gap_early_days": 1,
         "gap_later_days": 1
       },
-      "how_bg": "Нежен ток (60 Hz) докосва само сетивните нерви на челото (n. supraorbitalis, n. supratrochlearis) — мускулът не се движи. Сетивният поток потиска възбудимостта на двигателните неврони и тонусът на мимическите мускули спада: челото и междувеждието се отпускат, бръчките от мимика омекват. Че такъв ток намалява мускулния тонус, е доказано (мета-анализи); разположението и параметрите са като при одобреното медицинско устройство за челото. Ефектът е за часове и се натрупва с редовност. Не замества ботулиновия токсин.",
-      "how_en": "A gentle current (60 Hz) touches only the sensory nerves of the forehead — the muscle does not move. The sensory input damps the excitability of the motor neurons and the tone of the expression muscles drops: the forehead and the frown relax, expression lines soften. That such current lowers muscle tone is proven (meta-analyses); placement and settings match the approved medical forehead device. The effect lasts hours and builds with regular use. It does not replace botulinum toxin.",
-      "place_xems_bg": ["Почисти челото, без крем", "Двойката — на челото, от двете страни на средата", "Два пръста над веждите, под косата — никога към окото"],
-      "place_bluetens_bg": ["Почисти челото, без крем", "Двойката — на челото, от двете страни на средата", "Два пръста над веждите, под косата — никога към окото"],
-      "strength_goal_bg": "Качвай до ясно, приятно изтръпване — веждите не бива да мърдат",
-      "strength_goal_en": "Raise to a clear, pleasant tingle — the brows must not move",
+      "how_bg": "Нежен ток (100 Hz, тесен импулс 50 µs) докосва само сетивните влакна на допир в кожата на челото — мускулът не се движи. Сетивният поток потиска възбудимостта на двигателните неврони и тонусът на мимическите мускули спада: челото и междувеждието се отпускат, бръчките от мимика омекват. Че такъв ток намалява мускулния тонус, е доказано (мета-анализи; 100 Hz е най-ефективната честота). Импулсът е тесен нарочно: болковите влакна на костната обвивка отговарят само на дълги импулси, затова на тънката кожа на челото усещането остава приятно изтръпване, а не болка в костта. Ефектът е за часове и се натрупва с редовност. Не замества ботулиновия токсин.",
+      "how_en": "A gentle current (100 Hz, a narrow 50 µs pulse) touches only the touch fibres of the forehead skin — the muscle does not move. The sensory input damps the excitability of the motor neurons and the tone of the expression muscles drops: the forehead and the frown relax, expression lines soften. That such current lowers muscle tone is proven (meta-analyses; 100 Hz works best). The pulse is narrow on purpose: the pain fibres of the bone's lining answer only long pulses, so on the thin forehead skin it stays a pleasant tingle, not an ache in the bone. The effect lasts hours and builds with regular use. It does not replace botulinum toxin.",
+      "place_xems_bg": ["Почисти челото, без крем", "Двойката близо — един пръст между електродите, в средата на челото", "Два пръста над веждите, под косата — никога към окото"],
+      "place_bluetens_bg": ["Почисти челото, без крем", "Двойката близо — един пръст между електродите, в средата на челото", "Два пръста над веждите, под косата — никога към окото"],
+      "strength_goal_bg": "Качвай до ясно, приятно изтръпване по кожата — тъпа болка навътре: свали веднага",
+      "strength_goal_en": "Raise to a clear, pleasant tingle on the skin — a dull ache inside: lower at once",
       "xems_sites": [8],
       "bluetens_sites": [8],
       "bluetens_files": ["FRX"],
@@ -308,17 +310,17 @@
         "phases": [
           {"id": "WARMUP", "name_bg": "Включване", "duration_s": 96, "cooldown": false, "wave": false, "phi": [0.60, 0.70], "env": [0.60, 0.90], "hint_bg": "Затвори очи — само изтръпване, нищо не мърда",
             "steps": [
-              {"hz": 60, "pw_us": 250, "on_s": 4, "off_s": 4, "ramp_up_ms": 1000, "ramp_down_ms": 1000, "sigma": 1, "zones": null}
+              {"hz": 100, "pw_us": 50, "on_s": 4, "off_s": 4, "ramp_up_ms": 1000, "ramp_down_ms": 1000, "sigma": 1, "zones": null}
             ]
           },
           {"id": "MAIN", "name_bg": "Отпускане на мимиката", "duration_s": 1104, "cooldown": false, "wave": false, "phi": [0.70, 0.70], "env": [1, 1], "hint_bg": "Затвори очи, отпусни челото — токът работи по нервите",
             "steps": [
-              {"hz": 60, "pw_us": 250, "on_s": 4, "off_s": 4, "ramp_up_ms": 1000, "ramp_down_ms": 1000, "sigma": 1, "zones": null}
+              {"hz": 100, "pw_us": 50, "on_s": 4, "off_s": 4, "ramp_up_ms": 1000, "ramp_down_ms": 1000, "sigma": 1, "zones": null}
             ]
           },
           {"id": "COOLDOWN", "name_bg": "Затихване", "duration_s": 120, "cooldown": true, "wave": false, "phi": [0.50, 0.50], "env": [0.50, 0.50], "hint_bg": "Остани отпуснат още малко",
             "steps": [
-              {"hz": 60, "pw_us": 250, "on_s": 4, "off_s": 4, "ramp_up_ms": 1000, "ramp_down_ms": 1000, "sigma": 1, "zones": null}
+              {"hz": 100, "pw_us": 50, "on_s": 4, "off_s": 4, "ramp_up_ms": 1000, "ramp_down_ms": 1000, "sigma": 1, "zones": null}
             ]
           }
         ]
@@ -338,7 +340,7 @@
       "evidence": 2,
       "tint": "#2DD4BF",
       "glyph": "◌",
-      "rhythm_bg": "60 ↔ 80 Hz · без движение",
+      "rhythm_bg": "80 ↔ 100 Hz · без движение",
       "course_bg": "20 мин · вечер",
       "course": {
         "weeks": 0,
@@ -346,12 +348,12 @@
         "gap_early_days": 1,
         "gap_later_days": 1
       },
-      "how_bg": "Нежен сетивен ток едновременно по челото и по двата дъвкателни мускула — там, където лицето държи напрежението от деня. Сетивният поток сваля тонуса на мускулите (доказано за такъв ток); честотата се сменя между 60 и 80 Hz, за да не привикнат нервите. Челото се отпуска, челюстта се разтваря, чертите омекват. Идеално вечер или след стрес.",
-      "how_en": "A gentle sensory current on the forehead and both masseters at once — where the face holds the day's tension. The sensory input lowers muscle tone (proven for such current); the rate alternates 60 ↔ 80 Hz so the nerves do not get used to it. Best in the evening or after stress.",
-      "place_xems_bg": ["Почисти челото и бузите, без крем", "Чело — два пръста над веждите · челюст — стисни зъби и сложи на мускула", "Никога към окото, никога отстрани на шията"],
-      "place_bluetens_bg": ["Почисти челото и бузите, без крем", "Чело — два пръста над веждите · челюст — стисни зъби и сложи на мускула", "Никога към окото, никога отстрани на шията"],
-      "strength_goal_bg": "Качвай до ясно, приятно изтръпване — нищо не мърда",
-      "strength_goal_en": "Raise to a clear, pleasant tingle — nothing moves",
+      "how_bg": "Нежен сетивен ток едновременно по челото и по двата дъвкателни мускула — там, където лицето държи напрежението от деня. Сетивният поток сваля тонуса на мускулите (доказано за такъв ток); честотата се сменя между 80 и 100 Hz, при тесен импулс, за да не привикнат нервите и да няма дълбока болка. Челото се отпуска, челюстта се разтваря, чертите омекват. Идеално вечер или след стрес.",
+      "how_en": "A gentle sensory current on the forehead and both masseters at once — where the face holds the day's tension. The sensory input lowers muscle tone (proven for such current); the rate alternates 80 ↔ 100 Hz at a narrow pulse so the nerves do not get used to it. Best in the evening or after stress.",
+      "place_xems_bg": ["Почисти челото и бузите, без крем", "Чело — двойката близо, два пръста над веждите · челюст — стисни зъби, сложи на мускула", "Никога към окото, никога отстрани на шията"],
+      "place_bluetens_bg": ["Почисти челото и бузите, без крем", "Чело — двойката близо, два пръста над веждите · челюст — стисни зъби, сложи на мускула", "Никога към окото, никога отстрани на шията"],
+      "strength_goal_bg": "Качвай до ясно, приятно изтръпване — нищо не мърда, нищо не боли навътре",
+      "strength_goal_en": "Raise to a clear, pleasant tingle — nothing moves, nothing aches inside",
       "xems_sites": [8, 6, 7],
       "bluetens_sites": [8, 6, 7],
       "bluetens_files": ["FRX", "JAW", "JAW"],
@@ -363,18 +365,18 @@
         "phases": [
           {"id": "WARMUP", "name_bg": "Включване", "duration_s": 96, "cooldown": false, "wave": false, "phi": [0.60, 0.70], "env": [0.60, 0.90], "hint_bg": "Затвори очи — само изтръпване, нищо не мърда",
             "steps": [
-              {"hz": 60, "pw_us": 250, "on_s": 4, "off_s": 4, "ramp_up_ms": 1000, "ramp_down_ms": 1000, "sigma": 1, "zones": null}
+              {"hz": 100, "pw_us": 50, "on_s": 4, "off_s": 4, "ramp_up_ms": 1000, "ramp_down_ms": 1000, "sigma": 1, "zones": null}
             ]
           },
           {"id": "MAIN", "name_bg": "Спокойно лице", "duration_s": 1104, "cooldown": false, "wave": false, "phi": [0.70, 0.70], "env": [1, 1], "hint_bg": "Отпусни челото и челюстта, зъбите да не се допират",
             "steps": [
-              {"hz": 60, "pw_us": 250, "on_s": 4, "off_s": 4, "ramp_up_ms": 1000, "ramp_down_ms": 1000, "sigma": 1, "zones": null},
-              {"hz": 80, "pw_us": 250, "on_s": 4, "off_s": 4, "ramp_up_ms": 1000, "ramp_down_ms": 1000, "sigma": 1, "zones": null}
+              {"hz": 100, "pw_us": 50, "on_s": 4, "off_s": 4, "ramp_up_ms": 1000, "ramp_down_ms": 1000, "sigma": 1, "zones": null},
+              {"hz": 80, "pw_us": 50, "on_s": 4, "off_s": 4, "ramp_up_ms": 1000, "ramp_down_ms": 1000, "sigma": 1, "zones": null}
             ]
           },
           {"id": "COOLDOWN", "name_bg": "Затихване", "duration_s": 120, "cooldown": true, "wave": false, "phi": [0.50, 0.50], "env": [0.50, 0.50], "hint_bg": "Остани отпуснат още малко",
             "steps": [
-              {"hz": 60, "pw_us": 250, "on_s": 4, "off_s": 4, "ramp_up_ms": 1000, "ramp_down_ms": 1000, "sigma": 1, "zones": null}
+              {"hz": 100, "pw_us": 50, "on_s": 4, "off_s": 4, "ramp_up_ms": 1000, "ramp_down_ms": 1000, "sigma": 1, "zones": null}
             ]
           }
         ]
@@ -419,17 +421,17 @@
         "phases": [
           {"id": "WARMUP", "name_bg": "Включване", "duration_s": 72, "cooldown": false, "wave": false, "phi": [0.60, 0.90], "env": [0.60, 0.90], "hint_bg": "Затвори очи — само изтръпване, нищо не мърда",
             "steps": [
-              {"hz": 2, "pw_us": 250, "on_s": 10, "off_s": 1, "ramp_up_ms": 200, "ramp_down_ms": 200, "sigma": 1, "zones": null}
+              {"hz": 2, "pw_us": 150, "on_s": 10, "off_s": 1, "ramp_up_ms": 200, "ramp_down_ms": 200, "sigma": 1, "zones": null}
             ]
           },
           {"id": "MAIN", "name_bg": "Отпусната челюст", "duration_s": 828, "cooldown": false, "wave": false, "phi": [1, 1], "env": [1, 1], "hint_bg": "Отпусни челюстта, зъбите да не се допират",
             "steps": [
-              {"hz": 2, "pw_us": 250, "on_s": 10, "off_s": 1, "ramp_up_ms": 200, "ramp_down_ms": 200, "sigma": 1, "zones": null}
+              {"hz": 2, "pw_us": 150, "on_s": 10, "off_s": 1, "ramp_up_ms": 200, "ramp_down_ms": 200, "sigma": 1, "zones": null}
             ]
           },
           {"id": "COOLDOWN", "name_bg": "Затихване", "duration_s": 120, "cooldown": true, "wave": false, "phi": [0.50, 0.50], "env": [0.50, 0.50], "hint_bg": "Остани отпуснат още малко",
             "steps": [
-              {"hz": 2, "pw_us": 250, "on_s": 10, "off_s": 1, "ramp_up_ms": 200, "ramp_down_ms": 200, "sigma": 1, "zones": null}
+              {"hz": 2, "pw_us": 150, "on_s": 10, "off_s": 1, "ramp_up_ms": 200, "ramp_down_ms": 200, "sigma": 1, "zones": null}
             ]
           }
         ]
@@ -474,17 +476,17 @@
         "phases": [
           {"id": "WARMUP", "name_bg": "Включване", "duration_s": 79, "cooldown": false, "wave": false, "phi": [0.60, 0.70], "env": [0.60, 0.80], "hint_bg": "Седни изправен, без храна и вода",
             "steps": [
-              {"hz": 30, "pw_us": 200, "on_s": 2, "off_s": 6, "ramp_up_ms": 500, "ramp_down_ms": 500, "sigma": 1, "zones": null}
+              {"hz": 30, "pw_us": 150, "on_s": 2, "off_s": 6, "ramp_up_ms": 500, "ramp_down_ms": 500, "sigma": 1, "zones": null}
             ]
           },
           {"id": "MAIN", "name_bg": "Стегната брадичка", "duration_s": 641, "cooldown": false, "wave": false, "phi": [0.70, 0.70], "env": [1, 1], "hint_bg": "Под брадичката се стяга — не преглъщай по време на стягането",
             "steps": [
-              {"hz": 30, "pw_us": 200, "on_s": 4, "off_s": 8, "ramp_up_ms": 500, "ramp_down_ms": 500, "sigma": 1, "zones": null}
+              {"hz": 30, "pw_us": 150, "on_s": 4, "off_s": 8, "ramp_up_ms": 500, "ramp_down_ms": 500, "sigma": 1, "zones": null}
             ]
           },
           {"id": "COOLDOWN", "name_bg": "Отпускане", "duration_s": 120, "cooldown": true, "wave": false, "phi": [0.50, 0.50], "env": [0.50, 0.50], "hint_bg": "Отпусни лицето — само меки кратки стягания",
             "steps": [
-              {"hz": 30, "pw_us": 200, "on_s": 2, "off_s": 8, "ramp_up_ms": 500, "ramp_down_ms": 500, "sigma": 1, "zones": null}
+              {"hz": 30, "pw_us": 150, "on_s": 2, "off_s": 8, "ramp_up_ms": 500, "ramp_down_ms": 500, "sigma": 1, "zones": null}
             ]
           }
         ]

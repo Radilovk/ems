@@ -540,6 +540,7 @@ public final class AutoSim {
             int pw = sensoryWide ? AutoCatalog.FACE_RELAX_PW : jaw ? AutoCatalog.FACE_JAW_PW
                     : AutoCatalog.FACE_CHIN.equals(id) ? AutoCatalog.FACE_CHIN_PW : AutoCatalog.FACE_PW;
             check(prog != null && AutoCatalog.isFace(prog) && prog.asksFace, id + ": a face program asking the face question");
+            check(pw <= 150, id + ": comfort — no face pulse over 150 µs (pain fibres need long pulses)");
             for (AiModel.Sex sex : new AiModel.Sex[] {AiModel.Sex.FEMALE, AiModel.Sex.MALE}) {
                 for (int sessions : new int[] {0, 10}) {
                     AutoModel.Input in = input(sex, 45, 65, 168, AiModel.Fitness.MID, sessions, -1);
@@ -585,7 +586,7 @@ public final class AutoSim {
                             } else if (AutoCatalog.FACE_DRAIN.equals(id)) {
                                 check(st.hz == 30 && st.onS == 1, at + ": pump 30 Hz 1 s" + r);
                             } else if (sensoryWide) {
-                                check((st.hz == 60 || st.hz == 80) && st.offS >= st.onS, at + ": sensory 60/80 Hz" + r);
+                                check((st.hz == 100 || st.hz == 80) && st.offS >= st.onS, at + ": sensory 80/100 Hz" + r);
                             } else if (jaw) {
                                 check(st.hz <= 4, at + ": low-rate jaw" + r);
                             } else {

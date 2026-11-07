@@ -319,7 +319,7 @@
 
     const-string v11, "n. supraorbitalis \u00b7 m. masseter"
 
-    const/16 v12, 0x3c
+    const/16 v12, 0x64
 
     const/4 v13, 0x0
 
@@ -367,7 +367,7 @@
 
     const-string v11, "n. supraorbitalis \u00b7 n. supratrochlearis"
 
-    const/16 v12, 0x3c
+    const/16 v12, 0x64
 
     const/4 v13, 0x0
 
@@ -1111,7 +1111,7 @@
 
     packed-switch v0, :pswitch_data_46
 
-    .line 281
+    .line 284
     :pswitch_5
     if-eqz p1, :cond_42
 
@@ -1166,17 +1166,17 @@
     :pswitch_22
     if-eqz p1, :cond_27
 
-    const-string v0, "\u041d\u0435\u0436\u0435\u043d \u0442\u043e\u043a (60 Hz) \u0434\u043e\u043a\u043e\u0441\u0432\u0430 \u0441\u0430\u043c\u043e \u0441\u0435\u0442\u0438\u0432\u043d\u0438\u0442\u0435 \u043d\u0435\u0440\u0432\u0438 \u043d\u0430 \u0447\u0435\u043b\u043e\u0442\u043e (n. supraorbitalis, n. supratrochlearis) \u2014 \u043c\u0443\u0441\u043a\u0443\u043b\u044a\u0442 \u043d\u0435 \u0441\u0435 \u0434\u0432\u0438\u0436\u0438. \u0421\u0435\u0442\u0438\u0432\u043d\u0438\u044f\u0442 \u043f\u043e\u0442\u043e\u043a \u043f\u043e\u0442\u0438\u0441\u043a\u0430 \u0432\u044a\u0437\u0431\u0443\u0434\u0438\u043c\u043e\u0441\u0442\u0442\u0430 \u043d\u0430 \u0434\u0432\u0438\u0433\u0430\u0442\u0435\u043b\u043d\u0438\u0442\u0435 \u043d\u0435\u0432\u0440\u043e\u043d\u0438 \u0438 \u0442\u043e\u043d\u0443\u0441\u044a\u0442 \u043d\u0430 \u043c\u0438\u043c\u0438\u0447\u0435\u0441\u043a\u0438\u0442\u0435 \u043c\u0443\u0441\u043a\u0443\u043b\u0438 \u0441\u043f\u0430\u0434\u0430: \u0447\u0435\u043b\u043e\u0442\u043e \u0438 \u043c\u0435\u0436\u0434\u0443\u0432\u0435\u0436\u0434\u0438\u0435\u0442\u043e \u0441\u0435 \u043e\u0442\u043f\u0443\u0441\u043a\u0430\u0442, \u0431\u0440\u044a\u0447\u043a\u0438\u0442\u0435 \u043e\u0442 \u043c\u0438\u043c\u0438\u043a\u0430 \u043e\u043c\u0435\u043a\u0432\u0430\u0442. \u0427\u0435 \u0442\u0430\u043a\u044a\u0432 \u0442\u043e\u043a \u043d\u0430\u043c\u0430\u043b\u044f\u0432\u0430 \u043c\u0443\u0441\u043a\u0443\u043b\u043d\u0438\u044f \u0442\u043e\u043d\u0443\u0441, \u0435 \u0434\u043e\u043a\u0430\u0437\u0430\u043d\u043e (\u043c\u0435\u0442\u0430-\u0430\u043d\u0430\u043b\u0438\u0437\u0438); \u0440\u0430\u0437\u043f\u043e\u043b\u043e\u0436\u0435\u043d\u0438\u0435\u0442\u043e \u0438 \u043f\u0430\u0440\u0430\u043c\u0435\u0442\u0440\u0438\u0442\u0435 \u0441\u0430 \u043a\u0430\u0442\u043e \u043f\u0440\u0438 \u043e\u0434\u043e\u0431\u0440\u0435\u043d\u043e\u0442\u043e \u043c\u0435\u0434\u0438\u0446\u0438\u043d\u0441\u043a\u043e \u0443\u0441\u0442\u0440\u043e\u0439\u0441\u0442\u0432\u043e \u0437\u0430 \u0447\u0435\u043b\u043e\u0442\u043e. \u0415\u0444\u0435\u043a\u0442\u044a\u0442 \u0435 \u0437\u0430 \u0447\u0430\u0441\u043e\u0432\u0435 \u0438 \u0441\u0435 \u043d\u0430\u0442\u0440\u0443\u043f\u0432\u0430 \u0441 \u0440\u0435\u0434\u043e\u0432\u043d\u043e\u0441\u0442. \u041d\u0435 \u0437\u0430\u043c\u0435\u0441\u0442\u0432\u0430 \u0431\u043e\u0442\u0443\u043b\u0438\u043d\u043e\u0432\u0438\u044f \u0442\u043e\u043a\u0441\u0438\u043d."
+    const-string v0, "\u041d\u0435\u0436\u0435\u043d \u0442\u043e\u043a (100 Hz, \u0442\u0435\u0441\u0435\u043d \u0438\u043c\u043f\u0443\u043b\u0441 50 \u00b5s) \u0434\u043e\u043a\u043e\u0441\u0432\u0430 \u0441\u0430\u043c\u043e \u0441\u0435\u0442\u0438\u0432\u043d\u0438\u0442\u0435 \u0432\u043b\u0430\u043a\u043d\u0430 \u043d\u0430 \u0434\u043e\u043f\u0438\u0440 \u0432 \u043a\u043e\u0436\u0430\u0442\u0430 \u043d\u0430 \u0447\u0435\u043b\u043e\u0442\u043e \u2014 \u043c\u0443\u0441\u043a\u0443\u043b\u044a\u0442 \u043d\u0435 \u0441\u0435 \u0434\u0432\u0438\u0436\u0438. \u0421\u0435\u0442\u0438\u0432\u043d\u0438\u044f\u0442 \u043f\u043e\u0442\u043e\u043a \u043f\u043e\u0442\u0438\u0441\u043a\u0430 \u0432\u044a\u0437\u0431\u0443\u0434\u0438\u043c\u043e\u0441\u0442\u0442\u0430 \u043d\u0430 \u0434\u0432\u0438\u0433\u0430\u0442\u0435\u043b\u043d\u0438\u0442\u0435 \u043d\u0435\u0432\u0440\u043e\u043d\u0438 \u0438 \u0442\u043e\u043d\u0443\u0441\u044a\u0442 \u043d\u0430 \u043c\u0438\u043c\u0438\u0447\u0435\u0441\u043a\u0438\u0442\u0435 \u043c\u0443\u0441\u043a\u0443\u043b\u0438 \u0441\u043f\u0430\u0434\u0430: \u0447\u0435\u043b\u043e\u0442\u043e \u0438 \u043c\u0435\u0436\u0434\u0443\u0432\u0435\u0436\u0434\u0438\u0435\u0442\u043e \u0441\u0435 \u043e\u0442\u043f\u0443\u0441\u043a\u0430\u0442, \u0431\u0440\u044a\u0447\u043a\u0438\u0442\u0435 \u043e\u0442 \u043c\u0438\u043c\u0438\u043a\u0430 \u043e\u043c\u0435\u043a\u0432\u0430\u0442. \u0427\u0435 \u0442\u0430\u043a\u044a\u0432 \u0442\u043e\u043a \u043d\u0430\u043c\u0430\u043b\u044f\u0432\u0430 \u043c\u0443\u0441\u043a\u0443\u043b\u043d\u0438\u044f \u0442\u043e\u043d\u0443\u0441, \u0435 \u0434\u043e\u043a\u0430\u0437\u0430\u043d\u043e (\u043c\u0435\u0442\u0430-\u0430\u043d\u0430\u043b\u0438\u0437\u0438; 100 Hz \u0435 \u043d\u0430\u0439-\u0435\u0444\u0435\u043a\u0442\u0438\u0432\u043d\u0430\u0442\u0430 \u0447\u0435\u0441\u0442\u043e\u0442\u0430). \u0418\u043c\u043f\u0443\u043b\u0441\u044a\u0442 \u0435 \u0442\u0435\u0441\u0435\u043d \u043d\u0430\u0440\u043e\u0447\u043d\u043e: \u0431\u043e\u043b\u043a\u043e\u0432\u0438\u0442\u0435 \u0432\u043b\u0430\u043a\u043d\u0430 \u043d\u0430 \u043a\u043e\u0441\u0442\u043d\u0430\u0442\u0430 \u043e\u0431\u0432\u0438\u0432\u043a\u0430 \u043e\u0442\u0433\u043e\u0432\u0430\u0440\u044f\u0442 \u0441\u0430\u043c\u043e \u043d\u0430 \u0434\u044a\u043b\u0433\u0438 \u0438\u043c\u043f\u0443\u043b\u0441\u0438, \u0437\u0430\u0442\u043e\u0432\u0430 \u043d\u0430 \u0442\u044a\u043d\u043a\u0430\u0442\u0430 \u043a\u043e\u0436\u0430 \u043d\u0430 \u0447\u0435\u043b\u043e\u0442\u043e \u0443\u0441\u0435\u0449\u0430\u043d\u0435\u0442\u043e \u043e\u0441\u0442\u0430\u0432\u0430 \u043f\u0440\u0438\u044f\u0442\u043d\u043e \u0438\u0437\u0442\u0440\u044a\u043f\u0432\u0430\u043d\u0435, \u0430 \u043d\u0435 \u0431\u043e\u043b\u043a\u0430 \u0432 \u043a\u043e\u0441\u0442\u0442\u0430. \u0415\u0444\u0435\u043a\u0442\u044a\u0442 \u0435 \u0437\u0430 \u0447\u0430\u0441\u043e\u0432\u0435 \u0438 \u0441\u0435 \u043d\u0430\u0442\u0440\u0443\u043f\u0432\u0430 \u0441 \u0440\u0435\u0434\u043e\u0432\u043d\u043e\u0441\u0442. \u041d\u0435 \u0437\u0430\u043c\u0435\u0441\u0442\u0432\u0430 \u0431\u043e\u0442\u0443\u043b\u0438\u043d\u043e\u0432\u0438\u044f \u0442\u043e\u043a\u0441\u0438\u043d."
 
     goto :goto_9
 
-    .line 251
+    .line 252
     :cond_27
-    const-string v0, "A gentle current (60 Hz) touches only the sensory nerves of the forehead \u2014 the muscle does not move. The sensory input damps the excitability of the motor neurons and the tone of the expression muscles drops: the forehead and the frown relax, expression lines soften. That such current lowers muscle tone is proven (meta-analyses); placement and settings match the approved medical forehead device. The effect lasts hours and builds with regular use. It does not replace botulinum toxin."
+    const-string v0, "A gentle current (100 Hz, a narrow 50 \u00b5s pulse) touches only the touch fibres of the forehead skin \u2014 the muscle does not move. The sensory input damps the excitability of the motor neurons and the tone of the expression muscles drops: the forehead and the frown relax, expression lines soften. That such current lowers muscle tone is proven (meta-analyses; 100 Hz works best). The pulse is narrow on purpose: the pain fibres of the bone\'s lining answer only long pulses, so on the thin forehead skin it stays a pleasant tingle, not an ache in the bone. The effect lasts hours and builds with regular use. It does not replace botulinum toxin."
 
     goto :goto_9
 
-    .line 257
+    .line 260
     :pswitch_2a
     if-eqz p1, :cond_2f
 
@@ -1184,27 +1184,27 @@
 
     goto :goto_9
 
-    .line 261
+    .line 264
     :cond_2f
     const-string v0, "The cheeks and the muscles under the chin take turns \u2014 3 seconds each, so every muscle rests twice as long as it works. The cheeks get the lift (a clinical trial: +18 % thickness in 12 weeks), the chin a firmer angle to the neck. The whole oval in one session; seated, no food or drink."
 
     goto :goto_9
 
-    .line 265
+    .line 268
     :pswitch_32
     if-eqz p1, :cond_37
 
-    const-string v0, "\u041d\u0435\u0436\u0435\u043d \u0441\u0435\u0442\u0438\u0432\u0435\u043d \u0442\u043e\u043a \u0435\u0434\u043d\u043e\u0432\u0440\u0435\u043c\u0435\u043d\u043d\u043e \u043f\u043e \u0447\u0435\u043b\u043e\u0442\u043e \u0438 \u043f\u043e \u0434\u0432\u0430\u0442\u0430 \u0434\u044a\u0432\u043a\u0430\u0442\u0435\u043b\u043d\u0438 \u043c\u0443\u0441\u043a\u0443\u043b\u0430 \u2014 \u0442\u0430\u043c, \u043a\u044a\u0434\u0435\u0442\u043e \u043b\u0438\u0446\u0435\u0442\u043e \u0434\u044a\u0440\u0436\u0438 \u043d\u0430\u043f\u0440\u0435\u0436\u0435\u043d\u0438\u0435\u0442\u043e \u043e\u0442 \u0434\u0435\u043d\u044f. \u0421\u0435\u0442\u0438\u0432\u043d\u0438\u044f\u0442 \u043f\u043e\u0442\u043e\u043a \u0441\u0432\u0430\u043b\u044f \u0442\u043e\u043d\u0443\u0441\u0430 \u043d\u0430 \u043c\u0443\u0441\u043a\u0443\u043b\u0438\u0442\u0435 (\u0434\u043e\u043a\u0430\u0437\u0430\u043d\u043e \u0437\u0430 \u0442\u0430\u043a\u044a\u0432 \u0442\u043e\u043a); \u0447\u0435\u0441\u0442\u043e\u0442\u0430\u0442\u0430 \u0441\u0435 \u0441\u043c\u0435\u043d\u044f \u043c\u0435\u0436\u0434\u0443 60 \u0438 80 Hz, \u0437\u0430 \u0434\u0430 \u043d\u0435 \u043f\u0440\u0438\u0432\u0438\u043a\u043d\u0430\u0442 \u043d\u0435\u0440\u0432\u0438\u0442\u0435. \u0427\u0435\u043b\u043e\u0442\u043e \u0441\u0435 \u043e\u0442\u043f\u0443\u0441\u043a\u0430, \u0447\u0435\u043b\u044e\u0441\u0442\u0442\u0430 \u0441\u0435 \u0440\u0430\u0437\u0442\u0432\u0430\u0440\u044f, \u0447\u0435\u0440\u0442\u0438\u0442\u0435 \u043e\u043c\u0435\u043a\u0432\u0430\u0442. \u0418\u0434\u0435\u0430\u043b\u043d\u043e \u0432\u0435\u0447\u0435\u0440 \u0438\u043b\u0438 \u0441\u043b\u0435\u0434 \u0441\u0442\u0440\u0435\u0441."
+    const-string v0, "\u041d\u0435\u0436\u0435\u043d \u0441\u0435\u0442\u0438\u0432\u0435\u043d \u0442\u043e\u043a \u0435\u0434\u043d\u043e\u0432\u0440\u0435\u043c\u0435\u043d\u043d\u043e \u043f\u043e \u0447\u0435\u043b\u043e\u0442\u043e \u0438 \u043f\u043e \u0434\u0432\u0430\u0442\u0430 \u0434\u044a\u0432\u043a\u0430\u0442\u0435\u043b\u043d\u0438 \u043c\u0443\u0441\u043a\u0443\u043b\u0430 \u2014 \u0442\u0430\u043c, \u043a\u044a\u0434\u0435\u0442\u043e \u043b\u0438\u0446\u0435\u0442\u043e \u0434\u044a\u0440\u0436\u0438 \u043d\u0430\u043f\u0440\u0435\u0436\u0435\u043d\u0438\u0435\u0442\u043e \u043e\u0442 \u0434\u0435\u043d\u044f. \u0421\u0435\u0442\u0438\u0432\u043d\u0438\u044f\u0442 \u043f\u043e\u0442\u043e\u043a \u0441\u0432\u0430\u043b\u044f \u0442\u043e\u043d\u0443\u0441\u0430 \u043d\u0430 \u043c\u0443\u0441\u043a\u0443\u043b\u0438\u0442\u0435 (\u0434\u043e\u043a\u0430\u0437\u0430\u043d\u043e \u0437\u0430 \u0442\u0430\u043a\u044a\u0432 \u0442\u043e\u043a); \u0447\u0435\u0441\u0442\u043e\u0442\u0430\u0442\u0430 \u0441\u0435 \u0441\u043c\u0435\u043d\u044f \u043c\u0435\u0436\u0434\u0443 80 \u0438 100 Hz, \u043f\u0440\u0438 \u0442\u0435\u0441\u0435\u043d \u0438\u043c\u043f\u0443\u043b\u0441, \u0437\u0430 \u0434\u0430 \u043d\u0435 \u043f\u0440\u0438\u0432\u0438\u043a\u043d\u0430\u0442 \u043d\u0435\u0440\u0432\u0438\u0442\u0435 \u0438 \u0434\u0430 \u043d\u044f\u043c\u0430 \u0434\u044a\u043b\u0431\u043e\u043a\u0430 \u0431\u043e\u043b\u043a\u0430. \u0427\u0435\u043b\u043e\u0442\u043e \u0441\u0435 \u043e\u0442\u043f\u0443\u0441\u043a\u0430, \u0447\u0435\u043b\u044e\u0441\u0442\u0442\u0430 \u0441\u0435 \u0440\u0430\u0437\u0442\u0432\u0430\u0440\u044f, \u0447\u0435\u0440\u0442\u0438\u0442\u0435 \u043e\u043c\u0435\u043a\u0432\u0430\u0442. \u0418\u0434\u0435\u0430\u043b\u043d\u043e \u0432\u0435\u0447\u0435\u0440 \u0438\u043b\u0438 \u0441\u043b\u0435\u0434 \u0441\u0442\u0440\u0435\u0441."
 
     goto :goto_9
 
-    .line 269
+    .line 272
     :cond_37
-    const-string v0, "A gentle sensory current on the forehead and both masseters at once \u2014 where the face holds the day\'s tension. The sensory input lowers muscle tone (proven for such current); the rate alternates 60 \u2194 80 Hz so the nerves do not get used to it. Best in the evening or after stress."
+    const-string v0, "A gentle sensory current on the forehead and both masseters at once \u2014 where the face holds the day\'s tension. The sensory input lowers muscle tone (proven for such current); the rate alternates 80 \u2194 100 Hz at a narrow pulse so the nerves do not get used to it. Best in the evening or after stress."
 
     goto :goto_9
 
-    .line 273
+    .line 276
     :pswitch_3a
     if-eqz p1, :cond_3f
 
@@ -1212,13 +1212,13 @@
 
     goto :goto_9
 
-    .line 277
+    .line 280
     :cond_3f
     const-string v0, "Slow rhythmic impulses, twice a second, on the masseter (on Bluetens as short bursts) \u2014 felt as a deep tapping. In a clinical trial in jaw tension such current lowered the muscle\'s resting activity: a relaxed jaw, a softer lower face. Never strengthening this muscle: that widens the jaw."
 
     goto :goto_9
 
-    .line 284
+    .line 287
     :cond_42
     const-string v0, "The digastric and mylohyoid lift the hyoid; their tone shapes the angle between chin and neck. They are also the swallowing muscles \u2014 seated, no food or drink. A contour effect is not measured in studies."
 
@@ -1288,14 +1288,14 @@
 
     const/4 v2, 0x1
 
-    .line 291
+    .line 294
     iget v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceProgram;->id:I
 
     const/4 v1, 0x7
 
     if-ne v0, v1, :cond_29
 
-    .line 292
+    .line 295
     if-eqz p1, :cond_1a
 
     new-array v0, v5, [Ljava/lang/String;
@@ -1304,7 +1304,7 @@
 
     aput-object v1, v0, v4
 
-    const-string v1, "\u0427\u0435\u043b\u043e \u2014 \u0434\u0432\u0430 \u043f\u0440\u044a\u0441\u0442\u0430 \u043d\u0430\u0434 \u0432\u0435\u0436\u0434\u0438\u0442\u0435 \u00b7 \u0447\u0435\u043b\u044e\u0441\u0442 \u2014 \u0441\u0442\u0438\u0441\u043d\u0438 \u0437\u044a\u0431\u0438 \u0438 \u0441\u043b\u043e\u0436\u0438 \u043d\u0430 \u043c\u0443\u0441\u043a\u0443\u043b\u0430"
+    const-string v1, "\u0427\u0435\u043b\u043e \u2014 \u0434\u0432\u043e\u0439\u043a\u0430\u0442\u0430 \u0431\u043b\u0438\u0437\u043e, \u0434\u0432\u0430 \u043f\u0440\u044a\u0441\u0442\u0430 \u043d\u0430\u0434 \u0432\u0435\u0436\u0434\u0438\u0442\u0435 \u00b7 \u0447\u0435\u043b\u044e\u0441\u0442 \u2014 \u0441\u0442\u0438\u0441\u043d\u0438 \u0437\u044a\u0431\u0438, \u0441\u043b\u043e\u0436\u0438 \u043d\u0430 \u043c\u0443\u0441\u043a\u0443\u043b\u0430"
 
     aput-object v1, v0, v2
 
@@ -1312,11 +1312,11 @@
 
     aput-object v1, v0, v3
 
-    .line 328
+    .line 331
     :goto_19
     return-object v0
 
-    .line 295
+    .line 298
     :cond_1a
     new-array v0, v5, [Ljava/lang/String;
 
@@ -1334,7 +1334,7 @@
 
     goto :goto_19
 
-    .line 299
+    .line 302
     :cond_29
     iget v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceProgram;->id:I
 
@@ -1356,7 +1356,7 @@
 
     if-ne v0, v3, :cond_5c
 
-    .line 300
+    .line 303
     :cond_3c
     if-eqz p1, :cond_4d
 
@@ -1376,7 +1376,7 @@
 
     goto :goto_19
 
-    .line 303
+    .line 306
     :cond_4d
     new-array v0, v5, [Ljava/lang/String;
 
@@ -1394,13 +1394,13 @@
 
     goto :goto_19
 
-    .line 306
+    .line 309
     :cond_5c
     iget v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceProgram;->target:I
 
     packed-switch v0, :pswitch_data_e6
 
-    .line 328
+    .line 331
     if-eqz p1, :cond_d6
 
     new-array v0, v5, [Ljava/lang/String;
@@ -1419,7 +1419,7 @@
 
     goto :goto_19
 
-    .line 308
+    .line 311
     :pswitch_72
     if-eqz p1, :cond_83
 
@@ -1439,7 +1439,7 @@
 
     goto :goto_19
 
-    .line 311
+    .line 314
     :cond_83
     new-array v0, v5, [Ljava/lang/String;
 
@@ -1457,7 +1457,7 @@
 
     goto :goto_19
 
-    .line 314
+    .line 317
     :pswitch_92
     if-eqz p1, :cond_a4
 
@@ -1467,7 +1467,7 @@
 
     aput-object v1, v0, v4
 
-    const-string v1, "\u0414\u0432\u043e\u0439\u043a\u0430\u0442\u0430 \u2014 \u043d\u0430 \u0447\u0435\u043b\u043e\u0442\u043e, \u043e\u0442 \u0434\u0432\u0435\u0442\u0435 \u0441\u0442\u0440\u0430\u043d\u0438 \u043d\u0430 \u0441\u0440\u0435\u0434\u0430\u0442\u0430"
+    const-string v1, "\u0414\u0432\u043e\u0439\u043a\u0430\u0442\u0430 \u0431\u043b\u0438\u0437\u043e \u2014 \u0435\u0434\u0438\u043d \u043f\u0440\u044a\u0441\u0442 \u043c\u0435\u0436\u0434\u0443 \u0435\u043b\u0435\u043a\u0442\u0440\u043e\u0434\u0438\u0442\u0435, \u0432 \u0441\u0440\u0435\u0434\u0430\u0442\u0430 \u043d\u0430 \u0447\u0435\u043b\u043e\u0442\u043e"
 
     aput-object v1, v0, v2
 
@@ -1477,7 +1477,7 @@
 
     goto/16 :goto_19
 
-    .line 317
+    .line 320
     :cond_a4
     new-array v0, v5, [Ljava/lang/String;
 
@@ -1485,7 +1485,7 @@
 
     aput-object v1, v0, v4
 
-    const-string v1, "The pair on the forehead, either side of the middle"
+    const-string v1, "The pair close \u2014 one finger between the pads, mid-forehead"
 
     aput-object v1, v0, v2
 
@@ -1495,7 +1495,7 @@
 
     goto/16 :goto_19
 
-    .line 321
+    .line 324
     :pswitch_b4
     if-eqz p1, :cond_c6
 
@@ -1515,7 +1515,7 @@
 
     goto/16 :goto_19
 
-    .line 324
+    .line 327
     :cond_c6
     new-array v0, v5, [Ljava/lang/String;
 
@@ -1533,7 +1533,7 @@
 
     goto/16 :goto_19
 
-    .line 331
+    .line 334
     :cond_d6
     new-array v0, v5, [Ljava/lang/String;
 
@@ -1551,7 +1551,7 @@
 
     goto/16 :goto_19
 
-    .line 306
+    .line 309
     :pswitch_data_e6
     .packed-switch 0x1
         :pswitch_72
@@ -1609,12 +1609,12 @@
     .line 175
     if-eqz p1, :cond_17
 
-    const-string v0, "60 \u2194 80 Hz \u00b7 \u0431\u0435\u0437 \u0434\u0432\u0438\u0436\u0435\u043d\u0438\u0435"
+    const-string v0, "80 \u2194 100 Hz \u00b7 \u0431\u0435\u0437 \u0434\u0432\u0438\u0436\u0435\u043d\u0438\u0435"
 
     goto :goto_9
 
     :cond_17
-    const-string v0, "60 \u2194 80 Hz \u00b7 no movement"
+    const-string v0, "80 \u2194 100 Hz \u00b7 no movement"
 
     goto :goto_9
 
@@ -1728,12 +1728,12 @@
     .registers 5
 
     .prologue
-    .line 359
+    .line 363
     iget-boolean v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceProgram;->sensory:Z
 
     if-eqz v0, :cond_26
 
-    .line 360
+    .line 364
     iget v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceProgram;->id:I
 
     const/4 v1, 0x3
@@ -1744,17 +1744,17 @@
 
     const-string v0, "\u0417\u0430\u0442\u0432\u043e\u0440\u0438 \u043e\u0447\u0438, \u043e\u0442\u043f\u0443\u0441\u043d\u0438 \u0447\u0435\u043b\u043e\u0442\u043e \u2014 \u0442\u043e\u043a\u044a\u0442 \u0440\u0430\u0431\u043e\u0442\u0438 \u043f\u043e \u043d\u0435\u0440\u0432\u0438\u0442\u0435"
 
-    .line 367
+    .line 371
     :goto_d
     return-object v0
 
-    .line 360
+    .line 364
     :cond_e
     const-string v0, "Close the eyes, let the forehead go"
 
     goto :goto_d
 
-    .line 361
+    .line 365
     :cond_11
     iget v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceProgram;->id:I
 
@@ -1773,7 +1773,7 @@
 
     goto :goto_d
 
-    .line 362
+    .line 366
     :cond_1e
     if-eqz p2, :cond_23
 
@@ -1786,7 +1786,7 @@
 
     goto :goto_d
 
-    .line 364
+    .line 368
     :cond_26
     iget v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceProgram;->id:I
 
@@ -1794,7 +1794,7 @@
 
     if-ne v0, v1, :cond_33
 
-    .line 365
+    .line 369
     if-eqz p2, :cond_30
 
     const-string v0, "\u041c\u0443\u0441\u043a\u0443\u043b\u044a\u0442 \u0438\u0437\u043f\u043e\u043c\u043f\u0432\u0430 \u0442\u0435\u0447\u043d\u043e\u0441\u0442\u0442\u0430 \u043a\u044a\u043c \u043b\u0438\u043c\u0444\u043d\u0438\u0442\u0435 \u0432\u044a\u0437\u043b\u0438"
@@ -1806,7 +1806,7 @@
 
     goto :goto_d
 
-    .line 367
+    .line 371
     :cond_33
     if-eqz p1, :cond_3d
 
@@ -1821,7 +1821,7 @@
 
     goto :goto_d
 
-    .line 368
+    .line 372
     :cond_3d
     if-eqz p2, :cond_42
 
@@ -1872,12 +1872,12 @@
     .registers 3
 
     .prologue
-    .line 338
+    .line 341
     iget v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceProgram;->id:I
 
     packed-switch v0, :pswitch_data_36
 
-    .line 352
+    .line 356
     :pswitch_5
     if-eqz p1, :cond_32
 
@@ -1886,21 +1886,21 @@
     :goto_9
     return-object v0
 
-    .line 340
+    .line 343
     :pswitch_a
     if-eqz p1, :cond_f
 
-    const-string v0, "\u041a\u0430\u0447\u0432\u0430\u0439 \u0434\u043e \u044f\u0441\u043d\u043e, \u043f\u0440\u0438\u044f\u0442\u043d\u043e \u0438\u0437\u0442\u0440\u044a\u043f\u0432\u0430\u043d\u0435 \u2014 \u0432\u0435\u0436\u0434\u0438\u0442\u0435 \u043d\u0435 \u0431\u0438\u0432\u0430 \u0434\u0430 \u043c\u044a\u0440\u0434\u0430\u0442"
+    const-string v0, "\u041a\u0430\u0447\u0432\u0430\u0439 \u0434\u043e \u044f\u0441\u043d\u043e, \u043f\u0440\u0438\u044f\u0442\u043d\u043e \u0438\u0437\u0442\u0440\u044a\u043f\u0432\u0430\u043d\u0435 \u043f\u043e \u043a\u043e\u0436\u0430\u0442\u0430 \u2014 \u0442\u044a\u043f\u0430 \u0431\u043e\u043b\u043a\u0430 \u043d\u0430\u0432\u044a\u0442\u0440\u0435: \u0441\u0432\u0430\u043b\u0438 \u0432\u0435\u0434\u043d\u0430\u0433\u0430"
 
     goto :goto_9
 
-    .line 341
+    .line 344
     :cond_f
-    const-string v0, "Raise to a clear, pleasant tingle \u2014 the brows must not move"
+    const-string v0, "Raise to a clear, pleasant tingle on the skin \u2014 a dull ache inside: lower at once"
 
     goto :goto_9
 
-    .line 343
+    .line 346
     :pswitch_12
     if-eqz p1, :cond_17
 
@@ -1913,7 +1913,7 @@
 
     goto :goto_9
 
-    .line 345
+    .line 348
     :pswitch_1a
     if-eqz p1, :cond_1f
 
@@ -1921,26 +1921,27 @@
 
     goto :goto_9
 
-    .line 346
+    .line 349
     :cond_1f
     const-string v0, "Raise until a clear tightening is felt under the chin \u2014 no pain"
 
     goto :goto_9
 
-    .line 348
+    .line 351
     :pswitch_22
     if-eqz p1, :cond_27
 
-    const-string v0, "\u041a\u0430\u0447\u0432\u0430\u0439 \u0434\u043e \u044f\u0441\u043d\u043e, \u043f\u0440\u0438\u044f\u0442\u043d\u043e \u0438\u0437\u0442\u0440\u044a\u043f\u0432\u0430\u043d\u0435 \u2014 \u043d\u0438\u0449\u043e \u043d\u0435 \u043c\u044a\u0440\u0434\u0430"
+    const-string v0, "\u041a\u0430\u0447\u0432\u0430\u0439 \u0434\u043e \u044f\u0441\u043d\u043e, \u043f\u0440\u0438\u044f\u0442\u043d\u043e \u0438\u0437\u0442\u0440\u044a\u043f\u0432\u0430\u043d\u0435 \u2014 \u043d\u0438\u0449\u043e \u043d\u0435 \u043c\u044a\u0440\u0434\u0430, \u043d\u0438\u0449\u043e \u043d\u0435 \u0431\u043e\u043b\u0438 \u043d\u0430\u0432\u044a\u0442\u0440\u0435"
 
     goto :goto_9
 
+    .line 352
     :cond_27
-    const-string v0, "Raise to a clear, pleasant tingle \u2014 nothing moves"
+    const-string v0, "Raise to a clear, pleasant tingle \u2014 nothing moves, nothing aches inside"
 
     goto :goto_9
 
-    .line 350
+    .line 354
     :pswitch_2a
     if-eqz p1, :cond_2f
 
@@ -1953,13 +1954,13 @@
 
     goto :goto_9
 
-    .line 353
+    .line 357
     :cond_32
     const-string v0, "Raise until the mouth corner visibly lifts \u2014 no pain, no blinking"
 
     goto :goto_9
 
-    .line 338
+    .line 341
     nop
 
     :pswitch_data_36

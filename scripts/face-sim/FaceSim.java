@@ -76,6 +76,10 @@ public class FaceSim {
                     check(dist(p[k], tr) / cm >= 1.5f, "site " + site + " pad " + k + " clear of the nerve trunk " + dist(p[k], tr) / cm);
                     float[] nk = {side == 0 ? 2 * FaceArt.AXIS - FaceArt.NECK[0] : FaceArt.NECK[0], FaceArt.NECK[1]};
                     check(dist(p[k], nk) / cm >= 2.0f, "site " + site + " pad " + k + " ≥ 2 cm from the side of the neck");
+                    for (float[] f : FaceArt.FORAMINA) {
+                        float[] fo = {side == 0 ? 2 * FaceArt.AXIS - f[0] : f[0], f[1]};
+                        check(dist(p[k], fo) / cm >= 1.5f, "site " + site + " pad " + k + " on a sensory nerve exit " + dist(p[k], fo) / cm);
+                    }
                     float[] mo = {side == 0 ? 2 * FaceArt.AXIS - FaceArt.MOUTH[0] : FaceArt.MOUTH[0], FaceArt.MOUTH[1]};
                     check(site == FaceArt.CHIN || dist(p[k], mo) / cm >= 0.9f, "site " + site + " pad " + k + " not on the lip " + dist(p[k], mo) / cm);
                 }

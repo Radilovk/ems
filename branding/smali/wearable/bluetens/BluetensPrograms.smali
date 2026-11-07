@@ -14,7 +14,7 @@
 
 .field public static final CHIN:I = 0x7
 
-.field public static final CHIN_US:I = 0xc8
+.field public static final CHIN_US:I = 0x96
 
 .field public static final FACE:I = 0x5
 
@@ -40,7 +40,7 @@
 
 .field public static final RECOVER:I = 0x0
 
-.field public static final RELAX_US:I = 0xfa
+.field public static final RELAX_US:I = 0x32
 
 .field public static final RELIEF:I = 0x2
 
@@ -368,7 +368,7 @@
     .prologue
     const/16 v8, 0x7d0
 
-    const/16 v7, 0x8c
+    const/16 v7, 0x64
 
     const/16 v5, 0x1f40
 
@@ -393,7 +393,7 @@
 
     fill-array-data v2, :array_34
 
-    const/16 v3, 0xc8
+    const/16 v3, 0x96
 
     const/16 v4, 0xc80
 
@@ -431,10 +431,10 @@
 
     :array_34
     .array-data 4
+        0x46
         0x64
-        0x82
-        0xa0
-        0xb4
+        0x7d
+        0x8c
     .end array-data
 .end method
 
@@ -619,13 +619,13 @@
     :pswitch_38
     if-eqz p1, :cond_3d
 
-    const-string v0, "30 Hz \u00b7 200 \u00b5s: 4 s \u0441\u0442\u044f\u0433\u0430\u043d\u0435, 8 s \u0442\u0438\u0448\u0438\u043d\u0430 (\u043c\u0430\u043b\u043a\u0438 \u043c\u0443\u0441\u043a\u0443\u043b\u0438 \u2014 \u043d\u0438\u0441\u043a\u0430 \u0447\u0435\u0441\u0442\u043e\u0442\u0430). \u0414\u0432\u0430\u0442\u0430 \u0435\u043b\u0435\u043a\u0442\u0440\u043e\u0434\u0430 \u043f\u043e\u0434 \u0431\u0440\u0430\u0434\u0438\u0447\u043a\u0430\u0442\u0430, \u0432\u043b\u044f\u0432\u043e \u0438 \u0432\u0434\u044f\u0441\u043d\u043e \u043e\u0442 \u0441\u0440\u0435\u0434\u0430\u0442\u0430, \u043c\u0435\u0436\u0434\u0443 \u043a\u043e\u0441\u0442\u0442\u0430 \u043d\u0430 \u0431\u0440\u0430\u0434\u0438\u0447\u043a\u0430\u0442\u0430 \u0438 \u043f\u043e\u0434\u0435\u0437\u0438\u0447\u043d\u0430\u0442\u0430 \u043a\u043e\u0441\u0442; \u043d\u0438\u043a\u043e\u0433\u0430 \u043e\u0442\u0441\u0442\u0440\u0430\u043d\u0438 \u043d\u0430 \u0448\u0438\u044f\u0442\u0430. \u0421\u0435\u0434\u043d\u0430\u043b, \u0431\u0435\u0437 \u0445\u0440\u0430\u043d\u0430 \u0438 \u0432\u043e\u0434\u0430 \u2014 \u0442\u043e\u043a\u044a\u0442 \u0434\u0432\u0438\u0436\u0438 \u043c\u0443\u0441\u043a\u0443\u043b\u0438\u0442\u0435 \u043d\u0430 \u043f\u0440\u0435\u0433\u043b\u044a\u0449\u0430\u043d\u0435\u0442\u043e. \u0415\u0444\u0435\u043a\u0442 \u0437\u0430 \u043a\u043e\u043d\u0442\u0443\u0440\u0430 \u043d\u0435 \u0435 \u0434\u043e\u043a\u0430\u0437\u0430\u043d."
+    const-string v0, "30 Hz \u00b7 150 \u00b5s: 4 s \u0441\u0442\u044f\u0433\u0430\u043d\u0435, 8 s \u0442\u0438\u0448\u0438\u043d\u0430 (\u043c\u0430\u043b\u043a\u0438 \u043c\u0443\u0441\u043a\u0443\u043b\u0438 \u2014 \u043d\u0438\u0441\u043a\u0430 \u0447\u0435\u0441\u0442\u043e\u0442\u0430). \u0414\u0432\u0430\u0442\u0430 \u0435\u043b\u0435\u043a\u0442\u0440\u043e\u0434\u0430 \u043f\u043e\u0434 \u0431\u0440\u0430\u0434\u0438\u0447\u043a\u0430\u0442\u0430, \u0432\u043b\u044f\u0432\u043e \u0438 \u0432\u0434\u044f\u0441\u043d\u043e \u043e\u0442 \u0441\u0440\u0435\u0434\u0430\u0442\u0430, \u043c\u0435\u0436\u0434\u0443 \u043a\u043e\u0441\u0442\u0442\u0430 \u043d\u0430 \u0431\u0440\u0430\u0434\u0438\u0447\u043a\u0430\u0442\u0430 \u0438 \u043f\u043e\u0434\u0435\u0437\u0438\u0447\u043d\u0430\u0442\u0430 \u043a\u043e\u0441\u0442; \u043d\u0438\u043a\u043e\u0433\u0430 \u043e\u0442\u0441\u0442\u0440\u0430\u043d\u0438 \u043d\u0430 \u0448\u0438\u044f\u0442\u0430. \u0421\u0435\u0434\u043d\u0430\u043b, \u0431\u0435\u0437 \u0445\u0440\u0430\u043d\u0430 \u0438 \u0432\u043e\u0434\u0430 \u2014 \u0442\u043e\u043a\u044a\u0442 \u0434\u0432\u0438\u0436\u0438 \u043c\u0443\u0441\u043a\u0443\u043b\u0438\u0442\u0435 \u043d\u0430 \u043f\u0440\u0435\u0433\u043b\u044a\u0449\u0430\u043d\u0435\u0442\u043e. \u0415\u0444\u0435\u043a\u0442 \u0437\u0430 \u043a\u043e\u043d\u0442\u0443\u0440\u0430 \u043d\u0435 \u0435 \u0434\u043e\u043a\u0430\u0437\u0430\u043d."
 
     goto :goto_7
 
     .line 77
     :cond_3d
-    const-string v0, "30 Hz \u00b7 200 \u00b5s: 4 s hold, 8 s silence (small muscles \u2014 low rate). Both pads under the chin, left and right of the midline, between the chin bone and the hyoid; never on the side of the neck. Seated, no food or drink \u2014 the current moves the swallowing muscles. A contour effect is not proven."
+    const-string v0, "30 Hz \u00b7 150 \u00b5s: 4 s hold, 8 s silence (small muscles \u2014 low rate). Both pads under the chin, left and right of the midline, between the chin bone and the hyoid; never on the side of the neck. Seated, no food or drink \u2014 the current moves the swallowing muscles. A contour effect is not proven."
 
     goto :goto_7
 
@@ -647,13 +647,13 @@
     :pswitch_48
     if-eqz p1, :cond_4d
 
-    const-string v0, "60 Hz \u00b7 250 \u00b5s (\u043a\u0430\u0442\u043e \u043e\u0434\u043e\u0431\u0440\u0435\u043d\u043e\u0442\u043e \u0443\u0441\u0442\u0440\u043e\u0439\u0441\u0442\u0432\u043e \u0437\u0430 \u0447\u0435\u043b\u043e\u0442\u043e), \u0441\u0430\u043c\u043e \u0441\u0435\u0442\u0438\u0432\u043d\u043e \u2014 \u0431\u0435\u0437 \u0434\u0432\u0438\u0436\u0435\u043d\u0438\u0435"
+    const-string v0, "100 Hz \u00b7 50 \u00b5s, \u0441\u0430\u043c\u043e \u0441\u0435\u0442\u0438\u0432\u043d\u043e \u2014 \u0431\u0435\u0437 \u0434\u0432\u0438\u0436\u0435\u043d\u0438\u0435; \u0432\u0441\u0435\u043a\u0438 \u0446\u0443\u0433 \u0437\u0430\u043f\u043e\u0447\u0432\u0430 \u043c\u0435\u043a\u043e"
 
     goto :goto_7
 
     .line 84
     :cond_4d
-    const-string v0, "60 Hz \u00b7 250 \u00b5s (as the approved forehead device), sensory only \u2014 no movement"
+    const-string v0, "100 Hz \u00b7 50 \u00b5s, sensory only \u2014 no movement; every train starts soft"
 
     goto :goto_7
 
@@ -1956,92 +1956,65 @@
 .end method
 
 .method static relax(Lcom/isaigu/gymapp/wearable/bluetens/BluetensLok;D)V
-    .registers 16
+    .registers 12
 
     .prologue
-    const/16 v5, 0x258
-
-    const/16 v3, 0x1f4
-
-    const/16 v6, 0x14a
-
-    const/4 v8, 0x1
-
-    .line 334
-    invoke-virtual {p0, v8}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensLok;->section(I)Lcom/isaigu/gymapp/wearable/bluetens/BluetensLok$Section;
-
-    move-result-object v1
-
-    .line 335
-    const/4 v2, 0x4
-
-    new-array v9, v2, [I
-
-    fill-array-data v9, :array_36
-
-    .line 336
-    array-length v10, v9
+    const/16 v6, 0x3e8
 
     const/4 v2, 0x0
 
-    move v7, v2
+    const/16 v3, 0x32
 
-    :goto_14
-    if-ge v7, v10, :cond_20
-
-    aget v4, v9, v7
-
-    .line 337
-    const/4 v2, 0x5
-
-    invoke-static/range {v1 .. v6}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensLok;->block(Lcom/isaigu/gymapp/wearable/bluetens/BluetensLok$Section;IIIII)Lcom/isaigu/gymapp/wearable/bluetens/BluetensLok$Block;
+    const/4 v1, 0x1
 
     .line 336
-    add-int/lit8 v2, v7, 0x1
+    invoke-virtual {p0, v1}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensLok;->section(I)Lcom/isaigu/gymapp/wearable/bluetens/BluetensLok$Section;
 
-    move v7, v2
+    move-result-object v0
 
-    goto :goto_14
+    .line 337
+    const/16 v4, 0x190
+
+    const/4 v5, 0x4
+
+    invoke-static/range {v0 .. v5}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensLok;->block(Lcom/isaigu/gymapp/wearable/bluetens/BluetensLok$Section;IIIII)Lcom/isaigu/gymapp/wearable/bluetens/BluetensLok$Block;
+
+    .line 338
+    const/16 v4, 0x2bc
+
+    const/4 v5, 0x7
+
+    invoke-static/range {v0 .. v5}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensLok;->block(Lcom/isaigu/gymapp/wearable/bluetens/BluetensLok$Section;IIIII)Lcom/isaigu/gymapp/wearable/bluetens/BluetensLok$Block;
 
     .line 339
-    :cond_20
-    invoke-virtual {p0, v8}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensLok;->section(I)Lcom/isaigu/gymapp/wearable/bluetens/BluetensLok$Section;
+    const/16 v5, 0xa
 
-    move-result-object v7
+    move v4, v6
+
+    invoke-static/range {v0 .. v5}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensLok;->block(Lcom/isaigu/gymapp/wearable/bluetens/BluetensLok$Section;IIIII)Lcom/isaigu/gymapp/wearable/bluetens/BluetensLok$Block;
 
     .line 340
-    const/16 v10, 0xfa
+    const/16 v2, 0x1f4
 
-    move v9, v3
+    const/16 v5, 0x208
 
-    move v11, v5
+    move v4, v6
 
-    move v12, v6
-
-    invoke-static/range {v7 .. v12}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensLok;->block(Lcom/isaigu/gymapp/wearable/bluetens/BluetensLok$Section;IIIII)Lcom/isaigu/gymapp/wearable/bluetens/BluetensLok$Block;
+    invoke-static/range {v0 .. v5}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensLok;->block(Lcom/isaigu/gymapp/wearable/bluetens/BluetensLok$Section;IIIII)Lcom/isaigu/gymapp/wearable/bluetens/BluetensLok$Block;
 
     .line 341
-    invoke-virtual {v1}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensLok$Section;->ms()D
+    const-wide/16 v6, 0x0
 
-    move-result-wide v10
+    move-object v2, p0
 
-    move-object v6, p0
+    move-object v3, v0
 
-    move-wide v8, p1
+    move-wide v4, p1
 
-    invoke-static/range {v6 .. v11}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensPrograms;->fill(Lcom/isaigu/gymapp/wearable/bluetens/BluetensLok;Lcom/isaigu/gymapp/wearable/bluetens/BluetensLok$Section;DD)V
+    invoke-static/range {v2 .. v7}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensPrograms;->fill(Lcom/isaigu/gymapp/wearable/bluetens/BluetensLok;Lcom/isaigu/gymapp/wearable/bluetens/BluetensLok$Section;DD)V
 
     .line 342
     return-void
-
-    .line 335
-    :array_36
-    .array-data 4
-        0x64
-        0x8c
-        0xb4
-        0xdc
-    .end array-data
 .end method
 
 .method static relief(Lcom/isaigu/gymapp/wearable/bluetens/BluetensLok;D)V

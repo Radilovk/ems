@@ -321,6 +321,11 @@ sensors (208 Hz, filtered on the chip) → BLE 7.5 ms → phone: the solver → 
   0.956 H) + speed × age (network age from the fastest packet seen + 20 ms; ≤ 60 ms); the hit speed is the sensors' own.
   `body.legs_src` = sensors · controller · estimate · none. The browser (WebXR) version has no UDP — the Quest app only.
 - The page shows "🥽 VR играта получава краката ✓" while a headset is linked.
+- **1.21 (owner 2026-11-07: "the leg sensors don't catch"):** the phone app holds a Wi-Fi **multicast lock** while it
+  runs (`MainActivity.vrLock`, permission CHANGE_WIFI_MULTICAST_STATE) — many phones' Wi-Fi drops broadcast packets
+  to save power without one, so the game's "XEMS-LEGS?" never arrived and no legs were sent. Also needed: the Quest
+  **app** XEMS Studio (not the browser page), phone and headset on the same Wi-Fi without client isolation (guest
+  networks block it), the phone app open with the sensors calibrated.
 Not yet measured on the devices: the total latency (expected ≈ 25–35 ms before prediction).
 **Checked, both ends for real** (`sh scripts/vr-legs/run.sh`; in CI on every build with `GODOT=…`, the build stops if
 it fails): (1) the phone's own `VrLink.java` (plain Java) heard the game's broadcast question and streamed 147 poses in

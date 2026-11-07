@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.hardware.usb.UsbManager;
 import android.net.Uri;
+import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -35,6 +36,10 @@ public class MainActivity extends Activity {
     WebView web;
     Ble ble;
     final VrLink vr = new VrLink();
+    /** Many phones' Wi-Fi drops broadcast packets to save power unless an app holds this lock: without it the VR
+     *  game's "XEMS-LEGS?" never arrives, no legs are sent and the game keeps its estimated legs (owner 2026-11-07:
+     *  "the leg sensors don't catch"). Held while the app runs. docs/xems-motion.md "VR legs". */
+    WifiManager.MulticastLock vrLock;
     boolean pageReady;
 
     @Override
@@ -53,6 +58,13 @@ public class MainActivity extends Activity {
         web.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
                 | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
         ble = new Ble(this, new ToPage());
+        try {
+            WifiManager w = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+            vrLock = w.createMulticastLock("xems-vr-legs");
+            vrLock.setReferenceCounted(false);
+            vrLock.acquire();
+        } catch (Throwable ignored) {
+        }
         vr.start();
         web.addJavascriptInterface(new Bridge(), "XemsNative");
         setContentView(web);
@@ -101,6 +113,12 @@ public class MainActivity extends Activity {
     protected void onDestroy() {
         ble.disconnectAll();
         vr.stop();
+        try {
+            if (vrLock != null) {
+                vrLock.release();
+            }
+        } catch (Throwable ignored) {
+        }
         super.onDestroy();
     }
 

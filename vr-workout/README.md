@@ -20,6 +20,9 @@ With the phone app "XEMS Движение" running on the same Wi-Fi (sensors on
 feet: `scripts/game/motion_link.gd` asks for them once a second (UDP broadcast "XEMS-LEGS? <port>" → 47811), the phone
 streams them back (~50/s) and the game places them under the headset's head, predicted to now. Kicks, knees, squats
 and steps then come from the legs themselves. Quest app only (no UDP in the browser). docs/xems-motion.md "VR legs".
+**First choice — no phone, no Wi-Fi (sensor firmware 10):** pair both shin sensors once in the Quest's Bluetooth
+settings ("XEMS Motion …", a gamepad); `scripts/game/pad_legs.gd` reads them as joypads and solves the legs itself.
+Stand still a second, bend the knees once — calibrated (the game says what to do). Test: `test/pad_test.gd`.
 
 ## The chef — scenario "Готвачът" (home menu → Сценарий)
 In **one of two real places, the player's pick** (home menu → *Къде е готвачът*: **Piazza Bologni** in Palermo or

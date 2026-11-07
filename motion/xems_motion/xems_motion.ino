@@ -24,17 +24,34 @@
 // (never on the USB cable). Out of standby: the phone connects (opening the app wakes every sensor) or a firm shake.
 // 48 h in standby (or an empty battery) → deep sleep; the shake / cable / RST wake it.
 //                                            BAT <%> <V>   every 30 s
+//
+// Gamepad for the VR game (fw 10, owner 2026-11-07: "connect the sensors straight to the game"): the sensor is ALSO a
+// Bluetooth HID gamepad. Pair it once in the Quest's Bluetooth settings like any controller; the headset reconnects it
+// by itself, no phone, no Wi-Fi. Report ID 1, 13 bytes, ~104 Hz: u8 buttons (always 0, they make Android call it a
+// gamepad) | i16 X Y Z Rx = qx qy qz qw (×32767, w ≥ 0, the sensor's orientation) | i16 Ry = vertical acceleration
+// without gravity (g × 8192) | i16 Rz = turn speed (°/s × 16). The game (vr-workout/scripts/game/pad_legs.gd) reads
+// axes 0..3 (Ry, Rz: spare, for later) and solves the legs itself. docs/xems-motion.md "VR legs — the sensors as a gamepad".
 #include <bluefruit.h>
 #include <Wire.h>
 #include "fusion.h"
 
-#define FW_VER "10"
+#define FW_VER "11"
 #define IMU_ADDR 0x6A
 #define IMU_RATE 208.f
 
 BLEUart bleuart;
 BLEService dataSvc("6E400101-B5A3-F393-E0A9-E50E24DCCA9E");
 BLECharacteristic dataChr("6E400102-B5A3-F393-E0A9-E50E24DCCA9E");
+// the HID gamepad (fw 10): 8 buttons + 6 axes of 16 bits (a stock gamepad report has 8-bit axes: 1° steps)
+static const uint8_t padMap[] = {
+  0x05, 0x01, 0x09, 0x05, 0xA1, 0x01, 0x85, 0x01,             // Generic Desktop · Gamepad · Application · ID 1
+  0x05, 0x09, 0x19, 0x01, 0x29, 0x08, 0x15, 0x00, 0x25, 0x01, // Buttons 1..8, 0..1
+  0x75, 0x01, 0x95, 0x08, 0x81, 0x02,                         // 8 × 1 bit
+  0x05, 0x01, 0x09, 0x30, 0x09, 0x31, 0x09, 0x32, 0x09, 0x33, 0x09, 0x34, 0x09, 0x35,   // X Y Z Rx Ry Rz
+  0x16, 0x01, 0x80, 0x26, 0xFF, 0x7F, 0x75, 0x10, 0x95, 0x06, 0x81, 0x02,                // −32767..32767, 6 × 16 bit
+  0xC0};
+BLEHidGeneric pad(1, 0, 0);
+static uint8_t padSub = 0;
 MotionFusion fus;
 static uint8_t seq = 0, decim = 4;          // 208/4 = 52 Hz by default
 static uint8_t sub = 0;
@@ -175,7 +192,7 @@ static void command(char *s) {
     snprintf(b, sizeof b, "OK led %s", s + 4); say(b);
   } else if (!strcmp(s, "bias")) { fus.relearnBias(); say("OK bias"); }
   else if (!strcmp(s, "level")) { fus.reset(); say("OK level"); }
-  else if (!strcmp(s, "zero")) { fus.zeroNow(1.5f); say("OK zero"); }   // fw 10: "still now" — learn the gyro offset
+  else if (!strcmp(s, "zero")) { fus.zeroNow(1.5f); say("OK zero"); }   // fw 11: "still now" — learn the gyro offset
   else if (!strcmp(s, "sleep")) { say("OK sleep"); delay(300); enterStandby(); }
   else if (!strcmp(s, "off")) { say("OK off"); delay(300); goSleep(); }
   else if (!strcmp(s, "wake")) { if (standby) leaveStandby(); say("OK wake"); }
@@ -292,8 +309,15 @@ void setup() {
   dataChr.setFixedLen(20);
   dataChr.begin();
   bleuart.begin();
+  { uint16_t inLen[] = {13};
+    pad.setReportLen(inLen, NULL, NULL);
+    pad.enableKeyboard(false); pad.enableMouse(false);
+    pad.setReportMap(padMap, sizeof padMap);
+    pad.begin(); }
+  // advertising: flags 3 + gamepad appearance 4 + HID 4 + the data service 18 = 29 of 31 bytes (no TX power any more)
   Bluefruit.Advertising.addFlags(BLE_GAP_ADV_FLAGS_LE_ONLY_GENERAL_DISC_MODE);
-  Bluefruit.Advertising.addTxPower();
+  Bluefruit.Advertising.addAppearance(BLE_APPEARANCE_HID_GAMEPAD);
+  Bluefruit.Advertising.addService(pad);
   Bluefruit.Advertising.addService(dataSvc);
   Bluefruit.ScanResponse.addName();
   Bluefruit.Advertising.restartOnDisconnect(true);
@@ -343,6 +367,17 @@ void loop() {
         sumG[0] += gx - fus.bias[0]; sumG[1] += gy - fus.bias[1]; sumG[2] += gz - fus.bias[2];
         for (int i = 0; i < 3; i++) sumA[i] += aw[i];
         float m = sqrtf(ax * ax + ay * ay + az * az); if (m > peakA) peakA = m; }
+      if (++padSub >= 2 && btOk && Bluefruit.connected()) {      // the gamepad report, 104 Hz (fw 10)
+        padSub = 0;
+        const float s = fus.q[0] < 0 ? -1.f : 1.f;
+        const float a3[3] = {ax, ay, az}; float aw[3]; qrot(fus.q, a3, aw, false);   // world: z up
+        int16_t v[6] = {clamp16(s * fus.q[1] * 32767), clamp16(s * fus.q[2] * 32767), clamp16(s * fus.q[3] * 32767),
+                        clamp16(s * fus.q[0] * 32767), clamp16((aw[2] - 1.f) * 8192),
+                        clamp16(sqrtf(sq(gx - fus.bias[0]) + sq(gy - fus.bias[1]) + sq(gz - fus.bias[2])) * 57.29578f * 16)};
+        uint8_t r[13]; r[0] = 0;
+        for (int i = 0; i < 6; i++) { r[1 + 2 * i] = v[i] & 0xFF; r[2 + 2 * i] = (uint16_t)v[i] >> 8; }
+        pad.inputReport(1, r, 13);                             // nothing happens until a host has paired and subscribed
+      }
       if (++sub >= decim) {
         const float n = sub;
         sub = 0;

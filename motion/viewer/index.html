@@ -240,7 +240,7 @@ function probeResult(t) {
     (t.startsWith('other') ? 'На сензора има друг софтуер. Натисни „Зареди“.' : 'Проверката не стана: ' + t);
   $('fwtext').textContent = msg;
 }
-const FW_APP = 10;           // the firmware inside this app (motion/xems_motion FW_VER)
+const FW_APP = 11;           // the firmware inside this app (motion/xems_motion FW_VER)
 function nativeScan() {
   scanStart = Date.now();
   const r = NATIVE.scan();

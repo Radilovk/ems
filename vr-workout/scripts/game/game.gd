@@ -413,6 +413,10 @@ func _hands_status() -> String:
 			parts.append("%s: няма" % name[side])
 	if body.legs_src == "sensors":
 		parts.append("крака: сензори ✓")
+	elif body.pads.status == "found":
+		parts.append("крака: сензори — застани прав, без движение")
+	elif body.pads.status == "bend":
+		parts.append("крака: сензори — клекни леко веднъж")
 	return "  ·  ".join(parts)
 
 
@@ -421,12 +425,18 @@ func _hands_events(delta: float) -> void:
 	for ch in body.changes:
 		var side: String = ch[0]
 		var to: String = ch[2]
-		if side == "legs":                             # the XEMS Motion sensors (phone app over the Wi-Fi)
+		if side == "pads":                             # the sensors as Bluetooth gamepads: guide the calibration
+			if to == "found":
+				stage._show_toast("Сензорите за краката са тук — застани прав и не мърдай за секунда")
+			elif to == "bend":
+				stage._show_toast("Сега леко клекни веднъж и се изправи")
+			continue
+		if side == "legs":                             # the XEMS Motion sensors (Bluetooth gamepads or phone over Wi-Fi)
 			if to == "sensors":
 				stage._show_toast("Сензорите за краката са свързани ✓ — ритници, колене и клекове с истинско движение")
 				sfx.play("pass", null, -4.0)
 			elif ch[1] == "sensors" and not (st in [St.MENU, St.IDLE, St.SUMMARY]):
-				stage._show_toast("Сензорите за краката се изгубиха — виж телефона (същата Wi-Fi мрежа)")
+				stage._show_toast("Сензорите за краката се изгубиха — включени ли са? (Quest → Bluetooth)")
 			continue
 		var nm: String = "Лявата" if side == "left" else "Дясната"
 		if clock < 1.0 and to != "foot":

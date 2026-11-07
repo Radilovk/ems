@@ -10,7 +10,7 @@
 // World frame: z up. q = sensor → world (w, x, y, z).
 #pragma once
 #include <math.h>
-// stillness on a LIVING body (fw 10): it sways, the pulse and breath shake it a few °/s — the old 2 / 3 °/s limits
+// stillness on a LIVING body (fw 11): it sways, the pulse and breath shake it a few °/s — the old 2 / 3 °/s limits
 // were never met on the owner's wrists (0 % of a session). rad/s, g.
 // Two levels: STILL (strict, as before: 2 °/s, 0.025 g, 3 °/s from the offset) freezes the rotation (ZARU) and is the
 // "still" flag the phone's solver uses; QUIET (5 °/s, 0.04 g, 6 °/s) only lets the gyro offset be learnt and tracked —
@@ -61,7 +61,7 @@ struct MotionFusion {
 
   void reset() { q[0] = 1; q[1] = q[2] = q[3] = 0; n = 0; }
   void relearnBias() { biasReady = false; bN = 0; bAcc[0] = bAcc[1] = bAcc[2] = 0; }
-  // fw 10: "you are still NOW" — the calibration's zero pose (the person stands still, the app says so): the gyro's mean
+  // fw 11: "you are still NOW" — the calibration's zero pose (the person stands still, the app says so): the gyro's mean
   // over the next `sec` seconds IS its offset, whatever the strict stillness test says. On a living body that test is
   // almost never passed (the owner's wrists: still 0 % of a 3-min session — tremor, pulse), so the offset was never
   // learnt and the heading drifted (left forearm 87° off after 2 min). A sample turning > 15 °/s spoils it (moved).

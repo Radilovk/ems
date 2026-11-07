@@ -68,6 +68,9 @@ public final class AutoModel {
         public boolean backSurgery;
         public boolean backNightPainFever;
         public boolean backBladder;
+        /** Face: botox or a filler in the face within the last 2 weeks — the stimulation would strengthen and
+         *  spread it (docs/xems-face.md); blocks the face programs. */
+        public boolean injectable;
 
         public boolean anyBackRedFlag() {
             return backAcute || backRadiating || backTrauma || backSurgery || backNightPainFever

@@ -28,16 +28,16 @@
     .registers 3
 
     .prologue
-    .line 1540
+    .line 1592
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 1541
+    .line 1593
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$LiveApply;->v:Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;
 
-    .line 1542
+    .line 1594
     iput p2, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$LiveApply;->t:I
 
-    .line 1543
+    .line 1595
     return-void
 .end method
 
@@ -47,7 +47,7 @@
     .registers 3
 
     .prologue
-    .line 1548
+    .line 1600
     :try_start_0
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$LiveApply;->v:Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Page;
 
@@ -57,15 +57,15 @@
     :try_end_7
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_7} :catch_8
 
-    .line 1552
+    .line 1604
     :goto_7
     return-void
 
-    .line 1549
+    .line 1601
     :catch_8
     move-exception v0
 
-    .line 1550
+    .line 1602
     const-string v1, "BluetensScreen.live"
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V

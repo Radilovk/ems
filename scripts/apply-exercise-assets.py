@@ -95,6 +95,14 @@ def main() -> int:
     for p in measure:
         shutil.copy2(p, mout / p.name)
     print(f"assets/xems/body/scale/measure/ ({len(measure)} files, {sum(p.stat().st_size for p in measure)} B)")
+    # the face studio's picture (owner's image; the anatomy is drawn over it by wearable/face/FaceArt)
+    face = ROOT / "branding" / "face" / "face.webp"
+    if not face.is_file():
+        raise SystemExit("branding/face/face.webp missing (the face studio's picture)")
+    fout = DEST.parent / "face"
+    fout.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(face, fout / face.name)
+    print(f"assets/xems/face/face.webp ({face.stat().st_size} B)")
     return 0
 
 

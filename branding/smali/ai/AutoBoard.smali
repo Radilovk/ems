@@ -555,13 +555,13 @@
 
     sget-object v4, Lcom/isaigu/gymapp/ai/AutoSession$Stage;->RUNNING:Lcom/isaigu/gymapp/ai/AutoSession$Stage;
 
-    if-ne v0, v4, :cond_2c
+    if-ne v0, v4, :cond_31
 
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoSession;->getEngine()Lcom/isaigu/gymapp/ai/AutoEngine;
 
     move-result-object v0
 
-    if-eqz v0, :cond_2c
+    if-eqz v0, :cond_31
 
     move v0, v1
 
@@ -573,13 +573,13 @@
 
     sget-object v5, Lcom/isaigu/gymapp/ai/AutoSession$Stage;->CALIB:Lcom/isaigu/gymapp/ai/AutoSession$Stage;
 
-    if-ne v4, v5, :cond_2e
+    if-ne v4, v5, :cond_33
 
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoSession;->getPlan()Lcom/isaigu/gymapp/ai/AutoModel$Plan;
 
     move-result-object v4
 
-    if-eqz v4, :cond_2e
+    if-eqz v4, :cond_33
 
     move v4, v1
 
@@ -587,47 +587,57 @@
     :goto_21
     if-nez v0, :cond_25
 
-    if-eqz v4, :cond_26
+    if-eqz v4, :cond_35
 
     :cond_25
-    move v2, v1
+    invoke-static {}, Lcom/isaigu/gymapp/wearable/face/FaceStudio;->ownsAuto()Z
+
+    move-result v0
+
+    if-nez v0, :cond_35
 
     .line 122
-    :cond_26
-    if-nez v2, :cond_30
+    :goto_2b
+    if-nez v1, :cond_37
 
     .line 123
-    :try_start_28
+    :try_start_2d
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoBoard;->detach()V
 
     .line 146
-    :cond_2b
-    :goto_2b
+    :cond_30
+    :goto_30
     return-void
 
-    :cond_2c
+    :cond_31
     move v0, v2
 
     .line 118
     goto :goto_12
 
-    :cond_2e
+    :cond_33
     move v4, v2
 
     .line 119
     goto :goto_21
 
+    :cond_35
+    move v1, v2
+
+    .line 120
+    goto :goto_2b
+
     .line 126
-    :cond_30
-    if-eqz p0, :cond_75
+    :cond_37
+    if-eqz p0, :cond_7c
 
     invoke-virtual {p0}, Landroid/view/View;->getRootView()Landroid/view/View;
 
     move-result-object v0
 
     .line 127
-    :goto_36
-    if-eqz v0, :cond_2b
+    :goto_3d
+    if-eqz v0, :cond_30
 
     .line 130
     invoke-virtual {v0}, Landroid/view/View;->getContext()Landroid/content/Context;
@@ -652,15 +662,15 @@
     move-result v2
 
     .line 132
-    if-eqz v2, :cond_77
+    if-eqz v2, :cond_7e
 
     invoke-virtual {v0, v2}, Landroid/view/View;->findViewById(I)Landroid/view/View;
 
     move-result-object v0
 
     .line 133
-    :goto_52
-    if-eqz v0, :cond_2b
+    :goto_59
+    if-eqz v0, :cond_30
 
     invoke-virtual {v0}, Landroid/view/View;->getParent()Landroid/view/ViewParent;
 
@@ -668,32 +678,32 @@
 
     instance-of v2, v2, Landroid/widget/LinearLayout;
 
-    if-eqz v2, :cond_2b
+    if-eqz v2, :cond_30
 
     .line 136
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoBoard;->isAttached()Z
 
     move-result v2
 
-    if-eqz v2, :cond_79
+    if-eqz v2, :cond_80
 
     sget-object v2, Lcom/isaigu/gymapp/ai/AutoBoard;->list:Landroid/view/View;
 
-    if-ne v0, v2, :cond_79
+    if-ne v0, v2, :cond_80
 
     sget-boolean v2, Lcom/isaigu/gymapp/ai/AutoBoard;->setupKind:Z
 
-    if-ne v2, v4, :cond_79
+    if-ne v2, v4, :cond_80
 
     .line 137
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/AutoBoard;->keepFirstRow(Landroid/view/View;)V
-    :try_end_6d
-    .catch Ljava/lang/Throwable; {:try_start_28 .. :try_end_6d} :catch_6e
+    :try_end_74
+    .catch Ljava/lang/Throwable; {:try_start_2d .. :try_end_74} :catch_75
 
-    goto :goto_2b
+    goto :goto_30
 
     .line 143
-    :catch_6e
+    :catch_75
     move-exception v0
 
     .line 144
@@ -701,23 +711,23 @@
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V
 
-    goto :goto_2b
+    goto :goto_30
 
-    :cond_75
+    :cond_7c
     move-object v0, v3
 
     .line 126
-    goto :goto_36
+    goto :goto_3d
 
-    :cond_77
+    :cond_7e
     move-object v0, v3
 
     .line 132
-    goto :goto_52
+    goto :goto_59
 
     .line 140
-    :cond_79
-    :try_start_79
+    :cond_80
+    :try_start_80
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoBoard;->detach()V
 
     .line 141
@@ -725,8 +735,8 @@
 
     .line 142
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/ai/AutoBoard;->attach(Landroid/content/Context;Landroid/view/View;)V
-    :try_end_81
-    .catch Ljava/lang/Throwable; {:try_start_79 .. :try_end_81} :catch_6e
+    :try_end_88
+    .catch Ljava/lang/Throwable; {:try_start_80 .. :try_end_88} :catch_75
 
-    goto :goto_2b
+    goto :goto_30
 .end method

@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 325
+    .line 326
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,24 +34,24 @@
     .registers 4
 
     .prologue
-    .line 329
+    .line 330
     :try_start_0
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoSession;->togglePause()V
 
-    .line 330
+    .line 331
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoHints;->refresh()V
     :try_end_6
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_6} :catch_7
 
-    .line 334
+    .line 335
     :goto_6
     return-void
 
-    .line 331
+    .line 332
     :catch_7
     move-exception v0
 
-    .line 332
+    .line 333
     const-string v1, "AutoHints.start"
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V

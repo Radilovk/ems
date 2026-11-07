@@ -31,6 +31,7 @@
         Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$PickMine;,
         Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Tab;,
         Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$PickProgram;,
+        Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$OpenFace;,
         Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$Go;,
         Lcom/isaigu/gymapp/wearable/bluetens/BluetensScreen$StartScan;
     }
@@ -42,7 +43,7 @@
 
 .field static final LIVE_B:Ljava/lang/String; = "XLIVB"
 
-.field static final MAX_PADS:I = 0x2
+.field static final MAX_PADS:I = 0x3
 
 .field static final PREFS:Ljava/lang/String; = "xems_bluetens"
 
@@ -82,6 +83,230 @@
     move-result v0
 
     return v0
+.end method
+
+.method static contraCard(Landroid/app/Activity;Z)Landroid/view/View;
+    .registers 12
+
+    .prologue
+    const/4 v9, 0x3
+
+    const/4 v8, 0x2
+
+    const/4 v7, 0x1
+
+    const/high16 v6, 0x41800000    # 16.0f
+
+    const/4 v2, 0x0
+
+    .line 1731
+    invoke-static {p0}, Lcom/isaigu/gymapp/widget/XemsUi;->vertical(Landroid/content/Context;)Landroid/widget/LinearLayout;
+
+    move-result-object v3
+
+    .line 1732
+    invoke-static {p0, v6}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
+
+    move-result v0
+
+    const/high16 v1, 0x41400000    # 12.0f
+
+    invoke-static {p0, v1}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
+
+    move-result v1
+
+    invoke-static {p0, v6}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
+
+    move-result v4
+
+    const/high16 v5, 0x41600000    # 14.0f
+
+    invoke-static {p0, v5}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
+
+    move-result v5
+
+    invoke-virtual {v3, v0, v1, v4, v5}, Landroid/widget/LinearLayout;->setPadding(IIII)V
+
+    .line 1733
+    sget v0, Lcom/isaigu/gymapp/widget/XemsUi;->AMBER:I
+
+    const/16 v1, 0x1a
+
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/widget/XemsUi;->alpha(II)I
+
+    move-result v0
+
+    invoke-static {p0, v6}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
+
+    move-result v1
+
+    int-to-float v1, v1
+
+    sget v4, Lcom/isaigu/gymapp/widget/XemsUi;->AMBER:I
+
+    const/16 v5, 0x88
+
+    .line 1734
+    invoke-static {v4, v5}, Lcom/isaigu/gymapp/widget/XemsUi;->alpha(II)I
+
+    move-result v4
+
+    const/high16 v5, 0x3f800000    # 1.0f
+
+    invoke-static {p0, v5}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
+
+    move-result v5
+
+    .line 1733
+    invoke-static {v0, v1, v4, v5}, Lcom/isaigu/gymapp/widget/XemsUi;->rounded(IFII)Landroid/graphics/drawable/GradientDrawable;
+
+    move-result-object v0
+
+    invoke-virtual {v3, v0}, Landroid/widget/LinearLayout;->setBackgroundDrawable(Landroid/graphics/drawable/Drawable;)V
+
+    .line 1735
+    if-eqz p1, :cond_91
+
+    const-string v0, "\u041a\u043e\u0433\u0430 \u043d\u0435 \u2014 \u043f\u043e\u043f\u0438\u0442\u0430\u0439 \u043f\u0440\u0435\u0434\u0438 \u0435\u043b\u0435\u043a\u0442\u0440\u043e\u0434\u0438\u0442\u0435"
+
+    :goto_47
+    sget v1, Lcom/isaigu/gymapp/widget/XemsUi;->AMBER:I
+
+    invoke-static {p0, v0, v6, v1, v7}, Lcom/isaigu/gymapp/widget/XemsUi;->text(Landroid/content/Context;Ljava/lang/String;FIZ)Landroid/widget/TextView;
+
+    move-result-object v0
+
+    invoke-virtual {v3, v0}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
+
+    .line 1737
+    if-eqz p1, :cond_94
+
+    const/4 v0, 0x7
+
+    new-array v0, v0, [Ljava/lang/String;
+
+    const-string v1, "\u2022 \u041f\u0435\u0439\u0441\u043c\u0435\u0439\u043a\u044a\u0440, \u0434\u0435\u0444\u0438\u0431\u0440\u0438\u043b\u0430\u0442\u043e\u0440 \u0438\u043b\u0438 \u0434\u0440\u0443\u0433 \u0438\u043c\u043f\u043b\u0430\u043d\u0442 \u0441 \u0435\u043b\u0435\u043a\u0442\u0440\u043e\u043d\u0438\u043a\u0430 \u2014 \u043d\u0438\u043a\u044a\u0434\u0435 \u043f\u043e \u0442\u044f\u043b\u043e\u0442\u043e"
+
+    aput-object v1, v0, v2
+
+    const-string v1, "\u2022 \u0411\u0440\u0435\u043c\u0435\u043d\u043d\u043e\u0441\u0442 \u2014 \u043d\u0435 \u0432\u044a\u0440\u0445\u0443 \u043a\u043e\u0440\u0435\u043c\u0430, \u043a\u0440\u044a\u0441\u0442\u0430 \u0438 \u0442\u0430\u0437\u0430"
+
+    aput-object v1, v0, v7
+
+    const-string v1, "\u2022 \u0415\u043f\u0438\u043b\u0435\u043f\u0441\u0438\u044f"
+
+    aput-object v1, v0, v8
+
+    const-string v1, "\u2022 \u0420\u0430\u043d\u0430, \u0440\u0430\u0437\u0434\u0440\u0430\u0437\u043d\u0435\u043d\u0430 \u043a\u043e\u0436\u0430, \u043e\u0431\u0440\u0438\u0432, \u0438\u0437\u0433\u0430\u0440\u044f\u043d\u0435, \u043d\u0430\u043c\u0430\u043b\u0435\u043d\u0430 \u0447\u0443\u0432\u0441\u0442\u0432\u0438\u0442\u0435\u043b\u043d\u043e\u0441\u0442 \u0432 \u0437\u043e\u043d\u0430\u0442\u0430"
+
+    aput-object v1, v0, v9
+
+    const/4 v1, 0x4
+
+    const-string v4, "\u2022 \u0421\u043a\u043e\u0440\u043e\u0448\u043d\u0430 \u043e\u043f\u0435\u0440\u0430\u0446\u0438\u044f \u0432 \u0437\u043e\u043d\u0430\u0442\u0430, \u0442\u0440\u043e\u043c\u0431\u043e\u0437\u0430 \u043d\u0430 \u043a\u0440\u0430\u043a\u0430"
+
+    aput-object v4, v0, v1
+
+    const/4 v1, 0x5
+
+    const-string v4, "\u2022 \u041b\u0438\u0446\u0435: \u0431\u043e\u0442\u043e\u043a\u0441 \u0438\u043b\u0438 \u0444\u0438\u043b\u044a\u0440 \u043f\u0440\u0435\u0437 \u043f\u043e\u0441\u043b\u0435\u0434\u043d\u0438\u0442\u0435 2 \u0441\u0435\u0434\u043c\u0438\u0446\u0438, \u043f\u0430\u0440\u0430\u043b\u0438\u0437\u0430 \u043d\u0430 \u043b\u0438\u0446\u0435\u0432\u0438\u044f \u043d\u0435\u0440\u0432"
+
+    aput-object v4, v0, v1
+
+    const/4 v1, 0x6
+
+    const-string v4, "\u2022 \u041d\u0438\u043a\u043e\u0433\u0430: \u043e\u043a\u043e\u043b\u043e \u043e\u0447\u0438\u0442\u0435, \u043e\u0442\u043f\u0440\u0435\u0434 \u0438 \u043e\u0442\u0441\u0442\u0440\u0430\u043d\u0438 \u043d\u0430 \u0448\u0438\u044f\u0442\u0430, \u043f\u0440\u0435\u0437 \u0433\u044a\u0440\u0434\u0438\u0442\u0435 \u043e\u0442 \u0435\u0434\u043d\u0430\u0442\u0430 \u043a\u044a\u043c \u0434\u0440\u0443\u0433\u0430\u0442\u0430 \u0441\u0442\u0440\u0430\u043d\u0430"
+
+    aput-object v4, v0, v1
+
+    .line 1753
+    :goto_74
+    array-length v4, v0
+
+    move v1, v2
+
+    :goto_76
+    if-ge v1, v4, :cond_b7
+
+    aget-object v5, v0, v1
+
+    .line 1754
+    const/high16 v6, 0x41680000    # 14.5f
+
+    sget v7, Lcom/isaigu/gymapp/widget/XemsUi;->TEXT:I
+
+    invoke-static {p0, v5, v6, v7, v2}, Lcom/isaigu/gymapp/widget/XemsUi;->text(Landroid/content/Context;Ljava/lang/String;FIZ)Landroid/widget/TextView;
+
+    move-result-object v5
+
+    .line 1755
+    const/high16 v6, 0x40c00000    # 6.0f
+
+    invoke-static {p0, v6}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
+
+    move-result v6
+
+    invoke-virtual {v5, v2, v6, v2, v2}, Landroid/widget/TextView;->setPadding(IIII)V
+
+    .line 1756
+    invoke-virtual {v3, v5}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
+
+    .line 1753
+    add-int/lit8 v1, v1, 0x1
+
+    goto :goto_76
+
+    .line 1735
+    :cond_91
+    const-string v0, "When not \u2014 ask before the pads go on"
+
+    goto :goto_47
+
+    .line 1745
+    :cond_94
+    const/4 v0, 0x7
+
+    new-array v0, v0, [Ljava/lang/String;
+
+    const-string v1, "\u2022 A pacemaker, defibrillator or other electronic implant \u2014 nowhere on the body"
+
+    aput-object v1, v0, v2
+
+    const-string v1, "\u2022 Pregnancy \u2014 not on the belly, lower back or pelvis"
+
+    aput-object v1, v0, v7
+
+    const-string v1, "\u2022 Epilepsy"
+
+    aput-object v1, v0, v8
+
+    const-string v1, "\u2022 A wound, irritated skin, rash, burn or reduced feeling in the area"
+
+    aput-object v1, v0, v9
+
+    const/4 v1, 0x4
+
+    const-string v4, "\u2022 Recent surgery in the area, a leg thrombosis"
+
+    aput-object v4, v0, v1
+
+    const/4 v1, 0x5
+
+    const-string v4, "\u2022 Face: botox or filler within 2 weeks, facial palsy"
+
+    aput-object v4, v0, v1
+
+    const/4 v1, 0x6
+
+    const-string v4, "\u2022 Never: around the eyes, the front and side of the neck, across the chest side to side"
+
+    aput-object v4, v0, v1
+
+    goto :goto_74
+
+    .line 1758
+    :cond_b7
+    return-object v3
 .end method
 
 .method public static open(Landroid/app/Activity;)V

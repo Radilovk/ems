@@ -60,17 +60,25 @@ public final class AutoCatalog {
     public static final String FACE_OVAL = "face_oval";
     /** Lymph wave: the chin opens, then nasolabial → lower cheek → cheekbone, the previous at 50 % (a muscle pump wave). */
     public static final String FACE_DRAIN = "face_drain";
-    /** Botox effect: sensory 60 Hz · 250 µs on the forehead (the approved supraorbital device's settings), 4 : 4. */
+    /** Botox effect: sensory 100 Hz · 50 µs on the forehead (conventional TENS: Aβ, not the pain fibres), 4 : 4. */
     public static final String FACE_RELAX = "face_relax";
-    /** Calm face: sensory on the forehead and both masseters, 60 ↔ 80 Hz alternating (habituation). */
+    /** Calm face: sensory on the forehead and both masseters, 100 ↔ 80 Hz alternating (habituation), 50 µs. */
     public static final String FACE_CALM = "face_calm";
     /** Relaxed jaw: both masseters, sensory low rate (2 Hz plain — the suit has no bursts; ULF-TENS-like). */
     public static final String FACE_JAW = "face_jaw";
     /** Firm chin: under the chin, 30 Hz · 200 µs, 4 : 8. */
     public static final String FACE_CHIN = "face_chin";
-    public static final int FACE_RELAX_PW = 250;
-    public static final int FACE_JAW_PW = 250;
-    public static final int FACE_CHIN_PW = 200;
+    /**
+     * Comfort rules (docs/xems-face.md §12, owner 2026-11-07: a deep, dull ache "in the bone" on the forehead even at
+     * 2 %): the face gets only narrow pulses. Pain fibres (Aδ, C — in the periosteum too) need long pulses: their
+     * threshold falls steeply as the pulse widens (Alon: 350 → 30 mA from 5 → 1000 µs; C-fibre chronaxie ≈ 2 ms), while
+     * the large fibres (touch, motor) answer short ones. So: the sensory programs in the conventional-TENS band
+     * (80–100 Hz, 50 µs — Aβ, the comfortable buzz), the motor ones ≤ 100 µs, the chin and the jaw ≤ 150 µs.
+     * Nothing like the 250 µs "acupuncture-like" pulse on thin tissue over bone.
+     */
+    public static final int FACE_RELAX_PW = 50;
+    public static final int FACE_JAW_PW = 150;
+    public static final int FACE_CHIN_PW = 150;
     /** Face: the motor pulse width (facial NMES 10–100 µs per phase), and the recovery (s). */
     public static final int FACE_PW = 100;
     public static final int FACE_RECOVERY_S = 120;
@@ -838,13 +846,13 @@ public final class AutoCatalog {
                 sensory(out, total, "Отпускане на мимиката", "Expression relax",
                         "Затвори очи, отпусни челото — токът работи по нервите",
                         "Close the eyes, let the forehead go — the current works on the nerves",
-                        faceStep(60, FACE_RELAX_PW, 4, 4, 1000));
+                        faceStep(100, FACE_RELAX_PW, 4, 4, 1000));
                 break;
             case FACE_CALM:
                 sensory(out, total, "Спокойно лице", "Calm face",
                         "Отпусни челото и челюстта, зъбите да не се допират",
                         "Let the forehead and the jaw go, teeth apart",
-                        faceStep(60, FACE_RELAX_PW, 4, 4, 1000), faceStep(80, FACE_RELAX_PW, 4, 4, 1000));
+                        faceStep(100, FACE_RELAX_PW, 4, 4, 1000), faceStep(80, FACE_RELAX_PW, 4, 4, 1000));
                 break;
             case FACE_JAW: {
                 // the jaw: low-rate single impulses (the suit has no bursts) — a deep, slow tapping, sensory

@@ -118,8 +118,8 @@ public final class FaceArt {
     public static final float[] ZM_O = {815, 690};
     public static final float[] ZM_I = {722, 858};
     /** Nasolabial lifters (zygomaticus minor · levator labii superioris): low on the muscle, ≥ 2 cm under the eye. */
-    public static final float[] NL_O = {706, 690};
-    public static final float[] NL_I = {684, 842};
+    public static final float[] NL_O = {700, 690};
+    public static final float[] NL_I = {678, 842};
     /** Lower cheek (risorius · buccinator): from the modiolus out towards the masseter's front edge. */
     public static final float[] LC_O = {836, 888};
     public static final float[] LC_I = {716, 900};
@@ -133,6 +133,13 @@ public final class FaceArt {
     /** Nerve trunk in front of the ear; side of the neck (carotid sinus). */
     public static final float[] TRUNK = {884, 712};
     public static final float[] NECK = {748, 1168};
+    /**
+     * Where the face's sensory nerves leave the bone (supraorbital notch, infraorbital and mental foramina): a pad on
+     * one gives a strong radiating tingle or ache with little muscle work — the pads keep ≥ 1.5 cm off (§12).
+     */
+    public static final float[] SUPRAORBITAL = {757, 478}, INFRAORBITAL = {748, 650}, MENTAL = {690, 985};
+    public static final float[][] FORAMINA = {SUPRAORBITAL, INFRAORBITAL, MENTAL};
+
     /** Masseter: from the zygomatic arch to the jaw angle. */
     public static final float[] MASS_TOP = {850, 735}, MASS_LOW = {806, 915};
     /** Lymph nodes the drainage pumps towards: in front of the ear, under the jaw. */
@@ -173,7 +180,8 @@ public final class FaceArt {
     public static float[][] pads(int site) {
         switch (site) {
             case FOREHEAD:
-                return new float[][] {{525, 342}, {675, 342}};
+                // close (2.2 cm centre to centre): the current stays in the skin, not along the bone (§12)
+                return new float[][] {{549, 342}, {651, 342}};
             case CHIN:
                 return new float[][] {{552, 1082}, {648, 1082}};
             case JAW_L:
@@ -181,12 +189,14 @@ public final class FaceArt {
                 return new float[][] {at(new float[] {836, 772}, site), at(new float[] {813, 872}, site)};
             case NL_L:
             case NL_R:
-                return new float[][] {at(lerp(NL_O, NL_I, 0.12f), site), at(lerp(NL_O, NL_I, 0.72f), site)};
+                // low on the muscle: ≥ 2 cm from the infraorbital foramen (the nerve to the upper lip and teeth)
+                return new float[][] {at(lerp(NL_O, NL_I, 0.25f), site), at(lerp(NL_O, NL_I, 0.85f), site)};
             case LC_L:
             case LC_R:
                 return new float[][] {at(new float[] {814, 894}, site), at(new float[] {734, 912}, site)};
             default:
-                return new float[][] {at(lerp(ZM_O, ZM_I, 0.10f), site), at(lerp(ZM_O, ZM_I, 0.52f), site)};
+                // both pads on the muscle belly, off the cheekbone (thin tissue over bone = periosteal ache, §12)
+                return new float[][] {at(lerp(ZM_O, ZM_I, 0.20f), site), at(lerp(ZM_O, ZM_I, 0.60f), site)};
         }
     }
 
@@ -458,6 +468,14 @@ public final class FaceArt {
                 out.add(nogoMark(side == 0 ? mx(TRUNK[0]) : TRUNK[0], TRUNK[1]));
             }
             out.add(nogoMark(side == 0 ? mx(NECK[0]) : NECK[0], NECK[1]));
+            for (float[] f : FORAMINA) {
+                // the nerve exits: a small dashed ring — keep the pads off
+                Prim r = new Prim(NOGO, circle(side == 0 ? mx(f[0]) : f[0], f[1], 0.3f * CM), false);
+                r.dashed = true;
+                r.alpha = 0.6f;
+                r.width = 0.8f;
+                out.add(r);
+            }
         }
     }
 

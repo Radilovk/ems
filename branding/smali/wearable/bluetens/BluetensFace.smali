@@ -51,44 +51,35 @@
     .registers 2
 
     .prologue
-    .line 33
-    packed-switch p0, :pswitch_data_10
-
-    .line 37
-    :pswitch_3
-    const/16 v0, 0x64
-
-    :goto_5
-    return v0
-
-    .line 34
-    :pswitch_6
-    const/16 v0, 0xc8
-
-    goto :goto_5
-
-    .line 35
-    :pswitch_9
-    const/16 v0, 0xfa
-
-    goto :goto_5
-
-    .line 36
-    :pswitch_c
     const/16 v0, 0x96
 
-    goto :goto_5
+    .line 33
+    packed-switch p0, :pswitch_data_c
+
+    .line 37
+    :pswitch_5
+    const/16 v0, 0x64
+
+    :goto_7
+    :pswitch_7
+    return v0
+
+    .line 35
+    :pswitch_8
+    const/16 v0, 0x32
+
+    goto :goto_7
 
     .line 33
     nop
 
-    :pswitch_data_10
+    :pswitch_data_c
     .packed-switch 0x7
-        :pswitch_6
-        :pswitch_3
-        :pswitch_3
-        :pswitch_9
-        :pswitch_c
+        :pswitch_7
+        :pswitch_5
+        :pswitch_5
+        :pswitch_8
+        :pswitch_7
     .end packed-switch
 .end method
 

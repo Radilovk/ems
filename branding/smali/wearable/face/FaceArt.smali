@@ -37,11 +37,15 @@
 
 .field public static final FLOW:I = 0x12
 
+.field public static final FORAMINA:[[F
+
 .field public static final FOREHEAD:I = 0x8
 
 .field public static final GLOW:I = 0x8
 
 .field public static final H:I = 0x520
+
+.field public static final INFRAORBITAL:[F
 
 .field public static final JAW_L:I = 0x6
 
@@ -64,6 +68,8 @@
 .field public static final MASS_LOW:[F
 
 .field public static final MASS_TOP:[F
+
+.field public static final MENTAL:[F
 
 .field public static final MOUTH:[F
 
@@ -97,6 +103,8 @@
 
 .field public static final SPARK:I = 0xe
 
+.field public static final SUPRAORBITAL:[F
+
 .field public static final TRUNK:[F
 
 .field public static final W:I = 0x4af
@@ -114,111 +122,153 @@
 
 # direct methods
 .method static constructor <clinit>()V
-    .registers 2
+    .registers 4
 
     .prologue
-    const/4 v1, 0x2
+    const/4 v3, 0x2
 
     .line 118
-    new-array v0, v1, [F
+    new-array v0, v3, [F
 
-    fill-array-data v0, :array_6c
+    fill-array-data v0, :array_94
 
     sput-object v0, Lcom/isaigu/gymapp/wearable/face/FaceArt;->ZM_O:[F
 
     .line 119
-    new-array v0, v1, [F
+    new-array v0, v3, [F
 
-    fill-array-data v0, :array_74
+    fill-array-data v0, :array_9c
 
     sput-object v0, Lcom/isaigu/gymapp/wearable/face/FaceArt;->ZM_I:[F
 
     .line 121
-    new-array v0, v1, [F
+    new-array v0, v3, [F
 
-    fill-array-data v0, :array_7c
+    fill-array-data v0, :array_a4
 
     sput-object v0, Lcom/isaigu/gymapp/wearable/face/FaceArt;->NL_O:[F
 
     .line 122
-    new-array v0, v1, [F
+    new-array v0, v3, [F
 
-    fill-array-data v0, :array_84
+    fill-array-data v0, :array_ac
 
     sput-object v0, Lcom/isaigu/gymapp/wearable/face/FaceArt;->NL_I:[F
 
     .line 124
-    new-array v0, v1, [F
+    new-array v0, v3, [F
 
-    fill-array-data v0, :array_8c
+    fill-array-data v0, :array_b4
 
     sput-object v0, Lcom/isaigu/gymapp/wearable/face/FaceArt;->LC_O:[F
 
     .line 125
-    new-array v0, v1, [F
+    new-array v0, v3, [F
 
-    fill-array-data v0, :array_94
+    fill-array-data v0, :array_bc
 
     sput-object v0, Lcom/isaigu/gymapp/wearable/face/FaceArt;->LC_I:[F
 
     .line 127
-    new-array v0, v1, [F
+    new-array v0, v3, [F
 
-    fill-array-data v0, :array_9c
+    fill-array-data v0, :array_c4
 
     sput-object v0, Lcom/isaigu/gymapp/wearable/face/FaceArt;->MOUTH:[F
 
     .line 129
-    new-array v0, v1, [F
+    new-array v0, v3, [F
 
-    fill-array-data v0, :array_a4
+    fill-array-data v0, :array_cc
 
     sput-object v0, Lcom/isaigu/gymapp/wearable/face/FaceArt;->CANTHUS:[F
 
     .line 131
-    new-array v0, v1, [F
+    new-array v0, v3, [F
 
-    fill-array-data v0, :array_ac
+    fill-array-data v0, :array_d4
 
     sput-object v0, Lcom/isaigu/gymapp/wearable/face/FaceArt;->EYE:[F
 
     .line 134
-    new-array v0, v1, [F
+    new-array v0, v3, [F
 
-    fill-array-data v0, :array_b4
+    fill-array-data v0, :array_dc
 
     sput-object v0, Lcom/isaigu/gymapp/wearable/face/FaceArt;->TRUNK:[F
 
     .line 135
-    new-array v0, v1, [F
+    new-array v0, v3, [F
 
-    fill-array-data v0, :array_bc
+    fill-array-data v0, :array_e4
 
     sput-object v0, Lcom/isaigu/gymapp/wearable/face/FaceArt;->NECK:[F
 
-    .line 137
-    new-array v0, v1, [F
+    .line 140
+    new-array v0, v3, [F
 
-    fill-array-data v0, :array_c4
+    fill-array-data v0, :array_ec
+
+    sput-object v0, Lcom/isaigu/gymapp/wearable/face/FaceArt;->SUPRAORBITAL:[F
+
+    new-array v0, v3, [F
+
+    fill-array-data v0, :array_f4
+
+    sput-object v0, Lcom/isaigu/gymapp/wearable/face/FaceArt;->INFRAORBITAL:[F
+
+    new-array v0, v3, [F
+
+    fill-array-data v0, :array_fc
+
+    sput-object v0, Lcom/isaigu/gymapp/wearable/face/FaceArt;->MENTAL:[F
+
+    .line 141
+    const/4 v0, 0x3
+
+    new-array v0, v0, [[F
+
+    const/4 v1, 0x0
+
+    sget-object v2, Lcom/isaigu/gymapp/wearable/face/FaceArt;->SUPRAORBITAL:[F
+
+    aput-object v2, v0, v1
+
+    const/4 v1, 0x1
+
+    sget-object v2, Lcom/isaigu/gymapp/wearable/face/FaceArt;->INFRAORBITAL:[F
+
+    aput-object v2, v0, v1
+
+    sget-object v1, Lcom/isaigu/gymapp/wearable/face/FaceArt;->MENTAL:[F
+
+    aput-object v1, v0, v3
+
+    sput-object v0, Lcom/isaigu/gymapp/wearable/face/FaceArt;->FORAMINA:[[F
+
+    .line 144
+    new-array v0, v3, [F
+
+    fill-array-data v0, :array_104
 
     sput-object v0, Lcom/isaigu/gymapp/wearable/face/FaceArt;->MASS_TOP:[F
 
-    new-array v0, v1, [F
+    new-array v0, v3, [F
 
-    fill-array-data v0, :array_cc
+    fill-array-data v0, :array_10c
 
     sput-object v0, Lcom/isaigu/gymapp/wearable/face/FaceArt;->MASS_LOW:[F
 
-    .line 139
-    new-array v0, v1, [F
+    .line 146
+    new-array v0, v3, [F
 
-    fill-array-data v0, :array_d4
+    fill-array-data v0, :array_114
 
     sput-object v0, Lcom/isaigu/gymapp/wearable/face/FaceArt;->NODE_EAR:[F
 
-    new-array v0, v1, [F
+    new-array v0, v3, [F
 
-    fill-array-data v0, :array_dc
+    fill-array-data v0, :array_11c
 
     sput-object v0, Lcom/isaigu/gymapp/wearable/face/FaceArt;->NODE_JAW:[F
 
@@ -227,103 +277,122 @@
     .line 118
     nop
 
-    :array_6c
+    :array_94
     .array-data 4
         0x444bc000    # 815.0f
         0x442c8000    # 690.0f
     .end array-data
 
     .line 119
-    :array_74
+    :array_9c
     .array-data 4
         0x44348000    # 722.0f
         0x44568000    # 858.0f
     .end array-data
 
     .line 121
-    :array_7c
+    :array_a4
     .array-data 4
-        0x44308000    # 706.0f
+        0x442f0000    # 700.0f
         0x442c8000    # 690.0f
     .end array-data
 
     .line 122
-    :array_84
+    :array_ac
     .array-data 4
-        0x442b0000    # 684.0f
+        0x44298000    # 678.0f
         0x44528000    # 842.0f
     .end array-data
 
     .line 124
-    :array_8c
+    :array_b4
     .array-data 4
         0x44510000    # 836.0f
         0x445e0000    # 888.0f
     .end array-data
 
     .line 125
-    :array_94
+    :array_bc
     .array-data 4
         0x44330000    # 716.0f
         0x44610000    # 900.0f
     .end array-data
 
     .line 127
-    :array_9c
+    :array_c4
     .array-data 4
         0x44318000    # 710.0f
         0x445a0000    # 872.0f
     .end array-data
 
     .line 129
-    :array_a4
+    :array_cc
     .array-data 4
         0x44520000    # 840.0f
         0x44098000    # 550.0f
     .end array-data
 
     .line 131
-    :array_ac
+    :array_d4
     .array-data 4
         0x443e0000    # 760.0f
         0x440d8000    # 566.0f
     .end array-data
 
     .line 134
-    :array_b4
+    :array_dc
     .array-data 4
         0x445d0000    # 884.0f
         0x44320000    # 712.0f
     .end array-data
 
     .line 135
-    :array_bc
+    :array_e4
     .array-data 4
         0x443b0000    # 748.0f
         0x44920000    # 1168.0f
     .end array-data
 
-    .line 137
-    :array_c4
+    .line 140
+    :array_ec
+    .array-data 4
+        0x443d4000    # 757.0f
+        0x43ef0000    # 478.0f
+    .end array-data
+
+    :array_f4
+    .array-data 4
+        0x443b0000    # 748.0f
+        0x44228000    # 650.0f
+    .end array-data
+
+    :array_fc
+    .array-data 4
+        0x442c8000    # 690.0f
+        0x44764000    # 985.0f
+    .end array-data
+
+    .line 144
+    :array_104
     .array-data 4
         0x44548000    # 850.0f
         0x4437c000    # 735.0f
     .end array-data
 
-    :array_cc
+    :array_10c
     .array-data 4
         0x44498000    # 806.0f
         0x4464c000    # 915.0f
     .end array-data
 
-    .line 139
-    :array_d4
+    .line 146
+    :array_114
     .array-data 4
         0x445a0000    # 872.0f
         0x442c8000    # 690.0f
     .end array-data
 
-    :array_dc
+    :array_11c
     .array-data 4
         0x44458000    # 790.0f
         0x44714000    # 965.0f
@@ -348,7 +417,7 @@
 
     const/4 v2, 0x0
 
-    .line 169
+    .line 176
     invoke-static {p1}, Lcom/isaigu/gymapp/wearable/face/FaceArt;->sideOf(I)I
 
     move-result v0
@@ -409,20 +478,20 @@
 
     const/4 v7, 0x1
 
-    .line 393
+    .line 403
     iget-boolean v0, p1, Lcom/isaigu/gymapp/wearable/face/FaceArt$Scene;->sensory:Z
 
     if-eqz v0, :cond_13e
 
     move v0, v1
 
-    .line 394
+    .line 404
     :goto_c
     const/high16 v2, 0x41380000    # 11.5f
 
     mul-float v4, v2, v0
 
-    .line 395
+    .line 405
     const/16 v2, 0x15
 
     new-array v2, v2, [F
@@ -549,12 +618,12 @@
 
     aput v5, v2, v3
 
-    .line 397
+    .line 407
     new-instance v3, Lcom/isaigu/gymapp/wearable/face/FaceArt$Prim;
 
     invoke-direct {v3, v10, v2, v7}, Lcom/isaigu/gymapp/wearable/face/FaceArt$Prim;-><init>(I[FZ)V
 
-    .line 398
+    .line 408
     const v2, 0x3e6147ae    # 0.22f
 
     const v5, 0x3eb33333    # 0.35f
@@ -565,10 +634,10 @@
 
     iput v2, v3, Lcom/isaigu/gymapp/wearable/face/FaceArt$Prim;->alpha:F
 
-    .line 399
+    .line 409
     invoke-interface {p0, v3}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    .line 400
+    .line 410
     const/4 v2, 0x0
 
     move v3, v2
@@ -578,7 +647,7 @@
 
     if-ge v3, v2, :cond_144
 
-    .line 401
+    .line 411
     const/16 v2, 0x12
 
     new-array v2, v2, [F
@@ -685,14 +754,14 @@
 
     aput v6, v2, v5
 
-    .line 402
+    .line 412
     if-ne v3, v7, :cond_10d
 
     invoke-static {v2}, Lcom/isaigu/gymapp/wearable/face/FaceArt;->mirror([F)[F
 
     move-result-object v2
 
-    .line 403
+    .line 413
     :cond_10d
     iget-object v5, p1, Lcom/isaigu/gymapp/wearable/face/FaceArt$Scene;->level:[F
 
@@ -704,30 +773,30 @@
 
     if-lez v5, :cond_128
 
-    .line 404
+    .line 414
     new-instance v5, Lcom/isaigu/gymapp/wearable/face/FaceArt$Prim;
 
     const/16 v6, 0x8
 
     invoke-direct {v5, v6, v2, v7}, Lcom/isaigu/gymapp/wearable/face/FaceArt$Prim;-><init>(I[FZ)V
 
-    .line 405
+    .line 415
     iget-object v6, p1, Lcom/isaigu/gymapp/wearable/face/FaceArt$Scene;->level:[F
 
     aget v6, v6, v8
 
     iput v6, v5, Lcom/isaigu/gymapp/wearable/face/FaceArt$Prim;->alpha:F
 
-    .line 406
+    .line 416
     invoke-interface {p0, v5}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    .line 408
+    .line 418
     :cond_128
     new-instance v5, Lcom/isaigu/gymapp/wearable/face/FaceArt$Prim;
 
     invoke-direct {v5, v10, v2, v7}, Lcom/isaigu/gymapp/wearable/face/FaceArt$Prim;-><init>(I[FZ)V
 
-    .line 409
+    .line 419
     const v2, 0x3ee66666    # 0.45f
 
     const/high16 v6, 0x3f000000    # 0.5f
@@ -738,17 +807,17 @@
 
     iput v2, v5, Lcom/isaigu/gymapp/wearable/face/FaceArt$Prim;->alpha:F
 
-    .line 410
+    .line 420
     invoke-interface {p0, v5}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    .line 400
+    .line 410
     add-int/lit8 v2, v3, 0x1
 
     move v3, v2
 
     goto/16 :goto_9e
 
-    .line 393
+    .line 403
     :cond_13e
     iget-object v0, p1, Lcom/isaigu/gymapp/wearable/face/FaceArt$Scene;->level:[F
 
@@ -756,7 +825,7 @@
 
     goto/16 :goto_c
 
-    .line 412
+    .line 422
     :cond_144
     return-void
 .end method
@@ -765,7 +834,7 @@
     .registers 4
 
     .prologue
-    .line 486
+    .line 504
     invoke-static {p0, p1, p2, p2}, Lcom/isaigu/gymapp/wearable/face/FaceArt;->ellipse(FFFF)[F
 
     move-result-object v0
@@ -798,20 +867,20 @@
 
     const/4 v7, 0x0
 
-    .line 205
+    .line 215
     new-instance v0, Ljava/util/ArrayList;
 
     invoke-direct {v0}, Ljava/util/ArrayList;-><init>()V
 
-    .line 206
+    .line 216
     iget-boolean v1, p0, Lcom/isaigu/gymapp/wearable/face/FaceArt$Scene;->nogo:Z
 
     if-eqz v1, :cond_14
 
-    .line 207
+    .line 217
     invoke-static {v0, p0}, Lcom/isaigu/gymapp/wearable/face/FaceArt;->nogo(Ljava/util/List;Lcom/isaigu/gymapp/wearable/face/FaceArt$Scene;)V
 
-    .line 209
+    .line 219
     :cond_14
     iget-boolean v1, p0, Lcom/isaigu/gymapp/wearable/face/FaceArt$Scene;->muscle:Z
 
@@ -819,28 +888,28 @@
 
     move v2, v7
 
-    .line 210
+    .line 220
     :goto_19
     if-ge v2, v11, :cond_65
 
-    .line 211
+    .line 221
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/face/FaceArt$Scene;->on:[Z
 
     aget-boolean v1, v1, v2
 
     if-nez v1, :cond_24
 
-    .line 210
+    .line 220
     :goto_21
     add-int/lit8 v2, v2, 0x1
 
     goto :goto_19
 
-    .line 214
+    .line 224
     :cond_24
     packed-switch v2, :pswitch_data_aa
 
-    .line 223
+    .line 233
     sget-object v3, Lcom/isaigu/gymapp/wearable/face/FaceArt;->ZM_O:[F
 
     sget-object v4, Lcom/isaigu/gymapp/wearable/face/FaceArt;->ZM_I:[F
@@ -855,19 +924,19 @@
 
     goto :goto_21
 
-    .line 215
+    .line 225
     :pswitch_34
     invoke-static {v0, p0}, Lcom/isaigu/gymapp/wearable/face/FaceArt;->forehead(Ljava/util/List;Lcom/isaigu/gymapp/wearable/face/FaceArt$Scene;)V
 
     goto :goto_21
 
-    .line 216
+    .line 226
     :pswitch_38
     invoke-static {v0, p0}, Lcom/isaigu/gymapp/wearable/face/FaceArt;->chin(Ljava/util/List;Lcom/isaigu/gymapp/wearable/face/FaceArt$Scene;)V
 
     goto :goto_21
 
-    .line 218
+    .line 228
     :pswitch_3c
     sget-object v3, Lcom/isaigu/gymapp/wearable/face/FaceArt;->MASS_TOP:[F
 
@@ -883,7 +952,7 @@
 
     goto :goto_21
 
-    .line 220
+    .line 230
     :pswitch_49
     sget-object v3, Lcom/isaigu/gymapp/wearable/face/FaceArt;->NL_O:[F
 
@@ -899,7 +968,7 @@
 
     goto :goto_21
 
-    .line 222
+    .line 232
     :pswitch_56
     sget-object v3, Lcom/isaigu/gymapp/wearable/face/FaceArt;->LC_O:[F
 
@@ -918,16 +987,16 @@
     :cond_65
     move v3, v7
 
-    .line 226
+    .line 236
     :goto_66
     if-ge v3, v9, :cond_97
 
-    .line 227
+    .line 237
     if-ne v3, v8, :cond_85
 
     move v1, v7
 
-    .line 228
+    .line 238
     :goto_6b
     iget-boolean v2, p0, Lcom/isaigu/gymapp/wearable/face/FaceArt$Scene;->drain:Z
 
@@ -950,11 +1019,11 @@
 
     if-eqz v2, :cond_89
 
-    .line 229
+    .line 239
     :cond_7e
     invoke-static {v0, p0, v3}, Lcom/isaigu/gymapp/wearable/face/FaceArt;->flow(Ljava/util/List;Lcom/isaigu/gymapp/wearable/face/FaceArt$Scene;I)V
 
-    .line 226
+    .line 236
     :cond_81
     :goto_81
     add-int/lit8 v1, v3, 0x1
@@ -966,16 +1035,16 @@
     :cond_85
     move v1, v8
 
-    .line 227
+    .line 237
     goto :goto_6b
 
-    .line 228
+    .line 238
     :cond_87
     const/4 v2, 0x3
 
     goto :goto_7a
 
-    .line 230
+    .line 240
     :cond_89
     iget-object v2, p0, Lcom/isaigu/gymapp/wearable/face/FaceArt$Scene;->on:[Z
 
@@ -987,42 +1056,42 @@
 
     if-nez v2, :cond_81
 
-    .line 231
+    .line 241
     invoke-static {v0, p0, v3, v1}, Lcom/isaigu/gymapp/wearable/face/FaceArt;->lift(Ljava/util/List;Lcom/isaigu/gymapp/wearable/face/FaceArt$Scene;II)V
 
     goto :goto_81
 
-    .line 235
+    .line 245
     :cond_97
     iget-boolean v1, p0, Lcom/isaigu/gymapp/wearable/face/FaceArt$Scene;->pads:Z
 
     if-eqz v1, :cond_a9
 
-    .line 236
+    .line 246
     :goto_9b
     if-ge v7, v11, :cond_a9
 
-    .line 237
+    .line 247
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/face/FaceArt$Scene;->on:[Z
 
     aget-boolean v1, v1, v7
 
     if-eqz v1, :cond_a6
 
-    .line 238
+    .line 248
     invoke-static {v0, p0, v7}, Lcom/isaigu/gymapp/wearable/face/FaceArt;->pad2(Ljava/util/List;Lcom/isaigu/gymapp/wearable/face/FaceArt$Scene;I)V
 
-    .line 236
+    .line 246
     :cond_a6
     add-int/lit8 v7, v7, 0x1
 
     goto :goto_9b
 
-    .line 242
+    .line 252
     :cond_a9
     return-object v0
 
-    .line 214
+    .line 224
     :pswitch_data_aa
     .packed-switch 0x2
         :pswitch_49
@@ -1042,10 +1111,10 @@
     .prologue
     const/high16 v4, 0x40000000    # 2.0f
 
-    .line 490
+    .line 508
     const v0, 0x3f0d6388    # 0.5523f
 
-    .line 491
+    .line 509
     const/16 v1, 0x20
 
     new-array v1, v1, [F
@@ -1258,7 +1327,7 @@
     .end annotation
 
     .prologue
-    .line 327
+    .line 337
     const/4 v2, 0x1
 
     move/from16 v0, p2
@@ -1269,7 +1338,7 @@
 
     move v4, v2
 
-    .line 328
+    .line 338
     :goto_7
     const/4 v2, 0x1
 
@@ -1281,7 +1350,7 @@
 
     move v3, v2
 
-    .line 329
+    .line 339
     :goto_e
     const/4 v2, 0x1
 
@@ -1291,7 +1360,7 @@
 
     const/4 v2, 0x4
 
-    .line 330
+    .line 340
     :goto_14
     move-object/from16 v0, p1
 
@@ -1319,7 +1388,7 @@
 
     move-result v6
 
-    .line 331
+    .line 341
     sget-object v2, Lcom/isaigu/gymapp/wearable/face/FaceArt;->ZM_O:[F
 
     sget-object v3, Lcom/isaigu/gymapp/wearable/face/FaceArt;->ZM_I:[F
@@ -1330,7 +1399,7 @@
 
     move-result-object v7
 
-    .line 332
+    .line 342
     const/4 v2, 0x2
 
     new-array v8, v2, [[F
@@ -1347,7 +1416,7 @@
 
     aput-object v3, v8, v2
 
-    .line 333
+    .line 343
     const/4 v2, 0x0
 
     move v5, v2
@@ -1357,14 +1426,14 @@
 
     if-ge v5, v2, :cond_133
 
-    .line 334
+    .line 344
     invoke-virtual {v7}, [F->clone()Ljava/lang/Object;
 
     move-result-object v2
 
     check-cast v2, [F
 
-    .line 335
+    .line 345
     aget-object v3, v8, v5
 
     invoke-virtual {v3}, [F->clone()Ljava/lang/Object;
@@ -1373,10 +1442,10 @@
 
     check-cast v3, [F
 
-    .line 336
+    .line 346
     if-nez p2, :cond_6e
 
-    .line 337
+    .line 347
     const/4 v4, 0x0
 
     const/4 v9, 0x0
@@ -1389,7 +1458,7 @@
 
     aput v9, v2, v4
 
-    .line 338
+    .line 348
     const/4 v4, 0x0
 
     const/4 v9, 0x0
@@ -1402,7 +1471,7 @@
 
     aput v9, v3, v4
 
-    .line 340
+    .line 350
     :cond_6e
     new-instance v4, Lcom/isaigu/gymapp/wearable/face/FaceArt$Prim;
 
@@ -1460,12 +1529,12 @@
 
     invoke-direct {v4, v9, v10, v11}, Lcom/isaigu/gymapp/wearable/face/FaceArt$Prim;-><init>(I[FZ)V
 
-    .line 341
+    .line 351
     const/4 v9, 0x1
 
     iput-boolean v9, v4, Lcom/isaigu/gymapp/wearable/face/FaceArt$Prim;->dashed:Z
 
-    .line 342
+    .line 352
     const v9, 0x3eb33333    # 0.35f
 
     const v10, 0x3ecccccd    # 0.4f
@@ -1476,17 +1545,17 @@
 
     iput v9, v4, Lcom/isaigu/gymapp/wearable/face/FaceArt$Prim;->alpha:F
 
-    .line 343
+    .line 353
     const v9, 0x3f19999a    # 0.6f
 
     iput v9, v4, Lcom/isaigu/gymapp/wearable/face/FaceArt$Prim;->width:F
 
-    .line 344
+    .line 354
     move-object/from16 v0, p0
 
     invoke-interface {v0, v4}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    .line 345
+    .line 355
     new-instance v4, Lcom/isaigu/gymapp/wearable/face/FaceArt$Prim;
 
     const/16 v9, 0x12
@@ -1509,7 +1578,7 @@
 
     invoke-direct {v4, v9, v10, v11}, Lcom/isaigu/gymapp/wearable/face/FaceArt$Prim;-><init>(I[FZ)V
 
-    .line 346
+    .line 356
     const/high16 v9, 0x3f000000    # 0.5f
 
     const/high16 v10, 0x3f000000    # 0.5f
@@ -1520,12 +1589,12 @@
 
     iput v9, v4, Lcom/isaigu/gymapp/wearable/face/FaceArt$Prim;->alpha:F
 
-    .line 347
+    .line 357
     move-object/from16 v0, p0
 
     invoke-interface {v0, v4}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    .line 348
+    .line 358
     const/4 v4, 0x0
 
     :goto_d4
@@ -1533,7 +1602,7 @@
 
     if-ge v4, v9, :cond_12e
 
-    .line 349
+    .line 359
     move-object/from16 v0, p1
 
     iget v9, v0, Lcom/isaigu/gymapp/wearable/face/FaceArt$Scene;->t:F
@@ -1560,12 +1629,12 @@
 
     move-result v9
 
-    .line 350
+    .line 360
     invoke-static {v2, v3, v9}, Lcom/isaigu/gymapp/wearable/face/FaceArt;->lerp([F[FF)[F
 
     move-result-object v10
 
-    .line 351
+    .line 361
     new-instance v11, Lcom/isaigu/gymapp/wearable/face/FaceArt$Prim;
 
     const/16 v12, 0xe
@@ -1588,7 +1657,7 @@
 
     invoke-direct {v11, v12, v10, v13}, Lcom/isaigu/gymapp/wearable/face/FaceArt$Prim;-><init>(I[FZ)V
 
-    .line 352
+    .line 362
     const v10, 0x3eb33333    # 0.35f
 
     const v12, 0x3f266666    # 0.65f
@@ -1613,17 +1682,17 @@
 
     iput v9, v11, Lcom/isaigu/gymapp/wearable/face/FaceArt$Prim;->alpha:F
 
-    .line 353
+    .line 363
     move-object/from16 v0, p0
 
     invoke-interface {v0, v11}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    .line 348
+    .line 358
     add-int/lit8 v4, v4, 0x1
 
     goto :goto_d4
 
-    .line 327
+    .line 337
     :cond_123
     const/4 v2, 0x1
 
@@ -1631,7 +1700,7 @@
 
     goto/16 :goto_7
 
-    .line 328
+    .line 338
     :cond_127
     const/4 v2, 0x3
 
@@ -1639,13 +1708,13 @@
 
     goto/16 :goto_e
 
-    .line 329
+    .line 339
     :cond_12b
     const/4 v2, 0x5
 
     goto/16 :goto_14
 
-    .line 333
+    .line 343
     :cond_12e
     add-int/lit8 v2, v5, 0x1
 
@@ -1653,7 +1722,7 @@
 
     goto/16 :goto_47
 
-    .line 356
+    .line 366
     :cond_133
     return-void
 .end method
@@ -1683,41 +1752,41 @@
 
     const/4 v10, 0x1
 
-    .line 360
+    .line 370
     iget-object v1, p1, Lcom/isaigu/gymapp/wearable/face/FaceArt$Scene;->level:[F
 
     aget v2, v1, v7
 
-    .line 361
+    .line 371
     const/16 v1, 0x23
 
     new-array v1, v1, [F
 
     fill-array-data v1, :array_104
 
-    .line 363
+    .line 373
     const v3, 0x3ca3d70a    # 0.02f
 
     cmpl-float v3, v2, v3
 
     if-lez v3, :cond_28
 
-    .line 364
+    .line 374
     new-instance v3, Lcom/isaigu/gymapp/wearable/face/FaceArt$Prim;
 
     invoke-direct {v3, v7, v1, v10}, Lcom/isaigu/gymapp/wearable/face/FaceArt$Prim;-><init>(I[FZ)V
 
-    .line 365
+    .line 375
     const v4, 0x3eb33333    # 0.35f
 
     mul-float/2addr v4, v2
 
     iput v4, v3, Lcom/isaigu/gymapp/wearable/face/FaceArt$Prim;->alpha:F
 
-    .line 366
+    .line 376
     invoke-interface {p0, v3}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    .line 368
+    .line 378
     :cond_28
     new-instance v3, Lcom/isaigu/gymapp/wearable/face/FaceArt$Prim;
 
@@ -1725,7 +1794,7 @@
 
     invoke-direct {v3, v4, v1, v10}, Lcom/isaigu/gymapp/wearable/face/FaceArt$Prim;-><init>(I[FZ)V
 
-    .line 369
+    .line 379
     const v1, 0x3e3851ec    # 0.18f
 
     const v4, 0x3df5c28f    # 0.12f
@@ -1736,23 +1805,23 @@
 
     iput v1, v3, Lcom/isaigu/gymapp/wearable/face/FaceArt$Prim;->alpha:F
 
-    .line 370
+    .line 380
     invoke-interface {p0, v3}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    .line 371
+    .line 381
     const/4 v1, -0x3
 
     :goto_3c
     if-gt v1, v8, :cond_a2
 
-    .line 372
+    .line 382
     mul-int/lit8 v3, v1, 0x34
 
     add-int/lit16 v3, v3, 0x258
 
     int-to-float v3, v3
 
-    .line 373
+    .line 383
     const/16 v4, 0xa
 
     new-array v4, v4, [F
@@ -1835,14 +1904,14 @@
 
     aput v5, v4, v3
 
-    .line 374
+    .line 384
     new-instance v3, Lcom/isaigu/gymapp/wearable/face/FaceArt$Prim;
 
     const/4 v5, 0x7
 
     invoke-direct {v3, v5, v4, v0}, Lcom/isaigu/gymapp/wearable/face/FaceArt$Prim;-><init>(I[FZ)V
 
-    .line 375
+    .line 385
     const v4, 0x3e99999a    # 0.3f
 
     const v5, 0x3e4ccccd    # 0.2f
@@ -1853,32 +1922,32 @@
 
     iput v4, v3, Lcom/isaigu/gymapp/wearable/face/FaceArt$Prim;->alpha:F
 
-    .line 376
+    .line 386
     const v4, 0x3f333333    # 0.7f
 
     iput v4, v3, Lcom/isaigu/gymapp/wearable/face/FaceArt$Prim;->width:F
 
-    .line 377
+    .line 387
     invoke-interface {p0, v3}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    .line 371
+    .line 381
     add-int/lit8 v1, v1, 0x1
 
     goto :goto_3c
 
-    .line 379
+    .line 389
     :cond_a2
     cmpl-float v1, v2, v11
 
     if-lez v1, :cond_102
 
-    .line 380
+    .line 390
     :goto_a6
     const/16 v1, 0xa
 
     if-ge v0, v1, :cond_102
 
-    .line 381
+    .line 391
     iget v1, p1, Lcom/isaigu/gymapp/wearable/face/FaceArt$Scene;->t:F
 
     const v3, 0x3fd9999a    # 1.7f
@@ -1897,7 +1966,7 @@
 
     move-result v1
 
-    .line 382
+    .line 392
     const/high16 v3, 0x43d70000    # 430.0f
 
     int-to-float v4, v0
@@ -1920,7 +1989,7 @@
 
     add-float/2addr v3, v4
 
-    .line 383
+    .line 393
     const/high16 v4, 0x43960000    # 300.0f
 
     int-to-float v5, v0
@@ -1945,7 +2014,7 @@
 
     add-float/2addr v4, v5
 
-    .line 384
+    .line 394
     new-instance v5, Lcom/isaigu/gymapp/wearable/face/FaceArt$Prim;
 
     const/16 v6, 0xe
@@ -1958,7 +2027,7 @@
 
     invoke-direct {v5, v6, v3, v10}, Lcom/isaigu/gymapp/wearable/face/FaceArt$Prim;-><init>(I[FZ)V
 
-    .line 385
+    .line 395
     float-to-double v6, v1
 
     const-wide v8, 0x400921fb54442d18L    # Math.PI
@@ -1975,19 +2044,19 @@
 
     iput v1, v5, Lcom/isaigu/gymapp/wearable/face/FaceArt$Prim;->alpha:F
 
-    .line 386
+    .line 396
     invoke-interface {p0, v5}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    .line 380
+    .line 390
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_a6
 
-    .line 389
+    .line 399
     :cond_102
     return-void
 
-    .line 361
+    .line 371
     nop
 
     :array_104
@@ -2034,7 +2103,7 @@
     .registers 3
 
     .prologue
-    .line 539
+    .line 557
     float-to-double v0, p0
 
     invoke-static {v0, v1}, Ljava/lang/Math;->floor(D)D
@@ -2056,7 +2125,7 @@
 
     const/4 v4, 0x0
 
-    .line 165
+    .line 172
     const/4 v0, 0x2
 
     new-array v0, v0, [F
@@ -2115,12 +2184,12 @@
 
     const/4 v6, 0x0
 
-    .line 305
+    .line 315
     iget-object v0, p1, Lcom/isaigu/gymapp/wearable/face/FaceArt$Scene;->level:[F
 
     aget v2, v0, p3
 
-    .line 306
+    .line 316
     const v0, 0x3dcccccd    # 0.1f
 
     cmpg-float v0, v2, v0
@@ -2133,12 +2202,12 @@
 
     if-eqz v0, :cond_19
 
-    .line 323
+    .line 333
     :cond_18
     :goto_18
     return-void
 
-    .line 309
+    .line 319
     :cond_19
     sget-object v0, Lcom/isaigu/gymapp/wearable/face/FaceArt;->MOUTH:[F
 
@@ -2160,7 +2229,7 @@
 
     add-float/2addr v0, v1
 
-    .line 310
+    .line 320
     sget-object v1, Lcom/isaigu/gymapp/wearable/face/FaceArt;->MOUTH:[F
 
     aget v1, v1, v7
@@ -2181,7 +2250,7 @@
 
     add-float/2addr v1, v3
 
-    .line 311
+    .line 321
     new-instance v3, Lcom/isaigu/gymapp/wearable/face/FaceArt$Prim;
 
     const/16 v4, 0x11
@@ -2201,27 +2270,27 @@
 
     invoke-direct {v3, v4, v0, v7}, Lcom/isaigu/gymapp/wearable/face/FaceArt$Prim;-><init>(I[FZ)V
 
-    .line 312
+    .line 322
     iput v2, v3, Lcom/isaigu/gymapp/wearable/face/FaceArt$Prim;->alpha:F
 
-    .line 313
+    .line 323
     invoke-interface {p0, v3}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    .line 314
+    .line 324
     const/16 v0, 0xa
 
     new-array v0, v0, [F
 
     fill-array-data v0, :array_84
 
-    .line 315
+    .line 325
     const/16 v1, 0x9
 
     new-array v1, v1, [F
 
     fill-array-data v1, :array_9c
 
-    .line 316
+    .line 326
     new-instance v3, Lcom/isaigu/gymapp/wearable/face/FaceArt$Prim;
 
     if-nez p2, :cond_67
@@ -2233,16 +2302,16 @@
     :cond_67
     invoke-direct {v3, v8, v0, v6}, Lcom/isaigu/gymapp/wearable/face/FaceArt$Prim;-><init>(I[FZ)V
 
-    .line 317
+    .line 327
     iput v2, v3, Lcom/isaigu/gymapp/wearable/face/FaceArt$Prim;->alpha:F
 
-    .line 318
+    .line 328
     iput-boolean v7, v3, Lcom/isaigu/gymapp/wearable/face/FaceArt$Prim;->dashed:Z
 
-    .line 319
+    .line 329
     invoke-interface {p0, v3}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    .line 320
+    .line 330
     new-instance v3, Lcom/isaigu/gymapp/wearable/face/FaceArt$Prim;
 
     if-nez p2, :cond_82
@@ -2254,10 +2323,10 @@
     :goto_79
     invoke-direct {v3, v8, v0, v6}, Lcom/isaigu/gymapp/wearable/face/FaceArt$Prim;-><init>(I[FZ)V
 
-    .line 321
+    .line 331
     iput v2, v3, Lcom/isaigu/gymapp/wearable/face/FaceArt$Prim;->alpha:F
 
-    .line 322
+    .line 332
     invoke-interface {p0, v3}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
     goto :goto_18
@@ -2265,10 +2334,10 @@
     :cond_82
     move-object v0, v1
 
-    .line 320
+    .line 330
     goto :goto_79
 
-    .line 314
+    .line 324
     :array_84
     .array-data 4
         0x0
@@ -2283,7 +2352,7 @@
         0x44398000    # 742.0f
     .end array-data
 
-    .line 315
+    .line 325
     :array_9c
     .array-data 4
         0x0
@@ -2304,7 +2373,7 @@
     .prologue
     const/4 v2, 0x0
 
-    .line 525
+    .line 543
     invoke-virtual {p0}, [F->clone()Ljava/lang/Object;
 
     move-result-object v0
@@ -2313,16 +2382,16 @@
 
     move v1, v2
 
-    .line 527
+    .line 545
     :goto_8
     array-length v3, v0
 
     if-ge v1, v3, :cond_41
 
-    .line 528
+    .line 546
     aget v3, v0, v1
 
-    .line 529
+    .line 547
     const/4 v4, 0x0
 
     cmpl-float v4, v3, v4
@@ -2341,11 +2410,11 @@
     :goto_19
     move v4, v2
 
-    .line 530
+    .line 548
     :goto_1a
     if-ge v4, v3, :cond_3b
 
-    .line 531
+    .line 549
     add-int/lit8 v5, v1, 0x1
 
     mul-int/lit8 v6, v4, 0x2
@@ -2366,12 +2435,12 @@
 
     aput v6, v0, v5
 
-    .line 530
+    .line 548
     add-int/lit8 v4, v4, 0x1
 
     goto :goto_1a
 
-    .line 529
+    .line 547
     :cond_31
     const/high16 v4, 0x40000000    # 2.0f
 
@@ -2388,7 +2457,7 @@
 
     goto :goto_19
 
-    .line 533
+    .line 551
     :cond_3b
     mul-int/lit8 v3, v3, 0x2
 
@@ -2396,10 +2465,10 @@
 
     add-int/2addr v1, v3
 
-    .line 534
+    .line 552
     goto :goto_8
 
-    .line 535
+    .line 553
     :cond_41
     return-object v0
 .end method
@@ -2408,7 +2477,7 @@
     .registers 2
 
     .prologue
-    .line 153
+    .line 160
     const/high16 v0, 0x44960000    # 1200.0f
 
     sub-float/2addr v0, p0
@@ -2417,7 +2486,7 @@
 .end method
 
 .method private static nogo(Ljava/util/List;Lcom/isaigu/gymapp/wearable/face/FaceArt$Scene;)V
-    .registers 14
+    .registers 13
     .annotation system Ldalvik/annotation/Signature;
         value = {
             "(",
@@ -2431,14 +2500,10 @@
     .end annotation
 
     .prologue
-    const/4 v11, 0x2
-
-    const/4 v2, 0x1
+    .line 458
+    iget-object v0, p1, Lcom/isaigu/gymapp/wearable/face/FaceArt$Scene;->on:[Z
 
     const/4 v1, 0x0
-
-    .line 448
-    iget-object v0, p1, Lcom/isaigu/gymapp/wearable/face/FaceArt$Scene;->on:[Z
 
     aget-boolean v0, v0, v1
 
@@ -2446,229 +2511,341 @@
 
     iget-object v0, p1, Lcom/isaigu/gymapp/wearable/face/FaceArt$Scene;->on:[Z
 
-    aget-boolean v0, v0, v2
+    const/4 v1, 0x1
+
+    aget-boolean v0, v0, v1
 
     if-nez v0, :cond_24
 
     iget-object v0, p1, Lcom/isaigu/gymapp/wearable/face/FaceArt$Scene;->on:[Z
 
-    aget-boolean v0, v0, v11
+    const/4 v1, 0x2
+
+    aget-boolean v0, v0, v1
 
     if-nez v0, :cond_24
 
     iget-object v0, p1, Lcom/isaigu/gymapp/wearable/face/FaceArt$Scene;->on:[Z
 
-    const/4 v3, 0x3
+    const/4 v1, 0x3
 
-    aget-boolean v0, v0, v3
+    aget-boolean v0, v0, v1
 
     if-nez v0, :cond_24
 
     iget-object v0, p1, Lcom/isaigu/gymapp/wearable/face/FaceArt$Scene;->on:[Z
 
-    const/16 v3, 0x8
+    const/16 v1, 0x8
 
-    aget-boolean v0, v0, v3
+    aget-boolean v0, v0, v1
 
-    if-eqz v0, :cond_aa
+    if-eqz v0, :cond_ea
 
     :cond_24
-    move v0, v2
+    const/4 v0, 0x1
 
-    .line 449
+    .line 459
     :goto_25
-    iget-object v3, p1, Lcom/isaigu/gymapp/wearable/face/FaceArt$Scene;->on:[Z
+    iget-object v1, p1, Lcom/isaigu/gymapp/wearable/face/FaceArt$Scene;->on:[Z
 
-    aget-boolean v3, v3, v1
+    const/4 v2, 0x0
 
-    if-nez v3, :cond_4d
+    aget-boolean v1, v1, v2
 
-    iget-object v3, p1, Lcom/isaigu/gymapp/wearable/face/FaceArt$Scene;->on:[Z
+    if-nez v1, :cond_4f
 
-    aget-boolean v3, v3, v2
+    iget-object v1, p1, Lcom/isaigu/gymapp/wearable/face/FaceArt$Scene;->on:[Z
 
-    if-nez v3, :cond_4d
+    const/4 v2, 0x1
 
-    iget-object v3, p1, Lcom/isaigu/gymapp/wearable/face/FaceArt$Scene;->on:[Z
+    aget-boolean v1, v1, v2
 
-    const/4 v4, 0x6
+    if-nez v1, :cond_4f
 
-    aget-boolean v3, v3, v4
+    iget-object v1, p1, Lcom/isaigu/gymapp/wearable/face/FaceArt$Scene;->on:[Z
 
-    if-nez v3, :cond_4d
+    const/4 v2, 0x6
 
-    iget-object v3, p1, Lcom/isaigu/gymapp/wearable/face/FaceArt$Scene;->on:[Z
+    aget-boolean v1, v1, v2
 
-    const/4 v4, 0x7
+    if-nez v1, :cond_4f
 
-    aget-boolean v3, v3, v4
+    iget-object v1, p1, Lcom/isaigu/gymapp/wearable/face/FaceArt$Scene;->on:[Z
 
-    if-nez v3, :cond_4d
+    const/4 v2, 0x7
 
-    iget-object v3, p1, Lcom/isaigu/gymapp/wearable/face/FaceArt$Scene;->on:[Z
+    aget-boolean v1, v1, v2
 
-    const/4 v4, 0x4
+    if-nez v1, :cond_4f
 
-    aget-boolean v3, v3, v4
+    iget-object v1, p1, Lcom/isaigu/gymapp/wearable/face/FaceArt$Scene;->on:[Z
 
-    if-nez v3, :cond_4d
+    const/4 v2, 0x4
 
-    iget-object v3, p1, Lcom/isaigu/gymapp/wearable/face/FaceArt$Scene;->on:[Z
+    aget-boolean v1, v1, v2
 
-    const/4 v4, 0x5
+    if-nez v1, :cond_4f
 
-    aget-boolean v3, v3, v4
+    iget-object v1, p1, Lcom/isaigu/gymapp/wearable/face/FaceArt$Scene;->on:[Z
 
-    if-eqz v3, :cond_ad
+    const/4 v2, 0x5
 
-    :cond_4d
-    move v3, v2
+    aget-boolean v1, v1, v2
 
-    :goto_4e
-    move v5, v1
+    if-eqz v1, :cond_ed
 
-    .line 450
-    :goto_4f
-    if-ge v5, v11, :cond_be
-
-    .line 451
-    if-eqz v0, :cond_7a
-
-    .line 452
-    new-instance v6, Lcom/isaigu/gymapp/wearable/face/FaceArt$Prim;
-
-    const/16 v7, 0x9
-
-    if-nez v5, :cond_af
-
-    sget-object v4, Lcom/isaigu/gymapp/wearable/face/FaceArt;->EYE:[F
-
-    aget v4, v4, v1
-
-    invoke-static {v4}, Lcom/isaigu/gymapp/wearable/face/FaceArt;->mx(F)F
-
-    move-result v4
-
-    :goto_61
-    sget-object v8, Lcom/isaigu/gymapp/wearable/face/FaceArt;->EYE:[F
-
-    aget v8, v8, v2
-
-    const/high16 v9, 0x432c0000    # 172.0f
-
-    const/high16 v10, 0x42e80000    # 116.0f
-
-    invoke-static {v4, v8, v9, v10}, Lcom/isaigu/gymapp/wearable/face/FaceArt;->ellipse(FFFF)[F
-
-    move-result-object v4
-
-    invoke-direct {v6, v7, v4, v1}, Lcom/isaigu/gymapp/wearable/face/FaceArt$Prim;-><init>(I[FZ)V
-
-    .line 453
-    iput-boolean v2, v6, Lcom/isaigu/gymapp/wearable/face/FaceArt$Prim;->dashed:Z
-
-    .line 454
-    const v4, 0x3f4ccccd    # 0.8f
-
-    iput v4, v6, Lcom/isaigu/gymapp/wearable/face/FaceArt$Prim;->alpha:F
-
-    .line 455
-    invoke-interface {p0, v6}, Ljava/util/List;->add(Ljava/lang/Object;)Z
-
-    .line 457
-    :cond_7a
-    if-eqz v3, :cond_91
-
-    .line 458
-    if-nez v5, :cond_b4
-
-    sget-object v4, Lcom/isaigu/gymapp/wearable/face/FaceArt;->TRUNK:[F
-
-    aget v4, v4, v1
-
-    invoke-static {v4}, Lcom/isaigu/gymapp/wearable/face/FaceArt;->mx(F)F
-
-    move-result v4
-
-    :goto_86
-    sget-object v6, Lcom/isaigu/gymapp/wearable/face/FaceArt;->TRUNK:[F
-
-    aget v6, v6, v2
-
-    invoke-static {v4, v6}, Lcom/isaigu/gymapp/wearable/face/FaceArt;->nogoMark(FF)Lcom/isaigu/gymapp/wearable/face/FaceArt$Prim;
-
-    move-result-object v4
-
-    invoke-interface {p0, v4}, Ljava/util/List;->add(Ljava/lang/Object;)Z
+    :cond_4f
+    const/4 v1, 0x1
 
     .line 460
-    :cond_91
-    if-nez v5, :cond_b9
+    :goto_50
+    const/4 v2, 0x0
 
-    sget-object v4, Lcom/isaigu/gymapp/wearable/face/FaceArt;->NECK:[F
+    move v4, v2
 
-    aget v4, v4, v1
+    :goto_52
+    const/4 v2, 0x2
 
-    invoke-static {v4}, Lcom/isaigu/gymapp/wearable/face/FaceArt;->mx(F)F
+    if-ge v4, v2, :cond_10c
 
-    move-result v4
-
-    :goto_9b
-    sget-object v6, Lcom/isaigu/gymapp/wearable/face/FaceArt;->NECK:[F
-
-    aget v6, v6, v2
-
-    invoke-static {v4, v6}, Lcom/isaigu/gymapp/wearable/face/FaceArt;->nogoMark(FF)Lcom/isaigu/gymapp/wearable/face/FaceArt$Prim;
-
-    move-result-object v4
-
-    invoke-interface {p0, v4}, Ljava/util/List;->add(Ljava/lang/Object;)Z
-
-    .line 450
-    add-int/lit8 v4, v5, 0x1
-
-    move v5, v4
-
-    goto :goto_4f
-
-    :cond_aa
-    move v0, v1
-
-    .line 448
-    goto/16 :goto_25
-
-    :cond_ad
-    move v3, v1
-
-    .line 449
-    goto :goto_4e
-
-    .line 452
-    :cond_af
-    sget-object v4, Lcom/isaigu/gymapp/wearable/face/FaceArt;->EYE:[F
-
-    aget v4, v4, v1
-
-    goto :goto_61
-
-    .line 458
-    :cond_b4
-    sget-object v4, Lcom/isaigu/gymapp/wearable/face/FaceArt;->TRUNK:[F
-
-    aget v4, v4, v1
-
-    goto :goto_86
-
-    .line 460
-    :cond_b9
-    sget-object v4, Lcom/isaigu/gymapp/wearable/face/FaceArt;->NECK:[F
-
-    aget v4, v4, v1
-
-    goto :goto_9b
+    .line 461
+    if-eqz v0, :cond_82
 
     .line 462
-    :cond_be
+    new-instance v3, Lcom/isaigu/gymapp/wearable/face/FaceArt$Prim;
+
+    const/16 v5, 0x9
+
+    if-nez v4, :cond_f0
+
+    sget-object v2, Lcom/isaigu/gymapp/wearable/face/FaceArt;->EYE:[F
+
+    const/4 v6, 0x0
+
+    aget v2, v2, v6
+
+    invoke-static {v2}, Lcom/isaigu/gymapp/wearable/face/FaceArt;->mx(F)F
+
+    move-result v2
+
+    :goto_66
+    sget-object v6, Lcom/isaigu/gymapp/wearable/face/FaceArt;->EYE:[F
+
+    const/4 v7, 0x1
+
+    aget v6, v6, v7
+
+    const/high16 v7, 0x432c0000    # 172.0f
+
+    const/high16 v8, 0x42e80000    # 116.0f
+
+    invoke-static {v2, v6, v7, v8}, Lcom/isaigu/gymapp/wearable/face/FaceArt;->ellipse(FFFF)[F
+
+    move-result-object v2
+
+    const/4 v6, 0x0
+
+    invoke-direct {v3, v5, v2, v6}, Lcom/isaigu/gymapp/wearable/face/FaceArt$Prim;-><init>(I[FZ)V
+
+    .line 463
+    const/4 v2, 0x1
+
+    iput-boolean v2, v3, Lcom/isaigu/gymapp/wearable/face/FaceArt$Prim;->dashed:Z
+
+    .line 464
+    const v2, 0x3f4ccccd    # 0.8f
+
+    iput v2, v3, Lcom/isaigu/gymapp/wearable/face/FaceArt$Prim;->alpha:F
+
+    .line 465
+    invoke-interface {p0, v3}, Ljava/util/List;->add(Ljava/lang/Object;)Z
+
+    .line 467
+    :cond_82
+    if-eqz v1, :cond_9b
+
+    .line 468
+    if-nez v4, :cond_f7
+
+    sget-object v2, Lcom/isaigu/gymapp/wearable/face/FaceArt;->TRUNK:[F
+
+    const/4 v3, 0x0
+
+    aget v2, v2, v3
+
+    invoke-static {v2}, Lcom/isaigu/gymapp/wearable/face/FaceArt;->mx(F)F
+
+    move-result v2
+
+    :goto_8f
+    sget-object v3, Lcom/isaigu/gymapp/wearable/face/FaceArt;->TRUNK:[F
+
+    const/4 v5, 0x1
+
+    aget v3, v3, v5
+
+    invoke-static {v2, v3}, Lcom/isaigu/gymapp/wearable/face/FaceArt;->nogoMark(FF)Lcom/isaigu/gymapp/wearable/face/FaceArt$Prim;
+
+    move-result-object v2
+
+    invoke-interface {p0, v2}, Ljava/util/List;->add(Ljava/lang/Object;)Z
+
+    .line 470
+    :cond_9b
+    if-nez v4, :cond_fd
+
+    sget-object v2, Lcom/isaigu/gymapp/wearable/face/FaceArt;->NECK:[F
+
+    const/4 v3, 0x0
+
+    aget v2, v2, v3
+
+    invoke-static {v2}, Lcom/isaigu/gymapp/wearable/face/FaceArt;->mx(F)F
+
+    move-result v2
+
+    :goto_a6
+    sget-object v3, Lcom/isaigu/gymapp/wearable/face/FaceArt;->NECK:[F
+
+    const/4 v5, 0x1
+
+    aget v3, v3, v5
+
+    invoke-static {v2, v3}, Lcom/isaigu/gymapp/wearable/face/FaceArt;->nogoMark(FF)Lcom/isaigu/gymapp/wearable/face/FaceArt$Prim;
+
+    move-result-object v2
+
+    invoke-interface {p0, v2}, Ljava/util/List;->add(Ljava/lang/Object;)Z
+
+    .line 471
+    sget-object v5, Lcom/isaigu/gymapp/wearable/face/FaceArt;->FORAMINA:[[F
+
+    array-length v6, v5
+
+    const/4 v2, 0x0
+
+    move v3, v2
+
+    :goto_b7
+    if-ge v3, v6, :cond_107
+
+    aget-object v7, v5, v3
+
+    .line 473
+    new-instance v8, Lcom/isaigu/gymapp/wearable/face/FaceArt$Prim;
+
+    const/16 v9, 0x9
+
+    if-nez v4, :cond_103
+
+    const/4 v2, 0x0
+
+    aget v2, v7, v2
+
+    invoke-static {v2}, Lcom/isaigu/gymapp/wearable/face/FaceArt;->mx(F)F
+
+    move-result v2
+
+    :goto_c8
+    const/4 v10, 0x1
+
+    aget v7, v7, v10
+
+    const v10, 0x415ccccd    # 13.8f
+
+    invoke-static {v2, v7, v10}, Lcom/isaigu/gymapp/wearable/face/FaceArt;->circle(FFF)[F
+
+    move-result-object v2
+
+    const/4 v7, 0x0
+
+    invoke-direct {v8, v9, v2, v7}, Lcom/isaigu/gymapp/wearable/face/FaceArt$Prim;-><init>(I[FZ)V
+
+    .line 474
+    const/4 v2, 0x1
+
+    iput-boolean v2, v8, Lcom/isaigu/gymapp/wearable/face/FaceArt$Prim;->dashed:Z
+
+    .line 475
+    const v2, 0x3f19999a    # 0.6f
+
+    iput v2, v8, Lcom/isaigu/gymapp/wearable/face/FaceArt$Prim;->alpha:F
+
+    .line 476
+    const v2, 0x3f4ccccd    # 0.8f
+
+    iput v2, v8, Lcom/isaigu/gymapp/wearable/face/FaceArt$Prim;->width:F
+
+    .line 477
+    invoke-interface {p0, v8}, Ljava/util/List;->add(Ljava/lang/Object;)Z
+
+    .line 471
+    add-int/lit8 v2, v3, 0x1
+
+    move v3, v2
+
+    goto :goto_b7
+
+    .line 458
+    :cond_ea
+    const/4 v0, 0x0
+
+    goto/16 :goto_25
+
+    .line 459
+    :cond_ed
+    const/4 v1, 0x0
+
+    goto/16 :goto_50
+
+    .line 462
+    :cond_f0
+    sget-object v2, Lcom/isaigu/gymapp/wearable/face/FaceArt;->EYE:[F
+
+    const/4 v6, 0x0
+
+    aget v2, v2, v6
+
+    goto/16 :goto_66
+
+    .line 468
+    :cond_f7
+    sget-object v2, Lcom/isaigu/gymapp/wearable/face/FaceArt;->TRUNK:[F
+
+    const/4 v3, 0x0
+
+    aget v2, v2, v3
+
+    goto :goto_8f
+
+    .line 470
+    :cond_fd
+    sget-object v2, Lcom/isaigu/gymapp/wearable/face/FaceArt;->NECK:[F
+
+    const/4 v3, 0x0
+
+    aget v2, v2, v3
+
+    goto :goto_a6
+
+    .line 473
+    :cond_103
+    const/4 v2, 0x0
+
+    aget v2, v7, v2
+
+    goto :goto_c8
+
+    .line 460
+    :cond_107
+    add-int/lit8 v2, v4, 0x1
+
+    move v4, v2
+
+    goto/16 :goto_52
+
+    .line 480
+    :cond_10c
     return-void
 .end method
 
@@ -2678,87 +2855,87 @@
     .prologue
     const/4 v5, 0x0
 
-    .line 466
+    .line 484
     const v0, 0x419a8f5c    # 19.32f
 
-    .line 467
+    .line 485
     const v1, 0x3f350481    # 0.7071f
 
     mul-float/2addr v1, v0
 
-    .line 468
+    .line 486
     invoke-static {p0, p1, v0}, Lcom/isaigu/gymapp/wearable/face/FaceArt;->circle(FFF)[F
 
     move-result-object v0
 
-    .line 469
+    .line 487
     array-length v2, v0
 
     add-int/lit8 v2, v2, 0x6
 
     new-array v2, v2, [F
 
-    .line 470
+    .line 488
     array-length v3, v0
 
     invoke-static {v0, v5, v2, v5, v3}, Ljava/lang/System;->arraycopy(Ljava/lang/Object;ILjava/lang/Object;II)V
 
-    .line 471
+    .line 489
     array-length v0, v0
 
-    .line 472
+    .line 490
     const/4 v3, 0x0
 
     aput v3, v2, v0
 
-    .line 473
+    .line 491
     add-int/lit8 v3, v0, 0x1
 
     sub-float v4, p0, v1
 
     aput v4, v2, v3
 
-    .line 474
+    .line 492
     add-int/lit8 v3, v0, 0x2
 
     add-float v4, p1, v1
 
     aput v4, v2, v3
 
-    .line 475
+    .line 493
     add-int/lit8 v3, v0, 0x3
 
     const/high16 v4, 0x3f800000    # 1.0f
 
     aput v4, v2, v3
 
-    .line 476
+    .line 494
     add-int/lit8 v3, v0, 0x4
 
     add-float v4, p0, v1
 
     aput v4, v2, v3
 
-    .line 477
+    .line 495
     add-int/lit8 v0, v0, 0x5
 
     sub-float v1, p1, v1
 
     aput v1, v2, v0
 
-    .line 478
+    .line 496
     new-instance v0, Lcom/isaigu/gymapp/wearable/face/FaceArt$Prim;
 
     const/16 v1, 0x9
 
     invoke-direct {v0, v1, v2, v5}, Lcom/isaigu/gymapp/wearable/face/FaceArt$Prim;-><init>(I[FZ)V
 
-    .line 479
+    .line 497
     const v1, 0x3fb33333    # 1.4f
 
     iput v1, v0, Lcom/isaigu/gymapp/wearable/face/FaceArt$Prim;->width:F
 
-    .line 480
+    .line 498
     return-object v0
 .end method
 
@@ -2777,7 +2954,7 @@
     .end annotation
 
     .prologue
-    .line 418
+    .line 428
     move-object/from16 v0, p1
 
     iget-boolean v2, v0, Lcom/isaigu/gymapp/wearable/face/FaceArt$Scene;->placing:Z
@@ -2816,32 +2993,32 @@
 
     move v8, v2
 
-    .line 419
+    .line 429
     :goto_20
     invoke-static/range {p2 .. p2}, Lcom/isaigu/gymapp/wearable/face/FaceArt;->pads(I)[[F
 
     move-result-object v10
 
-    .line 420
+    .line 430
     invoke-static/range {p2 .. p2}, Lcom/isaigu/gymapp/wearable/face/FaceArt;->padAngle(I)F
 
     move-result v7
 
-    .line 421
+    .line 431
     move-object/from16 v0, p1
 
     iget-object v2, v0, Lcom/isaigu/gymapp/wearable/face/FaceArt$Scene;->level:[F
 
     aget v11, v2, p2
 
-    .line 422
+    .line 432
     move-object/from16 v0, p1
 
     iget-object v2, v0, Lcom/isaigu/gymapp/wearable/face/FaceArt$Scene;->dim:[Z
 
     aget-boolean v12, v2, p2
 
-    .line 423
+    .line 433
     const/4 v2, 0x0
 
     move v9, v2
@@ -2851,10 +3028,10 @@
 
     if-ge v9, v2, :cond_11b
 
-    .line 424
+    .line 434
     aget-object v13, v10, v9
 
-    .line 425
+    .line 435
     const v2, 0x3d4ccccd    # 0.05f
 
     cmpl-float v2, v11, v2
@@ -2863,7 +3040,7 @@
 
     if-nez v12, :cond_80
 
-    .line 426
+    .line 436
     move-object/from16 v0, p1
 
     iget v2, v0, Lcom/isaigu/gymapp/wearable/face/FaceArt$Scene;->t:F
@@ -2884,7 +3061,7 @@
 
     move-result v2
 
-    .line 427
+    .line 437
     new-instance v3, Lcom/isaigu/gymapp/wearable/face/FaceArt$Prim;
 
     const/16 v4, 0xf
@@ -2919,7 +3096,7 @@
 
     invoke-direct {v3, v4, v5, v6}, Lcom/isaigu/gymapp/wearable/face/FaceArt$Prim;-><init>(I[FZ)V
 
-    .line 428
+    .line 438
     const/high16 v4, 0x3f800000    # 1.0f
 
     sub-float v2, v4, v2
@@ -2928,12 +3105,12 @@
 
     iput v2, v3, Lcom/isaigu/gymapp/wearable/face/FaceArt$Prim;->alpha:F
 
-    .line 429
+    .line 439
     move-object/from16 v0, p0
 
     invoke-interface {v0, v3}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    .line 431
+    .line 441
     :cond_80
     const/4 v2, 0x0
 
@@ -2965,7 +3142,7 @@
 
     move-result-object v3
 
-    .line 432
+    .line 442
     new-instance v4, Lcom/isaigu/gymapp/wearable/face/FaceArt$Prim;
 
     const/16 v2, 0xa
@@ -2974,7 +3151,7 @@
 
     invoke-direct {v4, v2, v3, v5}, Lcom/isaigu/gymapp/wearable/face/FaceArt$Prim;-><init>(I[FZ)V
 
-    .line 433
+    .line 443
     if-eqz v12, :cond_fd
 
     const v2, 0x3e4ccccd    # 0.2f
@@ -2984,12 +3161,12 @@
 
     iput v2, v4, Lcom/isaigu/gymapp/wearable/face/FaceArt$Prim;->alpha:F
 
-    .line 434
+    .line 444
     move-object/from16 v0, p0
 
     invoke-interface {v0, v4}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    .line 435
+    .line 445
     new-instance v4, Lcom/isaigu/gymapp/wearable/face/FaceArt$Prim;
 
     const/16 v2, 0xb
@@ -2998,7 +3175,7 @@
 
     invoke-direct {v4, v2, v3, v5}, Lcom/isaigu/gymapp/wearable/face/FaceArt$Prim;-><init>(I[FZ)V
 
-    .line 436
+    .line 446
     if-eqz v12, :cond_10b
 
     const v2, 0x3e99999a    # 0.3f
@@ -3008,19 +3185,19 @@
 
     iput v2, v4, Lcom/isaigu/gymapp/wearable/face/FaceArt$Prim;->alpha:F
 
-    .line 437
+    .line 447
     move-object/from16 v0, p1
 
     iget-boolean v2, v0, Lcom/isaigu/gymapp/wearable/face/FaceArt$Scene;->outline:Z
 
     iput-boolean v2, v4, Lcom/isaigu/gymapp/wearable/face/FaceArt$Prim;->dashed:Z
 
-    .line 438
+    .line 448
     move-object/from16 v0, p0
 
     invoke-interface {v0, v4}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    .line 439
+    .line 449
     move-object/from16 v0, p1
 
     iget-object v2, v0, Lcom/isaigu/gymapp/wearable/face/FaceArt$Scene;->label:[Ljava/lang/String;
@@ -3029,7 +3206,7 @@
 
     if-eqz v2, :cond_f3
 
-    .line 440
+    .line 450
     new-instance v3, Lcom/isaigu/gymapp/wearable/face/FaceArt$Prim;
 
     const/16 v2, 0xc
@@ -3050,7 +3227,7 @@
 
     invoke-direct {v3, v2, v4, v5, v6}, Lcom/isaigu/gymapp/wearable/face/FaceArt$Prim;-><init>(ILjava/lang/String;FF)V
 
-    .line 441
+    .line 451
     if-eqz v12, :cond_118
 
     const v2, 0x3ecccccd    # 0.4f
@@ -3058,12 +3235,12 @@
     :goto_ec
     iput v2, v3, Lcom/isaigu/gymapp/wearable/face/FaceArt$Prim;->alpha:F
 
-    .line 442
+    .line 452
     move-object/from16 v0, p0
 
     invoke-interface {v0, v3}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    .line 423
+    .line 433
     :cond_f3
     add-int/lit8 v2, v9, 0x1
 
@@ -3071,7 +3248,7 @@
 
     goto/16 :goto_36
 
-    .line 418
+    .line 428
     :cond_f8
     const/high16 v2, 0x3f800000    # 1.0f
 
@@ -3079,7 +3256,7 @@
 
     goto/16 :goto_20
 
-    .line 433
+    .line 443
     :cond_fd
     move-object/from16 v0, p1
 
@@ -3096,7 +3273,7 @@
 
     goto :goto_a9
 
-    .line 436
+    .line 446
     :cond_10b
     move-object/from16 v0, p1
 
@@ -3113,13 +3290,13 @@
 
     goto :goto_be
 
-    .line 441
+    .line 451
     :cond_118
     const/high16 v2, 0x3f800000    # 1.0f
 
     goto :goto_ec
 
-    .line 445
+    .line 455
     :cond_11b
     return-void
 .end method
@@ -3132,12 +3309,12 @@
 
     const/4 v4, 0x0
 
-    .line 195
+    .line 205
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/face/FaceArt;->pads(I)[[F
 
     move-result-object v0
 
-    .line 196
+    .line 206
     const/16 v1, 0x8
 
     if-eq p0, v1, :cond_e
@@ -3146,11 +3323,11 @@
 
     if-ne p0, v1, :cond_10
 
-    .line 197
+    .line 207
     :cond_e
     const/4 v0, 0x0
 
-    .line 199
+    .line 209
     :goto_f
     return v0
 
@@ -3198,7 +3375,7 @@
     .prologue
     const v1, 0x3f4ccccd    # 0.8f
 
-    .line 149
+    .line 156
     if-eqz p0, :cond_5
 
     :cond_5
@@ -3213,7 +3390,7 @@
     .registers 3
 
     .prologue
-    .line 145
+    .line 152
     if-eqz p0, :cond_9
 
     const v0, 0x3f19999a    # 0.6f
@@ -3241,17 +3418,17 @@
 
     const/4 v2, 0x2
 
-    .line 174
+    .line 181
     packed-switch p0, :pswitch_data_a4
 
-    .line 189
+    .line 199
     new-array v0, v2, [[F
 
     sget-object v1, Lcom/isaigu/gymapp/wearable/face/FaceArt;->ZM_O:[F
 
     sget-object v2, Lcom/isaigu/gymapp/wearable/face/FaceArt;->ZM_I:[F
 
-    const v3, 0x3dcccccd    # 0.1f
+    const v3, 0x3e4ccccd    # 0.2f
 
     invoke-static {v1, v2, v3}, Lcom/isaigu/gymapp/wearable/face/FaceArt;->lerp([F[FF)[F
 
@@ -3267,7 +3444,7 @@
 
     sget-object v2, Lcom/isaigu/gymapp/wearable/face/FaceArt;->ZM_I:[F
 
-    const v3, 0x3f051eb8    # 0.52f
+    const v3, 0x3f19999a    # 0.6f
 
     invoke-static {v1, v2, v3}, Lcom/isaigu/gymapp/wearable/face/FaceArt;->lerp([F[FF)[F
 
@@ -3282,7 +3459,7 @@
     :goto_2a
     return-object v0
 
-    .line 176
+    .line 184
     :pswitch_2b
     new-array v0, v2, [[F
 
@@ -3300,7 +3477,7 @@
 
     goto :goto_2a
 
-    .line 178
+    .line 186
     :pswitch_3c
     new-array v0, v2, [[F
 
@@ -3318,7 +3495,7 @@
 
     goto :goto_2a
 
-    .line 181
+    .line 189
     :pswitch_4d
     new-array v0, v2, [[F
 
@@ -3344,7 +3521,7 @@
 
     goto :goto_2a
 
-    .line 184
+    .line 193
     :pswitch_66
     new-array v0, v2, [[F
 
@@ -3352,7 +3529,7 @@
 
     sget-object v2, Lcom/isaigu/gymapp/wearable/face/FaceArt;->NL_I:[F
 
-    const v3, 0x3df5c28f    # 0.12f
+    const/high16 v3, 0x3e800000    # 0.25f
 
     invoke-static {v1, v2, v3}, Lcom/isaigu/gymapp/wearable/face/FaceArt;->lerp([F[FF)[F
 
@@ -3368,7 +3545,7 @@
 
     sget-object v2, Lcom/isaigu/gymapp/wearable/face/FaceArt;->NL_I:[F
 
-    const v3, 0x3f3851ec    # 0.72f
+    const v3, 0x3f59999a    # 0.85f
 
     invoke-static {v1, v2, v3}, Lcom/isaigu/gymapp/wearable/face/FaceArt;->lerp([F[FF)[F
 
@@ -3382,8 +3559,8 @@
 
     goto :goto_2a
 
-    .line 187
-    :pswitch_8b
+    .line 196
+    :pswitch_8a
     new-array v0, v2, [[F
 
     new-array v1, v2, [F
@@ -3408,33 +3585,35 @@
 
     goto :goto_2a
 
-    .line 174
+    .line 181
+    nop
+
     :pswitch_data_a4
     .packed-switch 0x2
         :pswitch_66
         :pswitch_66
-        :pswitch_8b
-        :pswitch_8b
+        :pswitch_8a
+        :pswitch_8a
         :pswitch_4d
         :pswitch_4d
         :pswitch_2b
         :pswitch_3c
     .end packed-switch
 
-    .line 176
+    .line 184
     :array_b8
     .array-data 4
-        0x44034000    # 525.0f
+        0x44094000    # 549.0f
         0x43ab0000    # 342.0f
     .end array-data
 
     :array_c0
     .array-data 4
-        0x4428c000    # 675.0f
+        0x4422c000    # 651.0f
         0x43ab0000    # 342.0f
     .end array-data
 
-    .line 178
+    .line 186
     :array_c8
     .array-data 4
         0x440a0000    # 552.0f
@@ -3447,7 +3626,7 @@
         0x44874000    # 1082.0f
     .end array-data
 
-    .line 181
+    .line 189
     :array_d8
     .array-data 4
         0x44510000    # 836.0f
@@ -3460,7 +3639,7 @@
         0x445a0000    # 872.0f
     .end array-data
 
-    .line 187
+    .line 196
     :array_e8
     .array-data 4
         0x444b8000    # 814.0f
@@ -3478,12 +3657,12 @@
     .registers 17
 
     .prologue
-    .line 500
+    .line 518
     const v0, 0x3f0d6388    # 0.5523f
 
     mul-float/2addr v0, p4
 
-    .line 501
+    .line 519
     const/16 v1, 0x2c
 
     new-array v3, v1, [F
@@ -3770,7 +3949,7 @@
 
     aput v1, v3, v0
 
-    .line 505
+    .line 523
     const/high16 v0, 0x42b40000    # 90.0f
 
     sub-float v0, p5, v0
@@ -3781,33 +3960,33 @@
 
     move-result-wide v0
 
-    .line 506
+    .line 524
     invoke-static {v0, v1}, Ljava/lang/Math;->cos(D)D
 
     move-result-wide v4
 
     double-to-float v4, v4
 
-    .line 507
+    .line 525
     invoke-static {v0, v1}, Ljava/lang/Math;->sin(D)D
 
     move-result-wide v0
 
     double-to-float v5, v0
 
-    .line 508
+    .line 526
     const/4 v0, 0x0
 
-    .line 509
+    .line 527
     :goto_10b
     array-length v1, v3
 
     if-ge v0, v1, :cond_158
 
-    .line 510
+    .line 528
     aget v1, v3, v0
 
-    .line 511
+    .line 529
     const/4 v2, 0x0
 
     cmpl-float v2, v1, v2
@@ -3823,14 +4002,14 @@
     :cond_11b
     const/4 v1, 0x1
 
-    .line 512
+    .line 530
     :goto_11c
     const/4 v2, 0x0
 
     :goto_11d
     if-ge v2, v1, :cond_152
 
-    .line 513
+    .line 531
     add-int/lit8 v6, v0, 0x1
 
     mul-int/lit8 v7, v2, 0x2
@@ -3839,7 +4018,7 @@
 
     aget v6, v3, v6
 
-    .line 514
+    .line 532
     add-int/lit8 v7, v0, 0x2
 
     mul-int/lit8 v8, v2, 0x2
@@ -3848,7 +4027,7 @@
 
     aget v7, v3, v7
 
-    .line 515
+    .line 533
     add-int/lit8 v8, v0, 0x1
 
     mul-int/lit8 v9, v2, 0x2
@@ -3865,7 +4044,7 @@
 
     aput v9, v3, v8
 
-    .line 516
+    .line 534
     add-int/lit8 v8, v0, 0x2
 
     mul-int/lit8 v9, v2, 0x2
@@ -3882,12 +4061,12 @@
 
     aput v6, v3, v8
 
-    .line 512
+    .line 530
     add-int/lit8 v2, v2, 0x1
 
     goto :goto_11d
 
-    .line 511
+    .line 529
     :cond_148
     const/high16 v2, 0x40000000    # 2.0f
 
@@ -3904,7 +4083,7 @@
 
     goto :goto_11c
 
-    .line 518
+    .line 536
     :cond_152
     mul-int/lit8 v1, v1, 0x2
 
@@ -3912,10 +4091,10 @@
 
     add-int/2addr v0, v1
 
-    .line 519
+    .line 537
     goto :goto_10b
 
-    .line 520
+    .line 538
     :cond_158
     return-object v3
 .end method
@@ -3924,7 +4103,7 @@
     .registers 2
 
     .prologue
-    .line 158
+    .line 165
     const/16 v0, 0x8
 
     if-eq p0, v0, :cond_8
@@ -3933,11 +4112,11 @@
 
     if-ne p0, v0, :cond_a
 
-    .line 159
+    .line 166
     :cond_8
     const/4 v0, -0x1
 
-    .line 161
+    .line 168
     :goto_9
     return v0
 
@@ -3971,7 +4150,7 @@
     .end annotation
 
     .prologue
-    .line 249
+    .line 259
     move-object/from16 v0, p1
 
     iget-boolean v4, v0, Lcom/isaigu/gymapp/wearable/face/FaceArt$Scene;->sensory:Z
@@ -3980,7 +4159,7 @@
 
     const/4 v4, 0x0
 
-    .line 250
+    .line 260
     :goto_7
     move-object/from16 v0, p1
 
@@ -3988,14 +4167,14 @@
 
     aget v6, v5, p2
 
-    .line 251
+    .line 261
     move-object/from16 v0, p1
 
     iget-object v5, v0, Lcom/isaigu/gymapp/wearable/face/FaceArt$Scene;->dim:[Z
 
     aget-boolean v8, v5, p2
 
-    .line 252
+    .line 262
     move-object/from16 v0, p3
 
     move/from16 v1, p2
@@ -4004,7 +4183,7 @@
 
     move-result-object v9
 
-    .line 253
+    .line 263
     mul-float v5, p6, v4
 
     move-object/from16 v0, p4
@@ -4021,7 +4200,7 @@
 
     move-result-object v10
 
-    .line 254
+    .line 264
     const/4 v5, 0x0
 
     aget v5, v10, v5
@@ -4032,7 +4211,7 @@
 
     sub-float v11, v5, v7
 
-    .line 255
+    .line 265
     const/4 v5, 0x1
 
     aget v5, v10, v5
@@ -4043,7 +4222,7 @@
 
     sub-float v12, v5, v7
 
-    .line 256
+    .line 266
     mul-float v5, v11, v11
 
     mul-float v7, v12, v12
@@ -4058,15 +4237,15 @@
 
     double-to-float v5, v14
 
-    .line 257
+    .line 267
     neg-float v7, v12
 
     div-float v13, v7, v5
 
-    .line 258
+    .line 268
     div-float v14, v11, v5
 
-    .line 259
+    .line 269
     const/high16 v5, 0x3f800000    # 1.0f
 
     const v7, 0x3e99999a    # 0.3f
@@ -4077,14 +4256,14 @@
 
     mul-float v15, p5, v5
 
-    .line 260
+    .line 270
     const v5, 0x3ee66666    # 0.45f
 
     invoke-static {v9, v10, v5}, Lcom/isaigu/gymapp/wearable/face/FaceArt;->lerp([F[FF)[F
 
     move-result-object v16
 
-    .line 261
+    .line 271
     const/16 v5, 0x20
 
     new-array v0, v5, [F
@@ -4559,14 +4738,14 @@
 
     aput v7, v17, v5
 
-    .line 269
+    .line 279
     if-eqz v8, :cond_386
 
     const v5, 0x3eb33333    # 0.35f
 
     move v7, v5
 
-    .line 270
+    .line 280
     :goto_232
     const v5, 0x3ca3d70a    # 0.02f
 
@@ -4576,7 +4755,7 @@
 
     if-nez v8, :cond_25f
 
-    .line 271
+    .line 281
     new-instance v18, Lcom/isaigu/gymapp/wearable/face/FaceArt$Prim;
 
     const/16 v5, 0x8
@@ -4591,7 +4770,7 @@
 
     invoke-direct {v0, v5, v1, v2}, Lcom/isaigu/gymapp/wearable/face/FaceArt$Prim;-><init>(I[FZ)V
 
-    .line 272
+    .line 282
     move-object/from16 v0, p1
 
     iget-boolean v5, v0, Lcom/isaigu/gymapp/wearable/face/FaceArt$Scene;->sensory:Z
@@ -4607,14 +4786,14 @@
 
     iput v5, v0, Lcom/isaigu/gymapp/wearable/face/FaceArt$Prim;->alpha:F
 
-    .line 273
+    .line 283
     move-object/from16 v0, p0
 
     move-object/from16 v1, v18
 
     invoke-interface {v0, v1}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    .line 275
+    .line 285
     :cond_25f
     new-instance v5, Lcom/isaigu/gymapp/wearable/face/FaceArt$Prim;
 
@@ -4630,7 +4809,7 @@
 
     invoke-direct {v5, v0, v1, v2}, Lcom/isaigu/gymapp/wearable/face/FaceArt$Prim;-><init>(I[FZ)V
 
-    .line 276
+    .line 286
     const v17, 0x3eb851ec    # 0.36f
 
     const/high16 v18, 0x3f000000    # 0.5f
@@ -4645,12 +4824,12 @@
 
     iput v0, v5, Lcom/isaigu/gymapp/wearable/face/FaceArt$Prim;->alpha:F
 
-    .line 277
+    .line 287
     move-object/from16 v0, p0
 
     invoke-interface {v0, v5}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    .line 278
+    .line 288
     const/4 v5, -0x2
 
     :goto_283
@@ -4660,7 +4839,7 @@
 
     if-gt v5, v0, :cond_38e
 
-    .line 279
+    .line 289
     int-to-float v0, v5
 
     move/from16 v17, v0
@@ -4671,7 +4850,7 @@
 
     mul-float v17, v17, v18
 
-    .line 280
+    .line 290
     const/16 v18, 0xa
 
     move/from16 v0, v18
@@ -4836,7 +5015,7 @@
 
     aput v17, v18, v19
 
-    .line 284
+    .line 294
     new-instance v17, Lcom/isaigu/gymapp/wearable/face/FaceArt$Prim;
 
     const/16 v19, 0x7
@@ -4853,7 +5032,7 @@
 
     invoke-direct {v0, v1, v2, v3}, Lcom/isaigu/gymapp/wearable/face/FaceArt$Prim;-><init>(I[FZ)V
 
-    .line 285
+    .line 295
     const v18, 0x3ee66666    # 0.45f
 
     const v19, 0x3f0ccccd    # 0.55f
@@ -4870,7 +5049,7 @@
 
     iput v0, v1, Lcom/isaigu/gymapp/wearable/face/FaceArt$Prim;->alpha:F
 
-    .line 286
+    .line 296
     const v18, 0x3f4ccccd    # 0.8f
 
     const/high16 v19, 0x3f000000    # 0.5f
@@ -4885,19 +5064,19 @@
 
     iput v0, v1, Lcom/isaigu/gymapp/wearable/face/FaceArt$Prim;->width:F
 
-    .line 287
+    .line 297
     move-object/from16 v0, p0
 
     move-object/from16 v1, v17
 
     invoke-interface {v0, v1}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    .line 278
+    .line 288
     add-int/lit8 v5, v5, 0x1
 
     goto/16 :goto_283
 
-    .line 249
+    .line 259
     :cond_37e
     move-object/from16 v0, p1
 
@@ -4907,7 +5086,7 @@
 
     goto/16 :goto_7
 
-    .line 269
+    .line 279
     :cond_386
     const/high16 v5, 0x3f800000    # 1.0f
 
@@ -4918,10 +5097,10 @@
     :cond_38b
     move v5, v6
 
-    .line 272
+    .line 282
     goto/16 :goto_254
 
-    .line 289
+    .line 299
     :cond_38e
     const v4, 0x3d4ccccd    # 0.05f
 
@@ -4931,7 +5110,7 @@
 
     if-nez v8, :cond_42b
 
-    .line 291
+    .line 301
     move-object/from16 v0, p1
 
     iget-boolean v4, v0, Lcom/isaigu/gymapp/wearable/face/FaceArt$Scene;->sensory:Z
@@ -4940,7 +5119,7 @@
 
     const/high16 v4, 0x3e800000    # 0.25f
 
-    .line 292
+    .line 302
     :goto_39f
     const/4 v5, 0x0
 
@@ -4949,7 +5128,7 @@
 
     if-ge v5, v7, :cond_42b
 
-    .line 293
+    .line 303
     move-object/from16 v0, p1
 
     iget v7, v0, Lcom/isaigu/gymapp/wearable/face/FaceArt$Scene;->t:F
@@ -4978,12 +5157,12 @@
 
     move-result v7
 
-    .line 294
+    .line 304
     invoke-static {v10, v9, v7}, Lcom/isaigu/gymapp/wearable/face/FaceArt;->lerp([F[FF)[F
 
     move-result-object v8
 
-    .line 295
+    .line 305
     rem-int/lit8 v11, v5, 0x2
 
     mul-int/lit8 v11, v11, 0x2
@@ -5016,7 +5195,7 @@
 
     mul-float/2addr v11, v12
 
-    .line 296
+    .line 306
     new-instance v12, Lcom/isaigu/gymapp/wearable/face/FaceArt$Prim;
 
     const/16 v16, 0xe
@@ -5057,7 +5236,7 @@
 
     invoke-direct {v12, v0, v8, v11}, Lcom/isaigu/gymapp/wearable/face/FaceArt$Prim;-><init>(I[FZ)V
 
-    .line 297
+    .line 307
     float-to-double v0, v7
 
     move-wide/from16 v16, v0
@@ -5078,17 +5257,17 @@
 
     iput v7, v12, Lcom/isaigu/gymapp/wearable/face/FaceArt$Prim;->alpha:F
 
-    .line 298
+    .line 308
     move-object/from16 v0, p0
 
     invoke-interface {v0, v12}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    .line 292
+    .line 302
     add-int/lit8 v5, v5, 0x1
 
     goto :goto_3a0
 
-    .line 291
+    .line 301
     :cond_41d
     const v4, 0x3eb33333    # 0.35f
 
@@ -5106,7 +5285,7 @@
 
     goto/16 :goto_39f
 
-    .line 301
+    .line 311
     :cond_42b
     return-void
 .end method

@@ -31,9 +31,10 @@ public final class AutoLimits {
     /** Strength units a person may add per cycle (G3). */
     public static final int RAISE_PER_CYCLE = 5;
 
-    /** Auto's floor for this plan: the face runs its own narrow pulse (small pads, thin muscle), the body ≥ 150 µs. */
+    /** Auto's floor for this plan: the face may go down to the absolute floor (50 µs — the sensory programs' narrow
+     *  pulse, docs/xems-face.md §12), the body ≥ 150 µs. */
     public static int pwMin(Plan plan) {
-        return plan != null && AutoCatalog.isFace(plan.program) ? AutoCatalog.FACE_PW : PW_MIN;
+        return plan != null && AutoCatalog.isFace(plan.program) ? SafeLimits.PW_MIN : PW_MIN;
     }
 
     /** L1: longest ON of a tetanic step (f ≥ 20 Hz). */

@@ -124,12 +124,12 @@ public final class FaceProgram {
                     "Без напрежение в челото и челюстта", "No tension in the forehead and the jaw",
                     "Сетивни нерви на челото и дъвкателните мускули", "Forehead nerves and the masseters",
                     "n. supraorbitalis · m. masseter",
-                    60, 0, 0, 0xFF2DD4BF, "◌", 2, 1, 1, 0, 0),
+                    100, 0, 0, 0xFF2DD4BF, "◌", 2, 1, 1, 0, 0),
             // supraorbital TENS (Cefaly: 60 Hz, 250–300 µs, 20 min daily) + TENS lowers muscle tone (meta-analyses)
             new FaceProgram(RELAX, FOREHEAD, true, "Ботокс ефект", "Botox effect",
                     "Гладко чело без игла", "A smooth forehead, no needle",
                     "Сетивни нерви на челото", "Forehead sensory nerves", "n. supraorbitalis · n. supratrochlearis",
-                    60, 0, 0, 0xFFF5B021, "∿", 2, 1, 1, 0, 0),
+                    100, 0, 0, 0xFFF5B021, "∿", 2, 1, 1, 0, 0),
             // TENS on the masseter lowers its resting EMG (RCT in TMD, short term)
             new FaceProgram(JAW_RELAX, JAW, true, "Отпусната челюст", "Relaxed jaw",
                     "По-мек долен овал, без напрежение", "A softer jawline, no tension",
@@ -172,7 +172,7 @@ public final class FaceProgram {
             return bg ? "бавни импулси · 2/s" : "slow impulses · 2/s";
         }
         if (id == CALM) {
-            return bg ? "60 ↔ 80 Hz · без движение" : "60 ↔ 80 Hz · no movement";
+            return bg ? "80 ↔ 100 Hz · без движение" : "80 ↔ 100 Hz · no movement";
         }
         if (id == OVAL) {
             return bg ? "70 Hz · скули ↔ брадичка" : "70 Hz · cheeks ↔ chin";
@@ -242,17 +242,20 @@ public final class FaceProgram {
                         + "Bluetens the cheeks take turns, like a wave. That electrical contraction reduces swelling is proven "
                         + "(a systematic review); the face works by the same mechanism. Best in the morning.";
             case RELAX:
-                return bg ? "Нежен ток (60 Hz) докосва само сетивните нерви на челото (n. supraorbitalis, n. supratrochlearis) — "
+                return bg ? "Нежен ток (100 Hz, тесен импулс 50 µs) докосва само сетивните влакна на допир в кожата на челото — "
                         + "мускулът не се движи. Сетивният поток потиска възбудимостта на двигателните неврони и тонусът на "
                         + "мимическите мускули спада: челото и междувеждието се отпускат, бръчките от мимика омекват. Че такъв "
-                        + "ток намалява мускулния тонус, е доказано (мета-анализи); разположението и параметрите са като при "
-                        + "одобреното медицинско устройство за челото. Ефектът е за часове и се натрупва с редовност. Не "
-                        + "замества ботулиновия токсин."
-                        : "A gentle current (60 Hz) touches only the sensory nerves of the forehead — the muscle does not move. The "
-                        + "sensory input damps the excitability of the motor neurons and the tone of the expression muscles drops: "
-                        + "the forehead and the frown relax, expression lines soften. That such current lowers muscle tone is "
-                        + "proven (meta-analyses); placement and settings match the approved medical forehead device. The effect "
-                        + "lasts hours and builds with regular use. It does not replace botulinum toxin.";
+                        + "ток намалява мускулния тонус, е доказано (мета-анализи; 100 Hz е най-ефективната честота). Импулсът е "
+                        + "тесен нарочно: болковите влакна на костната обвивка отговарят само на дълги импулси, затова на тънката "
+                        + "кожа на челото усещането остава приятно изтръпване, а не болка в костта. Ефектът е за часове и се "
+                        + "натрупва с редовност. Не замества ботулиновия токсин."
+                        : "A gentle current (100 Hz, a narrow 50 µs pulse) touches only the touch fibres of the forehead skin — the "
+                        + "muscle does not move. The sensory input damps the excitability of the motor neurons and the tone of the "
+                        + "expression muscles drops: the forehead and the frown relax, expression lines soften. That such current "
+                        + "lowers muscle tone is proven (meta-analyses; 100 Hz works best). The pulse is narrow on purpose: the pain "
+                        + "fibres of the bone's lining answer only long pulses, so on the thin forehead skin it stays a pleasant "
+                        + "tingle, not an ache in the bone. The effect lasts hours and builds with regular use. It does not "
+                        + "replace botulinum toxin.";
             case OVAL:
                 return bg ? "Скулите и мускулите под брадичката работят на смени — 3 секунди скулите, 3 секунди брадичката: всеки "
                         + "мускул почива двойно по-дълго, отколкото работи. Скулите получават лифтинга (клинично проучване: "
@@ -264,10 +267,10 @@ public final class FaceProgram {
             case CALM:
                 return bg ? "Нежен сетивен ток едновременно по челото и по двата дъвкателни мускула — там, където лицето държи "
                         + "напрежението от деня. Сетивният поток сваля тонуса на мускулите (доказано за такъв ток); "
-                        + "честотата се сменя между 60 и 80 Hz, за да не привикнат нервите. Челото се отпуска, челюстта се "
+                        + "честотата се сменя между 80 и 100 Hz, при тесен импулс, за да не привикнат нервите и да няма дълбока болка. Челото се отпуска, челюстта се "
                         + "разтваря, чертите омекват. Идеално вечер или след стрес."
                         : "A gentle sensory current on the forehead and both masseters at once — where the face holds the day's "
-                        + "tension. The sensory input lowers muscle tone (proven for such current); the rate alternates 60 ↔ 80 Hz "
+                        + "tension. The sensory input lowers muscle tone (proven for such current); the rate alternates 80 ↔ 100 Hz at a narrow pulse "
                         + "so the nerves do not get used to it. Best in the evening or after stress.";
             case JAW_RELAX:
                 return bg ? "Бавни ритмични импулси, два пъти в секунда, върху дъвкателния мускул (m. masseter) — при Bluetens "
@@ -290,7 +293,7 @@ public final class FaceProgram {
     public String[] place(boolean bg, boolean pairs2) {
         if (id == CALM) {
             return bg ? new String[] {"Почисти челото и бузите, без крем",
-                    "Чело — два пръста над веждите · челюст — стисни зъби и сложи на мускула",
+                    "Чело — двойката близо, два пръста над веждите · челюст — стисни зъби, сложи на мускула",
                     "Никога към окото, никога отстрани на шията"}
                     : new String[] {"Clean the forehead and the cheeks, no cream",
                     "Forehead — two fingers above the brows · jaw — clench and place on the muscle",
@@ -312,10 +315,10 @@ public final class FaceProgram {
                         "Between the chin bone and the hyoid — never on the side of the neck"};
             case FOREHEAD:
                 return bg ? new String[] {"Почисти челото, без крем",
-                        "Двойката — на челото, от двете страни на средата",
+                        "Двойката близо — един пръст между електродите, в средата на челото",
                         "Два пръста над веждите, под косата — никога към окото"}
                         : new String[] {"Clean the forehead, no cream",
-                        "The pair on the forehead, either side of the middle",
+                        "The pair close — one finger between the pads, mid-forehead",
                         "Two fingers above the brows, below the hair — never towards the eye"};
             case JAW:
                 return bg ? new String[] {"Стисни зъби — под пръстите се надува дъвкателният мускул",
@@ -326,9 +329,9 @@ public final class FaceProgram {
                         "Left and right — a pad each"};
             default:
                 return bg ? new String[] {"Почисти кожата, без крем",
-                        "1 — на скулата, два пръста под външния ъгъл на окото",
+                        "1 — под скулата, на мускула, не върху костта",
                         "2 — по линията към ъгъла на устата, не на устната"}
-                        : new String[] {"Clean the skin, no cream", "1 — on the cheekbone, two fingers below the outer eye corner",
+                        : new String[] {"Clean the skin, no cream", "1 — under the cheekbone, on the muscle, not on the bone",
                         "2 — along the line to the mouth corner, not on the lip"};
         }
     }
@@ -337,8 +340,8 @@ public final class FaceProgram {
     public String strengthGoal(boolean bg) {
         switch (id) {
             case RELAX:
-                return bg ? "Качвай до ясно, приятно изтръпване — веждите не бива да мърдат"
-                        : "Raise to a clear, pleasant tingle — the brows must not move";
+                return bg ? "Качвай до ясно, приятно изтръпване — веждите не мърдат"
+                        : "Raise to a clear, pleasant tingle — the brows stay still";
             case JAW_RELAX:
                 return bg ? "Качвай до дълбоко, приятно потупване в мускула — без болка" : "Raise to a deep, pleasant tapping — no pain";
             case CONTOUR:

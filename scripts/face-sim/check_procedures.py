@@ -46,6 +46,8 @@ for s in sites:
         check(min(dist(p, c) for c in mirrored(ko["eye_corner"])) / cm >= 2.0, "site %d pad < 2 cm from the eye" % s["id"])
         check(min(dist(p, c) for c in mirrored(ko["nerve_trunk"])) / cm >= 1.5, "site %d pad on the nerve trunk" % s["id"])
         check(min(dist(p, c) for c in mirrored(ko["neck_side"])) / cm >= 2.0, "site %d pad at the side of the neck" % s["id"])
+        for n in ko["nerve_exits"]:
+            check(min(dist(p, c) for c in mirrored(n)) / cm >= 1.5, "site %d pad on a sensory nerve exit" % s["id"])
 
 PW = {"face_relax": lim["forehead_pw_us"], "face_calm": lim["forehead_pw_us"], "face_jaw": lim["jaw_pw_us"],
       "face_chin": lim["chin_pw_us"]}
@@ -76,6 +78,7 @@ for p in procs:
                 continue
             hz, pw, on, off = st["hz"], st["pw_us"], st["on_s"], st["off_s"]
             check(pw == PW.get(tag, lim["motor_pw_us"]), at + ": width")
+            check(pw <= lim["face_pw_max_us"], at + ": comfort — no face pulse over %d µs" % lim["face_pw_max_us"])
             check(1 <= hz <= 120, at + ": 1–120 Hz")
             check(hz < 100 or pw <= 300, at + ": ≤ 300 µs from 100 Hz")
             check(tag == "face_jaw" or hz >= lim["motor_hz_min"], at + ": ≥ 20 Hz on the face")

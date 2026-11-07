@@ -1409,7 +1409,7 @@
 
     aput-object v1, v0, v4
 
-    const-string v1, "1 \u2014 \u043d\u0430 \u0441\u043a\u0443\u043b\u0430\u0442\u0430, \u0434\u0432\u0430 \u043f\u0440\u044a\u0441\u0442\u0430 \u043f\u043e\u0434 \u0432\u044a\u043d\u0448\u043d\u0438\u044f \u044a\u0433\u044a\u043b \u043d\u0430 \u043e\u043a\u043e\u0442\u043e"
+    const-string v1, "1 \u2014 \u043f\u043e\u0434 \u0441\u043a\u0443\u043b\u0430\u0442\u0430, \u043d\u0430 \u043c\u0443\u0441\u043a\u0443\u043b\u0430, \u043d\u0435 \u0432\u044a\u0440\u0445\u0443 \u043a\u043e\u0441\u0442\u0442\u0430"
 
     aput-object v1, v0, v2
 
@@ -1541,7 +1541,7 @@
 
     aput-object v1, v0, v4
 
-    const-string v1, "1 \u2014 on the cheekbone, two fingers below the outer eye corner"
+    const-string v1, "1 \u2014 under the cheekbone, on the muscle, not on the bone"
 
     aput-object v1, v0, v2
 
@@ -1728,12 +1728,12 @@
     .registers 5
 
     .prologue
-    .line 363
+    .line 362
     iget-boolean v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceProgram;->sensory:Z
 
     if-eqz v0, :cond_26
 
-    .line 364
+    .line 363
     iget v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceProgram;->id:I
 
     const/4 v1, 0x3
@@ -1744,17 +1744,17 @@
 
     const-string v0, "\u0417\u0430\u0442\u0432\u043e\u0440\u0438 \u043e\u0447\u0438, \u043e\u0442\u043f\u0443\u0441\u043d\u0438 \u0447\u0435\u043b\u043e\u0442\u043e \u2014 \u0442\u043e\u043a\u044a\u0442 \u0440\u0430\u0431\u043e\u0442\u0438 \u043f\u043e \u043d\u0435\u0440\u0432\u0438\u0442\u0435"
 
-    .line 371
+    .line 370
     :goto_d
     return-object v0
 
-    .line 364
+    .line 363
     :cond_e
     const-string v0, "Close the eyes, let the forehead go"
 
     goto :goto_d
 
-    .line 365
+    .line 364
     :cond_11
     iget v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceProgram;->id:I
 
@@ -1773,7 +1773,7 @@
 
     goto :goto_d
 
-    .line 366
+    .line 365
     :cond_1e
     if-eqz p2, :cond_23
 
@@ -1786,7 +1786,7 @@
 
     goto :goto_d
 
-    .line 368
+    .line 367
     :cond_26
     iget v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceProgram;->id:I
 
@@ -1794,7 +1794,7 @@
 
     if-ne v0, v1, :cond_33
 
-    .line 369
+    .line 368
     if-eqz p2, :cond_30
 
     const-string v0, "\u041c\u0443\u0441\u043a\u0443\u043b\u044a\u0442 \u0438\u0437\u043f\u043e\u043c\u043f\u0432\u0430 \u0442\u0435\u0447\u043d\u043e\u0441\u0442\u0442\u0430 \u043a\u044a\u043c \u043b\u0438\u043c\u0444\u043d\u0438\u0442\u0435 \u0432\u044a\u0437\u043b\u0438"
@@ -1806,7 +1806,7 @@
 
     goto :goto_d
 
-    .line 371
+    .line 370
     :cond_33
     if-eqz p1, :cond_3d
 
@@ -1821,7 +1821,7 @@
 
     goto :goto_d
 
-    .line 372
+    .line 371
     :cond_3d
     if-eqz p2, :cond_42
 
@@ -1877,7 +1877,7 @@
 
     packed-switch v0, :pswitch_data_36
 
-    .line 356
+    .line 355
     :pswitch_5
     if-eqz p1, :cond_32
 
@@ -1890,13 +1890,13 @@
     :pswitch_a
     if-eqz p1, :cond_f
 
-    const-string v0, "\u041a\u0430\u0447\u0432\u0430\u0439 \u0434\u043e \u044f\u0441\u043d\u043e, \u043f\u0440\u0438\u044f\u0442\u043d\u043e \u0438\u0437\u0442\u0440\u044a\u043f\u0432\u0430\u043d\u0435 \u043f\u043e \u043a\u043e\u0436\u0430\u0442\u0430 \u2014 \u0442\u044a\u043f\u0430 \u0431\u043e\u043b\u043a\u0430 \u043d\u0430\u0432\u044a\u0442\u0440\u0435: \u0441\u0432\u0430\u043b\u0438 \u0432\u0435\u0434\u043d\u0430\u0433\u0430"
+    const-string v0, "\u041a\u0430\u0447\u0432\u0430\u0439 \u0434\u043e \u044f\u0441\u043d\u043e, \u043f\u0440\u0438\u044f\u0442\u043d\u043e \u0438\u0437\u0442\u0440\u044a\u043f\u0432\u0430\u043d\u0435 \u2014 \u0432\u0435\u0436\u0434\u0438\u0442\u0435 \u043d\u0435 \u043c\u044a\u0440\u0434\u0430\u0442"
 
     goto :goto_9
 
     .line 344
     :cond_f
-    const-string v0, "Raise to a clear, pleasant tingle on the skin \u2014 a dull ache inside: lower at once"
+    const-string v0, "Raise to a clear, pleasant tingle \u2014 the brows stay still"
 
     goto :goto_9
 
@@ -1931,17 +1931,16 @@
     :pswitch_22
     if-eqz p1, :cond_27
 
-    const-string v0, "\u041a\u0430\u0447\u0432\u0430\u0439 \u0434\u043e \u044f\u0441\u043d\u043e, \u043f\u0440\u0438\u044f\u0442\u043d\u043e \u0438\u0437\u0442\u0440\u044a\u043f\u0432\u0430\u043d\u0435 \u2014 \u043d\u0438\u0449\u043e \u043d\u0435 \u043c\u044a\u0440\u0434\u0430, \u043d\u0438\u0449\u043e \u043d\u0435 \u0431\u043e\u043b\u0438 \u043d\u0430\u0432\u044a\u0442\u0440\u0435"
+    const-string v0, "\u041a\u0430\u0447\u0432\u0430\u0439 \u0434\u043e \u044f\u0441\u043d\u043e, \u043f\u0440\u0438\u044f\u0442\u043d\u043e \u0438\u0437\u0442\u0440\u044a\u043f\u0432\u0430\u043d\u0435 \u2014 \u043d\u0438\u0449\u043e \u043d\u0435 \u043c\u044a\u0440\u0434\u0430"
 
     goto :goto_9
 
-    .line 352
     :cond_27
-    const-string v0, "Raise to a clear, pleasant tingle \u2014 nothing moves, nothing aches inside"
+    const-string v0, "Raise to a clear, pleasant tingle \u2014 nothing moves"
 
     goto :goto_9
 
-    .line 354
+    .line 353
     :pswitch_2a
     if-eqz p1, :cond_2f
 
@@ -1954,7 +1953,7 @@
 
     goto :goto_9
 
-    .line 357
+    .line 356
     :cond_32
     const-string v0, "Raise until the mouth corner visibly lifts \u2014 no pain, no blinking"
 

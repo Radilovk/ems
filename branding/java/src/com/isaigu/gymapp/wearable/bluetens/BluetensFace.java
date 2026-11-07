@@ -149,17 +149,6 @@ public final class BluetensFace implements FaceDevice {
         }
     }
 
-    public void ease() {
-        for (int ch = 0; ch < channels(); ch++) {
-            BluetensScreen.Pad p = pad(ch);
-            if (p != null) {
-                for (int k = 0; k < 3; k++) {
-                    page.step(p, -1);
-                }
-            }
-        }
-    }
-
     public String prepare(int program, int minutes, boolean bg) {
         this.program = program;
         int n = channels();

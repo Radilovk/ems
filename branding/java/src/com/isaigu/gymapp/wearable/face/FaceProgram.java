@@ -329,9 +329,9 @@ public final class FaceProgram {
                         "Left and right — a pad each"};
             default:
                 return bg ? new String[] {"Почисти кожата, без крем",
-                        "1 — на скулата, два пръста под външния ъгъл на окото",
+                        "1 — под скулата, на мускула, не върху костта",
                         "2 — по линията към ъгъла на устата, не на устната"}
-                        : new String[] {"Clean the skin, no cream", "1 — on the cheekbone, two fingers below the outer eye corner",
+                        : new String[] {"Clean the skin, no cream", "1 — under the cheekbone, on the muscle, not on the bone",
                         "2 — along the line to the mouth corner, not on the lip"};
         }
     }
@@ -340,16 +340,15 @@ public final class FaceProgram {
     public String strengthGoal(boolean bg) {
         switch (id) {
             case RELAX:
-                return bg ? "Качвай до ясно, приятно изтръпване по кожата — тъпа болка навътре: свали веднага"
-                        : "Raise to a clear, pleasant tingle on the skin — a dull ache inside: lower at once";
+                return bg ? "Качвай до ясно, приятно изтръпване — веждите не мърдат"
+                        : "Raise to a clear, pleasant tingle — the brows stay still";
             case JAW_RELAX:
                 return bg ? "Качвай до дълбоко, приятно потупване в мускула — без болка" : "Raise to a deep, pleasant tapping — no pain";
             case CONTOUR:
                 return bg ? "Качвай, докато под брадичката се усети ясно стягане — без болка"
                         : "Raise until a clear tightening is felt under the chin — no pain";
             case CALM:
-                return bg ? "Качвай до ясно, приятно изтръпване — нищо не мърда, нищо не боли навътре"
-                        : "Raise to a clear, pleasant tingle — nothing moves, nothing aches inside";
+                return bg ? "Качвай до ясно, приятно изтръпване — нищо не мърда" : "Raise to a clear, pleasant tingle — nothing moves";
             case DRAIN:
                 return bg ? "Качвай, докато бузата ритмично се повдига — меко, без болка" : "Raise until the cheek lifts rhythmically — soft, no pain";
             default:

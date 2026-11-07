@@ -127,8 +127,6 @@ public final class FaceStudio {
         boolean prepared;
         String prepareError;
         boolean recorded;
-        /** "Неприятно" taps this session: the second one opens what to check. */
-        int eased;
 
         FaceView face;
         int faceH;
@@ -594,7 +592,6 @@ public final class FaceStudio {
             }
             right.addView(strengthRow(), XemsUi.matchWrap(a, 18));
             ghost(tr("←  Назад", "←  Back"), new Back(this));
-            easeButton();
             primary = footer(dev.kind() == FaceDevice.XEMS ? tr("▶  Старт", "▶  Start") : tr("✓  Добре е · продължи", "✓  Good · go on"),
                     XemsUi.PRIMARY, new Start(this));
             enable(primary, false);
@@ -741,7 +738,6 @@ public final class FaceStudio {
                 pauseBtn.setOnClickListener(new Pause(this));
                 s.footer.addView(pauseBtn, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, dp(56)));
             }
-            easeButton();
             s.footer.addView(hint, new LinearLayout.LayoutParams(0, dp(56), 1f));
             hint.setPadding(dp(16), 0, dp(16), 0);
             stopBtn = XemsUi.button(a, dev.stopLabel(b), XemsUi.DANGER_BTN);
@@ -881,40 +877,6 @@ public final class FaceStudio {
             TextView b = XemsUi.button(a, label, XemsUi.GHOST);
             b.setOnClickListener(l);
             s.footer.addView(b, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, dp(56)));
-        }
-
-        /** "Неприятно" — always one tap away while the current flows: down at once; the second tap says what to check. */
-        void easeButton() {
-            TextView e = XemsUi.button(a, tr("Неприятно", "Unpleasant"), XemsUi.SECONDARY);
-            e.setTextColor(XemsUi.AMBER);
-            e.setOnClickListener(new Ease(this));
-            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, dp(56));
-            lp.leftMargin = dp(10);
-            s.footer.addView(e, lp);
-        }
-
-        void ease() {
-            dev.ease();
-            eased++;
-            hint.setText(tr("Силата е свалена", "Strength lowered"));
-            refresh();
-            if (eased == 2) {
-                boolean b = bg();
-                sheet(a, tr("Неприятно усещане", "Unpleasant feeling"), b
-                        ? "Тъпа, дълбока болка навътре (в костта): спри процедурата. Тя идва от обвивката на костта там, където "
-                        + "тъканта е тънка — не е ефектът, който търсим.\n\n"
-                        + "Провери: двойката електроди близо една до друга (един пръст между тях); електродите плътно залепени, "
-                        + "без отлепени ръбове; кожата почистена, без крем и грим; електродите не са изтъркани.\n\n"
-                        + "Бодеж под ръба на един електрод: контактът — притисни или смени електрода.\n"
-                        + "Изтръпване към устната, зъбите или скалпа: електродът е над нерв — премести го по картината.\n\n"
-                        + "Ако болката остава и при най-ниската сила, тази зона не е за клиента днес."
-                        : "A dull, deep ache inside (in the bone): stop. It comes from the bone's lining where the tissue is thin — "
-                        + "not the effect we want.\n\nCheck: the pads close together (one finger apart); stuck flat, no lifted "
-                        + "edges; skin clean, no cream or make-up; pads not worn out.\n\nA sting under one pad's edge: the "
-                        + "contact — press or replace the pad.\nA tingle towards the lip, teeth or scalp: the pad is over a nerve — "
-                        + "move it as in the picture.\n\nIf the ache stays at the lowest strength, this area is not for the "
-                        + "client today.");
-            }
         }
 
         static void enable(TextView b, boolean on) {
@@ -1362,20 +1324,6 @@ public final class FaceStudio {
         public void onStep(int direction) {
             v.dev.step(ch, direction);
             v.refresh();
-        }
-    }
-
-    static final class Ease implements View.OnClickListener {
-        private final Studio v;
-
-        Ease(Studio v) {
-            this.v = v;
-        }
-
-        @Override
-        public void onClick(View view) {
-            XemsUi.haptic(view);
-            v.ease();
         }
     }
 

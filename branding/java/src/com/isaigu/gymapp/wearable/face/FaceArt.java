@@ -118,8 +118,8 @@ public final class FaceArt {
     public static final float[] ZM_O = {815, 690};
     public static final float[] ZM_I = {722, 858};
     /** Nasolabial lifters (zygomaticus minor · levator labii superioris): low on the muscle, ≥ 2 cm under the eye. */
-    public static final float[] NL_O = {706, 690};
-    public static final float[] NL_I = {684, 842};
+    public static final float[] NL_O = {700, 690};
+    public static final float[] NL_I = {678, 842};
     /** Lower cheek (risorius · buccinator): from the modiolus out towards the masseter's front edge. */
     public static final float[] LC_O = {836, 888};
     public static final float[] LC_I = {716, 900};
@@ -195,7 +195,8 @@ public final class FaceArt {
             case LC_R:
                 return new float[][] {at(new float[] {814, 894}, site), at(new float[] {734, 912}, site)};
             default:
-                return new float[][] {at(lerp(ZM_O, ZM_I, 0.10f), site), at(lerp(ZM_O, ZM_I, 0.52f), site)};
+                // both pads on the muscle belly, off the cheekbone (thin tissue over bone = periosteal ache, §12)
+                return new float[][] {at(lerp(ZM_O, ZM_I, 0.20f), site), at(lerp(ZM_O, ZM_I, 0.60f), site)};
         }
     }
 

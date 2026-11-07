@@ -256,7 +256,7 @@ the face connector's ten sites F1–F10 and the eight procedures fit it as they 
   procedures.
 - The bench test (mA per level step on face pads) is needed on XBody too.
 
-## 12. Comfort: no deep ache, no sting (owner, 2026-11-07; 1.1.504-ai)
+## 12. Comfort: no deep ache, no sting (owner, 2026-11-07; 1.1.504–505-ai)
 **The report:** on the forehead a dull, deep ache "inside the bone", even at 2 %, with wide and with small
 self-adhesive pads (the hydrogel physiotherapy kind — the right ones); the muscle does nothing.
 **Why** (the neurophysiology, not a guess):
@@ -285,10 +285,10 @@ self-adhesive pads (the hydrogel physiotherapy kind — the right ones); the mus
 | nasolabial pads | 1.6 cm from the infraorbital foramen | **≥ 2 cm** (lower on the muscle) |
 | nerve exits | — | keep-out rings on the picture; every pad ≥ 1.5 cm (face-sim, check_procedures.py) |
 | Bluetens forehead train | full at once | **40 → 70 → 100 Hz over 0.3 s**, 5.2 s, 0.5 s rest |
-- Studio: **„Неприятно“** in the strength step and the run — one tap lowers at once (XEMS −10 % / −3 calibration
-  steps, Bluetens −3 each); the second tap opens what to check (deep ache = stop; pads close and flat, clean skin;
-  a sting = contact; a radiating tingle = over a nerve; ache at the lowest level = not this area today). The forehead's
-  strength goal says it too: "тъпа болка навътре: свали веднага".
+- No discomfort UI (owner, 1.1.505: "the strategy itself must leave no pain"): the "Неприятно" button of 1.1.504 is
+  gone; the rules above are the strategy. 1.1.505 also takes the cheekbone pad (F1/F2, Bluetens cheek 1) off the
+  zygomatic bone onto the muscle belly (ZM 20 % → 60 % of the line, 1.6 cm apart) — the same thin-tissue-over-bone
+  situation as the forehead; the nasolabial line moved 6 px medially to keep the pads apart.
 - If the ache stays on a person even at 50 µs with the pads close: the forehead is not for them — the programs stay
   as they are, the studio's sheet says so.
 

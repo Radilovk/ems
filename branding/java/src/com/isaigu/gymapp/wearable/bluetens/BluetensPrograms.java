@@ -213,10 +213,10 @@ public final class BluetensPrograms {
     }
 
     /** Where the cheek pads go (the zygomaticus line — not the nerve trunk in front of the ear, which reaches the eye). */
-    static final String CHEEK_BG = "Електроди по линията на скуловия мускул: горният на скулата, ≥ 2 cm под външния ъгъл на окото, "
+    static final String CHEEK_BG = "Електроди по линията на скуловия мускул: горният под скулата, на мускула, не върху костта, "
             + "долният 2–3 cm по-надолу към ъгъла на устата (не на устната). Не пред ухото — там нервът стига до окото (мигане). "
             + "Двойката е от една страна; лява и дясна буза — отделен уред, всяка със своя сила.";
-    static final String CHEEK_EN = "Pads along the cheek muscle: the upper on the cheekbone, ≥ 2 cm below the outer eye corner, "
+    static final String CHEEK_EN = "Pads along the cheek muscle: the upper under the cheekbone, on the muscle, not on the bone, "
             + "the lower 2–3 cm further towards the mouth corner (not on the lip). Not in front of the ear — the nerve there "
             + "reaches the eye (blinking). The pair on one side; left and right cheek — a pad each, its own strength.";
 

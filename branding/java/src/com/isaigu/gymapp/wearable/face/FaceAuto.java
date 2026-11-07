@@ -113,14 +113,6 @@ public final class FaceAuto implements FaceDevice {
         }
     }
 
-    public void ease() {
-        if (AutoSession.getStage() == AutoSession.Stage.CALIB) {
-            AutoSession.adjustCalibration(-1, -3);
-        } else if (AutoSession.getStage() == AutoSession.Stage.RUNNING) {
-            AutoSession.reduceAll();
-        }
-    }
-
     public String prepare(int program, int minutes, boolean bg) {
         this.program = program;
         AutoModel.Input in = AutoSession.getInput();

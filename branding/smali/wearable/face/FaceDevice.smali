@@ -40,9 +40,6 @@
 .method public abstract doneShare()D
 .end method
 
-.method public abstract ease()V
-.end method
-
 .method public abstract finished()Z
 .end method
 

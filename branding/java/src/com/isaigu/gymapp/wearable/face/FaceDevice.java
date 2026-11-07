@@ -48,9 +48,6 @@ public interface FaceDevice {
 
     void step(int ch, int dir);
 
-    /** "Неприятно": the strength down at once, every channel (XEMS −10 % / 3 calibration steps; Bluetens −3 each). */
-    void ease();
-
     /** Step 3: XEMS starts its calibration cycle, Bluetens starts the program (the wake-up). Error text or null. */
     String prepare(int program, int minutes, boolean bg);
 

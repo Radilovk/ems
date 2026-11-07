@@ -190,7 +190,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/vr-legs/VrLinkHarness.java` (20L) — Test only (scripts/vr-legs/run.sh): the phone side's real VrLink, sending a numbered pose every 20 ms for 4 s.
 - `scripts/vr-legs/fake_game.py` (22L) — Test only: the VR game's side of the link, in Python — asks "XEMS-LEGS? <port>" like motion_link.gd and counts what
 - `scripts/vr-legs/fake_phone.py` (20L) — Test only: the phone's side for the Godot test — answers the game's "XEMS-LEGS? <port>" like VrLink.java and streams
-- `scripts/vr-legs/run.sh` (18L) — The VR legs link, both ends for real where they can run (docs/xems-motion.md "VR legs"):
+- `scripts/vr-legs/run.sh` (19L) — The VR legs link, both ends for real where they can run (docs/xems-motion.md "VR legs"):
 - `scripts/xbody/android/src/bg/xems/fleshka/BlockDev.java` (14L) — A disk as bytes: the SD card behind a USB reader (UsbDisk), an image file (FileDev), or either under an undo log.
 - `scripts/xbody/android/src/bg/xems/fleshka/CardUpdate.java` (163L) — The XBody unit's own SD card, updated from the phone: find its root partition (the ext one with /opt/xbody), put the mo…
 - `scripts/xbody/android/src/bg/xems/fleshka/Ext3.java` (812L) — Just enough ext2/3/4 to put the XEMS mod onto the XBody unit's own SD card from a phone — what build.py --img does with…
@@ -1139,7 +1139,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L95 ## Left out on purpose
   - L103 ## Safety
 
-`docs/xems-motion.md` (590L)
+`docs/xems-motion.md` (623L)
   - L1 # XEMS Motion — body pose from five XIAO nRF52840 Sense sensors
   - L21 ## The app — "XEMS Движение" for Android (owner 2026-11-03: everything installable, as easy as possible)
   - L41 ### 1.1 / firmware 2 — "nothing lights, nothing is found" (owner's first try, 2026-11-04)
@@ -1160,24 +1160,25 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L269 ### 1.16 — the owner's raw log replayed against the clip; 7 sensors (2026-11-05)
   - L285 ### 1.17 — 5 sensors minimum, 6 at most; better computation, not more sensors (owner, 2026-11-05)
   - L304 ### VR legs — the sensors as the VR game's legs (1.18, owner 2026-11-06: "like a native controller: fast, exact")
-  - L332 ### 1.19 — kicks: knee up, the shin snaps out — measured and drawn (owner, 2026-11-06)
-  - L345 ### 1.20 — the trunk's "forward" from the sensor's own face, not from the squat (owner, 2026-11-07)
-  - L358 ### AI (Gemini) — where it fits and where not
-  - L365 ## Design in one picture
-  - L378 ## Hardware and placement
-  - L388 ## Sensor firmware (`fusion.h`, `xems_motion.ino`)
-  - L399 ## Calibration (≈ 6 s, one tap) — finds places, headings, zero
-  - L413 ## Pose solver (`Body.solve`, per back-sensor sample, < 1 ms)
-  - L432 ## Offline test (`sh scripts/motion-sim/run.sh`, ≈ 10 s)
-  - L449 ## Real movements — CMU motion capture (owner 2026-11-03: "precise movement templates")
-  - L488 ## The figure: the VR workout's android (owner 2026-11-03: "use the model we had, don't make a new one")
-  - L502 ## The 3-D body (owner 2026-11-03: "a 3-D model that moves in sync with the body")
-  - L519 ## Precision today — what to trust (5 sensors)
-  - L526 ## Arms: the learned corrector (owner 2026-11-03: "make the arms as accurate as the legs")
-  - L543 ### Tested: dead reckoning of the elbow from the zero pose (owner's idea, 2026-11-03)
-  - L556 ### Teacher recordings — exact arms with the same 5 sensors (built 2026-11-03)
-  - L572 ## Limits with five sensors (honest)
-  - L581 ## Roadmap
+  - L337 ### VR legs — the sensors as a gamepad, straight into the game (fw 10, app 1.22, owner 2026-11-07)
+  - L365 ### 1.19 — kicks: knee up, the shin snaps out — measured and drawn (owner, 2026-11-06)
+  - L378 ### 1.20 — the trunk's "forward" from the sensor's own face, not from the squat (owner, 2026-11-07)
+  - L391 ### AI (Gemini) — where it fits and where not
+  - L398 ## Design in one picture
+  - L411 ## Hardware and placement
+  - L421 ## Sensor firmware (`fusion.h`, `xems_motion.ino`)
+  - L432 ## Calibration (≈ 6 s, one tap) — finds places, headings, zero
+  - L446 ## Pose solver (`Body.solve`, per back-sensor sample, < 1 ms)
+  - L465 ## Offline test (`sh scripts/motion-sim/run.sh`, ≈ 10 s)
+  - L482 ## Real movements — CMU motion capture (owner 2026-11-03: "precise movement templates")
+  - L521 ## The figure: the VR workout's android (owner 2026-11-03: "use the model we had, don't make a new one")
+  - L535 ## The 3-D body (owner 2026-11-03: "a 3-D model that moves in sync with the body")
+  - L552 ## Precision today — what to trust (5 sensors)
+  - L559 ## Arms: the learned corrector (owner 2026-11-03: "make the arms as accurate as the legs")
+  - L576 ### Tested: dead reckoning of the elbow from the zero pose (owner's idea, 2026-11-03)
+  - L589 ### Teacher recordings — exact arms with the same 5 sensors (built 2026-11-03)
+  - L605 ## Limits with five sensors (honest)
+  - L614 ## Roadmap
 
 `docs/xems-part-strength.md` (212L)
   - L1 # Избрани мускулни групи: сила на импулсите само за тях (v1.1.85, двата импулса поотделно от 1.1.366)
@@ -1558,15 +1559,15 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L111 ## Limits (what still needs a hand)
   - L118 ## Build & test
 
-`vr-workout/README.md` (211L)
+`vr-workout/README.md` (214L)
   - L1 # XEMS Studio — EMS VR workout for Quest 3
   - L7 ## The game (v0.4) — on the beat, felt three ways
   - L18 ## Real legs from the XEMS Motion sensors (body.gd source 0)
-  - L24 ## The chef — scenario "Готвачът" (home menu → Сценарий)
-  - L66 ## Power of a hit — every scenario (`scripts/game/power.gd`)
-  - L184 ## In the Quest browser (WebXR) — the way it ships now
-  - L198 ## Build / preview
-  - L207 ## Licences
+  - L27 ## The chef — scenario "Готвачът" (home menu → Сценарий)
+  - L69 ## Power of a hit — every scenario (`scripts/game/power.gd`)
+  - L187 ## In the Quest browser (WebXR) — the way it ships now
+  - L201 ## Build / preview
+  - L210 ## Licences
 
 `vr-workout/assets/CREDITS.md` (29L)
   - L1 # Asset credits

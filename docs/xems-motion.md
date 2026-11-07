@@ -334,6 +334,34 @@ headless, `vr-workout/test/legs_test.gd`) against a stand-in phone: knees and fe
 within 2 cm of where it must be. The game says it out loud: "Сензорите за краката са свързани ✓ …" (and when lost,
 during play), and the hands status line shows "крака: сензори ✓".
 
+### VR legs — the sensors as a gamepad, straight into the game (fw 10, app 1.22, owner 2026-11-07)
+Owner: "no dependence on networks — direct and reliable", and only the **two shin sensors**. So no phone and no Wi-Fi:
+each sensor is **also a Bluetooth HID gamepad** — the Quest pairs it once in its own Bluetooth settings like any
+controller and reconnects it by itself. The game reads it as a joypad (`Input.get_joy_axis`).
+```
+shin sensor (208 Hz fusion) ──BLE HID, 104 Hz──► Quest 3 (system Bluetooth) ──joypad axes──► XEMS Studio: PadLegs
+```
+- Report (ID 1, 13 B): 8 buttons (always 0 — they make Android call it a gamepad) + 6 axes × 16 bit: X Y Z Rx =
+  qx qy qz qw (w ≥ 0), Ry = vertical acceleration without gravity, Rz = turn speed (spare). The stock Bluefruit
+  gamepad has 8-bit axes (≈ 1° steps) — hence our own descriptor. The game reads only axes 0..3: Godot on Android
+  maps unknown pads through its "Default Android Gamepad" (a0–a3 = the sticks, unchanged; a4/a5 = triggers, rescaled).
+- Advertising: flags + gamepad appearance + HID + the data service = 29 / 31 B (TX power dropped). The phone app still
+  works (same data service) — but one connection at a time: while the Quest holds a sensor the phone cannot.
+- The legs in the game (`vr-workout/scripts/game/pad_legs.gd`, first choice in `body.gd`, before the phone link):
+  hips under the headset (eye height → proportions), shins measured, the knee a hinge on the shin's own side axis —
+  bent back from the shin until the foot is on the floor (squat, lunge); a foot above the floor even with the thigh
+  upright is in the air (kick) and the thigh goes halfway between shin and upright.
+- **Calibration without a button:** stand tall and still 1 s (zero) → the game says "Сега леко клекни веднъж" → the first small
+  knee bend: both shins tilt about the body's left–right axis = each sensor's heading, and its sign against the board
+  normal (top away from the leg, outer side) = left / right. Every later still upright second takes the zero again
+  (no compass: the heading creeps).
+- Checked offline: `vr-workout/test/pad_test.gd` (Godot headless, in `scripts/vr-legs/run.sh`): two sensors with
+  arbitrary heading and mounting → L/R found, squat shin 35.0° (true 35°), feet on the floor, kick foot up and ahead,
+  side tilt 15° — all exact. **Not yet on the devices:** that Horizon OS passes a generic BLE gamepad to an immersive
+  app (Quest 3 supports Bluetooth gamepads; Godot reads them the standard Android way), the real latency.
+- Known limit of two shin sensors: a knee lifted with the shin still vertical (a high-knee "chamber") looks like
+  standing — the shin alone does not show it; the spare Ry (vertical acceleration) is there to add it.
+
 ### 1.19 — kicks: knee up, the shin snaps out — measured and drawn (owner, 2026-11-06)
 A front kick is two motions: the thigh raised (chamber) — not measured, solved — and the shin snapping out — measured
 by the shank sensor itself. Offline the scripted person now does front kicks (`kick` block, left then right:

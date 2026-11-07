@@ -3,8 +3,8 @@
 ## controller while it is tracked, else the hand itself (hand tracking: put the controllers down and play with bare
 ## fists), else nothing — so a controller that wakes up, comes back into view or is picked up again is found on its own.
 ## Knees and feet, best first:
-##   0. the XEMS Motion sensors on the shins (MotionLink: the phone app sends the solved legs over the Wi-Fi) —
-##      measured knees and feet, the hands stay the controllers / hands as always.
+##   0. the XEMS Motion sensors on the shins — straight as Bluetooth gamepads (PadLegs, no phone, no Wi-Fi), else
+##      through the phone app over the Wi-Fi (MotionLink) — measured knees and feet, the hands stay as always.
 ##   1. a controller strapped to an ankle — found on its own: a controller that stays low (< 55 cm) while the head is
 ##      up is a foot; lifted back to the hands it is a hand again. Real kicks and knees, measured. The hands then come
 ##      from hand tracking (the cameras), at the same time as the controllers (Meta multimodal).
@@ -41,6 +41,7 @@ var feet_allowed := true                # the settings let a low controller beco
 var on_foot := {"left": false, "right": false}    # this controller is strapped to a foot
 var foot_xform := {"left": Transform3D(), "right": Transform3D()}  # world pose of a foot controller
 var link := MotionLink.new()           # the XEMS Motion sensors' legs (Wi-Fi), when the phone app sends them
+var pads := PadLegs.new()               # the same sensors straight, as Bluetooth gamepads (first choice)
 var hip_pos := {}                       # "l"/"r" -> the hip joint (frame space), from the sensors only
 var foot_dir := {}                      # "l"/"r" -> where the foot points (world direction), from the sensors only
 var legs_src := "none"                  # where the knees / feet come from now: sensors · controller · estimate · none
@@ -173,7 +174,14 @@ func update(delta: float) -> void:
 		f.y = 0.0
 		if f.length() > 0.2:
 			_fwd = _fwd.slerp(f.normalized(), clampf(delta / 0.8, 0.0, 1.0)).normalized() if delta > 0.0 else f.normalized()
-	var xl: Dictionary = link.limbs(world_head, _fwd, stand_h) if not sim.has("knee_l") else {}
+	var floor_y: float = origin.global_position.y if origin else 0.0
+	var pst := pads.status
+	pads.poll(delta, world_head.y - floor_y, stand_h, _fwd)
+	if pads.status != pst:
+		changes.append(["pads", pst, pads.status])     # the game guides the two-step calibration
+	var xl: Dictionary = {}
+	if not sim.has("knee_l"):
+		xl = pads.limbs(world_head, _fwd, stand_h, floor_y) if pads.ready() else link.limbs(world_head, _fwd, stand_h)
 	var tracker := XRServer.get_tracker("/user/body_tracker") as XRBodyTracker
 	var legs_ok := tracker != null and tracker.has_tracking_data and (tracker.body_flags & XRBodyTracker.BODY_FLAG_LOWER_BODY_SUPPORTED) != 0
 	has_legs = legs_ok or sim.has("knee_l") or feet_on() or not xl.is_empty()

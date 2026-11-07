@@ -13,5 +13,6 @@ if [ -n "${GODOT:-}" ]; then
 	python3 "$D/fake_phone.py" & P=$!
 	"$GODOT" --headless --path "$R/vr-workout" --script res://test/legs_test.gd
 	kill $P 2>/dev/null || true
+	"$GODOT" --headless --path "$R/vr-workout" --script res://test/pad_test.gd     # the sensors as Bluetooth gamepads
 fi
 echo "vr-legs: PASS"

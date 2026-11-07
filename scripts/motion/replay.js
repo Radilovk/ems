@@ -41,7 +41,7 @@ body.calibrate(res);
 const back = Object.keys(res.assign).find((id) => res.assign[id] === 'back');
 const ANG = ['trunkLean', 'trunkSide', 'trunkTwist', 'lKnee', 'rKnee', 'lHip', 'rHip', 'lShElev', 'rShElev', 'lElbow', 'rElbow'];
 const EXTRA = process.env.FORE ? ['lForeElev', 'rForeElev'] : [];
-const out = ['t,' + ANG.concat(EXTRA).join(',') + ',reps'];
+const out = ['t,' + ANG.concat(EXTRA).join(',') + ',reps'], dirs = [];
 const { mv, angBetween } = M.m;
 for (const r of recL) {
   body.feed(r.id, smp(r));
@@ -50,6 +50,10 @@ for (const r of recL) {
   // FORE=1: the forearm's elevation from the trunk's down (what the wrist sensor itself says, before any upper-arm guess)
   const fe = EXTRA.map((k) => (angBetween(mv(p.R[k[0] + 'fore'], [0, 0, -1]), mv(p.R.trunk, [0, 0, -1])) * 57.2958).toFixed(1));
   out.push([r.t.toFixed(3), ...ANG.map((k) => (p.A[k] || 0).toFixed(1)), ...fe, p.rep.count].join(','));
+  // DIRS=<file>: the arm segments' directions in the trunk frame (what the 3-D figure draws), one JSON line per pose
+  if (process.env.DIRS) { const Tt = M.m.T(p.R.trunk), dir = (R) => M.m.mv(Tt, mv(R, [0, 0, -1])).map((x) => +x.toFixed(3));
+    dirs.push(JSON.stringify({ t: r.t, lU: dir(p.R.lupper), lF: dir(p.R.lfore), rU: dir(p.R.rupper), rF: dir(p.R.rfore) })); }
 }
 fs.writeFileSync(outF, out.join('\n') + '\n');
+if (process.env.DIRS) fs.writeFileSync(process.env.DIRS, dirs.join('\n') + '\n');
 console.error('wrote ' + (out.length - 1) + ' poses');

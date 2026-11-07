@@ -342,6 +342,19 @@ axis — it turns with the shin, so a kick points the boot up); the game orients
 the player's forward) and draws the **thigh** (the shin guard again, hip → knee) whenever the sensors give the hip.
 `body.hip_pos`, `body.foot_dir`; checked by `legs_test.gd` (CI).
 
+### 1.20 — the trunk's "forward" from the sensor's own face, not from the squat (owner, 2026-11-07)
+Owner (breastbone): after calibrating, leaning forward showed as leaning back. The trunk sensor's heading came from how
+it turned in the calibration's half squat — a chest kept upright or leaning back there (people copy the squat
+differently) turns "forward" round. Now the trunk sensor's heading comes from its **board normal in the still zero
+pose** (it lies flat: out of the back = backward, out of the chest = forward; the hardware's normal convention from
+the limb sensors). `node scripts/motion-sim/trunkcal-test.js`: chest leaning back 0 / 25 / 35° in the hold, then a 40°
+forward bend — T1, T7, breastbone: was up to 11–13° off, now ≤ 1° every time. (`TRUNK_BY_MOVE=1` = the old way.)
+**The owner's second clip** (arms only, 90 s, CSV) vs MediaPipe: mean |error| shoulders 28 / 20°, elbows 31 / 24°.
+Arms overhead read as a "goal post" (shoulders 158/138 → 91/77, elbows 24/30 → 116/130); elbows bent at the chest read
+as straight arms forward (elbow 95 → 21–49°); one arm up 138 → 55°. Same cause as before: the wrist sensors are right,
+the GUESSED upper arm is wrong. Next: the raw log (-raw.jsonl) of this session + the clip → teach this person's arms
+from the video (MediaPipe's upper arm as the truth) — no extra sensors.
+
 ### AI (Gemini) — where it fits and where not
 Not for the live figure: a cloud model answers in 0.5–3 s, needs the network, costs per call and does not return
 reliable joint angles — the figure must follow the body in < 50 ms. "Natural" comes from local models learned from

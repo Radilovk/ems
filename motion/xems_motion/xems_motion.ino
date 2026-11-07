@@ -15,6 +15,7 @@
 //        led off|red|green|blue|yellow|cyan|magenta|white [blink]   OK led <color>   (shows the found position)
 //        bias                                OK bias  (hold still ~1 s: the gyro bias is learned again)
 //        level                               OK level (orientation restarts from gravity, heading 0)
+//        zero                                OK zero  (fw 10: standing still now — the gyro offset = its mean over 1.5 s)
 //        sleep                               OK sleep (standby, see below)
 //        off                                 OK off   (deep sleep: only a firm shake, the USB cable or RST wakes it)
 //
@@ -27,7 +28,7 @@
 #include <Wire.h>
 #include "fusion.h"
 
-#define FW_VER "9"
+#define FW_VER "10"
 #define IMU_ADDR 0x6A
 #define IMU_RATE 208.f
 
@@ -174,6 +175,7 @@ static void command(char *s) {
     snprintf(b, sizeof b, "OK led %s", s + 4); say(b);
   } else if (!strcmp(s, "bias")) { fus.relearnBias(); say("OK bias"); }
   else if (!strcmp(s, "level")) { fus.reset(); say("OK level"); }
+  else if (!strcmp(s, "zero")) { fus.zeroNow(1.5f); say("OK zero"); }   // fw 10: "still now" — learn the gyro offset
   else if (!strcmp(s, "sleep")) { say("OK sleep"); delay(300); enterStandby(); }
   else if (!strcmp(s, "off")) { say("OK off"); delay(300); goSleep(); }
   else if (!strcmp(s, "wake")) { if (standby) leaveStandby(); say("OK wake"); }

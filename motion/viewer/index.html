@@ -240,7 +240,7 @@ function probeResult(t) {
     (t.startsWith('other') ? 'На сензора има друг софтуер. Натисни „Зареди“.' : 'Проверката не стана: ' + t);
   $('fwtext').textContent = msg;
 }
-const FW_APP = 9;           // the firmware inside this app (motion/xems_motion FW_VER)
+const FW_APP = 10;           // the firmware inside this app (motion/xems_motion FW_VER)
 function nativeScan() {
   scanStart = Date.now();
   const r = NATIVE.scan();
@@ -547,6 +547,10 @@ function wizTick() {
   const moving = ids.some((id) => sensors[id].last && Math.hypot(...sensors[id].last.gyro) > 40);
   if (wiz.phase === 'stand') {
     wiz.stillSince = still ? wiz.stillSince || now : 0;
+    // fw 10: the person stands still now — each sensor learns its gyro offset from these 1.5 s (on a living body the
+    // sensor's own stillness test is almost never met: the owner's wrists 0 % → the heading drifted 87° in 2 min)
+    if (!wiz.stillSince) wiz.zeroSent = false;
+    else if (!wiz.zeroSent && now - wiz.stillSince > 300) { wiz.zeroSent = true; for (const id of ids) send(id, 'zero'); }
     const left = wiz.stillSince ? Math.max(0, 2.2 - (now - wiz.stillSince) / 1000) : 2.2;
     show(Math.ceil(left) || '✓', 'Застани изправен', 'Краката събрани, ръцете до тялото, дланите към бедрата. Не мърдай.');
     if (wiz.stillSince && left <= 0) { cal.standDone(); wiz.phase = 'move'; wiz.since = now; wiz.stillSince = 0; }

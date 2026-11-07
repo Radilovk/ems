@@ -29,6 +29,14 @@ while True:
         o[s + 'ShElev'] = ang(P[el[s]] - P[sh[s]], down)
         o[s + 'Knee'] = 180 - ang(P[hp[s]] - P[kn[s]], P[an[s]] - P[kn[s]])
         o[s + 'vis'] = min(vis[sh[s]], vis[el[s]], vis[wr[s]])
+    # the arm segments' DIRECTIONS in the trunk's own frame (x forward, y left, z up): what a 3-D figure shows
+    zu = (msh - mhp) / (np.linalg.norm(msh - mhp) + 1e-9)
+    yl = P[11] - P[12]; yl = yl - zu * np.dot(yl, zu); yl /= np.linalg.norm(yl) + 1e-9
+    xf = np.cross(yl, zu)
+    tf = lambda v: [round(float(np.dot(v, xf)), 3), round(float(np.dot(v, yl)), 3), round(float(np.dot(v, zu)), 3)]
+    for s in 'lr':
+        u = P[el[s]] - P[sh[s]]; f = P[wr[s]] - P[el[s]]
+        o[s + 'U'] = tf(u / (np.linalg.norm(u) + 1e-9)); o[s + 'F'] = tf(f / (np.linalg.norm(f) + 1e-9))
     res.append({k: (round(v, 1) if isinstance(v, float) else v) for k, v in o.items()})
 json.dump(res, open(out, 'w'))
 print('frames', len(res), 'with pose', sum(1 for r in res if 'lean' in r))

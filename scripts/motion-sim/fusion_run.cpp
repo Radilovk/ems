@@ -17,7 +17,10 @@ int main() {
   // samples (gyro; acceleration averaged in the gravity frame, turned back to the sensor at the frame's instant)
   const char *e = getenv("FRAME_AVG"); bool avg = !e || *e != '0';
   MotionFusion f; double g[3], a[3], sg[3] = {0, 0, 0}, sa[3] = {0, 0, 0}, peak = 0; int n = 0;
+  // ZERO_AT=<s>: the app's "you are still now" (fw 10) at that time of the file (the calibration's zero pose)
+  const char *z = getenv("ZERO_AT"); const long zeroAt = z ? (long)(atof(z) * 208) : -1;
   while (scanf("%lf %lf %lf %lf %lf %lf", &g[0], &g[1], &g[2], &a[0], &a[1], &a[2]) == 6) {
+    if (n == zeroAt) f.zeroNow(1.5f);
     f.update(g[0], g[1], g[2], a[0], a[1], a[2], 1.f / 208.f);
     double peakRaw = sqrt(a[0] * a[0] + a[1] * a[1] + a[2] * a[2]);
     if (avg) for (int i = 0; i < 3; i++) a[i] = f.af[i];        // fw 8: the 20 Hz low-passed acceleration

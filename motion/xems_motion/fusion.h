@@ -10,6 +10,23 @@
 // World frame: z up. q = sensor → world (w, x, y, z).
 #pragma once
 #include <math.h>
+// stillness on a LIVING body (fw 10): it sways, the pulse and breath shake it a few °/s — the old 2 / 3 °/s limits
+// were never met on the owner's wrists (0 % of a session). rad/s, g.
+// Two levels: STILL (strict, as before: 2 °/s, 0.025 g, 3 °/s from the offset) freezes the rotation (ZARU) and is the
+// "still" flag the phone's solver uses; QUIET (5 °/s, 0.04 g, 6 °/s) only lets the gyro offset be learnt and tracked —
+// loosening "still" itself froze slow leg motions (offline: lunges 7° → 20°).
+#define STILL_G 0.035f
+#define STILL_A 0.025f
+#define STILL_B 0.05f
+#ifndef QUIET_G
+#define QUIET_G 0.09f
+#endif
+#ifndef QUIET_A
+#define QUIET_A 0.04f
+#endif
+#ifndef QUIET_B
+#define QUIET_B 0.1f
+#endif
 #ifndef KP_MOVE
 #define KP_MOVE 0.5f   // gravity pull while moving (low: the gyro is exact for seconds, the accelerometer then feels more than gravity)
 #endif
@@ -19,7 +36,7 @@ struct MotionFusion {
   float bias[3] = {0, 0, 0};      // rad/s
   float gLp[3] = {0, 0, 0}, aLp[3] = {0, 0, 1};
   float bAcc[3] = {0, 0, 0};
-  int bN = 0, stillN = 0, n = 0;
+  int bN = 0, stillN = 0, quietN = 0, n = 0;
   bool biasReady = false, still = false;
   float rate = 208.f;             // samples per second
   // fw 8: the accelerometer through a 20 Hz low-pass (2nd-order Butterworth) before anything uses it. Body movement
@@ -44,6 +61,12 @@ struct MotionFusion {
 
   void reset() { q[0] = 1; q[1] = q[2] = q[3] = 0; n = 0; }
   void relearnBias() { biasReady = false; bN = 0; bAcc[0] = bAcc[1] = bAcc[2] = 0; }
+  // fw 10: "you are still NOW" — the calibration's zero pose (the person stands still, the app says so): the gyro's mean
+  // over the next `sec` seconds IS its offset, whatever the strict stillness test says. On a living body that test is
+  // almost never passed (the owner's wrists: still 0 % of a 3-min session — tremor, pulse), so the offset was never
+  // learnt and the heading drifted (left forearm 87° off after 2 min). A sample turning > 15 °/s spoils it (moved).
+  int zeroN = 0, zeroTarget = 0; float zAcc[3] = {0, 0, 0}; bool zeroSpoilt = false;
+  void zeroNow(float sec) { zeroTarget = (int)(sec * rate); zeroN = 0; zAcc[0] = zAcc[1] = zAcc[2] = 0; zeroSpoilt = false; }
 
   // g: rad/s, a: g (specific force: +1 g up at rest), dt: s
   void update(float gx, float gy, float gz, float ax, float ay, float az, float dt) {
@@ -54,17 +77,28 @@ struct MotionFusion {
     // --- stillness: steady gyro and accel around a slow mean, accel ≈ 1 g
     const float k = 1.f - expf(-dt / 0.4f);
     float g[3] = {gx, gy, gz}, a[3] = {ax, ay, az};
-    bool calm = fabsf(an - 1.f) < 0.06f;
+    bool calm = fabsf(an - 1.f) < 0.06f, quietNow = calm;
     for (int i = 0; i < 3; i++) {
       gLp[i] += k * (g[i] - gLp[i]);
       aLp[i] += k * (a[i] - aLp[i]);
-      if (fabsf(g[i] - gLp[i]) > 0.035f || fabsf(a[i] - aLp[i]) > 0.025f) calm = false;
-      if (biasReady && fabsf(g[i] - bias[i]) > 0.05f) calm = false;   // 3 °/s
+      if (fabsf(g[i] - gLp[i]) > STILL_G || fabsf(a[i] - aLp[i]) > STILL_A) calm = false;
+      if (biasReady && fabsf(g[i] - bias[i]) > STILL_B) calm = false;
+      if (fabsf(g[i] - gLp[i]) > QUIET_G || fabsf(a[i] - aLp[i]) > QUIET_A) quietNow = false;
+      if (biasReady && fabsf(g[i] - bias[i]) > QUIET_B) quietNow = false;
     }
     stillN = calm ? stillN + 1 : 0;
+    quietN = quietNow ? quietN + 1 : 0;
+    if (zeroTarget > 0) {
+      for (int i = 0; i < 3; i++) zAcc[i] += g[i];
+      if (fabsf(g[0] - gLp[0]) > 0.26f || fabsf(g[1] - gLp[1]) > 0.26f || fabsf(g[2] - gLp[2]) > 0.26f) zeroSpoilt = true;
+      if (++zeroN >= zeroTarget) {
+        if (!zeroSpoilt) { for (int i = 0; i < 3; i++) bias[i] = zAcc[i] / zeroN; biasReady = true; }
+        zeroTarget = 0;
+      }
+    }
     still = stillN > (int)(0.3f * rate);
-    // --- gyro bias: mean of the first 0.5 s of stillness, then tracked slowly while still
-    if (still) {
+    // --- gyro bias: mean of the first 0.5 s of quiet, then tracked slowly while quiet (a living body: tremor averages out)
+    if (quietN > (int)(0.3f * rate)) {
       if (!biasReady) {
         for (int i = 0; i < 3; i++) bAcc[i] += g[i];
         if (++bN >= (int)(0.5f * rate)) {

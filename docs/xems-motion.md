@@ -355,6 +355,21 @@ as straight arms forward (elbow 95 → 21–49°); one arm up 138 → 55°. Same
 the GUESSED upper arm is wrong. Next: the raw log (-raw.jsonl) of this session + the clip → teach this person's arms
 from the video (MediaPipe's upper arm as the truth) — no extra sensors.
 
+### 1.21 / firmware 10 — the arms "had nothing to do with my movements": the gyro offset was never learnt (2026-11-07)
+The owner was right, and the 2-angle comparison (shoulder elevation, elbow) had hidden the worst of it. Compared as
+3-D DIRECTIONS in the trunk frame (`video-pose.py` now also writes each arm segment's direction; `replay.js DIRS=…`
+writes the figure's): the forearm — the MEASURED part — was off by 40° on average (median 35°); arms forward in profile
+70°. Per 10 s the left forearm's heading error grew steadily, +5…+20° → **+87° after 2 min** (≈ 0.6 °/s): a drift.
+Cause: the sensor learns its gyro offset only while "still" (2 °/s, 0.025 g, 0.3 s) — on a living body never met: in
+the owner's whole session the wrists were still **0 %** of the time, the breastbone 0.3 %, the shins 7–8 %. The offset
+was never learnt; the heading ran away.
+Firmware 10: (1) the app says **"zero"** in the calibration's still stand — the gyro's mean over 1.5 s IS its offset
+(spoilt and dropped if anything turns > 15 °/s); (2) a second, looser level — QUIET (5 °/s, 0.04 g, 6 °/s from the
+offset) — lets the offset be learnt and tracked while the body only sways; the strict STILL (rotation freeze, the
+phone's "still" flag) is unchanged (loosening it froze slow leg motion: lunges 7° → 20°). Offline with tremor
+(`TREMOR=1`, 2–4 °/s, 3 laps ≈ 4 min, `sh scripts/motion-sim/tremor-test.sh`): elbows lap 1 / 2 / 3 were 25 / 19 / 20°
+with knees 25 / 22 / 41° → now 6 / 7 / 11° and 8 / 8 / 7°; normal tests, EMS and CMU unchanged (CMU knees 10.9 → 10.6°).
+
 ### AI (Gemini) — where it fits and where not
 Not for the live figure: a cloud model answers in 0.5–3 s, needs the network, costs per call and does not return
 reliable joint angles — the figure must follow the body in < 50 ms. "Natural" comes from local models learned from

@@ -224,7 +224,8 @@
       }
       // the board normal is assumed to point away from the body; the back sensor tells if this hardware is the other
       // way round (its normal must point backward = against "forward" = left × up)
-      let flip = best ? best.flip : false;
+      const hwFlip = best ? best.flip : false;    // from the limbs: is this hardware's board normal reversed?
+      let flip = hwFlip;
       const backId = Object.keys(assign).find((id) => assign[id] === 'back');
       if (backId && feat[backId]) {
         const fwd = cross(feat[backId].ah, [0, 0, 1]);
@@ -236,6 +237,17 @@
         if (!f) continue;
         const exp = /wrist|upper/.test(r) ? -Math.PI / 2 : Math.PI / 2;   // expected axis: −y for the arms, +y else
         out.psi[id] = exp - Math.atan2(f.ah[1], f.ah[0]);
+        // The trunk sensor lies flat on the body: in the zero pose its board normal points straight out of the back
+        // (or out of the chest, on the breastbone) — that IS the body's backward (forward) direction, measured still,
+        // whatever the trunk did in the squat. (Owner 2026-11-07, breastbone: a chest kept upright or leaning back in the
+        // half squat turned "forward" round — leaning forward then read as leaning back.)
+        if ((r === 'back' || r === 'pelvis') && !TRUNK_BY_MOVE) {
+          const nrm = mv(this.s[id].q0, [0, 0, 1]), nh = [nrm[0], nrm[1]], nn = Math.hypot(nh[0], nh[1]);
+          if (nn > 0.5) {
+            const sg = (r === 'back' && this.front ? 1 : -1) * (hwFlip ? -1 : 1);       // forward = ± the normal
+            out.psi[id] = -Math.atan2(sg * nh[1], sg * nh[0]);
+          }
+        }
         // arms with a T hold too: its axis (forward: +x for the left arm, −x for the right) gives the heading again —
         // the two readings averaged, weighted by how far each pose turned the sensor
         const s2 = this.s[id].heldT;
@@ -984,6 +996,7 @@
   const PHYS_W = envN('PHYS_W', 0), PHYS_C0 = envN('PHYS_C0', 0.3), PHYS_C1 = envN('PHYS_C1', 0.5);
   const NO_DRIFTFIT = typeof process !== 'undefined' && process.env && process.env.DRIFT === '0';
   const KICK_REACH = envN('KICK_REACH', 0.65), KICK_UP = envN('KICK_UP', 0.65);      // × height
+  const TRUNK_BY_MOVE = typeof process !== 'undefined' && process.env && process.env.TRUNK_BY_MOVE === '1';
   const NO_HANG = typeof process !== 'undefined' && process.env && process.env.NO_HANG === '1';
   const NO_CALTEACH = typeof process !== 'undefined' && process.env && process.env.NO_CALTEACH === '1';
   const ARMS_STATE = typeof process !== 'undefined' && process.env && process.env.ARMS === 'state';
@@ -1198,7 +1211,7 @@
     const feet = { l: [0, d.hipW, 0], r: [0, -d.hipW, 0] };
     const lstep = p.lstep || 0;
     feet.l = [0.55 * lstep, d.hipW, p.llift || 0];
-    let lean = (38 * squat + 15 * lunge) * D2R;
+    let lean = (38 * squat + 15 * lunge + (p.leanAdd || 0)) * D2R;
     const Tr = mul(rz(twist), ry(lean));
     const legLen = d.shank + d.thigh;
     let Pz = d.ankleH + legLen - 0.0005 - 0.38 * squat * d.H / 1.75 - 0.3 * lunge * d.H / 1.75 - 0.1 * lstep;   // stepping out bends the knees a little

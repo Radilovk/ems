@@ -11,10 +11,10 @@ python3 "$D/fake_game.py" 47990
 wait $J
 if [ -n "${GODOT:-}" ]; then
 	python3 "$D/fake_phone.py" & P=$!
-	"$GODOT" --headless --path "$R/vr-workout" --script res://test/legs_test.gd
+	timeout 300 "$GODOT" --headless --path "$R/vr-workout" --script res://test/legs_test.gd
 	kill $P 2>/dev/null || true
-	"$GODOT" --headless --path "$R/vr-workout" --script res://test/pad_test.gd     # the sensors as Bluetooth gamepads
-	"$GODOT" --headless --path "$R/vr-workout" --script res://test/pad_truth_test.gd   # … against scripted true movements
-	"$GODOT" --headless --path "$R/vr-workout" --script res://test/prior_test.gd        # the learned prior = the trained network
+	timeout 300 "$GODOT" --headless --path "$R/vr-workout" --script res://test/pad_test.gd     # the sensors as Bluetooth gamepads
+	timeout 300 "$GODOT" --headless --path "$R/vr-workout" --script res://test/pad_truth_test.gd   # … against scripted true movements
+	timeout 300 "$GODOT" --headless --path "$R/vr-workout" --script res://test/prior_test.gd        # the learned prior = the trained network
 fi
 echo "vr-legs: PASS"

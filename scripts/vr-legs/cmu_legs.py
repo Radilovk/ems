@@ -90,6 +90,7 @@ def clip(asf, amc):
         d = toe - ankle
         out.update({'hip_' + s: hip, 'knee_' + s: knee, 'ankle_' + s: ankle, 'toe_' + s: toe, 'u_' + s: u,
                     'a_' + s: a, 'd_' + s: d / np.linalg.norm(d, axis=1, keepdims=True)})
+    out['wrist_l'], out['wrist_r'] = P['lwrist'], P['rwrist']          # the hands (the controllers in the game)
     eye = P['upperneck'] + 0.55 * (P['head'] - P['upperneck'])
     out['eye'] = eye
     # floor: the lowest the ankles get (both feet), the ankle's own height above it from the bone (≈ 0.039 × height)

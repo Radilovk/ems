@@ -13,6 +13,7 @@ import numpy as np
 UP = np.array([0.0, 1, 0])
 DT = 1 / 60.0
 LIFT = 0.05
+HANDS = __import__('os').environ.get('HANDS', '1') == '1'
 PW = float(__import__('os').environ.get('PW', 0.5))
 
 
@@ -258,6 +259,7 @@ def run(path, use_acc=True, prior=None, noise=0.02, bias=0.01, seed=1, old=False
         A = {sd: nrm(d['a_' + sd][i].astype(float)) for sd in 'lr'}
         Dd = {sd: d['d_' + sd][i].astype(float) for sd in 'lr'}
         head = d['eye'][i].astype(float)
+        s.hands_now = {sd: d['wrist_' + sd][i].astype(float) for sd in 'lr'} if HANDS and 'wrist_l' in d else None
         stand = s.poll(U, {sd: acc[sd][i] for sd in 'lr'}, head)
         out = s.limbs(U, A, Dd, head)
         if collect is not None:

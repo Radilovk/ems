@@ -22,13 +22,14 @@ func _initialize() -> void:
 		var A := {"l": _v(r, 6), "r": _v(r, 9)}
 		var acc := {"l": float(r[12]), "r": float(r[13])}
 		var head := _v(r, 14)
+		var hands := {"l": _v(r, 17), "r": _v(r, 20)}
 		t += 1.0 / 60.0
-		var o := p.step(t, 1.0 / 60.0, U, A, acc, head, D.S, D.ANKLE_Y)
-		for k in [["l", 17, 19], ["r", 18, 22]]:
+		var o := p.step(t, 1.0 / 60.0, U, A, acc, head, D.S, D.ANKLE_Y, hands)
+		for k in [["l", 23, 25], ["r", 24, 28]]:
 			if bool(o.ground[k[0]]) != (float(r[k[1]]) > 0.5):
 				gmiss += 1
 			worst_th = maxf(worst_th, rad_to_deg((o.thigh[k[0]] as Vector3).angle_to(_v(r, k[2]))))
-		worst_pc = maxf(worst_pc, (o.pc as Vector3).distance_to(_v(r, 25)))
+		worst_pc = maxf(worst_pc, (o.pc as Vector3).distance_to(_v(r, 31)))
 	var us := float(Time.get_ticks_usec() - t0) / D.ROWS.size()
 	var ok := gmiss == 0 and worst_th < 0.5 and worst_pc < 0.005
 	print("prior_test: %s — foot-on-floor differs in %d frames, thigh ≤ %.3f°, hips ≤ %.2f mm; %.0f µs a frame" % [

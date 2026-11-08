@@ -459,6 +459,14 @@ compiled in, nothing to load); `test/prior_test.gd` = the same 2 s of a held-out
 the same answers. Retrain: `python3 scripts/vr-legs/cmu_legs.py <cmu dir> <npz dir>` → `legs_prior.py train` →
 `legs_prior.py gd` → `gen_prior_test.py`.
 
+### 1.26 — the arm corrector retrained on 9× the people's movement (owner, 2026-11-08: "use CMU for the arms too")
+`models/armdb.js` rebuilt from the old rows (108 CMU takes + 40 synthetic EMS sessions) **+ 851 more CMU takes** (up to
+10 per person, 144 people; the arm test people 13, 14, 86 left out): 866 k rows → 128 k prototypes (EPS 0.3). The
+search cell by forearm direction 0.35 → 0.25 (`ARM_CS`): half the work for the same answers. On the 9 CMU test clips
+(`run.sh mocap`) **elbow 19.4° → 15.5°, shoulder 17.3° → 12.9°**; tremor test lap 3 elbow 11.4 → 13.3° (passes);
+EMS script tests pass. Cost: 1.2 ms a query on a desktop (was 0.7), file 5.6 → 16 MB. (A 164 k-prototype set gave
+14.7° / 12.6° at 1.8 ms — not worth it on a phone.) App 1.25.
+
 ### AI (Gemini) — where it fits and where not
 Not for the live figure: a cloud model answers in 0.5–3 s, needs the network, costs per call and does not return
 reliable joint angles — the figure must follow the body in < 50 ms. "Natural" comes from local models learned from

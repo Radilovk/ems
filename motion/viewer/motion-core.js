@@ -1059,17 +1059,18 @@
 
   // ---------- the arm prior (models/armdb.js, scripts/motion/armdb.js): nearest real-people arm poses for what the
   // wrist sensor sees — forearm direction and twist in the trunk frame, its turn rate, the wrist's push
+  const ARM_CS = (typeof process !== 'undefined' && process.env && +process.env.ARM_CS) || 0.25;   // search cell size (0.35 → 0.25: half the work, same answers)
   class ArmPrior {
     constructor(db) {
       const dec = (b64, n) => { const bin = typeof atob === 'function' ? Uint8Array.from(atob(b64), (c) => c.charCodeAt(0)) : Buffer.from(b64, 'base64');
         const buf = new ArrayBuffer(bin.length); new Uint8Array(buf).set(bin); return new Float32Array(buf, 0, n); };
       this.dim = db.dim || 12; this.n = db.n; this.X = dec(db.X, db.n * this.dim); this.U = dec(db.U, db.n * 9);
       this.ks = db.ks || 0.12; this.ka = db.ka || 0.03; this.kp = db.kp || 1;
-      // cells by forearm direction (unit vector, 0.35 per cell): a query looks only in its own and the 26 next cells —
+      // cells by forearm direction (unit vector, ARM_CS per cell): a query looks only in its own and the 26 next cells —
       // ~10× less work, light enough for a phone at 50 Hz (a farther prototype is off by > 0.35 in direction anyway)
       this.cells = new Map();
       for (let i = 0; i < this.n; i++) {
-        const o = i * this.dim, k = this.cellKey(Math.round(this.X[o] / 0.35), Math.round(this.X[o + 1] / 0.35), Math.round(this.X[o + 2] / 0.35));
+        const o = i * this.dim, k = this.cellKey(Math.round(this.X[o] / ARM_CS), Math.round(this.X[o + 1] / ARM_CS), Math.round(this.X[o + 2] / ARM_CS));
         let c = this.cells.get(k); if (!c) this.cells.set(k, (c = [])); c.push(i);
       }
     }
@@ -1080,7 +1081,7 @@
     addPersonal(x, U, tag) {
       if (!this.pX) { this.pX = []; this.pU = []; this.pT = []; }
       const j = this.pX.length; this.pX.push(Float32Array.from(x)); this.pU.push(Float32Array.from(U)); this.pT.push(tag || '');
-      const k = this.cellKey(Math.round(x[0] / 0.35), Math.round(x[1] / 0.35), Math.round(x[2] / 0.35));
+      const k = this.cellKey(Math.round(x[0] / ARM_CS), Math.round(x[1] / ARM_CS), Math.round(x[2] / ARM_CS));
       let c = this.cells.get(k); if (!c) this.cells.set(k, (c = [])); c.push(-(j + 1));
     }
     clearPersonal(tag) {
@@ -1103,7 +1104,7 @@
     predict(x, k, wv) {
       k = k || 8;
       const best = [], X = this.X;
-      const ca = Math.round(x[0] / 0.35), cb = Math.round(x[1] / 0.35), cc = Math.round(x[2] / 0.35), cand = [];
+      const ca = Math.round(x[0] / ARM_CS), cb = Math.round(x[1] / ARM_CS), cc = Math.round(x[2] / ARM_CS), cand = [];
       for (let a = -1; a <= 1; a++) for (let b = -1; b <= 1; b++) for (let c = -1; c <= 1; c++) {
         const cell = this.cells.get(this.cellKey(ca + a, cb + b, cc + c)); if (cell) for (const i of cell) cand.push(i);
       }

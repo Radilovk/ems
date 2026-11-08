@@ -29,13 +29,13 @@
 // Bluetooth HID gamepad. Pair it once in the Quest's Bluetooth settings like any controller; the headset reconnects it
 // by itself, no phone, no Wi-Fi. Report ID 1, 13 bytes, ~104 Hz: u8 buttons (always 0, they make Android call it a
 // gamepad) | i16 X Y Z Rx = qx qy qz qw (×32767, w ≥ 0, the sensor's orientation) | i16 Ry = vertical acceleration
-// without gravity (g × 8192) | i16 Rz = turn speed (°/s × 16). The game (vr-workout/scripts/game/pad_legs.gd) reads
-// axes 0..3 (Ry, Rz: spare, for later) and solves the legs itself. docs/xems-motion.md "VR legs — the sensors as a gamepad".
+// without gravity (g × 8192, 20 Hz low-passed since fw 12) | i16 Rz = turn speed (°/s × 16). The game
+// (vr-workout/scripts/game/pad_legs.gd) reads axes 0..3 and Ry (the shin's height) and solves the legs itself. docs/xems-motion.md "VR legs — the sensors as a gamepad".
 #include <bluefruit.h>
 #include <Wire.h>
 #include "fusion.h"
 
-#define FW_VER "11"
+#define FW_VER "12"
 #define IMU_ADDR 0x6A
 #define IMU_RATE 208.f
 
@@ -370,7 +370,9 @@ void loop() {
       if (++padSub >= 2 && btOk && Bluefruit.connected()) {      // the gamepad report, 104 Hz (fw 10)
         padSub = 0;
         const float s = fus.q[0] < 0 ? -1.f : 1.f;
-        const float a3[3] = {ax, ay, az}; float aw[3]; qrot(fus.q, a3, aw, false);   // world: z up
+        // fw 12: Ry from the 20 Hz low-passed acceleration (raw, the suit's 50–100 Hz impulses alias into the game's
+        // once-a-frame reading and its double integration — the shin's height for the VR legs)
+        const float a3[3] = {fus.af[0], fus.af[1], fus.af[2]}; float aw[3]; qrot(fus.q, a3, aw, false);   // world: z up
         int16_t v[6] = {clamp16(s * fus.q[1] * 32767), clamp16(s * fus.q[2] * 32767), clamp16(s * fus.q[3] * 32767),
                         clamp16(s * fus.q[0] * 32767), clamp16((aw[2] - 1.f) * 8192),
                         clamp16(sqrtf(sq(gx - fus.bias[0]) + sq(gy - fus.bias[1]) + sq(gz - fus.bias[2])) * 57.29578f * 16)};

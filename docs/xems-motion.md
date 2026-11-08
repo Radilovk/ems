@@ -451,6 +451,9 @@ hips pulled toward the prior's).
 (without the acceleration 15.7 — the shins and the headset carry it). Best: squats / exercise 8–12 cm; weakest:
 martial-arts stepping (135: 18–25 cm, the old model 14–21 there). Reference: HMD-Poser on real hardware ≈ 8.5 cm
 lower-body error with the hands as input too.
+**v2 (2026-11-08): 886 CMU takes (up to 10 per person, 1.6 M frames) + the hands as input** (the controllers / hand
+tracking, from the eyes in the body's frame; trained also without them, flag) — on the same 32 held-out takes knee
+**14.8 cm** (v1 16.0; hands lost 15.6; no acceleration 15.0; old model 22.9); over all 41 held-out takes 16.6 (old 22.3).
 In the game: `legs_prior.gd` (inference, ~17 k multiply-adds a frame) + `legs_prior_weights.gd` (generated, consts:
 compiled in, nothing to load); `test/prior_test.gd` = the same 2 s of a held-out take through Python and GDScript give
 the same answers. Retrain: `python3 scripts/vr-legs/cmu_legs.py <cmu dir> <npz dir>` → `legs_prior.py train` →

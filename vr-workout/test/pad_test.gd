@@ -55,6 +55,7 @@ func _check(name: String, ok: bool, info: String) -> void:
 
 
 func _initialize() -> void:
+	pads.use_prior = false              # the physics path (the learned prior: prior_test.gd + legs_prior.py eval)
 	var I := Basis.IDENTITY
 	_step(STAND_H, I, I, 0.3)
 	_check("found", pads.status == "found", pads.status)

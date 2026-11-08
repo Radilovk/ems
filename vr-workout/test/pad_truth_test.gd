@@ -142,6 +142,7 @@ func _motion(name: String) -> Array:
 ## A calibrated PadLegs (stand, bend, stand) whose acceleration axis is known to be live (a first kick).
 func _fresh(acc: bool) -> PadLegs:
 	var pads := PadLegs.new()
+	pads.use_prior = false                # the physics path (the learned prior: prior_test.gd + legs_prior.py eval)
 	var I := Basis.IDENTITY
 	var t25 := Basis(LEFT, deg_to_rad(25.0))
 	var steps := [[STAND_H, I, 1.5], [STAND_H - 0.15, t25, 0.5], [STAND_H, I, 1.5]]

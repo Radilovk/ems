@@ -435,6 +435,27 @@ small learned motion prior + the head's position; on real hardware ≈ 8.5 cm lo
 of this physics is the way to go further; AMASS is non-commercial only, CMU's own files are the candidate. In CI: `vr-workout/test/pad_truth_test.gd` (the same movements through the real
 PadLegs, fake gamepads incl. the trigger form of axis 4) + "a look aside keeps the legs".
 
+### 1.25 — the VR legs checked on real people; a learned prior (owner, 2026-11-08: "improve it — real improvements")
+The 1.24 numbers were scripted movements. On **real people** (CMU motion capture through the game's own solver,
+`scripts/vr-legs/legs_eval.py`: the headset = the true eyes, the shins = the true shins + noisy vertical acceleration)
+1.24 was **worse than the old model** — knee 37.8 cm mean vs 22.7: in continuous exercise there is never a quiet
+moment, the double-integrated height crept, feet were taken for lifted (22–31 % of the time, ≈ 50 cm off there).
+Fix = a **learned prior** for what geometry can't tell (literature: HMD-Poser, CVPR 2024 — the same kit, headset + two
+lower-leg IMUs): `scripts/vr-legs/legs_prior.py`, a small network (63 → 64 → 64 → 7, numpy, ≈ 8.6 k weights) on
+**378 CMU takes** (free for any use; mocap.cs.cmu.edu), one network for both legs (the right mirrored). Input over the
+last 0.6 s (5 moments): both shins in the body's frame, their turn speed, their vertical acceleration as measured (never
+integrated — nothing to drift; trained also without it, flag), the headset's height and velocity. Output: foot on the
+floor, thigh direction, hip centre from the eyes. Physics stays on top (planted feet, the measured shin, lengths, the
+hips pulled toward the prior's).
+**On 4 people it never saw (32 takes), knee mean: old 22.7 cm · physics alone (1.24) 37.8 · with the prior 15.8**
+(without the acceleration 15.7 — the shins and the headset carry it). Best: squats / exercise 8–12 cm; weakest:
+martial-arts stepping (135: 18–25 cm, the old model 14–21 there). Reference: HMD-Poser on real hardware ≈ 8.5 cm
+lower-body error with the hands as input too.
+In the game: `legs_prior.gd` (inference, ~17 k multiply-adds a frame) + `legs_prior_weights.gd` (generated, consts:
+compiled in, nothing to load); `test/prior_test.gd` = the same 2 s of a held-out take through Python and GDScript give
+the same answers. Retrain: `python3 scripts/vr-legs/cmu_legs.py <cmu dir> <npz dir>` → `legs_prior.py train` →
+`legs_prior.py gd` → `gen_prior_test.py`.
+
 ### AI (Gemini) — where it fits and where not
 Not for the live figure: a cloud model answers in 0.5–3 s, needs the network, costs per call and does not return
 reliable joint angles — the figure must follow the body in < 50 ms. "Natural" comes from local models learned from

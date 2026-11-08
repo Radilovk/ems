@@ -18,6 +18,10 @@ public final class BluetensFace implements FaceDevice {
     private boolean begun;
     private boolean ended;
     private long endedAt;
+    /** The width chosen in the studio (0 = each file's own) and which of two file names runs (a swap needs a new one). */
+    private int widthUs;
+    private boolean altName;
+    private int minutes = 10;
 
     BluetensFace(BluetensScreen.Page page) {
         this.page = page;
@@ -151,6 +155,8 @@ public final class BluetensFace implements FaceDevice {
 
     public String prepare(int program, int minutes, boolean bg) {
         this.program = program;
+        this.minutes = minutes;
+        widthUs = 0;
         int n = channels();
         if (n == 0) {
             return notReady(program, bg);
@@ -190,6 +196,41 @@ public final class BluetensFace implements FaceDevice {
         page.finished = false;
         page.render();
         return null;
+    }
+
+    public int width() {
+        return widthUs > 0 ? widthUs : fullUs(padProgram(program, siteOf(0), Math.max(1, channels())));
+    }
+
+    /**
+     * A new width on every device before the start (the warm-up, where the comfortable one is found): each file is
+     * rebuilt at that width and swapped in — the pad keeps its strength and begins the file again.
+     */
+    public void setWidth(int us) {
+        int n = channels();
+        if (begun || !page.running || n == 0) {
+            return;
+        }
+        widthUs = Math.max(BluetensPrograms.FACE_PW_MIN, Math.min(BluetensPrograms.FACE_PW_MAX, us));
+        altName = !altName;
+        for (int ch = 0; ch < n; ch++) {
+            BluetensScreen.Pad pad = pad(ch);
+            int file = padProgram(program, siteOf(ch), n);
+            BluetensLok l = BluetensPrograms.withWidth(BluetensPrograms.build(file, minutes), fullUs(file), widthUs);
+            timeline[ch] = FaceTimeline.of(l, widthUs);
+            if (pad != null && pad.link.shell.running) {
+                pad.link.shell.swap("XF" + (altName ? "A" : "B") + widthUs, BluetensShell.ascii(l.build()));
+            }
+        }
+        page.startedAt = System.currentTimeMillis();       // the files begin again: so does the picture
+    }
+
+    public int widthMin() {
+        return BluetensPrograms.FACE_PW_MIN;
+    }
+
+    public int widthStep() {
+        return BluetensPrograms.FACE_PW_STEP;
     }
 
     public boolean canStart() {

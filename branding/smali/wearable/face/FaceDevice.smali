@@ -79,6 +79,9 @@
 .method public abstract select(I)V
 .end method
 
+.method public abstract setWidth(I)V
+.end method
+
 .method public abstract siteOf(I)I
 .end method
 
@@ -101,4 +104,13 @@
 .end method
 
 .method public abstract strength(I)I
+.end method
+
+.method public abstract width()I
+.end method
+
+.method public abstract widthMin()I
+.end method
+
+.method public abstract widthStep()I
 .end method

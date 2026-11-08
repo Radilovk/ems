@@ -97,6 +97,22 @@ public final class FaceAuto implements FaceDevice {
         return 100;
     }
 
+    public int width() {
+        return AutoSession.facePw();
+    }
+
+    public void setWidth(int us) {
+        AutoSession.setFacePw(us);
+    }
+
+    public int widthMin() {
+        return AutoSession.FACE_PW_MIN;
+    }
+
+    public int widthStep() {
+        return AutoSession.FACE_PW_STEP;
+    }
+
     public int battery(int ch) {
         return -1;
     }

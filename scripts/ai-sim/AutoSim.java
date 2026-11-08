@@ -564,6 +564,7 @@ public final class AutoSim {
                                 continue;
                             }
                             check(st.pwUs == pw, at + ": " + pw + " µs (" + st.pwUs + ")");
+                            check(st.pwUs % 50 == 0, at + ": the suit sends µs / 50 — " + st.pwUs + " is not on its grid");
                             check(jaw || st.hz >= AutoCatalog.FACE_HZ_MIN, at + ": ≥ 20 Hz on the face (" + st.hz + ")");
                             check(jaw || (st.rampUpMs >= 300 && st.rampDownMs >= 300), at + ": soft rise and fall");
                             if (st.zones != null) {

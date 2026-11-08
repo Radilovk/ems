@@ -24,6 +24,12 @@
 
 .field public static final FACE_HZ_MIN:I = 0x14
 
+.field public static final FACE_PW_MAX:I = 0x96
+
+.field public static final FACE_PW_MIN:I = 0x14
+
+.field public static final FACE_PW_STEP:I = 0x5
+
 .field public static final FACE_RELAX:I = 0xa
 
 .field public static final FACE_TONE:I = 0x6
@@ -711,15 +717,15 @@
 
     const/4 v1, 0x1
 
-    .line 318
+    .line 339
     if-eqz p3, :cond_17
 
-    .line 319
+    .line 340
     invoke-virtual {p0, v1}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensLok;->section(I)Lcom/isaigu/gymapp/wearable/bluetens/BluetensLok$Section;
 
     move-result-object v0
 
-    .line 320
+    .line 341
     const/16 v3, 0x32
 
     const/16 v4, 0x12c
@@ -728,7 +734,7 @@
 
     invoke-static/range {v0 .. v5}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensLok;->block(Lcom/isaigu/gymapp/wearable/bluetens/BluetensLok$Section;IIIII)Lcom/isaigu/gymapp/wearable/bluetens/BluetensLok$Block;
 
-    .line 322
+    .line 343
     :cond_17
     const/16 v0, 0x3e8
 
@@ -738,12 +744,12 @@
 
     move-result-object v0
 
-    .line 323
+    .line 344
     invoke-virtual {p0, v1}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensLok;->section(I)Lcom/isaigu/gymapp/wearable/bluetens/BluetensLok$Section;
 
     move-result-object v3
 
-    .line 324
+    .line 345
     const/4 v1, 0x2
 
     new-array v5, v1, [I
@@ -758,14 +764,14 @@
 
     invoke-static/range {v3 .. v8}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensPrograms;->hold(Lcom/isaigu/gymapp/wearable/bluetens/BluetensLok$Section;I[IIII)V
 
-    .line 325
+    .line 346
     const/16 v1, 0x1f40
 
     invoke-static {p0, v9, v10, v8, v1}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensPrograms;->wake(Lcom/isaigu/gymapp/wearable/bluetens/BluetensLok;IIII)Lcom/isaigu/gymapp/wearable/bluetens/BluetensLok$Section;
 
     move-result-object v1
 
-    .line 326
+    .line 347
     invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensLok$Section;->ms()D
 
     move-result-wide v4
@@ -789,16 +795,16 @@
 
     invoke-static/range {v2 .. v7}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensPrograms;->fill(Lcom/isaigu/gymapp/wearable/bluetens/BluetensLok;Lcom/isaigu/gymapp/wearable/bluetens/BluetensLok$Section;DD)V
 
-    .line 327
+    .line 348
     return-void
 
-    .line 326
+    .line 347
     :cond_4b
     const/4 v2, 0x0
 
     goto :goto_42
 
-    .line 324
+    .line 345
     nop
 
     :array_4e
@@ -1546,14 +1552,14 @@
 
     const/16 v3, 0x96
 
-    .line 349
+    .line 370
     const/4 v0, 0x1
 
     invoke-virtual {p0, v0}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensLok;->section(I)Lcom/isaigu/gymapp/wearable/bluetens/BluetensLok$Section;
 
     move-result-object v0
 
-    .line 350
+    .line 371
     const/16 v1, 0x28
 
     const/16 v2, 0x1ae
@@ -1562,7 +1568,7 @@
 
     invoke-static/range {v0 .. v5}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensLok;->block(Lcom/isaigu/gymapp/wearable/bluetens/BluetensLok$Section;IIIII)Lcom/isaigu/gymapp/wearable/bluetens/BluetensLok$Block;
 
-    .line 351
+    .line 372
     const/16 v1, 0x3c
 
     const/16 v2, 0x11b
@@ -1571,7 +1577,7 @@
 
     invoke-static/range {v0 .. v5}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensLok;->block(Lcom/isaigu/gymapp/wearable/bluetens/BluetensLok$Section;IIIII)Lcom/isaigu/gymapp/wearable/bluetens/BluetensLok$Block;
 
-    .line 352
+    .line 373
     const-wide/16 v6, 0x0
 
     move-object v2, p0
@@ -1582,7 +1588,7 @@
 
     invoke-static/range {v2 .. v7}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensPrograms;->fill(Lcom/isaigu/gymapp/wearable/bluetens/BluetensLok;Lcom/isaigu/gymapp/wearable/bluetens/BluetensLok$Section;DD)V
 
-    .line 353
+    .line 374
     return-void
 .end method
 
@@ -1967,33 +1973,33 @@
 
     const/4 v1, 0x1
 
-    .line 336
+    .line 357
     invoke-virtual {p0, v1}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensLok;->section(I)Lcom/isaigu/gymapp/wearable/bluetens/BluetensLok$Section;
 
     move-result-object v0
 
-    .line 337
+    .line 358
     const/16 v4, 0x190
 
     const/4 v5, 0x4
 
     invoke-static/range {v0 .. v5}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensLok;->block(Lcom/isaigu/gymapp/wearable/bluetens/BluetensLok$Section;IIIII)Lcom/isaigu/gymapp/wearable/bluetens/BluetensLok$Block;
 
-    .line 338
+    .line 359
     const/16 v4, 0x2bc
 
     const/4 v5, 0x7
 
     invoke-static/range {v0 .. v5}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensLok;->block(Lcom/isaigu/gymapp/wearable/bluetens/BluetensLok$Section;IIIII)Lcom/isaigu/gymapp/wearable/bluetens/BluetensLok$Block;
 
-    .line 339
+    .line 360
     const/16 v5, 0xa
 
     move v4, v6
 
     invoke-static/range {v0 .. v5}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensLok;->block(Lcom/isaigu/gymapp/wearable/bluetens/BluetensLok$Section;IIIII)Lcom/isaigu/gymapp/wearable/bluetens/BluetensLok$Block;
 
-    .line 340
+    .line 361
     const/16 v2, 0x1f4
 
     const/16 v5, 0x208
@@ -2002,7 +2008,7 @@
 
     invoke-static/range {v0 .. v5}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensLok;->block(Lcom/isaigu/gymapp/wearable/bluetens/BluetensLok$Section;IIIII)Lcom/isaigu/gymapp/wearable/bluetens/BluetensLok$Block;
 
-    .line 341
+    .line 362
     const-wide/16 v6, 0x0
 
     move-object v2, p0
@@ -2013,7 +2019,7 @@
 
     invoke-static/range {v2 .. v7}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensPrograms;->fill(Lcom/isaigu/gymapp/wearable/bluetens/BluetensLok;Lcom/isaigu/gymapp/wearable/bluetens/BluetensLok$Section;DD)V
 
-    .line 342
+    .line 363
     return-void
 .end method
 
@@ -2221,19 +2227,19 @@
 
     const/4 v2, 0x0
 
-    .line 356
+    .line 377
     invoke-virtual {p0, v1}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensLok;->section(I)Lcom/isaigu/gymapp/wearable/bluetens/BluetensLok$Section;
 
     move-result-object v0
 
-    .line 357
+    .line 378
     const/16 v3, 0x8
 
     new-array v7, v3, [I
 
     fill-array-data v7, :array_2a
 
-    .line 358
+    .line 379
     array-length v8, v7
 
     move v6, v2
@@ -2243,7 +2249,7 @@
 
     aget v5, v7, v6
 
-    .line 359
+    .line 380
     const/16 v3, 0xfa
 
     mul-int/lit8 v4, v5, 0xa
@@ -2252,14 +2258,14 @@
 
     invoke-static/range {v0 .. v5}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensLok;->block(Lcom/isaigu/gymapp/wearable/bluetens/BluetensLok$Section;IIIII)Lcom/isaigu/gymapp/wearable/bluetens/BluetensLok$Block;
 
-    .line 358
+    .line 379
     add-int/lit8 v3, v6, 0x1
 
     move v6, v3
 
     goto :goto_f
 
-    .line 361
+    .line 382
     :cond_20
     const-wide/16 v6, 0x0
 
@@ -2271,10 +2277,10 @@
 
     invoke-static/range {v2 .. v7}, Lcom/isaigu/gymapp/wearable/bluetens/BluetensPrograms;->fill(Lcom/isaigu/gymapp/wearable/bluetens/BluetensLok;Lcom/isaigu/gymapp/wearable/bluetens/BluetensLok$Section;DD)V
 
-    .line 362
+    .line 383
     return-void
 
-    .line 357
+    .line 378
     nop
 
     :array_2a
@@ -2288,4 +2294,104 @@
         0x8
         0x6
     .end array-data
+.end method
+
+.method public static withWidth(Lcom/isaigu/gymapp/wearable/bluetens/BluetensLok;II)Lcom/isaigu/gymapp/wearable/bluetens/BluetensLok;
+    .registers 12
+
+    .prologue
+    const/16 v8, 0x14
+
+    .line 324
+    const/16 v0, 0x96
+
+    invoke-static {v0, p2}, Ljava/lang/Math;->min(II)I
+
+    move-result v0
+
+    invoke-static {v8, v0}, Ljava/lang/Math;->max(II)I
+
+    move-result v1
+
+    .line 325
+    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensLok;->sections:Ljava/util/List;
+
+    invoke-interface {v0}, Ljava/util/List;->iterator()Ljava/util/Iterator;
+
+    move-result-object v2
+
+    :cond_12
+    invoke-interface {v2}, Ljava/util/Iterator;->hasNext()Z
+
+    move-result v0
+
+    if-eqz v0, :cond_4c
+
+    invoke-interface {v2}, Ljava/util/Iterator;->next()Ljava/lang/Object;
+
+    move-result-object v0
+
+    check-cast v0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensLok$Section;
+
+    .line 326
+    iget-object v0, v0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensLok$Section;->blocks:Ljava/util/List;
+
+    invoke-interface {v0}, Ljava/util/List;->iterator()Ljava/util/Iterator;
+
+    move-result-object v3
+
+    :goto_24
+    invoke-interface {v3}, Ljava/util/Iterator;->hasNext()Z
+
+    move-result v0
+
+    if-eqz v0, :cond_12
+
+    invoke-interface {v3}, Ljava/util/Iterator;->next()Ljava/lang/Object;
+
+    move-result-object v0
+
+    check-cast v0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensLok$Block;
+
+    .line 327
+    iget v4, v0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensLok$Block;->impulse:I
+
+    int-to-double v4, v4
+
+    int-to-double v6, v1
+
+    mul-double/2addr v4, v6
+
+    const/4 v6, 0x1
+
+    invoke-static {v6, p1}, Ljava/lang/Math;->max(II)I
+
+    move-result v6
+
+    int-to-double v6, v6
+
+    div-double/2addr v4, v6
+
+    invoke-static {v4, v5}, Ljava/lang/Math;->round(D)J
+
+    move-result-wide v4
+
+    long-to-int v4, v4
+
+    .line 328
+    invoke-static {v1, v4}, Ljava/lang/Math;->min(II)I
+
+    move-result v4
+
+    invoke-static {v8, v4}, Ljava/lang/Math;->max(II)I
+
+    move-result v4
+
+    iput v4, v0, Lcom/isaigu/gymapp/wearable/bluetens/BluetensLok$Block;->impulse:I
+
+    goto :goto_24
+
+    .line 331
+    :cond_4c
+    return-object p0
 .end method

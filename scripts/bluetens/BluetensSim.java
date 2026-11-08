@@ -301,6 +301,37 @@ public final class BluetensSim {
     }
 
     /** Real-time change: the running program is replaced and the strength comes back, on every firmware variant. */
+    /**
+     * The studio's face width (docs/xems-face.md §12): every face file at 20 … 150 µs keeps its rhythm and length to
+     * the millisecond, no pulse over the chosen width or under 20 µs, and the soft rises stay rising.
+     */
+    static void faceWidth() {
+        int[] files = {BluetensPrograms.FACE, BluetensPrograms.FACE_TONE, BluetensPrograms.CHIN, BluetensPrograms.FACE_DRAIN,
+                BluetensPrograms.FACE_DRAIN_B, BluetensPrograms.FACE_RELAX, BluetensPrograms.JAW};
+        for (int f : files) {
+            int full = f == BluetensPrograms.CHIN ? BluetensPrograms.CHIN_US : f == BluetensPrograms.FACE_RELAX
+                    ? BluetensPrograms.RELAX_US : f == BluetensPrograms.JAW ? BluetensPrograms.JAW_US : BluetensPrograms.FACE_US;
+            for (int us = BluetensPrograms.FACE_PW_MIN; us <= BluetensPrograms.FACE_PW_MAX; us += BluetensPrograms.FACE_PW_STEP) {
+                BluetensLok base = BluetensPrograms.build(f, 10);
+                BluetensLok w = BluetensPrograms.withWidth(BluetensPrograms.build(f, 10), full, us);
+                check(Math.abs(base.ms() - w.ms()) < 0.5, f + "@" + us + ": same length");
+                int hi = 0;
+                for (int i = 0; i < w.sections.size(); i++) {
+                    for (int k = 0; k < w.sections.get(i).blocks.size(); k++) {
+                        BluetensLok.Block b = w.sections.get(i).blocks.get(k);
+                        BluetensLok.Block o = base.sections.get(i).blocks.get(k);
+                        check(b.impulse >= BluetensPrograms.FACE_PW_MIN && b.impulse <= us, f + "@" + us + ": width " + b.impulse);
+                        check(b.freq10 == o.freq10 && b.cluster == o.cluster && b.interval == o.interval, f + "@" + us + ": rhythm kept");
+                        hi = Math.max(hi, b.impulse);
+                    }
+                }
+                check(hi == us, f + "@" + us + ": the main pulse is the chosen one (" + hi + ")");
+                BluetensLok back = BluetensLok.parse(w.build());
+                check(back.build().equals(w.build()), f + "@" + us + ": the file reads back the same");
+            }
+        }
+    }
+
     static void liveSwap() {
         for (int variant = 0; variant < 3; variant++) {
             Pad pad = new Pad();
@@ -587,6 +618,7 @@ public final class BluetensSim {
         adverts();
         shellFlow();
         liveSwap();
+        faceWidth();
         File out = new File(a.length > 0 ? a[0] : ".");
         programs(out);
         manual(out);

@@ -43,6 +43,18 @@ public interface FaceDevice {
 
     int maxStrength();
 
+    /** The pulse width now, µs (docs/xems-face.md §12): narrower = a more superficial feel. */
+    int width();
+
+    /** Choose the width (up to 150 µs) — the strength step, while the comfortable one is found. */
+    void setWidth(int us);
+
+    /** The narrowest width the device can give (XEMS 50 — the suit's unit; Bluetens 20). */
+    int widthMin();
+
+    /** One tap of the width stepper (XEMS 50 µs — the suit has no finer step; Bluetens 5 µs). */
+    int widthStep();
+
     /** Battery %, −1 = unknown. */
     int battery(int ch);
 

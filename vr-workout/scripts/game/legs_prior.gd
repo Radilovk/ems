@@ -19,10 +19,10 @@ var gnd := {"l": true, "r": true}
 
 
 func _init() -> void:
-	var c: Dictionary = Wt.get_script_constant_map()
-	for k in 3:
-		_w.append(PackedFloat32Array(c["W%d" % k]))
-		_b.append(PackedFloat32Array(c["B%d" % k]))
+	for a in [Wt.W0, Wt.W1, Wt.W2]:
+		_w.append(PackedFloat32Array(a))
+	for a in [Wt.B0, Wt.B1, Wt.B2]:
+		_b.append(PackedFloat32Array(a))
 	_mu = PackedFloat32Array(Wt.MU)
 	_sd = PackedFloat32Array(Wt.SD)
 

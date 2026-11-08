@@ -650,7 +650,14 @@ func update(body: PlayerBody, frame: Node3D, mult: int, min_speed: Dictionary, e
 		var knee: Node3D = parts.knee
 		knee.global_transform = Transform3D(b, k - z * 0.06 - y * 0.02)
 		var boot: Node3D = parts.boot
-		boot.global_transform = Transform3D(b, f)
+		var bb := b
+		if body.foot_ground.get(s, false):                # planted: the boot stands flat, however the shin leans
+			var fa := Vector3(ahead.x, 0.0, ahead.z)
+			if fa.length() < 0.1:
+				fa = Vector3(-frame.global_basis.z.x, 0.0, -frame.global_basis.z.z)
+			var fz := -fa.normalized()
+			bb = Basis(Vector3.UP.cross(fz).normalized(), Vector3.UP, fz)
+		boot.global_transform = Transform3D(bb, f)
 		# the thigh (sensor legs: the hip is known): hip → knee, facing the same way
 		var thigh: Node3D = parts.thigh
 		thigh.visible = body.hip_pos.has(s)

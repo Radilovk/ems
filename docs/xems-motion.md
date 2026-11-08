@@ -403,6 +403,31 @@ phone's "still" flag) is unchanged (loosening it froze slow leg motion: lunges 7
 (`TREMOR=1`, 2–4 °/s, 3 laps ≈ 4 min, `sh scripts/motion-sim/tremor-test.sh`): elbows lap 1 / 2 / 3 were 25 / 19 / 20°
 with knees 25 / 22 / 41° → now 6 / 7 / 11° and 8 / 8 / 7°; normal tests, EMS and CMU unchanged (CMU knees 10.9 → 10.6°).
 
+### 1.24 / firmware 12 — the VR legs bottom-up (owner, 2026-11-08: "direction, position, turning, knee strike, kick — very unrealistic, also when bending")
+The gamepad legs (PadLegs, 1.18) hung everything from the head: hips always straight under it, feet under the hips,
+and a lifted foot's thigh guessed ("halfway between shin and upright"). So a bend squashed the legs into a squat and
+slid the feet forward after the head; a knee strike (shin upright, thigh up) looked like standing; a heel curl raised
+the thigh; looking aside for a second while standing turned both legs to the head. Rebuilt (`pad_legs.gd`):
+- **feet planted** — anchors on the floor where each foot stands (set at every still upright moment, re-set where a
+  foot lands, slid along only when the hips get further than a leg can reach = a step);
+- **hips solved** between the planted legs (anchor → measured shin → a thigh's length) and the headset (the trunk's
+  length): a hinge puts them back, a squat down and back; the hips face where the legs face, not the head;
+- **lifted foot at its measured height** — the shin's vertical acceleration (axis 4 / Ry, Android's left trigger,
+  decoded back and checked: 0 g at rest, seen moving) integrated twice; offset learnt in the still stand (truth 0),
+  speed reset at every still moment, a landing's jolt held off 0.2 s, height let down when still; the knee bends so
+  the ankle is at that height (nearest to the last bend); fw 12 sends Ry from the 20 Hz low-passed acceleration (the
+  suit's impulses no longer alias into it). Without the axis the legs fall back to the old guess for lifted feet;
+- **heading per leg** — a still stand re-zeroes the tilt and keeps each leg's own heading, pulled to the body's over
+  ~20 s (snapped only if > 60° off);
+- **boot flat** on the floor while planted (it tilted with the shin).
+Offline vs scripted truth (`python3 scripts/vr-legs/legs_proto.py`; thigh +4 %, shin −3 % vs the model, accel noise
+0.02 g + 0.01 g offset), knee error cm mean / worst, old → new:
+squat 13.0 / 35 → 1.3 / 1.3 · bend 39.6 / 97 → 1.3 / 1.3 · knee strike 8.3 / 60 → 2.3 / 17 · front kick 8.8 / 65 →
+2.4 / 13 · heel curl 6.3 / 48 → 2.3 / 17 · back kick 1.7 / 8 → 3.6 / 27 · walking in place 8.2 / 43 → 2.4 / 7. The
+worst moments are the instant a foot leaves / touches the floor (≈ 0.1 s). Robust to 3–5× the noise and offset
+(0.06–0.1 g; mean 2–5 cm). In CI: `vr-workout/test/pad_truth_test.gd` (the same movements through the real
+PadLegs, fake gamepads incl. the trigger form of axis 4) + "a look aside keeps the legs".
+
 ### AI (Gemini) — where it fits and where not
 Not for the live figure: a cloud model answers in 0.5–3 s, needs the network, costs per call and does not return
 reliable joint angles — the figure must follow the body in < 50 ms. "Natural" comes from local models learned from

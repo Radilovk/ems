@@ -45,6 +45,7 @@ func _step(head_h: float, gl: Basis, gr: Basis, secs: float) -> void:
 		_feed(sensors[0], gl)
 		_feed(sensors[1], gr)
 		pads.poll(1.0 / 72.0, head_h, STAND_H, FWD)
+		pads.limbs(Vector3(0, head_h, 0), FWD, STAND_H, FLOOR, 1.0 / 72.0)     # once a frame, as the game does
 
 
 func _check(name: String, ok: bool, info: String) -> void:

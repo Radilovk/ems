@@ -44,6 +44,7 @@ var link := MotionLink.new()           # the XEMS Motion sensors' legs (Wi-Fi), 
 var pads := PadLegs.new()               # the same sensors straight, as Bluetooth gamepads (first choice)
 var hip_pos := {}                       # "l"/"r" -> the hip joint (frame space), from the sensors only
 var foot_dir := {}                      # "l"/"r" -> where the foot points (world direction), from the sensors only
+var foot_ground := {}                   # "l"/"r" -> true while that foot is planted (sensors): the boot stands flat
 var legs_src := "none"                  # where the knees / feet come from now: sensors · controller · estimate · none
 var _fwd := Vector3(0, 0, -1)           # the body's heading (world): the head's, smoothed (a head turn alone is not a body turn)
 var _low := {"left": 0.0, "right": 0.0}
@@ -181,7 +182,7 @@ func update(delta: float) -> void:
 		changes.append(["pads", pst, pads.status])     # the game guides the two-step calibration
 	var xl: Dictionary = {}
 	if not sim.has("knee_l"):
-		xl = pads.limbs(world_head, _fwd, stand_h, floor_y) if pads.ready() else link.limbs(world_head, _fwd, stand_h)
+		xl = pads.limbs(world_head, _fwd, stand_h, floor_y, delta) if pads.ready() else link.limbs(world_head, _fwd, stand_h)
 	var tracker := XRServer.get_tracker("/user/body_tracker") as XRBodyTracker
 	var legs_ok := tracker != null and tracker.has_tracking_data and (tracker.body_flags & XRBodyTracker.BODY_FLAG_LOWER_BODY_SUPPORTED) != 0
 	has_legs = legs_ok or sim.has("knee_l") or feet_on() or not xl.is_empty()
@@ -192,12 +193,15 @@ func update(delta: float) -> void:
 	legs_src = ls
 	hip_pos.clear()
 	foot_dir.clear()
+	foot_ground.clear()
 	if not xl.is_empty():
 		for sd in ["l", "r"]:
 			if xl.pos.has("hip_" + sd):
 				hip_pos[sd] = to_frame * (xl.pos["hip_" + sd] as Vector3)
 			if xl.dir.has(sd):
 				foot_dir[sd] = xl.dir[sd]
+			if xl.has("ground") and xl.ground.has(sd):
+				foot_ground[sd] = xl.ground[sd]
 	for l in LIMBS:
 		var p := Vector3.ZERO
 		var ok := false

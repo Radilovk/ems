@@ -14,5 +14,6 @@ if [ -n "${GODOT:-}" ]; then
 	"$GODOT" --headless --path "$R/vr-workout" --script res://test/legs_test.gd
 	kill $P 2>/dev/null || true
 	"$GODOT" --headless --path "$R/vr-workout" --script res://test/pad_test.gd     # the sensors as Bluetooth gamepads
+	"$GODOT" --headless --path "$R/vr-workout" --script res://test/pad_truth_test.gd   # … against scripted true movements
 fi
 echo "vr-legs: PASS"

@@ -108,21 +108,21 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 249
+    .line 265
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoSession;->getPlan()Lcom/isaigu/gymapp/ai/AutoModel$Plan;
 
     move-result-object v0
 
-    .line 250
+    .line 266
     if-nez v0, :cond_9
 
     move-object v0, v1
 
-    .line 258
+    .line 274
     :goto_8
     return-object v0
 
-    .line 253
+    .line 269
     :cond_9
     iget-object v0, v0, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->phases:Ljava/util/List;
 
@@ -143,7 +143,7 @@
 
     check-cast v0, Lcom/isaigu/gymapp/ai/AutoModel$Phase;
 
-    .line 254
+    .line 270
     const-string v3, "MAIN"
 
     iget-object v4, v0, Lcom/isaigu/gymapp/ai/AutoModel$Phase;->id:Ljava/lang/String;
@@ -162,7 +162,7 @@
 
     if-nez v3, :cond_f
 
-    .line 255
+    .line 271
     iget-object v0, v0, Lcom/isaigu/gymapp/ai/AutoModel$Phase;->steps:Ljava/util/List;
 
     const/4 v1, 0x0
@@ -178,7 +178,7 @@
     :cond_37
     move-object v0, v1
 
-    .line 258
+    .line 274
     goto :goto_8
 .end method
 
@@ -236,12 +236,12 @@
     .registers 3
 
     .prologue
-    .line 147
+    .line 163
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoSession;->getStage()Lcom/isaigu/gymapp/ai/AutoSession$Stage;
 
     move-result-object v0
 
-    .line 148
+    .line 164
     sget-object v1, Lcom/isaigu/gymapp/ai/AutoSession$Stage;->CALIB:Lcom/isaigu/gymapp/ai/AutoSession$Stage;
 
     if-eq v0, v1, :cond_c
@@ -266,7 +266,7 @@
     .registers 3
 
     .prologue
-    .line 101
+    .line 117
     const/4 v0, -0x1
 
     return v0
@@ -276,7 +276,7 @@
     .registers 2
 
     .prologue
-    .line 156
+    .line 172
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/face/FaceAuto;->running()Z
 
     move-result v0
@@ -288,7 +288,7 @@
     .registers 3
 
     .prologue
-    .line 138
+    .line 154
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoSession;->getStage()Lcom/isaigu/gymapp/ai/AutoSession$Stage;
 
     move-result-object v0
@@ -318,15 +318,15 @@
     .registers 2
 
     .prologue
-    .line 275
+    .line 291
     iget-boolean v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceAuto;->started:Z
 
     if-nez v0, :cond_7
 
-    .line 276
+    .line 292
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoSession;->close()V
 
-    .line 278
+    .line 294
     :cond_7
     return-void
 .end method
@@ -426,7 +426,7 @@
     .registers 3
 
     .prologue
-    .line 197
+    .line 213
     iget-wide v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceAuto;->share:D
 
     return-wide v0
@@ -436,7 +436,7 @@
     .registers 2
 
     .prologue
-    .line 193
+    .line 209
     iget-boolean v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceAuto;->ended:Z
 
     return v0
@@ -466,35 +466,35 @@
     .registers 8
 
     .prologue
-    .line 237
+    .line 253
     invoke-virtual {p0, p2, p3}, Lcom/isaigu/gymapp/wearable/face/FaceAuto;->state(J)Lcom/isaigu/gymapp/wearable/face/FaceTimeline$State;
 
     move-result-object v1
 
-    .line 238
+    .line 254
     invoke-virtual {p0, p1}, Lcom/isaigu/gymapp/wearable/face/FaceAuto;->siteOf(I)I
 
     move-result v2
 
-    .line 239
+    .line 255
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoSession;->leaderZones()[I
 
     move-result-object v0
 
-    .line 240
+    .line 256
     if-nez v0, :cond_16
 
-    .line 241
+    .line 257
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoSession;->getPlan()Lcom/isaigu/gymapp/ai/AutoModel$Plan;
 
     move-result-object v0
 
-    .line 242
+    .line 258
     if-eqz v0, :cond_31
 
     iget-object v0, v0, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->zones:[I
 
-    .line 244
+    .line 260
     :cond_16
     :goto_16
     if-eqz v0, :cond_33
@@ -517,7 +517,7 @@
 
     div-float/2addr v0, v2
 
-    .line 245
+    .line 261
     :goto_27
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoSession;->leaderStrength()I
 
@@ -532,19 +532,19 @@
     :goto_30
     return v0
 
-    .line 242
+    .line 258
     :cond_31
     const/4 v0, 0x0
 
     goto :goto_16
 
-    .line 244
+    .line 260
     :cond_33
     const/high16 v0, 0x3f800000    # 1.0f
 
     goto :goto_27
 
-    .line 245
+    .line 261
     :cond_36
     const/4 v0, 0x0
 
@@ -607,15 +607,15 @@
     .prologue
     const-wide/16 v0, 0x0
 
-    .line 184
+    .line 200
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoSession;->getEngine()Lcom/isaigu/gymapp/ai/AutoEngine;
 
     move-result-object v2
 
-    .line 185
+    .line 201
     if-eqz v2, :cond_22
 
-    .line 186
+    .line 202
     invoke-virtual {v2}, Lcom/isaigu/gymapp/ai/AutoEngine;->getElapsedS()D
 
     move-result-wide v4
@@ -626,7 +626,7 @@
 
     add-double/2addr v4, v6
 
-    .line 187
+    .line 203
     iget-wide v6, p0, Lcom/isaigu/gymapp/wearable/face/FaceAuto;->share:D
 
     cmpl-double v3, v4, v0
@@ -646,13 +646,13 @@
 
     iput-wide v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceAuto;->share:D
 
-    .line 189
+    .line 205
     :cond_22
     const/4 v0, 0x1
 
     iput-boolean v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceAuto;->ended:Z
 
-    .line 190
+    .line 206
     return-void
 .end method
 
@@ -660,10 +660,10 @@
     .registers 1
 
     .prologue
-    .line 165
+    .line 181
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoSession;->togglePause()V
 
-    .line 166
+    .line 182
     return-void
 .end method
 
@@ -671,12 +671,12 @@
     .registers 3
 
     .prologue
-    .line 160
+    .line 176
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoSession;->getEngine()Lcom/isaigu/gymapp/ai/AutoEngine;
 
     move-result-object v0
 
-    .line 161
+    .line 177
     if-eqz v0, :cond_10
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/ai/AutoEngine;->getState()Lcom/isaigu/gymapp/ai/AutoEngine$State;
@@ -702,26 +702,26 @@
     .registers 11
 
     .prologue
-    .line 262
+    .line 278
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoSession;->getPlan()Lcom/isaigu/gymapp/ai/AutoModel$Plan;
 
     move-result-object v0
 
-    .line 263
+    .line 279
     const/4 v1, 0x3
 
     new-array v2, v1, [J
 
-    .line 264
+    .line 280
     if-nez v0, :cond_b
 
     move-object v0, v2
 
-    .line 271
+    .line 287
     :goto_a
     return-object v0
 
-    .line 267
+    .line 283
     :cond_b
     iget-object v0, v0, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->phases:Ljava/util/List;
 
@@ -742,7 +742,7 @@
 
     check-cast v0, Lcom/isaigu/gymapp/ai/AutoModel$Phase;
 
-    .line 268
+    .line 284
     invoke-virtual {v0}, Lcom/isaigu/gymapp/ai/AutoModel$Phase;->isCooldown()Z
 
     move-result v1
@@ -751,7 +751,7 @@
 
     const/4 v1, 0x2
 
-    .line 269
+    .line 285
     :goto_24
     aget-wide v4, v2, v1
 
@@ -769,7 +769,7 @@
 
     goto :goto_11
 
-    .line 268
+    .line 284
     :cond_30
     const-string v1, "WARMUP"
 
@@ -793,7 +793,7 @@
     :cond_3e
     move-object v0, v2
 
-    .line 271
+    .line 287
     goto :goto_a
 .end method
 
@@ -803,77 +803,77 @@
     .prologue
     const/4 v2, 0x0
 
-    .line 117
+    .line 133
     iput p1, p0, Lcom/isaigu/gymapp/wearable/face/FaceAuto;->program:I
 
-    .line 118
+    .line 134
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoSession;->getInput()Lcom/isaigu/gymapp/ai/AutoModel$Input;
 
     move-result-object v0
 
-    .line 119
+    .line 135
     if-nez v0, :cond_11
 
-    .line 120
+    .line 136
     if-eqz p3, :cond_e
 
     const-string v0, "\u0410\u0432\u0442\u043e\u043c\u0430\u0442\u0438\u0447\u043d\u0438\u044f\u0442 \u0440\u0435\u0436\u0438\u043c \u043d\u0435 \u0435 \u0433\u043e\u0442\u043e\u0432"
 
-    .line 134
+    .line 150
     :cond_d
     :goto_d
     return-object v0
 
-    .line 120
+    .line 136
     :cond_e
     const-string v0, "Auto is not ready"
 
     goto :goto_d
 
-    .line 122
+    .line 138
     :cond_11
     sget-object v1, Lcom/isaigu/gymapp/ai/AutoModel$Goal;->TONE:Lcom/isaigu/gymapp/ai/AutoModel$Goal;
 
     iput-object v1, v0, Lcom/isaigu/gymapp/ai/AutoModel$Input;->goal:Lcom/isaigu/gymapp/ai/AutoModel$Goal;
 
-    .line 123
+    .line 139
     sget-object v1, Lcom/isaigu/gymapp/ai/AutoModel$Kind;->PASSIVE:Lcom/isaigu/gymapp/ai/AutoModel$Kind;
 
     iput-object v1, v0, Lcom/isaigu/gymapp/ai/AutoModel$Input;->kind:Lcom/isaigu/gymapp/ai/AutoModel$Kind;
 
-    .line 124
+    .line 140
     invoke-static {p1}, Lcom/isaigu/gymapp/wearable/face/FaceAuto;->autoId(I)Ljava/lang/String;
 
     move-result-object v1
 
     iput-object v1, v0, Lcom/isaigu/gymapp/ai/AutoModel$Input;->programId:Ljava/lang/String;
 
-    .line 125
+    .line 141
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoSession;->buildPlan()V
 
-    .line 126
+    .line 142
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoSession;->leaderBlock()Ljava/lang/String;
 
     move-result-object v0
 
-    .line 127
+    .line 143
     if-nez v0, :cond_d
 
-    .line 130
+    .line 146
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoSession;->beginCalibration()V
 
-    .line 131
+    .line 147
     iput-boolean v2, p0, Lcom/isaigu/gymapp/wearable/face/FaceAuto;->started:Z
 
-    .line 132
+    .line 148
     iput-boolean v2, p0, Lcom/isaigu/gymapp/wearable/face/FaceAuto;->ended:Z
 
-    .line 133
+    .line 149
     const-wide/16 v0, 0x0
 
     iput-wide v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceAuto;->share:D
 
-    .line 134
+    .line 150
     const/4 v0, 0x0
 
     goto :goto_d
@@ -893,7 +893,7 @@
     .registers 3
 
     .prologue
-    .line 152
+    .line 168
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoSession;->getStage()Lcom/isaigu/gymapp/ai/AutoSession$Stage;
 
     move-result-object v0
@@ -927,6 +927,17 @@
     iput p1, p0, Lcom/isaigu/gymapp/wearable/face/FaceAuto;->program:I
 
     .line 59
+    return-void
+.end method
+
+.method public setWidth(I)V
+    .registers 2
+
+    .prologue
+    .line 105
+    invoke-static {p1}, Lcom/isaigu/gymapp/ai/AutoSession;->setFacePw(I)V
+
+    .line 106
     return-void
 .end method
 
@@ -1001,10 +1012,10 @@
     .registers 4
 
     .prologue
-    .line 142
+    .line 158
     invoke-static {p1}, Lcom/isaigu/gymapp/ai/AutoSession;->startRun(Landroid/content/Context;)V
 
-    .line 143
+    .line 159
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoSession;->getStage()Lcom/isaigu/gymapp/ai/AutoSession$Stage;
 
     move-result-object v0
@@ -1018,10 +1029,10 @@
     :goto_c
     iput-boolean v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceAuto;->started:Z
 
-    .line 144
+    .line 160
     return-void
 
-    .line 143
+    .line 159
     :cond_f
     const/4 v0, 0x0
 
@@ -1032,19 +1043,19 @@
     .registers 14
 
     .prologue
-    .line 201
+    .line 217
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoSession;->getEngine()Lcom/isaigu/gymapp/ai/AutoEngine;
 
     move-result-object v8
 
-    .line 203
+    .line 219
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoSession;->lastCycleMs()J
 
     move-result-wide v0
 
     sub-long v0, p1, v0
 
-    .line 204
+    .line 220
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoSession;->getStage()Lcom/isaigu/gymapp/ai/AutoSession$Stage;
 
     move-result-object v2
@@ -1053,17 +1064,17 @@
 
     if-ne v2, v3, :cond_4d
 
-    .line 206
+    .line 222
     invoke-static {}, Lcom/isaigu/gymapp/wearable/face/FaceAuto;->mainStep()Lcom/isaigu/gymapp/ai/AutoModel$Step;
 
     move-result-object v5
 
-    .line 207
+    .line 223
     if-eqz v5, :cond_3e
 
     iget v6, v5, Lcom/isaigu/gymapp/ai/AutoModel$Step;->hz:I
 
-    .line 208
+    .line 224
     :goto_1a
     if-eqz v5, :cond_47
 
@@ -1083,7 +1094,7 @@
 
     if-gez v2, :cond_47
 
-    .line 209
+    .line 225
     iget v2, v5, Lcom/isaigu/gymapp/ai/AutoModel$Step;->onS:I
 
     iget v3, v5, Lcom/isaigu/gymapp/ai/AutoModel$Step;->offS:I
@@ -1096,20 +1107,20 @@
 
     move-result-object v0
 
-    .line 210
+    .line 226
     :goto_38
     iput v6, v0, Lcom/isaigu/gymapp/wearable/face/FaceTimeline$State;->hz:I
 
-    .line 211
+    .line 227
     const/4 v1, 0x1
 
     iput v1, v0, Lcom/isaigu/gymapp/wearable/face/FaceTimeline$State;->phase:I
 
-    .line 232
+    .line 248
     :goto_3d
     return-object v0
 
-    .line 207
+    .line 223
     :cond_3e
     iget v2, p0, Lcom/isaigu/gymapp/wearable/face/FaceAuto;->program:I
 
@@ -1121,7 +1132,7 @@
 
     goto :goto_1a
 
-    .line 209
+    .line 225
     :cond_47
     new-instance v0, Lcom/isaigu/gymapp/wearable/face/FaceTimeline$State;
 
@@ -1129,24 +1140,24 @@
 
     goto :goto_38
 
-    .line 214
+    .line 230
     :cond_4d
     if-nez v8, :cond_55
 
-    .line 215
+    .line 231
     new-instance v0, Lcom/isaigu/gymapp/wearable/face/FaceTimeline$State;
 
     invoke-direct {v0}, Lcom/isaigu/gymapp/wearable/face/FaceTimeline$State;-><init>()V
 
     goto :goto_3d
 
-    .line 217
+    .line 233
     :cond_55
     invoke-virtual {v8}, Lcom/isaigu/gymapp/ai/AutoEngine;->getCurrent()Lcom/isaigu/gymapp/ai/AutoEngine$Cmd;
 
     move-result-object v9
 
-    .line 218
+    .line 234
     invoke-virtual {v8}, Lcom/isaigu/gymapp/ai/AutoEngine;->getState()Lcom/isaigu/gymapp/ai/AutoEngine$State;
 
     move-result-object v2
@@ -1169,7 +1180,7 @@
 
     move v7, v2
 
-    .line 219
+    .line 235
     :goto_6d
     if-eqz v7, :cond_e6
 
@@ -1183,7 +1194,7 @@
 
     if-lez v2, :cond_e6
 
-    .line 220
+    .line 236
     iget v2, v9, Lcom/isaigu/gymapp/ai/AutoEngine$Cmd;->onS:I
 
     iget v3, v9, Lcom/isaigu/gymapp/ai/AutoEngine$Cmd;->offS:I
@@ -1198,22 +1209,22 @@
 
     move-result-object v1
 
-    .line 221
+    .line 237
     :goto_87
     if-eqz v9, :cond_8d
 
-    .line 222
+    .line 238
     iget v0, v9, Lcom/isaigu/gymapp/ai/AutoEngine$Cmd;->hz:I
 
     iput v0, v1, Lcom/isaigu/gymapp/wearable/face/FaceTimeline$State;->hz:I
 
-    .line 224
+    .line 240
     :cond_8d
     invoke-virtual {v8}, Lcom/isaigu/gymapp/ai/AutoEngine;->phase()Lcom/isaigu/gymapp/ai/AutoModel$Phase;
 
     move-result-object v0
 
-    .line 225
+    .line 241
     if-nez v0, :cond_ec
 
     const/4 v0, 0x1
@@ -1221,7 +1232,7 @@
     :goto_94
     iput v0, v1, Lcom/isaigu/gymapp/wearable/face/FaceTimeline$State;->phase:I
 
-    .line 226
+    .line 242
     invoke-virtual {v8}, Lcom/isaigu/gymapp/ai/AutoEngine;->getElapsedS()D
 
     move-result-wide v2
@@ -1236,7 +1247,7 @@
 
     iput-wide v2, v1, Lcom/isaigu/gymapp/wearable/face/FaceTimeline$State;->elapsedMs:J
 
-    .line 227
+    .line 243
     invoke-virtual {v8}, Lcom/isaigu/gymapp/ai/AutoEngine;->getElapsedS()D
 
     move-result-wide v2
@@ -1257,7 +1268,7 @@
 
     iput-wide v2, v1, Lcom/isaigu/gymapp/wearable/face/FaceTimeline$State;->totalMs:J
 
-    .line 228
+    .line 244
     invoke-virtual {v8}, Lcom/isaigu/gymapp/ai/AutoEngine;->getState()Lcom/isaigu/gymapp/ai/AutoEngine$State;
 
     move-result-object v0
@@ -1280,10 +1291,10 @@
     :goto_cc
     iput-boolean v0, v1, Lcom/isaigu/gymapp/wearable/face/FaceTimeline$State;->done:Z
 
-    .line 229
+    .line 245
     if-nez v7, :cond_e0
 
-    .line 230
+    .line 246
     invoke-virtual {v8}, Lcom/isaigu/gymapp/ai/AutoEngine;->phaseRemainingS()D
 
     move-result-wide v2
@@ -1301,10 +1312,10 @@
     :cond_e0
     move-object v0, v1
 
-    .line 232
+    .line 248
     goto/16 :goto_3d
 
-    .line 218
+    .line 234
     :cond_e3
     const/4 v2, 0x0
 
@@ -1312,7 +1323,7 @@
 
     goto :goto_6d
 
-    .line 220
+    .line 236
     :cond_e6
     new-instance v1, Lcom/isaigu/gymapp/wearable/face/FaceTimeline$State;
 
@@ -1320,7 +1331,7 @@
 
     goto :goto_87
 
-    .line 225
+    .line 241
     :cond_ec
     invoke-virtual {v0}, Lcom/isaigu/gymapp/ai/AutoModel$Phase;->isCooldown()Z
 
@@ -1352,7 +1363,7 @@
 
     goto :goto_94
 
-    .line 228
+    .line 244
     :cond_102
     const/4 v0, 0x0
 
@@ -1363,22 +1374,22 @@
     .registers 5
 
     .prologue
-    .line 105
+    .line 121
     if-ltz p1, :cond_a
 
-    .line 106
+    .line 122
     invoke-virtual {p0, p1}, Lcom/isaigu/gymapp/wearable/face/FaceAuto;->siteOf(I)I
 
     move-result v0
 
     invoke-static {v0, p2}, Lcom/isaigu/gymapp/ai/AutoSession;->adjustChannel(II)V
 
-    .line 114
+    .line 130
     :cond_9
     :goto_9
     return-void
 
-    .line 109
+    .line 125
     :cond_a
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoSession;->getStage()Lcom/isaigu/gymapp/ai/AutoSession$Stage;
 
@@ -1388,14 +1399,14 @@
 
     if-ne v0, v1, :cond_17
 
-    .line 110
+    .line 126
     const/4 v0, -0x1
 
     invoke-static {v0, p2}, Lcom/isaigu/gymapp/ai/AutoSession;->adjustCalibration(II)V
 
     goto :goto_9
 
-    .line 111
+    .line 127
     :cond_17
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoSession;->getStage()Lcom/isaigu/gymapp/ai/AutoSession$Stage;
 
@@ -1405,7 +1416,7 @@
 
     if-ne v0, v1, :cond_9
 
-    .line 112
+    .line 128
     invoke-static {p2}, Lcom/isaigu/gymapp/ai/AutoSession;->nudge(I)V
 
     goto :goto_9
@@ -1415,15 +1426,15 @@
     .registers 11
 
     .prologue
-    .line 169
+    .line 185
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoSession;->getEngine()Lcom/isaigu/gymapp/ai/AutoEngine;
 
     move-result-object v0
 
-    .line 170
+    .line 186
     if-eqz v0, :cond_23
 
-    .line 171
+    .line 187
     iget-wide v2, p0, Lcom/isaigu/gymapp/wearable/face/FaceAuto;->share:D
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/ai/AutoEngine;->getElapsedS()D
@@ -1454,11 +1465,11 @@
 
     iput-wide v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceAuto;->share:D
 
-    .line 173
+    .line 189
     :cond_23
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoSession;->stop()V
 
-    .line 174
+    .line 190
     return-void
 .end method
 
@@ -1466,12 +1477,12 @@
     .registers 4
 
     .prologue
-    .line 177
+    .line 193
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoSession;->getEngine()Lcom/isaigu/gymapp/ai/AutoEngine;
 
     move-result-object v0
 
-    .line 178
+    .line 194
     if-eqz v0, :cond_1e
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/ai/AutoEngine;->phase()Lcom/isaigu/gymapp/ai/AutoModel$Phase;
@@ -1492,7 +1503,7 @@
 
     const/4 v0, 0x1
 
-    .line 179
+    .line 195
     :goto_17
     if-eqz v0, :cond_23
 
@@ -1503,13 +1514,13 @@
     :goto_1d
     return-object v0
 
-    .line 178
+    .line 194
     :cond_1e
     const/4 v0, 0x0
 
     goto :goto_17
 
-    .line 179
+    .line 195
     :cond_20
     const-string v0, "\u25a0  End"
 
@@ -1552,4 +1563,36 @@
     move-result v0
 
     goto :goto_6
+.end method
+
+.method public width()I
+    .registers 2
+
+    .prologue
+    .line 101
+    invoke-static {}, Lcom/isaigu/gymapp/ai/AutoSession;->facePw()I
+
+    move-result v0
+
+    return v0
+.end method
+
+.method public widthMin()I
+    .registers 2
+
+    .prologue
+    .line 109
+    const/16 v0, 0x32
+
+    return v0
+.end method
+
+.method public widthStep()I
+    .registers 2
+
+    .prologue
+    .line 113
+    const/16 v0, 0x32
+
+    return v0
 .end method

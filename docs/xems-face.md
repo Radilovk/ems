@@ -292,8 +292,26 @@ self-adhesive pads (the hydrogel physiotherapy kind — the right ones); the mus
 - If the ache stays on a person even at 50 µs with the pads close: the forehead is not for them — the programs stay
   as they are, the studio's sheet says so.
 
+### 12.1 Adjustable width and the pad size (owner, 2026-11-08; 1.1.506-ai)
+- **Width ≠ strength.** The nerve answers to the charge (current × width). Narrower at a little more strength moves
+  the same muscle with a more superficial feel (pain fibres Aδ/C and periosteum need long pulses); wider reaches
+  deeper and aches sooner. Too narrow needs a current density that prickles the skin. The comfortable optimum differs
+  by person and site → the studio's strength step has **„Импулс − N µs +“** with one line: „Боли в дълбочина? Намали
+  импулса и добави сила.“ Depth itself is set mostly by pad size and spacing, not by width.
+- **XEMS suit: 50 / 100 / 150 µs only.** The vendor encoder sends `pulseWidth / 50` as one byte (`CommandUtil`), so
+  nothing narrower than 50 and nothing between exists; the stepper moves 50 µs (`AutoSession.setFacePw`, applied in
+  `writeRows` while CALIB/RUN; AutoSim checks every face step is on the 50 µs grid).
+- **Bluetens: 20–150 µs, 5 µs steps.** The pad takes µs as written (`P`). `BluetensPrograms.withWidth` scales every
+  pulse by `us / full` (rises keep their shape, floor 20, cap = chosen) — rhythm and length unchanged (BluetensSim
+  `faceWidth`); `BluetensFace.setWidth` swaps the new files in (strength kept), only before ▶ — the file restarts.
+  Under ~20 µs the needed current density prickles; whether the pad's output stage really shapes a 20 µs pulse is
+  not measured (open item 1).
+- **Pad size on the placement step, one line:** XEMS (three pairs per cheek) 12 × 16 mm; Bluetens / one pair per site
+  16 × 19 mm (≈ 3 cm², the review's size), self-adhesive; larger ones reach the bone.
+
 ## 13. Open
-1. Strength → mA for both units (0.5–1 kΩ, USB scope, 100 µs) → a hard face cap; tells whether "µs" is one phase.
+1. Strength → mA for both units (0.5–1 kΩ, USB scope, 100 µs) → a hard face cap; tells whether "µs" is one phase,
+   and whether Bluetens really gives 20–45 µs pulses.
 2. Face pads (≈ 3 cm² Ag/AgCl) with the arm-cable / Bluetens connector.
 3. A tablet screenshot of the studio (built offline; the picture layer is checked as SVG only).
 

@@ -141,6 +141,7 @@ public final class FaceStudio {
         TextView pauseBtn;
         TextView stopBtn;
         TextView statusLine;
+        TextView widthValue;
         final int[] lastShown = new int[12];
 
         Studio(Activity a, FaceDevice dev, int program) {
@@ -477,6 +478,7 @@ public final class FaceStudio {
                         XemsUi.matchWrap(a, 10));
             }
             right.addView(socketTable(b), XemsUi.matchWrap(a, 14));
+            right.addView(padSize(b), XemsUi.matchWrap(a, 12));
             String why = dev.notReady(program, b);
             if (why != null) {
                 TextView w = XemsUi.text(a, why, 14, XemsUi.AMBER, true);
@@ -555,6 +557,15 @@ public final class FaceStudio {
             return t;
         }
 
+        /** The recommended pad size, one line: XEMS three pairs per cheek → 12 × 16 mm; one pair per site → 16 × 19 mm. */
+        View padSize(boolean b) {
+            boolean small = dev.kind() == FaceDevice.XEMS;
+            String size = small ? "12 × 16 mm" : "16 × 19 mm";
+            TextView t = XemsUi.text(a, tr("Електроди " + size + ", залепващи — препоръчителни. По-големите стигат до костта.",
+                    "Pads " + size + ", self-adhesive — recommended. Larger ones reach the bone."), 13.5f, XemsUi.MUTED, false);
+            return t;
+        }
+
         View placeRow(String num, String line, int tint) {
             LinearLayout r = XemsUi.horizontal(a);
             r.setGravity(Gravity.CENTER_VERTICAL);
@@ -591,6 +602,7 @@ public final class FaceStudio {
                 right.addView(XemsUi.text(a, prepareError, 15, XemsUi.DANGER, true), XemsUi.matchWrap(a, 14));
             }
             right.addView(strengthRow(), XemsUi.matchWrap(a, 18));
+            right.addView(widthRow(b), XemsUi.matchWrap(a, 12));
             ghost(tr("←  Назад", "←  Back"), new Back(this));
             primary = footer(dev.kind() == FaceDevice.XEMS ? tr("▶  Старт", "▶  Start") : tr("✓  Добре е · продължи", "✓  Good · go on"),
                     XemsUi.PRIMARY, new Start(this));
@@ -669,6 +681,43 @@ public final class FaceStudio {
             st.addView(plus, new LinearLayout.LayoutParams(dp(56), dp(56)));
             col.addView(st, XemsUi.matchWrap(a, 6));
             return col;
+        }
+
+        /**
+         * The pulse width (§12): the nerve answers to the charge, so a narrower pulse at a little more strength moves
+         * the same muscle with a more superficial feel; a wider one reaches deeper and aches sooner. 5 µs per tap.
+         */
+        View widthRow(boolean b) {
+            LinearLayout c = XemsUi.horizontal(a);
+            c.setGravity(Gravity.CENTER_VERTICAL);
+            c.setPadding(dp(14), dp(8), dp(8), dp(8));
+            c.setBackgroundDrawable(XemsUi.rounded(XemsUi.SURFACE, dp(14), XemsUi.STROKE, dp(1)));
+            LinearLayout txt = XemsUi.vertical(a);
+            txt.addView(XemsUi.text(a, tr("Импулс", "Pulse"), 15, XemsUi.TEXT, true));
+            txt.addView(XemsUi.text(a, tr("Боли в дълбочина? Намали импулса и добави сила.",
+                    "Deep ache? Narrow the pulse and add strength."), 13, XemsUi.MUTED, false));
+            c.addView(txt, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+            TextView minus = XemsUi.iconButton(a, "−", XemsUi.CARD, XemsUi.TEXT, 44);
+            TextView plus = XemsUi.iconButton(a, "+", XemsUi.CARD, XemsUi.TEXT, 44);
+            minus.setOnClickListener(new WidthTap(this, -dev.widthStep()));
+            plus.setOnClickListener(new WidthTap(this, dev.widthStep()));
+            widthValue = XemsUi.text(a, dev.width() + " µs", 17, XemsUi.TEXT, true);
+            widthValue.setGravity(Gravity.CENTER);
+            c.addView(minus, new LinearLayout.LayoutParams(dp(44), dp(44)));
+            c.addView(widthValue, new LinearLayout.LayoutParams(dp(86), ViewGroup.LayoutParams.WRAP_CONTENT));
+            c.addView(plus, new LinearLayout.LayoutParams(dp(44), dp(44)));
+            return c;
+        }
+
+        void stepWidth(int d) {
+            int w = Math.max(dev.widthMin(), Math.min(150, dev.width() + d));
+            if (w == dev.width()) {
+                return;
+            }
+            dev.setWidth(w);
+            if (widthValue != null) {
+                widthValue.setText(dev.width() + " µs");
+            }
         }
 
         /** A site's share: "F3 назолабиална · лява   − 90 % +". */
@@ -1324,6 +1373,22 @@ public final class FaceStudio {
         public void onStep(int direction) {
             v.dev.step(ch, direction);
             v.refresh();
+        }
+    }
+
+    static final class WidthTap implements View.OnClickListener {
+        private final Studio v;
+        private final int d;
+
+        WidthTap(Studio v, int d) {
+            this.v = v;
+            this.d = d;
+        }
+
+        @Override
+        public void onClick(View view) {
+            XemsUi.haptic(view);
+            v.stepWidth(d);
         }
     }
 

@@ -47,6 +47,8 @@ var vert := {}                          # joypad id -> the vertical tracker (see
 var fwd0 := Vector3(0, 0, -1)           # the body's forward at the calibration
 var status := "none"                    # none · found · stand · bend · ready
 var _last_ms := 0
+var _head_prev := Vector3.INF
+var _head_v := 0.0                      # m/s, smoothed: a still stand needs a still head (a bend moves it)
 var _rezero := true                     # the next limbs() puts the feet under the body again
 var sim := {}                           # tests: joypad id -> [qx, qy, qz, qw(, axis 4)] instead of the real joypads
 # the solved body (world): pelvis centre, the planted feet, per leg: in the air, knee bend, time since landing
@@ -95,7 +97,7 @@ func poll(delta: float, head_h: float, stand_h: float, fwd: Vector3) -> void:
 			p.w = lerpf(float(p.w), ang, clampf(delta / 0.1, 0.0, 1.0))
 		p.q = q
 		var w: float = p.w
-		p.still = (float(p.still) + delta) if w < STILL_DPS else 0.0
+		p.still = (float(p.still) + delta) if w < STILL_DPS and not _acc_busy(id) else 0.0
 		pads[id] = p
 		_last_ms = now
 	if pads.is_empty():
@@ -105,7 +107,13 @@ func poll(delta: float, head_h: float, stand_h: float, fwd: Vector3) -> void:
 	for id in pads:
 		all_still = all_still and float(pads[id].still) >= STILL_SEC
 	var upright := head_h > stand_h - 0.04
-	var stand := all_still and upright
+	# standing tall and still: the sensors still, the head still, both shins upright (else a slow bend or a slow knee
+	# raise — shins hardly turning, head still high — was taken for a stand: the feet jumped under the head)
+	var shins_up := true
+	for id in pads:
+		if status == "ready" and basis.has(id) and side.has(id):
+			shins_up = shins_up and (_g(id) * Vector3.UP).angle_to(Vector3.UP) < deg_to_rad(8.0)
+	var stand := all_still and upright and _head_v < 0.08 and shins_up
 	for id in pads:
 		_vert(id, delta, stand)
 	# 1 · the zero pose, and again at every still upright moment (the tilt is re-anchored; the heading is kept)
@@ -231,6 +239,12 @@ func _vert(id: int, dt: float, stand: bool) -> void:
 		v.h = float(v.h) * exp(-dt / (0.08 if float(v.h) < 0.12 else 1.5))
 
 
+## The shin's vertical acceleration is clearly busy (it is moving up or down, however little it turns).
+func _acc_busy(id: int) -> bool:
+	var v: Dictionary = vert.get(id, {})
+	return _has_h(id) and float(v.am) > 0.3 + 2.0 * float(v.sig)
+
+
 ## True when the shin's height is measured (axis 4 decoded and seen moving).
 func _has_h(id: int) -> bool:
 	var v: Dictionary = vert.get(id, {})
@@ -273,6 +287,9 @@ func ready() -> bool:
 func limbs(head: Vector3, fwd: Vector3, stand_h: float, floor_y: float, delta := 1.0 / 72.0) -> Dictionary:
 	if not ready():
 		return {}
+	if delta > 0.0 and _head_prev != Vector3.INF:
+		_head_v = lerpf(_head_v, head.distance_to(_head_prev) / delta, clampf(delta / 0.15, 0.0, 1.0))
+	_head_prev = head
 	var H := stand_h / 0.936                          # body height from eye height
 	var lt := 0.245 * H                               # thigh
 	var ls := 0.246 * H                               # shin, knee → ankle

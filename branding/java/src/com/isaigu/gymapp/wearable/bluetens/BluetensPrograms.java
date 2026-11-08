@@ -311,6 +311,27 @@ public final class BluetensPrograms {
     public static final int RELAX_US = 50, JAW_US = 150;
 
     /**
+     * The face width the studio may choose (docs/xems-face.md §12): 20–150 µs, 5 µs steps (the pad takes µs as they
+     * are). Under ~20 µs the charge needs a current density that prickles the skin — the reason for a narrow pulse is lost.
+     */
+    public static final int FACE_PW_MIN = 20, FACE_PW_MAX = 150, FACE_PW_STEP = 5;
+
+    /**
+     * A face file at another width: every pulse scaled by {@code us / full} (the soft rises keep their shape),
+     * never under {@link #FACE_PW_MIN} and never over {@code us}. Rate, rhythm and length stay as they were.
+     */
+    public static BluetensLok withWidth(BluetensLok lok, int full, int us) {
+        int target = Math.max(FACE_PW_MIN, Math.min(FACE_PW_MAX, us));
+        for (BluetensLok.Section sec : lok.sections) {
+            for (BluetensLok.Block b : sec.blocks) {
+                int w = (int) Math.round(b.impulse * (double) target / Math.max(1, full));
+                b.impulse = Math.max(FACE_PW_MIN, Math.min(target, w));
+            }
+        }
+        return lok;
+    }
+
+    /**
      * Depuff: a muscle pump — 30 Hz · 100 µs, 1 s (0.2 s rise / fall) : 2 s; {@code late} = the second cheek, half a
      * cycle (1.5 s) later, so the two take turns like a wave (one pad per cheek, each its own file).
      */

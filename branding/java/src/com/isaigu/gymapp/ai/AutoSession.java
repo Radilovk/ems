@@ -331,6 +331,7 @@ public final class AutoSession {
     }
 
     public static void beginSetup(Context c) {
+        facePwUs = 0;
         loadOptions(c);
         loadTips(c);
         rows.clear();
@@ -748,6 +749,7 @@ public final class AutoSession {
             end();
         }
         setFace(false);
+        facePwUs = 0;
         stopTicker();
         AutoHints.hide();
         AiRamp.clear();
@@ -1217,6 +1219,33 @@ public final class AutoSession {
 
     // ================================================================ the face studio (wearable/face/FaceAuto)
 
+    /**
+     * Face: the pulse width the studio chose, 0 = the program's own. The suit takes the width as one byte in 50 µs
+     * units (CommandUtil: pulseWidth / 50), so only 50 / 100 / 150 µs exist — nothing narrower, nothing between.
+     */
+    private static int facePwUs;
+    public static final int FACE_PW_MIN = 50, FACE_PW_MAX = 150, FACE_PW_STEP = 50;
+
+    /** The face studio sets the width (§12: narrower = a more superficial feel); 0 = back to the program's. */
+    public static void setFacePw(int us) {
+        int w = Math.round(us / (float) FACE_PW_STEP) * FACE_PW_STEP;
+        facePwUs = us <= 0 ? 0 : Math.max(FACE_PW_MIN, Math.min(FACE_PW_MAX, w));
+        if (stage == Stage.CALIB) {
+            writeRows(written != null ? written : calibrationCmd(), true);
+        } else if (stage == Stage.RUNNING && engine != null && engine.getState() == AutoEngine.State.RUN && written != null) {
+            writeRows(written, false);
+        }
+    }
+
+    /** The width the face works at now (the chosen one, else the program's main step). */
+    public static int facePw() {
+        if (facePwUs > 0) {
+            return facePwUs;
+        }
+        AutoEngine.Cmd c = written != null ? written : (plan != null ? calibrationCmd() : null);
+        return c != null ? c.pwUs : 0;
+    }
+
     /** The encoder's face mode follows the plan: on for a face program (every channel gently divided), else off. */
     private static void faceMode() {
         setFace(plan != null && AutoCatalog.isFace(plan.program));
@@ -1553,6 +1582,9 @@ public final class AutoSession {
             }
             int strength = rowStrength(r, c, calib);
             int[] zones = rowZones(r, c);
+            if (facePwUs > 0 && plan != null && AutoCatalog.isFace(plan.program)) {
+                c.pwUs = facePwUs;                    // the face studio's chosen width, the whole session (§12)
+            }
             b.hz = c.hz;
             b.pulseWidth = c.pwUs;
             b.pulseContinue = Math.max(1, c.onS);

@@ -425,7 +425,14 @@ Offline vs scripted truth (`python3 scripts/vr-legs/legs_proto.py`; thigh +4 %, 
 squat 13.0 / 35 → 1.3 / 1.3 · bend 39.6 / 97 → 1.3 / 1.3 · knee strike 8.3 / 60 → 2.3 / 17 · front kick 8.8 / 65 →
 2.4 / 13 · heel curl 6.3 / 48 → 2.3 / 17 · back kick 1.7 / 8 → 3.6 / 27 · walking in place 8.2 / 43 → 2.4 / 7. The
 worst moments are the instant a foot leaves / touches the floor (≈ 0.1 s). Robust to 3–5× the noise and offset
-(0.06–0.1 g; mean 2–5 cm). In CI: `vr-workout/test/pad_truth_test.gd` (the same movements through the real
+(0.06–0.1 g; mean 2–5 cm). The same in Godot through the real PadLegs (CI, knee mean / worst cm): squat 1.5 / 1.6, bend
+1.8 / 2.1, knee strike 2.2 / 17, front kick 2.1 / 19, heel curl 3.4 / 18, back kick 3.1 / 27, walking 2.3 / 12; a look
+aside while standing turns the legs 3.7° (was: the full look). First CI run caught a real bug the prototype could not:
+a slow bend or a slow knee raise (shins hardly turning, head still high) was taken for a still stand and re-zeroed the
+feet mid-movement (bend 8.7 cm) — a stand now also needs a still head, upright shins and a quiet vertical acceleration.
+Next (literature, 2026-11-08): HMD-Poser (CVPR 2024) uses exactly this kit — headset + two lower-leg IMUs — with a
+small learned motion prior + the head's position; on real hardware ≈ 8.5 cm lower-body error. A learned prior on top
+of this physics is the way to go further; AMASS is non-commercial only, CMU's own files are the candidate. In CI: `vr-workout/test/pad_truth_test.gd` (the same movements through the real
 PadLegs, fake gamepads incl. the trigger form of axis 4) + "a look aside keeps the legs".
 
 ### AI (Gemini) — where it fits and where not

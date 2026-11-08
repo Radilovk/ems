@@ -58,6 +58,9 @@ var anc := {}                           # "l"/"r" -> ankle on the floor (world) 
 var air := {"l": false, "r": false}
 var kprev := {"l": 0.0, "r": 0.0}
 var land := {"l": 0.0, "r": 0.0}
+var prior := LegsPrior.new()            # the learned prior (CMU): feet on the floor, thighs, hips — physics on top
+var use_prior := true
+var _t := 0.0
 
 
 func _axis(id: int, i: int) -> float:
@@ -208,6 +211,7 @@ func _vert(id: int, dt: float, stand: bool) -> void:
 	if is_nan(g):
 		return
 	var a := clampf(g, -4.0, 4.0) * 9.81
+	v.g = g
 	var e: float = a - float(v.bias)
 	var w: float = float(pads[id].w)
 	if not bool(v.live) and absf(e) > 2.0:
@@ -329,11 +333,23 @@ func limbs(head: Vector3, fwd: Vector3, stand_h: float, floor_y: float, delta :=
 			anc[sd] = Vector3(p.x, floor_y + ah, p.z)
 			air[sd] = false
 			kprev[sd] = 0.0
+	# the learned prior (needs both legs)
+	var P := {}
+	_t += delta
+	if use_prior and U.has("l") and U.has("r"):
+		var acc := {}
+		if _has_h(hid["l"]) and _has_h(hid["r"]):
+			for sd in U:
+				var v: Dictionary = vert[hid[sd]]
+				acc[sd] = float(v.get("g", 0.0)) - float(v.bias) / 9.81
+		P = prior.step(_t, delta, U, A, acc, head, stand_h - ah, floor_y + ah)
 	# 1 · which feet are on the floor
 	var ground := {}
 	for sd in U:
 		var u: Vector3 = U[sd]
-		if _has_h(hid[sd]):
+		if not P.is_empty():
+			ground[sd] = P.ground[sd]
+		elif _has_h(hid[sd]):
 			ground[sd] = float(vert[hid[sd]].h) < LIFT
 		else:                                         # no height: in the air if even a straight-down thigh can't reach
 			var hip: Vector3 = pc + left * hw * float(sgn[sd])
@@ -346,8 +362,8 @@ func limbs(head: Vector3, fwd: Vector3, stand_h: float, floor_y: float, delta :=
 	for sd in U:
 		if ground[sd] and anc.has(sd):
 			planted.append(sd)
-	if planted.is_empty():
-		pc = head + pc_off                            # both feet up (a jump): the hips ride with the head
+	if planted.is_empty():                            # both feet up (a jump): the hips where the prior says, or with the head
+		pc = P.pc if not P.is_empty() else head + pc_off
 	else:
 		var knees := {}
 		for sd in planted:
@@ -363,8 +379,12 @@ func limbs(head: Vector3, fwd: Vector3, stand_h: float, floor_y: float, delta :=
 			var dh := pc - head
 			acc += (head + dh.normalized() * trunk) * 1.5
 			n += 1.5
-			acc += (head + stand_off) * 0.03          # a whisper toward standing: the free directions don't wander
-			n += 0.03
+			if not P.is_empty():                      # the prior's hips: the directions the legs don't fix
+				acc += (P.pc as Vector3) * 0.5
+				n += 0.5
+			else:
+				acc += (head + stand_off) * 0.03      # a whisper toward standing: the free directions don't wander
+				n += 0.03
 			pc = acc / n
 			pc.y = minf(pc.y, head.y - 0.1)
 		for sd in planted:                            # stretched past reach: that foot stepped — slide it along
@@ -390,6 +410,15 @@ func limbs(head: Vector3, fwd: Vector3, stand_h: float, floor_y: float, delta :=
 				var t := hip - Vector3.UP * (lt + ls)
 				var k := minf(1.0, delta / 0.25)
 				anc[sd] = Vector3(lerpf(ankle.x, t.x, k), ankle.y, lerpf(ankle.z, t.z, k))
+		elif not P.is_empty():                         # lifted: the thigh where the prior says, the shin as measured
+			knee = hip + (P.thigh[sd] as Vector3) * lt
+			ankle = knee - u * ls
+			ankle.y = maxf(ankle.y, floor_y + ah)
+			if ground[sd]:
+				anc[sd] = Vector3(ankle.x, floor_y + ah, ankle.z)
+				ankle = anc[sd]
+				knee = ankle + u * ls
+				land[sd] = 0.5
 		else:
 			var k := 0.0
 			if _has_h(hid[sd]):

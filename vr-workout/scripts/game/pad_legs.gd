@@ -288,7 +288,7 @@ func ready() -> bool:
 ## The same shape as MotionLink.limbs: {"pos": {"knee_l": Vector3, …, "hip_l": …}, "speed": {}, "dir": {"l": …},
 ## "ground": {"l": bool}} (world), or {} until calibrated. head: headset world position; fwd: the head's heading
 ## (only a fallback: the hips face where the legs face); floor_y: the floor's world y. Once a frame.
-func limbs(head: Vector3, fwd: Vector3, stand_h: float, floor_y: float, delta := 1.0 / 72.0) -> Dictionary:
+func limbs(head: Vector3, fwd: Vector3, stand_h: float, floor_y: float, delta := 1.0 / 72.0, hands := {}) -> Dictionary:
 	if not ready():
 		return {}
 	if delta > 0.0 and _head_prev != Vector3.INF:
@@ -342,7 +342,7 @@ func limbs(head: Vector3, fwd: Vector3, stand_h: float, floor_y: float, delta :=
 			for sd in U:
 				var v: Dictionary = vert[hid[sd]]
 				acc[sd] = float(v.get("g", 0.0)) - float(v.bias) / 9.81
-		P = prior.step(_t, delta, U, A, acc, head, stand_h - ah, floor_y + ah)
+		P = prior.step(_t, delta, U, A, acc, head, stand_h - ah, floor_y + ah, hands)
 	# 1 · which feet are on the floor
 	var ground := {}
 	for sd in U:

@@ -182,7 +182,10 @@ func update(delta: float) -> void:
 		changes.append(["pads", pst, pads.status])     # the game guides the two-step calibration
 	var xl: Dictionary = {}
 	if not sim.has("knee_l"):
-		xl = pads.limbs(world_head, _fwd, stand_h, floor_y, delta) if pads.ready() else link.limbs(world_head, _fwd, stand_h)
+		var hands := {}                                # the hands for the legs' prior (both tracked, else none)
+		if src.left != "none" and src.right != "none":
+			hands = {"l": (hand_xform.left as Transform3D).origin, "r": (hand_xform.right as Transform3D).origin}
+		xl = pads.limbs(world_head, _fwd, stand_h, floor_y, delta, hands) if pads.ready() else link.limbs(world_head, _fwd, stand_h)
 	var tracker := XRServer.get_tracker("/user/body_tracker") as XRBodyTracker
 	var legs_ok := tracker != null and tracker.has_tracking_data and (tracker.body_flags & XRBodyTracker.BODY_FLAG_LOWER_BODY_SUPPORTED) != 0
 	has_legs = legs_ok or sim.has("knee_l") or feet_on() or not xl.is_empty()

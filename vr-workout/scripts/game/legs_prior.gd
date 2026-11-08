@@ -2,7 +2,7 @@
 ## it never saw). What two shins and a headset can't tell by geometry: is a foot on the floor, where is the thigh,
 ## where are the hips. Input over the last 0.6 s (now, 0.1, 0.2, 0.4, 0.6 s ago): both shins in the body's frame,
 ## their vertical acceleration (as measured, never integrated: nothing to drift), the headset's height and velocity,
-## the shins' turn speed. One network for both legs (the right mirrored). Weights: legs_prior_weights.gd (generated).
+## the hands from the eyes (controllers / hand tracking; trained also without them), the shins' turn speed. One network for both legs (the right mirrored). Weights: legs_prior_weights.gd (generated).
 class_name LegsPrior
 extends RefCounted
 
@@ -61,7 +61,7 @@ func _forward(x: PackedFloat32Array) -> PackedFloat32Array:
 ## per side, or {} without it; head: eyes (world); S: eye height above the ankle standing; ankle_floor_y: the ankle's
 ## height standing (world y). Returns {"ground": {sd: bool}, "thigh": {sd: world dir}, "pc": hip centre (world)}.
 func step(t: float, delta: float, U: Dictionary, A: Dictionary, acc: Dictionary, head: Vector3, S: float,
-		ankle_floor_y: float) -> Dictionary:
+		ankle_floor_y: float, hands := {}) -> Dictionary:
 	var bf := Vector3.ZERO
 	for sd in ["l", "r"]:
 		var f: Vector3 = (A[sd] as Vector3).cross(Vector3.UP)
@@ -77,6 +77,7 @@ func step(t: float, delta: float, U: Dictionary, A: Dictionary, acc: Dictionary,
 		w[sd] = rad_to_deg(u.angle_to(_uprev[sd])) / delta if _uprev.has(sd) and delta > 0.0 else 0.0
 		_uprev[sd] = u
 	var has_acc := not acc.is_empty()
+	var has_hands := hands.has("l") and hands.has("r")
 	var out := {"ground": {}, "thigh": {}, "pc": Vector3.ZERO}
 	for pair in [["l", "r", 1.0], ["r", "l", -1.0]]:
 		var sd: String = pair[0]
@@ -87,6 +88,9 @@ func step(t: float, delta: float, U: Dictionary, A: Dictionary, acc: Dictionary,
 		var sig := PackedFloat32Array([ut.dot(bf), side * ut.dot(left), ut.y, uo.dot(bf), side * uo.dot(left), uo.y,
 			clampf(float(acc.get(sd, 0.0)), -4.0, 4.0), clampf(float(acc.get(od, 0.0)), -4.0, 4.0),
 			(head.y - ankle_floor_y) / S - 1.0, hv.dot(bf) / 2.0, side * hv.dot(left) / 2.0, hv.y / 2.0])
+		for hs in [sd, od]:                                # the hands from the eyes (zeros when not tracked)
+			var hp: Vector3 = ((hands[hs] as Vector3) - head) / S if has_hands else Vector3.ZERO
+			sig.append_array(PackedFloat32Array([hp.dot(bf), side * hp.dot(left), hp.y]))
 		var h: Array = _hist[sd]
 		h.append([t, sig])
 		while h.size() > 2 and float(h[1][0]) < t - 0.7:
@@ -99,7 +103,8 @@ func step(t: float, delta: float, U: Dictionary, A: Dictionary, acc: Dictionary,
 				if absf(float(e[0]) - tt) < absf(float(best[0]) - tt):
 					best = e
 			x.append_array(best[1])
-		x.append_array(PackedFloat32Array([float(w[sd]) / 300.0, float(w[od]) / 300.0, 1.0 if has_acc else 0.0]))
+		x.append_array(PackedFloat32Array([float(w[sd]) / 300.0, float(w[od]) / 300.0, 1.0 if has_acc else 0.0,
+			1.0 if has_hands else 0.0]))
 		var o := _forward(x)
 		var p := 1.0 / (1.0 + exp(-o[0]))
 		gnd[sd] = p > 0.4 if gnd[sd] else p > 0.6

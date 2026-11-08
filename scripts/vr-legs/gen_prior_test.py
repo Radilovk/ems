@@ -37,6 +37,7 @@ def main(clip, wpath, out):
         A = {sd: LE.nrm(d['a_' + sd][i].astype(float)) for sd in 'lr'}
         acc = {sd: float(rng.normal(0, 0.3)) for sd in 'lr'}
         legs.acc_now = acc
+        legs.hands_now = {sd: d['wrist_' + sd][i].astype(float) for sd in 'lr'} if 'wrist_l' in d else None
         head = d['eye'][i].astype(float)
         f = np.zeros(3)
         for sd in 'lr':
@@ -44,7 +45,8 @@ def main(clip, wpath, out):
         f[1] = 0
         bf = f / np.linalg.norm(f)
         o = pr(legs, U, A, head, bf)
-        r = [*U['l'], *U['r'], *A['l'], *A['r'], acc['l'], acc['r'], *head,
+        hn = legs.hands_now or {'l': np.zeros(3), 'r': np.zeros(3)}
+        r = [*U['l'], *U['r'], *A['l'], *A['r'], acc['l'], acc['r'], *head, *hn['l'], *hn['r'],
              float(o['ground']['l']), float(o['ground']['r']), *o['thigh']['l'], *o['thigh']['r'], *o['pc']]
         rows.append(r)
     with open(out, 'w') as f:

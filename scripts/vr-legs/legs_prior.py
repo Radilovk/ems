@@ -325,8 +325,16 @@ if __name__ == '__main__' and sys.argv[1] == 'teach':
         ps = sorted(p for p in te if os.path.basename(p).split('_')[0] == sub)
         teach, test = ps[:N], ps[N:]
         X, Y = dataset(teach, 5)
-        net1 = train(X, Y, epochs=int(os.environ.get('EPOCHS', 8)), init=net0, lr0=3e-4)
+        mins = len(X) / 2 / 60 / 60
+        if 'rehearse' not in globals():          # the general data, a sample, so the network keeps what it knew
+            rng_ = np.random.default_rng(9)
+            globals()['rehearse'] = dataset(list(rng_.choice(tr, 40, replace=False)), 6)
+        Xg, Yg = rehearse
+        k = min(len(Xg), int(len(X) * float(os.environ.get('MIX', 3))))
+        sel = np.random.default_rng(1).choice(len(Xg), k, replace=False)
+        rep = int(os.environ.get('REP', 3))                                   # the person's own frames weigh more
+        X = np.concatenate([X] * rep + [Xg[sel]]); Y = np.concatenate([Y] * rep + [Yg[sel]])
+        net1 = train(X, Y, epochs=int(os.environ.get('EPOCHS', 4)), init=net0, lr0=2e-4)
         r0 = np.mean([LE.run(p, prior=Prior(net0))['knee'] for p in test])
         r1 = np.mean([LE.run(p, prior=Prior(net1))['knee'] for p in test])
-        mins = len(X) / 2 / 60 / 60
         print('person %-4s taught with %.1f min: knee %.1f → %.1f cm on their %d other takes' % (sub, mins, r0, r1, len(test)), flush=True)

@@ -91,6 +91,11 @@ def clip(asf, amc):
         out.update({'hip_' + s: hip, 'knee_' + s: knee, 'ankle_' + s: ankle, 'toe_' + s: toe, 'u_' + s: u,
                     'a_' + s: a, 'd_' + s: d / np.linalg.norm(d, axis=1, keepdims=True)})
     out['wrist_l'], out['wrist_r'] = P['lwrist'], P['rwrist']          # the hands (the controllers in the game)
+    # where the face looks (the headset's forward): the base pose's forward (left hinge × up) turned with the head
+    fb = np.cross(C['ltibia'] @ np.array([1.0, 0, 0]), np.array([0, 1.0, 0]))
+    out['look'] = G['head'] @ (fb / np.linalg.norm(fb))
+    # the person's own segment lengths (what a camera calibration would measure)
+    out['len'] = np.array([bones['lfemur']['len'], bones['ltibia']['len']]) * UNIT_M
     eye = P['upperneck'] + 0.55 * (P['head'] - P['upperneck'])
     out['eye'] = eye
     # floor: the lowest the ankles get (both feet), the ankle's own height above it from the bone (≈ 0.039 × height)

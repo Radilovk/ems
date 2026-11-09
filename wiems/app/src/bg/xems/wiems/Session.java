@@ -761,8 +761,8 @@ final class Session {
     }
 
     /**
-     * The byte the unit takes for p %: its scale is the vendor's — 100 % on the vendor's slider = ~19 (the capture:
-     * 94 % → 18, 80 % → 15, 61 % → 12), never the 0..100 we sent before (5× over the vendor's top).
+     * The byte the unit takes for p %: 100 % = {@link WiProto#UNIT_MAX} (31, the top of the write's 5-bit check).
+     * 1.11–1.18 had 20 — weaker than a normal vendor session even at 100 % (owner, 1.19).
      */
     static int unitValue(int pct) {
         return WiProto.unit(pct);

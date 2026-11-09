@@ -72,8 +72,12 @@ public final class WiProto {
         return v < lo ? lo : (v > hi ? hi : v);
     }
 
-    /** The unit's top strength byte: the vendor's 100 % (its capture: 94 % → 18, 80 % → 15, 61 % → 12). */
-    public static final int UNIT_MAX = 20;
+    /**
+     * The unit's top strength byte = our 100 %. 31 = the top of the write's 5-bit check (the XOR of the ten values
+     * in bit 7 of ch 3..7 covers 0..31). Was 20 (an unproven "vendor's 100 %"): the vendor's capture already runs
+     * 17–20 within its first minutes, and our 100 % felt weaker than a normal vendor session (owner, 2026-11-09).
+     */
+    public static final int UNIT_MAX = 31;
 
     /** A strength in % (0..100) → the unit's byte (0..{@link #UNIT_MAX}). */
     public static int unit(int pct) {

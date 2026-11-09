@@ -88,4 +88,6 @@ values** (ch 3 = bit 4 … ch 7 = bit 0). Every vendor write in the capture fits
 XOR 9 = 01001 → ch 4, ch 7; `12 0f 0f 8f 0f 0f 0f 8f 0c 00`: 0x11 → ch 3, ch 7; equal channels XOR to 0 → no bits).
 A write without the bits whose XOR is not 0 makes the unit stop with `86`, `00` — any channel set apart from the
 others; all channels equal always passed. That is the vendor's log "Curr_comp: Calculada / Recibida". Scale: the
-vendor's 100 % ≈ byte 19–20 (`WiProto.UNIT_MAX` 20). The earlier "86 = channel" / "no load" readings are wrong.
+capture's values run 9–20 in a short demo (a working level, not a proven top); the 5-bit check covers 0..31 →
+`WiProto.UNIT_MAX` = 31 = our 100 % (was 20 until 1.1.507-ai / app 1.19 / mod v31: weaker than the vendor at 100 %).
+Above 31 unknown: the check has no bits for 32+. The earlier "86 = channel" / "no load" readings are wrong.

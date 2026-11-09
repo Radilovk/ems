@@ -298,7 +298,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `DeviceAlias.java` (140L, compile:music-sync*) — Own names for the suits in the device list (owner, 1.1.353): long-press a row (or tap its "i") → a name of one's own.
 - `SuitStandard.java` (287L, compile:music-sync*) — The suit's channel standard, per suit (owner, 1.1.421 / 1.1.422): XEMS (the stock wiring) or X-Body.
 - `WiBridge.java` (485L, compile:music-sync*) — A WiEMS unit ("WIEMS - EMS Device", WiemsPro) driven from the stock XEMS training row — docs/xems-wiems.md.
-- `WiProto.java` (148L, compile:music-sync*) — WiEMS unit (WiemsPro "WIEMS - EMS Device", app com.medcab.wiems 1.8.45) — frames as wiems/PROTOCOL.md decoded them from…
+- `WiProto.java` (152L, compile:music-sync*) — WiEMS unit (WiemsPro "WIEMS - EMS Device", app com.medcab.wiems 1.8.45) — frames as wiems/PROTOCOL.md decoded them from…
 - `WiTranslator.java` (266L, compile:music-sync*) — XEMS suit commands → WiEMS unit operations ({@link WiProto}) for ONE unit.
 
 **dialog/** (`branding/java/src/com/isaigu/gymapp/dialog/`)
@@ -1390,8 +1390,8 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L105 ## XEMS side (1.1.480-ai) — `wearable/voice/`
   - L118 ## Phase 3 — learned model
 
-`docs/xems-wiems-app.md` (277L)
-  - L1 # XEMS WiEMS — light tablet app for one WiEMS unit, XEMS or bodytech suit (wiems/app, v1.18)
+`docs/xems-wiems-app.md` (286L)
+  - L1 # XEMS WiEMS — light tablet app for one WiEMS unit, XEMS or bodytech suit (wiems/app, v1.19)
   - L7 ## What it is
   - L31 ## Look (v1.1, owner: XBody's design level or better, never lower)
   - L41 ## v1.2 — lighter figures, double impulse, ramp (owner)
@@ -1409,8 +1409,9 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L209 ### Figures with relief, a slider that needs its fader (parallel 1.8)
   - L220 ## v1.15 — XEMS and bodytech suits, dark theme, the measured WiEMS map (owner)
   - L260 ## v1.18 — smooth figures (owner: "jagged at the edges, smeared inside")
-  - L267 ## Build / test
-  - L274 ## Not verified yet
+  - L267 ## v1.19 — stronger: 100 % = byte 31, not 20 (owner: "the vendor app gives far better impulses")
+  - L276 ## Build / test
+  - L283 ## Not verified yet
 
 `docs/xems-wiems.md` (83L)
   - L1 # WiEMS unit in XEMS and on the XBody machine (1.1.446-ai, XBody mod v7, bridge v3)
@@ -1583,7 +1584,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 `vr-workout/assets/CREDITS.md` (29L)
   - L1 # Asset credits
 
-`wiems/PROTOCOL.md` (92L)
+`wiems/PROTOCOL.md` (94L)
   - L1 # WiEMS unit — BLE protocol (from capture 1)
   - L16 ## Device
   - L24 ## Characteristics (value handle on this unit; match by UUID, never by handle)

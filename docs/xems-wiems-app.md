@@ -1,4 +1,4 @@
-# XEMS WiEMS — light tablet app for one WiEMS unit, XEMS or bodytech suit (wiems/app, v1.18)
+# XEMS WiEMS — light tablet app for one WiEMS unit, XEMS or bodytech suit (wiems/app, v1.19)
 
 Owner (2026-10-16): a separate APK for a small 8" tablet (Lenovo Tab M8 HD, 1280×800, 2 GB RAM), only for WiEMS,
 light, **in the same design and style as the XBody screen**. Not the XEMS app: no vendor APK, no music / AI /
@@ -263,6 +263,15 @@ order — once the service mode has checked both suits, port the two maps (the `
   full-size art at 500 px (372 design px × 1.33 on the Lenovo): every step at full size, one premultiplied Lanczos
   downscale, lossless WebP. `BodyFig` only loads them — the run-time stretch / 3×3 blur / hard-mask rim of 1.15–1.17 on
   the 640-px lossy copies made the stair steps and the smear.
+
+## v1.19 — stronger: 100 % = byte 31, not 20 (owner: "the vendor app gives far better impulses")
+Owner: weak even at 100 % on every zone, the whole contraction, both suits, plain modes too. Same unit, so the cause
+was ours: `WiProto.UNIT_MAX` 20 — an unproven "vendor's 100 %" (the capture runs 17–20 within its first minutes of a
+short demo; the field is 7 bits). Now 31, the top the write's 5-bit check covers (XOR of values ≤ 31 fits 5 bits) —
+about +55 % at 100 %. The same in the XEMS APK (1.1.507-ai) and the XBody panel (mod v31). The rise (Ru ≥ 1 s for a
+fused impulse) stays: a safety rule, not the cause. **First run: start low — a zone that was 100 % now gives ~1.5×.**
+If 31 is still short: test above 31 with all zones equal (XOR 0), then one apart — `86` = the unit checks the
+upper bits too and 31 is its top.
 
 ## Build / test
 ```

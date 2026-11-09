@@ -8,11 +8,15 @@ model (legs_prior.py).
   python3 scripts/vr-legs/legs_eval.py <npz dir> [clip …]           per clip: knee / ankle error mean, p95 (cm)
 """
 import glob, math, os, sys
+SENSOR_AT = os.environ.get('SENSOR_AT', 'ankle')   # where the shin sensor sits: ankle (3–5 cm above the ankle bone) · knee (just below the kneecap)
 import numpy as np
 
 UP = np.array([0.0, 1, 0])
 DT = 1 / 60.0
 LIFT = 0.05
+CAM_FOV = float(__import__('os').environ.get('CAM_FOV', 40))
+CAL = __import__('os').environ.get('CAL', '') == '1'
+SENSE = __import__('os').environ.get('SENSE', '')   # '' · tof (height under the shin) · ankle (IR camera: ankle position)
 HANDS = __import__('os').environ.get('HANDS', '1') == '1'
 PW = float(__import__('os').environ.get('PW', 0.5))
 
@@ -139,7 +143,12 @@ class Legs:
         ground = {}
         for sd in 'lr':
             u = U[sd]
-            if P is not None and 'ground' in P:
+            m = getattr(s, 'meas', {}).get(sd)
+            if SENSE == 'tof' and m is not None:
+                ground[sd] = m < 0.03                                  # measured height of the ankle above the floor
+            elif SENSE in ('ankle', 'cam') and m is not None:
+                ground[sd] = m[1] - (fy + ah) < 0.03
+            elif P is not None and 'ground' in P:
                 ground[sd] = P['ground'][sd]
             elif s.use_acc:
                 ground[sd] = s.v[sd]['h'] < LIFT
@@ -150,7 +159,18 @@ class Legs:
                 ground[sd] = hip[1] - rot(u, A[sd], -up_k)[1] * lt - u[1] * ls - (fy + ah) < LIFT
             if not ground[sd]:
                 s.anc.pop(sd, None)
-        planted = [sd for sd in 'lr' if ground[sd] and sd in s.anc]
+        if SENSE == 'ankle':                                           # measured ankles: both anchor the hips
+            for sd in 'lr':
+                if s.meas.get(sd) is not None:
+                    s.anc[sd] = s.meas[sd].copy()
+            planted = [sd for sd in 'lr' if sd in s.anc and s.meas.get(sd) is not None]
+        elif SENSE == 'cam':                                           # seen this frame and on the floor: there
+            for sd in 'lr':
+                if s.meas.get(sd) is not None and ground[sd]:
+                    s.anc[sd] = np.array([s.meas[sd][0], fy + ah, s.meas[sd][2]])
+            planted = [sd for sd in 'lr' if ground[sd] and sd in s.anc]
+        else:
+            planted = [sd for sd in 'lr' if ground[sd] and sd in s.anc]
         pc = s.pc.copy()
         if not planted:
             pc = P['pc'] if P is not None else head + s.pc_off
@@ -180,14 +200,28 @@ class Legs:
         for sd in 'lr':
             u, a = U[sd], A[sd]
             hip = pc + left * hw * sg[sd]
-            if ground[sd] and sd in s.anc:
+            m = getattr(s, 'meas', {}).get(sd)
+            if SENSE in ('ankle', 'cam') and m is not None:
+                ankle = m.copy(); knee = ankle + u * ls
+            elif ground[sd] and sd in s.anc:
                 ankle = s.anc[sd].copy(); knee = ankle + u * ls
                 s.land[sd] -= DT
                 if s.land[sd] > 0 and u[1] > math.cos(math.radians(12)):
                     t = hip - UP * (lt + ls); k = min(1, DT / 0.25)
                     s.anc[sd][0] += (t[0] - s.anc[sd][0]) * k; s.anc[sd][2] += (t[2] - s.anc[sd][2]) * k
             else:
-                if P is not None:
+                if SENSE == 'tof' and m is not None:                   # bend the knee to the measured height
+                    target = fy + ah + m
+                    kp_ = hip + P['thigh'][sd] * lt if P is not None else None
+                    best, k = 1e9, 0.
+                    for i in range(51):
+                        kk = math.radians(150) * i / 50
+                        kn = hip - rot(u, a, -kk) * lt
+                        ay = kn[1] - u[1] * ls
+                        c = abs(ay - target) + (0.3 * np.linalg.norm(kn - kp_) if kp_ is not None else 0.03 * abs(kk - s.kprev[sd]))
+                        if c < best:
+                            best, k = c, kk
+                elif P is not None:
                     k = None
                 elif s.use_acc:
                     target = fy + ah + s.v[sd]['h']
@@ -247,11 +281,18 @@ def run(path, use_acc=True, prior=None, noise=0.02, bias=0.01, seed=1, old=False
     H = stand_h / 0.936
     floor_y = floor_ankle - 0.039 * H
     s = Legs(stand_h, floor_y, use_acc, prior)
+    if CAL and 'len' in d:     # calibrated by the camera: the person's own thigh, shin, hip width, eye → hips
+        s.lt, s.ls = float(d['len'][0]), float(d['len'][1])
+        top = np.argsort(eye_h)[-max(1, n // 20):]
+        hm = (d['hip_l'][top] + d['hip_r'][top]) / 2
+        s.hw = float(np.median(np.linalg.norm(d['hip_l'][top] - d['hip_r'][top], axis=1))) / 2
+        s.hip_drop = float(np.median(d['eye'][top, 1] - hm[:, 1]))
+        s.trunk = float(np.median(np.linalg.norm(d['eye'][top] - hm, axis=1)))
     for sd in 'lr':                       # as after the game's calibration stand: offset and noise level learnt
         s.v[sd]['bias'] = bias * 9.81; s.v[sd]['sig'] = noise * 9.81 * 0.8
     acc = {}
     for sd in 'lr':
-        hs = d['ankle_' + sd][:, 1] + d['u_' + sd][:, 1] * 0.05
+        hs = (d['knee_' + sd][:, 1] - d['u_' + sd][:, 1] * 0.06) if SENSOR_AT == 'knee' else (d['ankle_' + sd][:, 1] + d['u_' + sd][:, 1] * 0.05)   # the sensor's point on the shin
         acc[sd] = np.gradient(np.gradient(hs, DT), DT) / 9.81 + rng.normal(0, noise, n) + bias
     ek, ea, eo = [], [], []
     for i in range(n):
@@ -260,6 +301,20 @@ def run(path, use_acc=True, prior=None, noise=0.02, bias=0.01, seed=1, old=False
         Dd = {sd: d['d_' + sd][i].astype(float) for sd in 'lr'}
         head = d['eye'][i].astype(float)
         s.hands_now = {sd: d['wrist_' + sd][i].astype(float) for sd in 'lr'} if HANDS and 'wrist_l' in d else None
+        if SENSE == 'tof':      # a downward range sensor on the shin: ±1 cm, sees the floor while the shin is < 60° tilted
+            s.meas = {sd: (float(d['ankle_' + sd][i][1]) - floor_ankle + rng.normal(0, 0.01)) if d['u_' + sd][i][1] > 0.5 else None for sd in 'lr'}
+        elif SENSE == 'ankle':  # an IR camera on the belt seeing LEDs at the ankles: ±2 cm, always
+            s.meas = {sd: d['ankle_' + sd][i].astype(float) + rng.normal(0, 0.02, 3) for sd in 'lr'}
+        elif SENSE == 'cam':    # the headset's front camera, a printed marker on the front of the shin (15 cm up):
+            s.meas = {}         # seen only inside the camera's view (±CAM_FOV°), < 2.5 m, facing it; 2 frames late, ±1.5 cm
+            for sd in 'lr':
+                j = max(0, i - 2)
+                u_ = d["u_" + sd][j]; a_ = nrm(d["a_" + sd][j].astype(float)); front = nrm(nrm(np.cross(a_, u_)) + UP)   # tilted up-forward (shoe laces)
+                p = d['ankle_' + sd][j] + u_ * 0.15 + front * 0.04
+                r = p - d['eye'][j]; dist = np.linalg.norm(r); rn = r / dist
+                ok = (rn.dot(d['look'][j]) > math.cos(math.radians(CAM_FOV)) and dist < 2.5 and front.dot(-rn) > 0.26)
+                s.meas[sd] = d['ankle_' + sd][j].astype(float) + rng.normal(0, 0.015, 3) if ok else None
+                s.seen = getattr(s, 'seen', 0) + (1 if ok else 0)
         stand = s.poll(U, {sd: acc[sd][i] for sd in 'lr'}, head)
         out = s.limbs(U, A, Dd, head)
         if collect is not None:
@@ -277,7 +332,8 @@ def run(path, use_acc=True, prior=None, noise=0.02, bias=0.01, seed=1, old=False
             for sd in 'lr':
                 eo.append(np.linalg.norm(o[sd]['knee'] - d['knee_' + sd][i]))
     ek, ea = np.array(ek) * 100, np.array(ea) * 100
-    r = dict(knee=ek.mean(), knee95=np.percentile(ek, 95), ankle=ea.mean(), ankle95=np.percentile(ea, 95))
+    r = dict(knee=ek.mean(), knee95=np.percentile(ek, 95), ankle=ea.mean(), ankle95=np.percentile(ea, 95),
+             seen=getattr(s, 'seen', 0) / (2.0 * n))
     if old:
         eo = np.array(eo) * 100
         r.update(old=eo.mean(), old95=np.percentile(eo, 95))

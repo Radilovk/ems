@@ -467,6 +467,23 @@ search cell by forearm direction 0.35 → 0.25 (`ARM_CS`): half the work for the
 EMS script tests pass. Cost: 1.2 ms a query on a desktop (was 0.7), file 5.6 → 16 MB. (A 164 k-prototype set gave
 14.7° / 12.6° at 1.8 ms — not worth it on a phone.) App 1.25.
 
+### 1.27 — the VR legs measured with a controller; where the shin sensor should sit (owner, 2026-11-09)
+**Calibration with the headset's cameras, no extra hardware:** the cameras track the controllers to millimetres, so a
+controller is the tape measure. After the stand + knee bend the game asks for four trigger touches with the
+controller's tip — left knee, left shoe tip, right knee, right shoe tip (`PadLegs.start_measure / touch`,
+`game.gd _legs_measure`). Gives the person's own shin (knee down the measured shin direction to the ankle's height;
+the thigh from it), each foot's direction (ankle → shoe tip: a strap sitting turned, the toe-out — the heading pull
+keeps it), where the feet stand (the anchors at every still stand). Saved on the headset (`user://legs_cal.json`),
+measured again only for another height (> 6 cm). Test (`pad_test`): a shin 10 % longer than the model's, feet 10°
+out, a wider stance → shin 0.477 m (true 0.477), ankles 0.0 cm, feet 0.0° off.
+Offline what calibration and the headset camera are worth (`legs_eval.py`, 40 held-out CMU takes, knee mean): now
+16.6 cm · own lengths 15.9 · a printed marker on the shoe seen by the camera (in view 6–16 % of the time — people look
+ahead, the feet are ~70° below the gaze) 14.5–15.7 · both 13.8. More while kicking low spheres (the player looks at
+them); the knee rather than the shoe is in view then — a knee marker is the next step (owner: later).
+**Sensor just below the kneecap instead of above the ankle?** Same angles (the shin is one rigid bone); the
+acceleration would then follow the knee. Retrained and checked (`SENSOR_AT=knee`): knee 15.1 cm vs 14.8 — no gain.
+Keep them above the ankle (bony, outer side = how left / right is told, no EMS calf electrode under the strap).
+
 ### AI (Gemini) — where it fits and where not
 Not for the live figure: a cloud model answers in 0.5–3 s, needs the network, costs per call and does not return
 reliable joint angles — the figure must follow the body in < 50 ms. "Natural" comes from local models learned from

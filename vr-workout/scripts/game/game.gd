@@ -435,6 +435,9 @@ func _hands_events(delta: float) -> void:
 			if to == "sensors":
 				stage._show_toast("Сензорите за краката са свързани ✓ — ритници, колене и клекове с истинско движение")
 				sfx.play("pass", null, -4.0)
+				if body.pads.ready() and body.pads.measure < 0 and not body.pads.load_cal(body.stand_h):
+					body.pads.start_measure()          # once per person: four touches with a controller
+					_measure_said = -1
 			elif ch[1] == "sensors" and not (st in [St.MENU, St.IDLE, St.SUMMARY]):
 				stage._show_toast("Сензорите за краката се изгубиха — включени ли са? (Quest → Bluetooth)")
 			continue
@@ -473,6 +476,42 @@ func _hands_events(delta: float) -> void:
 
 # ---------------------------------------------------------------- the loop
 
+const MEASURE_SAY := [
+	"Измерване на краката: докосни ЛЯВОТО си коляно с върха на дръжката и натисни спусъка",
+	"Сега върха на ЛЯВАТА обувка — натисни спусъка",
+	"ДЯСНОТО коляно — натисни спусъка",
+	"Върха на ДЯСНАТА обувка — натисни спусъка",
+]
+var _measure_said := -1
+var _trig_was := {}
+
+
+## The legs' measurement (PadLegs.touch): say each step, take each trigger press of either controller at its tip.
+func _legs_measure() -> void:
+	var m: int = body.pads.measure
+	if m < 0:
+		return
+	if m >= 4:
+		if _measure_said < 4:
+			_measure_said = 4
+			stage._show_toast("Краката са измерени ✓ — запазено за следващия път")
+			sfx.play("pass", null, -4.0)
+		return
+	if _measure_said != m:
+		_measure_said = m
+		stage._show_toast(MEASURE_SAY[m])
+	for sd in ["left", "right"]:
+		var c = stage.hands.get(sd)
+		if body.src[sd] != "controller" or not (c is XRController3D):
+			continue
+		var down := (c as XRController3D).get_float("trigger") > 0.6
+		if down and not bool(_trig_was.get(sd, false)):
+			var t := (c as XRController3D).global_transform
+			body.legs_touch(t.origin - t.basis.z * 0.06)   # the controller's tip, a few cm ahead of the grip
+			sfx.play("tick", null, -6.0)
+		_trig_was[sd] = down
+
+
 func _process(delta: float) -> void:
 	if stage == null:
 		return
@@ -480,6 +519,7 @@ func _process(delta: float) -> void:
 		_sim(delta)
 	body.update(delta)
 	_hands_events(delta)
+	_legs_measure()
 	_beat(delta)
 	Elem.beat = exp(-fposmod(bt, beat_len()) / beat_len() * 6.0)
 	if not paused:

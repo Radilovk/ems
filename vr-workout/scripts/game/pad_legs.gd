@@ -59,6 +59,15 @@ var air := {"l": false, "r": false}
 var kprev := {"l": 0.0, "r": 0.0}
 var land := {"l": 0.0, "r": 0.0}
 var prior := LegsPrior.new()            # the learned prior (CMU): feet on the floor, thighs, hips — physics on top
+# The body measured with a controller (owner 2026-11-09: "a good calibration with the cameras"): the headset's cameras
+# track the controllers to a few mm — touch the left knee, the left shoe's tip, the right knee, the right shoe's tip
+# (trigger each). Gives the person's own shin and thigh, where each foot points (the strap may sit turned), where the
+# feet stand. Kept on the headset (CAL_PATH) — once per person.
+const CAL_PATH := "user://legs_cal.json"
+const MEASURE := ["kl", "tl", "kr", "tr"]
+var measure := -1                       # -1 · 0..3 = the touch being waited for · 4 = done this session
+var _touch := {}                        # "kl"/"tl"/"kr"/"tr" -> world point
+var cal := {}                           # {"stand_h", "ls", "lt", "foot": {sd: [fwd, left]} (ankle from the eyes, body frame), "turn": {sd: rad}}
 var use_prior := true
 var _t := 0.0
 
@@ -127,10 +136,13 @@ func poll(delta: float, head_h: float, stand_h: float, fwd: Vector3) -> void:
 				var lf: Vector3 = lfwd[id]
 				if f.length() > 0.5:
 					lf = f
-				if lf.angle_to(fwd) > HEADING_SNAP:
-					lf = fwd
+				var want := fwd                       # the body's forward, turned by this foot's measured toe-out
+				if cal.has("turn") and side.has(id):
+					want = fwd.rotated(Vector3.UP, float(cal.turn.get(side[id], 0.0)))
+				if lf.angle_to(want) > HEADING_SNAP:
+					lf = want
 				else:
-					lf = lf.slerp(fwd, clampf(delta / HEADING_PULL_S, 0.0, 1.0)).normalized()
+					lf = lf.slerp(want, clampf(delta / HEADING_PULL_S, 0.0, 1.0)).normalized()
 				lfwd[id] = lf
 			q0[id] = pads[id].q
 			if mount.has(id):
@@ -281,6 +293,78 @@ func _g(id: int) -> Basis:
 	return b * Basis(_turn(id)) * b.inverse()
 
 
+## Measure the legs (the game guides it): start → touch(point) four times → measure == 4, cal saved.
+func start_measure() -> void:
+	measure = 0
+	_touch.clear()
+
+
+func load_cal(stand_h: float) -> bool:
+	if not FileAccess.file_exists(CAL_PATH):
+		return false
+	var d = JSON.parse_string(FileAccess.get_file_as_string(CAL_PATH))
+	if typeof(d) != TYPE_DICTIONARY or absf(float(d.get("stand_h", 0.0)) - stand_h) > 0.06:
+		return false                                  # someone else (another height): measure again
+	cal = d
+	return true
+
+
+## One touch with the controller's tip (world). head: the eyes now; floor_y: the floor; stand_h: eye height standing.
+func touch(point: Vector3, head: Vector3, floor_y: float, stand_h: float) -> void:
+	if measure < 0 or measure >= MEASURE.size():
+		return
+	_touch[MEASURE[measure]] = point
+	measure += 1
+	if measure < MEASURE.size():
+		return
+	# all four: the person's own legs (the shin from the knee down its measured direction to the ankle's height)
+	var H := stand_h / 0.936
+	var ah := 0.039 * H
+	var c := {"stand_h": stand_h, "foot": {}, "turn": {}}
+	var lss := []
+	var bf := Vector3.ZERO
+	for sd in ["l", "r"]:
+		var id := _id_of(sd)
+		var u := (_g(id) * Vector3.UP).normalized() if id >= 0 else Vector3.UP
+		var k: Vector3 = _touch["k" + sd]
+		var t: Vector3 = _touch["t" + sd]
+		var ls := clampf((k.y - floor_y - ah) / maxf(0.5, u.y), 0.6 * 0.246 * H, 1.4 * 0.246 * H)
+		lss.append(ls)
+		var ankle := k - u * ls
+		var fd := Vector3(t.x - ankle.x, 0.0, t.z - ankle.z)
+		if fd.length() > 0.05:
+			bf += fd.normalized()
+		c.foot[sd] = ankle
+		c.turn[sd] = fd
+	bf = bf.normalized() if bf.length() > 0.3 else Vector3(0, 0, -1)
+	var left := Vector3.UP.cross(bf).normalized()
+	for sd in ["l", "r"]:
+		var a: Vector3 = (c.foot[sd] as Vector3) - head
+		c.foot[sd] = [a.dot(bf), a.dot(left)]            # the ankle from the eyes, in the body's frame
+		var fd: Vector3 = c.turn[sd]
+		c.turn[sd] = bf.signed_angle_to(fd.normalized(), Vector3.UP) if fd.length() > 0.05 else 0.0
+	c.ls = (float(lss[0]) + float(lss[1])) * 0.5
+	c.lt = c.ls * 0.245 / 0.246                       # the thigh: not touched (the hip is hard to find) — from the shin
+	cal = c
+	var f := FileAccess.open(CAL_PATH, FileAccess.WRITE)
+	if f:
+		f.store_string(JSON.stringify(cal))
+	# where each foot points, measured: the leg's forward = the body's forward turned by its toe-out
+	for id in side:
+		var sd: String = side[id]
+		if q0.has(id) and mount.has(id):
+			lfwd[id] = bf.rotated(Vector3.UP, float(c.turn[sd]))
+			basis[id] = _basis(id, lfwd[id])
+	_rezero = true
+
+
+func _id_of(sd: String) -> int:
+	for id in side:
+		if side[id] == sd:
+			return id
+	return -1
+
+
 func ready() -> bool:
 	return status == "ready" and Time.get_ticks_msec() - _last_ms < MAX_AGE_MS and side.size() >= 1
 
@@ -295,8 +379,8 @@ func limbs(head: Vector3, fwd: Vector3, stand_h: float, floor_y: float, delta :=
 		_head_v = lerpf(_head_v, head.distance_to(_head_prev) / delta, clampf(delta / 0.15, 0.0, 1.0))
 	_head_prev = head
 	var H := stand_h / 0.936                          # body height from eye height
-	var lt := 0.245 * H                               # thigh
-	var ls := 0.246 * H                               # shin, knee → ankle
+	var lt := float(cal.get("lt", 0.245 * H))         # thigh (measured, else from the height)
+	var ls := float(cal.get("ls", 0.246 * H))         # shin, knee → ankle
 	var ah := 0.039 * H                               # ankle above the floor
 	var hw := 0.052 * H                               # hip joint from the middle
 	var hip_drop := stand_h - (ah + ls + lt)          # eyes → hip joints, standing
@@ -330,6 +414,9 @@ func limbs(head: Vector3, fwd: Vector3, stand_h: float, floor_y: float, delta :=
 		pc_off = stand_off
 		for sd in U:
 			var p: Vector3 = pc + left * hw * float(sgn[sd])
+			if cal.has("foot"):                         # where this person stands, measured
+				var fo: Array = cal.foot[sd]
+				p = head + bf * float(fo[0]) + left * float(fo[1])
 			anc[sd] = Vector3(p.x, floor_y + ah, p.z)
 			air[sd] = false
 			kprev[sd] = 0.0

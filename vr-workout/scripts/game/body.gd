@@ -154,6 +154,12 @@ func _hand_source(side: String) -> Array:
 	return ["none", Transform3D()]
 
 
+## One touch of the legs' measurement (PadLegs.touch): the controller's tip, world.
+func legs_touch(tip: Vector3) -> void:
+	var world_head: Vector3 = cam.global_position if cam else Vector3(0, 1.7, 0)
+	pads.touch(tip, world_head, origin.global_position.y if origin else 0.0, stand_h)
+
+
 ## Once a frame (the samples come once a frame; the game sweeps between them in small steps).
 func update(delta: float) -> void:
 	head_prev = head

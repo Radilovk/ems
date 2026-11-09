@@ -100,7 +100,7 @@ def features(sig, w, i):
     return np.concatenate(parts + [w[i]])
 
 
-def dataset(paths, seed, noise=0.03):
+def dataset(paths, seed, noise=0.03, part=None):
     rng = np.random.default_rng(seed)
     X, Y = [], []
     for p in paths:
@@ -116,6 +116,12 @@ def dataset(paths, seed, noise=0.03):
             if rng.random() < 0.2:              # … and without the hands (not tracked for a moment)
                 sig[:, -6:] = 0; hflag[:] = 0
             lagged = np.concatenate([sig[np.maximum(0, idx - L)] for L in LAGS] + [leg['w'], flag, hflag], 1)
+            if part is not None:                # only this share of the take (teaching: the first half)
+                a_, b_ = int(part[0] * n), int(part[1] * n)
+                lagged = lagged[a_:b_]
+                X.append(lagged)
+                Y.append(np.concatenate([leg['contact'][:, None], leg['thigh'], leg['pc']], 1)[a_:b_])
+                continue
             X.append(lagged)
             Y.append(np.concatenate([leg['contact'][:, None], leg['thigh'], leg['pc']], 1))
     return np.concatenate(X).astype(np.float32), np.concatenate(Y).astype(np.float32)
@@ -338,3 +344,21 @@ if __name__ == '__main__' and sys.argv[1] == 'teach':
         r0 = np.mean([LE.run(p, prior=Prior(net0))['knee'] for p in test])
         r1 = np.mean([LE.run(p, prior=Prior(net1))['knee'] for p in test])
         print('person %-4s taught with %.1f min: knee %.1f → %.1f cm on their %d other takes' % (sub, mins, r0, r1, len(test)), flush=True)
+
+
+if __name__ == '__main__' and sys.argv[1] == 'teach-same':
+    # the game's movements are a fixed set: teach on the first half of each of the person's takes, test on the second
+    net0 = load(sys.argv[3])
+    for sub in sorted(TEST_SUBJECTS):
+        ps = sorted(p for p in te if os.path.basename(p).split('_')[0] == sub)
+        X, Y = dataset(ps, 5, part=(0.0, 0.5))
+        mins = len(X) / 2 / 60 / 60
+        if 'rehearse' not in globals():
+            rng_ = np.random.default_rng(9)
+            globals()['rehearse'] = dataset(list(rng_.choice(tr, 40, replace=False)), 6)
+        Xg, Yg = rehearse
+        sel = np.random.default_rng(1).choice(len(Xg), min(len(Xg), 3 * len(X)), replace=False)
+        net1 = train(np.concatenate([X, X, X, Xg[sel]]), np.concatenate([Y, Y, Y, Yg[sel]]), epochs=4, init=net0, lr0=2e-4)
+        r0 = np.mean([LE.run(p, prior=Prior(net0), part=(0.5, 1.0))['knee'] for p in ps])
+        r1 = np.mean([LE.run(p, prior=Prior(net1), part=(0.5, 1.0))['knee'] for p in ps])
+        print('person %-4s taught with %.1f min of the same moves: knee %.1f → %.1f cm on the rest' % (sub, mins, r0, r1), flush=True)

@@ -271,7 +271,7 @@ def load(path):
     return d, n, floor_ankle, eye_h
 
 
-def run(path, use_acc=True, prior=None, noise=0.02, bias=0.01, seed=1, old=False, collect=None):
+def run(path, use_acc=True, prior=None, noise=0.02, bias=0.01, seed=1, old=False, collect=None, part=None):
     d, n, floor_ankle, eye_h = load(path)
     rng = np.random.default_rng(seed)
     # the person's own proportions → the game's model (eye height standing); the floor from the ankle's rest height
@@ -324,7 +324,7 @@ def run(path, use_acc=True, prior=None, noise=0.02, bias=0.01, seed=1, old=False
         out = s.limbs(U, A, Dd, head)
         if collect is not None:
             collect.append((s, i, U, A, head, out))
-        if i < 60:
+        if i < 60 or (part is not None and not (part[0] * n <= i < part[1] * n)):
             continue
         for sd in 'lr':
             ek.append(np.linalg.norm(out[sd]['knee'] - d['knee_' + sd][i]))

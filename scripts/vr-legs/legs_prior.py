@@ -154,13 +154,15 @@ def loss_grad(net, X, Y):
     return L, [gW0, gW1, gW2], [gb0, gb1, gb2]
 
 
-def train(X, Y, epochs=30, seed=0):
+def train(X, Y, epochs=30, seed=0, init=None, lr0=2e-3):
     rng = np.random.default_rng(seed)
     net = MLP(X.shape[1], Y.shape[1], rng)
     net.mu = X.mean(0); net.sd = X.std(0) + 1e-6
+    if init is not None:                    # fine-tune: start from a trained network (its input scaling kept)
+        net.W = [w.copy() for w in init.W]; net.b = [b.copy() for b in init.b]; net.mu = init.mu; net.sd = init.sd
     params = net.W + net.b
     m = [np.zeros_like(p) for p in params]; v = [np.zeros_like(p) for p in params]
-    t = 0; lr = 2e-3; B = 512
+    t = 0; lr = lr0; B = 512
     for ep in range(epochs):
         perm = rng.permutation(len(X)); tot = 0
         for k in range(0, len(X), B):
@@ -313,3 +315,18 @@ def export_gd(net, path, info):
 if __name__ == '__main__' and sys.argv[1] == 'gd':
     net = load(sys.argv[3])
     export_gd(net, sys.argv[4], ' '.join(sys.argv[5:]))
+
+
+if __name__ == '__main__' and sys.argv[1] == 'teach':
+    # a teaching session (owner 2026-11-09: extra sensors on the thighs, only to teach, then off): per held-out person,
+    # fine-tune the general network on N of their takes (the thighs measured = the answers), test on their other takes
+    net0 = load(sys.argv[3]); N = int(os.environ.get('TEACH_N', 3))
+    for sub in sorted(TEST_SUBJECTS):
+        ps = sorted(p for p in te if os.path.basename(p).split('_')[0] == sub)
+        teach, test = ps[:N], ps[N:]
+        X, Y = dataset(teach, 5)
+        net1 = train(X, Y, epochs=int(os.environ.get('EPOCHS', 8)), init=net0, lr0=3e-4)
+        r0 = np.mean([LE.run(p, prior=Prior(net0))['knee'] for p in test])
+        r1 = np.mean([LE.run(p, prior=Prior(net1))['knee'] for p in test])
+        mins = len(X) / 2 / 60 / 60
+        print('person %-4s taught with %.1f min: knee %.1f → %.1f cm on their %d other takes' % (sub, mins, r0, r1, len(test)), flush=True)

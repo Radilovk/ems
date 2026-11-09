@@ -8,16 +8,18 @@ namespace wi {
 enum { OP_CURRENTS = 0, OP_PROGRAM = 1, OP_REST = 2, OP_WIDTHS = 3, OP_RUN = 4 };
 // Notifications from the bridge carry a selector too: 0x04 = the run characteristic, 0x10 = battery (2A19).
 enum { N_RUN = 0x04, N_BATTERY = 0x10 };
-enum { CHANNELS = 10, MAX_CURRENT = 100, PHASE_ARM = 2, PHASE_RUN = 0 };
+enum { CHANNELS = 10, PHASE_ARM = 2, PHASE_RUN = 0 };
 
-enum { UNIT_MAX = 31 };                  // the unit's top byte = our 100 % (the write's 5-bit check covers 0..31)
+enum { UNIT_MAX = 125 };                 // the unit's top byte = our 100 % = the vendor's own top (its "+" stops at 125)
 int unit(int pct);                       // 0..100 % → 0..UNIT_MAX
 Bytes currents(const int c[CHANNELS]);   // each 0..UNIT_MAX (the unit's bytes), with the vendor's check bits
 Bytes zero();
 // Dur fr w r Ru Rd dec phase XOR — Dur and dec as the vendor sent them (meaning unknown).
 Bytes program(int hz, int workS, int restS, int rampUpS, int rampDownS, int phase);
 Bytes rest(int hz, int pct);             // the unit's pause frequency
-Bytes widths();                          // the vendor's per-channel widths
+Bytes widths(const int muscleOf[CHANNELS] = 0);   // per-muscle widths; muscleOf[ch] = the unit-suit channel whose
+                                                  // muscle ch drives (−1 / null: its own)
+int widthByte(int us);                   // one channel's width byte: pos (bits 0–2) | neg (3–5) | 50 µs gap (6–7)
 Bytes run(bool start);                   // 0x25 start / 0x00 stop
 bool runTick(const Bytes &n);            // a run notification "01" (the unit runs: its count-down is over)
 // A run notification's value (−1: not one): 01 runs, 00 stopped, 0x80|x its protection tripped (seen "86": a

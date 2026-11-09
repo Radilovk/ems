@@ -199,7 +199,7 @@
     .prologue
     const/4 v0, 0x0
 
-    .line 262
+    .line 274
     array-length v2, p0
 
     move v1, v0
@@ -211,17 +211,17 @@
 
     if-eqz v3, :cond_a
 
-    .line 263
+    .line 275
     :goto_9
     return v0
 
-    .line 262
+    .line 274
     :cond_a
     add-int/lit8 v1, v1, 0x1
 
     goto :goto_3
 
-    .line 263
+    .line 275
     :cond_d
     const/4 v0, 0x1
 
@@ -232,7 +232,7 @@
     .registers 3
 
     .prologue
-    .line 205
+    .line 217
     if-eqz p0, :cond_a
 
     array-length v0, p0
@@ -265,17 +265,17 @@
     .prologue
     const/4 v3, 0x0
 
-    .line 234
+    .line 246
     const/4 v0, 0x2
 
     iput v0, p0, Lcom/isaigu/gymapp/bodytech/WiTranslator;->unit:I
 
-    .line 235
+    .line 247
     const/4 v0, 0x0
 
     invoke-direct {p0, p1, v0}, Lcom/isaigu/gymapp/bodytech/WiTranslator;->setCurrents(Ljava/util/List;[I)V
 
-    .line 236
+    .line 248
     iget v0, p0, Lcom/isaigu/gymapp/bodytech/WiTranslator;->hz:I
 
     iget v1, p0, Lcom/isaigu/gymapp/bodytech/WiTranslator;->workS:I
@@ -292,29 +292,29 @@
 
     invoke-interface {p1, v0}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    .line 237
+    .line 249
     iget v0, p0, Lcom/isaigu/gymapp/bodytech/WiTranslator;->hz:I
 
     iput v0, p0, Lcom/isaigu/gymapp/bodytech/WiTranslator;->devHz:I
 
-    .line 238
+    .line 250
     iget v0, p0, Lcom/isaigu/gymapp/bodytech/WiTranslator;->workS:I
 
     iput v0, p0, Lcom/isaigu/gymapp/bodytech/WiTranslator;->devWork:I
 
-    .line 239
+    .line 251
     iget v0, p0, Lcom/isaigu/gymapp/bodytech/WiTranslator;->restS:I
 
     iput v0, p0, Lcom/isaigu/gymapp/bodytech/WiTranslator;->devRest:I
 
-    .line 240
+    .line 252
     invoke-virtual {p0}, Lcom/isaigu/gymapp/bodytech/WiTranslator;->target()[I
 
     move-result-object v0
 
     invoke-direct {p0, p1, v0}, Lcom/isaigu/gymapp/bodytech/WiTranslator;->setCurrents(Ljava/util/List;[I)V
 
-    .line 241
+    .line 253
     return-void
 .end method
 
@@ -331,35 +331,35 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 210
+    .line 222
     iget-boolean v0, p0, Lcom/isaigu/gymapp/bodytech/WiTranslator;->unsafe:Z
 
     if-nez v0, :cond_6
 
-    .line 216
+    .line 228
     :goto_5
     return-void
 
-    .line 211
+    .line 223
     :cond_6
     iput-boolean v1, p0, Lcom/isaigu/gymapp/bodytech/WiTranslator;->unsafe:Z
 
-    .line 212
+    .line 224
     iput-boolean v1, p0, Lcom/isaigu/gymapp/bodytech/WiTranslator;->devKnown:Z
 
-    .line 213
+    .line 225
     const/4 v0, 0x0
 
     invoke-direct {p0, p1, v0}, Lcom/isaigu/gymapp/bodytech/WiTranslator;->setCurrents(Ljava/util/List;[I)V
 
-    .line 214
+    .line 226
     invoke-static {v1}, Lcom/isaigu/gymapp/bodytech/WiProto;->run(Z)[B
 
     move-result-object v0
 
     invoke-interface {p1, v0}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    .line 215
+    .line 227
     iput v1, p0, Lcom/isaigu/gymapp/bodytech/WiTranslator;->unit:I
 
     goto :goto_5
@@ -382,16 +382,16 @@
 
     const/4 v2, 0x0
 
-    .line 252
+    .line 264
     if-eqz p2, :cond_19
 
-    .line 253
+    .line 265
     :goto_6
     iget-boolean v0, p0, Lcom/isaigu/gymapp/bodytech/WiTranslator;->devKnown:Z
 
     move v3, v2
 
-    .line 254
+    .line 266
     :goto_9
     if-ge v3, v5, :cond_1e
 
@@ -412,7 +412,7 @@
 
     goto :goto_9
 
-    .line 252
+    .line 264
     :cond_19
     new-array p2, v5, [I
 
@@ -421,18 +421,18 @@
     :cond_1c
     move v0, v2
 
-    .line 254
+    .line 266
     goto :goto_16
 
-    .line 255
+    .line 267
     :cond_1e
     if-eqz v0, :cond_21
 
-    .line 259
+    .line 271
     :goto_20
     return-void
 
-    .line 256
+    .line 268
     :cond_21
     invoke-static {p2}, Lcom/isaigu/gymapp/bodytech/WiProto;->currents([I)[B
 
@@ -440,12 +440,12 @@
 
     invoke-interface {p1, v0}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    .line 257
+    .line 269
     iget-object v0, p0, Lcom/isaigu/gymapp/bodytech/WiTranslator;->devCur:[I
 
     invoke-static {p2, v2, v0, v2, v5}, Ljava/lang/System;->arraycopy(Ljava/lang/Object;ILjava/lang/Object;II)V
 
-    .line 258
+    .line 270
     iput-boolean v1, p0, Lcom/isaigu/gymapp/bodytech/WiTranslator;->devKnown:Z
 
     goto :goto_20
@@ -466,7 +466,7 @@
 
     const/4 v3, 0x0
 
-    .line 219
+    .line 231
     iget v0, p0, Lcom/isaigu/gymapp/bodytech/WiTranslator;->hz:I
 
     iget v1, p0, Lcom/isaigu/gymapp/bodytech/WiTranslator;->workS:I
@@ -483,7 +483,7 @@
 
     invoke-interface {p1, v0}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    .line 220
+    .line 232
     iget v0, p0, Lcom/isaigu/gymapp/bodytech/WiTranslator;->restHz:I
 
     const/16 v1, 0x64
@@ -494,52 +494,56 @@
 
     invoke-interface {p1, v0}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    .line 221
-    invoke-static {}, Lcom/isaigu/gymapp/bodytech/WiProto;->widths()[B
+    .line 233
+    invoke-virtual {p0}, Lcom/isaigu/gymapp/bodytech/WiTranslator;->muscleOf()[I
+
+    move-result-object v0
+
+    invoke-static {v0}, Lcom/isaigu/gymapp/bodytech/WiProto;->widths([I)[B
 
     move-result-object v0
 
     invoke-interface {p1, v0}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    .line 222
+    .line 234
     const/4 v0, 0x0
 
     invoke-direct {p0, p1, v0}, Lcom/isaigu/gymapp/bodytech/WiTranslator;->setCurrents(Ljava/util/List;[I)V
 
-    .line 223
+    .line 235
     invoke-static {v6}, Lcom/isaigu/gymapp/bodytech/WiProto;->run(Z)[B
 
     move-result-object v0
 
     invoke-interface {p1, v0}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    .line 224
+    .line 236
     iget v0, p0, Lcom/isaigu/gymapp/bodytech/WiTranslator;->hz:I
 
     iput v0, p0, Lcom/isaigu/gymapp/bodytech/WiTranslator;->devHz:I
 
-    .line 225
+    .line 237
     iget v0, p0, Lcom/isaigu/gymapp/bodytech/WiTranslator;->workS:I
 
     iput v0, p0, Lcom/isaigu/gymapp/bodytech/WiTranslator;->devWork:I
 
-    .line 226
+    .line 238
     iget v0, p0, Lcom/isaigu/gymapp/bodytech/WiTranslator;->restS:I
 
     iput v0, p0, Lcom/isaigu/gymapp/bodytech/WiTranslator;->devRest:I
 
-    .line 227
+    .line 239
     iget v0, p0, Lcom/isaigu/gymapp/bodytech/WiTranslator;->restHz:I
 
     iput v0, p0, Lcom/isaigu/gymapp/bodytech/WiTranslator;->devRestHz:I
 
-    .line 228
+    .line 240
     iput v6, p0, Lcom/isaigu/gymapp/bodytech/WiTranslator;->unit:I
 
-    .line 229
+    .line 241
     iput-wide p2, p0, Lcom/isaigu/gymapp/bodytech/WiTranslator;->countdownAt:J
 
-    .line 230
+    .line 242
     return-void
 .end method
 
@@ -556,7 +560,7 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 244
+    .line 256
     iget v0, p0, Lcom/isaigu/gymapp/bodytech/WiTranslator;->unit:I
 
     if-nez v0, :cond_12
@@ -573,24 +577,24 @@
 
     if-eqz v0, :cond_12
 
-    .line 248
+    .line 260
     :goto_11
     return-void
 
-    .line 245
+    .line 257
     :cond_12
     const/4 v0, 0x0
 
     invoke-direct {p0, p1, v0}, Lcom/isaigu/gymapp/bodytech/WiTranslator;->setCurrents(Ljava/util/List;[I)V
 
-    .line 246
+    .line 258
     invoke-static {v1}, Lcom/isaigu/gymapp/bodytech/WiProto;->run(Z)[B
 
     move-result-object v0
 
     invoke-interface {p1, v0}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    .line 247
+    .line 259
     iput v1, p0, Lcom/isaigu/gymapp/bodytech/WiTranslator;->unit:I
 
     goto :goto_11
@@ -1325,6 +1329,51 @@
     .catchall {:try_start_55 .. :try_end_57} :catchall_50
 
     goto :goto_40
+.end method
+
+.method muscleOf()[I
+    .registers 6
+
+    .prologue
+    const/16 v4, 0xa
+
+    .line 207
+    new-array v0, v4, [I
+
+    .line 208
+    const/4 v1, -0x1
+
+    invoke-static {v0, v1}, Ljava/util/Arrays;->fill([II)V
+
+    .line 209
+    iget-boolean v1, p0, Lcom/isaigu/gymapp/bodytech/WiTranslator;->xemsSuit:Z
+
+    if-nez v1, :cond_d
+
+    .line 211
+    :cond_c
+    return-object v0
+
+    .line 210
+    :cond_d
+    const/4 v1, 0x0
+
+    :goto_e
+    if-ge v1, v4, :cond_c
+
+    sget-object v2, Lcom/isaigu/gymapp/bodytech/WiTranslator;->SLIDER_TO_CH_XEMS:[I
+
+    aget v2, v2, v1
+
+    sget-object v3, Lcom/isaigu/gymapp/bodytech/WiTranslator;->SLIDER_TO_CH:[I
+
+    aget v3, v3, v1
+
+    aput v3, v0, v2
+
+    add-int/lit8 v1, v1, 0x1
+
+    goto :goto_e
 .end method
 
 .method public declared-synchronized phase(I)V

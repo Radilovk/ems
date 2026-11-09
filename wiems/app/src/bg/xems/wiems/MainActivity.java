@@ -207,8 +207,8 @@ public final class MainActivity extends Activity implements Ble.Listener, Host {
 
     public void channelsChanged() {
         save();
-        if (session != null) session.setMap(channels.map());
-        if (held != null) held.setMap(channels.map());
+        if (session != null) session.setMap(channels.map(), channels.map[channels.dev][Channels.XBODY]);
+        if (held != null) held.setMap(channels.map(), channels.map[channels.dev][Channels.XBODY]);
     }
 
     public java.io.InputStream openAsset(String name) {
@@ -368,7 +368,7 @@ public final class MainActivity extends Activity implements Ble.Listener, Host {
         } else {
             session = new Session(linkingKind);
             channels.setDev(linkingKind);
-            session.setMap(channels.map());
+            session.setMap(channels.map(), channels.map[channels.dev][Channels.XBODY]);
             session.setProgram(prog);
             session.setStrength(100); // every zone starts at 0 (owner); СИЛА scales them all — 100 % = as set
             mode = -1;
@@ -562,6 +562,12 @@ public final class MainActivity extends Activity implements Ble.Listener, Host {
         // per body part (v1.15); 1.14 kept them per WiEMS zone ("zone0".."zone9", the screen's order)
         for (int z = 0; z < Session.ZONES; z++) savedZones[Session.ZONE_PART[z]] = p.getInt("zone" + z, 0);
         for (int q = 0; q < Channels.PARTS; q++) savedZones[q] = p.getInt("part" + q, savedZones[q]);
+        // 1.20: 100 % = byte 125 (the vendor's top) instead of 20 / 31 — a saved zone would come back 4–6× stronger:
+        // once, every zone starts again at 0
+        if (p.getInt("wi_scale", 0) != com.isaigu.gymapp.bodytech.WiProto.UNIT_MAX) {
+            java.util.Arrays.fill(savedZones, 0);
+            p.edit().putInt("wi_scale", com.isaigu.gymapp.bodytech.WiProto.UNIT_MAX).apply();
+        }
         lastKind = p.getInt("last_kind", Dev.WIEMS);
         dark = p.getBoolean("dark", false);
         savedStrength = p.getInt("strength", 100);

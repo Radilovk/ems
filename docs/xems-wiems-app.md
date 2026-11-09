@@ -1,4 +1,4 @@
-# XEMS WiEMS — light tablet app for one WiEMS unit, XEMS or bodytech suit (wiems/app, v1.19)
+# XEMS WiEMS — light tablet app for one WiEMS unit, XEMS or bodytech suit (wiems/app, v1.20)
 
 Owner (2026-10-16): a separate APK for a small 8" tablet (Lenovo Tab M8 HD, 1280×800, 2 GB RAM), only for WiEMS,
 light, **in the same design and style as the XBody screen**. Not the XEMS app: no vendor APK, no music / AI /
@@ -272,6 +272,14 @@ about +55 % at 100 %. The same in the XEMS APK (1.1.507-ai) and the XBody panel 
 fused impulse) stays: a safety rule, not the cause. **First run: start low — a zone that was 100 % now gives ~1.5×.**
 If 31 is still short: test above 31 with all zones equal (XOR 0), then one apart — `86` = the unit checks the
 upper bits too and 31 is its top.
+
+## v1.20 — as the vendor's code: 100 % = 125, 8-bit check, widths follow the muscles (owner: "do it like the native app")
+Read from the vendor's own app (NooFit Pro = Wiems Easy for Android, `wiems/PROTOCOL.md` "From the vendor's code"):
+its strength is the screen's number 0..125 sent as is → our 100 % = 125 (1.19's 31 was still a guess, 4× under).
+The check bits cover all 8 bits (bytes 0..7). The width byte is pos | neg << 3 | gap << 6 and belongs to a muscle:
+with an XEMS suit the widths move with the muscles (`Session.muscleOfChannel`, from the unit's own-suit map —
+the service mode's checked one), before Седалище / Корем … got the vendor's 100–150 µs of Трапец / Ръце.
+**Once, on the first start of 1.20, every saved zone goes to 0** (a kept 80 % would come back as 100 instead of 25).
 
 ## Build / test
 ```

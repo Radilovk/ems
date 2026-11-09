@@ -63,7 +63,7 @@ static unsigned age(unsigned now, unsigned since) {
 }
 
 Suit::Suit(Kind kind)
-    : kind_(kind), strength_(0), state_(IDLE), on_(false), finished_(false), startWanted_(false), endMs_(0), phaseEndMs_(0),
+    : wiWiring_(WIRE_XEMS), kind_(kind), strength_(0), state_(IDLE), on_(false), finished_(false), startWanted_(false), endMs_(0), phaseEndMs_(0),
       rampStartMs_(0), remainMs_(0), rampStep_(0), lastBattMs_(0), lastSyncMs_(0), battery_(-1), btHz_(0), btUs_(0),
       wi_(WI_IDLE), wiGo_(false), wiAt_(0), inflight_(false), sentMs_(0) {
     wiSentValid_ = wiOnAirValid_ = wiOkValid_ = userChange_ = runNotifies_ = false;
@@ -349,7 +349,13 @@ void Suit::start(unsigned now) {
         // the unit's rest: the double impulse's Hz and % — or 0 % (nothing in the pause)
         if (prog_.cont) push(wi::rest(prog_.hz, 100), T_PROG);   // Cardio: the impulse goes on in the rest
         else push(wi::rest(prog_.dbl ? prog_.dblHz : 5, prog_.dbl ? (prog_.dblPct > 100 ? 100 : prog_.dblPct) : 0), T_PROG);
-        push(wi::widths(), T_PROG);
+        {   // the vendor's per-muscle widths follow the muscle: the zone's channel here ← its channel on the unit's suit
+            int m[wi::CHANNELS];
+            for (int i = 0; i < wi::CHANNELS; i++) m[i] = -1;
+            if (wiWiring_ == WIRE_XBODY)
+                for (int i = 0; i < 10; i++) m[WI_ZONES_XEMS[i].ch[0]] = WI_ZONES[i].ch[0];
+            push(wi::widths(m), T_PROG);
+        }
         push(wi::zero(), T_PROG);
         push(wi::run(true), T_PROG);
         wi_ = WI_COUNT;

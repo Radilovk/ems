@@ -2,7 +2,10 @@
 
 namespace wi {
 static const int DUR = 41, DEC_LO = 0x7E, DEC_HI = 0x05;
-static const int WIDTHS[CHANNELS] = {0x7F, 0x7F, 0x6D, 0x49, 0x7F, 0x7F, 0x64, 0x52, 0x7F, 0x52};
+// Pulse width (µs) of the muscle on each channel of the unit's own (XBody-standard) suit — what the vendor app sent in
+// the owner's session (capture 1: 7f 7f 6d 49 7f 7f 64 52 7f 52); the vendor keeps widths per muscle (WiProto.java).
+static const int WIDTH_US[CHANNELS] = {400, 400, 300, 100, 400, 400, 250, 150, 400, 150};
+static const int WIDTH_GAP_US = 50;
 
 static int clamp(int v, int lo, int hi) { return v < lo ? lo : (v > hi ? hi : v); }
 
@@ -21,14 +24,13 @@ static int xor9(const int *v) {
 
 int unit(int pct) { return (clamp(pct, 0, 100) * UNIT_MAX + 50) / 100; }
 
-// The vendor's check (decoded from its capture, the owner's traces): the XOR of the ten values, its 5 bits in bit 7
-// of channels 3..7 (ch 3 = bit 4 … ch 7 = bit 0). Without it any unequal channels make the unit stop with "86".
+// The vendor's check (its code, DispositivoConectado.getCurrentsCoded): the XOR of the ten values, bit 7 − i of it in
+// bit 7 of byte i, i = 0..7. Without it any unequal channels make the unit stop with "86".
 Bytes currents(const int c[CHANNELS]) {
     int v[CHANNELS], x = 0;
     for (int i = 0; i < CHANNELS; i++) v[i] = c ? clamp(c[i], 0, UNIT_MAX) : 0;
     for (int i = 0; i < CHANNELS; i++) x ^= v[i];
-    for (int k = 0; k < 5; k++)
-        if (x & (0x10 >> k)) v[3 + k] |= 0x80;
+    for (int i = 0; i < 8; i++) v[i] |= (x << i) & 0x80;
     return op(OP_CURRENTS, v, CHANNELS);
 }
 
@@ -47,7 +49,21 @@ Bytes rest(int hz, int pct) {
     return op(OP_REST, v, 10);
 }
 
-Bytes widths() { return op(OP_WIDTHS, WIDTHS, CHANNELS); }
+static int widthCode(int us) { return us >= 400 ? 7 : us >= 100 && us % 50 == 0 ? us / 50 - 1 : 0; }
+
+int widthByte(int us) {
+    int g = WIDTH_GAP_US >= 100 ? 2 : WIDTH_GAP_US == 50 ? 1 : 0;
+    return widthCode(us) | widthCode(us) << 3 | g << 6;
+}
+
+Bytes widths(const int muscleOf[CHANNELS]) {
+    int v[CHANNELS];
+    for (int ch = 0; ch < CHANNELS; ch++) {
+        int m = muscleOf && muscleOf[ch] >= 0 && muscleOf[ch] < CHANNELS ? muscleOf[ch] : ch;
+        v[ch] = widthByte(WIDTH_US[m]);
+    }
+    return op(OP_WIDTHS, v, CHANNELS);
+}
 
 Bytes run(bool start) {
     int v[1] = {start ? 0x25 : 0x00};

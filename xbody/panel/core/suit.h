@@ -36,6 +36,9 @@ public:
     // body part, e.g. XBody's "Корем" lead lands on XEMS channel "Ръце"). bodytech has one layout only.
     enum Wiring { WIRE_XEMS, WIRE_XBODY };
 
+    // WiEMS: an XEMS suit on the unit's leads (WIRE_XBODY) moves the vendor's per-muscle pulse widths with the
+    // muscles (wi::widths); WIRE_XEMS = the unit's own suit.
+    void setWiWiring(int w) { wiWiring_ = w; }
     explicit Suit(Kind kind);
     Kind kind() const { return kind_; }
     int channels() const;
@@ -91,6 +94,7 @@ public:
     void clearQueue() { out_.clear(); inflight_ = false; }
 
 private:
+    int wiWiring_;
     enum Tag { T_PLAIN, T_LEVELS, T_PROG };
     struct Item {
         Bytes b;

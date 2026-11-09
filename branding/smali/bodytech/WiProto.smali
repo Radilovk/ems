@@ -30,8 +30,6 @@
 
 .field static final DUR:I = 0x29
 
-.field public static final MAX_CURRENT:I = 0x64
-
 .field public static final OP_CURRENTS:I = 0x0
 
 .field public static final OP_PROGRAM:I = 0x1
@@ -52,9 +50,11 @@
 
 .field public static final SVC:Ljava/lang/String; = "7764d8fe-c6a9-11e4-8731-1681e6b88ec1"
 
-.field public static final UNIT_MAX:I = 0x14
+.field public static final UNIT_MAX:I = 0x7d
 
-.field static final WIDTHS:[I
+.field public static final WIDTH_GAP_US:I = 0x32
+
+.field public static final WIDTH_US:[I
 
 
 # direct methods
@@ -99,29 +99,29 @@
 
     sput-object v0, Lcom/isaigu/gymapp/bodytech/WiProto;->CHR:[Ljava/lang/String;
 
-    .line 42
+    .line 46
     const/16 v0, 0xa
 
     new-array v0, v0, [I
 
     fill-array-data v0, :array_28
 
-    sput-object v0, Lcom/isaigu/gymapp/bodytech/WiProto;->WIDTHS:[I
+    sput-object v0, Lcom/isaigu/gymapp/bodytech/WiProto;->WIDTH_US:[I
 
     return-void
 
     :array_28
     .array-data 4
-        0x7f
-        0x7f
-        0x6d
-        0x49
-        0x7f
-        0x7f
+        0x190
+        0x190
+        0x12c
         0x64
-        0x52
-        0x7f
-        0x52
+        0x190
+        0x190
+        0xfa
+        0x96
+        0x190
+        0x96
     .end array-data
 .end method
 
@@ -141,7 +141,7 @@
     .prologue
     const/4 v0, 0x0
 
-    .line 46
+    .line 52
     if-eqz p0, :cond_7
 
     array-length v1, p0
@@ -150,12 +150,12 @@
 
     if-ge v1, v2, :cond_8
 
-    .line 48
+    .line 54
     :cond_7
     :goto_7
     return-object v0
 
-    .line 47
+    .line 53
     :cond_8
     const/4 v1, 0x0
 
@@ -163,7 +163,7 @@
 
     and-int/lit16 v1, v1, 0xff
 
-    .line 48
+    .line 54
     sget-object v2, Lcom/isaigu/gymapp/bodytech/WiProto;->CHR:[Ljava/lang/String;
 
     array-length v2, v2
@@ -181,7 +181,7 @@
     .registers 3
 
     .prologue
-    .line 72
+    .line 78
     if-ge p0, p1, :cond_3
 
     :goto_2
@@ -210,14 +210,14 @@
 
     const/4 v0, -0x1
 
-    .line 128
+    .line 167
     if-eqz p0, :cond_8
 
     array-length v1, p0
 
     if-eq v1, v5, :cond_9
 
-    .line 135
+    .line 174
     :cond_8
     :goto_8
     return v0
@@ -227,30 +227,30 @@
 
     move v1, v3
 
-    .line 130
+    .line 169
     :goto_b
     if-ge v2, v5, :cond_1f
 
-    .line 131
+    .line 170
     aget-byte v3, p0, v2
 
     and-int/lit8 v3, v3, 0x7f
 
     add-int/lit8 v3, v3, -0x30
 
-    .line 132
+    .line 171
     if-ltz v3, :cond_8
 
     const/16 v4, 0x9
 
     if-gt v3, v4, :cond_8
 
-    .line 133
+    .line 172
     mul-int/lit8 v1, v1, 0xa
 
     add-int/2addr v1, v3
 
-    .line 130
+    .line 169
     add-int/lit8 v2, v2, 0x1
 
     goto :goto_b
@@ -258,7 +258,7 @@
     :cond_1f
     move v0, v1
 
-    .line 135
+    .line 174
     goto :goto_8
 .end method
 
@@ -268,7 +268,7 @@
     .prologue
     const/4 v0, 0x0
 
-    .line 140
+    .line 179
     invoke-static {p0}, Lcom/isaigu/gymapp/bodytech/WiProto;->clockTenths([B)I
 
     move-result v1
@@ -295,12 +295,12 @@
 
     const/4 v1, 0x0
 
-    .line 91
+    .line 100
     new-array v3, v5, [I
 
     move v2, v1
 
-    .line 92
+    .line 101
     :goto_6
     if-ge v2, v5, :cond_1d
 
@@ -312,7 +312,7 @@
 
     aget v0, p0, v2
 
-    const/16 v4, 0x14
+    const/16 v4, 0x7d
 
     invoke-static {v0, v1, v4}, Lcom/isaigu/gymapp/bodytech/WiProto;->clamp(III)I
 
@@ -337,7 +337,7 @@
 
     move v2, v1
 
-    .line 94
+    .line 103
     :goto_1f
     if-ge v0, v5, :cond_27
 
@@ -352,35 +352,28 @@
     :cond_27
     move v0, v1
 
-    .line 95
+    .line 104
     :goto_28
-    const/4 v4, 0x5
+    const/16 v4, 0x8
 
-    if-ge v0, v4, :cond_3c
+    if-ge v0, v4, :cond_38
 
-    const/16 v4, 0x10
+    aget v4, v3, v0
 
-    shr-int/2addr v4, v0
+    shl-int v5, v2, v0
 
-    and-int/2addr v4, v2
+    and-int/lit16 v5, v5, 0x80
 
-    if-eqz v4, :cond_39
+    or-int/2addr v4, v5
 
-    add-int/lit8 v4, v0, 0x3
+    aput v4, v3, v0
 
-    aget v5, v3, v4
-
-    or-int/lit16 v5, v5, 0x80
-
-    aput v5, v3, v4
-
-    :cond_39
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_28
 
-    .line 96
-    :cond_3c
+    .line 105
+    :cond_38
     invoke-static {v1, v3}, Lcom/isaigu/gymapp/bodytech/WiProto;->op(I[I)[B
 
     move-result-object v0
@@ -392,7 +385,7 @@
     .registers 3
 
     .prologue
-    .line 145
+    .line 184
     if-eqz p0, :cond_10
 
     invoke-virtual {p0}, Ljava/lang/String;->toUpperCase()Ljava/lang/String;
@@ -424,19 +417,19 @@
     .prologue
     const/4 v0, 0x0
 
-    .line 59
+    .line 65
     array-length v1, p1
 
     add-int/lit8 v1, v1, 0x1
 
     new-array v1, v1, [B
 
-    .line 60
+    .line 66
     int-to-byte v2, p0
 
     aput-byte v2, v1, v0
 
-    .line 61
+    .line 67
     :goto_9
     array-length v2, p1
 
@@ -454,7 +447,7 @@
 
     goto :goto_9
 
-    .line 62
+    .line 68
     :cond_16
     return-object v1
 .end method
@@ -473,7 +466,7 @@
 
     const/4 v3, 0x0
 
-    .line 105
+    .line 114
     const/16 v0, 0xa
 
     new-array v0, v0, [I
@@ -512,7 +505,7 @@
 
     aput v2, v0, v1
 
-    .line 106
+    .line 115
     invoke-static {p4, v3, v4}, Lcom/isaigu/gymapp/bodytech/WiProto;->clamp(III)I
 
     move-result v1
@@ -537,14 +530,14 @@
 
     aput v3, v0, v6
 
-    .line 107
+    .line 116
     invoke-static {v0, v6}, Lcom/isaigu/gymapp/bodytech/WiProto;->xor([II)I
 
     move-result v1
 
     aput v1, v0, v6
 
-    .line 108
+    .line 117
     invoke-static {v5, v0}, Lcom/isaigu/gymapp/bodytech/WiProto;->op(I[I)[B
 
     move-result-object v0
@@ -564,7 +557,7 @@
 
     const/4 v3, 0x0
 
-    .line 113
+    .line 122
     const/16 v0, 0xa
 
     new-array v0, v0, [I
@@ -615,14 +608,14 @@
 
     aput v3, v0, v4
 
-    .line 114
+    .line 123
     invoke-static {v0, v4}, Lcom/isaigu/gymapp/bodytech/WiProto;->xor([II)I
 
     move-result v1
 
     aput v1, v0, v4
 
-    .line 115
+    .line 124
     invoke-static {v5, v0}, Lcom/isaigu/gymapp/bodytech/WiProto;->op(I[I)[B
 
     move-result-object v0
@@ -636,7 +629,7 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 123
+    .line 162
     const/4 v2, 0x4
 
     const/4 v0, 0x1
@@ -666,7 +659,7 @@
     .registers 3
 
     .prologue
-    .line 80
+    .line 90
     const/4 v0, 0x0
 
     const/16 v1, 0x64
@@ -675,7 +668,7 @@
 
     move-result v0
 
-    mul-int/lit8 v0, v0, 0x14
+    mul-int/lit8 v0, v0, 0x7d
 
     add-int/lit8 v0, v0, 0x32
 
@@ -688,14 +681,14 @@
     .registers 5
 
     .prologue
-    .line 53
+    .line 59
     array-length v0, p0
 
     add-int/lit8 v0, v0, -0x1
 
     new-array v0, v0, [B
 
-    .line 54
+    .line 60
     const/4 v1, 0x1
 
     const/4 v2, 0x0
@@ -704,20 +697,144 @@
 
     invoke-static {p0, v1, v0, v2, v3}, Ljava/lang/System;->arraycopy(Ljava/lang/Object;ILjava/lang/Object;II)V
 
-    .line 55
+    .line 61
     return-object v0
 .end method
 
-.method public static widths()[B
+.method public static widthByte(I)I
+    .registers 3
+
+    .prologue
+    .line 138
+    .line 139
+    invoke-static {p0}, Lcom/isaigu/gymapp/bodytech/WiProto;->widthCode(I)I
+
+    move-result v0
+
+    invoke-static {p0}, Lcom/isaigu/gymapp/bodytech/WiProto;->widthCode(I)I
+
+    move-result v1
+
+    shl-int/lit8 v1, v1, 0x3
+
+    or-int/2addr v0, v1
+
+    or-int/lit8 v0, v0, 0x40
+
+    return v0
+.end method
+
+.method static widthCode(I)I
     .registers 2
 
     .prologue
-    .line 119
+    .line 129
+    const/16 v0, 0x190
+
+    if-lt p0, v0, :cond_6
+
+    const/4 v0, 0x7
+
+    .line 130
+    :goto_5
+    return v0
+
+    :cond_6
+    const/16 v0, 0x64
+
+    if-lt p0, v0, :cond_13
+
+    rem-int/lit8 v0, p0, 0x32
+
+    if-nez v0, :cond_13
+
+    div-int/lit8 v0, p0, 0x32
+
+    add-int/lit8 v0, v0, -0x1
+
+    goto :goto_5
+
+    :cond_13
+    const/4 v0, 0x0
+
+    goto :goto_5
+.end method
+
+.method public static widths()[B
+    .registers 1
+
+    .prologue
+    .line 144
+    const/4 v0, 0x0
+
+    invoke-static {v0}, Lcom/isaigu/gymapp/bodytech/WiProto;->widths([I)[B
+
+    move-result-object v0
+
+    return-object v0
+.end method
+
+.method public static widths([I)[B
+    .registers 6
+
+    .prologue
+    const/16 v4, 0xa
+
+    .line 152
+    new-array v2, v4, [I
+
+    .line 153
+    const/4 v1, 0x0
+
+    :goto_5
+    if-ge v1, v4, :cond_25
+
+    .line 154
+    if-eqz p0, :cond_23
+
+    array-length v0, p0
+
+    if-ge v1, v0, :cond_23
+
+    aget v0, p0, v1
+
+    if-ltz v0, :cond_23
+
+    aget v0, p0, v1
+
+    if-ge v0, v4, :cond_23
+
+    .line 155
+    aget v0, p0, v1
+
+    .line 156
+    :goto_16
+    sget-object v3, Lcom/isaigu/gymapp/bodytech/WiProto;->WIDTH_US:[I
+
+    aget v0, v3, v0
+
+    invoke-static {v0}, Lcom/isaigu/gymapp/bodytech/WiProto;->widthByte(I)I
+
+    move-result v0
+
+    aput v0, v2, v1
+
+    .line 153
+    add-int/lit8 v1, v1, 0x1
+
+    goto :goto_5
+
+    :cond_23
+    move v0, v1
+
+    .line 155
+    goto :goto_16
+
+    .line 158
+    :cond_25
     const/4 v0, 0x3
 
-    sget-object v1, Lcom/isaigu/gymapp/bodytech/WiProto;->WIDTHS:[I
-
-    invoke-static {v0, v1}, Lcom/isaigu/gymapp/bodytech/WiProto;->op(I[I)[B
+    invoke-static {v0, v2}, Lcom/isaigu/gymapp/bodytech/WiProto;->op(I[I)[B
 
     move-result-object v0
 
@@ -730,12 +847,12 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 66
+    .line 72
     move v0, v1
 
     move v2, v1
 
-    .line 67
+    .line 73
     :goto_3
     if-ge v0, p1, :cond_e
 
@@ -751,7 +868,7 @@
 
     goto :goto_3
 
-    .line 68
+    .line 74
     :cond_e
     return v2
 .end method
@@ -760,7 +877,7 @@
     .registers 1
 
     .prologue
-    .line 100
+    .line 109
     const/4 v0, 0x0
 
     invoke-static {v0}, Lcom/isaigu/gymapp/bodytech/WiProto;->currents([I)[B

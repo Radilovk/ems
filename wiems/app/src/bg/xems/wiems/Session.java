@@ -97,6 +97,7 @@ final class Session {
     private int strength;
     private final int[] ch = new int[WiProto.CHANNELS];                 // zone % per body part
     private final int[] unitOf = new int[Channels.PARTS];   // body part → unit channel
+    private final int[] ownOf = new int[Channels.PARTS];    // body part → its channel on the unit's own suit
     private int state = IDLE;
     private boolean on, finished, startWanted;
     private long endMs, phaseEndMs, rampStartMs, remainMs;
@@ -144,6 +145,7 @@ final class Session {
         zoneName = kind == Dev.BODYTECH ? BT_ZONE : ZONE;
         zoneParts = kind == Dev.BODYTECH ? BT_PARTS : PARTS10;
         System.arraycopy(Channels.DEFAULT[kind][Channels.XBODY], 0, unitOf, 0, unitOf.length);
+        System.arraycopy(unitOf, 0, ownOf, 0, ownOf.length);
         for (int i = 0; i < ch.length; i++) share[i] = 100;   // every zone starts at 0 (owner): raised one by one
         java.util.Arrays.fill(btHz, -1);
         java.util.Arrays.fill(btInt, -1);
@@ -291,8 +293,17 @@ final class Session {
 
     /** The unit channel of each body part (the suit's map); a running unit gets the new layout at once. */
     void setMap(int[] partToUnit) {
+        setMap(partToUnit, partToUnit);
+    }
+
+    /**
+     * The same, with the map of the unit's own (XBody-standard) suit: where each body part sits on it — the vendor's
+     * per-muscle pulse widths ({@link WiProto#WIDTH_US}, per channel of that suit) follow a muscle to its lead.
+     */
+    void setMap(int[] partToUnit, int[] ownSuit) {
         if (!java.util.Arrays.equals(partToUnit, unitOf)) log("channel map → " + java.util.Arrays.toString(partToUnit));
         System.arraycopy(partToUnit, 0, unitOf, 0, unitOf.length);
+        System.arraycopy(ownSuit, 0, ownOf, 0, ownOf.length);
         changed();
     }
 
@@ -317,7 +328,7 @@ final class Session {
             // the unit gets the program and starts its count-down now; the clock runs when the unit does (tick)
             push(WiProto.program(cur.hz, cur.onS, cur.offS, cur.rampS(), cur.downS, WiProto.PHASE_ARM), T_PROG);
             push(rest(cur), T_PROG);
-            push(WiProto.widths(), T_PROG);
+            push(WiProto.widths(muscleOfChannel()), T_PROG);
             push(WiProto.zero(), T_PROG);
             push(WiProto.run(true), T_PROG);
             wi = WI_COUNT;
@@ -755,14 +766,26 @@ final class Session {
         return impulse() ? level(c) : 0;
     }
 
+    /**
+     * For each unit channel, the vendor-suit channel whose muscle it drives now — so the vendor's per-muscle pulse
+     * widths ({@link WiProto#WIDTH_US}) follow the muscle when an XEMS suit sits on other leads.
+     */
+    int[] muscleOfChannel() {
+        int[] m = new int[WiProto.CHANNELS];
+        java.util.Arrays.fill(m, -1);
+        for (int p = 0; p < unitOf.length; p++)
+            if (unitOf[p] >= 0 && unitOf[p] < m.length) m[unitOf[p]] = ownOf[p];
+        return m;
+    }
+
     /** Body part c in % of the unit's scale: zone % × strength % × the procedure's share. */
     int level(int c) {
         return Math.min(100, ch[c] * strength / 100 * share[c] / 100);
     }
 
     /**
-     * The byte the unit takes for p %: its scale is the vendor's — 100 % on the vendor's slider = ~19 (the capture:
-     * 94 % → 18, 80 % → 15, 61 % → 12), never the 0..100 we sent before (5× over the vendor's top).
+     * The byte the unit takes for p %: 100 % = {@link WiProto#UNIT_MAX} = 125, the vendor's own top (its "+" stops
+     * there, the value goes out as it is). 1.11–1.18 had 20, 1.19 31 — far under the vendor (owner, 1.20).
      */
     static int unitValue(int pct) {
         return WiProto.unit(pct);

@@ -213,12 +213,12 @@ public class AppTest {
         s.runNotify(new byte[] {1}, 5100);
         s.tick(5100);
         eq("running", Session.RUNNING, s.state());
-        eq("begin: zero, the program, the strengths once", "[0000000000000000000000, 012955040401007e050006, 0000000000048000000000]", drain(s, 5100));
+        eq("begin: zero, the program, the strengths once", "[0000000000000000000000, 012955040401007e050006, 0000000080990000800000]", drain(s, 5100));
         for (int z = 0; z < Session.ZONES; z++) s.setZone(z, 100);   // ten taps in a row …
         eq("… held a moment", "[]", drain(s, 5200));
-        eq("… then ONE write (40 % → 8)", "[0008080808080808080808]", drain(s, 6000));
+        eq("… then ONE write (40 % → 50)", "[0032323232323232323232]", drain(s, 6000));
         s.setZone(3, 50);                                // one zone (Корем → part 5 → ch 5, XBody's measured order)
-        eq("one zone = one write, the rest unchanged", "[0008080808888408080808]", drain(s, 7000));
+        eq("one zone = one write, the rest unchanged", "[003232b232b219b2b23232]", drain(s, 7000));
         s.setZone(3, 50);
         eq("the same value is not written again", "[]", drain(s, 8000));
         s.runNotify(new byte[] {1}, 9200);
@@ -236,7 +236,7 @@ public class AppTest {
         eq("… does not end the new count-down", "[]", drain(s, 14600));
         s.runNotify(new byte[] {1}, 18100);
         s.tick(18100);
-        eq("resume: the strengths again", "0008080808888408080808", drain(s, 18100).get(2));
+        eq("resume: the strengths again", "003232b232b219b2b23232", drain(s, 18100).get(2));
         s.runNotify(new byte[] {0}, 19000);                     // the unit stopped by itself
         eq("unit stop seen", Session.PAUSED + " true", s.state() + " " + s.takeUnitStopped());
         eq("… and it gets 0 + stop", "[0000000000000000000000, 0400]", drain(s, 19000));
@@ -287,12 +287,16 @@ public class AppTest {
         drain(sm, 1000);
         sm.runNotify(new byte[] {1}, 5100);
         sm.tick(5100);
-        eq("Седалище goes out on channel 4 (50 % → 10)", hex(com.isaigu.gymapp.bodytech.WiProto.currents(new int[] {0, 0, 0, 0, 10, 0, 0, 0, 0, 0})),
+        eq("Седалище goes out on channel 4 (50 % → 63)", hex(com.isaigu.gymapp.bodytech.WiProto.currents(new int[] {0, 0, 0, 0, 63, 0, 0, 0, 0, 0})),
                 drain(sm, 5100).get(2));
         sm.setMap(Channels.DEFAULT[Dev.WIEMS][Channels.XBODY]);
         eq("a new map while running: one write, Седалище back on channel 1 (к.2)",
-                "[" + hex(com.isaigu.gymapp.bodytech.WiProto.currents(new int[] {0, 10, 0, 0, 0, 0, 0, 0, 0, 0})) + "]", drain(sm, 6000));
-        eq("scale", "0 1 10 20", Session.unitValue(0) + " " + Session.unitValue(5) + " " + Session.unitValue(50) + " " + Session.unitValue(100));
+                "[" + hex(com.isaigu.gymapp.bodytech.WiProto.currents(new int[] {0, 63, 0, 0, 0, 0, 0, 0, 0, 0})) + "]", drain(sm, 6000));
+        Session mw = new Session();
+        mw.setMap(Channels.DEFAULT[Dev.WIEMS][Channels.XEMS], Channels.DEFAULT[Dev.WIEMS][Channels.XBODY]);
+        eq("xems suit: the vendor's widths follow the muscles", "037f7f497f6d52527f7f64",
+                hex(com.isaigu.gymapp.bodytech.WiProto.widths(mw.muscleOfChannel())));
+        eq("scale", "0 6 63 125", Session.unitValue(0) + " " + Session.unitValue(5) + " " + Session.unitValue(50) + " " + Session.unitValue(100));
         // the suit's standard: an XEMS suit on the unit's leads — Ръце drives the lead "Корем" (ch 5), the zone keeps its %
         Session w = new Session();
         w.setStrength(100);
@@ -317,7 +321,7 @@ public class AppTest {
         w.runNotify(new byte[] {1}, 100);
         w.tick(100);
         List<String> wl = drain(w, 100);
-        eq("xems standard on the wire: ch 5 = 10 (+ check bits)", "0000000000800a80000000", wl.get(wl.size() - 1));
+        eq("xems standard on the wire: ch 5 = 63 (+ check bits)", "000000808080bf80800000", wl.get(wl.size() - 1));
 
         // the double impulse: the unit's own rest = Hz₂ at its %; the strengths stay as they are
         Session d = wi();
@@ -397,7 +401,7 @@ public class AppTest {
         List<String> w0 = drain(ps, 100);
         // W_CELL per body part (abdomen 75 → ch 5, bottom 100 → ch 6: XBody's measured order) × the warm-up's
         // envelope 60 % × strength 50 %, on the unit's scale
-        eq("warm-up shares", "0000000004030406860604", w0.get(w0.size() - 1));
+        eq("warm-up shares", "0000008017139c2626261a", w0.get(w0.size() - 1));
         ps.runNotify(new byte[] {1}, 150200);
         ps.tick(150200);                                   // into "Стягане": 85 Hz with its second impulse
         List<String> w1 = drain(ps, 150200);

@@ -12,13 +12,13 @@ public final class WiProto {
     private WiProto() {}
 
     public static final String SVC = "7764d8fe-c6a9-11e4-8731-1681e6b88ec1";
-    /** Live strength of the 10 channels (bits 0..6; bit 7 = a flag of the vendor app, unknown — sent 0). */
+    /** Live strength of the 10 channels (bits 0..6; bit 7 of bytes 0..7 = the XOR check, see {@link #currents}). */
     public static final String CHR_CURRENTS = "966e06c6-c717-11e4-8731-1681e6b88ec1";
     /** Program: Dur fr w r Ru Rd dec_lo dec_hi phase XOR (log "CCC-Dur,fr,w,r,Ru,Rd,dec"). */
     public static final String CHR_PROGRAM = "776439af-c717-11e4-8731-1681e6b88ec1";
     /** Rest (pause) frequency: Hz pct 0 0 0 0 0 0 a5 XOR (log "frecuenciaResting"). */
     public static final String CHR_REST = "7764e8bc-c6a9-11e4-8731-1681e6b88ec1";
-    /** Pulse width per channel, 10 bytes (log "Configurar anchuras"), unit unknown. */
+    /** Pulse width per channel, 10 bytes (log "Configurar anchuras"), coded as {@link #widthByte}. */
     public static final String CHR_WIDTHS = "7764e556-c6a9-11e4-8731-1681e6b88ec1";
     /** Run control: 0x25 start, 0x00 stop; notifies 01 each second while running (log "Arrancar"). */
     public static final String CHR_RUN = "7764eda8-c6a9-11e4-8731-1681e6b88ec1";
@@ -31,15 +31,21 @@ public final class WiProto {
     private static final String[] CHR = {CHR_CURRENTS, CHR_PROGRAM, CHR_REST, CHR_WIDTHS, CHR_RUN};
 
     public static final int CHANNELS = 10;
-    /** Highest strength value sent (the unit's field is 7 bits; the vendor app was seen up to 20). */
-    public static final int MAX_CURRENT = 100;
     public static final int RUN_START = 0x25, RUN_STOP = 0x00;
     /** Program byte 8: 2 while the unit counts down after a start, 0 once it runs. */
     public static final int PHASE_ARM = 2, PHASE_RUN = 0;
     /** Fields of the vendor's program the capture does not explain — sent as the vendor sent them. */
     static final int DUR = 41, DEC_LO = 0x7E, DEC_HI = 0x05;
-    /** The vendor app's widths (every program of the capture; program 7 had 0x76 on channel 3). */
-    static final int[] WIDTHS = {0x7F, 0x7F, 0x6D, 0x49, 0x7F, 0x7F, 0x64, 0x52, 0x7F, 0x52};
+    /**
+     * Pulse width (µs) of the muscle on each channel of the vendor's (XBody-standard) suit, к.1..к.10 = Задно бедро,
+     * Седалище, Кръст, Трапец, Гръб, Корем, Гърди, Ръце, Предно бедро, Прасец — what the vendor app sent in the
+     * owner's session (capture 1: 7f 7f 6d 49 7f 7f 64 52 7f 52). The vendor's code (Wiems Easy / NooFit Pro,
+     * ChannelModel) keeps widths per channel of its program, so a muscle carries its width with it: an XEMS suit on
+     * other leads must move the widths with the muscles ({@link #widths(int[])}).
+     */
+    public static final int[] WIDTH_US = {400, 400, 300, 100, 400, 400, 250, 150, 400, 150};
+    /** The gap between the two half-waves (µs), as the vendor (pulso_neutro 50). */
+    public static final int WIDTH_GAP_US = 50;
 
     /** Characteristic UUID of an operation (null: not one). */
     public static String chr(byte[] op) {
@@ -72,8 +78,12 @@ public final class WiProto {
         return v < lo ? lo : (v > hi ? hi : v);
     }
 
-    /** The unit's top strength byte: the vendor's 100 % (its capture: 94 % → 18, 80 % → 15, 61 % → 12). */
-    public static final int UNIT_MAX = 20;
+    /**
+     * The unit's top strength byte = our 100 % — the vendor's own top: its "+" raises a channel while it is under 125
+     * and the value goes out as it is (Wiems Easy / NooFit Pro: ClientsTrainingModel.Mas, ParseCanal2Envio,
+     * DispositivoConectado.ConfigRealCurrents with percent 100). Was 20, then 31 — guesses, both far under the vendor.
+     */
+    public static final int UNIT_MAX = 125;
 
     /** A strength in % (0..100) → the unit's byte (0..{@link #UNIT_MAX}). */
     public static int unit(int pct) {
@@ -81,18 +91,17 @@ public final class WiProto {
     }
 
     /**
-     * Strengths of the 10 channels in the unit's bytes (0..{@link #UNIT_MAX}) — with the vendor's check: the XOR of
-     * the ten values, its 5 bits in bit 7 of channels 3..7 (ch 3 = bit 4 … ch 7 = bit 0). Every vendor write in the
-     * capture carries it ("09 00 00 00 80 00 00 80 00 00": XOR 9 = 01001); a write without it, whose XOR is not 0
-     * (= any unequal channels), makes the unit stop with "86" (owner's traces). Equal channels XOR to 0 — why
-     * "all together" always worked.
+     * Strengths of the 10 channels in the unit's bytes (0..{@link #UNIT_MAX}) — with the vendor's check
+     * (DispositivoConectado.getCurrentsCoded): the XOR of the ten values, bit 7 − i of it in bit 7 of byte i, i = 0..7
+     * (byte 0 = bit 7 … byte 7 = bit 0). A write without it whose XOR is not 0 (= any unequal channels) makes the unit
+     * stop with "86" (owner's traces); equal channels XOR to 0 — why "all together" always worked.
      */
     public static byte[] currents(int[] c) {
         int[] v = new int[CHANNELS];
         for (int i = 0; i < CHANNELS; i++) v[i] = c != null && i < c.length ? clamp(c[i], 0, UNIT_MAX) : 0;
         int x = 0;
         for (int i = 0; i < CHANNELS; i++) x ^= v[i];
-        for (int k = 0; k < 5; k++) if ((x & (0x10 >> k)) != 0) v[3 + k] |= 0x80;
+        for (int i = 0; i < 8; i++) v[i] |= (x << i) & 0x80;
         return op(OP_CURRENTS, v);
     }
 
@@ -115,8 +124,38 @@ public final class WiProto {
         return op(OP_REST, v);
     }
 
+    /** Width code of one half-wave, as the vendor: 100 µs → 1, 150 → 2 … 350 → 6, ≥ 400 → 7 (other: 0). */
+    static int widthCode(int us) {
+        if (us >= 400) return 7;
+        return us >= 100 && us % 50 == 0 ? us / 50 - 1 : 0;
+    }
+
+    /**
+     * One channel's width byte (DispositivoConectado.getAnchuraCoded): bits 0..2 = positive half-wave, 3..5 =
+     * negative, 6..7 = the gap (0 → 0, 50 µs → 1, ≥ 100 → 2). 400 / 400 / 50 → 0x7F.
+     */
+    public static int widthByte(int us) {
+        int g = WIDTH_GAP_US >= 100 ? 2 : WIDTH_GAP_US == 50 ? 1 : 0;
+        return widthCode(us) | widthCode(us) << 3 | g << 6;
+    }
+
+    /** The widths of the vendor's suit, muscle k on channel k (= capture 1). */
     public static byte[] widths() {
-        return op(OP_WIDTHS, WIDTHS);
+        return widths(null);
+    }
+
+    /**
+     * The widths with the muscles moved: muscleOf[ch] = the vendor-suit channel (0..9) whose muscle a channel
+     * drives now (an XEMS suit on the unit's leads); null or −1 = its own.
+     */
+    public static byte[] widths(int[] muscleOf) {
+        int[] v = new int[CHANNELS];
+        for (int ch = 0; ch < CHANNELS; ch++) {
+            int m = muscleOf != null && ch < muscleOf.length && muscleOf[ch] >= 0 && muscleOf[ch] < CHANNELS
+                    ? muscleOf[ch] : ch;
+            v[ch] = widthByte(WIDTH_US[m]);
+        }
+        return op(OP_WIDTHS, v);
     }
 
     public static byte[] run(boolean start) {

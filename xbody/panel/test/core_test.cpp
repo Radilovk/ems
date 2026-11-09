@@ -198,7 +198,7 @@ static void wiemsGolden() {
     int c[10] = {12, 0, 2, 15, 15, 15, 13, 13, 0, 15};
     eqHex("wi currents (the vendor's own frame, check bits)", "00 0C 00 02 0F 8F 8F 8D 0D 00 0F", wi::currents(c));
     int big[10] = {300, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-    eqHex("wi currents cap", "00 14 00 00 80 00 80 00 00 00 00", wi::currents(big));
+    eqHex("wi currents cap", "00 7D 80 80 80 80 80 00 80 00 00", wi::currents(big));
     eqHex("wi start", "04 25", wi::run(true));
     eqHex("wi stop", "04 00", wi::run(false));
     Bytes n;
@@ -206,6 +206,11 @@ static void wiemsGolden() {
     eqInt("wi run tick", 1, wi::runTick(n) ? 1 : 0);
     fromHex("1051", n);
     eqInt("wi battery", 81, wi::battery(n));
+    // the vendor's code: 125 = its top; the check is 8 bits (getCurrentsCoded); widths coded pos | neg << 3 | gap << 6
+    eqInt("wi 100 % = 125", 125, wi::unit(100));
+    int c100[10] = {100, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    eqHex("wi 8-bit check (XOR 100 → bytes 1, 2, 5)", "00 64 80 80 00 00 80 00 00 00 00", wi::currents(c100));
+    eqInt("wi width 350 µs", 0x76, wi::widthByte(350));
 }
 
 static void wiemsSession() {
@@ -225,6 +230,16 @@ static void wiemsSession() {
     eqInt("wi start frames", 5, (int)f.size());
     eqHex("wi start prog (Ru 1 s)", "01 29 55 04 04 01 00 7E 05 02 04", f[0]);
     eqHex("wi rest: nothing in the pause", "02 05 00 00 00 00 00 00 00 A5 A0", f[1]);
+    eqHex("wi widths: the unit's own suit = the vendor's", "03 7F 7F 6D 49 7F 7F 64 52 7F 52", f[2]);
+    {   // an XEMS suit on the unit's leads: the vendor's per-muscle widths follow the muscles (Трапец 100 µs on ch 3 …)
+        Suit x(Suit::WIEMS);
+        x.setWiWiring(Suit::WIRE_XBODY);
+        x.linked(0);
+        drain(x, 0);
+        x.start(1000);
+        std::vector<Bytes> g = drain(x, 1000);
+        eqHex("wi xems suit widths follow the muscles", "03 7F 7F 49 7F 6D 52 52 7F 7F 64", g.size() > 2 ? g[2] : Bytes());
+    }
     eqHex("wi start run", "04 25", f.back());
     s.tick(2000);
     eqInt("wi still counting", Suit::IDLE, s.state());
@@ -237,8 +252,8 @@ static void wiemsSession() {
     eqInt("wi begin frames", 3, (int)f.size());
     eqHex("wi begin zero", "00 00 00 00 00 00 00 00 00 00 00", f[0]);
     eqHex("wi begin prog", "01 29 55 04 04 01 00 7E 05 00 06", f[1]);
-    // zones start at 0 (owner): only ch 1 (50 % × 40 % = 20 % → byte 4), the check bits for XOR 4 on ch 5
-    eqHex("wi full at once: the unit rises by itself", "00 00 04 00 00 00 80 00 00 00 00", f[2]);
+    // zones start at 0 (owner): only ch 1 (50 % × 40 % = 20 % → byte 25), the check bits for XOR 25 on bytes 3, 4, 7
+    eqHex("wi full at once: the unit rises by itself", "00 00 19 00 80 80 00 00 80 00 00", f[2]);
     fromHex("0401", n);
     s.notify(n, 9000);
     s.tick(9200);   // impulse over → the unit's own pause: nothing written (as the vendor)
@@ -284,7 +299,7 @@ static void wiemsSession() {
     w.tick(2500);
     w.tick(3100);
     f = drain(w, 3100);
-    eqHex("wi arms only → ch 7 (check bit on ch 5)", "00 00 00 00 00 00 80 00 04 00 00", f.empty() ? Bytes() : f.back());
+    eqHex("wi arms only → ch 7 (check bits on bytes 3, 4, 7)", "00 00 00 00 80 80 00 00 99 00 00", f.empty() ? Bytes() : f.back());
     // ---- the owner's traces on the Lenovo app, now on the panel: the vendor's pace, a trip, a stop, a silent unit
     Suit v(Suit::WIEMS);
     v.linked(0);
@@ -297,7 +312,7 @@ static void wiemsSession() {
     v.notify(n, 4100);
     v.tick(4100);
     f = drain(v, 4100);
-    eqHex("wi v begin: all at 5 (XOR 0, no bits)", "00 05 05 05 05 05 05 05 05 05 05", f.empty() ? Bytes() : f.back());
+    eqHex("wi v begin: all at 31 (XOR 0, no bits)", "00 1F 1F 1F 1F 1F 1F 1F 1F 1F 1F", f.empty() ? Bytes() : f.back());
     v.tick(4200);
     v.setZone(z[3], 30);   // Корем, a finger: waits to settle and for the gap
     v.setZone(z[3], 35);
@@ -305,7 +320,7 @@ static void wiemsSession() {
     eqInt("wi v held (gap 0.8 s)", 0, (int)drain(v, 4300).size());
     f = drain(v, 5000);
     eqInt("wi v one write for three taps", 1, (int)f.size());
-    eqHex("wi v Корем 9 on ch 5, check bits (XOR 12 → ch 4, 5)", "00 05 05 05 05 85 89 05 05 05 05", f.empty() ? Bytes() : f[0]);
+    eqHex("wi v Корем 56 on ch 5, check bits (XOR 39 → bytes 2, 5, 6, 7)", "00 1F 1F 9F 1F 1F B8 9F 9F 1F 1F", f.empty() ? Bytes() : f[0]);
     v.setZone(z[3], 45);
     eqInt("wi v the same value: nothing", 0, (int)drain(v, 6000).size());
     v.notify(n, 6000);

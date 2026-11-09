@@ -482,6 +482,10 @@ ahead, the feet are ~70° below the gaze) 14.5–15.7 · both 13.8. More while k
 them); the knee rather than the shoe is in view then — a knee marker is the next step (owner: later).
 **Sensor just below the kneecap instead of above the ankle?** Same angles (the shin is one rigid bone); the
 acceleration would then follow the knee. Retrained and checked (`SENSOR_AT=knee`): knee 15.1 cm vs 14.8 — no gain.
+Owner: "higher up it feels the femur" — true for the acceleration (near the knee it follows the knee, i.e. the hip),
+so also with all three axes (`ACC3D=1`, the gamepad sends only the vertical one): above the ankle 15.0, below the knee
+14.9 cm — no gain either (acceleration is not position: a held or slow knee gives ≈ 0; 1–2° of tilt error leaks
+0.02–0.03 g of gravity, the size of a slow movement's signal; the shins, headset and hands already carry it).
 Keep them above the ankle (bony, outer side = how left / right is told, no EMS calf electrode under the strap).
 
 ### AI (Gemini) — where it fits and where not

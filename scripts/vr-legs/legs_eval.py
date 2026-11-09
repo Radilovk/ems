@@ -308,7 +308,7 @@ def run(path, use_acc=True, prior=None, noise=0.02, bias=0.01, seed=1, old=False
             s.meas = {}         # seen only inside the camera's view (±CAM_FOV°), < 2.5 m, facing it; 2 frames late, ±1.5 cm
             for sd in 'lr':
                 j = max(0, i - 2)
-                u_ = d['u_' + sd][j]; a_ = nrm(d['a_' + sd][j].astype(float)); front = nrm(np.cross(a_, u_))
+                u_ = d["u_" + sd][j]; a_ = nrm(d["a_" + sd][j].astype(float)); front = nrm(nrm(np.cross(a_, u_)) + UP)   # tilted up-forward (shoe laces)
                 p = d['ankle_' + sd][j] + u_ * 0.15 + front * 0.04
                 r = p - d['eye'][j]; dist = np.linalg.norm(r); rn = r / dist
                 ok = (rn.dot(d['look'][j]) > math.cos(math.radians(CAM_FOV)) and dist < 2.5 and front.dot(-rn) > 0.26)

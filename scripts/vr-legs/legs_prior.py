@@ -14,6 +14,7 @@ top in the game (planted feet, the measured shin, lengths).
   python3 scripts/vr-legs/legs_prior.py eval <npz dir> <weights.json>   PadLegs + prior on the held-out clips
 """
 import glob, json, math, os, sys
+ACC3D = os.environ.get("ACC3D", "") == "1"   # all three axes of the shin's acceleration (body frame), not only vertical
 SENSOR_AT = os.environ.get("SENSOR_AT", "ankle")   # where the shin sensor sits: ankle · knee (just below the kneecap)
 import numpy as np
 
@@ -63,14 +64,21 @@ def clip_arrays(d, rng, noise):
             a = np.gradient(np.gradient(hs, LE.DT), LE.DT) / 9.81
             a = np.convolve(a, np.ones(3) / 3, 'same')                 # ~the firmware's 20 Hz low-pass at 60 fps
             acc[x] = a + rng.normal(0, noise, n) + rng.normal(0, 0.005)
+            if ACC3D:
+                P = (d['knee_' + x] - d['u_' + x] * 0.06) if SENSOR_AT == 'knee' else (d['ankle_' + x] + d['u_' + x] * 0.05)
+                a3 = np.gradient(np.gradient(P, LE.DT, axis=0), LE.DT, axis=0) / 9.81
+                a3 = np.stack([np.convolve(a3[:, k], np.ones(3) / 3, 'same') for k in range(3)], 1)
+                a3 = a3 + rng.normal(0, noise, (n, 3)) + rng.normal(0, 0.005, 3)
+                acc[x] = np.clip(to_body(a3, f, left, side), -4, 4)          # (n, 3)
         hvb = to_body(hv, f, left, side)
         if 'wrist_l' in d:                                              # the hands (controllers) from the eyes
             ht = to_body(d['wrist_' + sd] - d['eye'], f, left, side) / S
             ho = to_body(d['wrist_' + od] - d['eye'], f, left, side) / S
         else:
             ht = ho = np.zeros((n, 3))
-        sig = np.stack([*u_t.T, *u_o.T, np.clip(acc[sd], -4, 4), np.clip(acc[od], -4, 4),
-                        (eye_h - fl) / S - 1.0, *(hvb.T / 2.0), *ht.T, *ho.T], 1)   # 18 per lag
+        accs = [*acc[sd].T, *acc[od].T] if ACC3D else [np.clip(acc[sd], -4, 4), np.clip(acc[od], -4, 4)]
+        sig = np.stack([*u_t.T, *u_o.T, *accs,
+                        (eye_h - fl) / S - 1.0, *(hvb.T / 2.0), *ht.T, *ho.T], 1)   # 18 per lag (22 with ACC3D)
         wt, wo = w_of(d['u_' + sd]) / 300.0, w_of(d['u_' + od]) / 300.0
         # truth: on the floor = ankle (or toe) low and slow; thigh direction hip → knee; hip centre from the eyes
         ank = d['ankle_' + sd]; toe = d['toe_' + sd]
@@ -104,9 +112,9 @@ def dataset(paths, seed, noise=0.03):
             flag = np.ones((n, 1))
             hflag = np.ones((n, 1)) if 'wrist_l' in d else np.zeros((n, 1))
             if rng.random() < 0.3:              # trained also without the acceleration (old firmware / axis not found)
-                sig[:, 6:8] = 0; flag[:] = 0
+                sig[:, 6:(12 if ACC3D else 8)] = 0; flag[:] = 0
             if rng.random() < 0.2:              # … and without the hands (not tracked for a moment)
-                sig[:, 12:18] = 0; hflag[:] = 0
+                sig[:, -6:] = 0; hflag[:] = 0
             lagged = np.concatenate([sig[np.maximum(0, idx - L)] for L in LAGS] + [leg['w'], flag, hflag], 1)
             X.append(lagged)
             Y.append(np.concatenate([leg['contact'][:, None], leg['thigh'], leg['pc']], 1))
@@ -246,7 +254,13 @@ class Prior:
             tb = lambda v: np.array([v.dot(bf), side * v.dot(left), v[1]])
             hands = getattr(legs, 'hands_now', None)
             hh = [*(tb(hands[sd] - head) / S), *(tb(hands[od] - head) / S)] if hands else [0.0] * 6
-            sig = np.concatenate([tb(U[sd]), tb(U[od]), [acc[sd], acc[od], (head[1] - legs.floor_y - legs.ah) / S - 1.0],
+            if ACC3D:
+                a3 = getattr(legs, 'acc3_now', None)
+                accs = [*tb(a3[sd]), *tb(a3[od])] if (legs.use_acc and a3) else [0.0] * 6
+                accs = list(np.clip(accs, -4, 4))
+            else:
+                accs = [acc[sd], acc[od]]
+            sig = np.concatenate([tb(U[sd]), tb(U[od]), accs, [(head[1] - legs.floor_y - legs.ah) / S - 1.0],
                                   tb(hv) / 2.0, hh])
             h = s.hist[sd]
             h.append(sig)

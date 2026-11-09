@@ -294,6 +294,10 @@ def run(path, use_acc=True, prior=None, noise=0.02, bias=0.01, seed=1, old=False
     for sd in 'lr':
         hs = (d['knee_' + sd][:, 1] - d['u_' + sd][:, 1] * 0.06) if SENSOR_AT == 'knee' else (d['ankle_' + sd][:, 1] + d['u_' + sd][:, 1] * 0.05)   # the sensor's point on the shin
         acc[sd] = np.gradient(np.gradient(hs, DT), DT) / 9.81 + rng.normal(0, noise, n) + bias
+    acc3 = {}
+    for sd in 'lr':                        # all three axes at the sensor's point (world, g), noise
+        P = (d['knee_' + sd] - d['u_' + sd] * 0.06) if SENSOR_AT == 'knee' else (d['ankle_' + sd] + d['u_' + sd] * 0.05)
+        acc3[sd] = np.gradient(np.gradient(P, DT, axis=0), DT, axis=0) / 9.81 + rng.normal(0, noise, (n, 3))
     ek, ea, eo = [], [], []
     for i in range(n):
         U = {sd: d['u_' + sd][i].astype(float) for sd in 'lr'}
@@ -315,6 +319,7 @@ def run(path, use_acc=True, prior=None, noise=0.02, bias=0.01, seed=1, old=False
                 ok = (rn.dot(d['look'][j]) > math.cos(math.radians(CAM_FOV)) and dist < 2.5 and front.dot(-rn) > 0.26)
                 s.meas[sd] = d['ankle_' + sd][j].astype(float) + rng.normal(0, 0.015, 3) if ok else None
                 s.seen = getattr(s, 'seen', 0) + (1 if ok else 0)
+        s.acc3_now = {sd: acc3[sd][i] for sd in 'lr'}
         stand = s.poll(U, {sd: acc[sd][i] for sd in 'lr'}, head)
         out = s.limbs(U, A, Dd, head)
         if collect is not None:

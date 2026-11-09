@@ -8,6 +8,7 @@ model (legs_prior.py).
   python3 scripts/vr-legs/legs_eval.py <npz dir> [clip …]           per clip: knee / ankle error mean, p95 (cm)
 """
 import glob, math, os, sys
+SENSOR_AT = os.environ.get('SENSOR_AT', 'ankle')   # where the shin sensor sits: ankle (3–5 cm above the ankle bone) · knee (just below the kneecap)
 import numpy as np
 
 UP = np.array([0.0, 1, 0])
@@ -291,7 +292,7 @@ def run(path, use_acc=True, prior=None, noise=0.02, bias=0.01, seed=1, old=False
         s.v[sd]['bias'] = bias * 9.81; s.v[sd]['sig'] = noise * 9.81 * 0.8
     acc = {}
     for sd in 'lr':
-        hs = d['ankle_' + sd][:, 1] + d['u_' + sd][:, 1] * 0.05
+        hs = (d['knee_' + sd][:, 1] - d['u_' + sd][:, 1] * 0.06) if SENSOR_AT == 'knee' else (d['ankle_' + sd][:, 1] + d['u_' + sd][:, 1] * 0.05)   # the sensor's point on the shin
         acc[sd] = np.gradient(np.gradient(hs, DT), DT) / 9.81 + rng.normal(0, noise, n) + bias
     ek, ea, eo = [], [], []
     for i in range(n):

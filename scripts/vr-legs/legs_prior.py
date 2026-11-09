@@ -14,6 +14,7 @@ top in the game (planted feet, the measured shin, lengths).
   python3 scripts/vr-legs/legs_prior.py eval <npz dir> <weights.json>   PadLegs + prior on the held-out clips
 """
 import glob, json, math, os, sys
+SENSOR_AT = os.environ.get("SENSOR_AT", "ankle")   # where the shin sensor sits: ankle · knee (just below the kneecap)
 import numpy as np
 
 sys.path.insert(0, os.path.dirname(__file__))
@@ -58,7 +59,7 @@ def clip_arrays(d, rng, noise):
             return np.concatenate([[0], w])
         acc = {}
         for x in (sd, od):
-            hs = d['ankle_' + x][:, 1] + d['u_' + x][:, 1] * 0.05
+            hs = (d['knee_' + x][:, 1] - d['u_' + x][:, 1] * 0.06) if SENSOR_AT == 'knee' else (d['ankle_' + x][:, 1] + d['u_' + x][:, 1] * 0.05)   # the sensor's point on the shin
             a = np.gradient(np.gradient(hs, LE.DT), LE.DT) / 9.81
             a = np.convolve(a, np.ones(3) / 3, 'same')                 # ~the firmware's 20 Hz low-pass at 60 fps
             acc[x] = a + rng.normal(0, noise, n) + rng.normal(0, 0.005)

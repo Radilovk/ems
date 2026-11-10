@@ -14,6 +14,7 @@ top in the game (planted feet, the measured shin, lengths).
   python3 scripts/vr-legs/legs_prior.py eval <npz dir> <weights.json>   PadLegs + prior on the held-out clips
 """
 import glob, json, math, os, sys
+ACC3D = os.environ.get("ACC3D", "") == "1"   # all three axes of the shin's acceleration (body frame), not only vertical
 SENSOR_AT = os.environ.get("SENSOR_AT", "ankle")   # where the shin sensor sits: ankle · knee (just below the kneecap)
 import numpy as np
 
@@ -63,14 +64,21 @@ def clip_arrays(d, rng, noise):
             a = np.gradient(np.gradient(hs, LE.DT), LE.DT) / 9.81
             a = np.convolve(a, np.ones(3) / 3, 'same')                 # ~the firmware's 20 Hz low-pass at 60 fps
             acc[x] = a + rng.normal(0, noise, n) + rng.normal(0, 0.005)
+            if ACC3D:
+                P = (d['knee_' + x] - d['u_' + x] * 0.06) if SENSOR_AT == 'knee' else (d['ankle_' + x] + d['u_' + x] * 0.05)
+                a3 = np.gradient(np.gradient(P, LE.DT, axis=0), LE.DT, axis=0) / 9.81
+                a3 = np.stack([np.convolve(a3[:, k], np.ones(3) / 3, 'same') for k in range(3)], 1)
+                a3 = a3 + rng.normal(0, noise, (n, 3)) + rng.normal(0, 0.005, 3)
+                acc[x] = np.clip(to_body(a3, f, left, side), -4, 4)          # (n, 3)
         hvb = to_body(hv, f, left, side)
         if 'wrist_l' in d:                                              # the hands (controllers) from the eyes
             ht = to_body(d['wrist_' + sd] - d['eye'], f, left, side) / S
             ho = to_body(d['wrist_' + od] - d['eye'], f, left, side) / S
         else:
             ht = ho = np.zeros((n, 3))
-        sig = np.stack([*u_t.T, *u_o.T, np.clip(acc[sd], -4, 4), np.clip(acc[od], -4, 4),
-                        (eye_h - fl) / S - 1.0, *(hvb.T / 2.0), *ht.T, *ho.T], 1)   # 18 per lag
+        accs = [*acc[sd].T, *acc[od].T] if ACC3D else [np.clip(acc[sd], -4, 4), np.clip(acc[od], -4, 4)]
+        sig = np.stack([*u_t.T, *u_o.T, *accs,
+                        (eye_h - fl) / S - 1.0, *(hvb.T / 2.0), *ht.T, *ho.T], 1)   # 18 per lag (22 with ACC3D)
         wt, wo = w_of(d['u_' + sd]) / 300.0, w_of(d['u_' + od]) / 300.0
         # truth: on the floor = ankle (or toe) low and slow; thigh direction hip → knee; hip centre from the eyes
         ank = d['ankle_' + sd]; toe = d['toe_' + sd]
@@ -92,7 +100,7 @@ def features(sig, w, i):
     return np.concatenate(parts + [w[i]])
 
 
-def dataset(paths, seed, noise=0.03):
+def dataset(paths, seed, noise=0.03, part=None):
     rng = np.random.default_rng(seed)
     X, Y = [], []
     for p in paths:
@@ -104,10 +112,16 @@ def dataset(paths, seed, noise=0.03):
             flag = np.ones((n, 1))
             hflag = np.ones((n, 1)) if 'wrist_l' in d else np.zeros((n, 1))
             if rng.random() < 0.3:              # trained also without the acceleration (old firmware / axis not found)
-                sig[:, 6:8] = 0; flag[:] = 0
+                sig[:, 6:(12 if ACC3D else 8)] = 0; flag[:] = 0
             if rng.random() < 0.2:              # … and without the hands (not tracked for a moment)
-                sig[:, 12:18] = 0; hflag[:] = 0
+                sig[:, -6:] = 0; hflag[:] = 0
             lagged = np.concatenate([sig[np.maximum(0, idx - L)] for L in LAGS] + [leg['w'], flag, hflag], 1)
+            if part is not None:                # only this share of the take (teaching: the first half)
+                a_, b_ = int(part[0] * n), int(part[1] * n)
+                lagged = lagged[a_:b_]
+                X.append(lagged)
+                Y.append(np.concatenate([leg['contact'][:, None], leg['thigh'], leg['pc']], 1)[a_:b_])
+                continue
             X.append(lagged)
             Y.append(np.concatenate([leg['contact'][:, None], leg['thigh'], leg['pc']], 1))
     return np.concatenate(X).astype(np.float32), np.concatenate(Y).astype(np.float32)
@@ -146,13 +160,15 @@ def loss_grad(net, X, Y):
     return L, [gW0, gW1, gW2], [gb0, gb1, gb2]
 
 
-def train(X, Y, epochs=30, seed=0):
+def train(X, Y, epochs=30, seed=0, init=None, lr0=2e-3):
     rng = np.random.default_rng(seed)
     net = MLP(X.shape[1], Y.shape[1], rng)
     net.mu = X.mean(0); net.sd = X.std(0) + 1e-6
+    if init is not None:                    # fine-tune: start from a trained network (its input scaling kept)
+        net.W = [w.copy() for w in init.W]; net.b = [b.copy() for b in init.b]; net.mu = init.mu; net.sd = init.sd
     params = net.W + net.b
     m = [np.zeros_like(p) for p in params]; v = [np.zeros_like(p) for p in params]
-    t = 0; lr = 2e-3; B = 512
+    t = 0; lr = lr0; B = 512
     for ep in range(epochs):
         perm = rng.permutation(len(X)); tot = 0
         for k in range(0, len(X), B):
@@ -246,7 +262,13 @@ class Prior:
             tb = lambda v: np.array([v.dot(bf), side * v.dot(left), v[1]])
             hands = getattr(legs, 'hands_now', None)
             hh = [*(tb(hands[sd] - head) / S), *(tb(hands[od] - head) / S)] if hands else [0.0] * 6
-            sig = np.concatenate([tb(U[sd]), tb(U[od]), [acc[sd], acc[od], (head[1] - legs.floor_y - legs.ah) / S - 1.0],
+            if ACC3D:
+                a3 = getattr(legs, 'acc3_now', None)
+                accs = [*tb(a3[sd]), *tb(a3[od])] if (legs.use_acc and a3) else [0.0] * 6
+                accs = list(np.clip(accs, -4, 4))
+            else:
+                accs = [acc[sd], acc[od]]
+            sig = np.concatenate([tb(U[sd]), tb(U[od]), accs, [(head[1] - legs.floor_y - legs.ah) / S - 1.0],
                                   tb(hv) / 2.0, hh])
             h = s.hist[sd]
             h.append(sig)
@@ -299,3 +321,76 @@ def export_gd(net, path, info):
 if __name__ == '__main__' and sys.argv[1] == 'gd':
     net = load(sys.argv[3])
     export_gd(net, sys.argv[4], ' '.join(sys.argv[5:]))
+
+
+if __name__ == '__main__' and sys.argv[1] == 'teach':
+    # a teaching session (owner 2026-11-09: extra sensors on the thighs, only to teach, then off): per held-out person,
+    # fine-tune the general network on N of their takes (the thighs measured = the answers), test on their other takes
+    net0 = load(sys.argv[3]); N = int(os.environ.get('TEACH_N', 3))
+    for sub in sorted(TEST_SUBJECTS):
+        ps = sorted(p for p in te if os.path.basename(p).split('_')[0] == sub)
+        teach, test = ps[:N], ps[N:]
+        X, Y = dataset(teach, 5)
+        mins = len(X) / 2 / 60 / 60
+        if 'rehearse' not in globals():          # the general data, a sample, so the network keeps what it knew
+            rng_ = np.random.default_rng(9)
+            globals()['rehearse'] = dataset(list(rng_.choice(tr, 40, replace=False)), 6)
+        Xg, Yg = rehearse
+        k = min(len(Xg), int(len(X) * float(os.environ.get('MIX', 3))))
+        sel = np.random.default_rng(1).choice(len(Xg), k, replace=False)
+        rep = int(os.environ.get('REP', 3))                                   # the person's own frames weigh more
+        X = np.concatenate([X] * rep + [Xg[sel]]); Y = np.concatenate([Y] * rep + [Yg[sel]])
+        net1 = train(X, Y, epochs=int(os.environ.get('EPOCHS', 4)), init=net0, lr0=2e-4)
+        r0 = np.mean([LE.run(p, prior=Prior(net0))['knee'] for p in test])
+        r1 = np.mean([LE.run(p, prior=Prior(net1))['knee'] for p in test])
+        print('person %-4s taught with %.1f min: knee %.1f → %.1f cm on their %d other takes' % (sub, mins, r0, r1, len(test)), flush=True)
+
+
+if __name__ == '__main__' and sys.argv[1] == 'teach-same':
+    # the game's movements are a fixed set: teach on the first half of each of the person's takes, test on the second
+    net0 = load(sys.argv[3])
+    for sub in sorted(TEST_SUBJECTS):
+        ps = sorted(p for p in te if os.path.basename(p).split('_')[0] == sub)
+        X, Y = dataset(ps, 5, part=(0.0, 0.5))
+        mins = len(X) / 2 / 60 / 60
+        if 'rehearse' not in globals():
+            rng_ = np.random.default_rng(9)
+            globals()['rehearse'] = dataset(list(rng_.choice(tr, 40, replace=False)), 6)
+        Xg, Yg = rehearse
+        sel = np.random.default_rng(1).choice(len(Xg), min(len(Xg), 3 * len(X)), replace=False)
+        net1 = train(np.concatenate([X, X, X, Xg[sel]]), np.concatenate([Y, Y, Y, Yg[sel]]), epochs=4, init=net0, lr0=2e-4)
+        r0 = np.mean([LE.run(p, prior=Prior(net0), part=(0.5, 1.0))['knee'] for p in ps])
+        r1 = np.mean([LE.run(p, prior=Prior(net1), part=(0.5, 1.0))['knee'] for p in ps])
+        print('person %-4s taught with %.1f min of the same moves: knee %.1f → %.1f cm on the rest' % (sub, mins, r0, r1), flush=True)
+
+
+def last_layer(net0, X, Y, lam=None):
+    """on-device personalisation: keep the network, refit only its last layer on the person's frames (ridge
+    regression pulled toward the trained weights; contact logit fitted on its own target as a linear proxy)"""
+    lam = float(os.environ.get('LAM', 30.0)) if lam is None else lam
+    Z = (X - net0.mu) / net0.sd
+    h1 = np.tanh(Z @ net0.W[0] + net0.b[0]); h2 = np.tanh(h1 @ net0.W[1] + net0.b[1])
+    Hb = np.concatenate([h2, np.ones((len(h2), 1))], 1)                     # (n, 65)
+    W0 = np.concatenate([net0.W[2], net0.b[2][None]], 0)                   # (65, 7)
+    T = Y.copy()
+    o0 = Hb @ W0
+    T[:, 0] = o0[:, 0]                                                     # contact: keep (logit, not regressed)
+    if os.environ.get('THIGH_ONLY') == '1':
+        T[:, 4:7] = o0[:, 4:7]                                             # as on the headset: only the thighs are measured
+    A = Hb.T @ Hb + lam * len(Hb) / 1000.0 * np.eye(Hb.shape[1])
+    W = np.linalg.solve(A, Hb.T @ T + lam * len(Hb) / 1000.0 * W0)
+    net1 = MLP(X.shape[1], Y.shape[1], np.random.default_rng(0))
+    net1.W = [net0.W[0], net0.W[1], W[:-1]]; net1.b = [net0.b[0], net0.b[1], W[-1]]
+    net1.mu, net1.sd = net0.mu, net0.sd
+    return net1
+
+
+if __name__ == '__main__' and sys.argv[1] == 'teach-last':
+    net0 = load(sys.argv[3])
+    for sub in sorted(TEST_SUBJECTS):
+        ps = sorted(p for p in te if os.path.basename(p).split('_')[0] == sub)
+        X, Y = dataset(ps, 5, part=(0.0, 0.5))
+        net1 = last_layer(net0, X, Y)
+        r0 = np.mean([LE.run(p, prior=Prior(net0), part=(0.5, 1.0))['knee'] for p in ps])
+        r1 = np.mean([LE.run(p, prior=Prior(net1), part=(0.5, 1.0))['knee'] for p in ps])
+        print('person %-4s last layer only (%.1f min): knee %.1f → %.1f cm on the rest' % (sub, len(X) / 7200, r0, r1), flush=True)

@@ -486,8 +486,20 @@ var _measure_said := -1
 var _trig_was := {}
 
 
+var _thigh_said := 0                    # 0 · 1 = thigh sensors seen · 2 = calibrated (teaching)
+
+
 ## The legs' measurement (PadLegs.touch): say each step, take each trigger press of either controller at its tip.
+## Teaching (sensors on the thighs for one round): say when they are seen and calibrated.
 func _legs_measure() -> void:
+	var th: int = 2 if body.pads.teaching() else 1 if not body.pads.role.is_empty() else 0
+	if th != _thigh_said:
+		if th == 1:
+			stage._show_toast("Сензори на бедрата ✓ — застани прав за секунда, после клекни леко веднъж")
+		elif th == 2:
+			stage._show_toast("Бедрата са калибрирани ✓ — изиграй един рунд: краката се учат от теб")
+			sfx.play("pass", null, -4.0)
+		_thigh_said = th
 	var m: int = body.pads.measure
 	if m < 0:
 		return
@@ -1637,6 +1649,10 @@ func _finish_session() -> void:
 		return
 	_clear()
 	st = St.MENU
+	if body.pads.teaching() or body.pads.prior.teach_n > 0:
+		if body.pads.teach_finish():               # a round with the thigh sensors on: the legs learnt this person
+			stage._show_toast("Краката научиха твоите движения ✓ — махни сензорите от бедрата и ги върни на китките")
+			sfx.play("pass", null, -4.0)
 	var total: int = tot.hits + tot.dodged + tot.taken
 	var acc := int(round(100.0 * float(tot.hits + tot.dodged) / float(max(total, 1))))
 	var record := score > settings.best_score

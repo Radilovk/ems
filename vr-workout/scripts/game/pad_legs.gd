@@ -49,6 +49,7 @@ var status := "none"                    # none · found · stand · bend · read
 var _last_ms := 0
 var _head_prev := Vector3.INF
 var _head_v := 0.0                      # m/s, smoothed: a still stand needs a still head (a bend moves it)
+var role := {}                          # joypad id -> "thigh" (teaching: sensors on the thighs for a session); else a shin
 var _rezero := true                     # the next limbs() puts the feet under the body again
 var sim := {}                           # tests: joypad id -> [qx, qy, qz, qw(, axis 4)] instead of the real joypads
 # the solved body (world): pelvis centre, the planted feet, per leg: in the air, knee bend, time since landing
@@ -100,7 +101,10 @@ func poll(delta: float, head_h: float, stand_h: float, fwd: Vector3) -> void:
 			basis.erase(id)
 			lfwd.erase(id)
 			vert.erase(id)
+			role.erase(id)
 	for id in ids:
+		if not pads.has(id) and status == "ready" and _thighs() < 2:
+			role[id] = "thigh"                         # a sensor that comes after the legs are ready: on a thigh (teaching)
 		var p: Dictionary = pads.get(id, {"still": 0.0, "w": 0.0})
 		var q := _sensor_q(id)
 		if p.has("q") and delta > 0.0:                 # turn speed from the orientation, smoothed over ~0.1 s
@@ -180,6 +184,25 @@ func poll(delta: float, head_h: float, stand_h: float, fwd: Vector3) -> void:
 				lfwd[id] = fwd0
 				basis[id] = _basis(id, fwd0)
 			status = "ready"
+	# teaching: a thigh sensor learns its side and mounting at the next knee bend — the thigh turns the other way than
+	# the shin (its top goes back: about the body's right), so "left" in its own frame is minus the turn's axis
+	if status == "ready" and head_h < stand_h - BEND_M:
+		for id in role:
+			if side.has(id) or not q0.has(id) or not pads.has(id):
+				continue
+			var r := _turn(id)
+			if rad_to_deg(r.get_angle()) < 8.0:
+				continue
+			var ax := r.get_axis()
+			var axh := -Vector2(ax.x, ax.y)
+			var n := (q0[id] as Quaternion) * Vector3(0, 0, 1)
+			var nh := Vector2(n.x, n.y)
+			if axh.length() < 0.5 or nh.length() < 0.5:
+				continue
+			side[id] = "l" if axh.dot(nh) > 0.0 else "r"
+			mount[id] = nh.angle_to(axh) if side[id] == "l" else nh.angle_to(-axh)
+			lfwd[id] = fwd
+			basis[id] = _basis(id, fwd)
 
 
 ## The leg's forward in the game now (horizontal; ZERO if the shin's hinge is too steep to tell).
@@ -352,7 +375,7 @@ func touch(point: Vector3, head: Vector3, floor_y: float, stand_h: float) -> voi
 	# where each foot points, measured: the leg's forward = the body's forward turned by its toe-out
 	for id in side:
 		var sd: String = side[id]
-		if q0.has(id) and mount.has(id):
+		if q0.has(id) and mount.has(id) and not role.has(id):
 			lfwd[id] = bf.rotated(Vector3.UP, float(c.turn[sd]))
 			basis[id] = _basis(id, lfwd[id])
 	_rezero = true
@@ -360,9 +383,35 @@ func touch(point: Vector3, head: Vector3, floor_y: float, stand_h: float) -> voi
 
 func _id_of(sd: String) -> int:
 	for id in side:
-		if side[id] == sd:
+		if side[id] == sd and not role.has(id):
 			return id
 	return -1
+
+
+func _thighs() -> int:
+	return role.size()
+
+
+## Teaching: the thighs measured (both sides calibrated) — the prior learns this person while they play.
+func teaching() -> bool:
+	var n := 0
+	for id in role:
+		if side.has(id) and basis.has(id) and pads.has(id):
+			n += 1
+	return n >= 2
+
+
+## The thigh as measured by a teaching sensor (hip → knee, world), or ZERO.
+func thigh_dir(sd: String) -> Vector3:
+	for id in role:
+		if side.get(id, "") == sd and basis.has(id) and pads.has(id):
+			return (_g(id) * Vector3.DOWN).normalized()
+	return Vector3.ZERO
+
+
+## End of a teaching session: fit this person's thighs into the prior (true: learnt and saved).
+func teach_finish() -> bool:
+	return prior.fit()
 
 
 func ready() -> bool:
@@ -392,6 +441,8 @@ func limbs(head: Vector3, fwd: Vector3, stand_h: float, floor_y: float, delta :=
 	var hid := {}
 	var bf := Vector3.ZERO
 	for id in side:
+		if role.has(id):
+			continue                                      # a teaching sensor on the thigh: not a shin
 		var sd: String = side[id]
 		var g := _g(id)
 		var lf: Vector3 = lfwd.get(id, fwd0)
@@ -430,6 +481,11 @@ func limbs(head: Vector3, fwd: Vector3, stand_h: float, floor_y: float, delta :=
 				var v: Dictionary = vert[hid[sd]]
 				acc[sd] = float(v.get("g", 0.0)) - float(v.bias) / 9.81
 		P = prior.step(_t, delta, U, A, acc, head, stand_h - ah, floor_y + ah, hands)
+		if teaching():                                    # the thighs are measured: the prior learns this person
+			for sd in U:
+				var t := thigh_dir(sd)
+				if t != Vector3.ZERO:
+					prior.learn(sd, t)
 	# 1 · which feet are on the floor
 	var ground := {}
 	for sd in U:

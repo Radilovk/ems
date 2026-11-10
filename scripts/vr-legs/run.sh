@@ -16,5 +16,6 @@ if [ -n "${GODOT:-}" ]; then
 	timeout 300 "$GODOT" --headless --path "$R/vr-workout" --script res://test/pad_test.gd     # the sensors as Bluetooth gamepads
 	timeout 300 "$GODOT" --headless --path "$R/vr-workout" --script res://test/pad_truth_test.gd   # … against scripted true movements
 	timeout 300 "$GODOT" --headless --path "$R/vr-workout" --script res://test/prior_test.gd        # the learned prior = the trained network
+	timeout 300 "$GODOT" --headless --path "$R/vr-workout" --script res://test/teach_test.gd        # teaching with thigh sensors
 fi
 echo "vr-legs: PASS"

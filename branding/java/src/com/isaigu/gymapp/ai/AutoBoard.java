@@ -113,6 +113,11 @@ public final class AutoBoard {
         return board != null && board.getParent() != null;
     }
 
+    /** The board is on the screen now (a board left in a training screen that was rebuilt is not). */
+    public static boolean onScreen() {
+        return board != null && board.getParent() != null && board.isAttachedToWindow();
+    }
+
     /** Builds the board under the first row when Auto runs, removes it otherwise. */
     static void sync(View any) {
         boolean run = AutoSession.getStage() == AutoSession.Stage.RUNNING && AutoSession.getEngine() != null;

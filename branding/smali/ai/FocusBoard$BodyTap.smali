@@ -28,7 +28,7 @@
     .registers 1
 
     .prologue
-    .line 1987
+    .line 1999
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -46,38 +46,38 @@
 
     const/4 v6, 0x1
 
-    .line 1993
+    .line 2005
     invoke-virtual {p2}, Landroid/view/MotionEvent;->getActionMasked()I
 
     move-result v0
 
-    .line 1994
+    .line 2006
     if-nez v0, :cond_19
 
-    .line 1995
+    .line 2007
     invoke-virtual {p2}, Landroid/view/MotionEvent;->getX()F
 
     move-result v0
 
     iput v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$BodyTap;->x0:F
 
-    .line 1996
+    .line 2008
     invoke-virtual {p2}, Landroid/view/MotionEvent;->getY()F
 
     move-result v0
 
     iput v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$BodyTap;->y0:F
 
-    .line 2019
+    .line 2031
     :cond_18
     :goto_18
     return v6
 
-    .line 1999
+    .line 2011
     :cond_19
     if-ne v0, v6, :cond_18
 
-    .line 2000
+    .line 2012
     invoke-virtual {p1}, Landroid/view/View;->getContext()Landroid/content/Context;
 
     move-result-object v0
@@ -90,7 +90,7 @@
 
     int-to-float v0, v0
 
-    .line 2001
+    .line 2013
     invoke-virtual {p2}, Landroid/view/MotionEvent;->getX()F
 
     move-result v1
@@ -130,7 +130,7 @@
 
     if-eqz v0, :cond_18
 
-    .line 2004
+    .line 2016
     # getter for: Lcom/isaigu/gymapp/ai/FocusBoard;->body:Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat;
     invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$2800()Lcom/isaigu/gymapp/ai/AutoViews$BodyHeat;
 
@@ -160,12 +160,12 @@
 
     move-result v0
 
-    .line 2005
+    .line 2017
     if-ltz v0, :cond_71
 
     if-ge v0, v7, :cond_71
 
-    .line 2006
+    .line 2018
     # invokes: Lcom/isaigu/gymapp/ai/FocusBoard;->current()Lcom/isaigu/gymapp/train/model/TrainItem;
     invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$500()Lcom/isaigu/gymapp/train/model/TrainItem;
 
@@ -175,16 +175,16 @@
 
     move-result v0
 
-    .line 2008
+    .line 2020
     :cond_71
     if-ltz v0, :cond_18
 
     if-ge v0, v7, :cond_18
 
-    .line 2009
+    .line 2021
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsUi;->haptic(Landroid/view/View;)V
 
-    .line 2010
+    .line 2022
     # getter for: Lcom/isaigu/gymapp/ai/FocusBoard;->chips:[Lcom/isaigu/gymapp/ai/FocusBoard$Chip;
     invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$2900()[Lcom/isaigu/gymapp/ai/FocusBoard$Chip;
 
@@ -192,10 +192,10 @@
 
     aget-object v1, v1, v0
 
-    .line 2011
+    .line 2023
     if-eqz v1, :cond_a2
 
-    .line 2012
+    .line 2024
     iget-object v2, v1, Lcom/isaigu/gymapp/ai/FocusBoard$Chip;->view:Landroid/widget/LinearLayout;
 
     invoke-virtual {v2}, Landroid/widget/LinearLayout;->animate()Landroid/view/ViewPropertyAnimator;
@@ -226,10 +226,10 @@
 
     move-result-object v1
 
-    .line 2013
+    .line 2025
     invoke-virtual {v1}, Landroid/view/ViewPropertyAnimator;->start()V
 
-    .line 2015
+    .line 2027
     :cond_a2
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/FocusBoard;->chipClick(I)V
 

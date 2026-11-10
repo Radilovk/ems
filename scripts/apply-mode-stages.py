@@ -3,8 +3,10 @@
 
 - TrainItem.setUserType (Основен / Мускули / Кардио / Масаж): the vendor stop() and the new mode's full time made
   every mode change a new training. Now (train/utils/ProgramLive.stageLive) a training under way — running, or
-  paused part-way — goes on: the time left stays, the session record goes on, the pulse restarts at once with the
-  new mode's times (and its Hz / 2nd impulse); the strength and channel percents come from the mode it leaves
+  paused part-way — goes on: the session record goes on, the pulse restarts at once with the new mode's times (and
+  its Hz / 2nd impulse); in the manual mode the clock starts the new mode's own full time (owner, 1.1.508 —
+  ProgramLive.stageClock: Основен with 2:00 left → Масаж runs its whole time, not the 2:00), AI / Auto keep one
+  clock; the strength and channel percents come from the mode it leaves
   (PartStrength.modeCarry, hooked by apply-double-impulse.py). Only ■ or the end of the time ends the training.
   A row not started yet keeps the vendor path (stop + the new mode's full time).
 - TrainItem$1.onTick: the vendor cut the milliseconds left to whole seconds, so every ❚❚ / ▶ lost up to 1.1 s and a
@@ -71,6 +73,38 @@ STAGE = f"""    {MARK}
     invoke-direct {{p0}}, {TI}->startPulse()V
 
     :cond_xems_stage_done
+    invoke-static {{p0}}, {PL}->stageClock({TI})J
+
+    move-result-wide v0
+
+    const-wide/16 v2, 0x0
+
+    cmp-long v2, v0, v2
+
+    if-lez v2, :cond_xems_clock_kept
+
+    iget-object v2, p0, {TI}->workCountDown:Landroid/os/CountDownTimer;
+
+    if-eqz v2, :cond_xems_clock_nocd
+
+    invoke-virtual {{v2}}, Landroid/os/CountDownTimer;->cancel()V
+
+    :cond_xems_clock_nocd
+    new-instance v2, Lcom/isaigu/gymapp/train/model/TrainItem$1;
+
+    move-object v3, p0
+
+    move-wide v4, v0
+
+    const-wide/16 v6, 0x64
+
+    invoke-direct/range {{v2 .. v7}}, Lcom/isaigu/gymapp/train/model/TrainItem$1;-><init>({TI}JJ)V
+
+    iput-object v2, p0, {TI}->workCountDown:Landroid/os/CountDownTimer;
+
+    invoke-virtual {{v2}}, Landroid/os/CountDownTimer;->start()Landroid/os/CountDownTimer;
+
+    :cond_xems_clock_kept
     invoke-direct {{p0}}, {TI}->onTrainItemChange()V
 
     return-void
@@ -122,6 +156,7 @@ def main() -> None:
         sys.exit("apply-mode-stages: setUserType is not the expected one")
     if not re.search(r"\.locals [2-9]\b", body):
         sys.exit("apply-mode-stages: setUserType needs two locals")
+    body = re.sub(r"\.locals \d+", ".locals 8", body, count=1)    # the countdown restart needs v0..v7
     body = body.replace(STOP, STAGE + STOP, 1)
     text = text[:a] + body + text[b:]
     print("TrainItem.setUserType: a mode change in a training is a new stage of it")

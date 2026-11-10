@@ -375,6 +375,8 @@ def last_layer(net0, X, Y, lam=None):
     T = Y.copy()
     o0 = Hb @ W0
     T[:, 0] = o0[:, 0]                                                     # contact: keep (logit, not regressed)
+    if os.environ.get('THIGH_ONLY') == '1':
+        T[:, 4:7] = o0[:, 4:7]                                             # as on the headset: only the thighs are measured
     A = Hb.T @ Hb + lam * len(Hb) / 1000.0 * np.eye(Hb.shape[1])
     W = np.linalg.solve(A, Hb.T @ T + lam * len(Hb) / 1000.0 * W0)
     net1 = MLP(X.shape[1], Y.shape[1], np.random.default_rng(0))

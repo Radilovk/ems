@@ -428,6 +428,8 @@ func _hands_events(delta: float) -> void:
 		if side == "pads":                             # the sensors as Bluetooth gamepads: guide the calibration
 			if to == "found":
 				stage._show_toast("Сензорите за краката са тук — застани прав и не мърдай за секунда")
+			elif to == "ready" and not (st in [St.PLAY, St.PRACTICE]):
+				stage._show_toast("Краката се записват: движи се свободно — ритници, колене, клекове. После задръж двата спусъка 2 секунди, за да изпратиш записа")
 			elif to == "bend":
 				stage._show_toast("Сега леко клекни веднъж и се изправи")
 			continue
@@ -493,7 +495,11 @@ var _log_hold := 0.0
 
 ## The legs' recording: both triggers held 2 s after a round → send it; the code is shown (and stays in the status).
 func _legs_log(delta: float) -> void:
-	if not _log_offer or body.legs_log.sending:
+	# after a round, or any time outside one (owner 2026-11-10: "free movement, no waiting for spheres": the recorder
+	# runs whenever the shin sensors are there — move freely in the menu, then hold both triggers)
+	var free := st in [St.MENU, St.IDLE, St.SUMMARY]
+	if not (_log_offer or free) or body.legs_log.sending or not body.legs_log.ready_to_send():
+		_log_hold = 0.0
 		return
 	var both := true
 	for sd in ["left", "right"]:

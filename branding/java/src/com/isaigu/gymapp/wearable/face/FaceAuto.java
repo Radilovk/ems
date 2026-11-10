@@ -4,6 +4,7 @@ import com.isaigu.gymapp.ai.AutoCatalog;
 import com.isaigu.gymapp.ai.AutoEngine;
 import com.isaigu.gymapp.ai.AutoModel;
 import com.isaigu.gymapp.ai.AutoSession;
+import com.isaigu.gymapp.train.utils.ChannelStrengthScale;
 
 /**
  * The XEMS suit as a face device: the automatic mode runs the face programs ({@code AutoCatalog.FACE*}: the arms
@@ -90,7 +91,15 @@ public final class FaceAuto implements FaceDevice {
     }
 
     public int strength(int ch) {
-        return ch < 0 ? AutoSession.leaderStrength() : AutoSession.channelShare(siteOf(ch));
+        return ch < 0 ? units(AutoSession.leaderStrength()) : AutoSession.channelShare(siteOf(ch));
+    }
+
+    /**
+     * The master as the suit really gets it (docs/xems-face.md §12.2): face mode divides like the arms
+     * ({@link ChannelStrengthScale#armsFactor}, ÷4 at 100 µs) and the suit takes whole units per channel only.
+     */
+    static int units(int master) {
+        return Math.round(master * ChannelStrengthScale.armsFactor(AutoSession.facePw()));
     }
 
     public int maxStrength() {
@@ -123,7 +132,13 @@ public final class FaceAuto implements FaceDevice {
             return;
         }
         if (AutoSession.getStage() == AutoSession.Stage.CALIB) {
-            AutoSession.adjustCalibration(-1, dir);
+            // one tap = one real step of the suit: the smallest change of the master that moves the sent byte
+            int l = AutoSession.leaderStrength();
+            int d = 1;
+            while (l + d * dir >= 0 && l + d * dir <= 100 && units(l + d * dir) == units(l)) {
+                d++;
+            }
+            AutoSession.adjustCalibration(-1, d * dir);
         } else if (AutoSession.getStage() == AutoSession.Stage.RUNNING) {
             AutoSession.nudge(dir);
         }

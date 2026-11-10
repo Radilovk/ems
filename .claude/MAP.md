@@ -404,7 +404,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 
 **wearable/face/** (`branding/java/src/com/isaigu/gymapp/wearable/face/`)
 - `FaceArt.java` (560L, compile:music-sync*,wearable) — The anatomy layer of the face studio (docs/xems-face.md §9) — pure Java, no Android.
-- `FaceAuto.java` (296L, compile:music-sync*,wearable) — The XEMS suit as a face device: the automatic mode runs the face programs ({@code AutoCatalog.FACE*}: the arms channel …
+- `FaceAuto.java` (311L, compile:music-sync*,wearable) — The XEMS suit as a face device: the automatic mode runs the face programs ({@code AutoCatalog.FACE*}: the arms channel …
 - `FaceCourse.java` (103L, compile:music-sync*,wearable) — A client's course of one face procedure — pure Java (the studio keeps the dates in prefs "xems_face", one line per clie…
 - `FaceDevice.java` (108L, compile:music-sync*,wearable) — What the face studio needs from a device (docs/xems-face.md): the XEMS suit through the automatic mode ({@link FaceAuto…
 - `FaceProgram.java` (374L, compile:music-sync*,wearable) — The face procedures as the studio sells them (docs/xems-face.md) — pure Java.
@@ -1071,7 +1071,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L106 ## Tests
   - L112 ## Not yet
 
-`docs/xems-face.md` (323L)
+`docs/xems-face.md` (330L)
   - L1 # Face — facial stimulation (owner, 2026-11-06, 1.1.500-ai)
   - L12 ## 1. Physiology the programs stand on
   - L50 ## 2. Who not (asked once, not a central block)
@@ -1093,8 +1093,9 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L231 ## 10. XBody — next (owner, 2026-11-06: XEMS and Bluetens now; the XBody unit later, with a new firmware)
   - L259 ## 12. Comfort: no deep ache, no sting (owner, 2026-11-07; 1.1.504–505-ai)
   - L295 ### 12.1 Adjustable width and the pad size (owner, 2026-11-08; 1.1.506-ai)
-  - L312 ## 13. Open
-  - L318 ## Sources
+  - L312 ### 12.2 Strength steps on the face (owner, 2026-11-10; 1.1.507-ai)
+  - L319 ## 13. Open
+  - L325 ## Sources
 
 `docs/xems-focus-board.md` (129L)
   - L1 # Training screen — focus layout (1.1.412)

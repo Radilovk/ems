@@ -486,7 +486,33 @@ var _measure_said := -1
 var _trig_was := {}
 
 
-var _thigh_said := 0                    # 0 · 1 = thigh sensors seen · 2 = calibrated (teaching)
+var _thigh_said := 0
+var _log_offer := false
+var _log_hold := 0.0
+
+
+## The legs' recording: both triggers held 2 s after a round → send it; the code is shown (and stays in the status).
+func _legs_log(delta: float) -> void:
+	if not _log_offer or body.legs_log.sending:
+		return
+	var both := true
+	for sd in ["left", "right"]:
+		var c = stage.hands.get(sd)
+		both = both and body.src[sd] == "controller" and c is XRController3D and (c as XRController3D).get_float("trigger") > 0.6
+	_log_hold = _log_hold + delta if both else 0.0
+	if _log_hold < 2.0:
+		return
+	_log_hold = 0.0
+	_log_offer = false
+	stage._show_toast("Изпращам записа на краката…")
+	body.legs_log.send(self, func(ok: bool, code: String) -> void:
+		if ok:
+			stage._show_toast("Записът е изпратен ✓  Код: %s" % code)
+			menu.set_status(_hands_status() + "  ·  запис на краката: " + code)
+			print("LEGS LOG sent: ", code)
+		else:
+			_log_offer = true
+			stage._show_toast("Записът не тръгна (няма интернет?) — задръж двата спусъка пак"))                    # 0 · 1 = thigh sensors seen · 2 = calibrated (teaching)
 
 
 ## The legs' measurement (PadLegs.touch): say each step, take each trigger press of either controller at its tip.
@@ -532,6 +558,7 @@ func _process(delta: float) -> void:
 	body.update(delta)
 	_hands_events(delta)
 	_legs_measure()
+	_legs_log(delta)
 	_beat(delta)
 	Elem.beat = exp(-fposmod(bt, beat_len()) / beat_len() * 6.0)
 	if not paused:
@@ -1649,6 +1676,9 @@ func _finish_session() -> void:
 		return
 	_clear()
 	st = St.MENU
+	if body.legs_log.ready_to_send():                    # the legs' flight recorder: offer to send it
+		_log_offer = true
+		stage._show_toast("Запис на краката е готов — задръж двата спусъка 2 секунди, за да го изпратиш за проверка")
 	if body.pads.teaching() or body.pads.prior.teach_n > 0:
 		if body.pads.teach_finish():               # a round with the thigh sensors on: the legs learnt this person
 			stage._show_toast("Краката научиха твоите движения ✓ — махни сензорите от бедрата и ги върни на китките")

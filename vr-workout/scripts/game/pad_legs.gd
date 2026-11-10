@@ -79,7 +79,39 @@ func _axis(id: int, i: int) -> float:
 	return Input.get_joy_axis(id, i)
 
 
+## The report layout: 1 = fw 10–12 (sticks: qx qy qz qw on 0..3, the acceleration on 4 as a trigger) · 2 = fw 13 (pedals
+## Throttle Rudder Steering Gas = qx qy MARK qz on 0..3, w ≥ 0 rebuilt — the system no longer navigates with the legs).
+## Android gives the pedals that are not "centred" (Throttle, Gas) as 0..1: undone with 2v − 1, unless a negative value
+## shows they come as −1..1. fw 13 is told by its mark: Steering (centred, passed on as is) always 0.777.
+func _layout(id: int) -> int:
+	var p: Dictionary = pads.get(id, {})
+	return int(p.get("lay", 1))
+
+
+func _sense_layout(id: int, p: Dictionary) -> void:
+	if int(p.get("lay_n", 0)) >= 30:
+		return
+	var n := Vector4(_axis(id, 0), _axis(id, 1), _axis(id, 2), _axis(id, 3)).length()
+	if n < 0.05:
+		return                                        # nothing received yet (all zeros)
+	p.lay_n = int(p.get("lay_n", 0)) + 1
+	p.lay_mark = int(p.get("lay_mark", 0)) + (1 if absf(_axis(id, 2) - MARK13) < 0.003 else 0)
+	p.lay = 2 if int(p.lay_mark) > int(p.lay_n) / 2 else 1
+
+
 func _sensor_q(id: int) -> Quaternion:
+	if _layout(id) == 2:
+		var p: Dictionary = pads.get(id, {})
+		var a0 := _axis(id, 0)
+		var a3 := _axis(id, 3)
+		if a0 < -0.02 or a3 < -0.02:
+			p.cen = true                              # this headset gives the pedals as −1..1
+		var cen := bool(p.get("cen", false))
+		var x := a0 if cen else 2.0 * a0 - 1.0
+		var y := _axis(id, 1)
+		var z := a3 if cen else 2.0 * a3 - 1.0
+		var w := sqrt(maxf(0.0, 1.0 - x * x - y * y - z * z))
+		return Quaternion(x, y, z, w).normalized()
 	var q := Quaternion(_axis(id, 0), _axis(id, 1), _axis(id, 2), _axis(id, 3))
 	return q.normalized() if q.length() > 0.5 else Quaternion.IDENTITY
 
@@ -106,6 +138,8 @@ func poll(delta: float, head_h: float, stand_h: float, fwd: Vector3) -> void:
 		if not pads.has(id) and status == "ready" and _thighs() < 2:
 			role[id] = "thigh"                         # a sensor that comes after the legs are ready: on a thigh (teaching)
 		var p: Dictionary = pads.get(id, {"still": 0.0, "w": 0.0})
+		_sense_layout(id, p)
+		pads[id] = p
 		var q := _sensor_q(id)
 		if p.has("q") and delta > 0.0:                 # turn speed from the orientation, smoothed over ~0.1 s
 			var dq: Quaternion = q * (p.q as Quaternion).inverse()
@@ -213,10 +247,17 @@ func _leg_fwd_now(id: int) -> Vector3:
 	return f.normalized() if f.length() > 0.3 else Vector3.ZERO
 
 
-## The shin's vertical acceleration (g) from axis 4, or NAN while not (yet) known to be there. The stick/trigger form
+const MARK13 := 0.777                   # fw 13's constant on the Steering axis
+
+
+func _acc_axis(id: int) -> int:
+	return -1 if _layout(id) == 2 else ACC_AXIS       # fw 13 sends no acceleration
+
+
+## The shin's vertical acceleration (g) from axis 4 (fw 13: 3, raw), or NAN while not (yet) known to be there. The stick/trigger form
 ## is told from the value at rest (0 g ⇒ 0.0 as a stick, 0.5 as a trigger); "live" once it moved with the shin.
 func _acc_g(id: int, v: Dictionary) -> float:
-	var x := _axis(id, ACC_AXIS)
+	var x := _axis(id, _acc_axis(id))
 	match int(v.mode):
 		1:
 			return x * 4.0
@@ -229,6 +270,8 @@ func _acc_g(id: int, v: Dictionary) -> float:
 ## twice, its offset learnt while the player stands tall and still (the truth there is 0), the speed reset at every
 ## still moment, a landing's jolt held off, the height let down when still and low.
 func _vert(id: int, dt: float, stand: bool) -> void:
+	if _acc_axis(id) < 0:
+		return                                        # no acceleration on this sensor's gamepad (fw 13)
 	var v: Dictionary = vert.get(id, {"mode": 0, "live": false, "m": 0.0, "mn": 0, "bias": 0.0, "sig": 0.3, "am": 0.0,
 		"v": 0.0, "h": 0.0, "hold": 0.0, "st": 0.0})
 	vert[id] = v
@@ -236,7 +279,7 @@ func _vert(id: int, dt: float, stand: bool) -> void:
 		return
 	if int(v.mode) == 0:                        # which form: the mean at the first still stand
 		if stand:
-			v.m = float(v.m) + _axis(id, ACC_AXIS)
+			v.m = float(v.m) + _axis(id, _acc_axis(id))
 			v.mn = int(v.mn) + 1
 			if int(v.mn) >= 30:
 				var m: float = float(v.m) / float(v.mn)

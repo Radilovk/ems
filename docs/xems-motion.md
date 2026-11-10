@@ -502,6 +502,18 @@ some, the trunk not at all (measured, < 1–2°). Learnt on the device itself �
   people, 2–6 min of **the same moves**): knee 17.3 → 14.8 cm on the rest; teaching on *other* moves does not carry
   over (no gain) — teach with the game's own moves; only the thighs (no hips): 17.3 → 16.2.
 
+### 1.29 / firmware 13 — the leg sensors no longer move the Quest's menu (owner, 2026-11-10)
+The gamepad sent the orientation on the stick axes (X Y Z Rx); outside the game the headset read every step as a
+stick push and moved its menus. fw 13 puts the values on the Simulation page's pedals — Throttle, Rudder, Steering,
+Accelerator (Gas) = qx, qy, a constant mark 0.777, qz (w ≥ 0 rebuilt) — which the system does not navigate with; the
+vertical acceleration and turn speed are no longer sent (the legs' prior gains ~0.2 cm from the acceleration; trained
+also without it). Android gives Throttle/Gas as 0..1 (not centred axes): the game undoes it (2v − 1; a negative value
+would show they come as −1..1). The game tells fw 13 by the mark on the centred Steering axis (a values-only test
+mistook one orientation in CI) — fw 10–12 keep working. After the update: **forget and pair the sensors again in the Quest**
+(the report map changed). Test `pad_v2_test` (fw 13 layout as Android delivers it: calibration, sides, squat).
+Pairing: only the shin sensors for play; the wrist sensors only for teaching (§1.28) — a sensor connected to the
+phone app does not advertise (one connection at a time), and fw < 10 has no gamepad at all. App 1.26.
+
 ### AI (Gemini) — where it fits and where not
 Not for the live figure: a cloud model answers in 0.5–3 s, needs the network, costs per call and does not return
 reliable joint angles — the figure must follow the body in < 50 ms. "Natural" comes from local models learned from

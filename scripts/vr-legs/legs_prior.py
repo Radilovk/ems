@@ -362,3 +362,33 @@ if __name__ == '__main__' and sys.argv[1] == 'teach-same':
         r0 = np.mean([LE.run(p, prior=Prior(net0), part=(0.5, 1.0))['knee'] for p in ps])
         r1 = np.mean([LE.run(p, prior=Prior(net1), part=(0.5, 1.0))['knee'] for p in ps])
         print('person %-4s taught with %.1f min of the same moves: knee %.1f → %.1f cm on the rest' % (sub, mins, r0, r1), flush=True)
+
+
+def last_layer(net0, X, Y, lam=None):
+    """on-device personalisation: keep the network, refit only its last layer on the person's frames (ridge
+    regression pulled toward the trained weights; contact logit fitted on its own target as a linear proxy)"""
+    lam = float(os.environ.get('LAM', 30.0)) if lam is None else lam
+    Z = (X - net0.mu) / net0.sd
+    h1 = np.tanh(Z @ net0.W[0] + net0.b[0]); h2 = np.tanh(h1 @ net0.W[1] + net0.b[1])
+    Hb = np.concatenate([h2, np.ones((len(h2), 1))], 1)                     # (n, 65)
+    W0 = np.concatenate([net0.W[2], net0.b[2][None]], 0)                   # (65, 7)
+    T = Y.copy()
+    o0 = Hb @ W0
+    T[:, 0] = o0[:, 0]                                                     # contact: keep (logit, not regressed)
+    A = Hb.T @ Hb + lam * len(Hb) / 1000.0 * np.eye(Hb.shape[1])
+    W = np.linalg.solve(A, Hb.T @ T + lam * len(Hb) / 1000.0 * W0)
+    net1 = MLP(X.shape[1], Y.shape[1], np.random.default_rng(0))
+    net1.W = [net0.W[0], net0.W[1], W[:-1]]; net1.b = [net0.b[0], net0.b[1], W[-1]]
+    net1.mu, net1.sd = net0.mu, net0.sd
+    return net1
+
+
+if __name__ == '__main__' and sys.argv[1] == 'teach-last':
+    net0 = load(sys.argv[3])
+    for sub in sorted(TEST_SUBJECTS):
+        ps = sorted(p for p in te if os.path.basename(p).split('_')[0] == sub)
+        X, Y = dataset(ps, 5, part=(0.0, 0.5))
+        net1 = last_layer(net0, X, Y)
+        r0 = np.mean([LE.run(p, prior=Prior(net0), part=(0.5, 1.0))['knee'] for p in ps])
+        r1 = np.mean([LE.run(p, prior=Prior(net1), part=(0.5, 1.0))['knee'] for p in ps])
+        print('person %-4s last layer only (%.1f min): knee %.1f → %.1f cm on the rest' % (sub, len(X) / 7200, r0, r1), flush=True)

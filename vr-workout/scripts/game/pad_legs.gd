@@ -481,11 +481,7 @@ func limbs(head: Vector3, fwd: Vector3, stand_h: float, floor_y: float, delta :=
 				var v: Dictionary = vert[hid[sd]]
 				acc[sd] = float(v.get("g", 0.0)) - float(v.bias) / 9.81
 		P = prior.step(_t, delta, U, A, acc, head, stand_h - ah, floor_y + ah, hands)
-		if teaching():                                    # the thighs are measured: the prior learns this person
-			for sd in U:
-				var t := thigh_dir(sd)
-				if t != Vector3.ZERO:
-					prior.learn(sd, t)
+
 	# 1 · which feet are on the floor
 	var ground := {}
 	for sd in U:
@@ -537,6 +533,21 @@ func limbs(head: Vector3, fwd: Vector3, stand_h: float, floor_y: float, delta :=
 			if e > 0.03 and dh.length() > 0.001:
 				anc[sd] = (anc[sd] as Vector3) + dh.normalized() * (e - 0.03)
 		pc_off = pc - head
+	# teaching (the thighs measured): the prior learns this person's thighs, and the hips where the planted legs put
+	# them (anchor → measured shin → measured thigh)
+	if not P.is_empty() and teaching():
+		var hips := Vector3.ZERO
+		var nh := 0
+		for sd in planted:
+			var tdir := thigh_dir(sd)
+			if tdir != Vector3.ZERO:
+				hips += (anc[sd] as Vector3) + (U[sd] as Vector3) * ls - tdir * lt - left * hw * float(sgn[sd])
+				nh += 1
+		var pcm := hips / nh if nh > 0 else Vector3.INF
+		for sd in U:
+			var t := thigh_dir(sd)
+			if t != Vector3.ZERO:
+				prior.learn(sd, t, pcm)
 	# 3 · each leg: planted → up from its anchor; lifted → down from the hip, the knee bent to the measured height
 	var out := {"pos": {}, "speed": {}, "dir": {}, "ground": {}}
 	for sd in U:

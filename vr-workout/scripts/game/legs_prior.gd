@@ -24,9 +24,10 @@ const PERSONAL_PATH := "user://legs_personal.json"
 const LAM := 3.0
 var _last := {}                         # sd -> [h2 + 1 (PackedFloat64Array 65), bf, left, side]
 var _tA := PackedFloat64Array()         # 65×65 Σ h hᵀ
-var _tB := PackedFloat64Array()         # 65×3  Σ h tᵀ
+var _tB := PackedFloat64Array()         # 65×6  Σ h tᵀ (the thigh 3 + the hips 3)
 var teach_n := 0
-var personal := PackedFloat64Array()    # 65×3: the thigh outputs' weights + bias (empty: the trained ones)
+var personal := PackedFloat64Array()    # 65×6: the thigh and hip outputs' weights + bias (empty: the trained ones)
+const NP := 6
 
 
 func _init() -> void:
@@ -38,7 +39,7 @@ func _init() -> void:
 	_sd = PackedFloat32Array(Wt.SD)
 	if FileAccess.file_exists(PERSONAL_PATH):
 		var d = JSON.parse_string(FileAccess.get_file_as_string(PERSONAL_PATH))
-		if typeof(d) == TYPE_ARRAY and (d as Array).size() == 65 * 3:
+		if typeof(d) == TYPE_ARRAY and (d as Array).size() == 65 * NP:
 			personal = PackedFloat64Array(d)
 
 
@@ -74,11 +75,11 @@ func _forward(x: PackedFloat32Array) -> PackedFloat32Array:
 		if k == 1:
 			_h2 = o
 		h = o
-	if personal.size() == 65 * 3:                      # this person's thigh outputs
-		for j in 3:
-			var s := personal[64 * 3 + j]
+	if personal.size() == 65 * NP:                     # this person's thigh and hip outputs
+		for j in NP:
+			var s := personal[64 * NP + j]
 			for i in 64:
-				s += personal[i * 3 + j] * _h2[i]
+				s += personal[i * NP + j] * _h2[i]
 			h[1 + j] = s
 	return h
 
@@ -132,9 +133,12 @@ func step(t: float, delta: float, U: Dictionary, A: Dictionary, acc: Dictionary,
 		x.append_array(PackedFloat32Array([float(w[sd]) / 300.0, float(w[od]) / 300.0, 1.0 if has_acc else 0.0,
 			1.0 if has_hands else 0.0]))
 		var o := _forward(x)
-		var hb := PackedFloat64Array(_h2)
-		hb.append(1.0)
-		_last[sd] = [hb, bf, left, side]
+		var hb := PackedFloat64Array()
+		hb.resize(65)
+		for i in 64:
+			hb[i] = _h2[i]
+		hb[64] = 1.0
+		_last[sd] = [hb, bf, left, side, head, S, o]
 		var p := 1.0 / (1.0 + exp(-o[0]))
 		gnd[sd] = p > 0.4 if gnd[sd] else p > 0.6
 		out.ground[sd] = gnd[sd]
@@ -144,8 +148,9 @@ func step(t: float, delta: float, U: Dictionary, A: Dictionary, acc: Dictionary,
 	return out
 
 
-## Teaching: the thigh as measured (hip → knee, world) for the side of the last step(); gathers the sums.
-func learn(sd: String, thigh: Vector3) -> void:
+## Teaching: the thigh as measured (hip → knee, world) and the hip centre if the legs fix it (else Vector3.INF) for
+## the side of the last step(); gathers the sums.
+func learn(sd: String, thigh: Vector3, pc := Vector3.INF) -> void:
 	if not _last.has(sd):
 		return
 	var L: Array = _last[sd]
@@ -154,16 +159,24 @@ func learn(sd: String, thigh: Vector3) -> void:
 	var left: Vector3 = L[2]
 	var side: float = L[3]
 	var t := thigh.normalized()
-	var tb := [t.dot(bf), side * t.dot(left), t.y]
+	var o: PackedFloat32Array = L[6]
+	var tb := [t.dot(bf), side * t.dot(left), t.y, o[4], o[5], o[6]]   # the hips: as now, unless measured
+	if pc != Vector3.INF:
+		var head: Vector3 = L[4]
+		var S: float = L[5]
+		var r := (pc - head) / S
+		tb[3] = r.dot(bf)
+		tb[4] = side * r.dot(left)
+		tb[5] = r.y
 	if _tA.is_empty():
 		_tA.resize(65 * 65)
-		_tB.resize(65 * 3)
+		_tB.resize(65 * NP)
 	for i in 65:
 		var hi := hb[i]
 		for j in 65:
 			_tA[i * 65 + j] += hi * hb[j]
-		for j in 3:
-			_tB[i * 3 + j] += hi * float(tb[j])
+		for j in NP:
+			_tB[i * NP + j] += hi * float(tb[j])
 	teach_n += 1
 
 
@@ -175,39 +188,40 @@ func fit() -> bool:
 	var W2: PackedFloat32Array = _w[2]                 # row j = output j: [j * 64 + i]
 	var B2: PackedFloat32Array = _b[2]
 	var M := PackedFloat64Array()
-	M.resize(65 * 68)                                  # [A | B] augmented, 65 rows × (65 + 3)
+	var C := 65 + NP
+	M.resize(65 * C)                                   # [A | B] augmented, 65 rows × (65 + 6)
 	for i in 65:
 		for j in 65:
-			M[i * 68 + j] = _tA[i * 65 + j] + (mu if i == j else 0.0)
-		for j in 3:
+			M[i * C + j] = _tA[i * 65 + j] + (mu if i == j else 0.0)
+		for j in NP:
 			var w0 := float(B2[1 + j]) if i == 64 else float(W2[(1 + j) * 64 + i])
-			M[i * 68 + 65 + j] = _tB[i * 3 + j] + mu * w0
+			M[i * C + 65 + j] = _tB[i * NP + j] + mu * w0
 	for c in 65:                                       # Gauss–Jordan with partial pivoting
 		var piv := c
 		for r in range(c + 1, 65):
-			if absf(M[r * 68 + c]) > absf(M[piv * 68 + c]):
+			if absf(M[r * C + c]) > absf(M[piv * C + c]):
 				piv = r
-		if absf(M[piv * 68 + c]) < 1e-12:
+		if absf(M[piv * C + c]) < 1e-12:
 			return false
 		if piv != c:
-			for k in 68:
-				var tmp := M[c * 68 + k]
-				M[c * 68 + k] = M[piv * 68 + k]
-				M[piv * 68 + k] = tmp
-		var d := M[c * 68 + c]
-		for k in 68:
-			M[c * 68 + k] /= d
+			for k in C:
+				var tmp := M[c * C + k]
+				M[c * C + k] = M[piv * C + k]
+				M[piv * C + k] = tmp
+		var d := M[c * C + c]
+		for k in C:
+			M[c * C + k] /= d
 		for r in 65:
 			if r != c:
-				var f := M[r * 68 + c]
+				var f := M[r * C + c]
 				if f != 0.0:
-					for k in 68:
-						M[r * 68 + k] -= f * M[c * 68 + k]
+					for k in C:
+						M[r * C + k] -= f * M[c * C + k]
 	personal = PackedFloat64Array()
-	personal.resize(65 * 3)
+	personal.resize(65 * NP)
 	for i in 65:
-		for j in 3:
-			personal[i * 3 + j] = M[i * 68 + 65 + j]
+		for j in NP:
+			personal[i * NP + j] = M[i * C + 65 + j]
 	var f := FileAccess.open(PERSONAL_PATH, FileAccess.WRITE)
 	if f:
 		f.store_string(JSON.stringify(Array(personal)))

@@ -105,7 +105,7 @@ func _initialize() -> void:
 	_hold(1.0, STAND_H, I, I, I, I, true)
 	_round(true)                                           # the teaching round
 	var learnt := pads.teach_finish()
-	_check("learnt and saved", learnt and FileAccess.file_exists(LegsPrior.PERSONAL_PATH) and pads.prior.personal.size() == 195,
+	_check("learnt and saved", learnt and FileAccess.file_exists(LegsPrior.PERSONAL_PATH) and pads.prior.personal.size() == 65 * LegsPrior.NP,
 		"fit %s, %d weights" % [learnt, pads.prior.personal.size()])
 	pads.sim.erase(2)                                      # the thigh sensors taken off
 	pads.sim.erase(3)

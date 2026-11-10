@@ -207,9 +207,9 @@ public final class ProgramLive {
 
     /**
      * Hook: TrainItem.setUserType, in place of the vendor stop() (scripts/apply-mode-stages.py). Owner (1.1.493):
-     * Основен → Мускули → Кардио → Масаж in a training are stages of the same training, not new ones — the clock goes
-     * on (running) or stays where it was (paused), the session record goes on, only ■ or the end of the time ends
-     * the training. True = keep the time and go on in the new mode (the smali restarts the pulse with the new mode's
+     * Основен → Мускули → Кардио → Масаж in a training are stages of the same training, not new ones — the run goes
+     * on (running) or stays paused, the session record goes on, only ■ or the end of the time ends the training.
+     * The clock: the new mode's own full time in the manual mode ({@link #stageClock}, 1.1.508). True = keep the time and go on in the new mode (the smali restarts the pulse with the new mode's
      * times); false = not started yet: the vendor stop and the new mode's full time.
      */
     public static boolean stageLive(TrainItem it) {
@@ -218,6 +218,50 @@ public final class ProgramLive {
             b = STAGE.remove(it);
         }
         return b != null && b.booleanValue();
+    }
+
+    /** Per row: {seconds of the old mode left undone, the new mode's full time} of the last stage(s), for the recorder. */
+    private static final Map<TrainItem, int[]> STAGE_CLOCK = new WeakHashMap<TrainItem, int[]>();
+
+    /**
+     * Hook: TrainItem.setUserType, a stage of a manual training (scripts/apply-mode-stages.py), after the pulse restart.
+     * Owner (1.1.508): every mode has its own clock — Основен with 2:00 left → Масаж starts the massage's full time,
+     * it does not finish the 2:00. The training itself goes on (no stop, the same session record). Sets the row's time
+     * to the new mode's full length; returns the new countdown (ms) when the row runs, else 0 (paused: ▶ starts it).
+     * AI / automatic sessions keep one clock across their modes (they time their own stages).
+     */
+    public static long stageClock(TrainItem it) {
+        try {
+            if (it == null || it.data == null || !manual()) {
+                return 0L;
+            }
+            TrainProgram p = it.getTrainProgram();
+            ProgramDataBean b = p != null ? p.matchProgram() : null;
+            if (b == null || b.workLength <= 0) {
+                return 0L;
+            }
+            int left = Math.max(0, it.workLength);
+            synchronized (STAGE_CLOCK) {
+                int[] was = STAGE_CLOCK.get(it);
+                // Two changes before the recorder's next second: the middle mode's time came and went.
+                int cut = was != null ? Math.max(0, was[0] + left - was[1]) : left;
+                STAGE_CLOCK.put(it, new int[] {cut, b.workLength});
+            }
+            it.workLength = b.workLength;
+            synchronized (CLOCK) {
+                CLOCK.remove(it);                       // the new countdown starts from whole seconds
+            }
+            return it.data.start ? b.workLength * 1000L : 0L;
+        } catch (Throwable t) {
+            return 0L;
+        }
+    }
+
+    /** For the session recorder: {old mode's seconds not done, new mode's full time} since the last call, or null. */
+    public static int[] takeStage(TrainItem it) {
+        synchronized (STAGE_CLOCK) {
+            return STAGE_CLOCK.remove(it);
+        }
     }
 
     // ================================================================ the training clock (1.1.493)

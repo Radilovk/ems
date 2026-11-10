@@ -43,7 +43,27 @@ public final class ClientPrograms {
             if (sp == null || u == null || p == null || p.name == null) {
                 return false;
             }
-            sp.edit().putString(key(u.id, p.name), JSON.toJSONString(p)).apply();
+            TrainProgram out = p;
+            TrainProgram prev = load(u.id, p.name);
+            if (prev != null) {
+                // A save made before the muscles were raised (all channels 0, e.g. ⚙ at the start of a visit) must
+                // not wipe the client's main-impulse percents: those of the earlier save stay (1.1.508).
+                TrainProgram c = (TrainProgram) BeanUtils.cloneObject(p);
+                if (c != null) {
+                    for (int k = 0; k < ProgramFit.MODES; k++) {
+                        ProgramDataBean n = ProgramFit.bean(c, k);
+                        ProgramDataBean o = ProgramFit.bean(prev, k);
+                        if (n != null && o != null && !any(n) && any(o)) {
+                            if (n.strenthBean == null) {
+                                n.strenthBean = new com.isaigu.gymapp.bean.PartStrenthBean();
+                            }
+                            n.strenthBean.buwei = o.strenthBean.buwei.clone();
+                        }
+                    }
+                    out = c;
+                }
+            }
+            sp.edit().putString(key(u.id, p.name), JSON.toJSONString(out)).apply();
             WearableBleDiagLog.log("manual", "saved '" + p.name + "' for user " + u.id);
             return true;
         } catch (Throwable t) {
@@ -98,7 +118,21 @@ public final class ClientPrograms {
         return true;
     }
 
-    /** Everything but the main strength. */
+    /** Some channel of the main impulse is above 0. */
+    static boolean any(ProgramDataBean b) {
+        int[] a = b != null && b.strenthBean != null ? b.strenthBean.buwei : null;
+        if (a == null) {
+            return false;
+        }
+        for (int i = 0; i < a.length; i++) {
+            if (a[i] > 0) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /** Everything but the main strength; channel percents only when the save has some (all 0 = not a setting). */
     static void copy(ProgramDataBean s, ProgramDataBean r) {
         r.hz = s.hz;
         r.pulseWidth = s.pulseWidth;
@@ -111,7 +145,7 @@ public final class ClientPrograms {
         r.pauseHz = s.pauseHz;
         r.pauseStrenthPercent = s.pauseStrenthPercent;
         r.massageCycle = s.massageCycle;
-        if (s.strenthBean != null && s.strenthBean.buwei != null) {
+        if (any(s)) {
             if (r.strenthBean == null) {
                 r.strenthBean = new com.isaigu.gymapp.bean.PartStrenthBean();
             }

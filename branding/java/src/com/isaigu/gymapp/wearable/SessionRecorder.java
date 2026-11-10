@@ -152,6 +152,23 @@ public final class SessionRecorder {
                     WearableBleDiagLog.log("report", "session start slot " + i + " user " + r.userId
                             + " plan " + r.planS + " s");
                 }
+                // A mode change (manual): the old mode's time left is dropped, the new mode brings its own full time
+                // (a record opened this second already planned the new mode's time).
+                int[] stage = com.isaigu.gymapp.train.utils.ProgramLive.takeStage(it);
+                if (stage != null && r.curType >= 0) {
+                    int was = r.curType;
+                    int now2 = useType(it);
+                    r.planS = Math.max(0, r.planS - stage[0] + stage[1]);
+                    r.segPlanS = Math.max(0, stage[1]);
+                    if (r.mainType >= 0 && was == r.mainType) {
+                        r.mainPlanS = Math.max(0, r.mainPlanS - stage[0]);
+                    }
+                    if (r.mainType >= 0 && now2 == r.mainType && was != r.mainType) {
+                        r.mainPlanS += stage[1];
+                    }
+                    WearableBleDiagLog.log("report", "slot " + i + " mode " + was + " → " + now2
+                            + ", -" + stage[0] + " s, +" + stage[1] + " s");
+                }
                 // ⚙ saved mid-training (ProgramLive): the planned time moved with the new length
                 int moved = com.isaigu.gymapp.train.utils.ProgramLive.takePlanDelta(it);
                 if (moved != 0) {

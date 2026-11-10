@@ -95,6 +95,13 @@ Idea: the BodyTech mock-ups (landscape) — one client fills the place of the ro
   training under way (running, or paused part-way) the mode change no longer stops it: the time left, the session
   record and the run go on, the pulse restarts at once with the new mode's times / Hz / 2nd impulse
   (`ProgramLive.stageLive`, `scripts/apply-mode-stages.py`). Only ■ or the end of the time ends the training.
+- **1.1.508 — each mode its own time (owner):** the stages above stay (no stop, one session record), but in the
+  manual mode the clock now starts the new mode's own full time (`ProgramLive.stageClock`): Основен with 2:00 left
+  → Масаж runs the massage's whole time, not the 2:00 left. The report's plan drops the old mode's unused time and
+  adds the new one (`ProgramLive.takeStage` → `SessionRecorder`). AI / Auto keep one clock across their modes.
+- **1.1.508 — the board no longer vanishes:** it hid (and its ◎ pill with it) whenever Auto / AI were in any stage,
+  so an Auto / AI card left in its setup or report — or an Auto board left in a training screen that was rebuilt —
+  took it away for good. Now only an Auto board on screen, Auto / AI calibrating or running, or a map run hide it.
 - **1.1.493 — exact training clock:** the vendor countdown cut the milliseconds left to whole seconds, so each
   ❚❚ / ▶ lost up to 1.1 s and 20:00 showed 19:59 at once. The shown second is rounded up and a restart resumes
   from the exact milliseconds (`ProgramLive.tickWork` / `workMs`).

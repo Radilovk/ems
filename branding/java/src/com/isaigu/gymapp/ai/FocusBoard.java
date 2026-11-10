@@ -226,13 +226,25 @@ public final class FocusBoard {
         frame.addView(pill, plp);
     }
 
-    /** Auto, AI and the map own the rows (their own boards / looks); music sync only holds the ceiling. */
+    /**
+     * Auto, AI and the map own the rows (their own boards / looks) while they are on screen or run; music sync only
+     * holds the ceiling. Not an Auto / AI card left in its setup or report stage, nor an Auto board left behind in a
+     * training screen that was rebuilt (1.1.508: the board and its ◎ pill were gone for good after those).
+     */
     private static boolean engineFree() {
-        if (AutoBoard.isAttached()) {
-            return false;
+        try {
+            if (AutoBoard.onScreen() || AutoSession.ownsOutput() || MapRunner.isRunning()) {
+                return false;
+            }
+            AutoSession.Stage as = AutoSession.getStage();
+            if (as == AutoSession.Stage.CALIB || as == AutoSession.Stage.RUNNING) {
+                return false;
+            }
+            AiSession.Stage s = AiSession.getStage();
+            return s == AiSession.Stage.IDLE || s == AiSession.Stage.SETUP || s == AiSession.Stage.REPORT;
+        } catch (Throwable t) {
+            return true;
         }
-        String h = OutputOwner.holder();
-        return h == null || OutputOwner.MUSIC.equals(h);
     }
 
     private static boolean rowsMode(Context c) {

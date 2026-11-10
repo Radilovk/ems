@@ -424,9 +424,12 @@ def push_with_progress(adb: Adb, src: Path, dst: str) -> bool:
                         pct, last_move = int(m), time.time()
             if time.time() - last_poll >= 3:            # the file growing on the headset counts as progress too
                 last_poll = time.time()
-                q = subprocess.run([adb.exe, "shell", f"stat -c %s {dst} 2>/dev/null"], stdout=subprocess.PIPE,
-                                   stderr=subprocess.DEVNULL, text=True, timeout=20)
-                n = int(q.stdout.strip()) if q.stdout.strip().isdigit() else 0
+                try:                                     # a busy cable may answer late: that is no failure of the push
+                    q = subprocess.run([adb.exe, "shell", f"stat -c %s {dst} 2>/dev/null"], stdout=subprocess.PIPE,
+                                       stderr=subprocess.DEVNULL, text=True, timeout=20)
+                    n = int(q.stdout.strip()) if q.stdout.strip().isdigit() else 0
+                except (subprocess.TimeoutExpired, OSError):
+                    n = 0                                # (owner 2026-11-11: one late answer stopped a 274 MB install)
                 if n > remote:
                     remote, last_move = n, time.time()
                 pct = max(pct, remote * 100 // total)

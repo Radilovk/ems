@@ -251,7 +251,7 @@ const MARK13 := 0.777                   # fw 13's constant on the Steering axis
 
 
 func _acc_axis(id: int) -> int:
-	return 99 if _layout(id) == 2 else ACC_AXIS       # fw 13 sends no acceleration (99: an axis that reads 0)
+	return -1 if _layout(id) == 2 else ACC_AXIS       # fw 13 sends no acceleration
 
 
 ## The shin's vertical acceleration (g) from axis 4 (fw 13: 3, raw), or NAN while not (yet) known to be there. The stick/trigger form
@@ -270,6 +270,8 @@ func _acc_g(id: int, v: Dictionary) -> float:
 ## twice, its offset learnt while the player stands tall and still (the truth there is 0), the speed reset at every
 ## still moment, a landing's jolt held off, the height let down when still and low.
 func _vert(id: int, dt: float, stand: bool) -> void:
+	if _acc_axis(id) < 0:
+		return                                        # no acceleration on this sensor's gamepad (fw 13)
 	var v: Dictionary = vert.get(id, {"mode": 0, "live": false, "m": 0.0, "mn": 0, "bias": 0.0, "sig": 0.3, "am": 0.0,
 		"v": 0.0, "h": 0.0, "hold": 0.0, "st": 0.0})
 	vert[id] = v

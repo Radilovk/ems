@@ -514,6 +514,17 @@ mistook one orientation in CI) — fw 10–12 keep working. After the update: **
 Pairing: only the shin sensors for play; the wrist sensors only for teaching (§1.28) — a sensor connected to the
 phone app does not advertise (one connection at a time), and fw < 10 has no gamepad at all. App 1.26.
 
+### 1.30 — the game's legs vs the app's; the legs' flight recorder (owner, 2026-11-10)
+Owner: in the game the gamepad legs are "very bad, nothing like the real movement", while XEMS Движение follows the
+legs well. The app has all five sensors and its proven solver; the game's own two-shin solve (PadLegs) was checked
+only offline, never on the headset. So: (1) the game now takes **the phone's legs first** (MotionLink over the Wi-Fi —
+the app's solve, unchanged) and the gamepads only without the phone; (2) a **flight recorder** (`legs_log.gd`) keeps
+the last 60 s of the gamepad path — each pad's raw axes 0..5, name, layout, side; the headset (position, forward, up);
+the hands; floor; standing height; status; the solved hips / knees / feet — and after a round, both triggers held 2 s
+send it (gzip, parts) to the server under a random code the game shows (`/v1/vrlog`, `server/src/vrlog.js`, kept 14
+days). `python3 scripts/vr-legs/pad_replay.py <CODE>` fetches and summarises it. Tests: `log_test` (Godot),
+`server/test/vrlog.test.js`.
+
 ### AI (Gemini) — where it fits and where not
 Not for the live figure: a cloud model answers in 0.5–3 s, needs the network, costs per call and does not return
 reliable joint angles — the figure must follow the body in < 50 ms. "Natural" comes from local models learned from

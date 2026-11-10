@@ -18,5 +18,6 @@ if [ -n "${GODOT:-}" ]; then
 	timeout 300 "$GODOT" --headless --path "$R/vr-workout" --script res://test/prior_test.gd        # the learned prior = the trained network
 	timeout 300 "$GODOT" --headless --path "$R/vr-workout" --script res://test/teach_test.gd        # teaching with thigh sensors
 	timeout 300 "$GODOT" --headless --path "$R/vr-workout" --script res://test/pad_v2_test.gd       # fw 13 gamepad layout (pedal axes)
+	timeout 300 "$GODOT" --headless --path "$R/vr-workout" --script res://test/log_test.gd          # the legs flight recorder
 fi
 echo "vr-legs: PASS"

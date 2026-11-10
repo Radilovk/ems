@@ -12,6 +12,7 @@ import exerciseLibrary from '../../branding/exercises/library.json';
 import { normalizePick, picksPayload, codeMatches, selectionPayload, APPS, appOf } from './exercises.js';
 import { LIMITS, limitsSummary } from './limits.js';
 import { handleUnitUpdate, handleUnitPack, handleUnitLog, adminUnits } from './units.js';
+import { handleVrlogPut, handleVrlogGet } from './vrlog.js';
 import {
   sessionId, validSummary, validRec, putSession, historyJson, SESSION_MAX_BYTES,
 } from './history.js';
@@ -125,6 +126,11 @@ export default {
       if (path === '/v1/unit/log' && request.method === 'POST') {
         return handleUnitLog(request, env, url, (k, max, sec) => rateLimit(env, k, max, sec));
       }
+      // The VR game's leg recordings, under a code the player passes on (src/vrlog.js).
+      if (path === '/v1/vrlog' && request.method === 'POST') {
+        return handleVrlogPut(request, env, url, (k, max, sec) => rateLimit(env, k, max, sec));
+      }
+      if (path.startsWith('/v1/vrlog/') && request.method === 'GET') return handleVrlogGet(env, path.slice('/v1/vrlog/'.length));
 
       if (path.startsWith('/releases/')) {
         return serveRelease(request, env, path);

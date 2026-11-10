@@ -3,8 +3,9 @@
 ## controller while it is tracked, else the hand itself (hand tracking: put the controllers down and play with bare
 ## fists), else nothing — so a controller that wakes up, comes back into view or is picked up again is found on its own.
 ## Knees and feet, best first:
-##   0. the XEMS Motion sensors on the shins — straight as Bluetooth gamepads (PadLegs, no phone, no Wi-Fi), else
-##      through the phone app over the Wi-Fi (MotionLink) — measured knees and feet, the hands stay as always.
+##   0. the XEMS Motion sensors through the phone app over the Wi-Fi (MotionLink: all five sensors, the app's proven
+##      solver — owner 2026-11-10: "the app follows the legs far better"), else the shin sensors straight as Bluetooth
+##      gamepads (PadLegs, no phone) — measured knees and feet, the hands stay as always.
 ##   1. a controller strapped to an ankle — found on its own: a controller that stays low (< 55 cm) while the head is
 ##      up is a foot; lifted back to the hands it is a hand again. Real kicks and knees, measured. The hands then come
 ##      from hand tracking (the cameras), at the same time as the controllers (Meta multimodal).
@@ -41,7 +42,8 @@ var feet_allowed := true                # the settings let a low controller beco
 var on_foot := {"left": false, "right": false}    # this controller is strapped to a foot
 var foot_xform := {"left": Transform3D(), "right": Transform3D()}  # world pose of a foot controller
 var link := MotionLink.new()           # the XEMS Motion sensors' legs (Wi-Fi), when the phone app sends them
-var pads := PadLegs.new()               # the same sensors straight, as Bluetooth gamepads (first choice)
+var legs_log := LegsLog.new()              # the last 60 s of the gamepad legs, sent on request (find what is wrong)
+var pads := PadLegs.new()               # the same sensors straight, as Bluetooth gamepads (without the phone)
 var hip_pos := {}                       # "l"/"r" -> the hip joint (frame space), from the sensors only
 var foot_dir := {}                      # "l"/"r" -> where the foot points (world direction), from the sensors only
 var foot_ground := {}                   # "l"/"r" -> true while that foot is planted (sensors): the boot stands flat
@@ -191,7 +193,14 @@ func update(delta: float) -> void:
 		var hands := {}                                # the hands for the legs' prior (both tracked, else none)
 		if src.left != "none" and src.right != "none":
 			hands = {"l": (hand_xform.left as Transform3D).origin, "r": (hand_xform.right as Transform3D).origin}
-		xl = pads.limbs(world_head, _fwd, stand_h, floor_y, delta, hands) if pads.ready() else link.limbs(world_head, _fwd, stand_h)
+		# the phone's legs first (owner 2026-11-10: the XEMS Движение app follows the legs far better than the game's own
+		# two-shin solve — it has all five sensors and its proven solver); the shins as gamepads only without the phone
+		xl = link.limbs(world_head, _fwd, stand_h)
+		var pxl := pads.limbs(world_head, _fwd, stand_h, floor_y, delta, hands) if pads.ready() else {}
+		if xl.is_empty():
+			xl = pxl
+		if not pads.pads.is_empty() and cam:                # the flight recorder (LegsLog): what the shins gave, what came out
+			legs_log.record(delta, pads, cam.global_transform, hands, floor_y, stand_h, pxl)
 	var tracker := XRServer.get_tracker("/user/body_tracker") as XRBodyTracker
 	var legs_ok := tracker != null and tracker.has_tracking_data and (tracker.body_flags & XRBodyTracker.BODY_FLAG_LOWER_BODY_SUPPORTED) != 0
 	has_legs = legs_ok or sim.has("knee_l") or feet_on() or not xl.is_empty()

@@ -309,6 +309,13 @@ self-adhesive pads (the hydrogel physiotherapy kind — the right ones); the mus
 - **Pad size on the placement step, one line:** XEMS (three pairs per cheek) 12 × 16 mm; Bluetens / one pair per site
   16 × 19 mm (≈ 3 cm², the review's size), self-adhesive; larger ones reach the bone.
 
+### 12.2 Strength steps on the face (owner, 2026-11-10; 1.1.507-ai)
+Face mode already divides every channel like the arms (`ChannelStrengthScale.armsFactor`: ÷3 at 50, ÷4 at 100,
+÷5 at 150 µs), so the face's 100 % is ~25 suit units. The suit takes one whole byte per channel (`CommandUtil`:
+part % × strength, no finer register), so ~4 master taps were one real step (empty taps, then a jump). Now, in the
+strength step, one tap moves the master by the smallest amount that changes the sent unit, and the studio shows the
+real unit (1, 2, 3 …). Finer than one unit needs the face connector's own attenuation (open item 1: mA per unit).
+
 ## 13. Open
 1. Strength → mA for both units (0.5–1 kΩ, USB scope, 100 µs) → a hard face cap; tells whether "µs" is one phase,
    and whether Bluetens really gives 20–45 µs pulses.

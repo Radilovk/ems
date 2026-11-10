@@ -79,7 +79,39 @@ func _axis(id: int, i: int) -> float:
 	return Input.get_joy_axis(id, i)
 
 
+## The report layout: 1 = fw 10–12 (sticks: qx qy qz qw on 0..3, the acceleration on 4 as a trigger) · 2 = fw 13 (pedals
+## Throttle Rudder Gas Brake = qx qy qz acc on 0..3, w ≥ 0 rebuilt — the system no longer navigates with the legs).
+## Android gives the pedals that are not "centred" (Throttle, Gas, Brake) as 0..1: undone with 2v − 1, unless a negative
+## value shows they come as −1..1. Told apart from fw 10–12 by the four values: those are always a unit quaternion.
+func _layout(id: int) -> int:
+	var p: Dictionary = pads.get(id, {})
+	return int(p.get("lay", 1))
+
+
+func _sense_layout(id: int, p: Dictionary) -> void:
+	if int(p.get("lay_n", 0)) >= 30:
+		return
+	var n := Vector4(_axis(id, 0), _axis(id, 1), _axis(id, 2), _axis(id, 3)).length()
+	if n < 0.05:
+		return                                        # nothing received yet (all zeros)
+	p.lay_n = int(p.get("lay_n", 0)) + 1
+	p.lay_off = int(p.get("lay_off", 0)) + (1 if absf(n - 1.0) > 0.03 else 0)
+	p.lay = 2 if int(p.lay_off) > 10 else 1
+
+
 func _sensor_q(id: int) -> Quaternion:
+	if _layout(id) == 2:
+		var p: Dictionary = pads.get(id, {})
+		var a0 := _axis(id, 0)
+		var a2 := _axis(id, 2)
+		if a0 < -0.02 or a2 < -0.02:
+			p.cen = true                              # this headset gives the pedals as −1..1
+		var cen := bool(p.get("cen", false))
+		var x := a0 if cen else 2.0 * a0 - 1.0
+		var y := _axis(id, 1)
+		var z := a2 if cen else 2.0 * a2 - 1.0
+		var w := sqrt(maxf(0.0, 1.0 - x * x - y * y - z * z))
+		return Quaternion(x, y, z, w).normalized()
 	var q := Quaternion(_axis(id, 0), _axis(id, 1), _axis(id, 2), _axis(id, 3))
 	return q.normalized() if q.length() > 0.5 else Quaternion.IDENTITY
 
@@ -106,6 +138,8 @@ func poll(delta: float, head_h: float, stand_h: float, fwd: Vector3) -> void:
 		if not pads.has(id) and status == "ready" and _thighs() < 2:
 			role[id] = "thigh"                         # a sensor that comes after the legs are ready: on a thigh (teaching)
 		var p: Dictionary = pads.get(id, {"still": 0.0, "w": 0.0})
+		_sense_layout(id, p)
+		pads[id] = p
 		var q := _sensor_q(id)
 		if p.has("q") and delta > 0.0:                 # turn speed from the orientation, smoothed over ~0.1 s
 			var dq: Quaternion = q * (p.q as Quaternion).inverse()
@@ -213,10 +247,14 @@ func _leg_fwd_now(id: int) -> Vector3:
 	return f.normalized() if f.length() > 0.3 else Vector3.ZERO
 
 
-## The shin's vertical acceleration (g) from axis 4, or NAN while not (yet) known to be there. The stick/trigger form
+func _acc_axis(id: int) -> int:
+	return 3 if _layout(id) == 2 else ACC_AXIS
+
+
+## The shin's vertical acceleration (g) from axis 4 (fw 13: 3, raw), or NAN while not (yet) known to be there. The stick/trigger form
 ## is told from the value at rest (0 g ⇒ 0.0 as a stick, 0.5 as a trigger); "live" once it moved with the shin.
 func _acc_g(id: int, v: Dictionary) -> float:
-	var x := _axis(id, ACC_AXIS)
+	var x := _axis(id, _acc_axis(id))
 	match int(v.mode):
 		1:
 			return x * 4.0
@@ -236,7 +274,7 @@ func _vert(id: int, dt: float, stand: bool) -> void:
 		return
 	if int(v.mode) == 0:                        # which form: the mean at the first still stand
 		if stand:
-			v.m = float(v.m) + _axis(id, ACC_AXIS)
+			v.m = float(v.m) + _axis(id, _acc_axis(id))
 			v.mn = int(v.mn) + 1
 			if int(v.mn) >= 30:
 				var m: float = float(v.m) / float(v.mn)

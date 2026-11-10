@@ -20,7 +20,7 @@ func _initialize() -> void:
 	var ok1 := n > 72 * 58 and n <= 72 * 61
 	print("log_test: %s kept %d lines (≈ 60 s)" % ["ok  " if ok1 else "FAIL", n])
 	var d = JSON.parse_string(rec.lines[n - 1])
-	var ok2 := typeof(d) == TYPE_DICTIONARY and d.has("p") and (d.p as Dictionary).has("0") and (d.p["0"].a as Array).size() == 6 and d.has("h") and d.has("hand_l")
+	var ok2: bool = typeof(d) == TYPE_DICTIONARY and d.has("p") and (d.p as Dictionary).has("0") and (d.p["0"].a as Array).size() == 6 and d.has("h") and d.has("hand_l")
 	print("log_test: %s a line has the raw axes, the head, the hands — %s" % ["ok  " if ok2 else "FAIL", rec.lines[n - 1].left(160)])
 	var raw := ("\n".join(rec.lines) + "\n").to_utf8_buffer()
 	var gz := raw.compress(FileAccess.COMPRESSION_GZIP)

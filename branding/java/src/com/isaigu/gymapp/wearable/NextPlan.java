@@ -335,6 +335,18 @@ public final class NextPlan {
             if (s != null && bean(own, s.type) != null) {
                 own.useType = s.type;
             }
+            // 1.1.508: a save made before the muscles / strength were raised held 0 for the 1st impulse, and the
+            // client came back with Интензитет 1 and its channels at 0 while the 2nd impulse was right. Where the save has
+            // 0, the last manual training's working strength / channel percents fill it in.
+            ProgramDataBean ob = s != null && !s.assisted && name(s, own) ? bean(own, s.type) : null;
+            if (ob != null) {
+                if (s.st > 0 && ob.strenth <= 0) {
+                    ob.strenth = clamp(s.st, 0, 100);
+                }
+                if (!ClientPrograms.any(ob)) {
+                    channels(ob, s);
+                }
+            }
             return own;
         }
         TrainProgram p = (TrainProgram) BeanUtils.cloneObject(base);
@@ -373,6 +385,17 @@ public final class NextPlan {
         if (s.phz > 0) {
             b.pauseHz = s.phz;
         }
+        channels(b, s);
+        return p;
+    }
+
+    /** The last training was on this program (or its name is unknown). */
+    private static boolean name(Snap s, TrainProgram p) {
+        return s.program == null || s.program.length() == 0 || p.name == null || s.program.equals(p.name);
+    }
+
+    /** The last training's channel percents onto {@code b}, when it had any above 0. */
+    private static void channels(ProgramDataBean b, Snap s) {
         boolean any = false;
         for (int i = 0; i < CH; i++) {
             any |= s.ch[i] > 0;
@@ -388,7 +411,6 @@ public final class NextPlan {
             }
             b.strenthBean.buwei = parts;
         }
-        return p;
     }
 
     private static ProgramDataBean bean(TrainProgram p, int type) {

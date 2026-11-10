@@ -30,10 +30,10 @@
 // by itself, no phone, no Wi-Fi. fw 13 (owner 2026-11-10: "the leg sensors move the Quest's menu"): the values left
 // the stick axes (X Y Z Rx — the system reads them as sticks and navigated with every step) for the Simulation page's
 // pedals, which the system does not navigate with. Report ID 1, 9 bytes, ~104 Hz: u8 buttons (always 0, they make
-// Android call it a gamepad) | i16 Throttle Rudder Accelerator = qx qy qz (×32767, w ≥ 0 rebuilt by the host) |
-// i16 Brake = vertical acceleration without gravity (g × 8192, 20 Hz low-passed). Android axes THROTTLE 19, RUDDER 20,
-// GAS 22, BRAKE 23 → the game's joypad axes 0..3 (vr-workout/scripts/game/pad_legs.gd tells this layout from fw 10–12's
-// by the four values not being a unit quaternion). Re-pair the sensor in the Quest after the update (new report map). docs/xems-motion.md "VR legs — the sensors as a gamepad".
+// Android call it a gamepad) | i16 Throttle Rudder = qx qy | i16 Steering = 0.777 (a constant: tells the game this
+// layout) | i16 Accelerator = qz (×32767, w ≥ 0 rebuilt by the host). Android axes THROTTLE 19, RUDDER 20, WHEEL 21,
+// GAS 22 → the game's joypad axes 0..3 (vr-workout/scripts/game/pad_legs.gd). The vertical acceleration is no longer
+// sent (the legs' prior gains ~0.2 cm from it). Re-pair the sensor in the Quest after the update (new report map). docs/xems-motion.md "VR legs — the sensors as a gamepad".
 #include <bluefruit.h>
 #include <Wire.h>
 #include "fusion.h"
@@ -50,7 +50,7 @@ static const uint8_t padMap[] = {
   0x05, 0x01, 0x09, 0x05, 0xA1, 0x01, 0x85, 0x01,             // Generic Desktop · Gamepad · Application · ID 1
   0x05, 0x09, 0x19, 0x01, 0x29, 0x08, 0x15, 0x00, 0x25, 0x01, // Buttons 1..8, 0..1
   0x75, 0x01, 0x95, 0x08, 0x81, 0x02,                         // 8 × 1 bit
-  0x05, 0x02, 0x09, 0xBB, 0x09, 0xBA, 0x09, 0xC4, 0x09, 0xC5, // Simulation: Throttle Rudder Accelerator Brake
+  0x05, 0x02, 0x09, 0xBB, 0x09, 0xBA, 0x09, 0xC8, 0x09, 0xC4, // Simulation: Throttle Rudder Steering Accelerator
   0x16, 0x01, 0x80, 0x26, 0xFF, 0x7F, 0x75, 0x10, 0x95, 0x04, 0x81, 0x02,                // −32767..32767, 4 × 16 bit
   0xC0};
 BLEHidGeneric pad(1, 0, 0);
@@ -376,8 +376,9 @@ void loop() {
         // fw 12: Ry from the 20 Hz low-passed acceleration (raw, the suit's 50–100 Hz impulses alias into the game's
         // once-a-frame reading and its double integration — the shin's height for the VR legs)
         const float a3[3] = {fus.af[0], fus.af[1], fus.af[2]}; float aw[3]; qrot(fus.q, a3, aw, false);   // world: z up
-        int16_t v[4] = {clamp16(s * fus.q[1] * 32767), clamp16(s * fus.q[2] * 32767), clamp16(s * fus.q[3] * 32767),
-                        clamp16((aw[2] - 1.f) * 8192)};
+        (void)aw;
+        int16_t v[4] = {clamp16(s * fus.q[1] * 32767), clamp16(s * fus.q[2] * 32767), 25460 /* 0.777: fw 13's mark */,
+                        clamp16(s * fus.q[3] * 32767)};
         uint8_t r[9]; r[0] = 0;
         for (int i = 0; i < 4; i++) { r[1 + 2 * i] = v[i] & 0xFF; r[2 + 2 * i] = (uint16_t)v[i] >> 8; }
         pad.inputReport(1, r, 9);                              // nothing happens until a host has paired and subscribed

@@ -80,9 +80,9 @@ func _axis(id: int, i: int) -> float:
 
 
 ## The report layout: 1 = fw 10–12 (sticks: qx qy qz qw on 0..3, the acceleration on 4 as a trigger) · 2 = fw 13 (pedals
-## Throttle Rudder Gas Brake = qx qy qz acc on 0..3, w ≥ 0 rebuilt — the system no longer navigates with the legs).
-## Android gives the pedals that are not "centred" (Throttle, Gas, Brake) as 0..1: undone with 2v − 1, unless a negative
-## value shows they come as −1..1. Told apart from fw 10–12 by the four values: those are always a unit quaternion.
+## Throttle Rudder Steering Gas = qx qy MARK qz on 0..3, w ≥ 0 rebuilt — the system no longer navigates with the legs).
+## Android gives the pedals that are not "centred" (Throttle, Gas) as 0..1: undone with 2v − 1, unless a negative value
+## shows they come as −1..1. fw 13 is told by its mark: Steering (centred, passed on as is) always 0.777.
 func _layout(id: int) -> int:
 	var p: Dictionary = pads.get(id, {})
 	return int(p.get("lay", 1))
@@ -95,21 +95,21 @@ func _sense_layout(id: int, p: Dictionary) -> void:
 	if n < 0.05:
 		return                                        # nothing received yet (all zeros)
 	p.lay_n = int(p.get("lay_n", 0)) + 1
-	p.lay_off = int(p.get("lay_off", 0)) + (1 if absf(n - 1.0) > 0.03 else 0)
-	p.lay = 2 if int(p.lay_off) > 10 else 1
+	p.lay_mark = int(p.get("lay_mark", 0)) + (1 if absf(_axis(id, 2) - MARK13) < 0.003 else 0)
+	p.lay = 2 if int(p.lay_mark) > int(p.lay_n) / 2 else 1
 
 
 func _sensor_q(id: int) -> Quaternion:
 	if _layout(id) == 2:
 		var p: Dictionary = pads.get(id, {})
 		var a0 := _axis(id, 0)
-		var a2 := _axis(id, 2)
-		if a0 < -0.02 or a2 < -0.02:
+		var a3 := _axis(id, 3)
+		if a0 < -0.02 or a3 < -0.02:
 			p.cen = true                              # this headset gives the pedals as −1..1
 		var cen := bool(p.get("cen", false))
 		var x := a0 if cen else 2.0 * a0 - 1.0
 		var y := _axis(id, 1)
-		var z := a2 if cen else 2.0 * a2 - 1.0
+		var z := a3 if cen else 2.0 * a3 - 1.0
 		var w := sqrt(maxf(0.0, 1.0 - x * x - y * y - z * z))
 		return Quaternion(x, y, z, w).normalized()
 	var q := Quaternion(_axis(id, 0), _axis(id, 1), _axis(id, 2), _axis(id, 3))
@@ -247,8 +247,11 @@ func _leg_fwd_now(id: int) -> Vector3:
 	return f.normalized() if f.length() > 0.3 else Vector3.ZERO
 
 
+const MARK13 := 0.777                   # fw 13's constant on the Steering axis
+
+
 func _acc_axis(id: int) -> int:
-	return 3 if _layout(id) == 2 else ACC_AXIS
+	return 99 if _layout(id) == 2 else ACC_AXIS       # fw 13 sends no acceleration (99: an axis that reads 0)
 
 
 ## The shin's vertical acceleration (g) from axis 4 (fw 13: 3, raw), or NAN while not (yet) known to be there. The stick/trigger form

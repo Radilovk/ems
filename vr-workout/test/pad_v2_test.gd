@@ -30,8 +30,8 @@ func _feed(s: Dictionary, g: Basis) -> void:
 	var q := Quaternion(_to_sensor(s.yaw) * g * _board(s))
 	if q.w < 0.0:
 		q = -q
-	# fw 13 as Android gives it: Throttle (qx) and Gas (qz) and Brake (the acceleration, 0 g) as 0..1, Rudder (qy) −1..1
-	pads.sim[s.id] = [(q.x + 1.0) * 0.5, q.y, (q.z + 1.0) * 0.5, 0.5]
+	# fw 13 as Android gives it: Throttle (qx) and Gas (qz) as 0..1, Rudder (qy) and Steering (the mark) −1..1
+	pads.sim[s.id] = [(q.x + 1.0) * 0.5, q.y, 0.777, (q.z + 1.0) * 0.5]
 
 
 func _step(head_h: float, gl: Basis, gr: Basis, secs: float) -> void:

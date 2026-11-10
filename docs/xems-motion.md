@@ -488,6 +488,20 @@ so also with all three axes (`ACC3D=1`, the gamepad sends only the vertical one)
 0.02–0.03 g of gravity, the size of a slow movement's signal; the shins, headset and hands already carry it).
 Keep them above the ankle (bony, outer side = how left / right is told, no EMS calf electrode under the strap).
 
+### 1.28 — teaching with extra sensors, then off (owner, 2026-11-10: "only for training, then we take them off")
+Worth it where the sensors leave most unknown: **the arms in XEMS** (fixed exercise programs) most, **the VR legs**
+some, the trunk not at all (measured, < 1–2°). Learnt on the device itself — no upload, nothing leaves it:
+- **Arms (XEMS Движение):** already so — "Запис за ръцете": the two ankle sensors on the upper arms, the usual arm
+  exercises 3–5 min, the phone keeps the poses (up to 8000, `xm-arms-v1`) next to the 128 k CMU prototypes.
+- **VR legs:** the two wrist sensors (the controllers track the hands in VR) on the thighs, outer side; they appear
+  after the legs are ready → thighs (`PadLegs.role`), their side and mounting from the next knee bend (the thigh turns
+  the other way than the shin). One round of play: every frame the prior's last layer gathers Σhhᵀ and Σhtᵀ — the
+  thigh as measured and the hips where the planted legs put them (anchor → measured shin → measured thigh); at the
+  round's end a 65 × 65 ridge solve toward the trained weights (`LegsPrior.fit`), saved (`user://legs_personal.json`).
+  Test (`teach_test`): knee raises, thigh 57° → 9° off after one round. Offline (`legs_prior.py teach-last`, 4 unseen
+  people, 2–6 min of **the same moves**): knee 17.3 → 14.8 cm on the rest; teaching on *other* moves does not carry
+  over (no gain) — teach with the game's own moves; only the thighs (no hips): 17.3 → 16.2.
+
 ### AI (Gemini) — where it fits and where not
 Not for the live figure: a cloud model answers in 0.5–3 s, needs the network, costs per call and does not return
 reliable joint angles — the figure must follow the body in < 50 ms. "Natural" comes from local models learned from

@@ -444,7 +444,7 @@ public final class FaceStudio {
             String next = null;
             int col = XemsUi.MUTED;
             if (st.finished && program == FaceProgram.LIFT) {
-                next = tr("Курсът е завършен — „Тонизиране“ 2–3 пъти седмично пази ефекта",
+                next = tr("Курсът е завършен — „Тонус и стегнатост“ 2–3 пъти седмично пази ефекта",
                         "The course is complete — Face tone 2–3 times a week keeps the effect");
                 col = XemsUi.GO_TEXT;
             } else if (st.nextMs > now) {
@@ -821,7 +821,7 @@ public final class FaceStudio {
                 box.addView(nx);
             }
             if (st.finished && program == FaceProgram.LIFT) {
-                TextView up = XemsUi.text(a, tr("Курсът за лифтинг е завършен — оттук „Тонизиране“ 2–3 пъти седмично пази ефекта.",
+                TextView up = XemsUi.text(a, tr("Курсът за лифтинг е завършен — оттук „Тонус и стегнатост“ 2–3 пъти седмично пази ефекта.",
                         "The lift course is complete — from here Face tone 2–3 times a week keeps the effect."), 15, XemsUi.GO_TEXT, false);
                 up.setGravity(Gravity.CENTER);
                 up.setPadding(0, dp(10), 0, 0);
@@ -939,7 +939,7 @@ public final class FaceStudio {
                     statusLine.setTextColor(XemsUi.MUTED);
                 }
                 if (st.finished && program == FaceProgram.LIFT) {
-                    line = tr("Курсът е завършен — за поддръжка избери „Тонизиране“", "The course is complete — for upkeep pick Toning");
+                    line = tr("Курсът е завършен — за поддръжка избери „Тонус и стегнатост“", "The course is complete — for upkeep pick Tone & firmness");
                 }
                 statusLine.setText(line);
             }
@@ -1229,7 +1229,7 @@ public final class FaceStudio {
             boolean b = bg();
             sheet(v.a, tr("Лицеви процедури", "Face procedures"), b
                     ? "Два вида ток, две цели.\n\n"
-                    + "Двигателен — лифтинг, овал, тонизиране, лимфен дренаж, брадичка: импулсът възбужда двигателните разклонения на "
+                    + "Двигателен — лифтинг, скулптуриране, тонус, лимфодренаж, профил: импулсът възбужда двигателните разклонения на "
                     + "лицевия нерв и мускулите се съкращават сами, без усилие и без бръчки от мимика. Мускулите на лицето "
                     + "нямат сухожилия — вплетени са в кожата, затова по-плътният мускул дава опора отвътре. Честотата е "
                     + "винаги 20 Hz и нагоре: под нея лицето потрепва неприятно.\n\n"

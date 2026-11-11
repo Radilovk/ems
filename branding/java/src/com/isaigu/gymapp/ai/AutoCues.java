@@ -126,11 +126,11 @@ public final class AutoCues {
                     "Lymph wave: the muscles tighten one after another from the nose to the jaw and the ear and pump the held fluid.");
         }
         if (AutoCatalog.FACE_TONE.equals(id)) {
-            return AiText.t("Тонизиране: по-дълги меки стягания — мускулите на лицето стават издръжливи и пазят лифтинга.",
-                    "Toning: longer soft holds — the face muscles grow enduring and keep the lift.");
+            return AiText.t("Тонус и стегнатост: по-дълги меки стягания — мускулите на лицето стават издръжливи и пазят лифтинга.",
+                    "Tone & firmness: longer soft holds — the face muscles grow enduring and keep the lift.");
         }
         if (AutoCatalog.FACE_OVAL.equals(id)) {
-            return AiText.t("Стегнат овал: скулите и брадичката се редуват — всеки мускул работи 3 s и почива 6.",
+            return AiText.t("Скулптуриране на лицето: скулите и брадичката се редуват — всеки мускул работи 3 s и почива 6.",
                     "Firm contour: the cheekbones and the chin take turns — every muscle works 3 s and rests 6.");
         }
         if (AutoCatalog.FACE_RELAX.equals(id)) {
@@ -146,11 +146,11 @@ public final class AutoCues {
                     "Jaw relaxation: slow impulses in the masseter — its resting tone drops.");
         }
         if (AutoCatalog.FACE_CHIN.equals(id)) {
-            return AiText.t("Стегната брадичка: мускулите под брадичката се стягат и оформят профила.",
-                    "Firm chin: the muscles under the chin tighten and shape the profile.");
+            return AiText.t("Стегнат профил: мускулите под брадичката се стягат и оформят профила.",
+                    "Firm profile: the muscles under the chin tighten and shape the profile.");
         }
-        return AiText.t("Лифтинг на лицето: скулите, назолабиалната зона и долната буза работят заедно — по-плътна опора за цялата средна част.",
-                "Face lift: the cheekbones, the nasolabial area and the lower cheek work together — fuller support for the whole mid-face.");
+        return AiText.t("Лифтинг на скулите: скулите, назолабиалната зона и долната буза работят заедно — по-плътна опора за цялата средна част.",
+                "Cheekbone lift: the cheekbones, the nasolabial area and the lower cheek work together — fuller support for the whole mid-face.");
     }
 
     /** What the current impulse does in the body (by its frequency, the wave and the 2nd impulse). */

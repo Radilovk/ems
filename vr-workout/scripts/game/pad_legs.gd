@@ -70,6 +70,30 @@ var measure := -1                       # -1 · 0..3 = the touch being waited fo
 var _touch := {}                        # "kl"/"tl"/"kr"/"tr" -> world point
 var cal := {}                           # {"stand_h", "ls", "lt", "foot": {sd: [fwd, left]} (ankle from the eyes, body frame), "turn": {sd: rad}}
 var use_prior := true
+# The hands are NOT given to the prior (owner's take 2A49MQ2AH8): in CMU people stand with the arms down, in VR the
+# controllers are held at the chest — outside what it learnt, it read every stand as "both feet in the air" (standing
+# still, both shins upright: P(on the floor) 0.00 with the hands, 0.94 without; trained also without them).
+var prior_hands := false
+# Which feet are on the floor, steadied (the same take: the prior's answer flipped nearly every frame, each flip moved
+# the knee 8–12 cm — the flicker) and held to physics: no one floats. Off the floor both only in a jump (the head
+# going up fast near its standing height, held JUMP_HOLD); both shins upright and still = both feet down (unless the
+# measured height shows one lifted: in a knee raise the shin hangs upright too).
+const GND_TAU := 0.08                   # s: P(on the floor) smoothed
+const JUMP_VY := 0.8                    # m/s: the head going up this fast near standing = a jump
+const JUMP_HOLD := 0.5                  # s: the feet may both be up this long after it
+const UPRIGHT_DEG := 10.0               # a shin this close to vertical …
+const UPRIGHT_DPS := 40.0               # … and turning slower than this stands on its foot
+const BLEND_S := 0.1                    # s: a leg's switch (planted ⇄ lifted, re-placed) cross-fades over this
+const PRIOR_TAU := 0.05                 # s: the prior's thighs and hips smoothed (its frame-to-frame noise is 5–8 cm)
+var _pg := {"l": 1.0, "r": 1.0}
+var _gnd := {"l": true, "r": true}
+var _head_vy := 0.0
+var _jump := 0.0
+var _blend := {}                        # sd -> [knee, foot (world) where it was at the switch, 0..1 of the cross-fade]
+var _prev_out := {}
+var _gprev := {}
+var _pth := {}                          # the prior's thighs, smoothed
+var _ppc := Vector3.INF                 # … and hips
 var _t := 0.0
 
 
@@ -120,15 +144,28 @@ func _sensor_q(id: int) -> Quaternion:
 ## head_h: the headset's height above the floor; stand_h: standing; fwd: the body's heading (world, horizontal).
 ## The standing eye height as the headset shows it: the highest the head was in the last 20 s (owner 2026-11-11,
 ## three recordings: the game's own standing height said 1.64 m, the head never rose above 1.57 m — "stand tall" was
-## never met and the legs stayed at "stand up straight"). Not below 85 % of the game's height (a long squat).
+## never met and the legs stayed at "stand up straight"). Not below 85 % of the game's height (a long squat). Only a
+## height the head held for HOLD_S: a jump's top would make the legs longer for 20 s.
 var _hist_h: Array = []                 # [time s, head height]
 var _hclock := 0.0
 var stand_seen := 0.0
 
 
+var _hold_h: Array = []                 # [time s, head height] of the last HOLD_S: what the head held, not touched
+
+
+const HOLD_S := 0.3                     # s: a height counts once the head held it this long (a jump's top does not)
+
+
 func _stand_eff(head_h: float, stand_h: float, delta: float) -> float:
 	_hclock += delta
-	_hist_h.append([_hclock, head_h])
+	_hold_h.append([_hclock, head_h])
+	while _hold_h.size() > 1 and float(_hold_h[0][0]) < _hclock - HOLD_S:
+		_hold_h.pop_front()
+	var held := head_h
+	for e in _hold_h:
+		held = minf(held, float(e[1]))
+	_hist_h.append([_hclock, held])
 	while _hist_h.size() > 2 and float(_hist_h[0][0]) < _hclock - 20.0:
 		_hist_h.pop_front()
 	var m := 0.0
@@ -161,7 +198,7 @@ func poll(delta: float, head_h: float, stand_h: float, fwd: Vector3) -> void:
 		var p: Dictionary = pads.get(id, {"still": 0.0, "w": 0.0})
 		_sense_layout(id, p)
 		pads[id] = p
-		var q := _sensor_q(id)
+		var q := _smooth_q(p, _sensor_q(id), delta)
 		if p.has("q") and delta > 0.0:                 # turn speed from the orientation, smoothed over ~0.1 s
 			var dq: Quaternion = q * (p.q as Quaternion).inverse()
 			var ang := rad_to_deg(2.0 * acos(clampf(absf(dq.w), 0.0, 1.0))) / delta
@@ -258,6 +295,35 @@ func poll(delta: float, head_h: float, stand_h: float, fwd: Vector3) -> void:
 			mount[id] = nh.angle_to(axh) if side[id] == "l" else nh.angle_to(-axh)
 			lfwd[id] = fwd
 			basis[id] = _basis(id, fwd)
+
+
+## The sensors' orientation between their samples (owner's takes 2A49MQ2AH8, MFCMVC9YXW: while moving a new value
+## came only ~32 times a second, the game draws 72 — each shin held for 2–3 frames, then a jump: the legs stuttered).
+## A new value is reached over the usual gap between values (~31 ms; on average ~15 ms later), from where the
+## shin is drawn now: a smooth path instead of steps. Fed every frame (tests), it is taken at once.
+const SAMPLE_MIN := 1.0 / 90.0
+const SAMPLE_MAX := 1.0 / 20.0
+
+
+func _smooth_q(p: Dictionary, raw: Quaternion, delta: float) -> Quaternion:
+	if not p.has("qr"):
+		p.qr = raw
+		p.qa = raw
+		p.qt = _hclock
+		p.qs = _hclock
+		p.qiv = SAMPLE_MIN
+		return raw
+	if not raw.is_equal_approx(p.qr):                 # a new sample
+		var iv := _hclock - float(p.qs)
+		if iv < SAMPLE_MAX:                           # a longer gap is a still shin (same values), not the rate
+			p.qiv = lerpf(float(p.qiv), maxf(iv, SAMPLE_MIN), 0.2)
+		p.qs = _hclock
+		p.qa = p.get("q", raw)
+		p.qr = raw
+		p.qt = _hclock - delta                        # this frame is already one step along
+	var k := clampf((_hclock - float(p.qt)) / float(p.qiv), 0.0, 1.0)
+	var qa: Quaternion = p.qa
+	return qa.slerp(raw, k).normalized() if qa.dot(raw) >= 0.0 else (-qa).slerp(raw, k).normalized()
 
 
 ## The leg's forward in the game now (horizontal; ZERO if the shin's hinge is too steep to tell).
@@ -392,8 +458,22 @@ func load_cal(stand_h: float) -> bool:
 	var d = JSON.parse_string(FileAccess.get_file_as_string(CAL_PATH))
 	if typeof(d) != TYPE_DICTIONARY or absf(float(d.get("stand_h", 0.0)) - stand_h) > 0.06:
 		return false                                  # someone else (another height): measure again
+	if d.has("ls") and not _shin_ok(float(d.ls), float(d.stand_h)):
+		DirAccess.remove_absolute(ProjectSettings.globalize_path(CAL_PATH))
+		return false                                  # an impossible shin saved by an earlier version: measure again
 	cal = d
 	return true
+
+
+## A measured shin is taken only within ±12 % of what the height gives (0.246 H; people vary ~±6 %). The owner's take
+## MFCMVC9YXW: the four touches made the shin 0.41 → 0.58 m (the clamp's top) — the kneecap is above the joint and the
+## controller's tip is a guess; saved, every later session stood on 1.16 m legs (knees 0.65 m, the hips 1.22 m).
+const SHIN_TOL := 0.12
+
+
+static func _shin_ok(ls: float, stand_h: float) -> bool:
+	var m := 0.246 * stand_h / 0.936
+	return absf(ls - m) <= SHIN_TOL * m
 
 
 ## One touch with the controller's tip (world). head: the eyes now; floor_y: the floor; stand_h: eye height standing.
@@ -430,8 +510,18 @@ func touch(point: Vector3, head: Vector3, floor_y: float, stand_h: float) -> voi
 		c.foot[sd] = [a.dot(bf), a.dot(left)]            # the ankle from the eyes, in the body's frame
 		var fd: Vector3 = c.turn[sd]
 		c.turn[sd] = bf.signed_angle_to(fd.normalized(), Vector3.UP) if fd.length() > 0.05 else 0.0
-	c.ls = (float(lss[0]) + float(lss[1])) * 0.5
-	c.lt = c.ls * 0.245 / 0.246                       # the thigh: not touched (the hip is hard to find) — from the shin
+	var lsm := (float(lss[0]) + float(lss[1])) * 0.5
+	if _shin_ok(lsm, stand_h):
+		c.ls = lsm
+		c.lt = c.ls * 0.245 / 0.246                   # the thigh: not touched (the hip is hard to find) — from the shin
+	else:                                             # out of range: the lengths from the height, the feet's directions kept
+		c.shin_off = lsm
+		for sd in ["l", "r"]:
+			var id := _id_of(sd)
+			var u := (_g(id) * Vector3.UP).normalized() if id >= 0 else Vector3.UP
+			var ft: Array = c.foot[sd]                    # the ankle again, down the model's shin (body frame: fwd, left)
+			var dl := u * (float(lss[0 if sd == "l" else 1]) - 0.246 * H)
+			c.foot[sd] = [float(ft[0]) + dl.dot(bf), float(ft[1]) + dl.dot(left)]
 	cal = c
 	var f := FileAccess.open(CAL_PATH, FileAccess.WRITE)
 	if f:
@@ -490,6 +580,7 @@ func limbs(head: Vector3, fwd: Vector3, stand_h: float, floor_y: float, delta :=
 		return {}
 	if delta > 0.0 and _head_prev != Vector3.INF:
 		_head_v = lerpf(_head_v, head.distance_to(_head_prev) / delta, clampf(delta / 0.15, 0.0, 1.0))
+		_head_vy = lerpf(_head_vy, (head.y - _head_prev.y) / delta, clampf(delta / 0.08, 0.0, 1.0))
 	_head_prev = head
 	if stand_seen > 0.0:
 		stand_h = stand_seen                          # as the headset shows it (poll), not the game's guess
@@ -525,8 +616,10 @@ func limbs(head: Vector3, fwd: Vector3, stand_h: float, floor_y: float, delta :=
 	var left := Vector3.UP.cross(bf).normalized()
 	var stand_off := -Vector3.UP * hip_drop - bf * 0.05
 	var sgn := {"l": 1.0, "r": -1.0}
+	var rezeroed := false
 	if _rezero or pc.distance_to(head) > trunk + 0.5:  # standing tall and still (or lost): feet under the hips
 		_rezero = false
+		rezeroed = true                               # the feet re-placed: blended like a switch (no teleport)
 		pc = head + stand_off
 		pc_off = stand_off
 		for sd in U:
@@ -546,20 +639,48 @@ func limbs(head: Vector3, fwd: Vector3, stand_h: float, floor_y: float, delta :=
 			for sd in U:
 				var v: Dictionary = vert[hid[sd]]
 				acc[sd] = float(v.get("g", 0.0)) - float(v.bias) / 9.81
-		P = prior.step(_t, delta, U, A, acc, head, stand_h - ah, floor_y + ah, hands)
+		P = prior.step(_t, delta, U, A, acc, head, stand_h - ah, floor_y + ah, hands if prior_hands else {})
+		var kp := clampf(delta / PRIOR_TAU, 0.0, 1.0)
+		for sd in U:
+			var th: Vector3 = P.thigh[sd]
+			_pth[sd] = th if not _pth.has(sd) else (_pth[sd] as Vector3).slerp(th, kp).normalized()
+			P.thigh[sd] = _pth[sd]
+		_ppc = P.pc if _ppc == Vector3.INF else _ppc.lerp(P.pc, kp)
+		P.pc = _ppc
 
-	# 1 · which feet are on the floor
+	# 1 · which feet are on the floor: the prior's (or the geometry's) answer steadied, then physics
 	var ground := {}
 	for sd in U:
 		var u: Vector3 = U[sd]
+		var g := 0.0
 		if not P.is_empty():
-			ground[sd] = P.ground[sd]
+			g = float(P.p[sd])
 		elif _has_h(hid[sd]):
-			ground[sd] = float(vert[hid[sd]].h) < LIFT
+			g = 1.0 if float(vert[hid[sd]].h) < LIFT else 0.0
 		else:                                         # no height: in the air if even a straight-down thigh can't reach
 			var hip: Vector3 = pc + left * hw * float(sgn[sd])
 			var up_k := clampf(-u.signed_angle_to(Vector3.UP, A[sd]), 0.0, deg_to_rad(150.0))
-			ground[sd] = hip.y - (u.rotated(A[sd], -up_k) * lt).y - u.y * ls - (floor_y + ah) < LIFT
+			g = 1.0 if hip.y - (u.rotated(A[sd], -up_k) * lt).y - u.y * ls - (floor_y + ah) < LIFT else 0.0
+		_pg[sd] = lerpf(float(_pg[sd]), g, clampf(delta / GND_TAU, 0.0, 1.0)) if not P.is_empty() else g
+		_gnd[sd] = float(_pg[sd]) > 0.35 if _gnd[sd] else float(_pg[sd]) > 0.65
+		ground[sd] = _gnd[sd]
+	if _head_vy > JUMP_VY and head.y - floor_y > stand_h - 0.08:
+		_jump = JUMP_HOLD
+	else:
+		_jump = maxf(0.0, _jump - delta)
+	if _jump <= 0.0 and U.size() == 2:
+		var both_up := true
+		for sd in U:
+			both_up = both_up and (U[sd] as Vector3).angle_to(Vector3.UP) < deg_to_rad(UPRIGHT_DEG) \
+				and float(pads[hid[sd]].get("w", 0.0)) < UPRIGHT_DPS \
+				and not (_has_h(hid[sd]) and float(vert[hid[sd]].h) > 2.0 * LIFT)   # a knee raise: the shin hangs upright
+		if both_up:
+			for sd in U:
+				ground[sd] = true
+		elif not ground.l and not ground.r:           # no one floats: the likelier foot is down
+			var sd: String = "l" if float(_pg.l) >= float(_pg.r) else "r"
+			ground[sd] = true
+	for sd in U:
 		if not ground[sd]:
 			anc.erase(sd)
 	# 2 · the hips: between the planted legs (each hip a thigh's length from its knee) and the head (a trunk's length)
@@ -666,9 +787,27 @@ func limbs(head: Vector3, fwd: Vector3, stand_h: float, floor_y: float, delta :=
 		var fdir: Vector3 = D[sd]
 		var fl := Vector3(fdir.x, 0.0, fdir.z)
 		var foot_ahead: Vector3 = fl.normalized() if ground[sd] and fl.length() > 0.3 else fdir
+		var foot := ankle + foot_ahead * 0.06
+		var switched: bool = _gprev.has(sd) and _gprev[sd] != ground[sd]
+		if (switched or rezeroed) and _prev_out.has("knee_" + sd):   # planted ⇄ lifted, re-placed: cross-fade
+			if switched or (_prev_out["knee_" + sd] as Vector3).distance_to(knee) > 0.01 \
+					or (_prev_out["foot_" + sd] as Vector3).distance_to(foot) > 0.01:
+				_blend[sd] = [_prev_out["knee_" + sd], _prev_out["foot_" + sd], 0.0]   # from where it was
+		_gprev[sd] = ground[sd]
+		if _blend.has(sd):
+			var bl: Array = _blend[sd]
+			bl[2] = float(bl[2]) + delta / BLEND_S
+			var w := smoothstep(0.0, 1.0, float(bl[2]))             # speed ramps up from zero: no jump, no jerk
+			knee = (bl[0] as Vector3).lerp(knee, w)
+			foot = (bl[1] as Vector3).lerp(foot, w)
+			foot.y = maxf(foot.y, floor_y)
+			if float(bl[2]) >= 1.0:
+				_blend.erase(sd)
+		_prev_out["knee_" + sd] = knee
+		_prev_out["foot_" + sd] = foot
 		out.pos["hip_" + sd] = hip
 		out.pos["knee_" + sd] = knee
-		out.pos["foot_" + sd] = ankle + foot_ahead * 0.06
+		out.pos["foot_" + sd] = foot
 		out.dir[sd] = foot_ahead if ground[sd] else fdir
 		out.ground[sd] = ground[sd]
 	return out

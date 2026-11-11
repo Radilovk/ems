@@ -534,6 +534,33 @@ reading the player as jumping (both feet "in the air" most of the time, knees dr
 takes the standing height from the headset: the highest the head was in the last 20 s (not below 85 % of the game's).
 Test `stand_test` (the game says 1.64, the head stands at 1.57 → calibrates).
 
+### 1.32 — the owner's takes 2A49MQ2AH8, MFCMVC9YXW: flicker, floating feet, a 0.58 m shin (2026-11-11)
+Owner: "the legs react badly even when walking or lifting, the picture flickers all the time, they get lost". The
+takes were played through the game's own PadLegs (`vr-workout/test/replay.gd`: the raw axes, headset and hands as
+they came; the mounting found again from what the game drew). Four causes, each measured on the take:
+- **The sensors send ~32 values a second while moving, the game draws 72** — each shin held 2–3 frames, then a jump
+  (80 % of the frames repeat the last value). Now each new value is reached over the usual gap between values
+  (`_smooth_q`, ~15 ms later on average): a smooth path instead of steps.
+- **The prior with the hands:** in CMU people stand with their arms down, in VR the controllers are at the chest —
+  standing still, both shins upright: P(foot on the floor) 0.00 with the hands, 0.94 without. The hands are no longer
+  given to it (`prior_hands`; it was trained also without them).
+- **Its answer flipped nearly every frame**, each flip moving the knee 8–12 cm; the feet re-placed under the hips at a
+  still stand also jumped (18 cm). Now P(on the floor) is smoothed (80 ms), the prior's thighs and hips (50 ms), and a
+  switch planted ⇄ lifted or a re-placing cross-fades from where the leg was (smoothstep, 0.1 s — speed ramps from 0).
+  Physics on top: off the floor both only in a jump (the head going up > 0.8 m/s near standing, 0.5 s); both shins
+  upright (< 10°) and still (< 40°/s) = both feet down, unless the measured height shows one lifted (a knee raise).
+- **The four touches gave a 0.58 m shin** (the clamp's top; 0.41 from the height: the kneecap is above the joint and
+  the controller's tip is a guess) and it was saved → every session stood on 1.16 m legs. A measured shin is now taken
+  only within ±12 % of 0.246 H (else the lengths from the height; the feet's turn and stance kept, the ankle moved
+  down the model's shin); such a saved shin is thrown away on load. The standing height counts only what the head
+  held 0.3 s (a jump's top made the legs longer for 20 s).
+On the takes (jumps = a knee / foot whose step changes by > 5 cm between frames; standing tall = both feet in the air):
+2A49MQ2AH8 40 → 1.1 / s, 70 → 0 %; MFCMVC9YXW 48 → 1.7 / s, 83 → 0 %. `pad_truth` unchanged within 1 cm (knee raise
+worst 17 → 25 cm: the upright rule's first moments). Test `floor_test` (prior on, hands at the chest: standing = both
+down every frame, a kick without jumps, a jump allowed, the 40 %-long shin refused, the saved one thrown away).
+Replay a take: `python3 scripts/vr-legs/pad_replay.py <CODE> f.jsonl` then
+`REPLAY=f.jsonl godot --headless --path vr-workout --script res://test/replay.gd`.
+
 ### AI (Gemini) — where it fits and where not
 Not for the live figure: a cloud model answers in 0.5–3 s, needs the network, costs per call and does not return
 reliable joint angles — the figure must follow the body in < 50 ms. "Natural" comes from local models learned from

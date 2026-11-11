@@ -824,7 +824,7 @@
     .line 824
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->a:Landroid/app/Activity;
 
-    const-string v1, "\u041a\u0443\u0440\u0441\u044a\u0442 \u0437\u0430 \u043b\u0438\u0444\u0442\u0438\u043d\u0433 \u0435 \u0437\u0430\u0432\u044a\u0440\u0448\u0435\u043d \u2014 \u043e\u0442\u0442\u0443\u043a \u201e\u0422\u043e\u043d\u0443\u0441 \u043d\u0430 \u043b\u0438\u0446\u0435\u0442\u043e\u201c 2\u20133 \u043f\u044a\u0442\u0438 \u0441\u0435\u0434\u043c\u0438\u0447\u043d\u043e \u043f\u0430\u0437\u0438 \u0435\u0444\u0435\u043a\u0442\u0430."
+    const-string v1, "\u041a\u0443\u0440\u0441\u044a\u0442 \u0437\u0430 \u043b\u0438\u0444\u0442\u0438\u043d\u0433 \u0435 \u0437\u0430\u0432\u044a\u0440\u0448\u0435\u043d \u2014 \u043e\u0442\u0442\u0443\u043a \u201e\u041c\u0438\u043e\u0441\u0442\u0438\u043c\u0443\u043b\u0430\u0446\u0438\u044f\u201c 2\u20133 \u043f\u044a\u0442\u0438 \u0441\u0435\u0434\u043c\u0438\u0447\u043d\u043e \u043f\u0430\u0437\u0438 \u0435\u0444\u0435\u043a\u0442\u0430."
 
     const-string v2, "The lift course is complete \u2014 from here Face tone 2\u20133 times a week keeps the effect."
 
@@ -2869,7 +2869,7 @@
     if-nez v7, :cond_e1
 
     .line 447
-    const-string v0, "\u041a\u0443\u0440\u0441\u044a\u0442 \u0435 \u0437\u0430\u0432\u044a\u0440\u0448\u0435\u043d \u2014 \u201e\u0422\u043e\u043d\u0443\u0441 \u043d\u0430 \u043b\u0438\u0446\u0435\u0442\u043e\u201c 2\u20133 \u043f\u044a\u0442\u0438 \u0441\u0435\u0434\u043c\u0438\u0447\u043d\u043e \u043f\u0430\u0437\u0438 \u0435\u0444\u0435\u043a\u0442\u0430"
+    const-string v0, "\u041a\u0443\u0440\u0441\u044a\u0442 \u0435 \u0437\u0430\u0432\u044a\u0440\u0448\u0435\u043d \u2014 \u201e\u041c\u0438\u043e\u0441\u0442\u0438\u043c\u0443\u043b\u0430\u0446\u0438\u044f\u201c 2\u20133 \u043f\u044a\u0442\u0438 \u0441\u0435\u0434\u043c\u0438\u0447\u043d\u043e \u043f\u0430\u0437\u0438 \u0435\u0444\u0435\u043a\u0442\u0430"
 
     const-string v1, "The course is complete \u2014 Face tone 2\u20133 times a week keeps the effect"
 
@@ -3666,7 +3666,7 @@
 
     iget v3, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->program:I
 
-    if-ne v0, v3, :cond_15d
+    if-ne v0, v3, :cond_15e
 
     move v0, v1
 
@@ -3714,7 +3714,7 @@
     int-to-float v6, v3
 
     .line 386
-    if-eqz v0, :cond_160
+    if-eqz v0, :cond_161
 
     .line 387
     iget v3, p1, Lcom/isaigu/gymapp/wearable/face/FaceProgram;->tint:I
@@ -3788,7 +3788,7 @@
 
     const/high16 v9, 0x41980000    # 19.0f
 
-    if-eqz v0, :cond_16e
+    if-eqz v0, :cond_16f
 
     const/4 v3, -0x1
 
@@ -3803,7 +3803,7 @@
     invoke-virtual {v7, v3}, Landroid/widget/TextView;->setGravity(I)V
 
     .line 396
-    if-eqz v0, :cond_172
+    if-eqz v0, :cond_173
 
     iget v3, p1, Lcom/isaigu/gymapp/wearable/face/FaceProgram;->tint:I
 
@@ -3870,7 +3870,7 @@
 
     const/high16 v10, 0x41900000    # 18.0f
 
-    if-eqz v0, :cond_17c
+    if-eqz v0, :cond_17d
 
     iget v3, p1, Lcom/isaigu/gymapp/wearable/face/FaceProgram;->tint:I
 
@@ -3880,7 +3880,9 @@
     move-result-object v3
 
     .line 401
-    invoke-virtual {v3, v1}, Landroid/widget/TextView;->setSingleLine(Z)V
+    const/4 v8, 0x2
+
+    invoke-virtual {v3, v8}, Landroid/widget/TextView;->setMaxLines(I)V
 
     .line 402
     sget-object v8, Landroid/text/TextUtils$TruncateAt;->END:Landroid/text/TextUtils$TruncateAt;
@@ -3999,11 +4001,11 @@
 
     move-result-object v4
 
-    if-eqz v0, :cond_180
+    if-eqz v0, :cond_181
 
     iget v0, p1, Lcom/isaigu/gymapp/wearable/face/FaceProgram;->tint:I
 
-    :goto_14a
+    :goto_14b
     invoke-static {v2, v4, v0}, Lcom/isaigu/gymapp/widget/XemsUi;->badge(Landroid/content/Context;Ljava/lang/String;I)Landroid/widget/TextView;
 
     move-result-object v0
@@ -4025,14 +4027,14 @@
     .line 421
     return-object v5
 
-    :cond_15d
+    :cond_15e
     move v0, v2
 
     .line 381
     goto/16 :goto_f
 
     .line 388
-    :cond_160
+    :cond_161
     sget v3, Lcom/isaigu/gymapp/widget/XemsUi;->SURFACE:I
 
     sget v7, Lcom/isaigu/gymapp/widget/XemsUi;->STROKE:I
@@ -4048,13 +4050,13 @@
     goto/16 :goto_51
 
     .line 394
-    :cond_16e
+    :cond_16f
     iget v3, p1, Lcom/isaigu/gymapp/wearable/face/FaceProgram;->tint:I
 
     goto/16 :goto_7e
 
     .line 396
-    :cond_172
+    :cond_173
     iget v3, p1, Lcom/isaigu/gymapp/wearable/face/FaceProgram;->tint:I
 
     const/16 v8, 0x30
@@ -4066,16 +4068,16 @@
     goto/16 :goto_8b
 
     .line 400
-    :cond_17c
+    :cond_17d
     sget v3, Lcom/isaigu/gymapp/widget/XemsUi;->TEXT:I
 
     goto/16 :goto_cc
 
     .line 416
-    :cond_180
+    :cond_181
     sget v0, Lcom/isaigu/gymapp/widget/XemsUi;->MUTED:I
 
-    goto :goto_14a
+    goto :goto_14b
 .end method
 
 .method progress(I)Landroid/view/View;
@@ -4635,9 +4637,9 @@
     if-nez v2, :cond_68
 
     .line 942
-    const-string v0, "\u041a\u0443\u0440\u0441\u044a\u0442 \u0435 \u0437\u0430\u0432\u044a\u0440\u0448\u0435\u043d \u2014 \u0437\u0430 \u043f\u043e\u0434\u0434\u0440\u044a\u0436\u043a\u0430 \u0438\u0437\u0431\u0435\u0440\u0438 \u201e\u0422\u043e\u043d\u0443\u0441 \u043d\u0430 \u043b\u0438\u0446\u0435\u0442\u043e\u201c"
+    const-string v0, "\u041a\u0443\u0440\u0441\u044a\u0442 \u0435 \u0437\u0430\u0432\u044a\u0440\u0448\u0435\u043d \u2014 \u0437\u0430 \u043f\u043e\u0434\u0434\u0440\u044a\u0436\u043a\u0430 \u0438\u0437\u0431\u0435\u0440\u0438 \u201e\u041c\u0438\u043e\u0441\u0442\u0438\u043c\u0443\u043b\u0430\u0446\u0438\u044f\u201c"
 
-    const-string v2, "The course is complete \u2014 for upkeep pick Face tone"
+    const-string v2, "The course is complete \u2014 for upkeep pick Myostimulation"
 
     invoke-static {v0, v2}, Lcom/isaigu/gymapp/wearable/face/FaceStudio;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 

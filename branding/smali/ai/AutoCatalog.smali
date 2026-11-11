@@ -1471,13 +1471,13 @@
 
     const-string v1, "face"
 
-    const-string v2, "\u041b\u0438\u0446\u0435 \u00b7 \u041b\u0438\u0444\u0442\u0438\u043d\u0433 3D"
+    const-string v2, "\u041b\u0438\u0446\u0435 \u00b7 \u041b\u0438\u0444\u0442\u0438\u043d\u0433 \u043d\u0430 \u043b\u0438\u0446\u0435\u0442\u043e"
 
     const-string v3, "Face \u00b7 Lift 3D"
 
-    const-string v4, "\u041b\u0438\u0444\u0442\u0438\u043d\u0433 3D \u00b7 \u041e\u0432\u0430\u043b \u00b7 \u0414\u0435\u0442\u043e\u043a\u0441 \u00b7 \u0411\u043e\u0442\u043e\u043a\u0441 \u0435\u0444\u0435\u043a\u0442 \u00b7 \u0410\u043d\u0442\u0438\u0441\u0442\u0440\u0435\u0441 \u2014 \u0438\u0437\u0431\u043e\u0440 \u0432 \u0441\u0442\u0443\u0434\u0438\u043e\u0442\u043e \u0437\u0430 \u043b\u0438\u0446\u0435"
+    const-string v4, "\u041b\u0438\u0444\u0442\u0438\u043d\u0433 \u00b7 \u041e\u0432\u0430\u043b \u00b7 \u041b\u0438\u043c\u0444\u0435\u043d \u0434\u0440\u0435\u043d\u0430\u0436 \u00b7 \u0411\u043e\u0442\u043e\u043a\u0441 \u0435\u0444\u0435\u043a\u0442 \u00b7 \u0420\u0435\u043b\u0430\u043a\u0441 \u2014 \u0438\u0437\u0431\u043e\u0440 \u0432 \u0441\u0442\u0443\u0434\u0438\u043e\u0442\u043e \u0437\u0430 \u043b\u0438\u0446\u0435"
 
-    const-string v5, "Lift 3D \u00b7 Oval \u00b7 Depuff \u00b7 Botox effect \u00b7 Anti-stress \u2014 chosen in the face studio"
+    const-string v5, "Lift \u00b7 Oval \u00b7 Lymphatic drainage \u00b7 Botox effect \u00b7 Relax \u2014 chosen in the face studio"
 
     sget-object v6, Lcom/isaigu/gymapp/ai/AutoModel$Kind;->PASSIVE:Lcom/isaigu/gymapp/ai/AutoModel$Kind;
 
@@ -1507,9 +1507,9 @@
 
     const-string v1, "face_tone"
 
-    const-string v2, "\u041b\u0438\u0446\u0435 \u00b7 \u0422\u043e\u043d\u0443\u0441"
+    const-string v2, "\u041b\u0438\u0446\u0435 \u00b7 \u041c\u0438\u043e\u0441\u0442\u0438\u043c\u0443\u043b\u0430\u0446\u0438\u044f"
 
-    const-string v3, "Face \u00b7 Tone"
+    const-string v3, "Face \u00b7 Myostimulation"
 
     const-string v4, "\u0415\u043b\u0430\u0441\u0442\u0438\u0447\u043d\u043e\u0441\u0442, \u043a\u043e\u044f\u0442\u043e \u043f\u0430\u0437\u0438 \u043b\u0438\u0444\u0442\u0438\u043d\u0433\u0430"
 
@@ -1543,7 +1543,7 @@
 
     const-string v1, "face_oval"
 
-    const-string v2, "\u041b\u0438\u0446\u0435 \u00b7 \u041b\u0438\u0444\u0442\u0438\u043d\u0433 \u043d\u0430 \u043e\u0432\u0430\u043b\u0430"
+    const-string v2, "\u041b\u0438\u0446\u0435 \u00b7 \u041c\u043e\u0434\u0435\u043b\u0438\u0440\u0430\u043d\u0435 \u043d\u0430 \u043e\u0432\u0430\u043b\u0430"
 
     const-string v3, "Face \u00b7 Oval lift"
 
@@ -1583,9 +1583,9 @@
 
     const-string v1, "face_drain"
 
-    const-string v2, "\u041b\u0438\u0446\u0435 \u00b7 \u041b\u0438\u043c\u0444\u043e\u0434\u0440\u0435\u043d\u0430\u0436"
+    const-string v2, "\u041b\u0438\u0446\u0435 \u00b7 \u041b\u0438\u043c\u0444\u0435\u043d \u0434\u0440\u0435\u043d\u0430\u0436"
 
-    const-string v3, "Face \u00b7 Lymph wave"
+    const-string v3, "Face \u00b7 Lymphatic drainage"
 
     const-string v4, "\u041f\u043e-\u043c\u0430\u043b\u043a\u043e \u043f\u043e\u0434\u043f\u0443\u0445\u0432\u0430\u043d\u0435, \u043f\u043e-\u044f\u0441\u043d\u0438 \u0447\u0435\u0440\u0442\u0438"
 
@@ -1667,7 +1667,7 @@
 
     const-string v1, "face_calm"
 
-    const-string v2, "\u041b\u0438\u0446\u0435 \u00b7 \u0410\u043d\u0442\u0438\u0441\u0442\u0440\u0435\u0441"
+    const-string v2, "\u041b\u0438\u0446\u0435 \u00b7 \u0420\u0435\u043b\u0430\u043a\u0441 \u0442\u0435\u0440\u0430\u043f\u0438\u044f"
 
     const-string v3, "Face \u00b7 Anti-stress"
 
@@ -1707,7 +1707,7 @@
 
     const-string v1, "face_jaw"
 
-    const-string v2, "\u041b\u0438\u0446\u0435 \u00b7 \u041e\u0442\u043f\u0443\u0441\u043d\u0430\u0442\u0430 \u0447\u0435\u043b\u044e\u0441\u0442"
+    const-string v2, "\u041b\u0438\u0446\u0435 \u00b7 \u0420\u0435\u043b\u0430\u043a\u0441 \u043d\u0430 \u0447\u0435\u043b\u044e\u0441\u0442\u0442\u0430"
 
     const-string v3, "Face \u00b7 Relaxed jaw"
 
@@ -1747,7 +1747,7 @@
 
     const-string v1, "face_chin"
 
-    const-string v2, "\u041b\u0438\u0446\u0435 \u00b7 \u0421\u0442\u0435\u0433\u043d\u0430\u0442\u0430 \u0431\u0440\u0430\u0434\u0438\u0447\u043a\u0430"
+    const-string v2, "\u041b\u0438\u0446\u0435 \u00b7 \u0421\u0442\u044f\u0433\u0430\u043d\u0435 \u043d\u0430 \u0431\u0440\u0430\u0434\u0438\u0447\u043a\u0430\u0442\u0430"
 
     const-string v3, "Face \u00b7 Firm chin"
 
@@ -6669,12 +6669,12 @@
 
     .line 798
     :cond_9ce
-    const-string v5, "\u0422\u043e\u043d\u0443\u0441 \u043d\u0430 \u043b\u0438\u0446\u0435\u0442\u043e"
+    const-string v5, "\u041c\u0438\u043e\u0441\u0442\u0438\u043c\u0443\u043b\u0430\u0446\u0438\u044f"
 
     goto :goto_98b
 
     :cond_9d1
-    const-string v6, "Face tone"
+    const-string v6, "Myostimulation"
 
     goto :goto_98f
 
@@ -7152,9 +7152,9 @@
 
     .line 852
     :pswitch_b9d
-    const-string v5, "\u0410\u043d\u0442\u0438\u0441\u0442\u0440\u0435\u0441"
+    const-string v5, "\u0420\u0435\u043b\u0430\u043a\u0441 \u0442\u0435\u0440\u0430\u043f\u0438\u044f"
 
-    const-string v6, "Anti-stress"
+    const-string v6, "Relax therapy"
 
     const-string v7, "\u041e\u0442\u043f\u0443\u0441\u043d\u0438 \u0447\u0435\u043b\u043e\u0442\u043e \u0438 \u0447\u0435\u043b\u044e\u0441\u0442\u0442\u0430, \u0437\u044a\u0431\u0438\u0442\u0435 \u0434\u0430 \u043d\u0435 \u0441\u0435 \u0434\u043e\u043f\u0438\u0440\u0430\u0442"
 
@@ -7225,9 +7225,9 @@
     move-result-object v2
 
     .line 860
-    const-string v5, "\u041e\u0442\u043f\u0443\u0441\u043d\u0430\u0442\u0430 \u0447\u0435\u043b\u044e\u0441\u0442"
+    const-string v5, "\u0420\u0435\u043b\u0430\u043a\u0441 \u043d\u0430 \u0447\u0435\u043b\u044e\u0441\u0442\u0442\u0430"
 
-    const-string v6, "Relaxed jaw"
+    const-string v6, "Jaw relax"
 
     const-string v7, "\u041e\u0442\u043f\u0443\u0441\u043d\u0438 \u0447\u0435\u043b\u044e\u0441\u0442\u0442\u0430, \u0437\u044a\u0431\u0438\u0442\u0435 \u0434\u0430 \u043d\u0435 \u0441\u0435 \u0434\u043e\u043f\u0438\u0440\u0430\u0442"
 
@@ -7309,9 +7309,9 @@
     .line 871
     const-string v4, "MAIN"
 
-    const-string v5, "\u0421\u0442\u0435\u0433\u043d\u0430\u0442\u0430 \u0431\u0440\u0430\u0434\u0438\u0447\u043a\u0430"
+    const-string v5, "\u0421\u0442\u044f\u0433\u0430\u043d\u0435 \u043d\u0430 \u0431\u0440\u0430\u0434\u0438\u0447\u043a\u0430\u0442\u0430"
 
-    const-string v6, "Firm chin"
+    const-string v6, "Chin tightening"
 
     const-wide v7, 0x3fec7ae147ae147bL    # 0.89
 

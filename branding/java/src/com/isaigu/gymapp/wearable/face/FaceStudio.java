@@ -398,7 +398,7 @@ public final class FaceStudio {
             LinearLayout names = XemsUi.vertical(a);
             names.setPadding(dp(10), 0, dp(4), 0);
             TextView nm = XemsUi.text(a, p.name(b), 18, on ? p.tint : XemsUi.TEXT, true);
-            nm.setSingleLine(true);
+            nm.setMaxLines(2);
             nm.setEllipsize(TextUtils.TruncateAt.END);
             names.addView(nm);
             head.addView(names, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
@@ -444,7 +444,7 @@ public final class FaceStudio {
             String next = null;
             int col = XemsUi.MUTED;
             if (st.finished && program == FaceProgram.LIFT) {
-                next = tr("Курсът е завършен — „Тонус на лицето“ 2–3 пъти седмично пази ефекта",
+                next = tr("Курсът е завършен — „Миостимулация“ 2–3 пъти седмично пази ефекта",
                         "The course is complete — Face tone 2–3 times a week keeps the effect");
                 col = XemsUi.GO_TEXT;
             } else if (st.nextMs > now) {
@@ -821,7 +821,7 @@ public final class FaceStudio {
                 box.addView(nx);
             }
             if (st.finished && program == FaceProgram.LIFT) {
-                TextView up = XemsUi.text(a, tr("Курсът за лифтинг е завършен — оттук „Тонус на лицето“ 2–3 пъти седмично пази ефекта.",
+                TextView up = XemsUi.text(a, tr("Курсът за лифтинг е завършен — оттук „Миостимулация“ 2–3 пъти седмично пази ефекта.",
                         "The lift course is complete — from here Face tone 2–3 times a week keeps the effect."), 15, XemsUi.GO_TEXT, false);
                 up.setGravity(Gravity.CENTER);
                 up.setPadding(0, dp(10), 0, 0);
@@ -939,7 +939,7 @@ public final class FaceStudio {
                     statusLine.setTextColor(XemsUi.MUTED);
                 }
                 if (st.finished && program == FaceProgram.LIFT) {
-                    line = tr("Курсът е завършен — за поддръжка избери „Тонус на лицето“", "The course is complete — for upkeep pick Face tone");
+                    line = tr("Курсът е завършен — за поддръжка избери „Миостимулация“", "The course is complete — for upkeep pick Myostimulation");
                 }
                 statusLine.setText(line);
             }
@@ -1229,19 +1229,19 @@ public final class FaceStudio {
             boolean b = bg();
             sheet(v.a, tr("Лицеви процедури", "Face procedures"), b
                     ? "Два вида ток, две цели.\n\n"
-                    + "Двигателен — лифтинг, тонус, детокс, брадичка: импулсът възбужда двигателните разклонения на "
+                    + "Двигателен — лифтинг, миостимулация, лимфен дренаж, брадичка: импулсът възбужда двигателните разклонения на "
                     + "лицевия нерв и мускулите се съкращават сами, без усилие и без бръчки от мимика. Мускулите на лицето "
                     + "нямат сухожилия — вплетени са в кожата, затова по-плътният мускул дава опора отвътре. Честотата е "
                     + "винаги 20 Hz и нагоре: под нея лицето потрепва неприятно.\n\n"
-                    + "Сетивен — ботокс ефект, антистрес, отпусната челюст: токът докосва само нервите на кожата, мускулът не мърда. "
+                    + "Сетивен — ботокс ефект, релакс терапия, челюст: токът докосва само нервите на кожата, мускулът не мърда. "
                     + "Сетивният поток сваля тонуса на мускулите — лицето се отпуска.\n\n"
                     + "Днес без лице: ботокс или филър през последните 2 седмици, пейсмейкър, бременност, епилепсия, "
                     + "скорошна операция на лицето, раздразнена кожа, парализа на лицевия нерв."
                     : "Two kinds of current, two aims.\n\n"
-                    + "Motor — lift, tone, depuff, chin: the impulse excites the motor branches of the facial nerve "
+                    + "Motor — lift, myostimulation, lymphatic drainage, chin: the impulse excites the motor branches of the facial nerve "
                     + "and the muscles contract by themselves, no effort, no expression lines. Face muscles weave into the skin, "
                     + "so a fuller muscle supports from within. Always 20 Hz or more.\n\n"
-                    + "Sensory — botox effect, anti-stress, relaxed jaw: only the skin's nerves are touched, the muscle does not move; the "
+                    + "Sensory — botox effect, relax therapy, jaw: only the skin's nerves are touched, the muscle does not move; the "
                     + "sensory input lowers muscle tone.\n\n"
                     + "Not today: botox or filler within 2 weeks, a pacemaker, pregnancy, epilepsy, recent facial surgery, "
                     + "irritated skin, facial palsy.");

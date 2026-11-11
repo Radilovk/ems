@@ -47,8 +47,8 @@
     {
       "id": 0,
       "auto_id": "face",
-      "name_bg": "Лифтинг 3D",
-      "name_en": "Lift 3D",
+      "name_bg": "Лифтинг на лицето",
+      "name_en": "Face lift",
       "tag_bg": "Повдигнати скули, по-мека бразда",
       "tag_en": "Lifted cheekbones, a softer fold",
       "muscle_bg": "Скулови мускули и повдигачите на устната",
@@ -66,7 +66,7 @@
         "gap_early_days": 2,
         "gap_later_days": 1
       },
-      "how_bg": "Лифтинг 3D работи с трите мускула, които държат средната част на лицето: големия скулов, повдигачите на горната устна (назолабиалната зона) и мускулите на долната буза. Импулсът възбужда двигателните разклонения на лицевия нерв (n. facialis) и мускулите се съкращават сами — 3 секунди работа, 6 секунди отдих, защото лицевите мускули са бързи и се уморяват бързо. Мускулите на лицето нямат сухожилия: те са вплетени в кожата. По-плътният мускул дава опора отвътре там, където с годините изтъняват мастните възглавнички — бузата стои по-високо, скулата е по-изразена. В клинично проучване (12 седмици, 5 пъти седмично) мускулът е станал с около 18 % по-дебел.",
+      "how_bg": "Лифтинг на лицето работи с трите мускула, които държат средната част на лицето: големия скулов, повдигачите на горната устна (назолабиалната зона) и мускулите на долната буза. Импулсът възбужда двигателните разклонения на лицевия нерв (n. facialis) и мускулите се съкращават сами — 3 секунди работа, 6 секунди отдих, защото лицевите мускули са бързи и се уморяват бързо. Мускулите на лицето нямат сухожилия: те са вплетени в кожата. По-плътният мускул дава опора отвътре там, където с годините изтъняват мастните възглавнички — бузата стои по-високо, скулата е по-изразена. В клинично проучване (12 седмици, 5 пъти седмично) мускулът е станал с около 18 % по-дебел.",
       "how_en": "The impulse excites the motor branches of the facial nerve and the cheek muscle contracts by itself — 3 seconds of work, 6 of rest, as face muscles are fast and tire fast. Face muscles have no tendons: they weave into the skin. A fuller muscle supports the cheek from within where the fat pads thin with age. In a clinical trial (12 weeks, 5 times a week) the muscle grew about 18 % thicker.",
       "place_xems_bg": ["Почисти лицето, без крем", "Всяка двойка — по линията на мускула си, както на картината", "Нищо по-близо от 2 пръста до окото, нищо на устната"],
       "place_bluetens_bg": ["Почисти кожата, без крем", "1 — под скулата, на мускула, не върху костта", "2 — по линията към ъгъла на устата, не на устната"],
@@ -102,8 +102,8 @@
     {
       "id": 6,
       "auto_id": "face_oval",
-      "name_bg": "Лифтинг на овала",
-      "name_en": "Oval lift",
+      "name_bg": "Моделиране на овала",
+      "name_en": "Oval contouring",
       "tag_bg": "Скули и стегната брадичка наведнъж",
       "tag_en": "Cheekbones and a firm chin at once",
       "muscle_bg": "Скулови и надподезични мускули",
@@ -159,8 +159,8 @@
     {
       "id": 1,
       "auto_id": "face_tone",
-      "name_bg": "Тонус на лицето",
-      "name_en": "Face tone",
+      "name_bg": "Миостимулация",
+      "name_en": "Myostimulation",
       "tag_bg": "Еластичност, която пази лифтинга",
       "tag_en": "Elasticity that keeps the lift",
       "muscle_bg": "Мимически мускули на бузата",
@@ -198,7 +198,7 @@
               {"hz": 35, "pw_us": 100, "on_s": 2, "off_s": 8, "ramp_up_ms": 500, "ramp_down_ms": 500, "sigma": 1, "zones": null}
             ]
           },
-          {"id": "MAIN", "name_bg": "Тонус на лицето", "duration_s": 694, "cooldown": false, "wave": false, "phi": [0.70, 0.70], "env": [1, 1], "hint_bg": "Меко, равномерно стягане — усеща се, не боли",
+          {"id": "MAIN", "name_bg": "Миостимулация", "duration_s": 694, "cooldown": false, "wave": false, "phi": [0.70, 0.70], "env": [1, 1], "hint_bg": "Меко, равномерно стягане — усеща се, не боли",
             "steps": [
               {"hz": 35, "pw_us": 100, "on_s": 4, "off_s": 5, "ramp_up_ms": 500, "ramp_down_ms": 500, "sigma": 1, "zones": null}
             ]
@@ -214,8 +214,8 @@
     {
       "id": 2,
       "auto_id": "face_drain",
-      "name_bg": "Детокс от отоци",
-      "name_en": "Depuff detox",
+      "name_bg": "Лимфен дренаж",
+      "name_en": "Lymphatic drainage",
       "tag_bg": "По-малко подпухване, по-ясни черти",
       "tag_en": "Less puffiness, clearer features",
       "muscle_bg": "Мускулна помпа на бузата",
@@ -329,8 +329,8 @@
     {
       "id": 7,
       "auto_id": "face_calm",
-      "name_bg": "Антистрес",
-      "name_en": "Anti-stress",
+      "name_bg": "Релакс терапия",
+      "name_en": "Relax therapy",
       "tag_bg": "Без напрежение в челото и челюстта",
       "tag_en": "No tension in the forehead and the jaw",
       "muscle_bg": "Сетивни нерви на челото и дъвкателните мускули",
@@ -368,7 +368,7 @@
               {"hz": 100, "pw_us": 50, "on_s": 4, "off_s": 4, "ramp_up_ms": 1000, "ramp_down_ms": 1000, "sigma": 1, "zones": null}
             ]
           },
-          {"id": "MAIN", "name_bg": "Антистрес", "duration_s": 1104, "cooldown": false, "wave": false, "phi": [0.70, 0.70], "env": [1, 1], "hint_bg": "Отпусни челото и челюстта, зъбите да не се допират",
+          {"id": "MAIN", "name_bg": "Релакс терапия", "duration_s": 1104, "cooldown": false, "wave": false, "phi": [0.70, 0.70], "env": [1, 1], "hint_bg": "Отпусни челото и челюстта, зъбите да не се допират",
             "steps": [
               {"hz": 100, "pw_us": 50, "on_s": 4, "off_s": 4, "ramp_up_ms": 1000, "ramp_down_ms": 1000, "sigma": 1, "zones": null},
               {"hz": 80, "pw_us": 50, "on_s": 4, "off_s": 4, "ramp_up_ms": 1000, "ramp_down_ms": 1000, "sigma": 1, "zones": null}
@@ -385,8 +385,8 @@
     {
       "id": 4,
       "auto_id": "face_jaw",
-      "name_bg": "Отпусната челюст",
-      "name_en": "Relaxed jaw",
+      "name_bg": "Релакс на челюстта",
+      "name_en": "Jaw relax",
       "tag_bg": "По-мек долен овал, без напрежение",
       "tag_en": "A softer jawline, no tension",
       "muscle_bg": "Дъвкателен мускул",
@@ -424,7 +424,7 @@
               {"hz": 2, "pw_us": 150, "on_s": 10, "off_s": 1, "ramp_up_ms": 200, "ramp_down_ms": 200, "sigma": 1, "zones": null}
             ]
           },
-          {"id": "MAIN", "name_bg": "Отпусната челюст", "duration_s": 828, "cooldown": false, "wave": false, "phi": [1, 1], "env": [1, 1], "hint_bg": "Отпусни челюстта, зъбите да не се допират",
+          {"id": "MAIN", "name_bg": "Релакс на челюстта", "duration_s": 828, "cooldown": false, "wave": false, "phi": [1, 1], "env": [1, 1], "hint_bg": "Отпусни челюстта, зъбите да не се допират",
             "steps": [
               {"hz": 2, "pw_us": 150, "on_s": 10, "off_s": 1, "ramp_up_ms": 200, "ramp_down_ms": 200, "sigma": 1, "zones": null}
             ]
@@ -440,8 +440,8 @@
     {
       "id": 5,
       "auto_id": "face_chin",
-      "name_bg": "Стегната брадичка",
-      "name_en": "Firm chin",
+      "name_bg": "Стягане на брадичката",
+      "name_en": "Chin tightening",
       "tag_bg": "По-стегнат профил под брадичката",
       "tag_en": "A firmer profile under the chin",
       "muscle_bg": "Надподезични мускули",
@@ -479,7 +479,7 @@
               {"hz": 30, "pw_us": 150, "on_s": 2, "off_s": 6, "ramp_up_ms": 500, "ramp_down_ms": 500, "sigma": 1, "zones": null}
             ]
           },
-          {"id": "MAIN", "name_bg": "Стегната брадичка", "duration_s": 641, "cooldown": false, "wave": false, "phi": [0.70, 0.70], "env": [1, 1], "hint_bg": "Под брадичката се стяга — не преглъщай по време на стягането",
+          {"id": "MAIN", "name_bg": "Стягане на брадичката", "duration_s": 641, "cooldown": false, "wave": false, "phi": [0.70, 0.70], "env": [1, 1], "hint_bg": "Под брадичката се стяга — не преглъщай по време на стягането",
             "steps": [
               {"hz": 30, "pw_us": 150, "on_s": 4, "off_s": 8, "ramp_up_ms": 500, "ramp_down_ms": 500, "sigma": 1, "zones": null}
             ]

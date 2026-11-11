@@ -103,24 +103,24 @@ public final class FaceProgram {
 
     private static final FaceProgram[] ALL = {
             // Kavanagh 2012 RCT: 20 min, 5×/week, 12 weeks → zygomaticus +18.6 %; ours 2 weeks × 3 then × 5 = 56
-            new FaceProgram(LIFT, CHEEK, false, "Лифтинг 3D", "Lift 3D",
+            new FaceProgram(LIFT, CHEEK, false, "Лифтинг на лицето", "Face lift",
                     "Повдигнати скули, по-мека бразда", "Lifted cheekbones, a softer fold",
                     "Скулови мускули и повдигачите на устната", "Cheek and lip-lifting muscles",
                     "m. zygomaticus major et minor · m. levator labii sup.",
                     70, 3, 6, 0xFFFF6F91, "↗", 3, 2, 1, 12, 56),
-            new FaceProgram(FIRM, CHEEK, false, "Тонус на лицето", "Face tone",
+            new FaceProgram(FIRM, CHEEK, false, "Миостимулация", "Myostimulation",
                     "Еластичност, която пази лифтинга", "Elasticity that keeps the lift",
                     "Мимически мускули на бузата", "Mid-face muscles", "mm. faciei",
                     35, 5, 5, 0xFFC084FC, "◇", 2, 3, 3, 0, 0),
-            new FaceProgram(DRAIN, CHEEK, false, "Детокс от отоци", "Depuff detox",
+            new FaceProgram(DRAIN, CHEEK, false, "Лимфен дренаж", "Lymphatic drainage",
                     "По-малко подпухване, по-ясни черти", "Less puffiness, clearer features",
                     "Мускулна помпа на бузата", "Cheek muscle pump", "m. zygomaticus · m. buccinator",
                     30, 1, 2, 0xFF38BDF8, "≋", 2, 1, 1, 0, 0),
-            new FaceProgram(OVAL, CHEEK, false, "Лифтинг на овала", "Oval lift",
+            new FaceProgram(OVAL, CHEEK, false, "Моделиране на овала", "Oval contouring",
                     "Скули и стегната брадичка наведнъж", "Cheekbones and a firm chin at once",
                     "Скулови и надподезични мускули", "Cheek and suprahyoid muscles", "m. zygomaticus · m. digastricus",
                     70, 3, 6, 0xFFFB7185, "◎", 2, 2, 1, 12, 56),
-            new FaceProgram(CALM, FOREHEAD, true, "Антистрес", "Anti-stress",
+            new FaceProgram(CALM, FOREHEAD, true, "Релакс терапия", "Relax therapy",
                     "Без напрежение в челото и челюстта", "No tension in the forehead and the jaw",
                     "Сетивни нерви на челото и дъвкателните мускули", "Forehead nerves and the masseters",
                     "n. supraorbitalis · m. masseter",
@@ -131,11 +131,11 @@ public final class FaceProgram {
                     "Сетивни нерви на челото", "Forehead sensory nerves", "n. supraorbitalis · n. supratrochlearis",
                     100, 0, 0, 0xFFF5B021, "∿", 2, 1, 1, 0, 0),
             // TENS on the masseter lowers its resting EMG (RCT in TMD, short term)
-            new FaceProgram(JAW_RELAX, JAW, true, "Отпусната челюст", "Relaxed jaw",
+            new FaceProgram(JAW_RELAX, JAW, true, "Релакс на челюстта", "Jaw relax",
                     "По-мек долен овал, без напрежение", "A softer jawline, no tension",
                     "Дъвкателен мускул", "Masseter", "m. masseter",
                     2, 0, 0, 0xFF34D399, "◠", 2, 2, 2, 0, 0),
-            new FaceProgram(CONTOUR, CHIN, false, "Стегната брадичка", "Firm chin",
+            new FaceProgram(CONTOUR, CHIN, false, "Стягане на брадичката", "Chin tightening",
                     "По-стегнат профил под брадичката", "A firmer profile under the chin",
                     "Надподезични мускули", "Suprahyoid muscles", "m. digastricus · m. mylohyoideus",
                     30, 4, 8, 0xFF818CF8, "◡", 1, 2, 2, 0, 0)};
@@ -214,7 +214,7 @@ public final class FaceProgram {
     public String how(boolean bg) {
         switch (id) {
             case LIFT:
-                return bg ? "Лифтинг 3D работи с трите мускула, които държат средната част на лицето: големия скулов, "
+                return bg ? "Лифтинг на лицето работи с трите мускула, които държат средната част на лицето: големия скулов, "
                         + "повдигачите на горната устна (назолабиалната зона) и мускулите на долната буза. "
                         + "Импулсът възбужда двигателните разклонения на лицевия нерв (n. facialis) и мускулите се "
                         + "съкращават сами — 3 секунди работа, 6 секунди отдих, защото лицевите мускули са бързи и се уморяват бързо. "

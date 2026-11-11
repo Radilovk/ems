@@ -244,19 +244,19 @@ public final class AutoCatalog {
                 Kind.PASSIVE, AutoModel.zones(80, 90, 90, 90, 50, 70, 80, 80, 40, 60)));
         p.cr10Lo = 3; p.cr10Hi = 5; p.xCap = 0.45;
 
-        p = add(new Program(FACE, "Лице · Лифтинг 3D", "Face · Lift 3D",
-                "Лифтинг 3D · Овал · Детокс · Ботокс ефект · Антистрес — избор в студиото за лице",
-                "Lift 3D · Oval · Depuff · Botox effect · Anti-stress — chosen in the face studio",
+        p = add(new Program(FACE, "Лице · Лифтинг на лицето", "Face · Lift 3D",
+                "Лифтинг · Овал · Лимфен дренаж · Ботокс ефект · Релакс — избор в студиото за лице",
+                "Lift · Oval · Lymphatic drainage · Botox effect · Relax — chosen in the face studio",
                 Kind.PASSIVE, sites(CHEEKS)));
         face(p, 3, 4);
-        p = add(new Program(FACE_TONE, "Лице · Тонус", "Face · Tone",
+        p = add(new Program(FACE_TONE, "Лице · Миостимулация", "Face · Myostimulation",
                 "Еластичност, която пази лифтинга", "Elasticity that keeps the lift", Kind.PASSIVE, sites(CHEEKS)));
         face(p, 2, 3);
-        p = add(new Program(FACE_OVAL, "Лице · Лифтинг на овала", "Face · Oval lift",
+        p = add(new Program(FACE_OVAL, "Лице · Моделиране на овала", "Face · Oval lift",
                 "Скули и брадичка в една сесия", "Cheekbones and chin in one session",
                 Kind.PASSIVE, sites(F_ZM_L, F_ZM_R, F_NL_L, F_NL_R, F_LC_L, F_LC_R, F_CHIN)));
         face(p, 3, 4);
-        p = add(new Program(FACE_DRAIN, "Лице · Лимфодренаж", "Face · Lymph wave",
+        p = add(new Program(FACE_DRAIN, "Лице · Лимфен дренаж", "Face · Lymphatic drainage",
                 "По-малко подпухване, по-ясни черти", "Less puffiness, clearer features",
                 Kind.PASSIVE, sites(F_NL_L, F_NL_R, F_LC_L, F_LC_R, F_ZM_L, F_ZM_R, F_CHIN)));
         face(p, 2, 3);
@@ -264,14 +264,14 @@ public final class AutoCatalog {
                 "Отпусната мимика, по-гладко чело · без игла", "Relaxed expression, smoother forehead · no needle",
                 Kind.PASSIVE, sites(F_FOREHEAD)));
         face(p, 1, 2);
-        p = add(new Program(FACE_CALM, "Лице · Антистрес", "Face · Anti-stress",
+        p = add(new Program(FACE_CALM, "Лице · Релакс терапия", "Face · Anti-stress",
                 "Без напрежение в челото и челюстта", "No tension in the forehead and jaw",
                 Kind.PASSIVE, sites(F_FOREHEAD, F_JAW_L, F_JAW_R)));
         face(p, 1, 2);
-        p = add(new Program(FACE_JAW, "Лице · Отпусната челюст", "Face · Relaxed jaw",
+        p = add(new Program(FACE_JAW, "Лице · Релакс на челюстта", "Face · Relaxed jaw",
                 "По-мек долен овал, без напрежение", "A softer jawline, no tension", Kind.PASSIVE, sites(F_JAW_L, F_JAW_R)));
         face(p, 1, 2);
-        p = add(new Program(FACE_CHIN, "Лице · Стегната брадичка", "Face · Firm chin",
+        p = add(new Program(FACE_CHIN, "Лице · Стягане на брадичката", "Face · Firm chin",
                 "По-стегнат профил под брадичката", "A firmer profile under the chin", Kind.PASSIVE, sites(F_CHIN)));
         face(p, 3, 4);
 
@@ -795,7 +795,7 @@ public final class AutoCatalog {
                 w.hintBg = "Седни удобно, лицето отпуснато — ъглите на устата тръгват леко нагоре";
                 w.hintEn = "Sit comfortably, face relaxed — the mouth corners start to lift";
                 w.steps.add(faceStep(hz, 2, 8));
-                Phase m = phase(out, "MAIN", lift ? "Лифтинг" : "Тонус на лицето", lift ? "Lift" : "Face tone", 0.89, total,
+                Phase m = phase(out, "MAIN", lift ? "Лифтинг" : "Миостимулация", lift ? "Lift" : "Myostimulation", 0.89, total,
                         lift ? 0.9 : 0.8, lift ? 0.9 : 0.8);
                 m.hintBg = lift ? "Лицето отпуснато — бузите се повдигат сами; без болка, без мигане"
                         : "Меко, равномерно стягане — усеща се, не боли";
@@ -849,7 +849,7 @@ public final class AutoCatalog {
                         faceStep(100, FACE_RELAX_PW, 4, 4, 1000));
                 break;
             case FACE_CALM:
-                sensory(out, total, "Антистрес", "Anti-stress",
+                sensory(out, total, "Релакс терапия", "Relax therapy",
                         "Отпусни челото и челюстта, зъбите да не се допират",
                         "Let the forehead and the jaw go, teeth apart",
                         faceStep(100, FACE_RELAX_PW, 4, 4, 1000), faceStep(80, FACE_RELAX_PW, 4, 4, 1000));
@@ -857,7 +857,7 @@ public final class AutoCatalog {
             case FACE_JAW: {
                 // the jaw: low-rate single impulses (the suit has no bursts) — a deep, slow tapping, sensory
                 Step s = twitch(2, FACE_JAW_PW, 10, 1, 1.0);
-                sensory(out, total, "Отпусната челюст", "Relaxed jaw",
+                sensory(out, total, "Релакс на челюстта", "Jaw relax",
                         "Отпусни челюстта, зъбите да не се допират", "Let the jaw hang, teeth apart", s);
                 break;
             }
@@ -868,7 +868,7 @@ public final class AutoCatalog {
                 w.hintBg = "Седни изправен, без храна и вода";
                 w.hintEn = "Sit up, no food or drink";
                 w.steps.add(faceStep(30, FACE_CHIN_PW, 2, 6, 500));
-                Phase m = phase(out, "MAIN", "Стегната брадичка", "Firm chin", 0.89, total, 0.9, 0.9);
+                Phase m = phase(out, "MAIN", "Стягане на брадичката", "Chin tightening", 0.89, total, 0.9, 0.9);
                 m.hintBg = "Под брадичката се стяга — не преглъщай по време на стягането";
                 m.hintEn = "It tightens under the chin — do not swallow during the hold";
                 m.steps.add(faceStep(30, FACE_CHIN_PW, 4, 8, 500));

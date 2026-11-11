@@ -525,6 +525,15 @@ send it (gzip, parts) to the server under a random code the game shows (`/v1/vrl
 days). `python3 scripts/vr-legs/pad_replay.py <CODE>` fetches and summarises it. Tests: `log_test` (Godot),
 `server/test/vrlog.test.js`.
 
+### 1.31 — the owner's recordings: the standing height (2026-11-11)
+Four recordings (`pad_replay.py`; codes 79NALTMDF6, YPZF3Q6YE7, 84ZWNS9AMY, BVUXTGUKCJ). The sensors came through clean
+(fw 10–12 layout, unit quaternions) — the fault was the standing eye height the game passed in: first 1.64 m while the
+head never rose above 1.57 → "stand tall" never met, the legs stuck at "stand up straight"; then 1.39 m (taken while
+bent) with the head up to 1.59 → the zero pose taken with bent knees (left shin 15° off when upright) and the prior
+reading the player as jumping (both feet "in the air" most of the time, knees drawn 0.55–0.74 m high). PadLegs now
+takes the standing height from the headset: the highest the head was in the last 20 s (not below 85 % of the game's).
+Test `stand_test` (the game says 1.64, the head stands at 1.57 → calibrates).
+
 ### AI (Gemini) — where it fits and where not
 Not for the live figure: a cloud model answers in 0.5–3 s, needs the network, costs per call and does not return
 reliable joint angles — the figure must follow the body in < 50 ms. "Natural" comes from local models learned from

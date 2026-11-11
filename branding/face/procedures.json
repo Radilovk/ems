@@ -102,10 +102,10 @@
     {
       "id": 6,
       "auto_id": "face_oval",
-      "name_bg": "Моделиране на овала",
-      "name_en": "Oval contouring",
-      "tag_bg": "Скули и стегната брадичка наведнъж",
-      "tag_en": "Cheekbones and a firm chin at once",
+      "name_bg": "Стегнат овал",
+      "name_en": "Firm contour",
+      "tag_bg": "Ясен контур от скулите до брадичката",
+      "tag_en": "A clear line from cheekbones to chin",
       "muscle_bg": "Скулови и надподезични мускули",
       "muscle_en": "Cheek and suprahyoid muscles",
       "latin": "m. zygomaticus · m. digastricus",
@@ -159,10 +159,10 @@
     {
       "id": 1,
       "auto_id": "face_tone",
-      "name_bg": "Миостимулация",
-      "name_en": "Myostimulation",
-      "tag_bg": "Еластичност, която пази лифтинга",
-      "tag_en": "Elasticity that keeps the lift",
+      "name_bg": "Тонизиране",
+      "name_en": "Toning",
+      "tag_bg": "Пази лифтинга стегнат",
+      "tag_en": "Keeps the lift firm",
       "muscle_bg": "Мимически мускули на бузата",
       "muscle_en": "Mid-face muscles",
       "latin": "mm. faciei",
@@ -198,7 +198,7 @@
               {"hz": 35, "pw_us": 100, "on_s": 2, "off_s": 8, "ramp_up_ms": 500, "ramp_down_ms": 500, "sigma": 1, "zones": null}
             ]
           },
-          {"id": "MAIN", "name_bg": "Миостимулация", "duration_s": 694, "cooldown": false, "wave": false, "phi": [0.70, 0.70], "env": [1, 1], "hint_bg": "Меко, равномерно стягане — усеща се, не боли",
+          {"id": "MAIN", "name_bg": "Тонизиране", "duration_s": 694, "cooldown": false, "wave": false, "phi": [0.70, 0.70], "env": [1, 1], "hint_bg": "Меко, равномерно стягане — усеща се, не боли",
             "steps": [
               {"hz": 35, "pw_us": 100, "on_s": 4, "off_s": 5, "ramp_up_ms": 500, "ramp_down_ms": 500, "sigma": 1, "zones": null}
             ]
@@ -214,10 +214,10 @@
     {
       "id": 2,
       "auto_id": "face_drain",
-      "name_bg": "Лимфен дренаж",
-      "name_en": "Lymphatic drainage",
-      "tag_bg": "По-малко подпухване, по-ясни черти",
-      "tag_en": "Less puffiness, clearer features",
+      "name_bg": "Лимфен дренаж на лицето",
+      "name_en": "Facial lymphatic drainage",
+      "tag_bg": "По-малко подпухване, по-свежи черти",
+      "tag_en": "Less puffiness, fresher features",
       "muscle_bg": "Мускулна помпа на бузата",
       "muscle_en": "Cheek muscle pump",
       "latin": "m. zygomaticus · m. buccinator",
@@ -329,10 +329,10 @@
     {
       "id": 7,
       "auto_id": "face_calm",
-      "name_bg": "Релакс терапия",
-      "name_en": "Relax therapy",
-      "tag_bg": "Без напрежение в челото и челюстта",
-      "tag_en": "No tension in the forehead and the jaw",
+      "name_bg": "Свежо лице",
+      "name_en": "Fresh face",
+      "tag_bg": "Без напрежение, свеж вид",
+      "tag_en": "No tension, a fresh look",
       "muscle_bg": "Сетивни нерви на челото и дъвкателните мускули",
       "muscle_en": "Forehead nerves and the masseters",
       "latin": "n. supraorbitalis · m. masseter",
@@ -368,7 +368,7 @@
               {"hz": 100, "pw_us": 50, "on_s": 4, "off_s": 4, "ramp_up_ms": 1000, "ramp_down_ms": 1000, "sigma": 1, "zones": null}
             ]
           },
-          {"id": "MAIN", "name_bg": "Релакс терапия", "duration_s": 1104, "cooldown": false, "wave": false, "phi": [0.70, 0.70], "env": [1, 1], "hint_bg": "Отпусни челото и челюстта, зъбите да не се допират",
+          {"id": "MAIN", "name_bg": "Свежо лице", "duration_s": 1104, "cooldown": false, "wave": false, "phi": [0.70, 0.70], "env": [1, 1], "hint_bg": "Отпусни челото и челюстта, зъбите да не се допират",
             "steps": [
               {"hz": 100, "pw_us": 50, "on_s": 4, "off_s": 4, "ramp_up_ms": 1000, "ramp_down_ms": 1000, "sigma": 1, "zones": null},
               {"hz": 80, "pw_us": 50, "on_s": 4, "off_s": 4, "ramp_up_ms": 1000, "ramp_down_ms": 1000, "sigma": 1, "zones": null}
@@ -385,10 +385,10 @@
     {
       "id": 4,
       "auto_id": "face_jaw",
-      "name_bg": "Релакс на челюстта",
-      "name_en": "Jaw relax",
-      "tag_bg": "По-мек долен овал, без напрежение",
-      "tag_en": "A softer jawline, no tension",
+      "name_bg": "Релаксация на челюстта",
+      "name_en": "Jaw relaxation",
+      "tag_bg": "По-мек долен овал",
+      "tag_en": "A softer jawline",
       "muscle_bg": "Дъвкателен мускул",
       "muscle_en": "Masseter",
       "latin": "m. masseter",
@@ -424,7 +424,7 @@
               {"hz": 2, "pw_us": 150, "on_s": 10, "off_s": 1, "ramp_up_ms": 200, "ramp_down_ms": 200, "sigma": 1, "zones": null}
             ]
           },
-          {"id": "MAIN", "name_bg": "Релакс на челюстта", "duration_s": 828, "cooldown": false, "wave": false, "phi": [1, 1], "env": [1, 1], "hint_bg": "Отпусни челюстта, зъбите да не се допират",
+          {"id": "MAIN", "name_bg": "Релаксация на челюстта", "duration_s": 828, "cooldown": false, "wave": false, "phi": [1, 1], "env": [1, 1], "hint_bg": "Отпусни челюстта, зъбите да не се допират",
             "steps": [
               {"hz": 2, "pw_us": 150, "on_s": 10, "off_s": 1, "ramp_up_ms": 200, "ramp_down_ms": 200, "sigma": 1, "zones": null}
             ]
@@ -440,10 +440,10 @@
     {
       "id": 5,
       "auto_id": "face_chin",
-      "name_bg": "Стягане на брадичката",
-      "name_en": "Chin tightening",
-      "tag_bg": "По-стегнат профил под брадичката",
-      "tag_en": "A firmer profile under the chin",
+      "name_bg": "Стегната брадичка",
+      "name_en": "Firm chin",
+      "tag_bg": "По-стегнат профил",
+      "tag_en": "A firmer profile",
       "muscle_bg": "Надподезични мускули",
       "muscle_en": "Suprahyoid muscles",
       "latin": "m. digastricus · m. mylohyoideus",
@@ -479,7 +479,7 @@
               {"hz": 30, "pw_us": 150, "on_s": 2, "off_s": 6, "ramp_up_ms": 500, "ramp_down_ms": 500, "sigma": 1, "zones": null}
             ]
           },
-          {"id": "MAIN", "name_bg": "Стягане на брадичката", "duration_s": 641, "cooldown": false, "wave": false, "phi": [0.70, 0.70], "env": [1, 1], "hint_bg": "Под брадичката се стяга — не преглъщай по време на стягането",
+          {"id": "MAIN", "name_bg": "Стегната брадичка", "duration_s": 641, "cooldown": false, "wave": false, "phi": [0.70, 0.70], "env": [1, 1], "hint_bg": "Под брадичката се стяга — не преглъщай по време на стягането",
             "steps": [
               {"hz": 30, "pw_us": 150, "on_s": 4, "off_s": 8, "ramp_up_ms": 500, "ramp_down_ms": 500, "sigma": 1, "zones": null}
             ]

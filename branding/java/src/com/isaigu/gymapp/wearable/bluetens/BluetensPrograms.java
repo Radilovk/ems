@@ -22,12 +22,12 @@ public final class BluetensPrograms {
             case RELIEF: return bg ? "Облекчаване" : "Relief";
             case ACTIVATE: return bg ? "Активиране" : "Activation";
             case FACE: return bg ? "Лице · Лифтинг" : "Face · Lift";
-            case FACE_TONE: return bg ? "Лице · Миостимулация" : "Face · Myostimulation";
+            case FACE_TONE: return bg ? "Лице · Тонизиране" : "Face · Toning";
             case CHIN: return bg ? "Под брадичката" : "Under the chin";
             case FACE_DRAIN:
-            case FACE_DRAIN_B: return bg ? "Лимфен дренаж" : "Depuff";
+            case FACE_DRAIN_B: return bg ? "Лимфен дренаж на лицето" : "Depuff";
             case FACE_RELAX: return bg ? "Ботокс ефект" : "Botox effect";
-            case JAW: return bg ? "Релакс на челюстта" : "Jaw relax";
+            case JAW: return bg ? "Релаксация на челюстта" : "Jaw relaxation";
             default: return bg ? "Загряване" : "Warm-up";
         }
     }

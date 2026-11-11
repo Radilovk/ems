@@ -126,28 +126,28 @@ public final class AutoCues {
                     "Lymph wave: the muscles tighten one after another from the nose to the jaw and the ear and pump the held fluid.");
         }
         if (AutoCatalog.FACE_TONE.equals(id)) {
-            return AiText.t("Миостимулация: по-дълги меки стягания — мускулите на лицето стават издръжливи и пазят лифтинга.",
-                    "Myostimulation: longer soft holds — the face muscles grow enduring and keep the lift.");
+            return AiText.t("Тонизиране: по-дълги меки стягания — мускулите на лицето стават издръжливи и пазят лифтинга.",
+                    "Toning: longer soft holds — the face muscles grow enduring and keep the lift.");
         }
         if (AutoCatalog.FACE_OVAL.equals(id)) {
-            return AiText.t("Моделиране на овала: скулите и брадичката се редуват — всеки мускул работи 3 s и почива 6.",
-                    "Oval contouring: the cheekbones and the chin take turns — every muscle works 3 s and rests 6.");
+            return AiText.t("Стегнат овал: скулите и брадичката се редуват — всеки мускул работи 3 s и почива 6.",
+                    "Firm contour: the cheekbones and the chin take turns — every muscle works 3 s and rests 6.");
         }
         if (AutoCatalog.FACE_RELAX.equals(id)) {
             return AiText.t("Ботокс ефект: нежният ток по сетивните нерви сваля тонуса на мимическите мускули — челото се отпуска.",
                     "Botox effect: the gentle current on the sensory nerves lowers the tone of the expression muscles.");
         }
         if (AutoCatalog.FACE_CALM.equals(id)) {
-            return AiText.t("Релакс терапия: сетивният ток по челото и челюстта сваля напрежението — честотата се сменя, за да не привикне.",
-                    "Relax therapy: the sensory current on the forehead and the jaw lowers the tension — the rate changes so it never wears off.");
+            return AiText.t("Свежо лице: сетивният ток по челото и челюстта сваля напрежението — честотата се сменя, за да не привикне.",
+                    "Fresh face: the sensory current on the forehead and the jaw lowers the tension — the rate changes so it never wears off.");
         }
         if (AutoCatalog.FACE_JAW.equals(id)) {
-            return AiText.t("Релакс на челюстта: бавни импулси в дъвкателния мускул — тонусът му в покой спада.",
-                    "Jaw relax: slow impulses in the masseter — its resting tone drops.");
+            return AiText.t("Релаксация на челюстта: бавни импулси в дъвкателния мускул — тонусът му в покой спада.",
+                    "Jaw relaxation: slow impulses in the masseter — its resting tone drops.");
         }
         if (AutoCatalog.FACE_CHIN.equals(id)) {
-            return AiText.t("Стягане на брадичката: мускулите под брадичката се стягат и оформят профила.",
-                    "Chin tightening: the muscles under the chin tighten and shape the profile.");
+            return AiText.t("Стегната брадичка: мускулите под брадичката се стягат и оформят профила.",
+                    "Firm chin: the muscles under the chin tighten and shape the profile.");
         }
         return AiText.t("Лифтинг на лицето: скулите, назолабиалната зона и долната буза работят заедно — по-плътна опора за цялата средна част.",
                 "Face lift: the cheekbones, the nasolabial area and the lower cheek work together — fuller support for the whole mid-face.");

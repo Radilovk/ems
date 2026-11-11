@@ -1756,7 +1756,7 @@
     :pswitch_28
     if-eqz p1, :cond_2d
 
-    const-string v0, "\u041b\u0438\u0446\u0435 \u00b7 \u041f\u043e\u0432\u0434\u0438\u0433\u0430\u043d\u0435"
+    const-string v0, "\u041b\u0438\u0446\u0435 \u00b7 \u041b\u0438\u0444\u0442\u0438\u043d\u0433 \u043d\u0430 \u0441\u043a\u0443\u043b\u0438\u0442\u0435"
 
     goto :goto_7
 
@@ -1769,12 +1769,12 @@
     :pswitch_30
     if-eqz p1, :cond_35
 
-    const-string v0, "\u041b\u0438\u0446\u0435 \u00b7 \u0422\u043e\u043d\u0443\u0441"
+    const-string v0, "\u041b\u0438\u0446\u0435 \u00b7 \u0422\u043e\u043d\u0443\u0441 \u0438 \u0441\u0442\u0435\u0433\u043d\u0430\u0442\u043e\u0441\u0442"
 
     goto :goto_7
 
     :cond_35
-    const-string v0, "Face \u00b7 Tone"
+    const-string v0, "Face \u00b7 Tone & firmness"
 
     goto :goto_7
 
@@ -1795,7 +1795,7 @@
     :pswitch_40
     if-eqz p1, :cond_45
 
-    const-string v0, "\u0414\u0435\u0442\u043e\u043a\u0441 \u043e\u0442 \u043e\u0442\u043e\u0446\u0438"
+    const-string v0, "\u041b\u0438\u043c\u0444\u043e\u0434\u0440\u0435\u043d\u0430\u0436 \u043d\u0430 \u043b\u0438\u0446\u0435\u0442\u043e"
 
     goto :goto_7
 
@@ -1821,12 +1821,12 @@
     :pswitch_50
     if-eqz p1, :cond_55
 
-    const-string v0, "\u041e\u0442\u043f\u0443\u0441\u043d\u0430\u0442\u0430 \u0447\u0435\u043b\u044e\u0441\u0442"
+    const-string v0, "\u0420\u0435\u043b\u0430\u043a\u0441\u0430\u0446\u0438\u044f \u043d\u0430 \u0447\u0435\u043b\u044e\u0441\u0442\u0442\u0430"
 
     goto :goto_7
 
     :cond_55
-    const-string v0, "Relaxed jaw"
+    const-string v0, "Jaw relaxation"
 
     goto :goto_7
 

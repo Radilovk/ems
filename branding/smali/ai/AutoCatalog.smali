@@ -1471,13 +1471,13 @@
 
     const-string v1, "face"
 
-    const-string v2, "\u041b\u0438\u0446\u0435 \u00b7 \u041b\u0438\u0444\u0442\u0438\u043d\u0433 3D"
+    const-string v2, "\u041b\u0438\u0446\u0435 \u00b7 \u041b\u0438\u0444\u0442\u0438\u043d\u0433 \u043d\u0430 \u0441\u043a\u0443\u043b\u0438\u0442\u0435"
 
-    const-string v3, "Face \u00b7 Lift 3D"
+    const-string v3, "Face \u00b7 Cheekbone lift"
 
-    const-string v4, "\u041b\u0438\u0444\u0442\u0438\u043d\u0433 3D \u00b7 \u041e\u0432\u0430\u043b \u00b7 \u0414\u0435\u0442\u043e\u043a\u0441 \u00b7 \u0411\u043e\u0442\u043e\u043a\u0441 \u0435\u0444\u0435\u043a\u0442 \u00b7 \u0421\u043f\u043e\u043a\u043e\u0439\u043d\u043e \u043b\u0438\u0446\u0435 \u2014 \u0438\u0437\u0431\u043e\u0440 \u0432 \u0441\u0442\u0443\u0434\u0438\u043e\u0442\u043e \u0437\u0430 \u043b\u0438\u0446\u0435"
+    const-string v4, "\u041b\u0438\u0444\u0442\u0438\u043d\u0433 \u00b7 \u0421\u043a\u0443\u043b\u043f\u0442\u0443\u0440\u0438\u0440\u0430\u043d\u0435 \u00b7 \u041b\u0438\u043c\u0444\u043e\u0434\u0440\u0435\u043d\u0430\u0436 \u00b7 \u0411\u043e\u0442\u043e\u043a\u0441 \u0435\u0444\u0435\u043a\u0442 \u00b7 \u0421\u0432\u0435\u0436\u043e \u043b\u0438\u0446\u0435 \u2014 \u0438\u0437\u0431\u043e\u0440 \u0432 \u0441\u0442\u0443\u0434\u0438\u043e\u0442\u043e \u0437\u0430 \u043b\u0438\u0446\u0435"
 
-    const-string v5, "Lift 3D \u00b7 Oval \u00b7 Depuff \u00b7 Botox effect \u00b7 Calm face \u2014 chosen in the face studio"
+    const-string v5, "Lift \u00b7 Oval \u00b7 Facial lymphatic drainage \u00b7 Botox effect \u00b7 Fresh face \u2014 chosen in the face studio"
 
     sget-object v6, Lcom/isaigu/gymapp/ai/AutoModel$Kind;->PASSIVE:Lcom/isaigu/gymapp/ai/AutoModel$Kind;
 
@@ -1507,13 +1507,13 @@
 
     const-string v1, "face_tone"
 
-    const-string v2, "\u041b\u0438\u0446\u0435 \u00b7 \u0421\u0442\u0435\u0433\u043d\u0430\u0442 \u043e\u0432\u0430\u043b"
+    const-string v2, "\u041b\u0438\u0446\u0435 \u00b7 \u0422\u043e\u043d\u0443\u0441 \u0438 \u0441\u0442\u0435\u0433\u043d\u0430\u0442\u043e\u0441\u0442"
 
-    const-string v3, "Face \u00b7 Firm contour"
+    const-string v3, "Face \u00b7 Tone & firmness"
 
-    const-string v4, "\u0415\u043b\u0430\u0441\u0442\u0438\u0447\u043d\u043e\u0441\u0442, \u043a\u043e\u044f\u0442\u043e \u043f\u0430\u0437\u0438 \u043b\u0438\u0444\u0442\u0438\u043d\u0433\u0430"
+    const-string v4, "\u041f\u0430\u0437\u0438 \u043b\u0438\u0444\u0442\u0438\u043d\u0433\u0430 \u0441\u0442\u0435\u0433\u043d\u0430\u0442"
 
-    const-string v5, "Elasticity that keeps the lift"
+    const-string v5, "Keeps the lift firm"
 
     sget-object v6, Lcom/isaigu/gymapp/ai/AutoModel$Kind;->PASSIVE:Lcom/isaigu/gymapp/ai/AutoModel$Kind;
 
@@ -1543,9 +1543,9 @@
 
     const-string v1, "face_oval"
 
-    const-string v2, "\u041b\u0438\u0446\u0435 \u00b7 \u041b\u0438\u0444\u0442\u0438\u043d\u0433 \u043d\u0430 \u043e\u0432\u0430\u043b\u0430"
+    const-string v2, "\u0421\u043a\u0443\u043b\u043f\u0442\u0443\u0440\u0438\u0440\u0430\u043d\u0435 \u043d\u0430 \u043b\u0438\u0446\u0435\u0442\u043e"
 
-    const-string v3, "Face \u00b7 Oval lift"
+    const-string v3, "Face \u00b7 Sculpting"
 
     const-string v4, "\u0421\u043a\u0443\u043b\u0438 \u0438 \u0431\u0440\u0430\u0434\u0438\u0447\u043a\u0430 \u0432 \u0435\u0434\u043d\u0430 \u0441\u0435\u0441\u0438\u044f"
 
@@ -1585,11 +1585,11 @@
 
     const-string v2, "\u041b\u0438\u0446\u0435 \u00b7 \u041b\u0438\u043c\u0444\u043e\u0434\u0440\u0435\u043d\u0430\u0436"
 
-    const-string v3, "Face \u00b7 Lymph wave"
+    const-string v3, "Face \u00b7 Lymphatic drainage"
 
-    const-string v4, "\u041f\u043e-\u043c\u0430\u043b\u043a\u043e \u043f\u043e\u0434\u043f\u0443\u0445\u0432\u0430\u043d\u0435, \u043f\u043e-\u044f\u0441\u043d\u0438 \u0447\u0435\u0440\u0442\u0438"
+    const-string v4, "\u041f\u043e-\u043c\u0430\u043b\u043a\u043e \u043f\u043e\u0434\u043f\u0443\u0445\u0432\u0430\u043d\u0435, \u043f\u043e-\u0441\u0432\u0435\u0436\u0438 \u0447\u0435\u0440\u0442\u0438"
 
-    const-string v5, "Less puffiness, clearer features"
+    const-string v5, "Less puffiness, fresher features"
 
     sget-object v6, Lcom/isaigu/gymapp/ai/AutoModel$Kind;->PASSIVE:Lcom/isaigu/gymapp/ai/AutoModel$Kind;
 
@@ -1667,9 +1667,9 @@
 
     const-string v1, "face_calm"
 
-    const-string v2, "\u041b\u0438\u0446\u0435 \u00b7 \u0421\u043f\u043e\u043a\u043e\u0439\u043d\u043e \u043b\u0438\u0446\u0435"
+    const-string v2, "\u0421\u0432\u0435\u0436\u043e \u043b\u0438\u0446\u0435"
 
-    const-string v3, "Face \u00b7 Calm face"
+    const-string v3, "Fresh face"
 
     const-string v4, "\u0411\u0435\u0437 \u043d\u0430\u043f\u0440\u0435\u0436\u0435\u043d\u0438\u0435 \u0432 \u0447\u0435\u043b\u043e\u0442\u043e \u0438 \u0447\u0435\u043b\u044e\u0441\u0442\u0442\u0430"
 
@@ -1707,13 +1707,13 @@
 
     const-string v1, "face_jaw"
 
-    const-string v2, "\u041b\u0438\u0446\u0435 \u00b7 \u041e\u0442\u043f\u0443\u0441\u043d\u0430\u0442\u0430 \u0447\u0435\u043b\u044e\u0441\u0442"
+    const-string v2, "\u041b\u0438\u0446\u0435 \u00b7 \u0420\u0435\u043b\u0430\u043a\u0441\u0430\u0446\u0438\u044f \u043d\u0430 \u0447\u0435\u043b\u044e\u0441\u0442\u0442\u0430"
 
-    const-string v3, "Face \u00b7 Relaxed jaw"
+    const-string v3, "Face \u00b7 Jaw relaxation"
 
-    const-string v4, "\u041f\u043e-\u043c\u0435\u043a \u0434\u043e\u043b\u0435\u043d \u043e\u0432\u0430\u043b, \u0431\u0435\u0437 \u043d\u0430\u043f\u0440\u0435\u0436\u0435\u043d\u0438\u0435"
+    const-string v4, "\u041f\u043e-\u043c\u0435\u043a \u0434\u043e\u043b\u0435\u043d \u043e\u0432\u0430\u043b"
 
-    const-string v5, "A softer jawline, no tension"
+    const-string v5, "A softer jawline"
 
     sget-object v6, Lcom/isaigu/gymapp/ai/AutoModel$Kind;->PASSIVE:Lcom/isaigu/gymapp/ai/AutoModel$Kind;
 
@@ -1747,13 +1747,13 @@
 
     const-string v1, "face_chin"
 
-    const-string v2, "\u041b\u0438\u0446\u0435 \u00b7 \u0421\u0442\u0435\u0433\u043d\u0430\u0442\u0430 \u0431\u0440\u0430\u0434\u0438\u0447\u043a\u0430"
+    const-string v2, "\u041b\u0438\u0446\u0435 \u00b7 \u0421\u0442\u0435\u0433\u043d\u0430\u0442 \u043f\u0440\u043e\u0444\u0438\u043b"
 
-    const-string v3, "Face \u00b7 Firm chin"
+    const-string v3, "Face \u00b7 Firm profile"
 
-    const-string v4, "\u041f\u043e-\u0441\u0442\u0435\u0433\u043d\u0430\u0442 \u043f\u0440\u043e\u0444\u0438\u043b \u043f\u043e\u0434 \u0431\u0440\u0430\u0434\u0438\u0447\u043a\u0430\u0442\u0430"
+    const-string v4, "\u041f\u043e-\u0441\u0442\u0435\u0433\u043d\u0430\u0442 \u043f\u0440\u043e\u0444\u0438\u043b"
 
-    const-string v5, "A firmer profile under the chin"
+    const-string v5, "A firmer profile"
 
     sget-object v6, Lcom/isaigu/gymapp/ai/AutoModel$Kind;->PASSIVE:Lcom/isaigu/gymapp/ai/AutoModel$Kind;
 
@@ -6669,12 +6669,12 @@
 
     .line 798
     :cond_9ce
-    const-string v5, "\u0421\u0442\u0435\u0433\u043d\u0430\u0442 \u043e\u0432\u0430\u043b"
+    const-string v5, "\u0422\u043e\u043d\u0443\u0441 \u0438 \u0441\u0442\u0435\u0433\u043d\u0430\u0442\u043e\u0441\u0442"
 
     goto :goto_98b
 
     :cond_9d1
-    const-string v6, "Firm contour"
+    const-string v6, "Tone & firmness"
 
     goto :goto_98f
 
@@ -7116,7 +7116,7 @@
 
     const-string v6, "Expression relax"
 
-    const-string v7, "\u0417\u0430\u0442\u0432\u043e\u0440\u0438 \u043e\u0447\u0438, \u043e\u0442\u043f\u0443\u0441\u043d\u0438 \u0447\u0435\u043b\u043e\u0442\u043e \u2014 \u0442\u043e\u043a\u044a\u0442 \u0440\u0430\u0431\u043e\u0442\u0438 \u043f\u043e \u043d\u0435\u0440\u0432\u0438\u0442\u0435"
+    const-string v7, "\u0417\u0430\u0442\u0432\u043e\u0440\u0438 \u043e\u0447\u0438 \u0438 \u043e\u0442\u043f\u0443\u0441\u043d\u0438 \u0447\u0435\u043b\u043e\u0442\u043e"
 
     const-string v8, "Close the eyes, let the forehead go \u2014 the current works on the nerves"
 
@@ -7152,9 +7152,9 @@
 
     .line 852
     :pswitch_b9d
-    const-string v5, "\u0421\u043f\u043e\u043a\u043e\u0439\u043d\u043e \u043b\u0438\u0446\u0435"
+    const-string v5, "\u0421\u0432\u0435\u0436\u043e \u043b\u0438\u0446\u0435"
 
-    const-string v6, "Calm face"
+    const-string v6, "Fresh face"
 
     const-string v7, "\u041e\u0442\u043f\u0443\u0441\u043d\u0438 \u0447\u0435\u043b\u043e\u0442\u043e \u0438 \u0447\u0435\u043b\u044e\u0441\u0442\u0442\u0430, \u0437\u044a\u0431\u0438\u0442\u0435 \u0434\u0430 \u043d\u0435 \u0441\u0435 \u0434\u043e\u043f\u0438\u0440\u0430\u0442"
 
@@ -7225,9 +7225,9 @@
     move-result-object v2
 
     .line 860
-    const-string v5, "\u041e\u0442\u043f\u0443\u0441\u043d\u0430\u0442\u0430 \u0447\u0435\u043b\u044e\u0441\u0442"
+    const-string v5, "\u0420\u0435\u043b\u0430\u043a\u0441\u0430\u0446\u0438\u044f \u043d\u0430 \u0447\u0435\u043b\u044e\u0441\u0442\u0442\u0430"
 
-    const-string v6, "Relaxed jaw"
+    const-string v6, "Jaw relaxation"
 
     const-string v7, "\u041e\u0442\u043f\u0443\u0441\u043d\u0438 \u0447\u0435\u043b\u044e\u0441\u0442\u0442\u0430, \u0437\u044a\u0431\u0438\u0442\u0435 \u0434\u0430 \u043d\u0435 \u0441\u0435 \u0434\u043e\u043f\u0438\u0440\u0430\u0442"
 
@@ -7309,9 +7309,9 @@
     .line 871
     const-string v4, "MAIN"
 
-    const-string v5, "\u0421\u0442\u0435\u0433\u043d\u0430\u0442\u0430 \u0431\u0440\u0430\u0434\u0438\u0447\u043a\u0430"
+    const-string v5, "\u0421\u0442\u0435\u0433\u043d\u0430\u0442 \u043f\u0440\u043e\u0444\u0438\u043b"
 
-    const-string v6, "Firm chin"
+    const-string v6, "Firm profile"
 
     const-wide v7, 0x3fec7ae147ae147bL    # 0.89
 

@@ -1228,23 +1228,19 @@ public final class FaceStudio {
         public void onClick(View view) {
             boolean b = bg();
             sheet(v.a, tr("Лицеви процедури", "Face procedures"), b
-                    ? "Два вида ток, две цели.\n\n"
-                    + "Двигателен — лифтинг, скулптуриране, тонус, лимфодренаж, профил: импулсът възбужда двигателните разклонения на "
-                    + "лицевия нерв и мускулите се съкращават сами, без усилие и без бръчки от мимика. Мускулите на лицето "
-                    + "нямат сухожилия — вплетени са в кожата, затова по-плътният мускул дава опора отвътре. Честотата е "
-                    + "винаги 20 Hz и нагоре: под нея лицето потрепва неприятно.\n\n"
-                    + "Сетивен — ботокс ефект, свежо лице, релаксация на челюстта: токът докосва само нервите на кожата, мускулът не мърда. "
-                    + "Сетивният поток сваля тонуса на мускулите — лицето се отпуска.\n\n"
-                    + "Днес без лице: ботокс или филър през последните 2 седмици, пейсмейкър, бременност, епилепсия, "
-                    + "скорошна операция на лицето, раздразнена кожа, парализа на лицевия нерв."
-                    : "Two kinds of current, two aims.\n\n"
-                    + "Motor — lift, toning, facial lymphatic drainage, chin: the impulse excites the motor branches of the facial nerve "
-                    + "and the muscles contract by themselves, no effort, no expression lines. Face muscles weave into the skin, "
-                    + "so a fuller muscle supports from within. Always 20 Hz or more.\n\n"
-                    + "Sensory — botox effect, fresh face, jaw relaxation: only the skin's nerves are touched, the muscle does not move; the "
-                    + "sensory input lowers muscle tone.\n\n"
+                    ? "С видим ефект — лифтинг, скулптуриране, тонус, лимфодренаж, профил: електростимулация на "
+                    + "мимическите мускули. Те се съкращават сами, без усилие от клиента. Мускулите на лицето са вплетени в "
+                    + "кожата, затова по-стегнатият мускул държи и кожата по-стегната.\n\n"
+                    + "Релаксиращи — ботокс ефект, свежо лице, релаксация на челюстта: нежен ток, който се усеща като леко "
+                    + "изтръпване. Мускулите се отпускат, лицето изглежда спокойно и свежо.\n\n"
+                    + "Не днес при: ботокс или филър през последните 2 седмици, пейсмейкър, бременност, епилепсия, "
+                    + "скорошна операция на лицето, раздразнена кожа."
+                    : "Visible-effect — lift, sculpting, tone, lymph drainage, profile: electrical stimulation of the "
+                    + "expression muscles. They contract by themselves; firmer muscles hold the skin firmer.\n\n"
+                    + "Relaxing — botox effect, fresh face, jaw relaxation: a gentle current felt as a light tingle; the "
+                    + "muscles let go.\n\n"
                     + "Not today: botox or filler within 2 weeks, a pacemaker, pregnancy, epilepsy, recent facial surgery, "
-                    + "irritated skin, facial palsy.");
+                    + "irritated skin.");
         }
     }
 
@@ -1261,8 +1257,7 @@ public final class FaceStudio {
         public void onClick(View view) {
             FaceProgram p = FaceProgram.get(id);
             boolean b = bg();
-            sheet(v.a, p.name(b) + " · " + p.tag(b), p.how(b) + "\n\n" + p.muscle(b) + " · " + p.latin + "\n" + p.rhythm(b)
-                    + "  ·  " + p.course(b) + "\n" + p.evidenceText(b));
+            sheet(v.a, p.name(b), p.how(b));
         }
     }
 

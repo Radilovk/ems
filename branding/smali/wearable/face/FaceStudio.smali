@@ -339,7 +339,7 @@
     .registers 7
 
     .prologue
-    .line 1272
+    .line 1267
     const/4 v0, 0x0
 
     const/16 v1, 0x280
@@ -349,7 +349,7 @@
 
     move-result-object v0
 
-    .line 1273
+    .line 1268
     const/high16 v1, 0x41700000    # 15.0f
 
     sget v2, Lcom/isaigu/gymapp/widget/XemsUi;->TEXT:I
@@ -360,14 +360,14 @@
 
     move-result-object v1
 
-    .line 1274
+    .line 1269
     const/4 v2, 0x0
 
     const v3, 0x3f970a3d    # 1.18f
 
     invoke-virtual {v1, v2, v3}, Landroid/widget/TextView;->setLineSpacing(FF)V
 
-    .line 1275
+    .line 1270
     iget-object v2, v0, Lcom/isaigu/gymapp/widget/XemsUi$Shell;->body:Landroid/widget/LinearLayout;
 
     const/4 v3, 0x4
@@ -378,34 +378,34 @@
 
     invoke-virtual {v2, v1, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 1276
+    .line 1271
     iget-object v1, v0, Lcom/isaigu/gymapp/widget/XemsUi$Shell;->footer:Landroid/widget/LinearLayout;
 
     const/16 v2, 0x8
 
     invoke-virtual {v1, v2}, Landroid/widget/LinearLayout;->setVisibility(I)V
 
-    .line 1277
+    .line 1272
     iget-object v1, v0, Lcom/isaigu/gymapp/widget/XemsUi$Shell;->dialog:Landroid/app/Dialog;
 
     invoke-virtual {v1}, Landroid/app/Dialog;->show()V
 
-    .line 1278
+    .line 1273
     const v1, 0x3f5c28f6    # 0.86f
 
     invoke-static {p0, v0, v1}, Lcom/isaigu/gymapp/widget/XemsUi;->fitHeight(Landroid/app/Activity;Lcom/isaigu/gymapp/widget/XemsUi$Shell;F)V
     :try_end_33
     .catch Ljava/lang/Throwable; {:try_start_3 .. :try_end_33} :catch_34
 
-    .line 1282
+    .line 1277
     :goto_33
     return-void
 
-    .line 1279
+    .line 1274
     :catch_34
     move-exception v0
 
-    .line 1280
+    .line 1275
     const-string v1, "FaceStudio.sheet"
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V

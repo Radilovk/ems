@@ -245,11 +245,11 @@ public final class AutoCatalog {
         p.cr10Lo = 3; p.cr10Hi = 5; p.xCap = 0.45;
 
         p = add(new Program(FACE, "Лице · Лифтинг 3D", "Face · Lift 3D",
-                "Лифтинг 3D · Овал · Детокс · Ботокс ефект · Спокойно лице — избор в студиото за лице",
-                "Lift 3D · Oval · Depuff · Botox effect · Calm face — chosen in the face studio",
+                "Лифтинг 3D · Овал · Детокс · Ботокс ефект · Антистрес — избор в студиото за лице",
+                "Lift 3D · Oval · Depuff · Botox effect · Anti-stress — chosen in the face studio",
                 Kind.PASSIVE, sites(CHEEKS)));
         face(p, 3, 4);
-        p = add(new Program(FACE_TONE, "Лице · Стегнат овал", "Face · Firm contour",
+        p = add(new Program(FACE_TONE, "Лице · Тонус", "Face · Tone",
                 "Еластичност, която пази лифтинга", "Elasticity that keeps the lift", Kind.PASSIVE, sites(CHEEKS)));
         face(p, 2, 3);
         p = add(new Program(FACE_OVAL, "Лице · Лифтинг на овала", "Face · Oval lift",
@@ -264,7 +264,7 @@ public final class AutoCatalog {
                 "Отпусната мимика, по-гладко чело · без игла", "Relaxed expression, smoother forehead · no needle",
                 Kind.PASSIVE, sites(F_FOREHEAD)));
         face(p, 1, 2);
-        p = add(new Program(FACE_CALM, "Лице · Спокойно лице", "Face · Calm face",
+        p = add(new Program(FACE_CALM, "Лице · Антистрес", "Face · Anti-stress",
                 "Без напрежение в челото и челюстта", "No tension in the forehead and jaw",
                 Kind.PASSIVE, sites(F_FOREHEAD, F_JAW_L, F_JAW_R)));
         face(p, 1, 2);
@@ -795,7 +795,7 @@ public final class AutoCatalog {
                 w.hintBg = "Седни удобно, лицето отпуснато — ъглите на устата тръгват леко нагоре";
                 w.hintEn = "Sit comfortably, face relaxed — the mouth corners start to lift";
                 w.steps.add(faceStep(hz, 2, 8));
-                Phase m = phase(out, "MAIN", lift ? "Лифтинг" : "Стегнат овал", lift ? "Lift" : "Firm contour", 0.89, total,
+                Phase m = phase(out, "MAIN", lift ? "Лифтинг" : "Тонус на лицето", lift ? "Lift" : "Face tone", 0.89, total,
                         lift ? 0.9 : 0.8, lift ? 0.9 : 0.8);
                 m.hintBg = lift ? "Лицето отпуснато — бузите се повдигат сами; без болка, без мигане"
                         : "Меко, равномерно стягане — усеща се, не боли";
@@ -849,7 +849,7 @@ public final class AutoCatalog {
                         faceStep(100, FACE_RELAX_PW, 4, 4, 1000));
                 break;
             case FACE_CALM:
-                sensory(out, total, "Спокойно лице", "Calm face",
+                sensory(out, total, "Антистрес", "Anti-stress",
                         "Отпусни челото и челюстта, зъбите да не се допират",
                         "Let the forehead and the jaw go, teeth apart",
                         faceStep(100, FACE_RELAX_PW, 4, 4, 1000), faceStep(80, FACE_RELAX_PW, 4, 4, 1000));

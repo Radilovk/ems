@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 1442
+    .line 1424
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 1443
+    .line 1425
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Stop;->v:Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;
 
-    .line 1444
+    .line 1426
     return-void
 .end method
 
@@ -42,21 +42,21 @@
     .registers 3
 
     .prologue
-    .line 1448
+    .line 1430
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsUi;->haptic(Landroid/view/View;)V
 
-    .line 1449
+    .line 1431
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Stop;->v:Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->dev:Lcom/isaigu/gymapp/wearable/face/FaceDevice;
 
     invoke-interface {v0}, Lcom/isaigu/gymapp/wearable/face/FaceDevice;->stop()V
 
-    .line 1450
+    .line 1432
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Stop;->v:Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/face/FaceStudio$Studio;->refresh()V
 
-    .line 1451
+    .line 1433
     return-void
 .end method

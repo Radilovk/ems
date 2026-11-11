@@ -126,8 +126,8 @@ public final class AutoCues {
                     "Lymph wave: the muscles tighten one after another from the nose to the jaw and the ear and pump the held fluid.");
         }
         if (AutoCatalog.FACE_TONE.equals(id)) {
-            return AiText.t("Стегнат овал: по-дълги меки стягания — мускулите на лицето стават издръжливи и пазят лифтинга.",
-                    "Firm contour: longer soft holds — the face muscles grow enduring and keep the lift.");
+            return AiText.t("Тонус на лицето: по-дълги меки стягания — мускулите на лицето стават издръжливи и пазят лифтинга.",
+                    "Face tone: longer soft holds — the face muscles grow enduring and keep the lift.");
         }
         if (AutoCatalog.FACE_OVAL.equals(id)) {
             return AiText.t("Лифтинг на овала: скулите и брадичката се редуват — всеки мускул работи 3 s и почива 6.",
@@ -138,8 +138,8 @@ public final class AutoCues {
                     "Botox effect: the gentle current on the sensory nerves lowers the tone of the expression muscles.");
         }
         if (AutoCatalog.FACE_CALM.equals(id)) {
-            return AiText.t("Спокойно лице: сетивният ток по челото и челюстта сваля напрежението — честотата се сменя, за да не привикне.",
-                    "Calm face: the sensory current on the forehead and the jaw lowers the tension — the rate changes so it never wears off.");
+            return AiText.t("Антистрес: сетивният ток по челото и челюстта сваля напрежението — честотата се сменя, за да не привикне.",
+                    "Anti-stress: the sensory current on the forehead and the jaw lowers the tension — the rate changes so it never wears off.");
         }
         if (AutoCatalog.FACE_JAW.equals(id)) {
             return AiText.t("Отпусната челюст: бавни импулси в дъвкателния мускул — тонусът му в покой спада.",

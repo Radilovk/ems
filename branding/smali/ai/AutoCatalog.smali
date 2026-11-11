@@ -1475,9 +1475,9 @@
 
     const-string v3, "Face \u00b7 Lift 3D"
 
-    const-string v4, "\u041b\u0438\u0444\u0442\u0438\u043d\u0433 3D \u00b7 \u041e\u0432\u0430\u043b \u00b7 \u0414\u0435\u0442\u043e\u043a\u0441 \u00b7 \u0411\u043e\u0442\u043e\u043a\u0441 \u0435\u0444\u0435\u043a\u0442 \u00b7 \u0421\u043f\u043e\u043a\u043e\u0439\u043d\u043e \u043b\u0438\u0446\u0435 \u2014 \u0438\u0437\u0431\u043e\u0440 \u0432 \u0441\u0442\u0443\u0434\u0438\u043e\u0442\u043e \u0437\u0430 \u043b\u0438\u0446\u0435"
+    const-string v4, "\u041b\u0438\u0444\u0442\u0438\u043d\u0433 3D \u00b7 \u041e\u0432\u0430\u043b \u00b7 \u0414\u0435\u0442\u043e\u043a\u0441 \u00b7 \u0411\u043e\u0442\u043e\u043a\u0441 \u0435\u0444\u0435\u043a\u0442 \u00b7 \u0410\u043d\u0442\u0438\u0441\u0442\u0440\u0435\u0441 \u2014 \u0438\u0437\u0431\u043e\u0440 \u0432 \u0441\u0442\u0443\u0434\u0438\u043e\u0442\u043e \u0437\u0430 \u043b\u0438\u0446\u0435"
 
-    const-string v5, "Lift 3D \u00b7 Oval \u00b7 Depuff \u00b7 Botox effect \u00b7 Calm face \u2014 chosen in the face studio"
+    const-string v5, "Lift 3D \u00b7 Oval \u00b7 Depuff \u00b7 Botox effect \u00b7 Anti-stress \u2014 chosen in the face studio"
 
     sget-object v6, Lcom/isaigu/gymapp/ai/AutoModel$Kind;->PASSIVE:Lcom/isaigu/gymapp/ai/AutoModel$Kind;
 
@@ -1507,9 +1507,9 @@
 
     const-string v1, "face_tone"
 
-    const-string v2, "\u041b\u0438\u0446\u0435 \u00b7 \u0421\u0442\u0435\u0433\u043d\u0430\u0442 \u043e\u0432\u0430\u043b"
+    const-string v2, "\u041b\u0438\u0446\u0435 \u00b7 \u0422\u043e\u043d\u0443\u0441"
 
-    const-string v3, "Face \u00b7 Firm contour"
+    const-string v3, "Face \u00b7 Tone"
 
     const-string v4, "\u0415\u043b\u0430\u0441\u0442\u0438\u0447\u043d\u043e\u0441\u0442, \u043a\u043e\u044f\u0442\u043e \u043f\u0430\u0437\u0438 \u043b\u0438\u0444\u0442\u0438\u043d\u0433\u0430"
 
@@ -1667,9 +1667,9 @@
 
     const-string v1, "face_calm"
 
-    const-string v2, "\u041b\u0438\u0446\u0435 \u00b7 \u0421\u043f\u043e\u043a\u043e\u0439\u043d\u043e \u043b\u0438\u0446\u0435"
+    const-string v2, "\u041b\u0438\u0446\u0435 \u00b7 \u0410\u043d\u0442\u0438\u0441\u0442\u0440\u0435\u0441"
 
-    const-string v3, "Face \u00b7 Calm face"
+    const-string v3, "Face \u00b7 Anti-stress"
 
     const-string v4, "\u0411\u0435\u0437 \u043d\u0430\u043f\u0440\u0435\u0436\u0435\u043d\u0438\u0435 \u0432 \u0447\u0435\u043b\u043e\u0442\u043e \u0438 \u0447\u0435\u043b\u044e\u0441\u0442\u0442\u0430"
 
@@ -6669,12 +6669,12 @@
 
     .line 798
     :cond_9ce
-    const-string v5, "\u0421\u0442\u0435\u0433\u043d\u0430\u0442 \u043e\u0432\u0430\u043b"
+    const-string v5, "\u0422\u043e\u043d\u0443\u0441 \u043d\u0430 \u043b\u0438\u0446\u0435\u0442\u043e"
 
     goto :goto_98b
 
     :cond_9d1
-    const-string v6, "Firm contour"
+    const-string v6, "Face tone"
 
     goto :goto_98f
 
@@ -7152,9 +7152,9 @@
 
     .line 852
     :pswitch_b9d
-    const-string v5, "\u0421\u043f\u043e\u043a\u043e\u0439\u043d\u043e \u043b\u0438\u0446\u0435"
+    const-string v5, "\u0410\u043d\u0442\u0438\u0441\u0442\u0440\u0435\u0441"
 
-    const-string v6, "Calm face"
+    const-string v6, "Anti-stress"
 
     const-string v7, "\u041e\u0442\u043f\u0443\u0441\u043d\u0438 \u0447\u0435\u043b\u043e\u0442\u043e \u0438 \u0447\u0435\u043b\u044e\u0441\u0442\u0442\u0430, \u0437\u044a\u0431\u0438\u0442\u0435 \u0434\u0430 \u043d\u0435 \u0441\u0435 \u0434\u043e\u043f\u0438\u0440\u0430\u0442"
 

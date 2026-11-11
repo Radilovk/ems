@@ -159,8 +159,8 @@
     {
       "id": 1,
       "auto_id": "face_tone",
-      "name_bg": "Стегнат овал",
-      "name_en": "Firm contour",
+      "name_bg": "Тонус на лицето",
+      "name_en": "Face tone",
       "tag_bg": "Еластичност, която пази лифтинга",
       "tag_en": "Elasticity that keeps the lift",
       "muscle_bg": "Мимически мускули на бузата",
@@ -198,7 +198,7 @@
               {"hz": 35, "pw_us": 100, "on_s": 2, "off_s": 8, "ramp_up_ms": 500, "ramp_down_ms": 500, "sigma": 1, "zones": null}
             ]
           },
-          {"id": "MAIN", "name_bg": "Стегнат овал", "duration_s": 694, "cooldown": false, "wave": false, "phi": [0.70, 0.70], "env": [1, 1], "hint_bg": "Меко, равномерно стягане — усеща се, не боли",
+          {"id": "MAIN", "name_bg": "Тонус на лицето", "duration_s": 694, "cooldown": false, "wave": false, "phi": [0.70, 0.70], "env": [1, 1], "hint_bg": "Меко, равномерно стягане — усеща се, не боли",
             "steps": [
               {"hz": 35, "pw_us": 100, "on_s": 4, "off_s": 5, "ramp_up_ms": 500, "ramp_down_ms": 500, "sigma": 1, "zones": null}
             ]
@@ -329,8 +329,8 @@
     {
       "id": 7,
       "auto_id": "face_calm",
-      "name_bg": "Спокойно лице",
-      "name_en": "Calm face",
+      "name_bg": "Антистрес",
+      "name_en": "Anti-stress",
       "tag_bg": "Без напрежение в челото и челюстта",
       "tag_en": "No tension in the forehead and the jaw",
       "muscle_bg": "Сетивни нерви на челото и дъвкателните мускули",
@@ -368,7 +368,7 @@
               {"hz": 100, "pw_us": 50, "on_s": 4, "off_s": 4, "ramp_up_ms": 1000, "ramp_down_ms": 1000, "sigma": 1, "zones": null}
             ]
           },
-          {"id": "MAIN", "name_bg": "Спокойно лице", "duration_s": 1104, "cooldown": false, "wave": false, "phi": [0.70, 0.70], "env": [1, 1], "hint_bg": "Отпусни челото и челюстта, зъбите да не се допират",
+          {"id": "MAIN", "name_bg": "Антистрес", "duration_s": 1104, "cooldown": false, "wave": false, "phi": [0.70, 0.70], "env": [1, 1], "hint_bg": "Отпусни челото и челюстта, зъбите да не се допират",
             "steps": [
               {"hz": 100, "pw_us": 50, "on_s": 4, "off_s": 4, "ramp_up_ms": 1000, "ramp_down_ms": 1000, "sigma": 1, "zones": null},
               {"hz": 80, "pw_us": 50, "on_s": 4, "off_s": 4, "ramp_up_ms": 1000, "ramp_down_ms": 1000, "sigma": 1, "zones": null}

@@ -401,8 +401,6 @@ public final class FaceStudio {
             nm.setSingleLine(true);
             nm.setEllipsize(TextUtils.TruncateAt.END);
             names.addView(nm);
-            TextView st = XemsUi.text(a, p.stars(), 11, on ? p.tint : XemsUi.MUTED, false);
-            names.addView(st);
             head.addView(names, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
             TextView info = XemsUi.iconButton(a, "i", XemsUi.SURFACE, XemsUi.TEXT, 34);
             info.setOnClickListener(new HowInfo(this, p.id));
@@ -415,15 +413,10 @@ public final class FaceStudio {
             card.addView(tag);
             LinearLayout chips = XemsUi.horizontal(a);
             chips.setPadding(0, dp(6), 0, 0);
-            TextView c1 = XemsUi.badge(a, p.rhythm(b), on ? p.tint : XemsUi.MUTED);
-            c1.setSingleLine(true);
-            chips.addView(c1);
-            TextView c2 = XemsUi.badge(a, p.course(b), on ? XemsUi.ACCENT : XemsUi.MUTED);
+            TextView c2 = XemsUi.badge(a, p.course(b), on ? p.tint : XemsUi.MUTED);
             c2.setSingleLine(true);
             c2.setEllipsize(TextUtils.TruncateAt.END);
-            LinearLayout.LayoutParams cl = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
-            cl.leftMargin = dp(6);
-            chips.addView(c2, cl);
+            chips.addView(c2);
             card.addView(chips);
             return card;
         }
@@ -448,21 +441,21 @@ public final class FaceStudio {
                 bl.topMargin = dp(10);
                 c.addView(courseBar(st, p), bl);
             }
-            String next;
+            String next = null;
             int col = XemsUi.MUTED;
             if (st.finished && program == FaceProgram.LIFT) {
-                next = tr("Курсът е завършен — „Стегнат овал“ 2–3 пъти седмично пази ефекта",
-                        "The course is complete — Firm contour 2–3 times a week keeps the effect");
+                next = tr("Курсът е завършен — „Тонус на лицето“ 2–3 пъти седмично пази ефекта",
+                        "The course is complete — Face tone 2–3 times a week keeps the effect");
                 col = XemsUi.GO_TEXT;
             } else if (st.nextMs > now) {
                 next = tr("Мускулът се възстановява — най-добре ", "The muscle recovers — best ") + when(st.nextMs, now, b);
                 col = XemsUi.AMBER;
-            } else {
-                next = p.course(b) + "  ·  " + p.muscle(b);
             }
-            TextView n = XemsUi.text(a, next, 13, col, false);
-            n.setPadding(0, dp(8), 0, 0);
-            c.addView(n);
+            if (next != null) {
+                TextView n = XemsUi.text(a, next, 13, col, false);
+                n.setPadding(0, dp(8), 0, 0);
+                c.addView(n);
+            }
             return c;
         }
 
@@ -478,16 +471,13 @@ public final class FaceStudio {
                         XemsUi.matchWrap(a, 10));
             }
             right.addView(socketTable(b), XemsUi.matchWrap(a, 14));
-            right.addView(padSize(b), XemsUi.matchWrap(a, 12));
             String why = dev.notReady(program, b);
             if (why != null) {
                 TextView w = XemsUi.text(a, why, 14, XemsUi.AMBER, true);
                 right.addView(w, XemsUi.matchWrap(a, 12));
             }
             if (dev.kind() == FaceDevice.XEMS) {
-                // asked on Auto's client step already (a "yes" blocks there): shown, not asked again
-                right.addView(placeRow("✓", tr("Ботокс / филър до 2 седмици: не", "Botox / filler within 2 weeks: no"),
-                        XemsUi.GO_TEXT), XemsUi.matchWrap(a, 10));
+                // asked on Auto's client step already (a "yes" blocks there): not repeated here
                 ghost(tr("←  Ефект", "←  Effect"), new Next(this, PICK));
                 primary = footer(tr("Към силата  →", "To the strength  →"), XemsUi.PRIMARY, new Next(this, STRENGTH));
                 return;
@@ -557,14 +547,6 @@ public final class FaceStudio {
             return t;
         }
 
-        /** The recommended pad size, one line: XEMS three pairs per cheek → 12 × 16 mm; one pair per site → 16 × 19 mm. */
-        View padSize(boolean b) {
-            boolean small = dev.kind() == FaceDevice.XEMS;
-            String size = small ? "12 × 16 mm" : "16 × 19 mm";
-            TextView t = XemsUi.text(a, tr("Електроди " + size + ", залепващи — препоръчителни. По-големите стигат до костта.",
-                    "Pads " + size + ", self-adhesive — recommended. Larger ones reach the bone."), 13.5f, XemsUi.MUTED, false);
-            return t;
-        }
 
         View placeRow(String num, String line, int tint) {
             LinearLayout r = XemsUi.horizontal(a);
@@ -839,17 +821,19 @@ public final class FaceStudio {
                 box.addView(nx);
             }
             if (st.finished && program == FaceProgram.LIFT) {
-                TextView up = XemsUi.text(a, tr("Курсът за лифтинг е завършен — оттук „Стегнат овал“ 2–3 пъти седмично пази ефекта.",
-                        "The lift course is complete — from here Firm contour 2–3 times a week keeps the effect."), 15, XemsUi.GO_TEXT, false);
+                TextView up = XemsUi.text(a, tr("Курсът за лифтинг е завършен — оттук „Тонус на лицето“ 2–3 пъти седмично пази ефекта.",
+                        "The lift course is complete — from here Face tone 2–3 times a week keeps the effect."), 15, XemsUi.GO_TEXT, false);
                 up.setGravity(Gravity.CENTER);
                 up.setPadding(0, dp(10), 0, 0);
                 box.addView(up);
             }
-            TextView care = XemsUi.text(a, tr("Лека червенина под електродите е нормална и минава до 20 минути.",
-                    "A light redness under the pads is normal and fades within 20 minutes."), 14, XemsUi.MUTED, false);
-            care.setGravity(Gravity.CENTER);
-            care.setPadding(0, dp(18), 0, 0);
-            box.addView(care);
+            if (st.done <= 1) {
+                TextView care = XemsUi.text(a, tr("Лека червенина под електродите е нормална и минава до 20 минути.",
+                        "A light redness under the pads is normal and fades within 20 minutes."), 14, XemsUi.MUTED, false);
+                care.setGravity(Gravity.CENTER);
+                care.setPadding(0, dp(18), 0, 0);
+                box.addView(care);
+            }
             right.addView(box, XemsUi.matchWrap(a, 0));
             s.footer.addView(XemsUi.spacer(a));
             primary = footer(tr("Готово", "Done"), XemsUi.PRIMARY, new Finish(this));
@@ -955,7 +939,7 @@ public final class FaceStudio {
                     statusLine.setTextColor(XemsUi.MUTED);
                 }
                 if (st.finished && program == FaceProgram.LIFT) {
-                    line = tr("Курсът е завършен — за поддръжка избери „Тонус“", "The course is complete — for upkeep pick Tone");
+                    line = tr("Курсът е завършен — за поддръжка избери „Тонус на лицето“", "The course is complete — for upkeep pick Face tone");
                 }
                 statusLine.setText(line);
             }
@@ -973,8 +957,8 @@ public final class FaceStudio {
             if (step == STRENGTH) {
                 enable(primary, prepared && dev.canStart());
                 hint.setText(prepared ? (dev.kind() == FaceDevice.XEMS
-                        ? tr("Костюмът дава ритъма на програмата — качвай по едно", "The suit runs the program's rhythm — raise one step at a time")
-                        : tr("Програмата тече — началото е включването", "The program runs — it starts with the wake-up")) : "");
+                        ? tr("Качвай по една стъпка", "Raise one step at a time")
+                        : tr("Програмата вече тече", "The program is running")) : "");
             }
             if (step == RUN) {
                 FaceTimeline.State st = dev.state(now);
@@ -999,7 +983,7 @@ public final class FaceStudio {
 
         String runLine(FaceTimeline.State st, boolean b) {
             FaceProgram p = prog();
-            return p.name(b) + "\n" + p.tag(b) + "\n" + p.rhythm(b);
+            return p.name(b) + "\n" + p.tag(b);
         }
 
         void updateCaption() {
@@ -1009,10 +993,10 @@ public final class FaceStudio {
                 caption.setText(dev.kind() == FaceDevice.XEMS
                         ? tr("Всяко гнездо F — на своето място, двойката по мускула", "Each F socket on its site, the pair along the muscle")
                         : tr("Всяко устройство — на своето място", "Each pad on its site"));
-                captionSub.setText(tr("⊘ не: около окото, пред ухото, отстрани на шията", "⊘ never: around the eye, in front of the ear, the side of the neck"));
+                captionSub.setText("");
             } else {
                 caption.setText(p.muscle(b));
-                captionSub.setText(p.latin);
+                captionSub.setText("");
             }
         }
 
@@ -1245,22 +1229,20 @@ public final class FaceStudio {
             boolean b = bg();
             sheet(v.a, tr("Лицеви процедури", "Face procedures"), b
                     ? "Два вида ток, две цели.\n\n"
-                    + "Двигателен — лифтинг, стегнат овал, детокс, контур: импулсът възбужда двигателните разклонения на "
+                    + "Двигателен — лифтинг, тонус, детокс, брадичка: импулсът възбужда двигателните разклонения на "
                     + "лицевия нерв и мускулите се съкращават сами, без усилие и без бръчки от мимика. Мускулите на лицето "
                     + "нямат сухожилия — вплетени са в кожата, затова по-плътният мускул дава опора отвътре. Честотата е "
                     + "винаги 20 Hz и нагоре: под нея лицето потрепва неприятно.\n\n"
-                    + "Сетивен — ботокс ефект, отпусната челюст: токът докосва само нервите на кожата, мускулът не мърда. "
+                    + "Сетивен — ботокс ефект, антистрес, отпусната челюст: токът докосва само нервите на кожата, мускулът не мърда. "
                     + "Сетивният поток сваля тонуса на мускулите — лицето се отпуска.\n\n"
-                    + "●●● доказано на лицето · ●●○ доказано за механизма · ●○○ логика без измерване.\n\n"
                     + "Днес без лице: ботокс или филър през последните 2 седмици, пейсмейкър, бременност, епилепсия, "
                     + "скорошна операция на лицето, раздразнена кожа, парализа на лицевия нерв."
                     : "Two kinds of current, two aims.\n\n"
-                    + "Motor — lift, firm contour, depuff, contour: the impulse excites the motor branches of the facial nerve "
+                    + "Motor — lift, tone, depuff, chin: the impulse excites the motor branches of the facial nerve "
                     + "and the muscles contract by themselves, no effort, no expression lines. Face muscles weave into the skin, "
                     + "so a fuller muscle supports from within. Always 20 Hz or more.\n\n"
-                    + "Sensory — botox effect, relaxed jaw: only the skin's nerves are touched, the muscle does not move; the "
+                    + "Sensory — botox effect, anti-stress, relaxed jaw: only the skin's nerves are touched, the muscle does not move; the "
                     + "sensory input lowers muscle tone.\n\n"
-                    + "●●● proven on the face · ●●○ the mechanism proven · ●○○ rationale only.\n\n"
                     + "Not today: botox or filler within 2 weeks, a pacemaker, pregnancy, epilepsy, recent facial surgery, "
                     + "irritated skin, facial palsy.");
         }

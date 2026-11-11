@@ -22,7 +22,9 @@ streams them back (~50/s) and the game places them under the headset's head, pre
 and steps then come from the legs themselves. Quest app only (no UDP in the browser). docs/xems-motion.md "VR legs".
 **First choice — no phone, no Wi-Fi (sensor firmware 10):** pair both shin sensors once in the Quest's Bluetooth
 settings ("XEMS Motion …", a gamepad); `scripts/game/pad_legs.gd` reads them as joypads and solves the legs itself.
-Stand still a second, bend the knees once — calibrated (the game says what to do). Test: `test/pad_test.gd`.
+Stand still a second, bend the knees once, then (every session, ~30 s) touch the hip, knee, ankle and shoe tip of each
+leg with a controller where the glowing point shows, and stand still — measured (the game says what to do).
+Tests: `test/pad_test.gd`, `test/cal_test.gd`; docs/xems-motion.md §1.33.
 
 ## The chef — scenario "Готвачът" (home menu → Сценарий)
 In **one of two real places, the player's pick** (home menu → *Къде е готвачът*: **Piazza Bologni** in Palermo or

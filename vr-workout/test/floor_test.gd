@@ -4,7 +4,7 @@
 ##   · standing still, both shins upright → both feet on the floor, every frame
 ##   · a kick → that foot up, the other down; no knee or foot thrown aside for a frame (a jump in its speed)
 ##   · a jump (the head going up fast) → the feet may leave the floor
-##   · four touches giving a shin 40 % too long → not taken (the lengths from the height), the feet's turn kept;
+##   · the touches giving a shin 40 % too long → not taken (the lengths from the height), the feet's turn kept;
 ##     such a shin saved by an older version → thrown away on load
 ##   godot --headless --path vr-workout --script res://test/floor_test.gd
 extends SceneTree
@@ -121,23 +121,29 @@ func _initialize() -> void:
 		_frame(STAND_H + 0.12 * (i + 1) / 7.0, I, I)
 	_check("jump: the feet may leave the floor", pads._jump > 0.0, "jump hold %.2f s" % pads._jump)
 	_hold(STAND_H, I, I, 1.5)
-	# four touches with a shin 40 % too long (the tip sits on the kneecap's top, the grip point off): not taken
+	# the eight touches, the knees touched 40 % too high (a slip, a wrong spot): the shin not taken (the lengths from
+	# the height), the feet's turn kept
 	var H := STAND_H / 0.936
+	var K := H / 1.75
 	var ah := 0.039 * H
 	var ls_bad := 0.246 * H * 1.4
-	var ank := {"l": Vector3(-0.12, ah, 0.03), "r": Vector3(0.12, ah, 0.03)}
+	var ank := {"l": Vector3(-0.1, ah, 0.0), "r": Vector3(0.1, ah, 0.0)}
 	var toe_dir := {"l": FWD.rotated(Vector3.UP, deg_to_rad(12.0)), "r": FWD.rotated(Vector3.UP, deg_to_rad(-8.0))}
 	var head := Vector3(0, STAND_H, 0)
+	var Lm := _hold(STAND_H, I, I, 0.3)
 	pads.start_measure()
 	for sd in ["l", "r"]:
-		pads.touch((ank[sd] as Vector3) + Vector3.UP * ls_bad, head, FLOOR, STAND_H)
-		pads.touch((ank[sd] as Vector3) + (toe_dir[sd] as Vector3) * 0.16, head, FLOOR, STAND_H)
-	_check("a 40 % longer shin is not taken", pads.measure == 4 and not pads.cal.has("ls"),
-		"measure %d cal %s" % [pads.measure, pads.cal])
-	var L := _hold(STAND_H, I, I, 1.5)
-	if OS.get_environment("FT_DEBUG") != "":
-		print("  after measure: ground %s knee_l %s foot_l %s dir %s anc %s" % [L.ground, L.pos.knee_l, L.pos.foot_l, L.dir.l, pads.anc])
-	var shin := (L.pos.knee_l as Vector3).distance_to((L.pos.foot_l as Vector3) - (L.dir.l as Vector3) * 0.06)
+		var out := Vector3(-1 if sd == "l" else 1, 0, 0)
+		var hip: Vector3 = Lm.pos["hip_" + sd]
+		pads.touch(hip + out * PadLegs.LM_HIP.x * K + Vector3.UP * PadLegs.LM_HIP.y * K, head, FLOOR, STAND_H)
+		var r := pads.touch((ank[sd] as Vector3) + Vector3.UP * ls_bad + out * PadLegs.LM_KNEE.x * K, head, FLOOR, STAND_H)
+		_check("… the slipped knee touch is still near the marker (taken) %s" % sd, r == "ok", r)
+		pads.touch((ank[sd] as Vector3) + out * PadLegs.LM_ANKLE.x * K + Vector3.UP * PadLegs.LM_ANKLE.y * K, head, FLOOR, STAND_H)
+		pads.touch((ank[sd] as Vector3) + (toe_dir[sd] as Vector3) * 0.21, head, FLOOR, STAND_H)
+	var L := _hold(STAND_H, I, I, 1.6)
+	_check("a 40 % longer shin is not taken", pads.measure_done() and absf(float(pads.cal.ls) - 0.246 * H) < 0.001,
+		"measure %d shin %.3f (model %.3f) bad %s" % [pads.measure, float(pads.cal.get("ls", 0)), 0.246 * H, pads.cal.get("bad")])
+	var shin := (L.pos.knee_l as Vector3).distance_to(L.pos.ankle_l as Vector3)
 	_check("… the shin from the height", absf(shin - 0.246 * H) < 0.01, "shin %.3f m (model %.3f)" % [shin, 0.246 * H])
 	for sd in ["l", "r"]:
 		var turn := rad_to_deg((L.dir[sd] as Vector3).angle_to(toe_dir[sd]))

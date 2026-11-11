@@ -197,7 +197,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/vr-legs/legs_prior.py` (397L) — The learned leg prior for the VR game (owner 2026-11-08: "improve it — real improvements, no needless complications"). …
 - `scripts/vr-legs/legs_proto.py` (296L) — VR legs from two shin sensors (vr-workout/scripts/game/pad_legs.gd): the old model (hips under the head, thigh guessed)…
 - `scripts/vr-legs/pad_replay.py` (59L) — The VR game's leg recording (vr-workout/scripts/game/legs_log.gd) by its code: fetch, unpack, and look at what the game…
-- `scripts/vr-legs/run.sh` (26L) — The VR legs link, both ends for real where they can run (docs/xems-motion.md "VR legs"):
+- `scripts/vr-legs/run.sh` (27L) — The VR legs link, both ends for real where they can run (docs/xems-motion.md "VR legs"):
 - `scripts/xbody/android/src/bg/xems/fleshka/BlockDev.java` (14L) — A disk as bytes: the SD card behind a USB reader (UsbDisk), an image file (FileDev), or either under an undo log.
 - `scripts/xbody/android/src/bg/xems/fleshka/CardUpdate.java` (163L) — The XBody unit's own SD card, updated from the phone: find its root partition (the ext one with /opt/xbody), put the mo…
 - `scripts/xbody/android/src/bg/xems/fleshka/Ext3.java` (812L) — Just enough ext2/3/4 to put the XEMS mod onto the XBody unit's own SD card from a phone — what build.py --img does with…
@@ -1151,7 +1151,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L95 ## Left out on purpose
   - L103 ## Safety
 
-`docs/xems-motion.md` (796L)
+`docs/xems-motion.md` (826L)
   - L1 # XEMS Motion — body pose from five XIAO nRF52840 Sense sensors
   - L21 ## The app — "XEMS Движение" for Android (owner 2026-11-03: everything installable, as easy as possible)
   - L41 ### 1.1 / firmware 2 — "nothing lights, nothing is found" (owner's first try, 2026-11-04)
@@ -1185,22 +1185,23 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L517 ### 1.30 — the game's legs vs the app's; the legs' flight recorder (owner, 2026-11-10)
   - L528 ### 1.31 — the owner's recordings: the standing height (2026-11-11)
   - L537 ### 1.32 — the owner's takes 2A49MQ2AH8, MFCMVC9YXW: flicker, floating feet, a 0.58 m shin (2026-11-11)
-  - L564 ### AI (Gemini) — where it fits and where not
-  - L571 ## Design in one picture
-  - L584 ## Hardware and placement
-  - L594 ## Sensor firmware (`fusion.h`, `xems_motion.ino`)
-  - L605 ## Calibration (≈ 6 s, one tap) — finds places, headings, zero
-  - L619 ## Pose solver (`Body.solve`, per back-sensor sample, < 1 ms)
-  - L638 ## Offline test (`sh scripts/motion-sim/run.sh`, ≈ 10 s)
-  - L655 ## Real movements — CMU motion capture (owner 2026-11-03: "precise movement templates")
-  - L694 ## The figure: the VR workout's android (owner 2026-11-03: "use the model we had, don't make a new one")
-  - L708 ## The 3-D body (owner 2026-11-03: "a 3-D model that moves in sync with the body")
-  - L725 ## Precision today — what to trust (5 sensors)
-  - L732 ## Arms: the learned corrector (owner 2026-11-03: "make the arms as accurate as the legs")
-  - L749 ### Tested: dead reckoning of the elbow from the zero pose (owner's idea, 2026-11-03)
-  - L762 ### Teacher recordings — exact arms with the same 5 sensors (built 2026-11-03)
-  - L778 ## Limits with five sensors (honest)
-  - L787 ## Roadmap
+  - L564 ### 1.33 — calibrated every session; the legs drawn as legs (owner, 2026-11-11)
+  - L594 ### AI (Gemini) — where it fits and where not
+  - L601 ## Design in one picture
+  - L614 ## Hardware and placement
+  - L624 ## Sensor firmware (`fusion.h`, `xems_motion.ino`)
+  - L635 ## Calibration (≈ 6 s, one tap) — finds places, headings, zero
+  - L649 ## Pose solver (`Body.solve`, per back-sensor sample, < 1 ms)
+  - L668 ## Offline test (`sh scripts/motion-sim/run.sh`, ≈ 10 s)
+  - L685 ## Real movements — CMU motion capture (owner 2026-11-03: "precise movement templates")
+  - L724 ## The figure: the VR workout's android (owner 2026-11-03: "use the model we had, don't make a new one")
+  - L738 ## The 3-D body (owner 2026-11-03: "a 3-D model that moves in sync with the body")
+  - L755 ## Precision today — what to trust (5 sensors)
+  - L762 ## Arms: the learned corrector (owner 2026-11-03: "make the arms as accurate as the legs")
+  - L779 ### Tested: dead reckoning of the elbow from the zero pose (owner's idea, 2026-11-03)
+  - L792 ### Teacher recordings — exact arms with the same 5 sensors (built 2026-11-03)
+  - L808 ## Limits with five sensors (honest)
+  - L817 ## Roadmap
 
 `docs/xems-part-strength.md` (212L)
   - L1 # Избрани мускулни групи: сила на импулсите само за тях (v1.1.85, двата импулса поотделно от 1.1.366)
@@ -1582,15 +1583,15 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L111 ## Limits (what still needs a hand)
   - L118 ## Build & test
 
-`vr-workout/README.md` (214L)
+`vr-workout/README.md` (216L)
   - L1 # XEMS Studio — EMS VR workout for Quest 3
   - L7 ## The game (v0.4) — on the beat, felt three ways
   - L18 ## Real legs from the XEMS Motion sensors (body.gd source 0)
-  - L27 ## The chef — scenario "Готвачът" (home menu → Сценарий)
-  - L69 ## Power of a hit — every scenario (`scripts/game/power.gd`)
-  - L187 ## In the Quest browser (WebXR) — the way it ships now
-  - L201 ## Build / preview
-  - L210 ## Licences
+  - L29 ## The chef — scenario "Готвачът" (home menu → Сценарий)
+  - L71 ## Power of a hit — every scenario (`scripts/game/power.gd`)
+  - L189 ## In the Quest browser (WebXR) — the way it ships now
+  - L203 ## Build / preview
+  - L212 ## Licences
 
 `vr-workout/assets/CREDITS.md` (29L)
   - L1 # Asset credits

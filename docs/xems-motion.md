@@ -561,6 +561,36 @@ down every frame, a kick without jumps, a jump allowed, the 40 %-long shin refus
 Replay a take: `python3 scripts/vr-legs/pad_replay.py <CODE> f.jsonl` then
 `REPLAY=f.jsonl godot --headless --path vr-workout --script res://test/replay.gd`.
 
+### 1.33 — calibrated every session; the legs drawn as legs (owner, 2026-11-11)
+Owner: "calibrate every time the sensors go on — touches with the controllers, a control pose — precision every time;
+the legs are drawn far too thin next to the big boots; think through the thigh and where the knee bends".
+**Calibration (every connection, ~30 s, after the stand + knee bend):** four bony points per leg with the controller's
+tip — the bump at the side of the hip (greater trochanter), the outer side of the knee at its crease (lateral
+epicondyle), the outer ankle bone (lateral malleolus), the shoe's tip — a glowing point on the drawn leg shows where
+(a touch > 25 cm from it is not taken); then the **control pose**: tall and still, feet parallel. Each joint is a
+known distance inside its bony point (`PadLegs.LM_*`). The person may bend to reach: each touch keeps the shin's
+turn at that moment (its sensor), so the knee and ankle touched at different moments give the true shin — length
+**and direction against the strap** (`u0`, per leg; a strap never sits along the bone) — and the hip touch with the
+knee where the shin puts it then gives the thigh. Also: ankle height, hip width, each foot's turn, the boot's length,
+where the feet stand (from the eyes in the control pose). Lengths outside ±15 % of the height's are not taken.
+**The controller's tip** is found, not guessed: the first time, hold the trigger and rock the controller with its tip
+on the point — pivot calibration (least squares over tip + point, `PadLegs.pivot`), kept on the headset
+(`user://legs_tip.json`). Test `cal_test`: a body unlike the model (shin +8 %, thigh −6 %, hips +12 %, ankles +20 %,
+the shins 5° off their straps, feet turned 9° / −6°), bending 20–30° while touching, a tip 8 cm off where the game
+guesses → shin, thigh, ankle height, hip width exact (≤ 1 mm), the shins' direction 0.0°, the tip ≤ 1 mm, a squat
+drawn on the true knees (0.0 cm). (Found on the way: the foot's turn changes the leg's frame — the touches' shin
+turns are carried over into it before the shin's direction is taken, else 2.5–3.8° off.)
+**The look (`avatar.gd`):** before — the gloves' forearm piece stretched along the shin and again along the thigh
+(thin tubes, open at the top, gaps at the knee). Now the suit along a real leg's cross-sections (thigh 17 → 10 cm,
+calf 11 cm bulging behind, ankle 6.5 cm; scaled to the player's height), **one ball joint exactly at the knee point**
+(thigh and shin both end in it: the bend is where the solve puts the knee, no gap at any angle), the kneecap riding
+round the joint (halfway between the thigh's front and the shin's), the thigh's front taken from the knee's hinge
+(a raised knee's thigh faces up), cyan plates on the shin bone and the thigh's front, light lines down both sides,
+the boot on the **ankle** (before: on the foot point 6 cm ahead of it — the shin leaned back ~8°) with a cuff, its
+length from the measured toe. No box of hips: from the eyes it hid the legs (the trunk is not drawn). Preview:
+`xvfb-run -a godot --path vr-workout --rendering-driver opengl3 --script res://test/legs_look.gd -- --out=x.png
+--view=three|side|front|eye [--pose=stand|squat|knee|kick|step]` (`docs/vr-legs-1.33.png`).
+
 ### AI (Gemini) — where it fits and where not
 Not for the live figure: a cloud model answers in 0.5–3 s, needs the network, costs per call and does not return
 reliable joint angles — the figure must follow the body in < 50 ms. "Natural" comes from local models learned from

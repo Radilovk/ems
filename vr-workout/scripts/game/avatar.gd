@@ -33,7 +33,7 @@ var _glow_mats := {}             # side -> StandardMaterial3D
 var _auras := {}                 # side -> {"mat": ShaderMaterial, "nodes": [aura meshes, halo], "light": OmniLight3D}
 var _glove_body: StandardMaterial3D
 var _glove_mech: StandardMaterial3D
-var _legs := {}                  # "l"/"r" -> {"shin", "knee", "boot", "halo"} (Node3D each)
+var _legs := {}                  # "l"/"r" -> {"thigh", "joint", "pad", "shin", "boot", "halo"} (Node3D each)
 var _leg_mats: Array[StandardMaterial3D] = []
 var trails := {}                 # limb -> Fx.Trail
 var color: Color = MULT_COLORS[0]
@@ -311,105 +311,147 @@ static func _merge_glove() -> Dictionary:
 	return out
 
 
-## The leg armour, in the gloves' own parts and materials, so legs and hands are one suit: the gauntlet (the forearm
-## part of the "Sci-fi Glove" model: cyan plates, light tubes, the dark sleeve) becomes the shin guard, the back-of-hand
-## plate with its glowing disc the knee pad; the boot is is shaped here in the same kit — a
-## dark shell, cyan toe cap and heel plate, a light strip along the sole. Built once: part -> kind -> ArrayMesh, in each
-## part's own frame (shin: +y from the ankle up to the knee, −z ahead · knee: its middle, facing −z · boot: the ankle,
-## toes −z, the sole 9 cm below). The instep carries the gloves' glowing disc in a cyan ring.
+## The legs (owner 2026-11-11: "the legs are drawn far too thin, the boots are big; think through how the thigh is
+## drawn and where the knee bends"). A real leg's shape in the suit: the dark under-suit along the leg's own
+## cross-sections (thigh 17 cm at the top, 10 at the knee; calf 11 cm bulging behind; ankle 6.5 cm), a ball joint
+## exactly at the knee point the legs' solve gives (the thigh ends and the shin starts there: no gap, no kink at
+## any bend), the cyan plates of the gloves on the shin bone and the thigh's front, a kneecap that rides round the
+## joint as the knee bends, light lines down both sides, each thigh rounded off at the hip, the boot on the ankle.
+## Built once for a 1.75 m body (part -> kind -> ArrayMesh), each limb along +y from 0 (lower joint) to 1 (upper),
+## −z ahead; drawn stretched to the leg's length and scaled to the player's height.
 static var _leg_meshes := {}
-static var _shin_len := 1.0      # the shin guard's length as built (it is stretched to each leg)
+const REF_H := 1.75
+# cross-sections (t along the segment, width, depth, back offset), metres for a 1.75 m body
+const THIGH := [Vector4(-0.03, 0.098, 0.098, 0.0), Vector4(0.06, 0.106, 0.104, 0.0), Vector4(0.18, 0.118, 0.12, -0.004),
+	Vector4(0.35, 0.136, 0.14, 0.0), Vector4(0.55, 0.150, 0.154, 0.004), Vector4(0.75, 0.160, 0.164, 0.008),
+	Vector4(0.92, 0.168, 0.172, 0.012), Vector4(1.0, 0.166, 0.17, 0.014), Vector4(1.06, 0.15, 0.154, 0.014),
+	Vector4(1.1, 0.115, 0.12, 0.012), Vector4(1.125, 0.06, 0.064, 0.01), Vector4(1.13, 0.0, 0.0, 0.01)]   # a low rounded top
+const SHIN := [Vector4(-0.06, 0.064, 0.064, 0.004), Vector4(0.1, 0.07, 0.072, 0.006), Vector4(0.3, 0.082, 0.09, 0.016),
+	Vector4(0.5, 0.098, 0.11, 0.024), Vector4(0.66, 0.108, 0.12, 0.026), Vector4(0.8, 0.106, 0.112, 0.02),
+	Vector4(0.92, 0.1, 0.1, 0.01), Vector4(1.03, 0.096, 0.094, 0.004)]
+const JOINT_R := 0.05                   # the knee's ball (the segments end in it)
+const PAD_OUT := 0.046                  # the kneecap: this far in front of the joint
 
 
-static func _merge_legs() -> Dictionary:
-	var model := GLOVE_SCENE.instantiate() as Node3D
-	# model: fingers +z, back of the hand +y, the forearm towards −z (wrist at z ≈ 0), thumb −x
-	var shin_b := Basis(Vector3(-1, 0, 0), Vector3(0, 0, -1), Vector3(0, -1, 0))   # −z → up, +y → ahead
-	var knee_b := Basis(Vector3(1, 0, 0), Vector3(0, 0, -1), Vector3(0, 1, 0))     # +z → up, +y → ahead
-	var xf := {
-		"shin": Transform3D(shin_b * Basis.from_scale(Vector3(0.04, 0.047, 0.04)), Vector3.ZERO) * Transform3D(Basis.IDENTITY, -Vector3(-0.35, 0.75, 0.3)),
-		"knee": Transform3D(knee_b * Basis.from_scale(Vector3(0.045, 0.045, 0.045)), Vector3.ZERO) * Transform3D(Basis.IDENTITY, -Vector3(-0.55, 0.6, 1.3)),
-	}
+static func _build_legs() -> Dictionary:
 	var tools := {}
-	var stack: Array[Node] = [model]
-	while not stack.is_empty():
-		var n: Node = stack.pop_back()
-		stack.append_array(n.get_children())
-		if not n is MeshInstance3D:
-			continue
-		var mi := n as MeshInstance3D
-		var rel := Transform3D.IDENTITY
-		var up: Node = mi
-		while up != model:
-			rel = (up as Node3D).transform * rel
-			up = up.get_parent()
-		for i in mi.mesh.get_surface_count():
-			var mat := mi.mesh.surface_get_material(i)
-			var mname := mat.resource_name if mat else ""
-			var kind := "mech"
-			if mname.ends_with("PLate"):
-				kind = "plate"
-			elif mname.begins_with("Glow"):
-				kind = "glow"
-			elif mname.begins_with("Glove"):
-				kind = "body"
-			var arr := mi.mesh.surface_get_arrays(i)
-			var knee_part := String(mi.name).begins_with("polySurface30") or String(mi.name).begins_with("pSphere1")
-			for part in ["shin", "knee", "boot"]:
-				if part == "boot" or (part == "knee" and not knee_part):
-					continue
-				var key: String = part + "/" + kind
-				var st: SurfaceTool = tools.get(key)
-				var added = _cut(arr, rel, part, xf[part], st)
-				if added != null:
-					tools[key] = added
-	model.free()
 	_boot(tools)
-	var out := {"shin": {}, "knee": {}, "boot": {}}
-	var top := 0.0
+	for part in [["thigh", THIGH, 0.2, 0.97], ["shin", SHIN, 0.12, 0.86]]:
+		var secs: Array = part[1]
+		_limb(tools, part[0] + "/body", secs, -PI, PI, 0.0, 0.0)                       # the under-suit
+		_limb(tools, part[0] + "/plate", _cut_secs(secs, part[2], part[3]), deg_to_rad(-150.0), deg_to_rad(-30.0), 0.007, 0.006)
+		_limb(tools, part[0] + "/glow", _cut_secs(secs, 0.08, 0.94), deg_to_rad(-6.0), deg_to_rad(6.0), 0.004, 0.003, 1.0)   # outer line (+x)
+		_limb(tools, part[0] + "/glow", _cut_secs(secs, 0.08, 0.94), deg_to_rad(174.0), deg_to_rad(186.0), 0.004, 0.003, 1.0) # inner line
+	_limb(tools, "shin/plate", [Vector4(0.0, 0.07, 0.072, 0.006), Vector4(0.085, 0.072, 0.075, 0.008)], -PI, PI, 0.009, 0.0)   # the boot's cuff
+	var ball := SphereMesh.new()
+	ball.radius = JOINT_R
+	ball.height = JOINT_R * 2.0
+	_add(tools, "joint/body", ball, Transform3D.IDENTITY)
+	var pad := SphereMesh.new()                       # the kneecap: a flattened shell, facing −z
+	pad.radius = 0.04
+	pad.height = 0.1
+	_add(tools, "pad/plate", pad, Transform3D(Basis.from_scale(Vector3(1.0, 0.95, 0.42)), Vector3.ZERO))
+	var disc := CylinderMesh.new()
+	disc.top_radius = 0.014
+	disc.bottom_radius = 0.014
+	disc.height = 0.004
+	_add(tools, "pad/glow", disc, Transform3D(Basis(Vector3.RIGHT, PI * 0.5), Vector3(0, 0.004, -0.017)))
+	var ring := TorusMesh.new()
+	ring.inner_radius = 0.019
+	ring.outer_radius = 0.024
+	_add(tools, "pad/glow", ring, Transform3D(Basis(Vector3.RIGHT, PI * 0.5), Vector3(0, 0.004, -0.0165)))
+	var out := {}
 	for key in tools:
-		var m := (tools[key] as SurfaceTool).commit()
-		out[String(key).get_slice("/", 0)][String(key).get_slice("/", 1)] = m
-		if String(key).begins_with("shin/"):
-			top = maxf(top, m.get_aabb().end.y)
-	_shin_len = maxf(top, 0.1)
+		var kind := String(key).get_slice("/", 1)
+		var part := String(key).get_slice("/", 0)
+		if not out.has(part):
+			out[part] = {}
+		out[part][kind] = (tools[key] as SurfaceTool).commit()
 	return out
 
 
-## The triangles of one model part that belong to a leg piece, moved into that piece's frame. Returns the SurfaceTool
-## (made on the first triangle) or null when nothing belongs.
-static func _cut(arrays: Array, rel: Transform3D, part: String, to: Transform3D, st: SurfaceTool):
-	var verts: PackedVector3Array = arrays[Mesh.ARRAY_VERTEX]
-	var norms: PackedVector3Array = arrays[Mesh.ARRAY_NORMAL]
-	var uvs = arrays[Mesh.ARRAY_TEX_UV]
-	var idx = arrays[Mesh.ARRAY_INDEX]
-	var count: int = idx.size() if idx != null else verts.size()
-	var nb := to.basis.inverse().transposed()
-	for t in range(0, count, 3):
-		var ids := [idx[t], idx[t + 1], idx[t + 2]] if idx != null else [t, t + 1, t + 2]
-		var c := Vector3.ZERO
-		for k in ids:
-			c += rel * verts[k]
-		c /= 3.0
-		var keep := false
-		match part:
-			"shin":
-				keep = c.z < 0.2
-			"knee":
-				keep = true
-		if not keep:
-			continue
-		if st == null:
-			st = SurfaceTool.new()
-			st.begin(Mesh.PRIMITIVE_TRIANGLES)
-		for k in ids:
-			var p: Vector3 = rel * verts[k]
-			var nv: Vector3 = (rel.basis * norms[k]).normalized() if k < norms.size() else Vector3.UP
-			st.set_normal((nb * nv).normalized())
-			if uvs != null and k < (uvs as PackedVector2Array).size():
-				st.set_uv(uvs[k])
-			st.add_vertex(to * p)
-	return st
+static func _add(tools: Dictionary, key: String, mesh: Mesh, xf: Transform3D) -> void:
+	var st: SurfaceTool = tools.get(key)
+	if st == null:
+		st = SurfaceTool.new()
+		st.begin(Mesh.PRIMITIVE_TRIANGLES)
+		tools[key] = st
+	st.append_from(mesh, 0, xf)
+
+
+## The sections between t0 and t1 (the ends interpolated).
+static func _cut_secs(secs: Array, t0: float, t1: float) -> Array:
+	var out := [_sec_at(secs, t0)]
+	for c in secs:
+		if (c as Vector4).x > t0 and (c as Vector4).x < t1:
+			out.append(c)
+	out.append(_sec_at(secs, t1))
+	return out
+
+
+static func _sec_at(secs: Array, t: float) -> Vector4:
+	for i in secs.size() - 1:
+		var a: Vector4 = secs[i]
+		var b: Vector4 = secs[i + 1]
+		if t <= b.x:
+			return a.lerp(b, clampf((t - a.x) / maxf(b.x - a.x, 1e-6), 0.0, 1.0))
+	return secs[-1]
+
+
+## A limb's surface along +y through cross-sections (t, width, depth, back offset): rounded (super-ellipse) rings.
+## Full (a0 = −π … π): a closed tube. Partial: a curved slab (a plate) of thickness th, grown g off the surface;
+## angle −90° is the front (−z), 0 the outer side (+x).
+static func _limb(tools: Dictionary, key: String, secs: Array, a0: float, a1: float, g: float, th: float, e := 0.8) -> void:
+	var full := a1 - a0 > 6.0
+	var n := 40 if full else 14
+	var st := SurfaceTool.new()
+	st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	var layers := [g] if full else [g, g - th]
+	var R := []                                       # R[layer][section][i]
+	for gg in layers:
+		var rows := []
+		for c in secs:
+			var sec: Vector4 = c
+			var row := []
+			for i in (n if full else n + 1):
+				var a := a0 + (a1 - a0) * i / float(n)
+				var ca := cos(a)
+				var sa := sin(a)
+				var x := signf(ca) * pow(absf(ca), e) * (sec.y * 0.5 + float(gg))
+				var z := signf(sa) * pow(absf(sa), e) * (sec.z * 0.5 + float(gg)) + sec.w
+				row.append(Vector3(x, sec.x, z))
+			rows.append(row)
+		R.append(rows)
+	var m: int = n if full else n + 1
+	var quad := func(p: Vector3, q: Vector3, r: Vector3, s2: Vector3) -> void:
+		for v in [p, r, q, q, r, s2]:
+			st.add_vertex(v)
+	for L in R.size():
+		var rows: Array = R[L]
+		for j in rows.size() - 1:
+			for i in (n if full else n):
+				var i2 := (i + 1) % m
+				var a: Vector3 = rows[j][i]
+				var b: Vector3 = rows[j][i2]
+				var c: Vector3 = rows[j + 1][i]
+				var d: Vector3 = rows[j + 1][i2]
+				if L == 0:
+					quad.call(a, b, c, d)
+				else:
+					quad.call(b, a, d, c)                 # the inner face of a plate looks inwards
+	if not full:                                      # a plate's edges: its two long sides and its two ends
+		var o: Array = R[0]
+		var inn: Array = R[1]
+		for j in o.size() - 1:
+			quad.call(inn[j][0], o[j][0], inn[j + 1][0], o[j + 1][0])
+			quad.call(o[j][n], inn[j][n], o[j + 1][n], inn[j + 1][n])
+		for i in n:
+			quad.call(o[0][i], inn[0][i], o[0][i + 1], inn[0][i + 1])
+			var last := o.size() - 1
+			quad.call(inn[last][i], o[last][i], inn[last][i + 1], o[last][i + 1])
+	st.index()
+	st.generate_normals()
+	_add(tools, key, st.commit(), Transform3D.IDENTITY)
 
 
 ## The boot's own shape (metres, the ankle at the origin, toes −z): (z, width, height) of its cross-sections from
@@ -510,11 +552,11 @@ static func _loft(tools: Dictionary, key: String, sections: Array, k: Vector3, b
 	into.append_from(mesh, 0, Transform3D.IDENTITY)
 
 
-## A leg: the shin guard from the ankle to the knee, the knee pad, the boot (all in the gloves' materials) and a
-## halo on the floor under the foot.
+## A leg: the thigh, the knee's ball and kneecap, the shin, the boot (the suit's materials) and a halo on the floor
+## under the foot.
 func _leg() -> Dictionary:
 	if _leg_meshes.is_empty():
-		_leg_meshes = _merge_legs()
+		_leg_meshes = _build_legs()
 	var plate := StandardMaterial3D.new()
 	plate.albedo_color = Color(0.12, 0.62, 0.78)
 	plate.metallic = 0.65
@@ -527,18 +569,8 @@ func _leg() -> Dictionary:
 	_leg_mats.append(plate)
 	var glow := _unshaded(GLOVE_GLOW)
 	var out := {}
-	for part in ["shin", "knee", "boot", "thigh"]:       # thigh: the shin guard again, hip → knee (sensor legs only)
-		var holder := Node3D.new()
-		holder.top_level = true
-		add_child(holder)
-		var meshes: Dictionary = _leg_meshes["shin" if part == "thigh" else part]
-		for k in meshes:
-			var mi := MeshInstance3D.new()
-			mi.mesh = meshes[k]
-			mi.material_override = {"plate": plate, "glow": glow, "body": _glove_body, "mech": _glove_mech}[k]
-			mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-			holder.add_child(mi)
-		out[part] = holder
+	for part in ["thigh", "joint", "pad", "shin", "boot"]:
+		out[part] = _part(part, plate, glow)
 	var halo := MeshInstance3D.new()
 	var hq := QuadMesh.new()
 	hq.size = Vector2(0.36, 0.36)
@@ -555,6 +587,20 @@ func _leg() -> Dictionary:
 	for n in out.values():
 		(n as Node3D).visible = false
 	return out
+
+
+func _part(part: String, plate: Material, glow: Material) -> Node3D:
+	var holder := Node3D.new()
+	holder.top_level = true
+	add_child(holder)
+	var meshes: Dictionary = _leg_meshes[part]
+	for k in meshes:
+		var mi := MeshInstance3D.new()
+		mi.mesh = meshes[k]
+		mi.material_override = {"plate": plate, "glow": glow, "body": _glove_body, "mech": _glove_mech}[k]
+		mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		holder.add_child(mi)
+	return holder
 
 
 ## The index finger out (true) while the hand is at a button (the wrist dock, the menu), back into the fist after.
@@ -580,6 +626,17 @@ func flare(side: String, amount := 1.0) -> void:
 
 ## Once a frame. frame: the game node (body positions are in its space) · mult: the combo multiplier 1…4 ·
 ## min_speed: the speed a limb needs to count · desktop: show the simulated limbs (no headset).
+## A limb's frame: y along it, −z its front (where the foot points, else the body's forward).
+static func _seg_basis(y: Vector3, ahead: Vector3, fwd: Vector3) -> Basis:
+	var a := ahead - y * ahead.dot(y)
+	if a.length() < 0.15:
+		a = fwd - y * fwd.dot(y)
+	if a.length() < 0.15:
+		a = Vector3.UP - y * y.y
+	var z := -a.normalized()
+	return Basis(y.cross(z).normalized(), y, z)
+
+
 func update(body: PlayerBody, frame: Node3D, mult: int, min_speed: Dictionary, eye: Vector3, delta: float, desktop := false) -> void:
 	_target = MULT_COLORS[clampi(mult - 1, 0, 3)]
 	color = color.lerp(_target, clampf(delta * 4.0, 0.0, 1.0))
@@ -622,6 +679,8 @@ func update(body: PlayerBody, frame: Node3D, mult: int, min_speed: Dictionary, e
 		var tr: Fx.Trail = trails[limb]
 		tr.color = color
 		tr.update(g.global_position, heat, eye, on)
+	var fwd_body := -frame.global_basis.z
+	var kz := float(body.leg_size.get("H", body.stand_h / 0.936)) / REF_H     # the player's size against the model's
 	for s in ["l", "r"]:
 		var parts: Dictionary = _legs[s]
 		var kl: String = "knee_" + s
@@ -635,41 +694,53 @@ func update(body: PlayerBody, frame: Node3D, mult: int, min_speed: Dictionary, e
 			continue
 		var k: Vector3 = frame.to_global(body.pos[kl])
 		var f: Vector3 = frame.to_global(body.pos[fl])
-		var len := maxf(k.distance_to(f), 0.15)
-		var y := (k - f) / len                              # the shin's axis, ankle → knee
-		var ahead := -frame.global_basis.z                  # the player's forward: the plates face it …
+		var an: Vector3 = frame.to_global(body.ankle_pos[s]) if body.ankle_pos.has(s) else f
+		var ahead := fwd_body                               # the player's forward: the plates face it …
 		if body.foot_dir.has(s):
 			ahead = body.foot_dir[s]                        # … or, with the sensors, where this foot really points
-		ahead = (ahead - y * ahead.dot(y))
-		if ahead.length() < 0.1:
-			ahead = Vector3.FORWARD - y * Vector3.FORWARD.dot(y)
-		var z := -ahead.normalized()
-		var b := Basis(y.cross(z).normalized(), y, z)
-		var shin: Node3D = parts.shin
-		shin.global_transform = Transform3D(b * Basis.from_scale(Vector3(1, (len - 0.1) / _shin_len, 1)), f + y * 0.05)
-		var knee: Node3D = parts.knee
-		knee.global_transform = Transform3D(b, k - z * 0.06 - y * 0.02)
-		var boot: Node3D = parts.boot
-		var bb := b
-		if body.foot_ground.get(s, false):                # planted: the boot stands flat, however the shin leans
-			var fa := Vector3(ahead.x, 0.0, ahead.z)
-			if fa.length() < 0.1:
-				fa = Vector3(-frame.global_basis.z.x, 0.0, -frame.global_basis.z.z)
-			var fz := -fa.normalized()
-			bb = Basis(Vector3.UP.cross(fz).normalized(), Vector3.UP, fz)
-		boot.global_transform = Transform3D(bb, f)
-		# the thigh (sensor legs: the hip is known): hip → knee, facing the same way
+		# the shin: ankle → knee, its front where the foot points
+		var sl := maxf(k.distance_to(an), 0.15)
+		var sy := (k - an) / sl
+		var sb := _seg_basis(sy, ahead, fwd_body)
+		(parts.shin as Node3D).global_transform = Transform3D(sb * Basis.from_scale(Vector3(kz, sl, kz)), an)
+		var jb := sb
+		# the thigh (the hip known: the sensors): knee → hip, facing the same way
 		var thigh: Node3D = parts.thigh
+		var pad: Node3D = parts.pad
 		thigh.visible = body.hip_pos.has(s)
+		var front := -sb.z
 		if thigh.visible:
 			var h: Vector3 = frame.to_global(body.hip_pos[s])
 			var tl := maxf(h.distance_to(k), 0.15)
 			var ty := (h - k) / tl
-			var ta := ahead - ty * ahead.dot(ty)
-			if ta.length() < 0.1:
-				ta = -frame.global_basis.z - ty * (-frame.global_basis.z).dot(ty)
-			var tz := -ta.normalized()
-			thigh.global_transform = Transform3D(Basis(ty.cross(tz).normalized(), ty, tz) * Basis.from_scale(Vector3(1.15, (tl - 0.12) / _shin_len, 1.15)), k + ty * 0.07)
+			var tz := sb.x.cross(ty)                       # the thigh's front from the knee's hinge (the shin's): a raised
+			if tz.length() < 0.2:                          # knee's thigh faces up, whatever the foot does
+				tz = sb.z - ty * sb.z.dot(ty)
+			tz = tz.normalized()
+			var tb := Basis(ty.cross(tz).normalized(), ty, tz)
+			thigh.global_transform = Transform3D(tb * Basis.from_scale(Vector3(kz, tl, kz)), k)
+			front = (-tb.z - sb.z).normalized() if (-tb.z - sb.z).length() > 0.2 else -tb.z
+			var py := (ty + sy).normalized() if (ty + sy).length() > 0.2 else ty
+			jb = Basis(py.cross(-front).normalized(), py, -front).orthonormalized()
+		else:
+			jb = Basis(sb.x, sb.y, sb.z)
+		(parts.joint as Node3D).global_transform = Transform3D(Basis.from_scale(Vector3.ONE * kz), k)
+		# the kneecap rides on the joint's front, halfway between the thigh's front and the shin's
+		pad.global_transform = Transform3D(Basis(jb.x, jb.y, jb.z) * Basis.from_scale(Vector3.ONE * kz), k + front * PAD_OUT * kz)
+		var boot: Node3D = parts.boot
+		var bb := sb
+		if body.foot_ground.get(s, false) or not body.foot_dir.has(s):   # planted: the boot stands flat
+			var fa := Vector3(ahead.x, 0.0, ahead.z)
+			if fa.length() < 0.1:
+				fa = Vector3(fwd_body.x, 0.0, fwd_body.z)
+			var fz := -fa.normalized()
+			bb = Basis(Vector3.UP.cross(fz).normalized(), Vector3.UP, fz)
+		else:                                               # lifted: the foot at a right angle to the shin, toes ahead
+			var fz := -(ahead - sy * ahead.dot(sy)).normalized()
+			bb = Basis(sy.cross(fz).normalized(), sy, fz)
+		var toe := float((body.leg_size.get("toe", {}) as Dictionary).get(s, 0.0))
+		var bl := clampf(toe / 0.21, 0.85, 1.15) if toe > 0.0 else 1.0
+		boot.global_transform = Transform3D(bb * Basis.from_scale(Vector3(kz, kz, kz * bl)), an)
 		var halo: Node3D = parts.halo
 		halo.global_position = Vector3(f.x, frame.global_position.y + 0.012, f.z)
 		halo.scale = Vector3.ONE * clampf(1.2 - (f.y - frame.global_position.y) * 1.5, 0.3, 1.2)

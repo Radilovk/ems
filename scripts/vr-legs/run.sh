@@ -21,5 +21,6 @@ if [ -n "${GODOT:-}" ]; then
 	timeout 300 "$GODOT" --headless --path "$R/vr-workout" --script res://test/log_test.gd          # the legs flight recorder
 	timeout 300 "$GODOT" --headless --path "$R/vr-workout" --script res://test/stand_test.gd        # standing height from the headset
 	timeout 300 "$GODOT" --headless --path "$R/vr-workout" --script res://test/floor_test.gd        # feet on the floor, no flicker, the measured shin checked
+	timeout 300 "$GODOT" --headless --path "$R/vr-workout" --script res://test/cal_test.gd          # every-session calibration: 8 touches + the control pose, the tip by pivoting
 fi
 echo "vr-legs: PASS"

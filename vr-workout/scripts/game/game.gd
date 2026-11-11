@@ -538,7 +538,10 @@ func _legs_measure() -> void:
 	if m >= 4:
 		if _measure_said < 4:
 			_measure_said = 4
-			stage._show_toast("Краката са измерени ✓ — запазено за следващия път")
+			if body.pads.measure_ok:
+				stage._show_toast("Краката са измерени ✓ — запазено за следващия път")
+			else:
+				stage._show_toast("Дължината не излезе вярна — ползвам ръста ти. Посоката на стъпалата е измерена ✓", 6.0)
 			sfx.play("pass", null, -4.0)
 		return
 	if _measure_said != m:

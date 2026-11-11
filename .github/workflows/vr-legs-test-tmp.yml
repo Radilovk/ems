@@ -1,0 +1,21 @@
+# TEMPORARY (branch only, removed before merge): runs the VR legs tests headless, publishes nothing.
+name: VR legs tests (branch)
+on:
+  push:
+    branches: [ccr-df76b886-10qcgr]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Godot 4.4.1
+        run: |
+          mkdir -p ~/godot && cd ~/godot
+          curl -fsSL -o g.zip https://github.com/godotengine/godot-builds/releases/download/4.4.1-stable/Godot_v4.4.1-stable_linux.x86_64.zip && unzip -q g.zip
+      - name: Import
+        run: |
+          cd vr-workout
+          ~/godot/Godot_v4.4.1-stable_linux.x86_64 --headless --path . --import || true
+          ~/godot/Godot_v4.4.1-stable_linux.x86_64 --headless --path . --import || true
+      - name: Test the sensor legs
+        run: GODOT=~/godot/Godot_v4.4.1-stable_linux.x86_64 sh scripts/vr-legs/run.sh

@@ -48,6 +48,7 @@ var fwd0 := Vector3(0, 0, -1)           # the body's forward at the calibration
 var status := "none"                    # none · found · stand · bend · ready
 var _last_ms := 0
 var _head_prev := Vector3.INF
+var _head_vy := 0.0                     # m/s, smoothed: up (a jump)
 var _head_v := 0.0                      # m/s, smoothed: a still stand needs a still head (a bend moves it)
 var role := {}                          # joypad id -> "thigh" (teaching: sensors on the thighs for a session); else a shin
 var _rezero := true                     # the next limbs() puts the feet under the body again
@@ -64,9 +65,10 @@ var prior := LegsPrior.new()            # the learned prior (CMU): feet on the f
 # track the controllers to a few mm — touch the left knee, the left shoe's tip, the right knee, the right shoe's tip
 # (trigger each). Gives the person's own shin and thigh, where each foot points (the strap may sit turned), where the
 # feet stand. Kept on the headset (CAL_PATH) — once per person.
-const CAL_PATH := "user://legs_cal.json"
+const CAL_PATH := "user://legs_cal2.json"     # v2: v1 kept a shin 30 % too long (owner 2026-11-11)
 const MEASURE := ["kl", "tl", "kr", "tr"]
 var measure := -1                       # -1 · 0..3 = the touch being waited for · 4 = done this session
+var measure_ok := true                  # the last measurement's shin was believable (else the lengths come from the height)
 var _touch := {}                        # "kl"/"tl"/"kr"/"tr" -> world point
 var cal := {}                           # {"stand_h", "ls", "lt", "foot": {sd: [fwd, left]} (ankle from the eyes, body frame), "turn": {sd: rad}}
 var use_prior := true
@@ -387,6 +389,8 @@ func start_measure() -> void:
 
 
 func load_cal(stand_h: float) -> bool:
+	if stand_seen > 0.0:
+		stand_h = stand_seen
 	if not FileAccess.file_exists(CAL_PATH):
 		return false
 	var d = JSON.parse_string(FileAccess.get_file_as_string(CAL_PATH))
@@ -404,6 +408,8 @@ func touch(point: Vector3, head: Vector3, floor_y: float, stand_h: float) -> voi
 	measure += 1
 	if measure < MEASURE.size():
 		return
+	if stand_seen > 0.0:
+		stand_h = stand_seen                          # the standing height as the headset shows it
 	# all four: the person's own legs (the shin from the knee down its measured direction to the ankle's height)
 	var H := stand_h / 0.936
 	var ah := 0.039 * H
@@ -430,8 +436,14 @@ func touch(point: Vector3, head: Vector3, floor_y: float, stand_h: float) -> voi
 		c.foot[sd] = [a.dot(bf), a.dot(left)]            # the ankle from the eyes, in the body's frame
 		var fd: Vector3 = c.turn[sd]
 		c.turn[sd] = bf.signed_angle_to(fd.normalized(), Vector3.UP) if fd.length() > 0.05 else 0.0
-	c.ls = (float(lss[0]) + float(lss[1])) * 0.5
-	c.lt = c.ls * 0.245 / 0.246                       # the thigh: not touched (the hip is hard to find) — from the shin
+	# the shin's length only when it is believable (owner's recording MFCMVC9YXW: the touches gave 0.58 m for a 0.42 m
+	# shin — the touch lands on the kneecap, above the joint, and the controller's tip is a guess); else from the height.
+	# The feet's directions and places are kept either way.
+	var ls_m := (float(lss[0]) + float(lss[1])) * 0.5
+	measure_ok = absf(ls_m / (0.246 * H) - 1.0) < 0.12
+	if measure_ok:
+		c.ls = ls_m
+		c.lt = c.ls * 0.245 / 0.246                   # the thigh: not touched (the hip is hard to find) — from the shin
 	cal = c
 	var f := FileAccess.open(CAL_PATH, FileAccess.WRITE)
 	if f:
@@ -490,6 +502,7 @@ func limbs(head: Vector3, fwd: Vector3, stand_h: float, floor_y: float, delta :=
 		return {}
 	if delta > 0.0 and _head_prev != Vector3.INF:
 		_head_v = lerpf(_head_v, head.distance_to(_head_prev) / delta, clampf(delta / 0.15, 0.0, 1.0))
+		_head_vy = lerpf(_head_vy, (head.y - _head_prev.y) / delta, clampf(delta / 0.1, 0.0, 1.0))
 	_head_prev = head
 	if stand_seen > 0.0:
 		stand_h = stand_seen                          # as the headset shows it (poll), not the game's guess
@@ -560,6 +573,19 @@ func limbs(head: Vector3, fwd: Vector3, stand_h: float, floor_y: float, delta :=
 			var hip: Vector3 = pc + left * hw * float(sgn[sd])
 			var up_k := clampf(-u.signed_angle_to(Vector3.UP, A[sd]), 0.0, deg_to_rad(150.0))
 			ground[sd] = hip.y - (u.rotated(A[sd], -up_k) * lt).y - u.y * ls - (floor_y + ah) < LIFT
+	# both feet in the air only in a jump: the head above standing or rising fast. Otherwise the more upright shin stands,
+	# and both when both are upright (owner's recording MFCMVC9YXW: the prior had both feet up 56 % of the time while
+	# the head stood still — the legs hung in the air)
+	if U.has("l") and U.has("r") and not ground["l"] and not ground["r"]:
+		var jump := head.y - floor_y > stand_h + 0.03 or _head_vy > 0.6
+		if not jump:
+			var cu := cos(deg_to_rad(15.0))
+			var best := "l" if (U["l"] as Vector3).y >= (U["r"] as Vector3).y else "r"
+			ground[best] = true
+			for sd in ["l", "r"]:
+				if (U[sd] as Vector3).y > cu:
+					ground[sd] = true
+	for sd in U:
 		if not ground[sd]:
 			anc.erase(sd)
 	# 2 · the hips: between the planted legs (each hip a thigh's length from its knee) and the head (a trunk's length)

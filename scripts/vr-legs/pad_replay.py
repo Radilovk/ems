@@ -4,6 +4,8 @@ game's own two-shin solve got and gave — which gamepads, which layout, the raw
 and sides over time, the head, and the solved knees / feet.
 
   python3 scripts/vr-legs/pad_replay.py <CODE> [out.jsonl]      (out: the unpacked lines, default scratch)
+Played through the game's own PadLegs (jumps, floating feet): REPLAY=out.jsonl godot --headless --path vr-workout
+--script res://test/replay.gd
 """
 import gzip, json, math, sys, urllib.request
 

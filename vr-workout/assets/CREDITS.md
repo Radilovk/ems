@@ -4,6 +4,7 @@
 |---|---|---|
 | `rooms/brutalist.glb` | "Brutalist Interior" by vslite — https://sketchfab.com/3d-models/brutalist-interior-0eb40f2cb2bf4dfdbaae36095825788a | CC-BY-4.0 |
 | `gloves/sci_fi_glove.*` | "Sci-fi Glove" by Hirosin (https://sketchfab.com/vitalgolic) — https://sketchfab.com/3d-models/sci-fi-glove-aa87260a746142e1bd4266cd363c189c (recoloured in the game: cyan plates, magenta flash on a hit) | CC-BY-4.0 |
+| `robot/android.glb` (the player's legs) | "White Android Robot - ModelAI3D vs SupaVoxel" by Cedric Ricci — https://sketchfab.com/3d-models/white-android-robot-modelai3d-vs-supavoxel-864c6eafb13f4504be041f7d2792385e (decimated to 45 k triangles, 1 K textures, rigged by `convert/autorig.py`; recoloured in the game) | CC-BY-4.0 |
 | `views/mountain.jpg` | Poly Haven "Champagne Castle 1" by Greg Zaal — https://polyhaven.com/a/champagne_castle_1 (8K HDR, tone-mapped; the mountains beyond the glass) | CC0 |
 | `loft/laminate_floor_02_*` | Poly Haven "Laminate Floor 02" — https://polyhaven.com/a/laminate_floor_02 (2K diffuse + normal) | CC0 |
 | `loft/wood_floor_deck_*` | Poly Haven "Wood Floor Deck" — https://polyhaven.com/a/wood_floor_deck (1K diffuse + normal) | CC0 |

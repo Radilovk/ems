@@ -47,6 +47,8 @@ var pads := PadLegs.new()               # the same sensors straight, as Bluetoot
 var hip_pos := {}                       # "l"/"r" -> the hip joint (frame space), from the sensors only
 var foot_dir := {}                      # "l"/"r" -> where the foot points (world direction), from the sensors only
 var foot_ground := {}                   # "l"/"r" -> true while that foot is planted (sensors): the boot stands flat
+var ankle_pos := {}                     # "l"/"r" -> the ankle joint (frame space), from the gamepad legs (their foot point is ahead of it)
+var leg_size := {}                      # the gamepad legs' measured sizes (shin, thigh, ankle height, hip width, body height, toe)
 var legs_src := "none"                  # where the knees / feet come from now: sensors · controller · estimate · none
 var _fwd := Vector3(0, 0, -1)           # the body's heading (world): the head's, smoothed (a head turn alone is not a body turn)
 var _low := {"left": 0.0, "right": 0.0}
@@ -157,9 +159,10 @@ func _hand_source(side: String) -> Array:
 
 
 ## One touch of the legs' measurement (PadLegs.touch): the controller's tip, world.
-func legs_touch(tip: Vector3) -> void:
+## A touch for the legs' calibration: the controller's poses while its trigger was held (world) → "ok" / "far" / "".
+func legs_touch_pose(xfs: Array) -> String:
 	var world_head: Vector3 = cam.global_position if cam else Vector3(0, 1.7, 0)
-	pads.touch(tip, world_head, origin.global_position.y if origin else 0.0, stand_h)
+	return pads.touch_pose(xfs, world_head, origin.global_position.y if origin else 0.0, stand_h)
 
 
 ## Once a frame (the samples come once a frame; the game sweeps between them in small steps).
@@ -212,10 +215,14 @@ func update(delta: float) -> void:
 	hip_pos.clear()
 	foot_dir.clear()
 	foot_ground.clear()
+	ankle_pos.clear()
+	leg_size = xl.get("size", {})
 	if not xl.is_empty():
 		for sd in ["l", "r"]:
 			if xl.pos.has("hip_" + sd):
 				hip_pos[sd] = to_frame * (xl.pos["hip_" + sd] as Vector3)
+			if xl.pos.has("ankle_" + sd):
+				ankle_pos[sd] = to_frame * (xl.pos["ankle_" + sd] as Vector3)
 			if xl.dir.has(sd):
 				foot_dir[sd] = xl.dir[sd]
 			if xl.has("ground") and xl.ground.has(sd):

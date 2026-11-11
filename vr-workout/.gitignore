@@ -19,3 +19,4 @@ xems-studio.apk
 incoming/*.import
 incoming/*_[0-9]*.png
 incoming/*_[0-9]*.jpg
+assets/robot/android_*

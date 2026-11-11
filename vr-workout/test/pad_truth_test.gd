@@ -245,11 +245,12 @@ func _initialize() -> void:
 		pads.poll(DT, STAND_H, STAND_H, side)
 		pads.limbs(Vector3(0, STAND_H, 0), side, STAND_H, 0.0, DT)
 	var t35 := Basis(LEFT, deg_to_rad(35.0))
-	for i in 10:
+	var L := {}
+	for i in 12:                                    # limbs once a frame, as the game (a switch cross-fades over 0.15 s)
 		for s in sensors:
 			_feed(pads, s, t35, 0.5)
 		pads.poll(DT, STAND_H - 0.3, STAND_H, side)
-	var L := pads.limbs(Vector3(0, STAND_H - 0.3, 0), side, STAND_H, 0.0, DT)
+		L = pads.limbs(Vector3(0, STAND_H - 0.3, 0), side, STAND_H, 0.0, DT)
 	var kd: Vector3 = (L.pos.knee_l as Vector3) - ((L.pos.foot_l as Vector3) - (L.dir.l as Vector3) * 0.06)
 	var turn := rad_to_deg(Vector2(kd.x, kd.z).angle_to(Vector2(FWD.x, FWD.z)))
 	_check("look aside keeps the legs", absf(turn) < 10.0, "knee leans %.1f° off the body's forward" % turn)

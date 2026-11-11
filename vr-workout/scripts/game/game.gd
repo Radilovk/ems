@@ -266,6 +266,7 @@ func _apply_settings() -> void:
 	fx.comfort = settings.comfort
 	food_fx.comfort = settings.comfort
 	body.fixed_h = settings.eye_height()
+	avatar.set_look(settings.look)
 	body.feet_allowed = settings.legs == GameSettings.Legs.AUTO or settings.legs == GameSettings.Legs.ANKLES
 	if body.fixed_h > 0.0:
 		body.stand_h = body.fixed_h
@@ -437,8 +438,9 @@ func _hands_events(delta: float) -> void:
 			if to == "sensors":
 				stage._show_toast("Сензорите за краката са свързани ✓ — ритници, колене и клекове с истинско движение")
 				sfx.play("pass", null, -4.0)
-				if body.pads.ready() and body.pads.measure < 0 and not body.pads.load_cal(body.stand_h):
-					body.pads.start_measure()          # once per person: four touches with a controller
+				if body.pads.ready():                  # every time the sensors are put on: touches + the control pose
+					body.pads.load_cal(body.stand_h)   # (the last lengths meanwhile)
+					body.pads.start_measure()
 					_measure_said = -1
 			elif ch[1] == "sensors" and not (st in [St.MENU, St.IDLE, St.SUMMARY]):
 				stage._show_toast("Сензорите за краката се изгубиха — включени ли са? (Quest → Bluetooth)")
@@ -479,11 +481,17 @@ func _hands_events(delta: float) -> void:
 # ---------------------------------------------------------------- the loop
 
 const MEASURE_SAY := [
-	"Измерване на краката: докосни ЛЯВОТО си коляно с върха на дръжката и натисни спусъка",
-	"Сега върха на ЛЯВАТА обувка — натисни спусъка",
-	"ДЯСНОТО коляно — натисни спусъка",
-	"Върха на ДЯСНАТА обувка — натисни спусъка",
+	"Калибриране на краката (всеки път, ~30 с). Докосни с върха на контролера костта ОТСТРАНИ на ЛЯВОТО бедро — там, където е ставата — и натисни спусъка",
+	"Външната страна на ЛЯВОТО коляно — точно на гънката. Натисни спусъка",
+	"Кокалчето отвън на ЛЕВИЯ глезен — натисни спусъка",
+	"Върха на ЛЯВАТА обувка — натисни спусъка",
+	"Сега ДЯСНОТО бедро — костта отстрани, на ставата",
+	"Външната страна на ДЯСНОТО коляно, на гънката",
+	"Кокалчето отвън на ДЕСНИЯ глезен",
+	"Върха на ДЯСНАТА обувка",
+	"Изправи се и застани неподвижно за секунда — стъпалата успоредни, на ширината на таза",
 ]
+const TIP_SAY := "Първия път: задръж спусъка и бавно разклати контролера, без да мърдаш върха му — играта научава къде точно е върхът"
 var _measure_said := -1
 var _trig_was := {}
 
@@ -533,27 +541,83 @@ func _legs_measure() -> void:
 			sfx.play("pass", null, -4.0)
 		_thigh_said = th
 	var m: int = body.pads.measure
-	if m < 0:
+	var busy := st in [St.PLAY, St.PRACTICE]           # not in the middle of a round: it waits, the last lengths hold
+	_mark_show(m >= 0 and m < MEASURE_SAY.size() - 1 and not busy and body.pads.ready())
+	if m < 0 or busy:
 		return
-	if m >= 4:
-		if _measure_said < 4:
-			_measure_said = 4
-			stage._show_toast("Краката са измерени ✓ — запазено за следващия път")
+	if body.pads.measure_done():
+		if _measure_said < MEASURE_SAY.size():
+			_measure_said = MEASURE_SAY.size()
+			var c: Dictionary = body.pads.cal
+			var bad: Array = c.get("bad", [])
+			stage._show_toast("Краката са калибрирани ✓  подбедрица %d см · бедро %d см%s" % [roundi(float(c.get("ls", 0)) * 100.0),
+				roundi(float(c.get("lt", 0)) * 100.0), "" if bad.is_empty() else " (едно докосване не пасна — взех го по ръста)"], 8.0)
 			sfx.play("pass", null, -4.0)
 		return
 	if _measure_said != m:
 		_measure_said = m
-		stage._show_toast(MEASURE_SAY[m])
+		stage._show_toast(MEASURE_SAY[m] + ("\n" + TIP_SAY if m == 0 and not body.pads.tip_known else ""), 20.0)
+	if m >= MEASURE_SAY.size() - 1:
+		return                                         # the control pose: PadLegs sees the still stand itself
 	for sd in ["left", "right"]:
 		var c = stage.hands.get(sd)
 		if body.src[sd] != "controller" or not (c is XRController3D):
 			continue
 		var down := (c as XRController3D).get_float("trigger") > 0.6
-		if down and not bool(_trig_was.get(sd, false)):
-			var t := (c as XRController3D).global_transform
-			body.legs_touch(t.origin - t.basis.z * 0.06)   # the controller's tip, a few cm ahead of the grip
-			sfx.play("tick", null, -6.0)
+		if down:
+			var xs: Array = _touch_xf.get(sd, [])
+			if xs.size() < 180:                         # ~2.5 s of poses while held (rocked: the tip is solved)
+				xs.append((c as XRController3D).global_transform)
+			_touch_xf[sd] = xs
+		elif bool(_trig_was.get(sd, false)):           # released: one touch
+			var r: String = body.legs_touch_pose(_touch_xf.get(sd, []))
+			_touch_xf.erase(sd)
+			if r == "ok":
+				sfx.play("tick", null, -6.0)
+			elif r == "far":
+				stage._show_toast("Не е там — докосни светещата точка на крака. " + MEASURE_SAY[m], 12.0)
+				sfx.play("weak", null, -8.0)
 		_trig_was[sd] = down
+	if _mark:
+		var p: Vector3 = body.pads.measure_target()
+		if p != Vector3.INF:
+			_mark.global_position = p
+			_mark_t += get_process_delta_time()
+			_mark.scale = Vector3.ONE * (1.0 + 0.25 * sin(_mark_t * 6.0))
+
+
+var _touch_xf := {}
+var _mark: Node3D
+var _mark_t := 0.0
+
+
+## The glowing point on the drawn leg where to touch now.
+func _mark_show(on: bool) -> void:
+	if on and _mark == null:
+		_mark = Node3D.new()
+		var dot := MeshInstance3D.new()
+		var sm := SphereMesh.new()
+		sm.radius = 0.018
+		sm.height = 0.036
+		dot.mesh = sm
+		var m := StandardMaterial3D.new()
+		m.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+		m.albedo_color = Color(1.0, 0.85, 0.25)
+		m.no_depth_test = true                        # seen through the leg it sits on
+		m.render_priority = 2
+		dot.material_override = m
+		_mark.add_child(dot)
+		var ring := MeshInstance3D.new()
+		var tm := TorusMesh.new()
+		tm.inner_radius = 0.03
+		tm.outer_radius = 0.036
+		ring.mesh = tm
+		ring.material_override = m
+		_mark.add_child(ring)
+		_mark.top_level = true
+		stage.add_child(_mark)
+	if _mark:
+		_mark.visible = on
 
 
 func _process(delta: float) -> void:

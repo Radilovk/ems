@@ -10,9 +10,13 @@ import gzip, json, math, sys, urllib.request
 BASE = 'https://license.biocode-bg.com/v1/vrlog/'
 
 
+def get(url):        # Cloudflare turns away the default Python client name
+    return urllib.request.urlopen(urllib.request.Request(url, headers={'User-Agent': 'xems-pad-replay/1'})).read()
+
+
 def fetch(code):
-    info = json.load(urllib.request.urlopen(BASE + code))
-    raw = b''.join(urllib.request.urlopen(f'{BASE}{code}/{k}').read() for k in range(info['parts']))
+    info = json.loads(get(BASE + code))
+    raw = b''.join(get(f'{BASE}{code}/{k}') for k in range(info['parts']))
     return [json.loads(l) for l in gzip.decompress(raw).decode().splitlines() if l.strip()]
 
 

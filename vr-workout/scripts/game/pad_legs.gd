@@ -118,7 +118,28 @@ func _sensor_q(id: int) -> Quaternion:
 
 ## Once a frame: which pads are here, still or moving; calibration steps; the shins' heights.
 ## head_h: the headset's height above the floor; stand_h: standing; fwd: the body's heading (world, horizontal).
+## The standing eye height as the headset shows it: the highest the head was in the last 20 s (owner 2026-11-11,
+## three recordings: the game's own standing height said 1.64 m, the head never rose above 1.57 m — "stand tall" was
+## never met and the legs stayed at "stand up straight"). Not below 85 % of the game's height (a long squat).
+var _hist_h: Array = []                 # [time s, head height]
+var _hclock := 0.0
+var stand_seen := 0.0
+
+
+func _stand_eff(head_h: float, stand_h: float, delta: float) -> float:
+	_hclock += delta
+	_hist_h.append([_hclock, head_h])
+	while _hist_h.size() > 2 and float(_hist_h[0][0]) < _hclock - 20.0:
+		_hist_h.pop_front()
+	var m := 0.0
+	for e in _hist_h:
+		m = maxf(m, float(e[1]))
+	stand_seen = maxf(m, 0.85 * stand_h)
+	return stand_seen
+
+
 func poll(delta: float, head_h: float, stand_h: float, fwd: Vector3) -> void:
+	stand_h = _stand_eff(head_h, stand_h, delta)
 	var now := Time.get_ticks_msec()
 	var ids := sim.keys()
 	for id in ([] if not sim.is_empty() else Input.get_connected_joypads()):
@@ -470,6 +491,8 @@ func limbs(head: Vector3, fwd: Vector3, stand_h: float, floor_y: float, delta :=
 	if delta > 0.0 and _head_prev != Vector3.INF:
 		_head_v = lerpf(_head_v, head.distance_to(_head_prev) / delta, clampf(delta / 0.15, 0.0, 1.0))
 	_head_prev = head
+	if stand_seen > 0.0:
+		stand_h = stand_seen                          # as the headset shows it (poll), not the game's guess
 	var H := stand_h / 0.936                          # body height from eye height
 	var lt := float(cal.get("lt", 0.245 * H))         # thigh (measured, else from the height)
 	var ls := float(cal.get("ls", 0.246 * H))         # shin, knee → ankle

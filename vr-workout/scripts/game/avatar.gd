@@ -12,6 +12,18 @@ const FOOT_COLOR := Color(1.0, 0.55, 0.15)
 const GLOVE_SCENE := preload("res://assets/gloves/sci_fi_glove.gltf")
 const GLOVE_GLOW := Color(0.25, 0.85, 1.0)      # cyan …
 const GLOVE_HIT := Color(1.0, 0.22, 0.85)       # … magenta for a moment when the hand lands a hit
+# The player's look (owner 2026-11-11: "cyan as now; white and black like the android; pink when women train"):
+# gloves, plates, lights, the android's legs and the drawn ones. ×1 of the combo takes the look's glow.
+const LOOKS := [
+	{"name": "Циан", "plate": Color(0.12, 0.62, 0.78), "metal": 0.65, "rough": 0.28, "glow": Color(0.25, 0.85, 1.0),
+		"hit": Color(1.0, 0.22, 0.85), "body": Color(0.07, 0.075, 0.09), "mech": Color(0.11, 0.12, 0.14), "tint": 1.0},
+	{"name": "Бяло", "plate": Color(0.9, 0.91, 0.93), "metal": 0.15, "rough": 0.3, "glow": Color(0.72, 0.88, 1.0),
+		"hit": Color(0.25, 0.85, 1.0), "body": Color(0.03, 0.03, 0.035), "mech": Color(0.08, 0.08, 0.09), "tint": 0.0},
+	{"name": "Розово", "plate": Color(0.93, 0.4, 0.64), "metal": 0.55, "rough": 0.3, "glow": Color(1.0, 0.52, 0.84),
+		"hit": Color(1.0, 0.84, 0.4), "body": Color(0.1, 0.05, 0.085), "mech": Color(0.15, 0.09, 0.13), "tint": 1.0},
+]
+var look: Dictionary = LOOKS[0]
+var _leg_glows: Array[StandardMaterial3D] = []
 const GLOVE_SCALE := 0.034                      # model units → metres (a hand about 19 cm wrist to fingertip)
 const GLOVE_PALM := Vector3(-0.2, 0.06, 3.7)    # inside the fist, in model units: it sits on the grip
 const KNUCKLE := Vector2(0.62, 3.9)             # the knuckle line in the model's (y, z): the fingers bend from here
@@ -572,6 +584,7 @@ func _leg() -> Dictionary:
 	plate.emission_energy_multiplier = 0.15
 	_leg_mats.append(plate)
 	var glow := _unshaded(GLOVE_GLOW)
+	_leg_glows.append(glow)
 	var out := {}
 	for part in ["thigh", "joint", "pad", "shin", "boot"]:
 		out[part] = _part(part, plate, glow)
@@ -630,6 +643,33 @@ func flare(side: String, amount := 1.0) -> void:
 
 ## Once a frame. frame: the game node (body positions are in its space) · mult: the combo multiplier 1…4 ·
 ## min_speed: the speed a limb needs to count · desktop: show the simulated limbs (no headset).
+## The look (LOOKS index): every material of the player's body at once.
+func set_look(i: int) -> void:
+	look = LOOKS[clampi(i, 0, LOOKS.size() - 1)]
+	var mats: Array = _plate_mats.values() + _leg_mats
+	for m in mats:
+		var pm := m as StandardMaterial3D
+		pm.albedo_color = look.plate
+		pm.metallic = look.metal
+		pm.roughness = look.rough
+	for m in _glow_mats.values() + _leg_glows:
+		(m as StandardMaterial3D).albedo_color = look.glow
+	if _glove_body:
+		_glove_body.albedo_color = look.body
+		_glove_mech.albedo_color = look.mech
+	for side in _auras:
+		var au: Dictionary = _auras[side]
+		(au.mat as ShaderMaterial).set_shader_parameter("color", look.hit)
+		(au.halo as ShaderMaterial).set_shader_parameter("color", look.hit)
+		(au.light as OmniLight3D).light_color = look.hit
+	if robot and robot.mat:
+		robot.mat.set_shader_parameter("tint", look.tint)
+		robot.mat.set_shader_parameter("plate", look.plate)
+		robot.mat.set_shader_parameter("dark", look.body)
+	color = look.glow
+	_target = look.glow
+
+
 ## A limb's frame: y along it, −z its front (where the foot points, else the body's forward).
 static func _seg_basis(y: Vector3, ahead: Vector3, fwd: Vector3) -> Basis:
 	var a := ahead - y * ahead.dot(y)
@@ -642,7 +682,7 @@ static func _seg_basis(y: Vector3, ahead: Vector3, fwd: Vector3) -> Basis:
 
 
 func update(body: PlayerBody, frame: Node3D, mult: int, min_speed: Dictionary, eye: Vector3, delta: float, desktop := false) -> void:
-	_target = MULT_COLORS[clampi(mult - 1, 0, 3)]
+	_target = look.glow if mult <= 1 else MULT_COLORS[clampi(mult - 1, 0, 3)]
 	color = color.lerp(_target, clampf(delta * 4.0, 0.0, 1.0))
 	for side in ["left", "right"]:
 		var g: Node3D = gloves[side]
@@ -664,7 +704,7 @@ func update(body: PlayerBody, frame: Node3D, mult: int, min_speed: Dictionary, e
 		var sp: float = body.speed.get(limb, 0.0)
 		var heat: float = 1.0 if sp >= min_speed.hand else clampf(sp / min_speed.hand, 0.0, 1.0) * 0.45
 		g.scale = Vector3.ONE * (1.0 + 0.12 * _punch[side])
-		var hit: Color = GLOVE_GLOW.lerp(GLOVE_HIT, minf(_punch[side] * 1.6, 1.0))
+		var hit: Color = (look.glow as Color).lerp(look.hit, minf(_punch[side] * 1.6, 1.0))
 		(_glow_mats[side] as StandardMaterial3D).albedo_color = hit * (1.0 + 0.6 * _punch[side])
 		var plate: StandardMaterial3D = _plate_mats[side]
 		plate.emission = hit

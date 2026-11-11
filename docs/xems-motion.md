@@ -605,6 +605,14 @@ tinted to the gloves' suit (cyan metal, dark joints), a rim + glow in the combo 
 (`docs/vr-legs-1.34.png`: top tinted, bottom white). Without the hips (a controller on an ankle, Meta's estimate) the
 drawn suit legs of §1.33 stay. Preview: `legs_look.gd -- --robot=0|1 --tint=0..1`.
 
+### 1.35 — the player's look: cyan · white · pink (owner, 2026-11-11)
+Settings → Игра → **Външен вид**: Циан (as before), Бяло (white and black like the android — its own textures, the
+gloves' plates white on black), Розово (for women's sessions). One choice for everything seen from the headset:
+the gloves' plates, sleeves and lights, their hit flash (cyan → magenta, white → cyan, pink → gold), the android's
+legs (`robot.gdshader` tint / plate / dark), the drawn legs, ×1 of the combo colour (×2–×4 stay green / magenta /
+gold). `Avatar.LOOKS`, `Avatar.set_look`, `GameSettings.look` (saved). Preview: `legs_look.gd -- --look=0|1|2
+--hands=1` (`docs/vr-looks-1.35.png`).
+
 ### AI (Gemini) — where it fits and where not
 Not for the live figure: a cloud model answers in 0.5–3 s, needs the network, costs per call and does not return
 reliable joint angles — the figure must follow the body in < 50 ms. "Natural" comes from local models learned from

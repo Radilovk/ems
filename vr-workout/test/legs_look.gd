@@ -51,6 +51,7 @@ func _initialize() -> void:
 		root.add_child(frame)
 		av.set_meta("pose", p)
 		av.robot_on = args.get("robot", "1") == "1"   # --robot=0: the drawn suit legs (no hips known)
+		av.set_meta("look", int(args.get("look", "0")))   # --look=0..2: Avatar.LOOKS
 		av.set_meta("frame", frame)
 		i += 1
 	var cam := Camera3D.new()
@@ -62,6 +63,9 @@ func _initialize() -> void:
 			cam.look_at_from_position(Vector3(0, 0.75, -1.0 - w * 0.9), Vector3(0, 0.55, 0))
 		"top":
 			cam.look_at_from_position(Vector3(0, 1.55, 0.05), Vector3(0, 0, -0.35))
+			cam.fov = 95
+		"player":                                       # from the eyes, looking ahead and down: hands and legs
+			cam.look_at_from_position(Vector3(0, STAND_H, 0.0), Vector3(0, 0.55, -0.85))
 			cam.fov = 95
 		"eye":                                          # as the player sees their own legs, looking down
 			cam.look_at_from_position(Vector3(0, STAND_H, -0.05), Vector3(0, 0.15, -0.4))   # the eyes ~5 cm ahead of the hips
@@ -75,6 +79,9 @@ func _initialize() -> void:
 	cam.current = true
 	for f in 4:
 		await process_frame
+		for av in root.get_children():
+			if av is Avatar and f == 0:
+				(av as Avatar).set_look(int(av.get_meta("look")))
 		if args.has("tint"):                          # --tint=0: the android white, as modelled
 			for av in root.get_children():
 				if av is Avatar:
@@ -136,7 +143,11 @@ func _body(pose: String) -> PlayerBody:
 		b.foot_ground[sd] = planted
 		b.speed["foot_" + sd] = 0.0
 		b.speed["hand_" + ("l" if sd == "l" else "r")] = 0.0
-	b.valid["hand_l"] = false
-	b.valid["hand_r"] = false
+	# the hands in a guard, fists ahead (shown with --hands=1)
+	var hands_on: bool = args.get("hands", "0") == "1"
+	b.valid["hand_l"] = hands_on
+	b.valid["hand_r"] = hands_on
+	b.hand_xform["left"] = Transform3D(Basis(Vector3.UP, 0.25), Vector3(-0.2, STAND_H - 0.38, -0.36))
+	b.hand_xform["right"] = Transform3D(Basis(Vector3.UP, -0.25), Vector3(0.2, STAND_H - 0.42, -0.4))
 	b.stand_h = STAND_H
 	return b

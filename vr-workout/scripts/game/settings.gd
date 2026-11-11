@@ -42,6 +42,7 @@ const CHEF_PLACES := [{"name": "Пиаца Болони", "room": "Пиаца Б
 	{"name": "Ретро улица", "room": "Ретро улица Претвил"}]
 
 var scene := 0                  # Scene
+var look := 0                   # the player's look: Avatar.LOOKS (cyan · white · pink)
 var chef_place := 0             # CHEF_PLACES
 var pace := 1
 var spread := 1
@@ -82,12 +83,13 @@ func save() -> void:
 
 
 func _fields() -> Array:
-	return ["scene", "chef_place", "pace", "spread", "legs", "hazards", "minutes", "suit", "punish", "music_db", "sfx_db", "comfort",
+	return ["scene", "look", "chef_place", "pace", "spread", "legs", "hazards", "minutes", "suit", "punish", "music_db", "sfx_db", "comfort",
 		"height_cm", "offset_x", "offset_z", "turn_deg", "auto_center", "room", "view", "track", "tutorial_done", "best_score"]
 
 
 func _clamp() -> void:
 	scene = clampi(scene, 0, SCENES.size() - 1)
+	look = clampi(look, 0, 2)
 	chef_place = clampi(chef_place, 0, CHEF_PLACES.size() - 1)
 	pace = clampi(pace, 0, PACE.size() - 1)
 	spread = clampi(spread, 0, SPREAD.size() - 1)

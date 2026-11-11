@@ -266,6 +266,7 @@ func _apply_settings() -> void:
 	fx.comfort = settings.comfort
 	food_fx.comfort = settings.comfort
 	body.fixed_h = settings.eye_height()
+	avatar.set_look(settings.look)
 	body.feet_allowed = settings.legs == GameSettings.Legs.AUTO or settings.legs == GameSettings.Legs.ANKLES
 	if body.fixed_h > 0.0:
 		body.stand_h = body.fixed_h

@@ -193,6 +193,7 @@ func _settings(m: Control) -> void:
 		_seg(v, "Темпо", GameSettings.PACE.map(func(x): return x.name), settings.pace, func(i: int) -> void: settings.pace = i, "pace")
 		_seg(v, "Откъде идват", GameSettings.SPREAD.map(func(x): return x.name), settings.spread, func(i: int) -> void: settings.spread = i, "spread")
 		_seg(v, "Крака", GameSettings.LEGS, settings.legs, func(i: int) -> void: settings.legs = i, "legs")
+		_seg(v, "Външен вид", Avatar.LOOKS.map(func(x): return x.name), settings.look, func(i: int) -> void: settings.look = i, "look")
 		_seg(v, "Препятствия", ["Да", "Не"], 0 if settings.hazards else 1, func(i: int) -> void: settings.hazards = i == 0, "hazards")
 		_seg(v, "Време", GameSettings.MINUTES.map(func(x): return "∞" if x == 0 else "%d мин" % x),
 			GameSettings.MINUTES.find(settings.minutes), func(i: int) -> void: settings.minutes = GameSettings.MINUTES[i], "minutes")

@@ -37,8 +37,19 @@ export async function handleVrlogPut(request, env, url, limit) {
   return text('OK\n');
 }
 
+/** GET /v1/vrlog/recent — the codes of the last 24 h (owner 2026-11-11: "the codes flash too briefly to write down —
+ * find them"): code, time, parts, size; newest first, at most 20. The recordings hold only motion (no names). */
+export async function handleVrlogRecent(env, ts = now()) {
+  const rows = await env.DB.prepare(
+    'SELECT id, MAX(ts) AS ts, MAX(parts) AS parts, COUNT(*) AS have, SUM(size) AS size FROM vr_logs WHERE ts > ? GROUP BY id ORDER BY ts DESC LIMIT 20',
+  ).bind(ts - 86400).all();
+  return new Response(JSON.stringify({ ok: true, recent: rows.results || [] }),
+    { headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' } });
+}
+
 /** GET /v1/vrlog/<code>[/<part>] */
 export async function handleVrlogGet(env, rest) {
+  if (rest === 'recent') return handleVrlogRecent(env);
   const [code, p] = String(rest || '').split('/');
   const id = vrlogId(code);
   if (!id) return text('not found\n', 404);

@@ -42,6 +42,15 @@ describe('VR leg recordings', () => {
     assert.equal((await handleVrlogGet(env, 'AAAAAAAAAA')).status, 404);
     assert.equal((await handleVrlogGet(env, 'K7Q2M9XA4D/5')).status, 404);
   });
+  it('lists the codes of the last 24 h, newest first', async () => {
+    const env = { DB: d1() };
+    const t = Math.floor(Date.now() / 1000);
+    env.DB.db.prepare('INSERT INTO vr_logs (id, part, parts, ts, size, body) VALUES (?, 0, 1, ?, 5, ?)').run('OLDOLDOLD2', t - 2 * 86400, new Uint8Array([1]));
+    env.DB.db.prepare('INSERT INTO vr_logs (id, part, parts, ts, size, body) VALUES (?, 0, 1, ?, 5, ?)').run('AAAAAAAAA2', t - 600, new Uint8Array([1]));
+    env.DB.db.prepare('INSERT INTO vr_logs (id, part, parts, ts, size, body) VALUES (?, 0, 1, ?, 5, ?)').run('BBBBBBBBB2', t - 60, new Uint8Array([1]));
+    const r = await (await handleVrlogGet(env, 'recent')).json();
+    assert.deepEqual(r.recent.map((x) => x.id), ['BBBBBBBBB2', 'AAAAAAAAA2']);
+  });
   it('refuses a bad code, part, size, and when busy', async () => {
     const env = { DB: d1() };
     assert.equal((await put(env, 'id=bad&part=0&parts=1', new Uint8Array(3))).status, 400);

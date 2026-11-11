@@ -513,7 +513,7 @@ func _legs_log(delta: float) -> void:
 	stage._show_toast("Изпращам записа на краката…")
 	body.legs_log.send(self, func(ok: bool, code: String) -> void:
 		if ok:
-			stage._show_toast("Записът е изпратен ✓  Код: %s" % code)
+			stage._show_toast("Записът е изпратен ✓  Код: %s" % code, 30.0)   # long enough to read it out
 			menu.set_status(_hands_status() + "  ·  запис на краката: " + code)
 			print("LEGS LOG sent: ", code)
 		else:

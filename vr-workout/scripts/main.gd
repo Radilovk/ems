@@ -371,14 +371,14 @@ func _next_room() -> void:
 	_show_toast("Зала %d/%d · %s" % [room_i + 1, rooms.size(), rooms[room_i].name])
 
 
-func _show_toast(text: String) -> void:
+func _show_toast(text: String, secs := 3.0) -> void:
 	if toast == null:
 		toast = _label("", 40, STAGE_POS + Vector3(0, 2.25, 0.3), FONT_BOLD, Color.WHITE)
 		toast.billboard = BaseMaterial3D.BILLBOARD_ENABLED
 		toast.outline_size = 12
 	toast.text = text
 	toast.visible = true
-	toast_left = 3.0
+	toast_left = secs
 
 
 func _card(pos: Vector3, size: Vector2, turn: float) -> Node3D:

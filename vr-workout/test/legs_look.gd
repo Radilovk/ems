@@ -1,7 +1,8 @@
 ## The player's legs as drawn (Avatar) in a few poses, for a look: standing, a squat, a knee raise, a front kick,
 ## a step — real proportions (eye height 1.60 m), the joints where the sensors' solve puts them.
 ##   xvfb-run -a -s "-screen 0 1600x900x24" godot --path vr-workout --rendering-driver opengl3 \
-##     --script res://test/legs_look.gd -- --out=legs.png [--view=side|front|top|eye] [--pose=all|stand|squat|knee|kick]
+##     --script res://test/legs_look.gd -- --out=legs.png [--view=three|side|front|top|eye] [--pose=all|stand|squat|knee|kick|step]
+##     [--robot=0 the drawn suit legs] [--tint=0 the android white]
 extends SceneTree
 
 const STAND_H := 1.60
@@ -49,6 +50,7 @@ func _initialize() -> void:
 		frame.position = Vector3((i - (poses.size() - 1) * 0.5) * 0.95, 0, 0)
 		root.add_child(frame)
 		av.set_meta("pose", p)
+		av.robot_on = args.get("robot", "1") == "1"   # --robot=0: the drawn suit legs (no hips known)
 		av.set_meta("frame", frame)
 		i += 1
 	var cam := Camera3D.new()
@@ -73,6 +75,10 @@ func _initialize() -> void:
 	cam.current = true
 	for f in 4:
 		await process_frame
+		if args.has("tint"):                          # --tint=0: the android white, as modelled
+			for av in root.get_children():
+				if av is Avatar:
+					(av as Avatar).robot.mat.set_shader_parameter("tint", float(args.tint))
 		for av in root.get_children():
 			if av is Avatar:
 				var b := _body(String(av.get_meta("pose")))

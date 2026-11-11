@@ -35,6 +35,8 @@ var _glove_body: StandardMaterial3D
 var _glove_mech: StandardMaterial3D
 var _legs := {}                  # "l"/"r" -> {"thigh", "joint", "pad", "shin", "boot", "halo"} (Node3D each)
 var _leg_mats: Array[StandardMaterial3D] = []
+var robot: RobotLegs             # the android's legs (the hips known: the sensors); the drawn suit legs otherwise
+var robot_on := true
 var trails := {}                 # limb -> Fx.Trail
 var color: Color = MULT_COLORS[0]
 var _target: Color = MULT_COLORS[0]
@@ -49,6 +51,8 @@ func _ready() -> void:
 		gloves[side] = _glove(side)
 	for s in ["l", "r"]:
 		_legs[s] = _leg()
+	robot = RobotLegs.new()
+	add_child(robot)
 	for l in ["hand_l", "hand_r"]:
 		trails[l] = _trail(MULT_COLORS[0], 0.04)
 	for l in ["foot_l", "foot_r"]:
@@ -681,13 +685,25 @@ func update(body: PlayerBody, frame: Node3D, mult: int, min_speed: Dictionary, e
 		tr.update(g.global_position, heat, eye, on)
 	var fwd_body := -frame.global_basis.z
 	var kz := float(body.leg_size.get("H", body.stand_h / 0.936)) / REF_H     # the player's size against the model's
+	var rl := {}
+	if robot_on and body.hip_pos.size() == 2:
+		for s in ["l", "r"]:
+			if not (body.valid.get("knee_" + s, false) and body.valid.get("foot_" + s, false)):
+				continue
+			var f: Vector3 = frame.to_global(body.pos["foot_" + s])
+			rl[s] = {"hip": frame.to_global(body.hip_pos[s]), "knee": frame.to_global(body.pos["knee_" + s]),
+				"ankle": frame.to_global(body.ankle_pos[s]) if body.ankle_pos.has(s) else f,
+				"ahead": body.foot_dir.get(s, fwd_body), "planted": body.foot_ground.get(s, not body.foot_dir.has(s))}
+	robot.pose(rl, kz * REF_H)
+	robot.glow(color, 0.15 + 0.05 * mult)
 	for s in ["l", "r"]:
 		var parts: Dictionary = _legs[s]
 		var kl: String = "knee_" + s
 		var fl: String = "foot_" + s
 		var on: bool = body.valid.get(kl, false) and body.valid.get(fl, false)
 		for n in parts.values():
-			(n as Node3D).visible = on
+			(n as Node3D).visible = on and not robot.visible
+		(parts.halo as Node3D).visible = on
 		var tr: Fx.Trail = trails[fl]
 		if not on:
 			tr.update(Vector3.ZERO, 0.0, eye, false)
@@ -741,6 +757,9 @@ func update(body: PlayerBody, frame: Node3D, mult: int, min_speed: Dictionary, e
 		var toe := float((body.leg_size.get("toe", {}) as Dictionary).get(s, 0.0))
 		var bl := clampf(toe / 0.21, 0.85, 1.15) if toe > 0.0 else 1.0
 		boot.global_transform = Transform3D(bb * Basis.from_scale(Vector3(kz, kz, kz * bl)), an)
+		if robot.visible:                                   # the android's legs drawn: only the halo and the trail stay
+			for n in ["thigh", "joint", "pad", "shin", "boot"]:
+				(parts[n] as Node3D).visible = false
 		var halo: Node3D = parts.halo
 		halo.global_position = Vector3(f.x, frame.global_position.y + 0.012, f.z)
 		halo.scale = Vector3.ONE * clampf(1.2 - (f.y - frame.global_position.y) * 1.5, 0.3, 1.2)

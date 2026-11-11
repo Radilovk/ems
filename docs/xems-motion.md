@@ -591,6 +591,20 @@ length from the measured toe. No box of hips: from the eyes it hid the legs (the
 `xvfb-run -a godot --path vr-workout --rendering-driver opengl3 --script res://test/legs_look.gd -- --out=x.png
 --view=three|side|front|eye [--pose=stand|squat|knee|kick|step]` (`docs/vr-legs-1.33.png`).
 
+### 1.34 — android legs (owner, 2026-11-11: "more futuristic — a robot, the android we have; the gloves look like a superhero's, the legs are plain")
+Whenever the hips are known (the sensors: gamepads or the phone), the legs are **the XEMS figure's android** ("White
+Android Robot", Cedric Ricci, CC BY 4.0 — `vr-workout/assets/robot/android.glb`, the same 45 k-triangle rigged model
+as `motion/viewer/models/android.js`) posed on the solved joints (`robot_legs.gd`): each of its thigh / calf bones is
+turned from its rest onto the segment (the front from the knee's hinge, as the shin sensor gives it), stretched to
+the segment's length and scaled to the player; a planted foot stands flat turned to where it points, a lifted one
+keeps its rest angle to the shin. The android's own skinning makes the knee — the bend is exactly at the solved knee.
+Its pelvis is placed between the hips, narrowed to their width (only so the thighs' tops stay smooth) and, with the
+trunk, arms and head, **dissolved in the shader by the skin's weights** (dithered discard: no blending, no sorting) —
+from the eyes a pelvis would hide the legs; the hands stay the gloves. `shaders/robot.gdshader`: its white panels
+tinted to the gloves' suit (cyan metal, dark joints), a rim + glow in the combo colour; `tint = 0` keeps it white
+(`docs/vr-legs-1.34.png`: top tinted, bottom white). Without the hips (a controller on an ankle, Meta's estimate) the
+drawn suit legs of §1.33 stay. Preview: `legs_look.gd -- --robot=0|1 --tint=0..1`.
+
 ### AI (Gemini) — where it fits and where not
 Not for the live figure: a cloud model answers in 0.5–3 s, needs the network, costs per call and does not return
 reliable joint angles — the figure must follow the body in < 50 ms. "Natural" comes from local models learned from

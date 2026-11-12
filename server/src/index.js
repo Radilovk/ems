@@ -75,7 +75,7 @@ export default {
         return handleAuto(request, env);
       }
       if (path === '/v1/app/update' && request.method === 'GET') {
-        return handleUpdate(url, env);
+        return handleUpdate(url, env, ctx);
       }
       if (path === '/v1/exercises/selection' && (request.method === 'GET' || request.method === 'OPTIONS')) {
         return handleSelection(request, env);
@@ -770,11 +770,31 @@ async function handleClientsPut(request, env) {
   return json({ ok: true, ids });
 }
 
-async function handleUpdate(url, env) {
+async function handleUpdate(url, env, ctx) {
   const app = url.searchParams.get('app') || 'xems';
   const channel = url.searchParams.get('channel') || 'stable';
   const code = parseInt(url.searchParams.get('code') || '0', 10);
   if (app !== 'xems') return json({ ok: true, version_code: 0 });
+  // the answer is the same for every tablet on this version: kept 10 min at the edge (no D1 read per tablet);
+  // the key leaves the device id out. A new release reaches the tablets within those 10 min.
+  const key = new Request(`${url.origin}/v1/app/update?channel=${encodeURIComponent(channel)}&code=${code}`);
+  let cache = null;
+  try {
+    cache = caches.default;
+    const hit = await cache.match(key);
+    if (hit) return new Response(hit.body, { headers: { 'Content-Type': 'application/json; charset=utf-8' } });
+  } catch { cache = null; }
+  const res = await updateAnswer(url, env, channel, code);
+  if (cache && ctx) {
+    const body = await res.clone().text();
+    ctx.waitUntil(cache.put(key, new Response(body, {
+      headers: { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'public, max-age=600' },
+    })));
+  }
+  return res;
+}
+
+async function updateAnswer(url, env, channel, code) {
 
   const rel = await env.DB.prepare(
     `SELECT * FROM releases

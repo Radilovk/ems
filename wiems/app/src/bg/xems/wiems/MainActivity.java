@@ -721,6 +721,14 @@ public final class MainActivity extends Activity implements Ble.Listener, Host, 
                 int code = session.noStartCode();
                 int bat = session.battery();
                 setNote("WiEMS не стартира", true);
+                if (code == 2) {           // the unit's own refusal: its minute limit (wiems/PROTOCOL.md "Start refused: 02")
+                    showProblem("WiEMS отказа старта — лимитът на минутите в модула",
+                            "Модулът отговори на СТАРТ веднага с код 02 (нормално брои 4 s и праща 01). Броячът му: "
+                                    + (unitMinutes != null ? unitMinutes : "?") + " използвани минути; при последния запис лимитът беше 73200.",
+                            "Лимитът е записан в самия модул — таблетът не може да го промени.",
+                            "Ако договорът ви е за неограничени минути, производителят трябва да вдигне лимита на този модул (сериен № 204430018).",
+                            "Таблетът и костюмът са наред — щом лимитът се вдигне, ▶ тръгва както преди.");
+                } else
                 showProblem("WiEMS не стартира",
                         "Модулът прие СТАРТ, но не тръгна — няма потвърждение до " + Session.NO_START_MS / 1000 + " s ("
                                 + (code >= 0 ? "отговори с код " + Integer.toHexString(code) : "не отговори нищо") + ")."

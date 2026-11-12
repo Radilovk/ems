@@ -320,6 +320,12 @@ the app can see reaches the server and the hourly check. The logo's long press (
   policies). Without it the update still comes by itself, Android shows "Инсталирай" once. Android 12+: the session
   asks `setRequireUserAction(NOT_REQUIRED)` too. `Relaunch` (MY_PACKAGE_REPLACED) opens the app again after an update.
 
+## v1.25 — the first real report: the unit refuses with `02` (its minute limit)
+Report 7 / 8 (2026-11-12, Lenovo TB-8505F, app 1.22): `25` → `← run 02` at once, minutes used 073160 of the 73200
+the vendor loaded; each program asks Dur 41 → refused (wiems/PROTOCOL.md "Start refused: 02"). The no-start card now
+says so for code 02: the limit is in the unit, the tablet cannot change it, the vendor raises it (serial on the card);
+the tablet and suit are fine.
+
 ## Build / test
 ```
 sh scripts/build-wiems-app.sh     # → wiems/dist/xems-wiems.apk (committed); version in wiems/app/VERSION

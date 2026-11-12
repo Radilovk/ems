@@ -63,7 +63,7 @@ Byte 1 = Hz 84 → 89 → 92 (log "fr"); rest Hz 5 → 6 → 7; program 7 adds r
 - Units of Dur (41), dec (1406) and of the widths in 0x001c; pulse-width range.
 - Bit 7 in 0x002e (the app's log of the same write has no such bit).
 - Watchdog: does the unit stop by itself when the tablet goes silent (the app writes 0x002e at least every few s)?
-- Minutes quota: does the unit itself refuse `25` when used ≥ bought?
+- Minutes quota: answered — see "Start refused: 02" below.
 Next capture, same way: change only the **pulse width** (2–3 values), then only **session length**, then leave a
 session running 2 min untouched; name the channels on screen. Then the probe on the tablet.
 
@@ -89,3 +89,15 @@ XOR 9 = 01001 → ch 4, ch 7; `12 0f 0f 8f 0f 0f 0f 8f 0c 00`: 0x11 → ch 3, ch
 A write without the bits whose XOR is not 0 makes the unit stop with `86`, `00` — any channel set apart from the
 others; all channels equal always passed. That is the vendor's log "Curr_comp: Calculada / Recibida". Scale: the
 vendor's 100 % ≈ byte 19–20 (`WiProto.UNIT_MAX` 20). The earlier "86 = channel" / "no load" readings are wrong.
+
+## Start refused: `02` — the unit's minute limit (XEMS WiEMS app report 7 / 8, 2026-11-12)
+The owner's unit (serial 204430018, model 1.2.19, `88:6B:0F:CC:BE:49`) stopped starting. Our writes were the vendor's
+sequence byte for byte in format (program `29 50 04 03 01 00 7e 05 02 06`, rest, widths, currents 0, all ACKed), then
+`W 0043 25` → the run control notified **`02` within 1 ms of the ACK** and nothing more (no count-down, no `01`, LEDs
+dark); twice, the same. The vendor capture: `25` → `01` after ~4.1 s, every time. Minutes used `0x0039`: **073160**
+(capture 2026-10-16: 072323; the vendor's log then: "Minutos comprados: 73200"). 73200 − 73160 = **40 left**, and every
+program write carries **Dur = 41** (byte 0, the vendor's constant): 73160 + 41 > 73200. So `02` on the run control =
+**start refused: not enough minutes for the program's Dur** (strongly indicated; the limit's own characteristic is not
+identified — app 1.24's snapshot reads every readable value and will show where "73200" lives). The unit counts minutes
+whichever app drives it (837 counted under ours in 4 weeks). The limit is set by the vendor (its app loads "bought"
+from its server); we do not alter the unit's metering.

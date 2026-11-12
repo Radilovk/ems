@@ -360,6 +360,8 @@ public class UnitSim {
 
         // 5d. v1.26 — a tight unit (it said "02") whose counter counts whole minutes of one run: every run stays
         // under a minute (re-armed in a pause), the counter does not move, the session gets its full time.
+        // v1.29: the segments are off by default — switched on here for the experiment.
+        Quota.segmentsOn = true;
         r = new Rig();
         r.s.setProgram(prog(85, 4, 4, 600));
         r.allZones(30);
@@ -396,6 +398,47 @@ public class UnitSim {
         int st = r.u.starts;
         r.run(120000);
         ok("5e then one run, no more re-arms", r.u.starts == st && r.s.state() == Session.RUNNING, "starts " + r.u.starts);
+        Quota.segmentsOn = false;
+
+        // 5h. v1.29 — segments off by default: a tight unit trains in one run (no 48 s cycles)
+        r = new Rig();
+        r.s.setProgram(prog(85, 4, 4, 300));
+        r.allZones(30);
+        r.s.quota.tight = true;
+        r.s.start(r.t);
+        r.run(200000);
+        ok("5h segments off by default → one run, no re-arms", r.u.starts == 1 && r.s.state() == Session.RUNNING
+                && !r.s.quota.segments(), "starts " + r.u.starts + " " + r.s.quota);
+
+        // 5i. v1.29 — a verified quota key: no 1.26 cycles even with the segments on — the vendor's Dur, one run,
+        // and a "00" is a real stop (the pause), not a silent re-arm
+        Quota.segmentsOn = true;
+        r = new Rig();
+        r.s.setProgram(prog(85, 4, 4, 600));
+        r.allZones(30);
+        r.s.quota.tight = true;
+        r.s.quota.dur = 1;
+        r.s.quota.keyed = true;
+        r.s.start(r.t);
+        r.run(200000);
+        ok("5i key active → vendor Dur, one run, no segments", r.u.starts == 1 && r.u.dur == Quota.DUR_VENDOR
+                && r.s.state() == Session.RUNNING && !r.s.quota.segments(), "starts " + r.u.starts + " dur " + r.u.dur);
+        r.u.quota = r.u.counter;                    // the unit stops by itself now
+        r.run(70000);
+        ok("5i key active → \"00\" pauses, no auto re-arm", r.u.starts == 1 && r.s.state() != Session.RUNNING,
+                "starts " + r.u.starts + " state " + r.s.state());
+        Quota.segmentsOn = false;
+
+        // 5j. v1.29 — the key went stale: "02" with the key on → flagged stale, falls back to a smaller Dur and runs
+        r = new Rig();
+        r.allZones(30);
+        r.u.quotaLeft = 40;
+        r.s.quota.keyed = true;
+        r.s.start(r.t);
+        r.run(8000);
+        ok("5j stale key → fallback Dur, runs, flagged once", r.s.state() == Session.RUNNING && r.u.state == Unit.RUN
+                && r.u.dur <= 40 && !r.s.quota.keyed && r.s.quota.takeKeyStale() && !r.s.quota.takeKeyStale(),
+                "dur " + r.u.dur + " " + r.s.quota);
 
         // 5f. a tight unit that stops by itself at its quota ("00"): armed again (≤ 3), then the pause
         r = new Rig();

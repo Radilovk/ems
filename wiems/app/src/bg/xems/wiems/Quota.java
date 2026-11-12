@@ -35,8 +35,33 @@ final class Quota {
     /** Something worth saving changed. */
     boolean dirty;
 
+    /**
+     * v1.29: the segments are OFF by default — no real log has shown a per-minute counter yet, and they are the only
+     * layer that re-arms a live training. Kept for an explicit experiment (the tests switch them on).
+     */
+    static boolean segmentsOn = false;
+    /**
+     * v1.29: a verified quota key is active on this link (MainActivity) — the limit is gone, so none of the 1.26
+     * cycles run: no segments, no auto re-arm on "00", the vendor's Dur. Not saved: proved again at every link.
+     */
+    boolean keyed;
+    /** Set when "02" came although {@link #keyed}: the key went stale (MainActivity takes it, drops the key). */
+    boolean keyStale;
+
+    /** The 1.26 workarounds apply: tight and no working key. */
+    boolean relaxed() {
+        return tight && !keyed;
+    }
+
     boolean segments() {
-        return tight && verdict != VERDICT_USELESS;
+        return segmentsOn && relaxed() && verdict != VERDICT_USELESS;
+    }
+
+    /** Taken once by the screen: the key failed on a real start. */
+    boolean takeKeyStale() {
+        boolean b = keyStale;
+        keyStale = false;
+        return b;
     }
 
     void addRun(long ms) {

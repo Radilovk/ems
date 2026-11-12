@@ -314,9 +314,12 @@ final class Session {
             for (int i = 0; i < share.length; i++) share[i] = 100;
         }
         if (kind == Dev.WIEMS && wi == WI_IDLE) {
-            if (quota.tight && dur != quota.dur) {
+            if (quota.relaxed() && dur != quota.dur) {
                 log("start with the Dur that last ran on this unit: " + quota.dur + " (" + quota + ")");
                 dur = quota.dur;
+            } else if (quota.keyed && dur != DUR_VENDOR) {
+                log("quota key active: the vendor's Dur " + DUR_VENDOR + " (was " + dur + ")");
+                dur = DUR_VENDOR;
             }
             // the unit gets the program and starts its count-down now; the clock runs when the unit does (tick)
             push(program(WiProto.PHASE_ARM), T_PROG);
@@ -634,7 +637,7 @@ final class Session {
         // "00" while it should run: the unit stopped by itself — show it and let ▶ arm it again
         if (v[0] == 0 && wi == WI_RUN && state == RUNNING) {
             // v1.26: a tight unit that stops by itself (its quota / its Dur over) is armed again, at most 3 times
-            if (quota.tight && autoRearms < 3) {
+            if (quota.relaxed() && autoRearms < 3) {
                 autoRearms++;
                 rearm(now, "the unit notified \"00\" by itself, " + autoRearms + " of 3");
             } else unitHalted("the unit notified \"00\" (it stopped)");
@@ -687,6 +690,11 @@ final class Session {
 
     /** "02" in the count-down: the quota — arm the unit again with a smaller Dur (true: a new try went out). */
     private boolean retryDur(long now) {
+        if (quota.keyed) {                            // v1.29: the key did not hold — fall back to the 1.26 layer now
+            quota.keyed = false;
+            quota.keyStale = true;
+            log("count-down: \"02\" although the quota key is active — the key is stale, falling back");
+        }
         quota.setTight();
         int mins = (int) Math.max(1, Math.min(DUR_VENDOR - 1, (prog.totalS + 59) / 60));
         int next = dur > mins ? mins : dur > 1 ? 1 : dur > 0 ? 0 : -1;

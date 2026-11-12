@@ -81,9 +81,11 @@ public final class MainActivity extends Activity implements Ble.Listener, Host, 
             if (verify) {
                 if (winner != null) {
                     resetVerified = true;               // the key still opens the gate; the unit is ready
+                    if (session != null) session.quota.keyed = true;   // v1.29: no 1.26 cycles while it holds
                     trace("quota reset verified for " + quotaMac);
                 } else if (quotaMac != null) {          // stale: drop it and search again when idle
                     knownReset = null;
+                    if (session != null) session.quota.keyed = false;
                     pr.edit().remove("reset_" + quotaMac).apply();
                     wantProbe = session != null && session.quota.tight;
                     trace("quota reset discarded (stale) for " + quotaMac + " — will search again");
@@ -91,6 +93,7 @@ public final class MainActivity extends Activity implements Ble.Listener, Host, 
             } else if (winner != null && quotaMac != null) {
                 knownReset = winner;
                 resetVerified = true;                   // a probe win is itself a zero-current run that succeeded
+                if (session != null) session.quota.keyed = true;
                 pr.edit().putString("reset_" + quotaMac, Probe.save(winner)).apply();
                 trace("quota probe: saved reset for " + quotaMac + " = " + Probe.save(winner));
             }
@@ -678,6 +681,7 @@ public final class MainActivity extends Activity implements Ble.Listener, Host, 
                 knownReset = Probe.load(pr.getString("reset_" + linkingMac, null));
                 triedKeys = splitKeys(pr.getString("tried_" + linkingMac, null));
                 resetVerified = false;
+                session.quota.keyed = false;          // v1.29: only a key verified on this link switches the cycles off
                 wantVerify = knownReset != null;      // v1.28: prove the stored key still works, silently, before use
                 wantProbe = knownReset == null && session.quota.tight;
                 if (knownReset != null) trace("quota reset known for this unit: " + Probe.save(knownReset) + " (will re-verify)");
@@ -881,6 +885,13 @@ public final class MainActivity extends Activity implements Ble.Listener, Host, 
             }
             String u = Dev.SHORT[session.kind];
             if (session.takeMinutesWanted()) minutesWant = true;
+            if (session.quota.takeKeyStale() && quotaMac != null) {   // v1.29: "02" with the key on — it went stale
+                getSharedPreferences("wiems", MODE_PRIVATE).edit().remove("reset_" + quotaMac).apply();
+                trace("quota reset refused on a real start — discarded, fell back to a smaller Dur, will search again");
+                knownReset = null;
+                resetVerified = false;
+                wantProbe = true;
+            }
             if (session.quota.dirty && quotaMac != null) {
                 getSharedPreferences("wiems", MODE_PRIVATE).edit().putString("quota_" + quotaMac, session.quota.save()).apply();
                 trace("saved " + session.quota);

@@ -24,7 +24,6 @@ final class Probe {
     static final String COUNTER = "7764d000-c6a9-11e4-8731-1681e6b88ec1";
     static final String WO1 = "7764a25c-c6a9-11e4-8731-1681e6b88ec1";
     static final String WO2 = "77645cb2-c6a9-11e4-8731-1681e6b88ec1";
-    static final String CONFIG = "776416cb-c717-11e4-8731-1681e6b88ec1";
 
     static final class Cand {
         final String uuid;

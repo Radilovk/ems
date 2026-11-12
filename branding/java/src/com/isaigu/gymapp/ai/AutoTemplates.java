@@ -237,7 +237,8 @@ public final class AutoTemplates {
                 s.add("postpartum");
             }
         }
-        if (in.bmi() >= 30 || in.age >= 60 || AutoCatalog.SENIOR.equals(in.programId)) {
+        if (in.bmi() >= 30 || in.age >= 60 || AutoCatalog.SENIOR.equals(in.programId)
+                || AutoCatalog.ANTIAGE.equals(in.programId)) {
             s.add("joints");                  // no impact
         }
         return s;

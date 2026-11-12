@@ -1653,6 +1653,196 @@
      ]
     }
    }
+  },
+  {
+   "id": "antiage",
+   "name": "Антиейджинг",
+   "goals": [
+    "tone",
+    "health"
+   ],
+   "ai": [
+    "TONE"
+   ],
+   "img": "squat",
+   "T": 20,
+   "share": [
+    15,
+    75,
+    10
+   ],
+   "warm": "7 Hz · 350 µs",
+   "main": "85 Hz · 350 µs 4:4 · 85 Hz · 300 µs 2:6 · 30 Hz · 300 µs 6:4",
+   "cool": "5 Hz · 250 µs",
+   "cr10": "5–6",
+   "note": "Зоните са равни (100 %), силата е от калибрирането — треньорът ги задава за клиента. Без скокове.",
+   "lv": {
+    "1": {
+     "T": 15,
+     "warm_s": 135,
+     "main_s": 670,
+     "cool_s": 95,
+     "on": 4,
+     "off": 6,
+     "stations": [
+      {
+       "ex": "bodyweight-squat",
+       "sec": 112,
+       "cycles": 11
+      },
+      {
+       "ex": "banded-lat-pulldown",
+       "sec": 112,
+       "cycles": 11
+      },
+      {
+       "ex": "incline-push-up",
+       "sec": 112,
+       "cycles": 11
+      },
+      {
+       "ex": "step-down",
+       "sec": 112,
+       "cycles": 11
+      },
+      {
+       "ex": "glute-bridge",
+       "sec": 111,
+       "cycles": 11
+      },
+      {
+       "ex": "superman",
+       "sec": 111,
+       "cycles": 11
+      }
+     ],
+     "warm": [
+      {
+       "ex": "bodyweight-squat",
+       "sec": 68
+      },
+      {
+       "ex": "lateral-lunge",
+       "sec": 67
+      }
+     ]
+    },
+    "2": {
+     "T": 20,
+     "warm_s": 180,
+     "main_s": 900,
+     "cool_s": 120,
+     "on": 4,
+     "off": 4,
+     "stations": [
+      {
+       "ex": "goblet-squat",
+       "sec": 129,
+       "cycles": 16
+      },
+      {
+       "ex": "one-arm-dumbbell-row",
+       "sec": 129,
+       "cycles": 16
+      },
+      {
+       "ex": "incline-push-up",
+       "sec": 129,
+       "cycles": 16
+      },
+      {
+       "ex": "reverse-lunge",
+       "sec": 129,
+       "cycles": 16
+      },
+      {
+       "ex": "standing-dumbbell-press",
+       "sec": 128,
+       "cycles": 16
+      },
+      {
+       "ex": "glute-bridge",
+       "sec": 128,
+       "cycles": 16
+      },
+      {
+       "ex": "superman",
+       "sec": 128,
+       "cycles": 16
+      }
+     ],
+     "warm": [
+      {
+       "ex": "bodyweight-squat",
+       "sec": 90
+      },
+      {
+       "ex": "lateral-lunge",
+       "sec": 90
+      }
+     ]
+    },
+    "3": {
+     "T": 20,
+     "warm_s": 180,
+     "main_s": 900,
+     "cool_s": 120,
+     "on": 4,
+     "off": 4,
+     "stations": [
+      {
+       "ex": "goblet-squat",
+       "sec": 113,
+       "cycles": 14
+      },
+      {
+       "ex": "dumbbell-bent-over-row",
+       "sec": 113,
+       "cycles": 14
+      },
+      {
+       "ex": "knee-push-up",
+       "sec": 113,
+       "cycles": 14
+      },
+      {
+       "ex": "reverse-lunge",
+       "sec": 113,
+       "cycles": 14
+      },
+      {
+       "ex": "standing-dumbbell-press",
+       "sec": 112,
+       "cycles": 14
+      },
+      {
+       "ex": "kettlebell-romanian-deadlift",
+       "sec": 112,
+       "cycles": 14
+      },
+      {
+       "ex": "single-leg-glute-bridge",
+       "sec": 112,
+       "cycles": 14
+      },
+      {
+       "ex": "side-plank",
+       "sec": 112,
+       "cycles": 14
+      }
+     ],
+     "warm": [
+      {
+       "ex": "bodyweight-squat",
+       "sec": 90
+      },
+      {
+       "ex": "lateral-lunge",
+       "sec": 90
+      }
+     ]
+    }
+   }
   }
  ],
  "passive": [
@@ -1803,6 +1993,31 @@
    ],
    "cr10": "3",
    "phases": "Редуване 3 Hz ↔ 8 Hz 10:2; 24–48 ч след активна"
+  },
+  {
+   "id": "antiage_passive",
+   "name": "Антиейджинг · процедура",
+   "goals": [
+    "tone",
+    "health"
+   ],
+   "ai": [
+    "MASSAGE"
+   ],
+   "img": "line",
+   "pos": "Полулегнал, краката леко повдигнати",
+   "T": [
+    15,
+    20,
+    20
+   ],
+   "e": [
+    "0.6",
+    "0.7",
+    "0.8"
+   ],
+   "cr10": "4–5",
+   "phases": "Загряване 5 Hz · кръвоток 10 Hz · тонус 50 Hz 4:6 · лимфна вълна „крака“ 35 Hz · 3 Hz; зоните и силата — от треньора"
   }
  ],
  "cond": {

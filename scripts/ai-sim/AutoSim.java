@@ -349,7 +349,7 @@ public final class AutoSim {
     /** Owner (1.1.287): a passive session says the goal of every phase and what the current does. */
     static void passiveTexts() {
         String[] ids = {AutoCatalog.CELLULITE, AutoCatalog.DRAIN, AutoCatalog.PASSIVE_METABOLIC, AutoCatalog.BACK_PAIN,
-                AutoCatalog.POSTPARTUM, AutoCatalog.RECOVERY, AutoCatalog.FACE, AutoCatalog.FACE_TONE,
+                AutoCatalog.POSTPARTUM, AutoCatalog.RECOVERY, AutoCatalog.ANTIAGE_PASSIVE, AutoCatalog.FACE, AutoCatalog.FACE_TONE,
                 AutoCatalog.FACE_OVAL, AutoCatalog.FACE_DRAIN, AutoCatalog.FACE_RELAX, AutoCatalog.FACE_CALM,
                 AutoCatalog.FACE_JAW, AutoCatalog.FACE_CHIN};
         for (String id : ids) {

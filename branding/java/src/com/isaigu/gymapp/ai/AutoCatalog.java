@@ -45,6 +45,15 @@ public final class AutoCatalog {
     public static final String BACK_PAIN = "back_pain";
     public static final String RECOVERY = "recovery";
     /**
+     * Anti-ageing (owner, 1.1.514 — docs/xems-auto-mode-spec.md §6.12): only the impulse is the program's; the zones are
+     * even (every channel 100 %) and the strength is the calibration — the trainer sets both for the client.
+     * Active: the type II fibres that ageing loses first (85 Hz · 350 µs, WB-EMS in sarcopenia), quick rising for the
+     * falls, then the slow fibres' endurance (30 Hz) for the mitochondria. Passive: blood flow (10 Hz), tone (50 Hz),
+     * the lymph wave, then relax.
+     */
+    public static final String ANTIAGE = "antiage";
+    public static final String ANTIAGE_PASSIVE = "antiage_passive";
+    /**
      * Face (owner, 2026-11-06 — docs/xems-face.md §9): the face connector puts the ten channels on ten face sites
      * (sockets F1–F10, galvanically isolated channels). Every face program names its sites; the rest are 0 and locked;
      * the encoder's face mode gives every channel the gentle divider. Motor programs never under 20 Hz on the face
@@ -244,6 +253,17 @@ public final class AutoCatalog {
                 Kind.PASSIVE, AutoModel.zones(80, 90, 90, 90, 50, 70, 80, 80, 40, 60)));
         p.cr10Lo = 3; p.cr10Hi = 5; p.xCap = 0.45;
 
+        p = add(new Program(ANTIAGE, "Антиейджинг", "Anti-ageing",
+                "Бързите влакна, които годините отнемат първи — сила, бързо ставане, издръжливост",
+                "The fast fibres that the years take first — strength, quick rising, endurance",
+                Kind.ACTIVE, AutoModel.zones(100, 100, 100, 100, 100, 100, 100, 100, 100, 100)));
+        p.cr10Lo = 5; p.cr10Hi = 6; p.xCap = 0.80; p.envMax = 1.15; p.impulse = AutoDynamics.GENTLE;
+
+        p = add(new Program(ANTIAGE_PASSIVE, "Антиейджинг · процедура", "Anti-ageing · treatment",
+                "Кръвоток, тонус и лимфна вълна — в покой", "Blood flow, tone and a lymph wave — at rest",
+                Kind.PASSIVE, AutoModel.zones(100, 100, 100, 100, 100, 100, 100, 100, 100, 100)));
+        p.cr10Lo = 4; p.cr10Hi = 5; p.xCap = 0.55; p.envMax = 1.0;
+
         p = add(new Program(FACE, "Лице · Лифтинг на скулите", "Face · Cheekbone lift",
                 "Лифтинг · Скулптуриране · Лимфодренаж · Ботокс ефект · Свежо лице — избор в студиото за лице",
                 "Lift · Oval · Facial lymphatic drainage · Botox effect · Fresh face — chosen in the face studio",
@@ -277,7 +297,7 @@ public final class AutoCatalog {
 
         // difficulty (owner, 1.1.336; design values): what the program asks of the body — the feeling it aims at,
         // the explosive / metabolic work. Green = easy, amber = medium, red = hard.
-        for (String id : new String[] {BACK_ACTIVE, SENIOR, POSTPARTUM, DRAIN, BACK_PAIN, RECOVERY}) {
+        for (String id : new String[] {BACK_ACTIVE, SENIOR, POSTPARTUM, DRAIN, BACK_PAIN, RECOVERY, ANTIAGE_PASSIVE}) {
             get(id).level = 1;
         }
         for (String id : new String[] {POWER, CARDIO, MASS}) {
@@ -427,8 +447,8 @@ public final class AutoCatalog {
         switch (goal) {
             case TONE:
                 ids = kind == Kind.ACTIVE
-                        ? new String[] {GENERAL, MASS, UPPER, GLUTES_LEGS, CORE, POWER}
-                        : new String[] {CELLULITE, POSTPARTUM, PASSIVE_METABOLIC, FACE};
+                        ? new String[] {GENERAL, MASS, UPPER, GLUTES_LEGS, CORE, POWER, ANTIAGE}
+                        : new String[] {CELLULITE, POSTPARTUM, PASSIVE_METABOLIC, ANTIAGE_PASSIVE, FACE};
                 break;
             case SLIM:
                 ids = kind == Kind.ACTIVE
@@ -437,8 +457,8 @@ public final class AutoCatalog {
                 break;
             default:
                 ids = kind == Kind.ACTIVE
-                        ? new String[] {BACK_ACTIVE, SENIOR}
-                        : new String[] {BACK_PAIN, DRAIN, POSTPARTUM, RECOVERY};
+                        ? new String[] {BACK_ACTIVE, SENIOR, ANTIAGE}
+                        : new String[] {BACK_PAIN, DRAIN, POSTPARTUM, RECOVERY, ANTIAGE_PASSIVE};
                 break;
         }
         List<Program> out = new ArrayList<Program>();
@@ -873,6 +893,50 @@ public final class AutoCatalog {
                 m.hintEn = "It tightens under the chin — do not swallow during the hold";
                 m.steps.add(faceStep(30, FACE_CHIN_PW, 4, 8, 500));
                 faceCooldown(out, total, FACE_CHIN_PW);
+                break;
+            }
+            case ANTIAGE: {
+                // spec §6.12: type II strength (85 Hz · 350 µs) → quick rising (short 85 Hz holds, long rest — the
+                // power that keeps one from falling) → slow-fibre endurance (30 Hz, mitochondria, capillaries)
+                int[] oo = onOff(in, 4, 4);
+                Phase w = phase(out, "WARMUP", "Загрявка", "Warm-up", 0.15, total, 0.6, 1.0);
+                w.envStart = 0.6;
+                w.envEnd = 1.0;
+                w.hintBg = "Ходене на място, леки клекове";
+                w.hintEn = "Marching, light squats";
+                w.steps.add(twitch(WARMUP_HZ, 350, 10, 1, 1.0));          // 7 Hz twitches: warm, no fatigue
+                Phase m = phase(out, "MAIN", "Сила", "Strength", 0.45, total, 1.0, 1.0);
+                m.envEnd = ENV_MAX;
+                m.window = Window.main();
+                m.hintBg = "Клек, гребане, лицеви на пейка, мост — бавно и с контрол";
+                m.hintEn = "Squat, rows, incline push-ups, bridge — slow and controlled";
+                m.steps.add(tet(85, 350, oo[0], oo[1]));
+                Phase q = phase(out, "QUICK", "Бързо ставане", "Quick rising", 0.15, total, 0.9, 0.9);
+                q.envEnd = 1.0;
+                q.hintBg = "Бързо нагоре, бавно надолу — ставане от стол, повдигане на пръсти";
+                q.hintEn = "Up fast, down slow — sit-to-stand, calf raises";
+                q.steps.add(tet(85, 300, 2, 6));
+                Phase e = phase(out, "ENDURANCE", "Издръжливост", "Endurance", 0.25, total, 0.8, 0.8);
+                e.envEnd = 1.0;
+                e.hintBg = "Ходене на място, степ — равно темпо";
+                e.hintEn = "Marching, step — an even pace";
+                e.steps.add(tet(30, 300, 6, 4));
+                cooldown(out, total, 0.10, 5);
+                break;
+            }
+            case ANTIAGE_PASSIVE: {
+                // spec §6.12: blood flow (10 Hz twitches) → tone (50 Hz 4 : 6) → the lymph wave (legs) → relax (3 Hz)
+                Phase w = phase(out, "WARMUP", "Загряване", "Warm-up", 0.10, total, 0.6, 0.7);
+                w.steps.add(twitch(5, 250, 10, 1, 1.0));
+                Phase f = phase(out, "FLOW", "Кръвоток", "Blood flow", 0.25, total, 0.7, 0.7);
+                f.steps.add(twitch(10, 300, 10, 1, 1.0));
+                Phase m = phase(out, "MAIN", "Тонус", "Tone", 0.35, total, 0.6, 0.6);
+                m.window = Window.main();
+                m.steps.add(tet(50, 300, 4, 6));
+                Phase v = phase(out, "WAVE", "Лимфна вълна", "Lymph wave", 0.30, total, 0.8, 0.8);
+                v.wave = true;
+                legWave(v, 35, 300);
+                cooldown(out, total, 0.10, 3);
                 break;
             }
             default: { // RECOVERY

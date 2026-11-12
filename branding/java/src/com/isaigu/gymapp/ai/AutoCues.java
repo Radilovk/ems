@@ -87,6 +87,12 @@ public final class AutoCues {
             return AiText.t("Дренаж: последователни съкращения изтласкват течността под кожата към лимфните пътища.",
                     "Drainage: contractions in sequence push the fluid under the skin towards the lymph pathways.");
         }
+        if (AutoCatalog.ANTIAGE.equals(id) || AutoCatalog.ANTIAGE_PASSIVE.equals(id)) {
+            String g = antiageGoal(AutoCatalog.ANTIAGE_PASSIVE.equals(id), p);
+            if (g != null) {
+                return g;
+            }
+        }
         if ("RELAX".equals(p)) {
             return AiText.t("Отпускане на напрежението и спазъма в гърба.", "Releasing the tension and spasm in the back.");
         }
@@ -114,6 +120,31 @@ public final class AutoCues {
                     "Massage: better blood flow, relaxation and faster recovery after training.");
         }
         return plan.program.desc();
+    }
+
+    /** The anti-ageing programs' goal line (spec §6.12), by phase; null = the common text. */
+    static String antiageGoal(boolean passive, String phase) {
+        if (passive && "MAIN".equals(phase)) {
+            return AiText.t("Тонус: равномерни меки стягания — мускулите под кожата стават по-плътни и стегнати.",
+                    "Tone: even, soft holds — the muscles under the skin grow denser and firmer.");
+        }
+        if ("MAIN".equals(phase)) {
+            return AiText.t("Сила: работят бързите влакна — те се губят първи с годините и пазят силата и стойката.",
+                    "Strength: the fast fibres work — the years take them first, and they keep the strength and the posture.");
+        }
+        if ("QUICK".equals(phase)) {
+            return AiText.t("Бързо ставане: кратки силни стягания — мускулът се учи да реагира бързо, това пази от падане.",
+                    "Quick rising: short strong holds — the muscle learns to react fast, which keeps one from falling.");
+        }
+        if ("ENDURANCE".equals(phase)) {
+            return AiText.t("Издръжливост: бавните влакна работят дълго — повече енергия в клетките и по-добър кръвоток.",
+                    "Endurance: the slow fibres work long — more energy in the cells and a better blood flow.");
+        }
+        if ("FLOW".equals(phase)) {
+            return AiText.t("Кръвоток: леко потрепване раздвижва кръвта в малките съдове — кожата и мускулите получават повече кислород.",
+                    "Blood flow: a light twitching moves the blood in the small vessels — skin and muscles get more oxygen.");
+        }
+        return null;
     }
 
     /** The face programs' goal line (docs/xems-face.md §9), by program and phase. */

@@ -423,11 +423,25 @@ public class UnitSim {
         r.run(200000);
         ok("5i key active → vendor Dur, one run, no segments", r.u.starts == 1 && r.u.dur == Quota.DUR_VENDOR
                 && r.s.state() == Session.RUNNING && !r.s.quota.segments(), "starts " + r.u.starts + " dur " + r.u.dur);
-        r.u.quota = r.u.counter;                    // the unit stops by itself now
-        r.run(70000);
-        ok("5i key active → \"00\" pauses, no auto re-arm", r.u.starts == 1 && r.s.state() != Session.RUNNING,
-                "starts " + r.u.starts + " state " + r.s.state());
+        ok("5i the session still running", r.s.state() == Session.RUNNING, "state " + r.s.state());
         Quota.segmentsOn = false;
+
+        // 5k. v1.30 — any unit (not tight, no key) that stops by itself every minute (its Dur / quota): armed again
+        // each time, the 10 min training finishes without one pause; a stop 1 s after the start still pauses
+        r = new Rig();
+        r.s.setProgram(prog(85, 4, 4, 600));
+        r.allZones(30);
+        r.u.quota = r.u.counter + 1;
+        r.s.start(r.t);
+        boolean paused = false;
+        for (int k = 0; k < 70 && !r.s.finished(); k++) {
+            r.run(10000);
+            if (r.u.counter >= r.u.quota) r.u.quota = r.u.counter + 1;   // it stops again a minute later
+            if (r.s.state() == Session.PAUSED || r.s.takeUnitStopped()) paused = true;
+        }
+        ok("5k self-stops every minute → re-armed, finished, never paused", r.s.finished() && !paused
+                && r.u.haltAtQuota >= 5, "halts " + r.u.haltAtQuota + " finished " + r.s.finished() + " paused " + paused);
+        ok("5k no fault", r.u.faults.isEmpty(), r.faults());
 
         // 5j. v1.29 — the key went stale: "02" with the key on → flagged stale, falls back to a smaller Dur and runs
         r = new Rig();

@@ -407,6 +407,16 @@ The audit found that a verified key did **not** stop the 1.26 cycles: `Session` 
 - Removed the unused `Probe.CONFIG`. Tests: `UnitSim` 5h (one run by default), 5i (keyed: vendor Dur, one run, "00"
   pauses), 5j (stale key → fallback Dur, flagged once); 5d/5e switch the segments on explicitly.
 
+## v1.30 — the unit never stops a training by itself (owner: "uninterrupted work — nothing stops, nothing gets in the way during a training")
+- **Self-stop "00" after a real run (≥ `SELF_STOP_RUN_MS` = 20 s) → armed again at once, every time**, on any unit,
+  with or without a quota key (was: only a tight unit without a key, at most 3 times, then the pause). This covers the
+  unit's own Dur running out on a long session and its quota stopping it; the client feels only the unit's ~4 s
+  count-down, the session clock goes on. A "02" on that re-arm takes the Dur ladder as at the start.
+- A stop **sooner** than 20 s after a (re)start is not a limit (a fault / the unit's own button) → the pause, as before.
+- What still pauses, on purpose (safety, not the quota): the unit's current protection (0x8_), no "01" for 5 s, a
+  re-arm that never starts, a lost link (kept, paused — never re-started on its own on a body).
+- Test: `UnitSim` 5k — a unit that stops itself every minute; the 10 min training finishes with no pause.
+
 ## Build / test
 ```
 sh scripts/build-wiems-app.sh     # → wiems/dist/xems-wiems.apk (committed); version in wiems/app/VERSION

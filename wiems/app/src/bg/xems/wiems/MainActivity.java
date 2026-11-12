@@ -56,6 +56,9 @@ public final class MainActivity extends Activity implements Ble.Listener, Host, 
     String[] problem;
     /** The unit's own counter of minutes used (its 7764d000, ASCII), read at the link; null = not read. */
     String unitMinutes;
+    /** v1.26: read the minutes counter at the next free moment; the unit the quota is saved for. */
+    private boolean minutesWant;
+    private String quotaMac;
     /** The last op written (its name), for a refused write's message. */
     String lastOp = "";
 
@@ -134,7 +137,7 @@ public final class MainActivity extends Activity implements Ble.Listener, Host, 
         String mac = lastMac != null ? lastMac : linkingMac;
         String head = "REPORT " + reportWhy + "\nXEMS WiEMS " + appName + " (" + appCode + ") · " + Build.MANUFACTURER + " "
                 + Build.MODEL + " · Android " + Build.VERSION.RELEASE + "\nunit " + linkedName + " " + mac + " · "
-                + Dev.SHORT[kind()] + (unitMinutes != null ? " · minutes used " + unitMinutes : "")
+                + Dev.SHORT[kind()] + (unitMinutes != null ? " · minutes used " + unitMinutes : "") + (session != null && session.kind == Dev.WIEMS ? " · " + session.quota : "")
                 + (s != null ? " · battery " + s.battery() + "% · state " + s.state() + " · halt: " + s.haltReason() : "")
                 + "\n---\n";
         if (report.send(mac, appCode, head + trace.dump(), this)) {
@@ -590,6 +593,13 @@ public final class MainActivity extends Activity implements Ble.Listener, Host, 
                 + (linkingKind == Dev.WIEMS ? " · run notifications " + (ble.runNotifyOk() ? "on" : "OFF") : "")
                 + (ble.setupFail().length() > 0 ? " · " + ble.setupFail() : ""));
         if (linkingKind == Dev.WIEMS) {
+            if (!back) {                  // v1.26: what this app learnt about this unit's minutes quota
+                session.quota.load(getSharedPreferences("wiems", MODE_PRIVATE).getString("quota_" + linkingMac, null));
+                quotaMac = linkingMac;
+            }
+            long n = unitMinutes != null ? Quota.parse(unitMinutes.getBytes()) : -1;
+            if (n >= 0) session.minutes(n);
+            trace(session.quota.toString());
             session.setRunNotifyArmed(ble.runNotifyOk());
             if (!ble.runNotifyOk()) {
                 setNote("WiEMS не праща потвърждения — ако ▶ не тръгне, изпрати дневника (задръж логото)", true);
@@ -659,6 +669,14 @@ public final class MainActivity extends Activity implements Ble.Listener, Host, 
     public void notified(String what, byte[] v) {
         trace("  ← " + what + " " + Trace.hex(v) + (what.startsWith("read ") && v != null ? "  \"" + ascii(v) + "\"" : ""));
         if (what.equals("read minutes") && v != null) unitMinutes = ascii(v).replaceFirst("^0+(?=\\d)", "");
+        // v1.26: the counter (read at the link, after a stop / re-arm, or notified) feeds the quota's verdict
+        if (what.contains("7764d000") && v != null) {
+            long n = Quota.parse(v);
+            if (n >= 0) {
+                unitMinutes = String.valueOf(n);
+                if (session != null && session.kind == Dev.WIEMS) session.minutes(n);
+            }
+        }
     }
 
     @Override
@@ -721,7 +739,13 @@ public final class MainActivity extends Activity implements Ble.Listener, Host, 
                 int code = session.noStartCode();
                 int bat = session.battery();
                 setNote("WiEMS не стартира", true);
-                showProblem("WiEMS не стартира",
+                if (code == 2) showProblem("WiEMS не стартира — броячът на минути",
+                        "Модулът отказва СТАРТ (код 2), дори с по-кратка сесия: вграденият му брояч"
+                                + (unitMinutes != null ? " (" + unitMinutes + " мин)" : "") + " е стигнал лимита си.",
+                        "Свържи модула веднъж с приложението Wiems на телефон / iPad с интернет — то подновява лимита.",
+                        "После затвори Wiems (или изключи Bluetooth там) и натисни ▶ тук пак.",
+                        "Изключи и включи модула, ако пак отказва.");
+                else showProblem("WiEMS не стартира",
                         "Модулът прие СТАРТ, но не тръгна — няма потвърждение до " + Session.NO_START_MS / 1000 + " s ("
                                 + (code >= 0 ? "отговори с код " + Integer.toHexString(code) : "не отговори нищо") + ")."
                                 + (bat >= 0 ? " Батерия " + bat + " %." : ""),
@@ -747,6 +771,11 @@ public final class MainActivity extends Activity implements Ble.Listener, Host, 
                 setNote("Тренировката завърши ✓", false);
             }
             String u = Dev.SHORT[session.kind];
+            if (session.takeMinutesWanted()) minutesWant = true;
+            if (session.quota.dirty && quotaMac != null) {
+                getSharedPreferences("wiems", MODE_PRIVATE).edit().putString("quota_" + quotaMac, session.quota.save()).apply();
+                trace("saved " + session.quota);
+            }
             if (session.ackLate(t)) {
                 ble.disconnect(null);
                 trace("NO ANSWER to " + lastOp + " in " + Session.ACK_TIMEOUT_MS + " ms");
@@ -754,6 +783,9 @@ public final class MainActivity extends Activity implements Ble.Listener, Host, 
             } else if (snapWant != null && !session.inFlight() && ble.ready()) {
                 ble.snapshot(snapWant);
                 snapWant = null;
+            } else if (minutesWant && !session.inFlight() && ble.ready() && !ble.snapBusy()) {
+                ble.readMinutes();
+                minutesWant = false;
             } else if (ble.ready() && !ble.snapBusy()) {
                 byte[] op = session.next(t);
                 if (op != null) lastOp = session.kind == Dev.WIEMS ? opName(op[0]) : "0x" + Trace.hex(new byte[] {op[0]});

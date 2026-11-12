@@ -77,7 +77,9 @@ final class Ble {
     private int snapIdx;
     private String snapWhy = "";
     /** Set-up steps 10…: the reads that tell what the unit is and how it is (v1.19, for the trace / the screen). */
-    private static final int INFO = 10;
+    // v1.25: above BATT — at 10 (< BATT 45, v1.24) the step after the battery read went back into the notification
+    // steps and read the battery again for ever: the link never finished ("no answer in 15 s")
+    private static final int INFO = 50;
     static final String[] INFO_NAME = {"minutes", "model", "serial", "firmware", "id", "config"};
     private static final String[] INFO_UUID = {"7764d000-c6a9-11e4-8731-1681e6b88ec1",
             "00002a24-0000-1000-8000-00805f9b34fb", "00002a25-0000-1000-8000-00805f9b34fb",
@@ -383,6 +385,18 @@ final class Ble {
         snapNext();
     }
 
+    /** v1.26: the minutes counter alone (after a stop / a re-arm), the same way as a snapshot (writes wait). */
+    void readMinutes() {
+        if (!ready() || snap != null || kind != Dev.WIEMS || info[0] == null) return;
+        snap = new ArrayList<BluetoothGattCharacteristic>();
+        snap.add(info[0]);
+        snapIdx = 0;
+        snapWhy = MINUTES;
+        snapNext();
+    }
+
+    static final String MINUTES = "minutes";
+
     boolean snapBusy() {
         return snap != null;
     }
@@ -395,7 +409,7 @@ final class Ble {
         }
         if (snap != null && snapIdx >= snap.size()) {
             snap = null;
-            l.notified("snapshot done (" + snapWhy + ")", null);
+            if (!MINUTES.equals(snapWhy)) l.notified("snapshot done (" + snapWhy + ")", null);
         }
     }
 

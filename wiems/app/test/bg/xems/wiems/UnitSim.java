@@ -37,6 +37,13 @@ public class UnitSim {
         int writes;
         boolean silent;             // stops notifying (a half-dead link)
         boolean refuses;            // takes "25" but never runs (its minutes are used up?) — owner, v1.19
+        int quotaLeft = -1;         // v1.25: minutes left of its quota; "25" with Dur > that → "02", stays idle
+        boolean quotaGone;          // every "25" → "02" (whatever the Dur)
+        int dur = 41;
+        // v1.26: the minutes counter as one hypothesis — +1 per whole minute of ONE run (a stop resets the minute);
+        // a run that reaches the quota stops by itself ("00")
+        long counter = 73160, quota = -1, runStart = -1;
+        int haltAtQuota;
 
         void write(byte[] op, long t) {
             writes++;
@@ -74,6 +81,7 @@ public class UnitSim {
                 int phase = v[8] & 0xFF;
                 if (phase == WiProto.PHASE_ARM && state == RUN) faults.add("t=" + t + " arm while running");
                 if (phase == WiProto.PHASE_RUN && state != RUN) faults.add("t=" + t + " run-program while not running");
+                dur = v[0] & 0xFF;
                 hz = v[1] & 0xFF;
                 work = v[2] & 0xFF;
                 rest = v[3] & 0xFF;
@@ -86,11 +94,14 @@ public class UnitSim {
                 if ((v[0] & 0xFF) == WiProto.RUN_START) {
                     starts++;
                     if (state != IDLE) faults.add("t=" + t + " start while not idle");
-                    if (!refuses) {
+                    if (quotaGone || (quotaLeft >= 0 && dur > quotaLeft)) {
+                        notify.add(new byte[] {2});
+                    } else if (!refuses) {
                         state = COUNT;
                         countEnd = t + 4100;
                     }
                 } else {
+                    runStart = -1;
                     if (state == RUN) lateOneAt = t + 300;   // a "01" already on air arrives after the stop
                     if (state != IDLE) stopNotifyAt = t + 1500;
                     state = IDLE;
@@ -103,6 +114,15 @@ public class UnitSim {
             if (state == COUNT && t >= countEnd) {
                 state = RUN;
                 nextNotify = t;
+                runStart = t;
+            }
+            if (state == RUN && runStart >= 0 && t - runStart >= 60000) {
+                counter++;
+                runStart += 60000;
+                if (quota >= 0 && counter >= quota) {
+                    haltAtQuota++;
+                    halt(t);
+                }
             }
             if (state == RUN && t >= nextNotify) {
                 if (!silent) notify.add(new byte[] {1});
@@ -120,6 +140,7 @@ public class UnitSim {
 
         /** Stops by itself (its battery, its button): outputs off, "00". */
         void halt(long t) {
+            runStart = -1;
             state = IDLE;
             cur = new int[10];
             notify.add(new byte[] {0});
@@ -155,6 +176,7 @@ public class UnitSim {
                 u.notify.clear();
                 s.tick(t);
                 s.takeUnitStopped();
+                if (s.takeMinutesWanted()) s.minutes(u.counter);   // MainActivity reads it after a stop / re-arm
                 if (!linkUp) continue;
                 if (ackAt >= 0 && t >= ackAt) {
                     s.ack();
@@ -317,6 +339,86 @@ public class UnitSim {
         r.s.start(r.t);
         r.run(8000);
         ok("5b no notifications → blind start as before", r.s.state() == Session.RUNNING && !r.s.takeNoStart(), "");
+
+        // 5c. v1.25 — the owner's unit: 73160 of 73200 minutes used, "25" with the vendor's Dur 41 → "02". The
+        // session starts again by itself with Dur = its minutes, and runs; a unit with 0 left still says "no start".
+        r = new Rig();
+        r.allZones(30);
+        r.u.quotaLeft = 40;
+        r.s.start(r.t);
+        r.run(8000);
+        ok("5c \"02\" → started again with a smaller Dur and runs", r.s.state() == Session.RUNNING && r.u.state == Unit.RUN
+                && r.u.dur <= 40 && !r.s.takeNoStart(), "state " + r.s.state() + " dur " + r.u.dur + " starts " + r.u.starts);
+        ok("5c no fault on the wire", r.u.faults.isEmpty(), String.valueOf(r.u.faults));
+        r = new Rig();
+        r.allZones(30);
+        r.u.quotaLeft = 0;
+        r.s.start(r.t);
+        r.run(20000);
+        ok("5c 0 minutes left → Dur 0 still runs", r.s.state() == Session.RUNNING && r.u.state == Unit.RUN && r.u.dur == 0,
+                "dur " + r.u.dur + " starts " + r.u.starts);
+
+        // 5d. v1.26 — a tight unit (it said "02") whose counter counts whole minutes of one run: every run stays
+        // under a minute (re-armed in a pause), the counter does not move, the session gets its full time.
+        r = new Rig();
+        r.s.setProgram(prog(85, 4, 4, 600));
+        r.allZones(30);
+        r.u.quotaLeft = 40;
+        r.u.quota = 73200;
+        r.s.start(r.t);
+        long t0 = r.t;
+        r.run(700000);
+        ok("5d tight after the \"02\"", r.s.quota.tight && r.s.quota.dur <= 40, String.valueOf(r.s.quota));
+        ok("5d 10 min trained, the counter did not move", r.s.finished() && r.u.counter == 73160,
+                "finished " + r.s.finished() + " counter " + r.u.counter + " state " + r.s.state());
+        ok("5d the segments proved themselves", r.s.quota.verdict == Quota.VERDICT_WORKS, String.valueOf(r.s.quota));
+        ok("5d re-armed under a minute each (≥ 10 starts)", r.u.starts >= 11, "starts " + r.u.starts);
+        ok("5d no fault on the wire", r.u.faults.isEmpty(), r.faults());
+        ok("5d the unit stopped at the end", r.u.state == Unit.IDLE && r.u.outputsOff(), "");
+        // the learnt state survives a new link (saved / loaded as MainActivity does)
+        String saved = r.s.quota.save();
+        Quota q = new Quota();
+        q.load(saved);
+        ok("5d saved and loaded", q.tight && q.dur == r.s.quota.dur && q.verdict == Quota.VERDICT_WORKS, saved);
+
+        // 5e. a counter that counts anyway (every run, even short): the segments are switched off for the unit
+        r = new Rig();
+        r.s.setProgram(prog(85, 4, 4, 600));
+        r.allZones(30);
+        r.s.quota.tight = true;
+        r.s.minutes(r.u.counter);
+        r.s.start(r.t);
+        for (int k = 0; k < 40 && r.s.quota.segments(); k++) {
+            r.run(20000);
+            if (r.u.state == Unit.RUN) r.u.counter++;   // this unit counts every 20 s of running
+        }
+        ok("5e counted anyway → segments off", r.s.quota.verdict == Quota.VERDICT_USELESS, String.valueOf(r.s.quota));
+        int st = r.u.starts;
+        r.run(120000);
+        ok("5e then one run, no more re-arms", r.u.starts == st && r.s.state() == Session.RUNNING, "starts " + r.u.starts);
+
+        // 5f. a tight unit that stops by itself at its quota ("00"): armed again (≤ 3), then the pause
+        r = new Rig();
+        r.s.setProgram(prog(85, 4, 4, 600));
+        r.allZones(30);
+        r.s.quota.tight = true;
+        r.s.quota.verdict = Quota.VERDICT_USELESS;  // one long run: the quota stops it
+        r.u.quota = 73161;
+        r.s.start(r.t);
+        r.run(70000);
+        ok("5f stopped by itself at the quota → armed again, still training", r.u.haltAtQuota == 1
+                && r.s.state() == Session.RUNNING && r.u.state == Unit.RUN, "halts " + r.u.haltAtQuota + " state " + r.s.state());
+        ok("5f no fault", r.u.faults.isEmpty(), r.faults());
+
+        // 5g. the quota is gone for every Dur: 41 → minutes → 1 → 0, then the card, the unit stopped
+        r = new Rig();
+        r.allZones(30);
+        r.u.quotaGone = true;
+        r.s.start(r.t);
+        r.run(15000);
+        ok("5g every Dur refused → no start, code 2", r.s.takeNoStart() && r.s.noStartCode() == 2 && r.u.state == Unit.IDLE,
+                "code " + r.s.noStartCode());
+        ok("5g tried 41, the minutes, 1, 0", r.u.starts == 4 && r.u.dur == 0, "starts " + r.u.starts + " dur " + r.u.dur);
 
         // 6. The link drops mid-training and comes back: kept, paused, the time done kept, the unit 0 first.
         r = new Rig();

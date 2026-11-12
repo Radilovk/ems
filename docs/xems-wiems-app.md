@@ -320,6 +320,34 @@ the app can see reaches the server and the hourly check. The logo's long press (
   policies). Without it the update still comes by itself, Android shows "Инсталирай" once. Android 12+: the session
   asks `setRequireUserAction(NOT_REQUIRED)` too. `Relaunch` (MY_PACKAGE_REPLACED) opens the app again after an update.
 
+## v1.25 — the link loop of 1.24, and the unit's minutes quota (owner: "the counter must not stop the training")
+- **1.24 never linked** (reports 9, 10: "no answer in 15 s", the battery read ~10× a second): `Ble.INFO` was 10, under
+  the new `BATT` 45, so the step after the battery read fell back into the notification steps → battery again, for ever.
+  `INFO` = 50 now.
+- **"02" to `25` = the unit's own minutes quota** (reports 7, 8: 73160 minutes used; the vendor sold 73200; the vendor's
+  Dur byte 41 → 73160 + 41 > 73200). The unit, not the vendor server, refuses. `Session.retryDur`: "02" in the
+  count-down → stop, arm again with Dur = the session's minutes (≤ 40), then 1; the Dur that ran stays. UnitSim 5c.
+- Still "02" after that → the card says it plainly: the counter is at its limit; one link with the vendor's Wiems app
+  (with internet) renews it. Truly unlimited needs that renewal decoded: capture (`.pklg`) the Wiems app renewing
+  it — the unit's write-only `7764a25c` / `77645cb2` are the candidates — and the app can do it itself.
+
+## v1.26 — a wider bypass of the unit's minutes quota (owner: "more than 40 minutes, until the renewal is found")
+`Quota.java` — what the app learnt about one unit, kept per unit (prefs `quota_<mac>`: tight, Dur, verdict), in the
+trace and every report header. Layers, each checked against the counter (`7764d000`, read after every stop / re-arm
+via `Ble.readMinutes`, also its notifications):
+- **Dur ladder** on "02": 41 → the session's minutes (≤ 40) → 1 → 0; the Dur that ran is kept and used first on a
+  "tight" unit (one that said "02").
+- **Segments**: on a tight unit every unit run stays under a minute — armed again in a pause after 48 s (55 s at the
+  latest), its ~4 s count-down given back to the session clock (`Session.rearm` / `segmentCheck`). If the counter counts
+  whole minutes of one run, it never moves. The procedure's phases wait for the run; pause / stop drop a re-arm.
+- **Verdict**: the counter moved although every run since the last read was < 60 s → segments off for the unit;
+  ≥ 3 min of segments with the counter still → "segments work".
+- **Self-stop**: a tight unit that notifies "00" by itself is armed again (≤ 3 per start) instead of the pause.
+- All Dur refused / a re-arm refused → the quota card. UnitSim 5c–5g (a minute counter, a counter that counts
+  anyway, a stop at the quota, a quota gone for every Dur).
+Not known yet (the first real trainings will tell, the trace says it): what Dur means to the unit, and whether the
+counter counts whole minutes of a run. The real fix stays the renewal (capture the Wiems app renewing it).
+
 ## Build / test
 ```
 sh scripts/build-wiems-app.sh     # → wiems/dist/xems-wiems.apk (committed); version in wiems/app/VERSION

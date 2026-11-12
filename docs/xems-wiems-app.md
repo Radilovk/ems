@@ -348,6 +348,50 @@ via `Ble.readMinutes`, also its notifications):
 Not known yet (the first real trainings will tell, the trace says it): what Dur means to the unit, and whether the
 counter counts whole minutes of a run. The real fix stays the renewal (capture the Wiems app renewing it).
 
+## v1.27 — find the unit's quota key ourselves, then the limit is simply gone (owner: "our own engineering, no vendor, nothing in the way of real work")
+`Probe.java` — an offline, on-the-unit search for the one write that opens the unit's minutes gate, so the app sends
+it at every link and no relaxed cycle or lowered Dur is ever needed again.
+- The unit refuses "25" with "02" when used + Dur > bought (used = `7764d000`, read; bought is written by the vendor's
+  purchase sync, never in our capture). Two writes would open it — zero the used counter, or raise the bought one — so
+  the oracle that settles both is **"does ▶ run after this write?"**, not the counter alone.
+- The probe tries a short ordered list of candidate writes to the unit's write-only / counter characteristics
+  (`7764d000`, `7764a25c`, `77645cb2`: `000000`, `999999`, byte clears, `ff` fills) and, after each, really **arms the
+  unit with every channel at zero current — no output on the body** — and watches the run notify: `01` = that write
+  opened the gate (winner), `02` / silence = next. Only when idle and linked; a training, pause or lost link cancels it.
+- The winner is stored per unit (`reset_<mac>` = `uuid hex`) and sent once at every later link (`applyReset`), before
+  any training; then the unit never says "02", so the 1.25/1.26 fallbacks never trigger. The probe runs once per unit:
+  on the first "02" (`wantProbe`), or at link for a unit already marked tight with no stored reset.
+- Nothing reaches the vendor or any server except our own report (`Report`): the probe's result (winner / none) and
+  the full trace go to license.biocode-bg.com so the hourly check sees which key worked.
+- Trace / report header carry the known reset and every probe step. `ProbeTest` (5 scenarios): the winning candidate
+  found and saved, every arm at zero current, nothing-opens-it, first-candidate, cancel mid-probe.
+
+If no candidate opens the gate, the app says so and keeps the 1.26 fallback (short runs). The candidate list is the
+place to extend once a real unit narrows it down — the trace from the first run names what each write did.
+
+## v1.28 — the quota search runs itself, verifies, and never touches a real training (owner: "no people in the loop, auto-approve what works, instant fallback to the safe path, nothing felt during a training")
+The whole decision loop is in the app (the algorithm the owner asked for); a person is never needed, and Claude only
+reads the auto-sent reports when asked — no standing cost.
+- **Unattended search.** A tight unit with no working key runs the probe on its own, idle and linked (on the first
+  "02", and at each later link), skipping candidates already tried (`tried_<mac>`) so it converges and never repeats.
+  A definite refusal ("02") moves to the next candidate in ~1.5 s, so a full pass is seconds, not minutes.
+- **Auto-approval.** A candidate that makes the unit run ("01") at zero current is the approval — stored as the unit's
+  reset (`reset_<mac>`) with no human step.
+- **Silent verification before every training.** At each link a stored key is re-applied and re-checked by one
+  zero-current arm (`Probe.verify`) *before* the client trains. Still works → ready, nothing shown. Stale → the key is
+  discarded and the search restarts; the client never meets a dead key.
+- **Instant fallback, training untouched.** The probe only ever runs when the unit is idle; linking ▶ / any session
+  activity cancels it at once. If a key ever fails on a real start ("02"), the 1.25/1.26 safe path (shorter Dur, short
+  runs) carries that session with no interruption, the key is dropped, and the search re-runs when the unit is next idle.
+- **All data to Claude automatically.** Every probe / verify outcome and the full trace go to license.biocode-bg.com
+  (`Report`); the report header now carries the current key, whether it is verified, and how many candidates were
+  tried — enough to analyse a unit's quota behaviour from the logs alone, on demand.
+- Tests: `ProbeTest` (16 checks) — find / save / none / first-hit / cancel, skip-already-tried, verify good / stale,
+  and the fast all-refused pass.
+
+Zero output on the body at any point (every arm is all-channels-0). The candidate list is where a real unit's first
+logs let us add or reorder strategies — but the loop above needs no change to pick a new winner.
+
 ## Build / test
 ```
 sh scripts/build-wiems-app.sh     # → wiems/dist/xems-wiems.apk (committed); version in wiems/app/VERSION

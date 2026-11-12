@@ -52,6 +52,72 @@ public final class MainActivity extends Activity implements Ble.Listener, Host, 
         if (trace != null) trace.add(now(), s);
     }
 
+    /** v1.27: the quota probe drives the unit through these (one op in flight; acks / run notifies come back below). */
+    final class ProbeIo implements Probe.Io {
+        @Override
+        public void probeWrite(String uuid, byte[] val) {
+            lastOp = "probe " + uuid.substring(0, 8);
+            trace("→ probe " + uuid.substring(0, 8) + " = " + Trace.hex(val));
+            if (!ble.rawWrite(uuid, val)) probe.cancel("write to " + uuid.substring(0, 8) + " refused");
+        }
+
+        @Override
+        public void probeOp(byte[] op) {
+            lastOp = opName(op[0]);
+            if (!ble.write(op)) probe.cancel("op " + opName(op[0]) + " refused");
+        }
+
+        @Override
+        public void probeLog(String s) {
+            trace("  [probe] " + s);
+        }
+
+        @Override
+        public void probeDone(Probe.Cand winner, String summary) {
+            boolean verify = probe.verifying();
+            SharedPreferences pr = getSharedPreferences("wiems", MODE_PRIVATE);
+            for (String k : probe.tried()) if (!triedKeys.contains(k)) triedKeys.add(k);   // what failed this run
+            if (quotaMac != null) pr.edit().putString("tried_" + quotaMac, joinKeys(triedKeys)).apply();
+            if (verify) {
+                if (winner != null) {
+                    resetVerified = true;               // the key still opens the gate; the unit is ready
+                    trace("quota reset verified for " + quotaMac);
+                } else if (quotaMac != null) {          // stale: drop it and search again when idle
+                    knownReset = null;
+                    pr.edit().remove("reset_" + quotaMac).apply();
+                    wantProbe = session != null && session.quota.tight;
+                    trace("quota reset discarded (stale) for " + quotaMac + " — will search again");
+                }
+            } else if (winner != null && quotaMac != null) {
+                knownReset = winner;
+                resetVerified = true;                   // a probe win is itself a zero-current run that succeeded
+                pr.edit().putString("reset_" + quotaMac, Probe.save(winner)).apply();
+                trace("quota probe: saved reset for " + quotaMac + " = " + Probe.save(winner));
+            }
+            if (summary != null && summary.length() > 0) {
+                setNote(summary, winner == null);
+                noteUntil = now() + 20000;
+            }
+            autoReport("quota " + (verify ? "verify " : "probe ") + (winner != null ? "ok: " + winner.label : "no key"));
+        }
+    }
+
+    /** Candidate keys (uuid + hex, space inside) joined by ';' for prefs; and back. */
+    static String joinKeys(java.util.List<String> keys) {
+        StringBuilder b = new StringBuilder();
+        for (String k : keys) {
+            if (b.length() > 0) b.append(';');
+            b.append(k);
+        }
+        return b.toString();
+    }
+
+    static java.util.List<String> splitKeys(String s) {
+        java.util.List<String> out = new java.util.ArrayList<String>();
+        if (s != null && s.length() > 0) for (String k : s.split(";")) if (k.length() > 0) out.add(k);
+        return out;
+    }
+
     /** What stopped the training, on a card until the trainer taps РАЗБРАХ (v1.19); null = nothing. */
     String[] problem;
     /** The unit's own counter of minutes used (its 7764d000, ASCII), read at the link; null = not read. */
@@ -59,6 +125,14 @@ public final class MainActivity extends Activity implements Ble.Listener, Host, 
     /** v1.26: read the minutes counter at the next free moment; the unit the quota is saved for. */
     private boolean minutesWant;
     private String quotaMac;
+    /** v1.27 / v1.28: the quota probe, the reset found for this unit, and the unattended triggers. */
+    final Probe probe = new Probe(new ProbeIo());
+    private Probe.Cand knownReset;
+    private boolean resetVerified;
+    /** wantVerify: re-check the stored reset silently before any training; wantProbe: search for one. */
+    private boolean wantProbe, wantVerify;
+    /** Candidate keys already tried and seen fail for this unit (prefs tried_&lt;mac&gt;), so the search converges. */
+    private java.util.List<String> triedKeys = new java.util.ArrayList<String>();
     /** The last op written (its name), for a refused write's message. */
     String lastOp = "";
 
@@ -138,6 +212,8 @@ public final class MainActivity extends Activity implements Ble.Listener, Host, 
         String head = "REPORT " + reportWhy + "\nXEMS WiEMS " + appName + " (" + appCode + ") · " + Build.MANUFACTURER + " "
                 + Build.MODEL + " · Android " + Build.VERSION.RELEASE + "\nunit " + linkedName + " " + mac + " · "
                 + Dev.SHORT[kind()] + (unitMinutes != null ? " · minutes used " + unitMinutes : "") + (session != null && session.kind == Dev.WIEMS ? " · " + session.quota : "")
+                + (knownReset != null ? " · reset " + knownReset.uuid.substring(0, 8) + "=" + Trace.hex(knownReset.val) + (resetVerified ? " (verified)" : "") : "")
+                + (triedKeys != null && !triedKeys.isEmpty() ? " · tried " + triedKeys.size() : "")
                 + (s != null ? " · battery " + s.battery() + "% · state " + s.state() + " · halt: " + s.haltReason() : "")
                 + "\n---\n";
         if (report.send(mac, appCode, head + trace.dump(), this)) {
@@ -594,8 +670,17 @@ public final class MainActivity extends Activity implements Ble.Listener, Host, 
                 + (ble.setupFail().length() > 0 ? " · " + ble.setupFail() : ""));
         if (linkingKind == Dev.WIEMS) {
             if (!back) {                  // v1.26: what this app learnt about this unit's minutes quota
-                session.quota.load(getSharedPreferences("wiems", MODE_PRIVATE).getString("quota_" + linkingMac, null));
+                SharedPreferences pr = getSharedPreferences("wiems", MODE_PRIVATE);
+                session.quota.load(pr.getString("quota_" + linkingMac, null));
                 quotaMac = linkingMac;
+                // v1.27: a reset found earlier for this unit → send it at this link so the quota never bites;
+                // a tight unit with none → run the probe once (idle), to find it
+                knownReset = Probe.load(pr.getString("reset_" + linkingMac, null));
+                triedKeys = splitKeys(pr.getString("tried_" + linkingMac, null));
+                resetVerified = false;
+                wantVerify = knownReset != null;      // v1.28: prove the stored key still works, silently, before use
+                wantProbe = knownReset == null && session.quota.tight;
+                if (knownReset != null) trace("quota reset known for this unit: " + Probe.save(knownReset) + " (will re-verify)");
             }
             long n = unitMinutes != null ? Quota.parse(unitMinutes.getBytes()) : -1;
             if (n >= 0) session.minutes(n);
@@ -618,6 +703,9 @@ public final class MainActivity extends Activity implements Ble.Listener, Host, 
     @Override
     public void lost(String why) {
         trace("LOST: " + why);
+        probe.cancel("link lost");
+        wantProbe = false;
+        wantVerify = false;
         if (linkingMac != null && session == null) linkFailed(why);
         // keep the training (unless it was being closed): the last unit reconnects by itself and it goes on
         if (session != null && !disconnectWhenIdle && lastMac != null) {
@@ -637,6 +725,11 @@ public final class MainActivity extends Activity implements Ble.Listener, Host, 
     public void written(boolean ok) {
         int st = ble.lastWriteStatus();
         trace(ok ? "  ack" : "  WRITE REJECTED by the unit: " + lastOp + " (GATT " + st + ")");
+        if (probe.running()) {                       // v1.27: the probe paces itself by its acks
+            if (ok) probe.onAck(now());
+            else probe.cancel("write rejected (GATT " + st + ")");
+            return;
+        }
         if (session == null) return;
         if (!ok) {
             String u = Dev.SHORT[session.kind];
@@ -656,6 +749,10 @@ public final class MainActivity extends Activity implements Ble.Listener, Host, 
     @Override
     public void runNotify(byte[] v) {
         trace("  ← run " + Trace.hex(v));
+        if (probe.running()) {                       // v1.27: "01"/"02" to the probe's arm, not the session
+            probe.onRun(v, now());
+            return;
+        }
         if (session != null) session.runNotify(v, now());
     }
 
@@ -732,6 +829,11 @@ public final class MainActivity extends Activity implements Ble.Listener, Host, 
             setNote(Dev.SHORT[linkingKind] + " не отговори — включен ли е?", true);
             linkFailed("no answer in 15 s");
         }
+        if (probe.running()) {                       // v1.27: the owner tapping ▶ (session busy / preparing) cancels it
+            if (session == null || session.state() != Session.IDLE || session.busy() || session.preparing())
+                probe.cancel("training started");
+            else probe.tick(t);
+        }
         if (session != null) {
             boolean was = session.state() != Session.IDLE;
             session.tick(t);
@@ -739,12 +841,19 @@ public final class MainActivity extends Activity implements Ble.Listener, Host, 
                 int code = session.noStartCode();
                 int bat = session.battery();
                 setNote("WiEMS не стартира", true);
+                if (code == 2 && knownReset != null && quotaMac != null) {  // v1.28: a verified key went stale — drop it
+                    getSharedPreferences("wiems", MODE_PRIVATE).edit().remove("reset_" + quotaMac).apply();
+                    trace("quota reset failed on a real start — discarded, will search again");
+                    knownReset = null;
+                }
+                if (code == 2) wantProbe = true;        // search again when the unit is next idle (the session already fell back)
                 if (code == 2) showProblem("WiEMS не стартира — броячът на минути",
-                        "Модулът отказва СТАРТ (код 2), дори с по-кратка сесия: вграденият му брояч"
-                                + (unitMinutes != null ? " (" + unitMinutes + " мин)" : "") + " е стигнал лимита си.",
-                        "Свържи модула веднъж с приложението Wiems на телефон / iPad с интернет — то подновява лимита.",
-                        "После затвори Wiems (или изключи Bluetooth там) и натисни ▶ тук пак.",
-                        "Изключи и включи модула, ако пак отказва.");
+                        "Модулът отказва СТАРТ (код 2): вграденият му брояч"
+                                + (unitMinutes != null ? " (" + unitMinutes + " мин)" : "") + " е стигнал лимита си."
+                                + (knownReset == null ? " Приложението ще потърси ключ срещу това само (без импулс по тялото)." : ""),
+                        "Остави модула свързан и в покой за около минута — ще пробва автоматично.",
+                        "Ако не успее: изключи и включи модула и натисни ▶ пак.",
+                        "При нужда — изпрати дневника (задръж логото).");
                 else showProblem("WiEMS не стартира",
                         "Модулът прие СТАРТ, но не тръгна — няма потвърждение до " + Session.NO_START_MS / 1000 + " s ("
                                 + (code >= 0 ? "отговори с код " + Integer.toHexString(code) : "не отговори нищо") + ")."
@@ -786,7 +895,17 @@ public final class MainActivity extends Activity implements Ble.Listener, Host, 
             } else if (minutesWant && !session.inFlight() && ble.ready() && !ble.snapBusy()) {
                 ble.readMinutes();
                 minutesWant = false;
-            } else if (ble.ready() && !ble.snapBusy()) {
+            } else if (wantVerify && knownReset != null && !probe.running() && session.state() == Session.IDLE
+                    && !session.busy() && !session.inFlight() && ble.ready() && !ble.snapBusy()) {
+                // v1.28: re-apply + silently check the stored key (zero current) before the client trains
+                wantVerify = false;
+                probe.verify(t, knownReset);
+            } else if (wantProbe && !probe.running() && session.state() == Session.IDLE && !session.busy()
+                    && !session.inFlight() && ble.ready() && !ble.snapBusy()) {
+                // v1.27/28: a tight unit with no working key — search (idle, zero current), skipping what already failed
+                wantProbe = false;
+                probe.start(t, triedKeys);
+            } else if (!probe.running() && ble.ready() && !ble.snapBusy()) {
                 byte[] op = session.next(t);
                 if (op != null) lastOp = session.kind == Dev.WIEMS ? opName(op[0]) : "0x" + Trace.hex(new byte[] {op[0]});
                 if (op != null) trace("→ " + (session.kind == Dev.WIEMS

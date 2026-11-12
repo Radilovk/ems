@@ -11,8 +11,8 @@ SHOTS=${1:-$REPO/build/wiems-app/shots}
 mkdir -p "$SHOTS"
 SRC=$REPO/wiems/app/src/bg/xems/wiems
 javac --release 8 -nowarn -encoding UTF-8 -classpath "$JAR" -d "$OUT" \
-	$(find "$HERE/shim" -name '*.java') "$SRC/Host.java" "$SRC/XView.java" "$SRC/Session.java" "$SRC/Quota.java" "$SRC/Safe.java" \
-	"$SRC/Seen.java" "$SRC/Dev.java" "$SRC/XemsProto.java" "$SRC/BodyFig.java" "$SRC/Procs.java" "$SRC/Trace.java" "$SRC/Channels.java" "$SRC/Report.java" "$REPO/branding/java/src/com/isaigu/gymapp/bodytech/WiProto.java" "$REPO/branding/java/src/com/isaigu/gymapp/bodytech/BtProto.java" "$HERE/bg/xems/wiems/AppTest.java" "$HERE/bg/xems/wiems/UnitSim.java" "$HERE/bg/xems/wiems/SuitTest.java" \
+	$(find "$HERE/shim" -name '*.java') "$SRC/Host.java" "$SRC/XView.java" "$SRC/Session.java" "$SRC/Quota.java" "$SRC/Probe.java" "$SRC/Safe.java" \
+	"$SRC/Seen.java" "$SRC/Dev.java" "$SRC/XemsProto.java" "$SRC/BodyFig.java" "$SRC/Procs.java" "$SRC/Trace.java" "$SRC/Channels.java" "$SRC/Report.java" "$REPO/branding/java/src/com/isaigu/gymapp/bodytech/WiProto.java" "$REPO/branding/java/src/com/isaigu/gymapp/bodytech/BtProto.java" "$HERE/bg/xems/wiems/AppTest.java" "$HERE/bg/xems/wiems/UnitSim.java" "$HERE/bg/xems/wiems/SuitTest.java" "$HERE/bg/xems/wiems/ProbeTest.java" \
 	"$HERE/MainActivity.java" 2>&1 | grep -v '^Note\|warning' || true
 mkdir -p "$OUT/assets/body" "$OUT/assets/art"
 cp "$REPO"/xbody/overlay/opt/xems/art/*.png "$OUT/assets/art/"
@@ -26,4 +26,5 @@ for f in glob.glob('$REPO/wiems/app/body/*.webp'):
 java -Djava.awt.headless=true -Dassets="$OUT/assets" -cp "$OUT:$JAR" bg.xems.wiems.AppTest "$SHOTS"
 java -cp "$OUT:$JAR" bg.xems.wiems.UnitSim
 java -cp "$OUT:$JAR" bg.xems.wiems.SuitTest
+java -cp "$OUT:$JAR" bg.xems.wiems.ProbeTest
 rm -rf "$OUT"

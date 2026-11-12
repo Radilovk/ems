@@ -385,6 +385,18 @@ final class Ble {
         snapNext();
     }
 
+    /** v1.26: the minutes counter alone (after a stop / a re-arm), the same way as a snapshot (writes wait). */
+    void readMinutes() {
+        if (!ready() || snap != null || kind != Dev.WIEMS || info[0] == null) return;
+        snap = new ArrayList<BluetoothGattCharacteristic>();
+        snap.add(info[0]);
+        snapIdx = 0;
+        snapWhy = MINUTES;
+        snapNext();
+    }
+
+    static final String MINUTES = "minutes";
+
     boolean snapBusy() {
         return snap != null;
     }
@@ -397,7 +409,7 @@ final class Ble {
         }
         if (snap != null && snapIdx >= snap.size()) {
             snap = null;
-            l.notified("snapshot done (" + snapWhy + ")", null);
+            if (!MINUTES.equals(snapWhy)) l.notified("snapshot done (" + snapWhy + ")", null);
         }
     }
 

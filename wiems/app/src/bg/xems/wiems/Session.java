@@ -314,6 +314,10 @@ final class Session {
             for (int i = 0; i < share.length; i++) share[i] = 100;
         }
         if (kind == Dev.WIEMS && wi == WI_IDLE) {
+            if (quota.tight && dur != quota.dur) {
+                log("start with the Dur that last ran on this unit: " + quota.dur + " (" + quota + ")");
+                dur = quota.dur;
+            }
             // the unit gets the program and starts its count-down now; the clock runs when the unit does (tick)
             push(program(WiProto.PHASE_ARM), T_PROG);
             push(rest(cur), T_PROG);
@@ -325,6 +329,8 @@ final class Session {
             wiAt = now;
             countCode = -1;
             durTries = 0;
+            rearm = false;
+            autoRearms = 0;
         }
         if (preparing()) {
             startWanted = true;
@@ -368,6 +374,8 @@ final class Session {
             stopUnit();
         }
         if (state != RUNNING) return;
+        if (kind == Dev.WIEMS && wi == WI_COUNT) dropQueued(T_PROG);    // a re-arm under way never goes on
+        rearm = false;
         remainMs = Math.max(0, endMs - now);
         state = PAUSED;
         on = false;
@@ -381,6 +389,8 @@ final class Session {
         state = IDLE;
         on = false;
         remainMs = 0;
+        if (was && kind == Dev.WIEMS && wi == WI_COUNT) dropQueued(T_PROG);
+        rearm = false;
         if (was) outputsOff(true);
         else if (wi != WI_IDLE) {
             dropQueued(T_PROG);
@@ -401,6 +411,8 @@ final class Session {
         on = false;
         out.clear();
         inflight = false;
+        endRun();
+        rearm = false;
         wi = WI_IDLE;
         wiGo = false;
         sent = null;
@@ -422,6 +434,14 @@ final class Session {
         // v1.19 (owner: "it links, ▶ does nothing, its LEDs stay dark"): with the run notifications on, a unit
         // that took "25" and gave no "01" in NO_START_MS did NOT start — say so instead of running the clock blind
         if (wi == WI_COUNT && !progQueued() && !wiGo && runNotifyArmed && now - wiAt >= NO_START_MS) {
+            if (rearm) {                            // mid-training: the session goes on pause, the screen says why
+                rearm = false;
+                int code = countCode;
+                unitHalted("re-arm: no \"01\" " + (now - wiAt) + " ms after \"25\""
+                        + (code >= 0 ? ", the unit notified " + Integer.toHexString(code) : ""));
+                if (code == 2) noStart = true;      // the quota card
+                return;
+            }
             noStart(now);
             return;
         }
@@ -433,6 +453,16 @@ final class Session {
             push(program(WiProto.PHASE_RUN), T_PLAIN);
             wi = WI_RUN;
             wiGo = false;
+            unitRunAt = now;
+            quota.ran(dur);
+            if (rearm) {                            // a re-arm mid-training: the time it took is given back
+                rearm = false;
+                endMs += now - rearmAt;
+                on = true;
+                phaseEndMs = now + cur.onS * 1000L;
+                log("re-armed: running again (Dur " + dur + ", " + (now - rearmAt) + " ms added to the session)");
+                levels();
+            }
         }
         if (startWanted && !preparing()) start(now);
         if (state != RUNNING) return;
@@ -445,6 +475,7 @@ final class Session {
             finished = true;
             return;
         }
+        if (wi != WI_RUN) return;                      // a re-arm's count-down: nothing goes until it runs
         if (plan != null) {                             // a procedure: its next phase by the clock
             long el = prog.totalS * 1000L - remainMs;
             int i = plan.segAt(el);
@@ -476,6 +507,70 @@ final class Session {
                 levels();
             }
         }
+        segmentCheck(now);
+    }
+
+    /**
+     * v1.26 — a tight unit (its minutes quota): every unit run stays under a minute, the unit is armed again in a
+     * pause (or at {@link #SEG_MAX_MS} whatever the phase). Called at the end of the tick.
+     */
+    private void segmentCheck(long now) {
+        if (kind != Dev.WIEMS || state != RUNNING || wi != WI_RUN || rearm || progQueued() || !quota.segments()) return;
+        long ran = now - unitRunAt;
+        if (endMs - now < SEG_MS / 2) return;           // the session ends soon: no new count-down for that
+        if ((ran >= SEG_MS && (!on || cur.cont)) || ran >= SEG_MAX_MS) rearm(now, "segment, " + ran / 1000 + " s");
+    }
+
+    /** v1.26: segments of the unit's run — under the counter's minute. */
+    static final long SEG_MS = 48000, SEG_MAX_MS = 55000;
+    private boolean rearm;
+    private long rearmAt, unitRunAt;
+    private int autoRearms;
+    /** The unit's quota as this app learnt it (MainActivity loads / saves it per unit). */
+    final Quota quota = new Quota();
+    private boolean minutesWanted;
+
+    /** Taken once by the screen: read the unit's minutes counter now (after a stop / a re-arm). */
+    boolean takeMinutesWanted() {
+        boolean b = minutesWanted;
+        minutesWanted = false;
+        return b;
+    }
+
+    /** The counter, read or notified (for the quota's verdict). */
+    void minutes(long v) {
+        String s = quota.counter(v);
+        if (s.length() > 0) log(s);
+    }
+
+    /** The unit stops running (stop / pause / halt / re-arm / link lost): its run time counts. */
+    private void endRun() {
+        if (kind != Dev.WIEMS || wi != WI_RUN) return;
+        quota.addRun(lastTick - unitRunAt);
+        minutesWanted = true;
+    }
+
+    /** Mid-training: the unit stopped and armed again (its count-down), the session stays RUNNING. */
+    private void rearm(long now, String why) {
+        endRun();
+        log("re-arm (" + why + "), Dur " + dur);
+        dropLevels();
+        push(WiProto.zero(), T_PLAIN);
+        sent = null;
+        push(WiProto.run(false), T_PLAIN);
+        push(program(WiProto.PHASE_ARM), T_PROG);
+        push(rest(cur), T_PROG);
+        push(WiProto.widths(), T_PROG);
+        push(WiProto.zero(), T_PROG);
+        push(WiProto.run(true), T_PROG);
+        wi = WI_COUNT;
+        wiGo = false;
+        wiAt = now;
+        countCode = -1;
+        durTries = 0;
+        rearm = true;
+        rearmAt = now;
+        on = false;
     }
 
     /** A procedure's next impulse: the wave's next group, the envelope now, and 3 ↔ 8 Hz by cycle. */
@@ -537,7 +632,13 @@ final class Session {
             return;
         }
         // "00" while it should run: the unit stopped by itself — show it and let ▶ arm it again
-        if (v[0] == 0 && wi == WI_RUN && state == RUNNING) unitHalted("the unit notified \"00\" (it stopped)");
+        if (v[0] == 0 && wi == WI_RUN && state == RUNNING) {
+            // v1.26: a tight unit that stops by itself (its quota / its Dur over) is armed again, at most 3 times
+            if (quota.tight && autoRearms < 3) {
+                autoRearms++;
+                rearm(now, "the unit notified \"00\" by itself, " + autoRearms + " of 3");
+            } else unitHalted("the unit notified \"00\" (it stopped)");
+        }
     }
 
     private int tripCode, tripZone = -1;
@@ -567,7 +668,7 @@ final class Session {
      * 73160 + 41 > 73200). So "02" in the count-down = start again at once with a smaller Dur: the session's
      * minutes (≤ 40), then 1. The Dur that worked stays for the next starts.
      */
-    static final int DUR_VENDOR = 41;
+    static final int DUR_VENDOR = Quota.DUR_VENDOR;
     private int dur = DUR_VENDOR;
     private int durTries;
 
@@ -586,11 +687,12 @@ final class Session {
 
     /** "02" in the count-down: the quota — arm the unit again with a smaller Dur (true: a new try went out). */
     private boolean retryDur(long now) {
+        quota.setTight();
         int mins = (int) Math.max(1, Math.min(DUR_VENDOR - 1, (prog.totalS + 59) / 60));
-        int next = dur > mins ? mins : dur > 1 ? 1 : -1;
-        if (next < 1 || durTries >= 2) return false;
+        int next = dur > mins ? mins : dur > 1 ? 1 : dur > 0 ? 0 : -1;
+        if (next < 0 || durTries >= 3) return false;
         durTries++;
-        log("count-down: \"02\" — the unit's minutes quota; start again with Dur " + next + " (was " + dur + ")");
+        log("count-down: \"02\" — the unit's minutes quota; arm again with Dur " + next + " (was " + dur + ")");
         dur = next;
         dropQueued(T_PROG);
         push(WiProto.run(false), T_PROG);
@@ -642,6 +744,8 @@ final class Session {
     }
 
     private void unitHalted(String why) {
+        endRun();
+        rearm = false;
         haltWhy = why;
         log("UNIT HALTED: " + why + " → pause");
         remainMs = Math.max(0, endMs - lastTick);
@@ -918,6 +1022,7 @@ final class Session {
     }
 
     private void stopUnit() {
+        endRun();
         push(WiProto.run(false), T_PLAIN);
         wi = WI_IDLE;
         wiGo = false;

@@ -331,6 +331,23 @@ the app can see reaches the server and the hourly check. The logo's long press (
   (with internet) renews it. Truly unlimited needs that renewal decoded: capture (`.pklg`) the Wiems app renewing
   it — the unit's write-only `7764a25c` / `77645cb2` are the candidates — and the app can do it itself.
 
+## v1.26 — a wider bypass of the unit's minutes quota (owner: "more than 40 minutes, until the renewal is found")
+`Quota.java` — what the app learnt about one unit, kept per unit (prefs `quota_<mac>`: tight, Dur, verdict), in the
+trace and every report header. Layers, each checked against the counter (`7764d000`, read after every stop / re-arm
+via `Ble.readMinutes`, also its notifications):
+- **Dur ladder** on "02": 41 → the session's minutes (≤ 40) → 1 → 0; the Dur that ran is kept and used first on a
+  "tight" unit (one that said "02").
+- **Segments**: on a tight unit every unit run stays under a minute — armed again in a pause after 48 s (55 s at the
+  latest), its ~4 s count-down given back to the session clock (`Session.rearm` / `segmentCheck`). If the counter counts
+  whole minutes of one run, it never moves. The procedure's phases wait for the run; pause / stop drop a re-arm.
+- **Verdict**: the counter moved although every run since the last read was < 60 s → segments off for the unit;
+  ≥ 3 min of segments with the counter still → "segments work".
+- **Self-stop**: a tight unit that notifies "00" by itself is armed again (≤ 3 per start) instead of the pause.
+- All Dur refused / a re-arm refused → the quota card. UnitSim 5c–5g (a minute counter, a counter that counts
+  anyway, a stop at the quota, a quota gone for every Dur).
+Not known yet (the first real trainings will tell, the trace says it): what Dur means to the unit, and whether the
+counter counts whole minutes of a run. The real fix stays the renewal (capture the Wiems app renewing it).
+
 ## Build / test
 ```
 sh scripts/build-wiems-app.sh     # → wiems/dist/xems-wiems.apk (committed); version in wiems/app/VERSION

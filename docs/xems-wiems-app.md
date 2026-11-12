@@ -392,6 +392,21 @@ reads the auto-sent reports when asked — no standing cost.
 Zero output on the body at any point (every arm is all-channels-0). The candidate list is where a real unit's first
 logs let us add or reorder strategies — but the loop above needs no change to pick a new winner.
 
+## v1.29 — a working key switches the 1.26 cycles off; segments off by default (audit of 1.26–1.28)
+The audit found that a verified key did **not** stop the 1.26 cycles: `Session` never knew about the key
+(`MainActivity.knownReset`), `Quota.tight` stays true for good, so a keyed unit was still cut into 48 s runs with a
+~4 s re-arm count-down each — exactly what the owner wanted gone.
+- **`Quota.keyed`** (not saved — proved again at every link): set by `MainActivity` only when the key is verified on
+  this link (probe win / `Probe.verify` ok), cleared when it is discarded. While keyed: no segments, no auto re-arm on
+  "00" (a real stop pauses as on any unit), the vendor's Dur 41. `Quota.relaxed()` = tight && !keyed gates the 1.26 layer.
+- **Stale key on a real start:** "02" with the key on → `keyed` off, `keyStale` flagged, the Dur ladder starts that
+  same session at once (no interruption); `MainActivity` drops `reset_<mac>` and searches again when idle.
+- **Segments off by default** (`Quota.segmentsOn = false`): no real log has shown a per-minute counter yet, and they
+  are the only layer that re-arms a live training. The counter trace (moves vs. run length) still logs the evidence;
+  the switch is kept for an explicit experiment. The cheap fallback (smaller Dur) stays on.
+- Removed the unused `Probe.CONFIG`. Tests: `UnitSim` 5h (one run by default), 5i (keyed: vendor Dur, one run, "00"
+  pauses), 5j (stale key → fallback Dur, flagged once); 5d/5e switch the segments on explicitly.
+
 ## Build / test
 ```
 sh scripts/build-wiems-app.sh     # → wiems/dist/xems-wiems.apk (committed); version in wiems/app/VERSION

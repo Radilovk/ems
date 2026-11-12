@@ -4,7 +4,8 @@
 import { now, isHttpsUrl } from './utils.js';
 import { sha256Hex } from './crypto.js';
 
-export const UNIT_APPS = ['xbody'];
+// wiems = the WiEMS tablet app (wiems/app, 1.20): it sends its trace by itself when a training fails, unit = the unit's MAC.
+export const UNIT_APPS = ['xbody', 'wiems'];
 export const UNIT_LOG_MAX = 256 * 1024;
 export const UNIT_PACK_MAX = 20 * 1024 * 1024;
 export const UNIT_LOG_KEEP_DAYS = 60;
@@ -80,6 +81,32 @@ export async function handleUnitLog(request, env, url, limit) {
   ).bind(now(), app, unit, int(url.searchParams.get('ver')), body.length, body).run();
   const id = r?.meta?.last_row_id ?? r?.lastInsertRowid;
   return text(`OK ${id}\n`);
+}
+
+/**
+ * The WiEMS app's automatic reports, readable without the admin (owner 2026-11-12: "the client only tests — it must
+ * reach you at once"): the scheduled check in Claude Code reads them. Only app=wiems: a BLE trace of the unit (writes,
+ * notifications, strengths, its MAC and name — no client data). The XBody unit's logs stay admin-only.
+ *   GET /v1/unit/log/recent?app=wiems[&since=<unix s>]  → {ok, logs: [{id, ts, unit, version, size, head}]} (≤ 50)
+ *   GET /v1/unit/log/<id>?app=wiems                     → the text
+ */
+export const PUBLIC_LOG_APPS = ['wiems'];
+
+export async function handleUnitLogRead(env, url, rest) {
+  const app = url.searchParams.get('app') || '';
+  if (!PUBLIC_LOG_APPS.includes(app)) return text('not found\n', 404);
+  if (rest === 'recent') {
+    const since = /^\d{1,12}$/.test(url.searchParams.get('since') || '') ? +url.searchParams.get('since') : now() - 7 * 86400;
+    const rows = await env.DB.prepare(
+      'SELECT id, ts, unit, version, size, substr(body, 1, 300) AS head FROM unit_logs WHERE app = ? AND ts > ? ORDER BY ts DESC LIMIT 50',
+    ).bind(app, since).all();
+    return new Response(JSON.stringify({ ok: true, logs: rows.results || [] }),
+      { headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' } });
+  }
+  if (!/^\d{1,12}$/.test(rest || '')) return text('not found\n', 404);
+  const r = await env.DB.prepare('SELECT body FROM unit_logs WHERE id = ? AND app = ?').bind(+rest, app).first();
+  if (!r) return text('not found\n', 404);
+  return text(String(r.body));
 }
 
 /** sha256 + size of a pack at an HTTPS URL (the admin's "register"). */

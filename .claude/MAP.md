@@ -107,7 +107,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/bluetens/run.sh` (17L) — Offline test of the Bluetens module: the real BluetensShell / BluetensLok / BluetensPrograms / BluetensProgram
 - `scripts/body_deltoid.py` (58L) — The deltoid (shoulder cap) on the body figures' zone maps — one cut for every figure: the report and the client card (s…
 - `scripts/build-motion-app.sh` (84L) — "XEMS Движение" — the XEMS Motion app for Android phones / tablets (motion/app, docs/xems-motion.md "The app"): the
-- `scripts/build-wiems-app.sh` (65L) — "XEMS WiEMS" — the light tablet app for one WiEMS unit (wiems/app, docs/xems-wiems-app.md): XBody's training
+- `scripts/build-wiems-app.sh` (67L) — "XEMS WiEMS" — the light tablet app for one WiEMS unit (wiems/app, docs/xems-wiems-app.md): XBody's training
 - `scripts/compile-avatar-cluster-java.sh` (49L, build:L81[SKIP_JAVA_RECOMPILE]) — Compile AvatarClusterLayout.java to smali (prebuilt fallback when SDK missing).
 - `scripts/compile-bodytech-java.sh` (47L, build:L84[SKIP_JAVA_RECOMPILE]) — Compile the bodytech suit driver (com.isaigu.gymapp.bodytech: BtProto, BtSettings, BtTranslator, BtBridge)
 - `scripts/compile-channel-scale-java.sh` (57L, build:L82[SKIP_JAVA_RECOMPILE]) — Compile ChannelStrengthScale.java to smali (prebuilt fallback when SDK missing).
@@ -567,16 +567,17 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `server/src/ems.js` (136L) — MAC адреси, които влизат в жетона (активни + чакащи дистанционно сдвояване).
 - `server/src/exercises.js` (89L) — The picker groups the admin may give an exercise ('' = the library's own).
 - `server/src/history.js` (77L) — A training id is its start time in ms: digits only, else null.
-- `server/src/index.js` (1332L) — Worker entry: routes /v1/license/activate|refresh, /v1/app/update, releases, admin API, rate limits
+- `server/src/index.js` (1374L) — Worker entry: routes /v1/license/activate|refresh, /v1/app/update, releases, admin API, rate limits
 - `server/src/limits.js` (31L) — Caps and rate-limit settings — stay safe on Workers free tier.
 - `server/src/measures.js` (110L) — The client's scale measurements: the tablet sends each weigh-in's compact result (no impedances, no name);
 - `server/src/plans.js` (28L) — Plan presets → mods / feat arrays (applied at license creation).
-- `server/src/profile.js` (84L) — Client profiles from the booking PWA → the studio's tablets (validation, studio code, cheap limiter).
+- `server/src/profile.js` (118L) — Client profiles from the booking PWA → the studio's tablets (validation, studio code, cheap limiter).
 - `server/src/report.js` (145L) — The client's copy of the tablet's training report (branding/report/session-report.html): the same page,
 - `server/src/sweep.js` (17L) — Nightly sweep (wrangler.toml crons): the tables that only grow.
-- `server/src/units.js` (138L) — Units without a license — the XBody unit's XEMS mod (xbody/overlay/opt/xems/bin/xems-net). The unit calls only
+- `server/src/units.js` (165L) — Units without a license — the XBody unit's XEMS mod (xbody/overlay/opt/xems/bin/xems-net). The unit calls only
 - `server/src/utils.js` (130L) — Shared helpers for license server (testable, no Worker bindings).
 - `server/src/vrlog.js` (69L) — The VR game's leg recordings (owner 2026-11-10: "the legs in the game are bad — record, find the cause"): the game
+- `server/src/wiemsapp.js` (35L) — "1.21 22" → {name, code}; null when it is not that.
 - `server/test/card.test.js` (104L) — 
 - `server/test/catalog.test.js` (29L) — 
 - `server/test/clients.test.js` (68L) — 
@@ -587,12 +588,13 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `server/test/history.test.js` (97L) — D1-shaped wrapper over node:sqlite with the real migration.
 - `server/test/measures.test.js` (116L) — 
 - `server/test/plans.test.js` (30L) — 
-- `server/test/profile.test.js` (57L) — 
+- `server/test/profile.test.js` (74L) — 
 - `server/test/report.test.js` (23L) — 
 - `server/test/sweep.test.js` (43L) — D1-shaped wrapper over node:sqlite with the real migrations.
-- `server/test/units.test.js` (109L) — 
+- `server/test/units.test.js` (125L) — 
 - `server/test/utils.test.js` (115L) — 
 - `server/test/vrlog.test.js` (71L) — 
+- `server/test/wiemsapp.test.js` (27L) — 
 - `server/migrations/0001_init.sql` (63L) — 
 - `server/migrations/0002_ems_devices.sql` (7L) — 
 - `server/migrations/0003_ems_devices_catalog.sql` (16L) — 
@@ -1118,7 +1120,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L120 ## 1.1.445 — ring ± with muscles marked: same as the chip slide
   - L127 ## 1.1.449 — every muscle marked from a 0 start, the suit's link on the board
 
-`docs/xems-license-api.md` (195L)
+`docs/xems-license-api.md` (203L)
   - L1 # XEMS — лиценз, отключване на модули и обновяване (клиент v1.1.85)
   - L5 ## Модули
   - L24 ## Настройка на таблет (админ) и потребителски режим
@@ -1129,10 +1131,10 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L84 ### 2. Опресняване (веднъж на 24 h, във фон)
   - L97 ### 3. Проверка за нова версия
   - L114 ### 4. Клиентски картон (линк за клиента)
-  - L155 ### 5. XBody машината (мод v21) — само по заявка от треньора
-  - L167 ## Жетон (подписан от сървъра)
-  - L183 ## Какво остава за сървъра
-  - L190 ## Проверки (без Android)
+  - L161 ### 5. XBody машината (мод v21) — само по заявка от треньора
+  - L175 ## Жетон (подписан от сървъра)
+  - L191 ## Какво остава за сървъра
+  - L198 ## Проверки (без Android)
 
 `docs/xems-mastogo.md` (229L)
   - L1 # MASTOGO H-024B (DOMAS / PNrelief) — BLE protocol
@@ -1415,8 +1417,8 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L105 ## XEMS side (1.1.480-ai) — `wearable/voice/`
   - L118 ## Phase 3 — learned model
 
-`docs/xems-wiems-app.md` (277L)
-  - L1 # XEMS WiEMS — light tablet app for one WiEMS unit, XEMS or bodytech suit (wiems/app, v1.18)
+`docs/xems-wiems-app.md` (361L)
+  - L1 # XEMS WiEMS — light tablet app for one WiEMS unit, XEMS or bodytech suit (wiems/app, v1.21)
   - L7 ## What it is
   - L31 ## Look (v1.1, owner: XBody's design level or better, never lower)
   - L41 ## v1.2 — lighter figures, double impulse, ramp (owner)
@@ -1434,8 +1436,15 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L209 ### Figures with relief, a slider that needs its fader (parallel 1.8)
   - L220 ## v1.15 — XEMS and bodytech suits, dark theme, the measured WiEMS map (owner)
   - L260 ## v1.18 — smooth figures (owner: "jagged at the edges, smeared inside")
-  - L267 ## Build / test
-  - L274 ## Not verified yet
+  - L267 ## v1.19 — a unit that links but does not start says so (owner: "links, ▶ does nothing, LEDs dark — show where it fails")
+  - L282 ## v1.20 — the trace reaches us by itself (owner: "the client only tests; nothing else asked of them")
+  - L293 ## v1.21 — no vendor anything (owner: "unlimited minutes; a full bypass of their server, nothing needs their internet")
+  - L299 ## v1.23 — also what nobody would notice to report (owner: "automatic, no button, nothing asked of anyone")
+  - L309 ## v1.24 — everything the unit says, and updates with no tap (owner)
+  - L323 ## v1.25 — the link loop of 1.24, and the unit's minutes quota (owner: "the counter must not stop the training")
+  - L334 ## v1.26 — a wider bypass of the unit's minutes quota (owner: "more than 40 minutes, until the renewal is found")
+  - L351 ## Build / test
+  - L358 ## Not verified yet
 
 `docs/xems-wiems.md` (83L)
   - L1 # WiEMS unit in XEMS and on the XBody machine (1.1.446-ai, XBody mod v7, bridge v3)

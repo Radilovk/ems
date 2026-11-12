@@ -46,6 +46,14 @@ interface Host {
     /** Dark theme (owner, v1.15): the header's / the sheet's sun-moon switch; saved. */
     boolean dark();
     void setDark(boolean d);
+    /**
+     * Something stopped the training and the trainer must know what (v1.19, owner: "a message, so we know where the
+     * error comes from"): {title, what happened, cause 1, cause 2, …}; null = nothing. Shown over every screen.
+     */
+    String[] problem();
+    void dismissProblem();
+    /** The trace's automatic trip to the server ({@link Report}: IDLE / SENDING / SENT / FAILED). */
+    int reportState();
     /** An asset of the APK (null: none). */
     java.io.InputStream openAsset(String name);
 }

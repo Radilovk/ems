@@ -1,4 +1,4 @@
-# XEMS WiEMS — light tablet app for one WiEMS unit, XEMS or bodytech suit (wiems/app, v1.18)
+# XEMS WiEMS — light tablet app for one WiEMS unit, XEMS or bodytech suit (wiems/app, v1.21)
 
 Owner (2026-10-16): a separate APK for a small 8" tablet (Lenovo Tab M8 HD, 1280×800, 2 GB RAM), only for WiEMS,
 light, **in the same design and style as the XBody screen**. Not the XEMS app: no vendor APK, no music / AI /
@@ -263,6 +263,90 @@ order — once the service mode has checked both suits, port the two maps (the `
   full-size art at 500 px (372 design px × 1.33 on the Lenovo): every step at full size, one premultiplied Lanczos
   downscale, lossless WebP. `BodyFig` only loads them — the run-time stretch / 3×3 blur / hard-mask rim of 1.15–1.17 on
   the 640-px lossy copies made the stair steps and the smear.
+
+## v1.19 — a unit that links but does not start says so (owner: "links, ▶ does nothing, LEDs dark — show where it fails")
+- Before: no "01" from the unit 6 s after `25` → the clock ran anyway (the screen trained, the unit did nothing, no word).
+  Now, with the run notifications on (their CCCD written OK — `Ble.runNotifyOk`), no "01" in `Session.NO_START_MS`
+  (9 s) = **did not start**: 0 + stop to the unit, the session stays where it was, and a card (XBody's red band,
+  `XView.paintProblem`, `Host.problem()`) says "WiEMS не стартира", what the unit answered on the run control during
+  the count-down (a code or nothing) and its battery, the likely causes side by side (the unit held by another
+  device; stuck in an error → power cycle; a weak battery), ИЗПРАТИ ДНЕВНИКА /
+  РАЗБРАХ. No CCCD on the run control → the old blind 6 s start, with a note at the link.
+- A refused write → the same card with the op and its GATT code (5 / 8 / 15 / 137 → "pair it again"); no answer in
+  1.5 s → the trace names the op.
+- At the link the app reads (trace only, after the battery): minutes used `7764d000` (ASCII), DIS model / serial /
+  firmware (2A24 / 2A25 / 2A26), `7764f19a`, `776416cb`; refused CCCDs are traced. The capture's unit had used 72323
+  of 73200 bought minutes (2026-10-16) — the prime suspect when a unit stops starting.
+- Tests: `UnitSim` 5b (a unit that takes `25` and never runs; ▶ again works; no CCCD = blind start), shots `9a` / `9b`.
+
+## v1.20 — the trace reaches us by itself (owner: "the client only tests; nothing else asked of them")
+- Every failure card (no start, a refused write), a unit that stops by itself and a link lost mid-training send the
+  trace to the server **without a tap** (`Report.java`, a daemon thread, no lambdas): `POST
+  https://license.biocode-bg.com/v1/unit/log?app=wiems&unit=<the unit's MAC, 12 hex>&ver=<versionCode>`, first lines
+  `REPORT <why>` + app / tablet / unit / minutes / battery / halt reason, then the trace (last 200 000 chars). At most one
+  a minute; no internet → again every minute, 10 tries. The card's left button shows it: ИЗПРАЩАМ… / ✓ ДНЕВНИКЪТ Е
+  ИЗПРАТЕН (a tap still shares it by hand). INTERNET permission added.
+- Read without the admin (BLE trace only, no client data): `GET /v1/unit/log/recent?app=wiems[&since=<unix s>]`
+  (≤ 50, with the first 300 chars), `GET /v1/unit/log/<id>?app=wiems` (`server/src/units.js handleUnitLogRead`).
+  A scheduled Claude Code check reads them every hour and starts on the fix.
+
+## v1.21 — no vendor anything (owner: "unlimited minutes; a full bypass of their server, nothing needs their internet")
+- The app never talks to WiEMS / WiemsPro servers and needs no internet to train: BLE to the unit only. Its one network
+  call is `Report` to **our** server (license.biocode-bg.com), only after a failure, and a failed upload changes nothing.
+- The no-start card no longer names minutes or the vendor app (the owner's units are unlimited); the minutes counter
+  stays in the trace only.
+
+## v1.23 — also what nobody would notice to report (owner: "automatic, no button, nothing asked of anyone")
+Reported by itself as well (the same `Report`, no button anywhere):
+- **a crash**: `MainActivity.Crash` (the default uncaught-exception handler) writes `REPORT app crash` + the stack +
+  the trace to `files/pending-report.txt` as the app dies; the next start sends it (kept until the server says OK);
+- **an error caught in the app's loop** (the tick's catch — the screen goes on, but it is a bug): once per run;
+- **a unit seen but not linking**: the 2nd failed link in a row (no answer in 15 s, GATT error, missing service), once
+  until a link works.
+Together with v1.20 (no start, a refused write, a unit that stops, no answer, a link lost mid-training) every failure
+the app can see reaches the server and the hourly check. The logo's long press (share by hand) stays, unneeded.
+
+## v1.24 — everything the unit says, and updates with no tap (owner)
+- **Owner: "the problem is the start — see what the unit sends; there usually is a reason".** At the link the trace
+  gets the unit's **GATT map** (every service / characteristic with R W w N I); notifications are switched on for
+  **every** notifiable characteristic (run first, then battery, status, clock, then the rest of its services — not
+  1801), so whatever the unit says is in the trace (`← <uuid> <hex>`). A **snapshot** (`Ble.snapshot`: every readable
+  characteristic once, `snap <uuid> <hex>`) is taken at the link (before our first write) and when a failure card
+  shows (no start…): the report waits for it (≤ 5 s), writes wait while it reads. So a report holds the unit's state
+  as it came, everything it notified during the start, and its state right after the failure.
+- **Updates with no tap**: Android installs without asking only for a device-owner app. One-time set-up per tablet
+  (a computer with adb, USB debugging on, no Google / other accounts on the tablet — Android refuses device owner
+  otherwise): `adb shell dpm set-device-owner bg.xems.wiems/.Admin` (`Admin.java`, a DeviceAdminReceiver with no
+  policies). Without it the update still comes by itself, Android shows "Инсталирай" once. Android 12+: the session
+  asks `setRequireUserAction(NOT_REQUIRED)` too. `Relaunch` (MY_PACKAGE_REPLACED) opens the app again after an update.
+
+## v1.25 — the link loop of 1.24, and the unit's minutes quota (owner: "the counter must not stop the training")
+- **1.24 never linked** (reports 9, 10: "no answer in 15 s", the battery read ~10× a second): `Ble.INFO` was 10, under
+  the new `BATT` 45, so the step after the battery read fell back into the notification steps → battery again, for ever.
+  `INFO` = 50 now.
+- **"02" to `25` = the unit's own minutes quota** (reports 7, 8: 73160 minutes used; the vendor sold 73200; the vendor's
+  Dur byte 41 → 73160 + 41 > 73200). The unit, not the vendor server, refuses. `Session.retryDur`: "02" in the
+  count-down → stop, arm again with Dur = the session's minutes (≤ 40), then 1; the Dur that ran stays. UnitSim 5c.
+- Still "02" after that → the card says it plainly: the counter is at its limit; one link with the vendor's Wiems app
+  (with internet) renews it. Truly unlimited needs that renewal decoded: capture (`.pklg`) the Wiems app renewing
+  it — the unit's write-only `7764a25c` / `77645cb2` are the candidates — and the app can do it itself.
+
+## v1.26 — a wider bypass of the unit's minutes quota (owner: "more than 40 minutes, until the renewal is found")
+`Quota.java` — what the app learnt about one unit, kept per unit (prefs `quota_<mac>`: tight, Dur, verdict), in the
+trace and every report header. Layers, each checked against the counter (`7764d000`, read after every stop / re-arm
+via `Ble.readMinutes`, also its notifications):
+- **Dur ladder** on "02": 41 → the session's minutes (≤ 40) → 1 → 0; the Dur that ran is kept and used first on a
+  "tight" unit (one that said "02").
+- **Segments**: on a tight unit every unit run stays under a minute — armed again in a pause after 48 s (55 s at the
+  latest), its ~4 s count-down given back to the session clock (`Session.rearm` / `segmentCheck`). If the counter counts
+  whole minutes of one run, it never moves. The procedure's phases wait for the run; pause / stop drop a re-arm.
+- **Verdict**: the counter moved although every run since the last read was < 60 s → segments off for the unit;
+  ≥ 3 min of segments with the counter still → "segments work".
+- **Self-stop**: a tight unit that notifies "00" by itself is armed again (≤ 3 per start) instead of the pause.
+- All Dur refused / a re-arm refused → the quota card. UnitSim 5c–5g (a minute counter, a counter that counts
+  anyway, a stop at the quota, a quota gone for every Dur).
+Not known yet (the first real trainings will tell, the trace says it): what Dur means to the unit, and whether the
+counter counts whole minutes of a run. The real fix stays the renewal (capture the Wiems app renewing it).
 
 ## Build / test
 ```

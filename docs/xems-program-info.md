@@ -31,5 +31,5 @@ goal and by the program that ran.
   sessions by the program's name), the week against the goal, the rhythm and the course of a passive program; the
   opt-in "Седмицата и съвети" turns it into local reminders (Sunday from the facts, a line 45 min after a booked hour,
   one word when the rest is over). Details: aidiet `studio-platform/README.md`.
-- **The tip tables exist twice** — here (`G_TIPS`, `G_PROG`, `G_FAM`) and in aidiet `studio.html` (`TIP`, `PROG`, `FAM`,
+- **The tip tables exist three times** — here (`G_TIPS`, `G_PROG`, `G_FAM`), in aidiet `studio.html` (`TIP`, `PROG`, `FAM`) and `xbody.html` (`ADV`, `PROG`, `FAM`;
   the app in the formal "Вие"-free nominal style). Change both together.

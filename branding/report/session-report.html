@@ -262,6 +262,35 @@ details[open] summary::before{transform:rotate(45deg)}
 .imodal .ok{all:unset;cursor:pointer;display:block;margin-left:auto;padding:9px 18px;border-radius:10px;background:var(--accent);color:#fff;font-weight:600;font-size:14px}
 @keyframes imIn{from{opacity:0}to{opacity:1}}
 @media print{.info,.imodal{display:none!important}}
+/* ---------- advice after the session (1.1.516) ---------- */
+.guide-h{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.guide-h .sub{font-size:13px;color:var(--muted);margin-top:4px}
+.gsend{all:unset;cursor:pointer;display:inline-flex;align-items:center;gap:8px;padding:10px 16px;border-radius:12px;background:var(--go);color:#fff;font:500 13px/1 var(--f-body);box-shadow:0 6px 18px rgba(22,163,74,.25)}
+.gsend:active{transform:scale(.97)}
+.gsend:focus-visible{outline:2px solid var(--text);outline-offset:2px}
+.guide{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+@media (max-width:760px){.guide{grid-template-columns:minmax(0,1fr)}}
+html.printing .guide{grid-template-columns:minmax(0,1fr)}
+.gcol{border-radius:14px;padding:14px;background:var(--surface);border:1px solid var(--stroke);border-top:4px solid var(--gc);display:flex;flex-direction:column;gap:8px;animation:gIn .35s ease both}
+.gcol:nth-child(2){animation-delay:.06s}.gcol:nth-child(3){animation-delay:.12s}
+@keyframes gIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.gcol{animation:none}}
+.gcol .eyebrow{color:var(--gc)}
+.gtip{all:unset;cursor:pointer;display:grid;grid-template-columns:34px minmax(0,1fr) 14px;gap:0 10px;align-items:start;padding:8px;border-radius:10px;transition:background .2s}
+.gtip:hover,.gtip[aria-expanded="true"]{background:var(--card)}
+.gtip:focus-visible{outline:2px solid var(--gc);outline-offset:1px}
+.gtip .ic{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-size:17px;background:color-mix(in srgb,var(--gc) 16%,transparent)}
+.gtip .t{font:500 14px/1.35 var(--f-body);color:var(--text);padding-top:7px}
+.gtip .w{grid-column:2/3;font-size:13px;line-height:1.4;color:var(--muted);max-height:0;overflow:hidden;transition:max-height .25s ease}
+.gtip[aria-expanded="true"] .w{max-height:120px;margin-top:6px}
+.gtip .ar{color:var(--hint);padding-top:9px;font-size:11px;transition:transform .2s}
+.gtip[aria-expanded="true"] .ar{transform:rotate(180deg)}
+html.printing .gtip .w{max-height:none;margin-top:4px}
+.gnext{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.gnext .num{font-size:34px;line-height:1;color:var(--gc)}
+.gnext .d{font:500 15px/1.3 var(--f-body)}
+.gwarn{display:flex;gap:10px;align-items:flex-start;margin-top:12px;padding:10px 12px;border-radius:12px;background:color-mix(in srgb,var(--amber) 12%,transparent);border:1px solid color-mix(in srgb,var(--amber) 40%,transparent);font-size:13px;color:var(--text)}
+.gwarn b{color:var(--amber)}
 /* motion: cards rise into view, bars grow, the ring and the charts draw themselves */
 @media (prefers-reduced-motion:no-preference){
   html:not(.printing) .report>.card.pend,html:not(.printing) .rail>.card.pend{opacity:0;transform:translateY(18px)}
@@ -326,6 +355,7 @@ details[open] summary::before{transform:rotate(45deg)}
       <div class="eyebrow" style="margin-bottom:10px">Сподели доклада</div>
       <button type="button" class="opt" data-share="card"><b>Клиентски картон · линк</b><span id="cardSub">Напредъкът на клиента за телефон — последна тренировка, 30 дни и всичко; обновява се на същия линк</span></button>
       <button type="button" class="opt" data-share="image"><b>Картина</b><span>Viber, WhatsApp, Messenger, Instagram, Facebook, имейл</span></button>
+      <button type="button" class="opt" data-share="guide"><b>Насоки за клиента</b><span>Картина със съветите за днес и до следващата тренировка</span></button>
       <button type="button" class="opt" data-share="pdf"><b>PDF на целия доклад</b><span>Печат или „Запази като PDF“, после имейл</span></button>
       <button type="button" class="opt" data-share="text"><b>Кратко съобщение</b><span>Текст с резултатите, за чат или SMS</span></button>
       <div class="eyebrow" style="margin:14px 0 10px">Експорт към други програми</div>
@@ -408,6 +438,15 @@ details[open] summary::before{transform:rotate(45deg)}
       </div>
     </section>
 
+    <section class="card pad" id="guideCard" aria-label="Насоки">
+      <div class="guide-h">
+        <div><h3 id="gTitle">Насоки след тренировката</h3><div class="sub" id="gSub"></div></div>
+        <button type="button" class="gsend" id="gSend">➤ <span id="gSendT">Изпрати на клиента</span></button>
+      </div>
+      <div class="guide" id="guide"></div>
+      <div class="gwarn" id="gWarn" hidden></div>
+    </section>
+
     <div class="full-sep full-only"><span>Подробно</span></div>
 
     <section class="card pad full-only">
@@ -488,6 +527,7 @@ function rng(seed){let s=seed>>>0;return()=>{s=(s*1664525+1013904223)>>>0;return
 
 /* ---------------- static text in English ---------------- */
 const STATIC_EN={"Сесии": "Sessions", "Ефективност": "Efficiency", "Общо": "Total", "Последни 12 седмици": "Last 12 weeks", "История": "History", "примерни данни": "sample data", "Още няма записани тренировки": "No recorded trainings yet", "Всяка тренировка на този клиент над 1 минута се записва секунда по секунда: сила по зони, честота, импулс и пауза, пулс от гривната. Докладът се появява тук веднага след края.": "Every training of this client longer than 1 minute is recorded second by second: strength per zone, frequency, impulse and pause, heart rate from the band. The report appears here right after the end.", "Покажи пример": "Show an example", "Сподели доклада": "Share the report", "Картина": "Image", "Viber, WhatsApp, Messenger, Instagram, Facebook, имейл": "Viber, WhatsApp, Messenger, Instagram, Facebook, e-mail", "PDF на целия доклад": "PDF of the whole report", "Печат или „Запази като PDF“, после имейл": "Print or “Save as PDF”, then e-mail", "Кратко съобщение": "Short message", "Текст с резултатите, за чат или SMS": "Text with the results, for chat or SMS", "Експорт към други програми": "Export to other apps", "TCX тренировка": "TCX workout", "CSV по секунди": "CSV per second", "CSV история на клиента": "CSV client history", "Всички тренировки, по един ред": "All trainings, one row each", "Само тази": "This one only", "Спрямо предишната": "Vs. previous", "Сподели": "Share", "Изтрий": "Delete", "Карта на интензитета": "Intensity map", "Интензитет = стимул × пулс, всяка секунда. Плъзнете по графиката за подробности.": "Intensity = stimulus × heart rate, every second. Drag across the chart for details.", "Пулс": "Heart rate", "Стимул": "Stimulus", "Сила mA": "Strength mA", "Интензитет 0–100 %": "Intensity 0–100 %", "Пулс, уд/мин": "Heart rate, bpm", "Стимул, % от поносимото": "Stimulus, % of tolerated", "Пауза": "Pause", "Режими на тялото": "Body modes", "Мускулна карта": "Muscle map", "Доза стимул по зони на костюма: сила × време × маса на мускула. Докоснете зона.": "Stimulus dose per suit zone: strength × time × muscle mass. Tap a zone.", "Жена": "Female", "Мъж": "Male", "Отпред": "Front", "Отзад": "Back", "ниска → висока доза": "low → high dose", "Параметри по фази": "Parameters by phase", "Прогрес": "Progress", "Ефективност и натоварване по сесии": "Efficiency and load by session", "Ефективност %": "Efficiency %", "Натоварване, точки": "Load, points", "Как се смята ефективността": "How efficiency is calculated", "Всяка секунда се записват силата по канали, честотата, ширината на импулса, фазата (импулс или пауза) и пулсът от гривната.": "Every second XEMS records the strength per channel, frequency, pulse width, phase (impulse or pause) and the band heart rate.", "Стимул S": "Stimulus S", "= Σ (площ на мускула × сила ÷ поносимата сила на клиента × фактор на честотата × дял на импулса) ÷ Σ площ. От 0 до 1.": "= Σ (muscle area × strength ÷ the client’s tolerated strength × frequency factor × impulse share) ÷ Σ area. From 0 to 1.", "Пулс C": "Heart rate C", "= (пулс − пулс в покой) ÷ (макс. пулс − пулс в покой), резерв на сърдечната честота по Карвонен.": "= (HR − resting HR) ÷ (max HR − resting HR), Karvonen heart-rate reserve.", "Интензитет I": "Intensity I", "= 0,55·S + 0,45·C. Без гривна I = S.": "= 0.55·S + 0.45·C. Without a band I = S.", "Лична база k": "Personal base k", ": същият стимул е по-голямо натоварване за начинаещ, за по-тежък или по-възрастен човек, затова целите му са по-ниски. Форма: начинаещ ×0,75, среден ×1, напреднал ×1,2. ИТМ над 25: до ×0,78. Възраст над 30: до ×0,78. Жена ×0,95. Първите 4 сесии (адаптация): ×0,85…1. Целевата зона по стимул и дозата се умножават по k, зоната по пулс се мести с (k−1)·30 %. Максималният пулс е по пол: 208 − 0,7·възраст (мъже), 206 − 0,88·възраст (жени).": ": the same stimulus is a bigger load for a beginner or a heavier or older person, so their targets are lower. Fitness: beginner ×0.75, intermediate ×1, advanced ×1.2. BMI over 25: down to ×0.78. Age over 30: down to ×0.78. Female ×0.95. First 4 sessions (adaptation): ×0.85…1. The stimulus zone and the dose are multiplied by k, the heart-rate zone moves by (k−1)·30 %. Max HR by sex: 208 − 0.7·age (men), 206 − 0.88·age (women).", "(доза над 140 % от личната цел сваля оценката) = 40 % време в целевата зона + 30 % доза стимул спрямо целта + 15 % плътност (импулсно време без непланирани паузи) + 15 % прогрес спрямо последните 3 сесии.": "(a dose over 140 % of the personal target lowers the score) = 40 % time in the target zone + 30 % stimulus dose vs. target + 15 % density (impulse time without unplanned pauses) + 15 % progress vs. the last 3 sessions.", "Натоварване": "Load", "= ∫ I dt в минути. Сравнимо между сесии и клиенти, по подобие на TRIMP.": "= ∫ I dt in minutes. Comparable across sessions and clients, like TRIMP.", "Калориите са от модела на XEMS (кислородна консумация по пулс и по активирана мускулна маса). Това е оценка, не лабораторно измерване.": "Calories come from the XEMS model (oxygen uptake from heart rate and activated muscle mass). It is an estimate, not a lab measurement.", "Клиент": "Client", "Календар на посещенията": "Visit calendar", "Затвори": "Close", "Сподели и експорт": "Share and export", "Сравнение": "Comparison", "Слоеве": "Layers", "Интензитет във времето": "Intensity over time", "Карта на режимите": "Mode map", "Фигура": "Figure", "Прогрес по сесии": "Progress by session"};
+Object.assign(STATIC_EN,{"Насоки":"Advice","Насоки след тренировката":"Advice after the training","Изпрати на клиента":"Send to the client","Насоки за клиента":"Advice for the client","Картина със съветите за днес и до следващата тренировка":"A picture with the tips for today and until the next session"});
 Object.assign(STATIC_EN,{"Тренировки":"Trainings","последните 4":"last 4","Време":"Time","Прогрес":"Progress","Ефективност по тренировки":"Efficiency by training","Редовност":"Regularity","Тренировки по седмици":"Trainings per week","Изглед":"View","Вертикално":"Portrait","Клиентски картон · линк":"Client card · link","Напредъкът на клиента за телефон — последна тренировка, 30 дни и всичко; обновява се на същия линк":"The client's progress for the phone — last training, 30 days and all time; updates at the same link","Кратък":"Short","Пълен":"Full","Основни показатели":"Key numbers","Ход на тренировката":"Training timeline","Горе — колко силно работи тялото, долу — пулсът. Щрихованото е пауза. Докоснете графиката за подробности.":"Top — how hard the body works, bottom — heart rate. Hatched is a pause. Tap the chart for details.","Натоварени мускули":"Muscles worked","Колко работи всяка зона на костюма: сила × време × маса на мускула. Докоснете зона.":"How much each suit zone worked: strength × time × muscle mass. Tap a zone.","Подробно":"In detail","Настройките на костюма във всяка фаза и какво са дали.":"The suit settings of each phase and what they gave."});
 Object.assign(STATIC_EN,{"Как се смята ефективността": "How efficiency is calculated", "Всяка секунда се записват силата по зони, честотата, ширината на импулса, импулсът и паузата, и пулсът от гривната.": "Every second records the strength per zone, the frequency, the pulse width, impulse and pause, and the heart rate from the band.", "EMS натоварване": "EMS load", "— колко силно работят мускулите от тока в дадена секунда: силата на всяка зона спрямо личния максимум на клиента, претеглена по размера на мускула, силата на стягане при тази честота (7 Hz ≈ 13 % от 85 Hz) и дела на импулса. От 0 до 100 %.": "— how hard the muscles work from the current in a given second: each zone's strength vs. the client's personal max, weighted by muscle size, the contraction strength of the frequency (7 Hz ≈ 13 % of 85 Hz) and impulse share. 0 to 100 %.", "Пулсово натоварване": "Heart-rate load", "— (пулс − пулс в покой) ÷ (макс. пулс − пулс в покой), по Карвонен.": "— (HR − resting HR) ÷ (max HR − resting HR), after Karvonen.", "Интензивност": "Intensity", "= 55 % EMS натоварване + 45 % пулсово натоварване. Без гривна — само EMS натоварването.": "= 55 % EMS load + 45 % heart-rate load. Without a band — the EMS load only.", "Лична цел": "Personal target", "— същото EMS натоварване тежи повече на начинаещ, по-тежък или по-възрастен човек, затова целите му са по-ниски. Форма: начинаещ ×0,75, среден ×1, напреднал ×1,2. ИТМ над 25: до ×0,78. Възраст над 30: плавно надолу.": "— the same EMS load weighs more on a beginner, a heavier or an older person, so their targets are lower. Fitness: beginner ×0.75, intermediate ×1, advanced ×1.2. BMI over 25: down to ×0.78. Age over 30: gradually lower.", "Ефективност": "Efficiency", "= 40 % време в целевата зона + 30 % EMS доза спрямо целта + 15 % без прекъсвания + 15 % напредък спрямо последните 3 тренировки. EMS доза над 140 % от целта сваля оценката.": "= 40 % time in the target zone + 30 % EMS dose vs. target + 15 % continuity + 15 % progress vs. the last 3 trainings. An EMS dose over 140 % of the target lowers the score.", "Общо натоварване": "Total load", "= интензивността, събрана за всички секунди, в точки. Сравнимо между тренировки и клиенти, по подобие на TRIMP.": "= the intensity summed over all seconds, in points. Comparable between trainings and clients, like TRIMP.", "Калориите са от модела на XEMS (по пулса и по задействаната мускулна маса). Това е оценка, не лабораторно измерване.": "Calories come from the XEMS model (heart rate and the muscle mass worked). An estimate, not a lab measurement."});
 Object.assign(STATIC_EN,{"EMS натоварване":"EMS load","Как работи тялото":"How the body worked","Докоснете графиката за подробности.":"Tap the chart for details.","Докоснете зона.":"Tap a zone.","Дял на времето по режим":"Share of time per mode","Тази тренировка":"This training","Ориентир за целта":"Guide for the goal","Сила на тока":"Current strength","Интензивност (EMS + пулс), 0–100 %":"Intensity (EMS + heart rate), 0–100 %","EMS натоварване, % от личния максимум":"EMS load, % of personal max","EMS работата на всяка зона на костюма. Докоснете зона.":"The EMS work of each suit zone. Tap a zone.","ниска → висока EMS доза":"low → high EMS dose","Какво е това?":"What is this?"});
@@ -889,6 +929,7 @@ function draw(){
   const tile=(k,cls)=>`<div class="kpi ${cls}"><div class="eyebrow">${k[0]}${info(KI[k[0]])}</div><span class="num">${k[1]} <small>${k[2]}</small></span><div class="sub">${k[3]} ${k[4]}</div></div>`;
   $("#kpis").innerHTML=K.map(k=>tile(k,"")).join("")+K2.map(k=>tile(k,"full-only")).join("");
   drawImap();drawModes();drawBody();drawPhases();drawTrend();
+  renderGuide(s);
   motion();
   const band=(s.meta&&s.meta.band)||{};const mi=$("#miBox");
   if(band.owner){mi.hidden=false;
@@ -1093,6 +1134,129 @@ function csvHistory(){
   return "﻿"+rows.join("\r\n")+"\r\n";
 }
 function figAsync(key,lv,w){return new Promise(res=>{const c=document.createElement("canvas");paintFig(c,key,lv,w,res);});}
+/* ---------------- advice after the session (owner, 1.1.516 — docs/xems-program-info.md) ----------------
+   What the client does today, until the next session and when that is — by the program that ran (the automatic
+   program's id) or else by the goal. Plain words; a tap on a tip says why. Shared as its own picture. */
+const T=(i,bg,en,wbg,wen)=>({i,t:tr(bg,en),w:tr(wbg,wen)});
+const G_TIPS={
+  water:()=>T("💧","Пий 0,5 л вода в следващия час","Drink 0.5 l of water in the next hour","Мускулите работиха много — водата им помага да се изчистят и възстановят.","The muscles worked hard — water helps them clear and recover."),
+  waterP:()=>T("💧","Пий 0,5 л вода в следващия час","Drink 0.5 l of water in the next hour","Водата помага на тялото да отведе течността, която процедурата раздвижи.","Water helps the body carry away the fluid the treatment moved."),
+  protein:()=>T("🍳","Хапни белтък до 2 часа след тренировката","Eat protein within 2 hours after training","Яйца, извара, риба, месо или боб — от това мускулът се възстановява.","Eggs, cottage cheese, fish, meat or beans — what the muscle rebuilds from."),
+  easy:()=>T("🚶","Днес само разходка или разтягане","Today only a walk or stretching","Мускулите вече са натоварени — днес им трябва раздвижване, не още товар.","The muscles are loaded already — today they need movement, not more load."),
+  walkP:()=>T("🚶","Раздвижи се 10–15 минути след процедурата","Move for 10–15 minutes after the treatment","Ходенето продължава работата на мускулите и кръвообращението.","Walking carries on the work of the muscles and the circulation."),
+  salt:()=>T("🧂","По-малко сол днес","Less salt today","Солта задържа вода в тъканите — обратното на това, което правим.","Salt holds water in the tissues — the opposite of what we do."),
+  water2:()=>T("🥤","1,5–2 л вода през деня","1.5–2 l of water a day","Течността се оттича по-лесно, когато тялото не пести вода.","Fluid drains more easily when the body is not saving water."),
+  sleep:()=>T("🌙","Сън 7–8 часа","Sleep 7–8 hours","Мускулът се възстановява и укрепва насън.","The muscle recovers and grows stronger in sleep."),
+  proteinAll:()=>T("🥚","Белтък на всяко хранене","Protein at every meal","Без достатъчно белтък тренировката не може да изгради мускул.","Without enough protein the training cannot build muscle."),
+  sore:()=>T("💪","Лека мускулна треска 1–2 дни е нормална","Mild soreness for 1–2 days is normal","Знак е, че мускулите са работили; минава от само себе си.","It shows the muscles worked; it passes by itself."),
+  deficit:()=>T("🍽","Малък дефицит в храната — без гладуване","A small food deficit — no starving","Гладуването топи мускулите; малкият дефицит топи мазнините.","Starving melts muscle; a small deficit melts fat."),
+  steps:()=>T("👟","8 000–10 000 крачки на ден","8,000–10,000 steps a day","Ежедневното движение изгаря повече от една тренировка седмично.","Daily movement burns more than one session a week."),
+  sugar:()=>T("🍬","По-малко захар, сладки напитки и алкохол","Less sugar, sweet drinks and alcohol","Те се трупат най-лесно като мазнина и пречат на възстановяването.","They turn into fat most easily and slow the recovery."),
+  sitBreak:()=>T("⏰","Ставай и се раздвижвай на всеки час седене","Get up and move every hour of sitting","Дългото седене стяга гърба и забавя кръвообращението.","Long sitting stiffens the back and slows the circulation."),
+  walkDay:()=>T("🌳","Ходи пеша 20–30 минути всеки ден","Walk 20–30 minutes every day","Ежедневното движение пази ефекта на тренировката до следващата.","Daily movement keeps the training's effect until the next one."),
+  food:()=>T("🥗","Повече зеленчуци, риба и ядки — по-малко захар","More vegetables, fish and nuts — less sugar","Така храната не подклажда възпалението, което тренировката успокоява.","This way food does not feed the inflammation the training calms."),
+  noLift:()=>T("🎒","Без вдигане на тежко днес","No heavy lifting today","Мускулите около гръбнака са уморени и днес пазят по-слабо.","The muscles around the spine are tired and protect less today."),
+  pelvic:()=>T("🌸","Стягай тазовото дъно по 10 пъти, 3 пъти на ден","Lift the pelvic floor 10 times, 3 times a day","Кратките упражнения у дома засилват ефекта от процедурата.","Short exercises at home add to the treatment's effect."),
+  chair:()=>T("🪑","Ставай от стола 10 пъти, няколко пъти на ден","Stand up from a chair 10 times, a few times a day","Това е най-полезното упражнение за сила в ежедневието.","This is the most useful exercise for everyday strength."),
+  dinner:()=>T("🌙","Лека вечеря — не наваксвай с храна","A light dinner — do not make up with food","Тренировката изгаря — голямото хранене след нея връща всичко.","The training burns — a big meal after it gives it all back."),
+  rest:()=>T("🛋","Днес без тежка тренировка","No hard training today","Процедурата е за възстановяване — тежкото натоварване ще я обезсмисли.","The treatment is for recovery — hard training would undo it."),
+  cream:()=>T("🧴","Хидратиращ крем и слънцезащита","Moisturiser and sunscreen","Грижата за кожата пази ефекта по-дълго.","Skin care keeps the effect longer."),
+  meal:()=>T("⏱","Следващия път — 30–60 минути след хранене","Next time — 30–60 minutes after a meal","Тогава захарта в кръвта е най-висока и процедурата я сваля най-много.","Then the blood sugar is highest and the treatment lowers it most.")
+};
+// per program: today, until the next one, the days to the next one; "fam" = goal family for the defaults
+const G_PROG={
+  general:{fam:"tone"},glutes:{fam:"tone"},core:{fam:"tone"},upper:{fam:"tone"},
+  mass:{fam:"tone",between:["proteinAll","sleep","sore"]},
+  power:{fam:"tone",gap:[4,7]},
+  cardio:{fam:"slim",today:["water","protein","dinner"]},
+  back_active:{fam:"health",today:["water","noLift","easy"],between:["sitBreak","walkDay","sleep"]},
+  senior:{fam:"health",between:["chair","walkDay","proteinAll"]},
+  antiage:{fam:"health",between:["walkDay","sleep","food"]},
+  cellulite:{fam:"passive",today:["waterP","salt","walkP"],between:["water2","steps","sugar"],gap:[2,3]},
+  drain:{fam:"passive",today:["waterP","salt","walkP"],between:["water2","walkDay","sitBreak"],gap:[2,3]},
+  passive_metabolic:{fam:"passive",between:["deficit","steps","sugar"],gap:[2,3]},
+  postpartum:{fam:"passive",today:["waterP","walkP","noLift"],between:["pelvic","sleep","walkDay"],gap:[3,4]},
+  back_pain:{fam:"passive",today:["waterP","noLift","walkP"],between:["sitBreak","walkDay","sleep"],gap:[3,4],warn:"back"},
+  recovery:{fam:"passive",today:["waterP","rest","walkP"],between:["sleep","proteinAll","walkDay"],gap:[1,2]},
+  antiage_passive:{fam:"passive",today:["waterP","walkP","food"],between:["walkDay","sleep","meal"],gap:[2,3]},
+  face:{fam:"passive",today:["waterP","cream","sleep"],between:["water2","sleep","cream"],gap:[2,3]}
+};
+const G_FAM={
+  tone:{today:["water","protein","easy"],between:["sleep","proteinAll","sore"],gap:[3,4],active:true},
+  slim:{today:["water","protein","easy"],between:["deficit","steps","sugar"],gap:[3,4],active:true},
+  health:{today:["water","easy","protein"],between:["sitBreak","walkDay","sleep"],gap:[3,4],active:true},
+  passive:{today:["waterP","walkP","rest"],between:["sleep","water2","walkDay"],gap:[2,3],active:false}
+};
+const G_GOALFAM={tone:"tone",fat:"slim",cellulite:"passive",drain:"passive",massage:"passive"};
+function guideFor(s){
+  const m=s.meta||{};let id=(m.programId||"");if(DEMO){const h=/prog=([a-z_]+)/.exec(location.hash);if(h)id=h[1];}if(id.indexOf("face")===0)id="face";
+  const P=G_PROG[id]||null;const fam=G_FAM[P?P.fam:(G_GOALFAM[s.goal]||"tone")];
+  const pick=k=>(P&&P[k])||fam[k];
+  return{id,today:pick("today").map(k=>G_TIPS[k]()),between:pick("between").map(k=>G_TIPS[k]()),gap:pick("gap"),active:fam.active,warn:P&&P.warn};
+}
+function nextDate(s,gap){const d=new Date(s.date);d.setDate(d.getDate()+gap[0]);return d;}
+function guideNextText(s,g){const d=nextDate(s,g.gap);return{days:g.gap[0]===g.gap[1]?String(g.gap[0]):g.gap[0]+"–"+g.gap[1],
+  when:`${tr("около ","around ")}${WD[d.getDay()]}, ${d.getDate()} ${MON[d.getMonth()]}`};}
+function guideWarn(g){if(g.warn==="back")return tr("<b>Към лекар,</b> ако болката се засилва или слиза към крака.","<b>See a doctor</b> if the pain grows or runs down the leg.");
+  return g.active?tr("<b>Рядко, но важно:</b> силна болка в мускулите повече от 3 дни или тъмна урина — свържи се с лекар.","<b>Rare but important:</b> strong muscle pain for over 3 days or dark urine — call a doctor."):"";}
+function renderGuide(s){
+  const g=guideFor(s),n=guideNextText(s,g);
+  $("#gTitle").textContent=g.active?tr("Насоки след тренировката","Advice after the training"):tr("Насоки след процедурата","Advice after the treatment");
+  $("#gSub").textContent=tr("Докосни съвет — ще видиш защо.","Tap a tip to see why.");
+  const col=(c,title,tips,extra)=>`<div class="gcol" style="--gc:var(${c})"><div class="eyebrow">${title}</div>${extra||""}${tips.map((t,i)=>`<button type="button" class="gtip" aria-expanded="false"><span class="ic" aria-hidden="true">${t.i}</span><span class="t">${t.t}</span><span class="ar" aria-hidden="true">▾</span><span class="w">${t.w}</span></button>`).join("")}</div>`;
+  const next=`<div class="gnext"><span class="num">${n.days}</span><span class="d">${tr("дни почивка","days of rest")}<br><span class="hint">${tr("следващата: ","next: ")}${n.when}</span></span></div>`;
+  const nextTips=g.active?[T("🧘","В почивните дни — лека пасивна процедура","On rest days — a light passive treatment","Дренаж или регенерация ускоряват възстановяването и не натоварват.","Drainage or recovery speed up the recovery and add no load.")]
+    :[T("🔁","Курсът дава ефект — не пропускай","The course gives the effect — keep it up","Резултатът идва от редовните процедури, не от една.","The result comes from regular treatments, not from one.")];
+  $("#guide").innerHTML=col("--accent",tr("Днес","Today"),g.today)+col("--stim",tr("До следващата","Until the next one"),g.between)
+    +col("--go",tr("Следващата","The next one"),nextTips,next);
+  const w=guideWarn(g);$("#gWarn").innerHTML=w?`<span aria-hidden="true">⚠</span><span>${w}</span>`:"";$("#gWarn").hidden=!w;
+  document.querySelectorAll("#guide .gtip").forEach(b=>b.onclick=()=>b.setAttribute("aria-expanded",String(b.getAttribute("aria-expanded")!=="true")));
+}
+$("#gSend").onclick=e=>{e.stopPropagation();shareGuide();};
+function shareGuide(){
+  // a phone picture (9:16): today · until the next one · the next one, each tip with its one-line why
+  const s=sessions[cur];if(!s)return;const g=guideFor(s),n=guideNextText(s,g);
+  const Wc=1080,Hc=1920,c=document.createElement("canvas");c.width=Wc;c.height=Hc;const x=c.getContext("2d");
+  const P={bg:"#0B0D11",card:"#151922",line:"#262C38",text:"#ECEFF4",muted:"#A9B1BF",hint:"#7C8594",go:"#34D399",stim:"#4F9DFF",amber:"#FACC15",acc:"#FF4D5E"};
+  const F=(w,sz,fam)=>`${w} ${sz}px ${fam==="c"?'"Roboto Condensed",Roboto,sans-serif':'Roboto,sans-serif'}`;
+  let gr=x.createLinearGradient(0,0,0,Hc);gr.addColorStop(0,"#10141C");gr.addColorStop(1,P.bg);x.fillStyle=gr;x.fillRect(0,0,Wc,Hc);
+  let rg=x.createRadialGradient(Wc,0,0,Wc,0,800);rg.addColorStop(0,"rgba(52,211,153,.14)");rg.addColorStop(1,"rgba(52,211,153,0)");x.fillStyle=rg;x.fillRect(0,0,Wc,Hc);
+  const round=(X,Y,w,h,r,fill)=>{x.beginPath();x.moveTo(X+r,Y);x.arcTo(X+w,Y,X+w,Y+h,r);x.arcTo(X+w,Y+h,X,Y+h,r);x.arcTo(X,Y+h,X,Y,r);x.arcTo(X,Y,X+w,Y,r);x.closePath();x.fillStyle=fill;x.fill();};
+  const lines=(txt,maxW,maxL)=>{const words=txt.split(" ");const out=[];let line="";for(const w of words){const t=line?line+" "+w:w;if(x.measureText(t).width>maxW&&line){out.push(line);line=w;}else line=t;}if(line)out.push(line);return out.slice(0,maxL);};
+  const M=64,CW=Wc-2*M;
+  x.fillStyle=P.acc;x.font=F(700,30,"c");x.fillText("XEMS",M,96);
+  x.fillStyle=P.hint;x.font=F(500,26);x.fillText(`${s.date.getDate()} ${MONL[s.date.getMonth()]} ${s.date.getFullYear()}`,M+100,96);
+  x.fillStyle=P.text;x.font=F(700,64,"c");x.fillText(CLIENT.name||"",M,180);
+  x.fillStyle=P.muted;x.font=F(400,32);x.fillText(g.active?tr("Насоки след тренировката","Advice after the training"):tr("Насоки след процедурата","Advice after the treatment"),M,232);
+  x.fillStyle=P.hint;x.font=F(400,26);lines(s.type,CW,1).forEach(l=>x.fillText(l,M,274));
+  let y=316;
+  const block=(title,col,tips)=>{
+    // measure
+    x.font=F(500,32);const L=tips.map(t=>{x.font=F(500,32);const a=lines(t.t,CW-150,2);x.font=F(400,25);const b=lines(t.w,CW-150,2);return[a,b];});
+    const h=74+L.reduce((q,[a,b])=>q+a.length*40+b.length*33+28,0)+6;
+    round(M-16,y,CW+32,h,28,P.card);round(M-16,y,10,h,5,col);
+    x.fillStyle=col;x.font=F(700,26);x.fillText(title.toUpperCase(),M+16,y+50);
+    let yy=y+96;tips.forEach((t,i)=>{const [a,b]=L[i];
+      x.beginPath();x.arc(M+44,yy-2,30,0,Math.PI*2);x.fillStyle=col+"2E";x.fill();x.font="30px sans-serif";x.textAlign="center";x.fillStyle=P.text;x.fillText(t.i,M+44,yy+9);x.textAlign="left";
+      x.fillStyle=P.text;x.font=F(500,32);a.forEach((l,k)=>x.fillText(l,M+100,yy+k*40));
+      x.fillStyle=P.muted;x.font=F(400,25);b.forEach((l,k)=>x.fillText(l,M+100,yy+a.length*40+k*33));
+      yy+=a.length*40+b.length*33+28;});
+    y+=h+22;};
+  block(tr("Днес","Today"),P.acc,g.today);
+  block(tr("До следващата","Until the next one"),P.stim,g.between);
+  // the next one
+  round(M-16,y,CW+32,170,28,P.card);round(M-16,y,10,170,5,P.go);
+  x.fillStyle=P.go;x.font=F(700,26);x.fillText(tr("СЛЕДВАЩАТА","THE NEXT ONE"),M+16,y+50);
+  x.font=F(700,84,"c");x.fillText(n.days,M+16,y+140);const dw=x.measureText(n.days).width;
+  x.fillStyle=P.text;x.font=F(500,34);x.fillText(tr("дни почивка","days of rest"),M+40+dw,y+104);
+  x.fillStyle=P.muted;x.font=F(400,28);x.fillText(n.when,M+40+dw,y+144);
+  y+=192;
+  const w=guideWarn(g).replace(/<[^>]+>/g,"");
+  if(w&&y<Hc-160){x.fillStyle=P.amber;x.font=F(400,26);lines("⚠ "+w,CW,3).forEach((l,k)=>x.fillText(l,M,y+20+k*36));}
+  x.fillStyle=P.hint;x.font=F(400,22);x.fillText(tr("Съветите са общи. При заболяване — питай своя лекар.","General advice. With an illness — ask your doctor."),M,Hc-44);
+  const data=c.toDataURL("image/png").split(",")[1];
+  sendFile(`XEMS_${slug(CLIENT.name)}_${stamp(s.date)}_nasoki.png`,"image/png",data,`XEMS · ${CLIENT.name||""}`,tr("Насоки след тренировката","Advice after the training"));
+}
 async function shareImage(){
   // A phone-screen picture (9:16): result, key numbers, the training timeline, the muscles worked.
   const s=sessions[cur],a=s.a,Wc=1080,Hc=1920;const c=document.createElement("canvas");c.width=Wc;c.height=Hc;const x=c.getContext("2d");
@@ -1186,6 +1350,7 @@ function doShare(kind){
   const s=sessions[cur];if(!s)return;const base=`XEMS_${slug(CLIENT.name)}_${stamp(s.date)}`;
   if(kind==="card")shareCard();
   else if(kind==="image")shareImage();
+  else if(kind==="guide")shareGuide();
   else if(kind==="pdf")sharePdf();
   else if(kind==="text"){if(BR&&BR.shareText){BR.shareText(`XEMS · ${CLIENT.name||""}`,summaryText(s));$("#sheet").hidden=true;}else shareMsg(summaryText(s));}
   else if(kind==="tcx")sendFile(base+".tcx","application/vnd.garmin.tcx+xml",b64utf8(tcx(s)),`${tr("XEMS тренировка ","XEMS training ")}${CLIENT.name||""}`,tr("TCX файл: качи го в Strava (Качване на активност), Garmin Connect (Импорт на данни), TrainingPeaks или Intervals.icu.","TCX file: upload it to Strava (Upload activity), Garmin Connect (Import data), TrainingPeaks or Intervals.icu."));

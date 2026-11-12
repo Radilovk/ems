@@ -21,6 +21,8 @@ final class SessionRec {
     final String userName;
     final TrainUser user;
     String program;
+    /** The automatic program's id (AutoCatalog), "" otherwise — the report's advice follows it (1.1.516). */
+    String programId;
     final JSONObject person;
     long end;
     boolean ai;
@@ -397,6 +399,7 @@ final class SessionRec {
         o.put("passiveS", passiveS());
         o.put("type", type());
         o.put("program", program != null ? program : "");
+        o.put("programId", programId != null ? programId : "");
         o.put("music", music);
         o.put("planS", planS);
         o.put("modes", modes);

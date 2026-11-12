@@ -69,7 +69,13 @@ final class Ble {
      * current check (b1f5a058) and its clock (7764f042), then the battery read; READY after that.
      */
     private int setup = -1;
-    static final int READY = 100;
+    static final int READY = 100, BATT = 45;
+    /** The characteristics whose notifications the set-up switches on, in that order (run first). */
+    private final List<BluetoothGattCharacteristic> notifyList = new ArrayList<BluetoothGattCharacteristic>();
+    /** A snapshot: every readable characteristic read once, one at a time, its value to the trace (v1.24). */
+    private List<BluetoothGattCharacteristic> snap;
+    private int snapIdx;
+    private String snapWhy = "";
     /** Set-up steps 10…: the reads that tell what the unit is and how it is (v1.19, for the trace / the screen). */
     private static final int INFO = 10;
     static final String[] INFO_NAME = {"minutes", "model", "serial", "firmware", "id", "config"};
@@ -238,6 +244,7 @@ final class Ble {
         } catch (Throwable t) {
             Log.e(TAG, "safe: " + t);
         }
+        snap = null;
         BluetoothGatt g = gatt;
         boolean safe = ready() && safeOp != null;
         gatt = null;
@@ -293,6 +300,7 @@ final class Ble {
     }
 
     private void close(String why) {
+        snap = null;
         BluetoothGatt g = gatt;
         gatt = null;
         setup = -1;
@@ -316,13 +324,17 @@ final class Ble {
                 l.linked();
                 return;
             }
-            if (setup >= 0 && setup <= 3) {
-                BluetoothGattCharacteristic[] n = {ops[WiProto.OP_RUN], batt, status, clock};
-                if (!notifyOn(n[setup])) {
+            if (setup >= 0 && setup < BATT) {
+                // v1.24: every characteristic the unit can notify — run first (as the vendor), then battery, status,
+                // clock and all the others of its service: whatever the unit says lands in the trace
+                if (setup >= notifyList.size()) {
+                    setup = BATT;
+                    step();
+                } else if (!notifyOn(notifyList.get(setup))) {
                     setup++;
                     step();
                 }
-            } else if (setup == 4) {
+            } else if (setup == BATT) {
                 if (batt == null || !gatt.readCharacteristic(batt)) {
                     setup = INFO;
                     step();
@@ -345,15 +357,58 @@ final class Ble {
         }
     }
 
+    static String props(int p) {
+        StringBuilder b = new StringBuilder();
+        if ((p & BluetoothGattCharacteristic.PROPERTY_READ) != 0) b.append('R');
+        if ((p & BluetoothGattCharacteristic.PROPERTY_WRITE) != 0) b.append('W');
+        if ((p & BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE) != 0) b.append('w');
+        if ((p & BluetoothGattCharacteristic.PROPERTY_NOTIFY) != 0) b.append('N');
+        if ((p & BluetoothGattCharacteristic.PROPERTY_INDICATE) != 0) b.append('I');
+        return b.toString();
+    }
+
+    /**
+     * Read every readable characteristic once (its value → the trace): at the link and when a start fails, so the
+     * report shows the unit's whole state. The caller writes nothing meanwhile ({@link #snapBusy}).
+     */
+    void snapshot(String why) {
+        if (!ready() || snap != null || kind != Dev.WIEMS) return;
+        snap = new ArrayList<BluetoothGattCharacteristic>();
+        for (BluetoothGattService sv : gatt.getServices())
+            for (BluetoothGattCharacteristic c : sv.getCharacteristics())
+                if ((c.getProperties() & BluetoothGattCharacteristic.PROPERTY_READ) != 0) snap.add(c);
+        snapIdx = 0;
+        snapWhy = why;
+        l.notified("snapshot (" + why + "): " + snap.size() + " reads", null);
+        snapNext();
+    }
+
+    boolean snapBusy() {
+        return snap != null;
+    }
+
+    private void snapNext() {
+        try {
+            while (snap != null && snapIdx < snap.size() && !gatt.readCharacteristic(snap.get(snapIdx))) snapIdx++;
+        } catch (Throwable t) {
+            snapIdx = snap != null ? snap.size() : 0;
+        }
+        if (snap != null && snapIdx >= snap.size()) {
+            snap = null;
+            l.notified("snapshot done (" + snapWhy + ")", null);
+        }
+    }
+
     private boolean notifyOn(BluetoothGattCharacteristic c) {
         if (c == null) return false;
         gatt.setCharacteristicNotification(c, true);
         BluetoothGattDescriptor d = c.getDescriptor(CCCD);
+        boolean indicate = (c.getProperties() & BluetoothGattCharacteristic.PROPERTY_NOTIFY) == 0;
         if (d == null) {
             l.notified("notify " + c.getUuid() + ": no CCCD", null);
             return false;
         }
-        d.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
+        d.setValue(indicate ? BluetoothGattDescriptor.ENABLE_INDICATION_VALUE : BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
         return gatt.writeDescriptor(d);
     }
 
@@ -388,6 +443,21 @@ final class Ble {
         status = findChr(g, CHR_STATUS);
         clock = findChr(g, WiProto.CHR_CLOCK);
         for (int i = 0; i < info.length; i++) info[i] = findChr(g, INFO_UUID[i]);
+        notifyList.clear();
+        BluetoothGattCharacteristic[] first = {ops[WiProto.OP_RUN], batt, status, clock};
+        for (BluetoothGattCharacteristic c : first) if (c != null) notifyList.add(c);
+        StringBuilder map = new StringBuilder("GATT map:");
+        for (BluetoothGattService sv : g.getServices()) {
+            map.append("\n  service ").append(sv.getUuid());
+            for (BluetoothGattCharacteristic c : sv.getCharacteristics()) {
+                int pr = c.getProperties();
+                map.append("\n    ").append(c.getUuid()).append(' ').append(props(pr));
+                boolean gattSvc = sv.getUuid().toString().startsWith("00001801");     // service-changed: not ours
+                if ((pr & (BluetoothGattCharacteristic.PROPERTY_NOTIFY | BluetoothGattCharacteristic.PROPERTY_INDICATE)) != 0
+                        && !gattSvc && !notifyList.contains(c) && notifyList.size() < BATT) notifyList.add(c);
+            }
+        }
+        l.notified(map.toString(), null);
         runNotifyOk = false;
         setupFail = "";
         setup = 0;
@@ -474,7 +544,14 @@ final class Ble {
                 break;
             case EV_READ:
                 if (e.c == batt && e.v != null && e.v.length == 1) l.battery(e.v[0] & 0xFF);
-                if (setup == 4) {
+                if (setup == READY && snap != null) {
+                    l.notified("snap " + e.c.getUuid() + (e.status != BluetoothGatt.GATT_SUCCESS ? " failed (GATT " + e.status + ")" : ""),
+                            e.status == BluetoothGatt.GATT_SUCCESS ? e.v : null);
+                    snapIdx++;
+                    snapNext();
+                    break;
+                }
+                if (setup == BATT) {
                     setup = INFO;
                     step();
                 } else if (setup >= INFO && setup < READY) {

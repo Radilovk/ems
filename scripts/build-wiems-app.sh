@@ -31,6 +31,8 @@ fi
 java -cp "$TOOLS/dx.jar" com.android.dx.command.Main --dex --min-sdk-version=21 --output="$T/classes.dex" "$T/classes"
 java -jar "$TOOLS/baksmali.jar" d "$T/classes.dex" -o "$T/apk/smali"
 cp "$SRC/ic_launcher.png" "$T/apk/res/drawable/ic_launcher.png"
+mkdir -p "$T/apk/res/xml"      # the device-owner hook (v1.24: updates with no tap once the tablet is set up)
+printf '<?xml version="1.0" encoding="utf-8"?>\n<device-admin><uses-policies /></device-admin>\n' > "$T/apk/res/xml/device_admin.xml"
 mkdir -p "$T/apk/assets/body"   # the XEMS body figures, light / dark / zone map (scripts/gen-wiems-figures.py)
 cp "$SRC"/body/*.webp "$T/apk/assets/body/"
 mkdir -p "$T/apk/assets/art"    # the passive procedures' icons (Health Icons CC0, the XBody panel's)

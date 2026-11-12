@@ -610,6 +610,11 @@ final class Session {
         unitStopped = true;
     }
 
+    /** A write is on air (its answer not back yet). */
+    boolean inFlight() {
+        return inflight;
+    }
+
     /** Something still waits to go to the unit (keep ticking until it went, also behind another app). */
     boolean busy() {
         return inflight || !out.isEmpty();

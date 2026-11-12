@@ -296,6 +296,30 @@ order — once the service mode has checked both suits, port the two maps (the `
 - The no-start card no longer names minutes or the vendor app (the owner's units are unlimited); the minutes counter
   stays in the trace only.
 
+## v1.23 — also what nobody would notice to report (owner: "automatic, no button, nothing asked of anyone")
+Reported by itself as well (the same `Report`, no button anywhere):
+- **a crash**: `MainActivity.Crash` (the default uncaught-exception handler) writes `REPORT app crash` + the stack +
+  the trace to `files/pending-report.txt` as the app dies; the next start sends it (kept until the server says OK);
+- **an error caught in the app's loop** (the tick's catch — the screen goes on, but it is a bug): once per run;
+- **a unit seen but not linking**: the 2nd failed link in a row (no answer in 15 s, GATT error, missing service), once
+  until a link works.
+Together with v1.20 (no start, a refused write, a unit that stops, no answer, a link lost mid-training) every failure
+the app can see reaches the server and the hourly check. The logo's long press (share by hand) stays, unneeded.
+
+## v1.24 — everything the unit says, and updates with no tap (owner)
+- **Owner: "the problem is the start — see what the unit sends; there usually is a reason".** At the link the trace
+  gets the unit's **GATT map** (every service / characteristic with R W w N I); notifications are switched on for
+  **every** notifiable characteristic (run first, then battery, status, clock, then the rest of its services — not
+  1801), so whatever the unit says is in the trace (`← <uuid> <hex>`). A **snapshot** (`Ble.snapshot`: every readable
+  characteristic once, `snap <uuid> <hex>`) is taken at the link (before our first write) and when a failure card
+  shows (no start…): the report waits for it (≤ 5 s), writes wait while it reads. So a report holds the unit's state
+  as it came, everything it notified during the start, and its state right after the failure.
+- **Updates with no tap**: Android installs without asking only for a device-owner app. One-time set-up per tablet
+  (a computer with adb, USB debugging on, no Google / other accounts on the tablet — Android refuses device owner
+  otherwise): `adb shell dpm set-device-owner bg.xems.wiems/.Admin` (`Admin.java`, a DeviceAdminReceiver with no
+  policies). Without it the update still comes by itself, Android shows "Инсталирай" once. Android 12+: the session
+  asks `setRequireUserAction(NOT_REQUIRED)` too. `Relaunch` (MY_PACKAGE_REPLACED) opens the app again after an update.
+
 ## Build / test
 ```
 sh scripts/build-wiems-app.sh     # → wiems/dist/xems-wiems.apk (committed); version in wiems/app/VERSION

@@ -567,14 +567,14 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `server/src/ems.js` (136L) — MAC адреси, които влизат в жетона (активни + чакащи дистанционно сдвояване).
 - `server/src/exercises.js` (89L) — The picker groups the admin may give an exercise ('' = the library's own).
 - `server/src/history.js` (77L) — A training id is its start time in ms: digits only, else null.
-- `server/src/index.js` (1332L) — Worker entry: routes /v1/license/activate|refresh, /v1/app/update, releases, admin API, rate limits
+- `server/src/index.js` (1335L) — Worker entry: routes /v1/license/activate|refresh, /v1/app/update, releases, admin API, rate limits
 - `server/src/limits.js` (31L) — Caps and rate-limit settings — stay safe on Workers free tier.
 - `server/src/measures.js` (110L) — The client's scale measurements: the tablet sends each weigh-in's compact result (no impedances, no name);
 - `server/src/plans.js` (28L) — Plan presets → mods / feat arrays (applied at license creation).
 - `server/src/profile.js` (84L) — Client profiles from the booking PWA → the studio's tablets (validation, studio code, cheap limiter).
 - `server/src/report.js` (145L) — The client's copy of the tablet's training report (branding/report/session-report.html): the same page,
 - `server/src/sweep.js` (17L) — Nightly sweep (wrangler.toml crons): the tables that only grow.
-- `server/src/units.js` (138L) — Units without a license — the XBody unit's XEMS mod (xbody/overlay/opt/xems/bin/xems-net). The unit calls only
+- `server/src/units.js` (165L) — Units without a license — the XBody unit's XEMS mod (xbody/overlay/opt/xems/bin/xems-net). The unit calls only
 - `server/src/utils.js` (130L) — Shared helpers for license server (testable, no Worker bindings).
 - `server/src/vrlog.js` (69L) — The VR game's leg recordings (owner 2026-11-10: "the legs in the game are bad — record, find the cause"): the game
 - `server/test/card.test.js` (104L) — 
@@ -590,7 +590,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `server/test/profile.test.js` (57L) — 
 - `server/test/report.test.js` (23L) — 
 - `server/test/sweep.test.js` (43L) — D1-shaped wrapper over node:sqlite with the real migrations.
-- `server/test/units.test.js` (109L) — 
+- `server/test/units.test.js` (125L) — 
 - `server/test/utils.test.js` (115L) — 
 - `server/test/vrlog.test.js` (71L) — 
 - `server/migrations/0001_init.sql` (63L) — 
@@ -1415,8 +1415,8 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L105 ## XEMS side (1.1.480-ai) — `wearable/voice/`
   - L118 ## Phase 3 — learned model
 
-`docs/xems-wiems-app.md` (277L)
-  - L1 # XEMS WiEMS — light tablet app for one WiEMS unit, XEMS or bodytech suit (wiems/app, v1.18)
+`docs/xems-wiems-app.md` (303L)
+  - L1 # XEMS WiEMS — light tablet app for one WiEMS unit, XEMS or bodytech suit (wiems/app, v1.20)
   - L7 ## What it is
   - L31 ## Look (v1.1, owner: XBody's design level or better, never lower)
   - L41 ## v1.2 — lighter figures, double impulse, ramp (owner)
@@ -1434,8 +1434,10 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L209 ### Figures with relief, a slider that needs its fader (parallel 1.8)
   - L220 ## v1.15 — XEMS and bodytech suits, dark theme, the measured WiEMS map (owner)
   - L260 ## v1.18 — smooth figures (owner: "jagged at the edges, smeared inside")
-  - L267 ## Build / test
-  - L274 ## Not verified yet
+  - L267 ## v1.19 — a unit that links but does not start says so (owner: "links, ▶ does nothing, LEDs dark — show where it fails")
+  - L282 ## v1.20 — the trace reaches us by itself (owner: "the client only tests; nothing else asked of them")
+  - L293 ## Build / test
+  - L300 ## Not verified yet
 
 `docs/xems-wiems.md` (83L)
   - L1 # WiEMS unit in XEMS and on the XBody machine (1.1.446-ai, XBody mod v7, bridge v3)

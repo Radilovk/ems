@@ -1,4 +1,4 @@
-# XEMS WiEMS — light tablet app for one WiEMS unit, XEMS or bodytech suit (wiems/app, v1.18)
+# XEMS WiEMS — light tablet app for one WiEMS unit, XEMS or bodytech suit (wiems/app, v1.21)
 
 Owner (2026-10-16): a separate APK for a small 8" tablet (Lenovo Tab M8 HD, 1280×800, 2 GB RAM), only for WiEMS,
 light, **in the same design and style as the XBody screen**. Not the XEMS app: no vendor APK, no music / AI /
@@ -263,6 +263,38 @@ order — once the service mode has checked both suits, port the two maps (the `
   full-size art at 500 px (372 design px × 1.33 on the Lenovo): every step at full size, one premultiplied Lanczos
   downscale, lossless WebP. `BodyFig` only loads them — the run-time stretch / 3×3 blur / hard-mask rim of 1.15–1.17 on
   the 640-px lossy copies made the stair steps and the smear.
+
+## v1.19 — a unit that links but does not start says so (owner: "links, ▶ does nothing, LEDs dark — show where it fails")
+- Before: no "01" from the unit 6 s after `25` → the clock ran anyway (the screen trained, the unit did nothing, no word).
+  Now, with the run notifications on (their CCCD written OK — `Ble.runNotifyOk`), no "01" in `Session.NO_START_MS`
+  (9 s) = **did not start**: 0 + stop to the unit, the session stays where it was, and a card (XBody's red band,
+  `XView.paintProblem`, `Host.problem()`) says "WiEMS не стартира", what the unit answered on the run control during
+  the count-down (a code or nothing) and its battery, the likely causes side by side (the unit held by another
+  device; stuck in an error → power cycle; a weak battery), ИЗПРАТИ ДНЕВНИКА /
+  РАЗБРАХ. No CCCD on the run control → the old blind 6 s start, with a note at the link.
+- A refused write → the same card with the op and its GATT code (5 / 8 / 15 / 137 → "pair it again"); no answer in
+  1.5 s → the trace names the op.
+- At the link the app reads (trace only, after the battery): minutes used `7764d000` (ASCII), DIS model / serial /
+  firmware (2A24 / 2A25 / 2A26), `7764f19a`, `776416cb`; refused CCCDs are traced. The capture's unit had used 72323
+  of 73200 bought minutes (2026-10-16) — the prime suspect when a unit stops starting.
+- Tests: `UnitSim` 5b (a unit that takes `25` and never runs; ▶ again works; no CCCD = blind start), shots `9a` / `9b`.
+
+## v1.20 — the trace reaches us by itself (owner: "the client only tests; nothing else asked of them")
+- Every failure card (no start, a refused write), a unit that stops by itself and a link lost mid-training send the
+  trace to the server **without a tap** (`Report.java`, a daemon thread, no lambdas): `POST
+  https://license.biocode-bg.com/v1/unit/log?app=wiems&unit=<the unit's MAC, 12 hex>&ver=<versionCode>`, first lines
+  `REPORT <why>` + app / tablet / unit / minutes / battery / halt reason, then the trace (last 200 000 chars). At most one
+  a minute; no internet → again every minute, 10 tries. The card's left button shows it: ИЗПРАЩАМ… / ✓ ДНЕВНИКЪТ Е
+  ИЗПРАТЕН (a tap still shares it by hand). INTERNET permission added.
+- Read without the admin (BLE trace only, no client data): `GET /v1/unit/log/recent?app=wiems[&since=<unix s>]`
+  (≤ 50, with the first 300 chars), `GET /v1/unit/log/<id>?app=wiems` (`server/src/units.js handleUnitLogRead`).
+  A scheduled Claude Code check reads them every hour and starts on the fix.
+
+## v1.21 — no vendor anything (owner: "unlimited minutes; a full bypass of their server, nothing needs their internet")
+- The app never talks to WiEMS / WiemsPro servers and needs no internet to train: BLE to the unit only. Its one network
+  call is `Report` to **our** server (license.biocode-bg.com), only after a failure, and a failed upload changes nothing.
+- The no-start card no longer names minutes or the vendor app (the owner's units are unlimited); the minutes counter
+  stays in the trace only.
 
 ## Build / test
 ```

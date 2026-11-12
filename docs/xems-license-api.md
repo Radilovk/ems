@@ -166,6 +166,8 @@ POST {server}/v1/card/find          (CORS *, 20 заявки / мин / IP)
 GET  /v1/unit/update?app=xbody&have=20&unit=<12 hex>   → version=21\nsha256=<64 hex>\nsize=788480\nnotes=…\n   (version=0 = последната е)
 GET  /v1/unit/pack?app=xbody&v=21                     → пакетът (tar), прекаран през сървъра от регистрирания HTTPS адрес
 POST /v1/unit/log?app=xbody&unit=<12 hex>&ver=21      (текст ≤ 256 KB) → OK <№>      (10 на час от IP)
+GET  /v1/unit/log/recent?app=wiems[&since=<unix s>]       → {ok, logs:[{id,ts,unit,version,size,head}]}  (само wiems)
+GET  /v1/unit/log/<№>?app=wiems                     → текстът (WiEMS приложението праща сам при грешка)
 ```
 Админ: `GET /admin/api/units`, `POST /admin/api/units/release {version,url,notes}` (сървърът сваля пакета и пази
 sha256/size), `DELETE /admin/api/units/release/xbody/<v>`, `GET|DELETE /admin/api/units/log/<id>`. Логовете се пазят 60 дни.

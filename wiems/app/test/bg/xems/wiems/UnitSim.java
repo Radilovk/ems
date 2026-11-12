@@ -36,6 +36,7 @@ public class UnitSim {
         final List<byte[]> notify = new ArrayList<byte[]>();
         int writes;
         boolean silent;             // stops notifying (a half-dead link)
+        boolean refuses;            // takes "25" but never runs (its minutes are used up?) — owner, v1.19
 
         void write(byte[] op, long t) {
             writes++;
@@ -85,8 +86,10 @@ public class UnitSim {
                 if ((v[0] & 0xFF) == WiProto.RUN_START) {
                     starts++;
                     if (state != IDLE) faults.add("t=" + t + " start while not idle");
-                    state = COUNT;
-                    countEnd = t + 4100;
+                    if (!refuses) {
+                        state = COUNT;
+                        countEnd = t + 4100;
+                    }
                 } else {
                     if (state == RUN) lateOneAt = t + 300;   // a "01" already on air arrives after the stop
                     if (state != IDLE) stopNotifyAt = t + 1500;
@@ -288,6 +291,32 @@ public class UnitSim {
         r.u.silent = true;
         r.run(7000);
         ok("5 silent unit → paused, outputs off", r.s.state() == Session.PAUSED && r.u.outputsOff(), "state " + r.s.state());
+
+        // 5b. The unit takes ▶ but never runs (v1.19, owner: "links, ▶ does nothing, LEDs dark"): no clock running
+        // blind — the session says it did not start, the unit gets 0 + stop, the next ▶ arms it again.
+        r = new Rig();
+        r.allZones(30);
+        r.u.refuses = true;
+        r.s.start(r.t);
+        r.run(5000);
+        ok("5b still counting down at 5 s", r.s.preparing() && !r.s.takeNoStart(), "");
+        r.run(5000);
+        ok("5b no start → said once", r.s.takeNoStart() && !r.s.takeNoStart(), "");
+        ok("5b not running, clock untouched", r.s.state() != Session.RUNNING && !r.s.startPending() && !r.s.preparing(),
+                "state " + r.s.state());
+        ok("5b the unit got 0 + stop", r.u.outputsOff() && r.u.state == Unit.IDLE, "");
+        r.u.refuses = false;
+        r.s.start(r.t);
+        r.run(8000);
+        ok("5b ▶ again runs", r.s.state() == Session.RUNNING && r.u.state == Unit.RUN, "state " + r.s.state());
+        // without run notifications (no CCCD) the old blind start stays
+        r = new Rig();
+        r.s.setRunNotifyArmed(false);
+        r.allZones(30);
+        r.u.silent = true;
+        r.s.start(r.t);
+        r.run(8000);
+        ok("5b no notifications → blind start as before", r.s.state() == Session.RUNNING && !r.s.takeNoStart(), "");
 
         // 6. The link drops mid-training and comes back: kept, paused, the time done kept, the unit 0 first.
         r = new Rig();

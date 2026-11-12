@@ -31,5 +31,8 @@ goal and by the program that ran.
   sessions by the program's name), the week against the goal, the rhythm and the course of a passive program; the
   opt-in "Седмицата и съвети" turns it into local reminders (Sunday from the facts, a line 45 min after a booked hour,
   one word when the rest is over). Details: aidiet `studio-platform/README.md`.
-- **The tip tables exist three times** — here (`G_TIPS`, `G_PROG`, `G_FAM`), in aidiet `studio.html` (`TIP`, `PROG`, `FAM`) and `xbody.html` (`ADV`, `PROG`, `FAM`;
-  the app in the formal "Вие"-free nominal style). Change both together.
+- **One source for the advice:** aidiet `xems-advice.js` (tips with emoji / icon / Font Awesome, bg + en; programs; families;
+  the notification lines). `studio.html` and `xbody.html` load it next to themselves (`xbody.online` and every
+  `<studio>.xbody.online` serve `/xems-advice.js` through the studio worker — no store review: the app shows the live page).
+  The tablet's report is offline, so it carries a copy between the `XEMS-ADVICE` markers: after a change run
+  `python3 scripts/sync-xems-advice.py` (`--check` = differs?), bump `RELEASE_VERSION`, rebuild the APK.

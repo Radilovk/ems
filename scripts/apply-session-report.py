@@ -24,6 +24,8 @@ def main() -> int:
     text = SRC.read_text(encoding="utf-8")
     if "window.XemsReport" not in text or "<!doctype html>" not in text.lower():
         raise SystemExit("session-report.html: not the report page (no XemsReport bridge / doctype)")
+    if "/*XEMS-ADVICE:start" not in text or "root.XemsAdvice" not in text:
+        raise SystemExit("session-report.html: the advice (xems-advice.js) is missing — run scripts/sync-xems-advice.py")
     DEST.parent.mkdir(parents=True, exist_ok=True)
     shutil.copy2(SRC, DEST)
     print(f"assets/report/session-report.html ({DEST.stat().st_size} B)")

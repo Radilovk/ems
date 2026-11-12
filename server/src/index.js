@@ -13,6 +13,7 @@ import { normalizePick, picksPayload, codeMatches, selectionPayload, APPS, appOf
 import { LIMITS, limitsSummary } from './limits.js';
 import { handleUnitUpdate, handleUnitPack, handleUnitLog, handleUnitLogRead, adminUnits } from './units.js';
 import { handleVrlogPut, handleVrlogGet } from './vrlog.js';
+import { handleWiemsUpdate, handleWiemsApk } from './wiemsapp.js';
 import {
   sessionId, validSummary, validRec, putSession, historyJson, SESSION_MAX_BYTES,
 } from './history.js';
@@ -123,6 +124,9 @@ export default {
       // The XBody unit's mod (xems-net): only when a trainer asks on the unit — update check, its pack, a log.
       if (path === '/v1/unit/update' && request.method === 'GET') return handleUnitUpdate(url, env);
       if (path === '/v1/unit/pack' && request.method === 'GET') return handleUnitPack(url, env);
+      // The WiEMS tablet app's self-update from the repo's main (src/wiemsapp.js).
+      if (path === '/v1/wiems/update' && request.method === 'GET') return handleWiemsUpdate(url);
+      if (path === '/v1/wiems/apk' && request.method === 'GET') return handleWiemsApk();
       if (path.startsWith('/v1/unit/log/') && request.method === 'GET') {
         return handleUnitLogRead(env, url, path.slice('/v1/unit/log/'.length));
       }

@@ -84,6 +84,21 @@ public final class MainActivity extends Activity implements Ble.Listener, Host, 
     int reportTries, appCode;
     String appName = "?";
 
+    /** Self-update at start (v1.22, {@link Updater}). */
+    Updater updater;
+
+    final class UpLog implements Updater.Log {
+        @Override
+        public void log(String s) {
+            trace(s);
+        }
+
+        @Override
+        public void note(String s, boolean warn) {
+            setNote(s, warn);
+        }
+    }
+
     public int reportState() {
         return reportState;
     }
@@ -167,6 +182,7 @@ public final class MainActivity extends Activity implements Ble.Listener, Host, 
         } catch (Throwable t) {
             appCode = 0;
         }
+        updater = new Updater(this, appCode, new UpLog());
         trace("app start " + appName + " (" + appCode + ") " + android.os.Build.MODEL + " Android " + Build.VERSION.RELEASE);
         load();
         ble = new Ble(this, this);
@@ -180,6 +196,7 @@ public final class MainActivity extends Activity implements Ble.Listener, Host, 
     protected void onResume() {
         super.onResume();
         resumed = true;
+        if (updater != null) updater.check(now());
         immersive();
         main.removeCallbacks(tick);
         main.post(tick);
@@ -196,6 +213,7 @@ public final class MainActivity extends Activity implements Ble.Listener, Host, 
 
     @Override
     protected void onDestroy() {
+        if (updater != null) updater.close();
         main.removeCallbacks(tick);
         if (session != null) session.stop();
         ble.disconnect(Session.safeOp(ble.kind()));
@@ -565,6 +583,9 @@ public final class MainActivity extends Activity implements Ble.Listener, Host, 
     }
 
     private void step(long t) {
+        // a downloaded update goes to the installer only while nothing trains (never mid-session)
+        if (updater != null && updater.waiting() && held == null && (session == null || session.state() == Session.IDLE)
+                && (session == null || !session.busy())) updater.installIfReady();
         if (reportRetryAt > 0 && t >= reportRetryAt && !report.busy()) {
             reportRetryAt = 0;
             sendReport();

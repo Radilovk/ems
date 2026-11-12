@@ -87,6 +87,12 @@ public final class AutoCues {
             return AiText.t("Дренаж: последователни съкращения изтласкват течността под кожата към лимфните пътища.",
                     "Drainage: contractions in sequence push the fluid under the skin towards the lymph pathways.");
         }
+        if (AutoCatalog.ANTIAGE.equals(id) || AutoCatalog.ANTIAGE_PASSIVE.equals(id)) {
+            String g = antiageGoal(AutoCatalog.ANTIAGE_PASSIVE.equals(id), p);
+            if (g != null) {
+                return g;
+            }
+        }
         if ("RELAX".equals(p)) {
             return AiText.t("Отпускане на напрежението и спазъма в гърба.", "Releasing the tension and spasm in the back.");
         }
@@ -114,6 +120,31 @@ public final class AutoCues {
                     "Massage: better blood flow, relaxation and faster recovery after training.");
         }
         return plan.program.desc();
+    }
+
+    /** The anti-ageing programs' goal line (spec §6.12), by phase; null = the common text. */
+    static String antiageGoal(boolean passive, String phase) {
+        if (passive && "MAIN".equals(phase)) {
+            return AiText.t("Захар: краката работят ритмично и поемат захар от кръвта — скокът след хранене е по-малък.",
+                    "Blood sugar: the legs work in a rhythm and take sugar from the blood — the rise after a meal is smaller.");
+        }
+        if ("MAIN".equals(phase)) {
+            return AiText.t("Миокини: работещите мускули пускат в кръвта вещества, които пазят клетките и гасят възпалението.",
+                    "Myokines: the working muscles release substances that protect the cells and calm inflammation.");
+        }
+        if ("BRAIN".equals(phase)) {
+            return AiText.t("Мозък: при тази честота мускулите на краката подават сигнал, който храни нервните клетки и паметта.",
+                    "Brain: at this rate the leg muscles send a signal that feeds the nerve cells and the memory.");
+        }
+        if ("INTERVAL".equals(phase)) {
+            return AiText.t("Интервали: кратко с всичка сила, после отдих — това сваля възпалението в тялото най-силно.",
+                    "Intervals: short and all out, then rest — this lowers inflammation in the body the most.");
+        }
+        if ("VESSELS".equals(phase)) {
+            return AiText.t("Съдове: леко ритмично потрепване — артериите на краката стават по-гъвкави.",
+                    "Vessels: a light rhythmic twitching — the leg arteries grow more supple.");
+        }
+        return null;
     }
 
     /** The face programs' goal line (docs/xems-face.md §9), by program and phase. */

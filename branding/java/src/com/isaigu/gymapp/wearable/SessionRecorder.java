@@ -243,6 +243,7 @@ public final class SessionRecorder {
                     if (autoProgram != null) {
                         r.auto = true;
                         r.program = autoProgram;
+                        r.programId = autoProgramId();
                     }
                     String mapName = com.isaigu.gymapp.ai.MapRunner.name();
                     if (mapName != null) {
@@ -427,6 +428,16 @@ public final class SessionRecorder {
     }
 
     /** The automatic program's name while it runs, else null. */
+    /** The running automatic program's id, null outside a run. */
+    private static String autoProgramId() {
+        try {
+            com.isaigu.gymapp.ai.AutoModel.Plan p = com.isaigu.gymapp.ai.AutoSession.getPlan();
+            return p != null && p.program != null ? p.program.id : null;
+        } catch (Throwable t) {
+            return null;
+        }
+    }
+
     private static String autoProgram() {
         try {
             if (com.isaigu.gymapp.ai.AutoSession.getStage() != com.isaigu.gymapp.ai.AutoSession.Stage.RUNNING

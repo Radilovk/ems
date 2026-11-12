@@ -45,6 +45,14 @@ public final class AutoCatalog {
     public static final String BACK_PAIN = "back_pain";
     public static final String RECOVERY = "recovery";
     /**
+     * Anti-ageing (owner, 1.1.514 — docs/xems-auto-mode-spec.md §6.12): only the impulse is the program's; the zones are
+     * even (every channel 100 %) and the strength is the calibration — the trainer sets both for the client.
+     * Not a sarcopenia program: each phase stands on a human EMS / NMES study of an ageing pathway — myokines,
+     * BDNF, inflammation (intervals), blood sugar, arterial stiffness (spec §6.12 table and sources).
+     */
+    public static final String ANTIAGE = "antiage";
+    public static final String ANTIAGE_PASSIVE = "antiage_passive";
+    /**
      * Face (owner, 2026-11-06 — docs/xems-face.md §9): the face connector puts the ten channels on ten face sites
      * (sockets F1–F10, galvanically isolated channels). Every face program names its sites; the rest are 0 and locked;
      * the encoder's face mode gives every channel the gentle divider. Motor programs never under 20 Hz on the face
@@ -244,6 +252,18 @@ public final class AutoCatalog {
                 Kind.PASSIVE, AutoModel.zones(80, 90, 90, 90, 50, 70, 80, 80, 40, 60)));
         p.cr10Lo = 3; p.cr10Hi = 5; p.xCap = 0.45;
 
+        p = add(new Program(ANTIAGE, "Антиейджинг", "Anti-ageing",
+                "Миокини, мозък, интервали — по-малко възпаление, по-ниска захар, по-гъвкави съдове",
+                "Myokines, brain, intervals — less inflammation, lower blood sugar, suppler vessels",
+                Kind.ACTIVE, AutoModel.zones(100, 100, 100, 100, 100, 100, 100, 100, 100, 100)));
+        p.cr10Lo = 5; p.cr10Hi = 6; p.xCap = 0.80; p.envMax = 1.10; p.impulse = AutoDynamics.CARDIO;
+
+        p = add(new Program(ANTIAGE_PASSIVE, "Антиейджинг · процедура", "Anti-ageing · treatment",
+                "Захар, мозък, съдове — в покой, най-добре след хранене",
+                "Blood sugar, brain, vessels — at rest, best after a meal",
+                Kind.PASSIVE, AutoModel.zones(100, 100, 100, 100, 100, 100, 100, 100, 100, 100)));
+        p.cr10Lo = 4; p.cr10Hi = 5; p.xCap = 0.55; p.envMax = 1.0;
+
         p = add(new Program(FACE, "Лице · Лифтинг на скулите", "Face · Cheekbone lift",
                 "Лифтинг · Скулптуриране · Лимфодренаж · Ботокс ефект · Свежо лице — избор в студиото за лице",
                 "Lift · Oval · Facial lymphatic drainage · Botox effect · Fresh face — chosen in the face studio",
@@ -277,7 +297,7 @@ public final class AutoCatalog {
 
         // difficulty (owner, 1.1.336; design values): what the program asks of the body — the feeling it aims at,
         // the explosive / metabolic work. Green = easy, amber = medium, red = hard.
-        for (String id : new String[] {BACK_ACTIVE, SENIOR, POSTPARTUM, DRAIN, BACK_PAIN, RECOVERY}) {
+        for (String id : new String[] {BACK_ACTIVE, SENIOR, POSTPARTUM, DRAIN, BACK_PAIN, RECOVERY, ANTIAGE_PASSIVE}) {
             get(id).level = 1;
         }
         for (String id : new String[] {POWER, CARDIO, MASS}) {
@@ -427,18 +447,18 @@ public final class AutoCatalog {
         switch (goal) {
             case TONE:
                 ids = kind == Kind.ACTIVE
-                        ? new String[] {GENERAL, MASS, UPPER, GLUTES_LEGS, CORE, POWER}
-                        : new String[] {CELLULITE, POSTPARTUM, PASSIVE_METABOLIC, FACE};
+                        ? new String[] {GENERAL, MASS, UPPER, GLUTES_LEGS, CORE, POWER, ANTIAGE}
+                        : new String[] {CELLULITE, POSTPARTUM, PASSIVE_METABOLIC, ANTIAGE_PASSIVE, FACE};
                 break;
             case SLIM:
                 ids = kind == Kind.ACTIVE
-                        ? new String[] {CARDIO, GENERAL, GLUTES_LEGS, CORE, POWER}
-                        : new String[] {CELLULITE, DRAIN, PASSIVE_METABOLIC};
+                        ? new String[] {CARDIO, GENERAL, GLUTES_LEGS, CORE, POWER, ANTIAGE}
+                        : new String[] {CELLULITE, DRAIN, PASSIVE_METABOLIC, ANTIAGE_PASSIVE};
                 break;
             default:
                 ids = kind == Kind.ACTIVE
-                        ? new String[] {BACK_ACTIVE, SENIOR}
-                        : new String[] {BACK_PAIN, DRAIN, POSTPARTUM, RECOVERY};
+                        ? new String[] {BACK_ACTIVE, SENIOR, ANTIAGE}
+                        : new String[] {BACK_PAIN, DRAIN, POSTPARTUM, RECOVERY, ANTIAGE_PASSIVE};
                 break;
         }
         List<Program> out = new ArrayList<Program>();
@@ -875,6 +895,52 @@ public final class AutoCatalog {
                 faceCooldown(out, total, FACE_CHIN_PW);
                 break;
             }
+            case ANTIAGE: {
+                // spec §6.12 (evidence-led): myokines — the WB-EMS RCT protocol 30 Hz · 350 µs · 4 : 6 with body-weight
+                // moves (IL-15 ↑, myostatin ↓, follistatin ↑); the brain — 20 Hz on the whole legs (BDNF and cathepsin B
+                // rose only at 20 Hz, not 4 / 80); intervals — HIIT, not EMS alone, lowered CRP / IL-6, so short strong
+                // holds with the client's own effort; the 10-min recovery at 4 Hz = the low-intensity 4 Hz that eased
+                // arterial stiffness
+                Phase w = phase(out, "WARMUP", "Загрявка", "Warm-up", 0.10, total, 0.6, 0.9);
+                w.envStart = 0.6;
+                w.envEnd = 0.9;
+                w.hintBg = "Ходене на място, леки клекове";
+                w.hintEn = "Marching, light squats";
+                w.steps.add(twitch(WARMUP_HZ, 350, 10, 1, 1.0));          // 7 Hz twitches: warm, no fatigue
+                Phase m = phase(out, "MAIN", "Миокини", "Myokines", 0.40, total, 0.9, 0.9);
+                m.envEnd = 1.0;
+                m.window = Window.main();
+                m.hintBg = "Клек, напад, разтваряне, сгъване — със собствено тегло, в свое темпо";
+                m.hintEn = "Squat, lunge, raises, curls — body weight, at your own pace";
+                m.steps.add(tet(30, 350, 4, 6));
+                Phase br = phase(out, "BRAIN", "Мозък", "Brain", 0.30, total, 0.8, 0.8);
+                br.envEnd = 0.9;
+                br.hintBg = "Ходене на място, степ — краката работят целите";
+                br.hintEn = "Marching, step — the whole legs work";
+                br.steps.add(tet(20, 300, 8, 2));
+                Phase iv = phase(out, "INTERVAL", "Интервали", "Intervals", 0.20, total, 1.0, 1.0);
+                iv.envEnd = ENV_MAX;
+                iv.hintBg = "4 секунди с всичка сила, после леко — клек, мост, лицеви на пейка";
+                iv.hintEn = "4 seconds all out, then easy — squat, bridge, incline push-ups";
+                iv.steps.add(tet(70, 300, 4, 2));
+                iv.steps.add(twitch(7, 300, 4, 1, 0.7));
+                cooldown(out, total, 0.10, 4);
+                break;
+            }
+            case ANTIAGE_PASSIVE: {
+                // spec §6.12 at rest: blood sugar — low-rate leg stimulation blunts the rise after a meal; the brain —
+                // passive 20 Hz on the whole legs (BDNF, cathepsin B); the vessels — low-intensity 4 Hz (stiffness ↓)
+                Phase w = phase(out, "WARMUP", "Загряване", "Warm-up", 0.10, total, 0.6, 0.7);
+                w.steps.add(twitch(5, 250, 10, 1, 1.0));
+                Phase m = phase(out, "MAIN", "Захар", "Blood sugar", 0.35, total, 0.7, 0.7);
+                m.steps.add(twitch(5, 300, 10, 1, 1.0));
+                Phase br = phase(out, "BRAIN", "Мозък", "Brain", 0.35, total, 0.7, 0.7);
+                br.steps.add(tet(20, 300, 8, 2));
+                Phase v = phase(out, "VESSELS", "Съдове", "Vessels", 0.20, total, 0.5, 0.5);
+                v.steps.add(twitch(4, 250, 10, 1, 1.0));
+                cooldown(out, total, 0.10, 3);
+                break;
+            }
             default: { // RECOVERY
                 Phase w = phase(out, "WARMUP", "Загряване", "Warm-up", 0.15, total, 0.5, 0.8);
                 w.envStart = 0.5;
@@ -1021,7 +1087,7 @@ public final class AutoCatalog {
 
     /** Heart-rate use of a program for a goal (spec §7). */
     public static HrUse hrUse(Program p, Goal goal) {
-        if (CARDIO.equals(p.id) || PASSIVE_METABOLIC.equals(p.id)) {
+        if (CARDIO.equals(p.id) || PASSIVE_METABOLIC.equals(p.id) || ANTIAGE.equals(p.id)) {
             return HrUse.CORRIDOR;
         }
         if (goal == Goal.SLIM && (GENERAL.equals(p.id) || GLUTES_LEGS.equals(p.id) || CORE.equals(p.id))) {

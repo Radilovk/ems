@@ -1653,6 +1653,202 @@
      ]
     }
    }
+  },
+  {
+   "id": "antiage",
+   "name": "Антиейджинг",
+   "goals": [
+    "tone",
+    "fat",
+    "health"
+   ],
+   "ai": [
+    "TONE"
+   ],
+   "img": "squat",
+   "T": 20,
+   "share": [
+    10,
+    80,
+    10
+   ],
+   "warm": "7 Hz · 350 µs",
+   "main": "Миокини 30 Hz · 350 µs 4:6 · Мозък 20 Hz · 300 µs 8:2 · Интервали 70 Hz 4:2 ↔ 7 Hz",
+   "cool": "4 Hz · 250 µs",
+   "cr10": "5–6",
+   "note": "По доказателства (docs/xems-auto-mode-spec.md §6.12): миокини, BDNF, възпаление, захар, артерии. Зоните и силата — от треньора. Собствено тегло, без скокове.",
+   "lv": {
+    "1": {
+     "T": 15,
+     "warm_s": 90,
+     "main_s": 720,
+     "cool_s": 90,
+     "on": 4,
+     "off": 6,
+     "stations": [
+      {
+       "ex": "bodyweight-squat",
+       "sec": 120,
+       "cycles": 12
+      },
+      {
+       "ex": "banded-lat-pulldown",
+       "sec": 120,
+       "cycles": 12
+      },
+      {
+       "ex": "lateral-lunge",
+       "sec": 120,
+       "cycles": 12
+      },
+      {
+       "ex": "incline-push-up",
+       "sec": 120,
+       "cycles": 12
+      },
+      {
+       "ex": "glute-bridge",
+       "sec": 120,
+       "cycles": 12
+      },
+      {
+       "ex": "step-down",
+       "sec": 120,
+       "cycles": 12
+      }
+     ],
+     "warm": [
+      {
+       "ex": "bodyweight-squat",
+       "sec": 45
+      },
+      {
+       "ex": "lateral-lunge",
+       "sec": 45
+      }
+     ]
+    },
+    "2": {
+     "T": 20,
+     "warm_s": 120,
+     "main_s": 960,
+     "cool_s": 120,
+     "on": 4,
+     "off": 6,
+     "stations": [
+      {
+       "ex": "bodyweight-squat",
+       "sec": 120,
+       "cycles": 12
+      },
+      {
+       "ex": "forward-lunge",
+       "sec": 120,
+       "cycles": 12
+      },
+      {
+       "ex": "lateral-raise",
+       "sec": 120,
+       "cycles": 12
+      },
+      {
+       "ex": "bicep-curl",
+       "sec": 120,
+       "cycles": 12
+      },
+      {
+       "ex": "incline-push-up",
+       "sec": 120,
+       "cycles": 12
+      },
+      {
+       "ex": "glute-bridge",
+       "sec": 120,
+       "cycles": 12
+      },
+      {
+       "ex": "step-down",
+       "sec": 120,
+       "cycles": 12
+      },
+      {
+       "ex": "superman",
+       "sec": 120,
+       "cycles": 12
+      }
+     ],
+     "warm": [
+      {
+       "ex": "bodyweight-squat",
+       "sec": 60
+      },
+      {
+       "ex": "lateral-lunge",
+       "sec": 60
+      }
+     ]
+    },
+    "3": {
+     "T": 20,
+     "warm_s": 120,
+     "main_s": 960,
+     "cool_s": 120,
+     "on": 4,
+     "off": 6,
+     "stations": [
+      {
+       "ex": "goblet-squat",
+       "sec": 120,
+       "cycles": 12
+      },
+      {
+       "ex": "reverse-lunge",
+       "sec": 120,
+       "cycles": 12
+      },
+      {
+       "ex": "lateral-raise",
+       "sec": 120,
+       "cycles": 12
+      },
+      {
+       "ex": "hammer-curl",
+       "sec": 120,
+       "cycles": 12
+      },
+      {
+       "ex": "knee-push-up",
+       "sec": 120,
+       "cycles": 12
+      },
+      {
+       "ex": "single-leg-glute-bridge",
+       "sec": 120,
+       "cycles": 12
+      },
+      {
+       "ex": "elliptical",
+       "sec": 120,
+       "cycles": 12
+      },
+      {
+       "ex": "plank",
+       "sec": 120,
+       "cycles": 12
+      }
+     ],
+     "warm": [
+      {
+       "ex": "bodyweight-squat",
+       "sec": 60
+      },
+      {
+       "ex": "lateral-lunge",
+       "sec": 60
+      }
+     ]
+    }
+   }
   }
  ],
  "passive": [
@@ -1803,6 +1999,32 @@
    ],
    "cr10": "3",
    "phases": "Редуване 3 Hz ↔ 8 Hz 10:2; 24–48 ч след активна"
+  },
+  {
+   "id": "antiage_passive",
+   "name": "Антиейджинг · процедура",
+   "goals": [
+    "tone",
+    "fat",
+    "health"
+   ],
+   "ai": [
+    "MASSAGE"
+   ],
+   "img": "line",
+   "pos": "Седнал или полулегнал; най-добре 30–60 мин след хранене",
+   "T": [
+    15,
+    20,
+    20
+   ],
+   "e": [
+    "0.6",
+    "0.7",
+    "0.8"
+   ],
+   "cr10": "4–5",
+   "phases": "Загряване 5 Hz · захар 5 Hz · мозък 20 Hz 8:2 · съдове 4 Hz леко · 3 Hz; зоните и силата — от треньора"
   }
  ],
  "cond": {

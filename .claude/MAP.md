@@ -10,7 +10,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/add-builtin-exercise.py` (64L) — Make library exercises built-in: their figures ship in the APK (branding/exercises/exercises.json), so the ready progra…
 - `scripts/ai-sim/AiExSim.java` (332L) — Offline test of the Smart Session's exercises (AiExercises over AiEngine): whole sessions, synthetic pulse.
 - `scripts/ai-sim/AiSim.java` (459L) — Offline scenarios for the Smart Session engine.
-- `scripts/ai-sim/AutoSim.java` (2074L) — Offline checks of the automatic mode (docs/xems-auto-mode-spec.md): every program × goal × client profile is planned an…
+- `scripts/ai-sim/AutoSim.java` (2099L) — Offline checks of the automatic mode (docs/xems-auto-mode-spec.md): every program × goal × client profile is planned an…
 - `scripts/ai-sim/MapSim.java` (360L) — MapClock (the "By the map" runner's clock) over every ready map and a drawn one: exact cycles per block, rest seconds, …
 - `scripts/ai-sim/PathNormSim.java` (68L) — PathNorm (Java, on the tablet) must give exactly what scripts/exercise-paths.py gives: dir/*.svg vs dir/*.norm.
 - `scripts/ai-sim/TemplateSim.java` (250L) — Offline test of the exercise templates (AutoTemplates) over every active program × profile × history.
@@ -73,7 +73,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/apply-pulse-cycle-hook.py` (97L, build:L123[BETA_MUSIC]) — The pulse-cycle hook of TrainItem$2.onFinish (an ON phase begins) → AiSession.onPulseCycle, which drives the AI session…
 - `scripts/apply-quick-start.py` (111L, build:L137[BETA_MUSIC]) — Client list: ▶ quick start in every row, ↻ refresh next to the search (wearable/QuickStart).
 - `scripts/apply-ramp-setting.py` (77L, build:L135[BETA_MUSIC]) — Soft rise / fall (ramp) back in the program parameters dialog, in seconds (0.0–2.0 s).
-- `scripts/apply-session-report.py` (49L, build:L145[BETA_MUSIC]) — Ship the client report page: branding/report/session-report.html → assets/report/session-report.html, and the shareable…
+- `scripts/apply-session-report.py` (51L, build:L145[BETA_MUSIC]) — Ship the client report page: branding/report/session-report.html → assets/report/session-report.html, and the shareable…
 - `scripts/apply-settings-ui.py` (230L, build:L95) — Settings screen: language + dark/light theme only.
 - `scripts/apply-settings-username-theme.py` (64L, build:L92) — Dark-theme username label above avatar in operational settings dialog.
 - `scripts/apply-slider-theme.py` (374L, build:L61) — Improve vertical slider track depth and thumb contrast via smali patches.
@@ -114,7 +114,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/compile-interval-timer-java.sh` (103L, build:L113[BETA_MUSIC,SKIP_JAVA_RECOMPILE]) — Compile interval timer + block program classes from Java to smali.
 - `scripts/compile-music-sync-java.sh` (220L, build:L103[BETA_MUSIC,SKIP_JAVA_RECOMPILE]) — Compile BETA music-sync classes from Java to smali (avoids hand-written branch bugs).
 - `scripts/compile-softramp-java.sh` (44L, build:L83[SKIP_JAVA_RECOMPILE]) — Compile train/model/SoftRamp.java (the tablet-side ramp + the safety guard hook) to branding/smali/softramp/
-- `scripts/compile-wearable-java.sh` (279L, build:L118[BETA_MUSIC,SKIP_JAVA_RECOMPILE]) — Compile the wearable bridge + band UI, the Smart Session and the automatic mode (ai package) from Java to smali.
+- `scripts/compile-wearable-java.sh` (281L, build:L118[BETA_MUSIC,SKIP_JAVA_RECOMPILE]) — Compile the wearable bridge + band UI, the Smart Session and the automatic mode (ai package) from Java to smali.
 - `scripts/compile-xems-license-java.sh` (61L, build:L80[SKIP_JAVA_RECOMPILE]) — Compile XemsLicense*.java to branding/smali/widget/
 - `scripts/compile-xems-local-java.sh` (84L, build:L127[BETA_MUSIC,SKIP_JAVA_RECOMPILE]) — Compile XemsLocal*.java to branding/smali/widget/
 - `scripts/design-apply.sh` (96L) — Sync studio → validate → apply train design → optional APK build
@@ -169,6 +169,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/scale-sim/run.sh` (14L) — Offline test of the body-composition scale (wearable/scale: protocol A + B, WLA25 body composition) on the JVM,
 - `scripts/serve-branding.sh` (15L) — Local web server for branding YAML maps and DEVELOPMENT.md reference.
 - `scripts/setup-android-toolchain.sh` (57L) — Java → smali toolchain without the Google Android SDK (cloud sessions: dl.google.com is blocked).
+- `scripts/sync-xems-advice.py` (67L) — The advice after a training has ONE source: aidiet `xems-advice.js` (the XB-Studio app's live page, the XBody PWA). The…
 - `scripts/test-apk-safety.sh` (118L) — Automated safety test: BETA build must not change login-critical code vs baseline.
 - `scripts/toolchain/BakMain.java` (21L) — baksmali "d <dex> -o <dir>" on top of the baksmali library bundled in apktool.jar.
 - `scripts/ui-map.py` (126L, build:L67[DESIGN_PIPELINE]) — UI map utilities — validate layouts, explain structure, guide safe edits.
@@ -249,8 +250,8 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `AiViews.java` (318L, compile:music-sync*,wearable) — Canvas-drawn widgets for the Smart Session UI (no resources needed).
 - `AutoBeep.java` (149L, compile:music-sync*,wearable) — The start signal of an automatic session (owner, 1.1.270): every start waits 3 s — three short beeps, one per second, a…
 - `AutoBoard.java` (223L, compile:music-sync*,wearable) — The Auto live board built into the training screen (owner, 1.1.278): while an automatic session runs, the training list…
-- `AutoCatalog.java` (1041L, compile:music-sync*,wearable) — The ready programs of the automatic mode (spec §5, §6): menu per goal × kind, what each program is, its zones, its phas…
-- `AutoCues.java` (292L, compile:music-sync*,wearable) — What the hint card on the training screen says during an automatic session (pure Java): the cue for the pulse / the pau…
+- `AutoCatalog.java` (1107L, compile:music-sync*,wearable) — The ready programs of the automatic mode (spec §5, §6): menu per goal × kind, what each program is, its zones, its phas…
+- `AutoCues.java` (323L, compile:music-sync*,wearable) — What the hint card on the training screen says during an automatic session (pure Java): the cue for the pulse / the pau…
 - `AutoDynamics.java` (432L, compile:music-sync*,wearable) — The impulse of the automatic mode changes while it runs (owner, 1.1.322 — docs/xems-auto-mode-spec.md §13, docs/xems-em…
 - `AutoEngine.java` (2417L, compile:music-sync*,wearable) — Automatic mode runtime (spec §4, §7, §8): walks the plan cycle by cycle and gives each cycle's parameters, planned stre…
 - `AutoHints.java` (349L, compile:music-sync*,wearable) — Hint card on the training screen during an automatic session: a small floating card at the top (not modal — the screen …
@@ -260,9 +261,9 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `AutoModel.java` (316L, compile:music-sync*,wearable) — Automatic mode data model (docs/xems-auto-mode-spec.md): the wizard's answers, one device cycle (step), a phase with it…
 - `AutoPlanner.java` (295L, compile:music-sync*,wearable) — Program + client → plan with its hard limits (spec §3 modifiers, §3.3 strength envelope, §3.4 dose, §5 zones).
 - `AutoSession.java` (2187L, compile:music-sync*,wearable) — Android side of the automatic mode: owns the {@link AutoEngine}, writes each cycle to every participant row with that r…
-- `AutoTemplateData.java` (114L, compile:music-sync*,wearable) — GENERATED by scripts/gen-exercises.py from branding/exercises/*.json — do not edit.
-- `AutoTemplates.java` (528L, compile:music-sync*,wearable) — The exercises of an automatic session (pure Java; data in {@link AutoTemplateData}, from branding/exercises/).
-- `AutoUi.java` (2165L, compile:music-sync*,wearable) — Automatic mode UI (docs/xems-auto-mode-spec.md §2): the "Авто" tile opens a sheet with three short steps — program · cl…
+- `AutoTemplateData.java` (115L, compile:music-sync*,wearable) — GENERATED by scripts/gen-exercises.py from branding/exercises/*.json — do not edit.
+- `AutoTemplates.java` (529L, compile:music-sync*,wearable) — The exercises of an automatic session (pure Java; data in {@link AutoTemplateData}, from branding/exercises/).
+- `AutoUi.java` (2200L, compile:music-sync*,wearable) — Automatic mode UI (docs/xems-auto-mode-spec.md §2): the "Авто" tile opens a sheet with three short steps — program · cl…
 - `AutoViews.java` (1206L, compile:music-sync*,wearable) — The drawn parts of the Auto live board (docs/xems-auto-mode-spec.md §12): the set ring around the exercise, the body he…
 - `ExerciseFigure.java` (308L, compile:music-sync*,wearable) — An exercise figure that moves with the impulse: the frames of the exercise (assets/xems/exercises.json, from branding/e…
 - `ExerciseLibrary.java` (388L, compile:music-sync*,wearable) — The exercise library on the tablet: all 302 exercises (assets/xems/library.json — names, steps, muscles, position, cost…
@@ -276,6 +277,8 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `OutputOwner.java` (85L, compile:music-sync*,wearable) — Who drives the impulse of the rows right now (1.1.331): one answer for every mode, so two writers never fight over the …
 - `PathNorm.java` (355L, compile:music-sync*,wearable) — SVG path data → absolute M / L / C / Z only (what {@link ExerciseFigure} draws).
 - `ProgramArt.java` (196L, compile:music-sync*,wearable) — The picture of a program by its kind and the client's sex: neon line art, so it always sits on a dark tile — in the lig…
+- `ProgramGuide.java` (227L, compile:music-sync*,wearable) — What the ⓘ of a ready program says (owner, 1.1.516 — docs/xems-program-info.md): how this training or procedure works f…
+- `ProgramInfo.java` (238L, compile:music-sync*,wearable) — The ⓘ of a ready program card in Auto (owner, 1.1.516 — docs/xems-program-info.md): what this training or procedure is …
 - `PulseAdvice.java` (552L, compile:music-sync*,wearable) — Recommended impulses for the manual mode's four modes (Основен · Мускули · Кардио · Масаж) from the client's profile an…
 - `SafeLimits.java` (194L, compile:music-sync*,wearable) — Absolute limits of the impulse — every mode, every path to the suit (owner, 1.1.323; docs/xems-safety-limits.md).
 - `Workout.java` (594L, compile:music-sync*,wearable) — A workout is an impulse map: a line of blocks.
@@ -369,8 +372,8 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `SearchPad.java` (583L, compile:music-sync*,wearable) — Our own search keyboard for the client searches (Потребители, the client / program / device picker), made for a tablet …
 - `SecondParts.java` (182L, compile:music-sync*,wearable) — The second impulse's own strength per channel, kept per client.
 - `SessionInts.java` (41L, compile:music-sync*,wearable) — Growable int array for the per-second session columns.
-- `SessionRec.java` (424L, compile:music-sync*,wearable) — One training of one client, one sample per second: what the suit got (main strength, the ten channel shares, Hz, µs, im…
-- `SessionRecorder.java` (472L, compile:music-sync*,wearable) — Records every training on the tablet, one sample per second per slot, for the client report.
+- `SessionRec.java` (427L, compile:music-sync*,wearable) — One training of one client, one sample per second: what the suit got (main strength, the ten channel shares, Hz, µs, im…
+- `SessionRecorder.java` (483L, compile:music-sync*,wearable) — Records every training on the tablet, one sample per second per slot, for the client report.
 - `SessionStore.java` (151L, compile:music-sync*,wearable) — Recorded trainings on the tablet: files/xems_sessions/index.json (one summary per training, all clients) and s_&lt;id&g…
 - `SessionUploader.java` (162L, compile:music-sync*,wearable) — Sends what the client's training analysis needs (the summary + the per-second record from files/xems_sessions, gzip-com…
 - `SignalProbe.java` (198L, compile:music-sync*,wearable) — Three quick taps on a row's Bluetooth signal icon show how close the suit is — 0..100 %, no metres or dBm (owner, 1.1.4…
@@ -408,9 +411,9 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `FaceAuto.java` (311L, compile:music-sync*,wearable) — The XEMS suit as a face device: the automatic mode runs the face programs ({@code AutoCatalog.FACE*}: the arms channel …
 - `FaceCourse.java` (103L, compile:music-sync*,wearable) — A client's course of one face procedure — pure Java (the studio keeps the dates in prefs "xems_face", one line per clie…
 - `FaceDevice.java` (108L, compile:music-sync*,wearable) — What the face studio needs from a device (docs/xems-face.md): the XEMS suit through the automatic mode ({@link FaceAuto…
-- `FaceProgram.java` (374L, compile:music-sync*,wearable) — The face procedures as the studio sells them (docs/xems-face.md) — pure Java.
+- `FaceProgram.java` (360L, compile:music-sync*,wearable) — The face procedures as the studio sells them (docs/xems-face.md) — pure Java.
 - `FaceRing.java` (150L, compile:music-sync*,wearable) — The run's dial: the three phases as arcs (wake-up · work · let-go) with the time done filled, the time left big in the …
-- `FaceStudio.java` (1467L, compile:music-sync*,wearable) — The face studio (owner, 2026-11-06 — docs/xems-face.md): one full-screen page for the face procedures, the same for the…
+- `FaceStudio.java` (1444L, compile:music-sync*,wearable) — The face studio (owner, 2026-11-06 — docs/xems-face.md): one full-screen page for the face procedures, the same for the…
 - `FaceTimeline.java` (185L, compile:music-sync*,wearable) — Where a face procedure is at a moment — pure Java.
 - `FaceView.java` (279L, compile:music-sync*,wearable) — The face studio's picture: the owner's face image (assets/xems/face/face.webp) with the anatomy layer of {@link FaceArt…
 
@@ -927,7 +930,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L201 ## Действия по време на сесията (v1.1.68)
   - L222 ## Отворено: проверка на алгоритъма с реални данни (бъдеще)
 
-`docs/xems-auto-mode-spec.md` (710L)
+`docs/xems-auto-mode-spec.md` (752L)
   - L1 # XEMS Автоматичен режим — спецификация v1.0 (реализирано в 1.1.156-ai, опростено в 1.1.162-ai)
   - L24 ## 1. Място в менюто
   - L32 ## 2. Стъпки (3 + на живо; отчетът е в клиентския картон) — 1.1.257
@@ -953,18 +956,19 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L314 ### 6.9 Следродилно възстановяване (пасивна)
   - L327 ### 6.10 Регенерация и релакс · Пасивен метаболизъм (пасивни)
   - L336 ### 6.11 Здрав гръб и стойка · Здрави мускули 50+ (активни, Здраве)
-  - L346 ## 7. Опции по програма
-  - L368 ## 8. Какво човекът може по време на сесия
-  - L380 ## 9. Реализация
-  - L423 ## 11. Време, серии, почивки, старт и стоп (собственик, 1.1.270-ai)
-  - L458 ## 12. Таблото „на живо“ (собственик, 1.1.271-ai; вградено в тренировъчния екран от 1.1.278-ai)
-  - L579 ## 10. Подсказки (1.1.157-ai)
-  - L603 ## 13. Импулсът в движение (собственик, 1.1.322-ai — `ai/AutoDynamics`, физиология §3.5)
-  - L626 ## 14. „Само шаблон“ / „С упражнения“ (собственик, 1.1.325-ai)
-  - L636 ## 15. Менюто, цветовете и настройването (собственик, 1.1.336)
-  - L660 ## 16. Тялото, каналите, кръгът (собственик, 1.1.338)
-  - L669 ## 17. «Модулация» — пасивни процедури на bodytech костюм (собственик, 1.1.372)
-  - L678 ## 18. The plan clock is the real clock (owner, 1.1.494)
+  - L346 ### 6.12 Антиейджинг (активна с упражнения · пасивна процедура; Тонус, Отслабване, Здраве) — 1.1.514-ai
+  - L388 ## 7. Опции по програма
+  - L410 ## 8. Какво човекът може по време на сесия
+  - L422 ## 9. Реализация
+  - L465 ## 11. Време, серии, почивки, старт и стоп (собственик, 1.1.270-ai)
+  - L500 ## 12. Таблото „на живо“ (собственик, 1.1.271-ai; вградено в тренировъчния екран от 1.1.278-ai)
+  - L621 ## 10. Подсказки (1.1.157-ai)
+  - L645 ## 13. Импулсът в движение (собственик, 1.1.322-ai — `ai/AutoDynamics`, физиология §3.5)
+  - L668 ## 14. „Само шаблон“ / „С упражнения“ (собственик, 1.1.325-ai)
+  - L678 ## 15. Менюто, цветовете и настройването (собственик, 1.1.336)
+  - L702 ## 16. Тялото, каналите, кръгът (собственик, 1.1.338)
+  - L711 ## 17. «Модулация» — пасивни процедури на bodytech костюм (собственик, 1.1.372)
+  - L720 ## 18. The plan clock is the real clock (owner, 1.1.494)
 
 `docs/xems-bluetens.md` (124L)
   - L1 # Bluetens — protocol and the XEMS module plan
@@ -1241,6 +1245,12 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L83 ## ⚙ на реда и ⚙ Master
   - L90 ## Базови настройки на „Main“ (1.1.334)
   - L104 ## Първият импулс на нула при следващо посещение (1.1.508)
+
+`docs/xems-program-info.md` (39L)
+  - L1 # Program info (ⓘ) and the advice in the report (owner, 1.1.516-ai)
+  - L7 ## ⓘ on the program card — `ai/ProgramInfo`, text `ai/ProgramGuide`
+  - L18 ## Advice in the report — `branding/report/session-report.html` (`renderGuide`, `shareGuide`)
+  - L29 ## In the client's phone app (XB-Studio, aidiet `studio.html`, 2026-11)
 
 `docs/xems-pulse-control.md` (195L)
   - L1 # Пулс модул: управление на импулсите по пулса (v1.1.59, задържане в зона от 1.1.270)

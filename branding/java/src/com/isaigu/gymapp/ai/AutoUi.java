@@ -567,7 +567,7 @@ public final class AutoUi {
                 // a ready one runs as the automatic program with its exercises: its plan's three times
                 strip.addView(programCard(c, on, w.effectiveLevel(), ProgramArt.templateKey(in.sex), w.name,
                         (w.preset ? "" : "★ ") + meta, rp != null ? AutoCatalog.times(rp, in.goal, in) : null,
-                        rp != null ? null : "≈ " + mins + AiText.t(" мин", " min"), new Act(A_WORKOUT, i)),
+                        rp != null ? null : "≈ " + mins + AiText.t(" мин", " min"), new Act(A_WORKOUT, i), rp),
                         cardParams(c));
                 if (on) {
                     pickedLine = WorkoutsUi.focusLine(w);
@@ -609,7 +609,7 @@ public final class AutoUi {
                 String art = p.isActive() ? ProgramArt.templateKey(in.sex) : ProgramArt.passiveKey(in.sex);
                 String label = AutoCatalog.isFace(p) ? AiText.t("Лице · естетични процедури", "Face · aesthetic procedures") : p.name();
                 strip.addView(programCard(c, on, p.level, art, (p == rec ? "★ " : "") + label, null,
-                        AutoCatalog.times(p, in.goal, in), null, new Act(A_PROGRAM, i)), cardParams(c));
+                        AutoCatalog.times(p, in.goal, in), null, new Act(A_PROGRAM, i), p), cardParams(c));
                 shown++;
             }
             if (in.kind == Kind.PASSIVE) {
@@ -751,6 +751,12 @@ public final class AutoUi {
      */
     private static LinearLayout programCard(Context c, boolean on, int level, String artKey, String name, String meta,
                                             int[] times, String total, Act click) {
+        return programCard(c, on, level, artKey, name, meta, times, total, click, null);
+    }
+
+    /** {@code info} = a ready program: its ⓘ (bottom-right of the picture) opens {@link ProgramInfo}. */
+    private static LinearLayout programCard(Context c, boolean on, int level, String artKey, String name, String meta,
+                                            int[] times, String total, Act click, Program info) {
         int lc = levelColor(level);
         LinearLayout card = XemsUi.vertical(c);
         int pad = XemsUi.dp(c, 10);
@@ -773,6 +779,19 @@ public final class AutoUi {
                     XemsUi.dp(c, 28), XemsUi.dp(c, 28), Gravity.TOP | Gravity.END);
             tl.setMargins(0, XemsUi.dp(c, 6), XemsUi.dp(c, 6), 0);
             art.addView(tick, tl);
+        }
+        if (ProgramInfo.has(info)) {
+            TextView i = XemsUi.text(c, "i", 17, XemsUi.ON_ACCENT, true);
+            i.setGravity(Gravity.CENTER);
+            i.setBackgroundDrawable(XemsUi.rounded(XemsUi.alpha(0xFF1565C0, 0xE6), XemsUi.dp(c, 18), XemsUi.ON_ACCENT,
+                    XemsUi.dp(c, 1.5f)));
+            i.setContentDescription(AiText.t("Какво е и как действа", "What it is and how it works"));
+            i.setOnClickListener(new InfoOpen(info));
+            XemsUi.pressable(i);
+            android.widget.FrameLayout.LayoutParams il = new android.widget.FrameLayout.LayoutParams(
+                    XemsUi.dp(c, 36), XemsUi.dp(c, 36), Gravity.BOTTOM | Gravity.END);
+            il.setMargins(0, 0, XemsUi.dp(c, 6), XemsUi.dp(c, 6));
+            art.addView(i, il);
         }
         card.addView(art);
         TextView nm = XemsUi.text(c, name, 16, XemsUi.TEXT, true);
@@ -800,6 +819,22 @@ public final class AutoUi {
         card.setOnClickListener(click);
         XemsUi.pressable(card);
         return card;
+    }
+
+    /** The ⓘ of a program card: the program's own window (what it is, how it works, its stages). */
+    static final class InfoOpen implements View.OnClickListener {
+        final Program p;
+
+        InfoOpen(Program p) {
+            this.p = p;
+        }
+
+        @Override
+        public void onClick(View v) {
+            AutoModel.Input in = AutoSession.getInput();
+            ProgramInfo.open(AiSession.activityOf(v), p, in, goalName(in.goal), goalColor(in.goal),
+                    levelName(p.level), levelColor(p.level));
+        }
     }
 
     // ================================================================ 2 · client and plan

@@ -529,6 +529,8 @@ final class Session {
     private boolean rearm;
     private long rearmAt, unitRunAt;
     private int autoRearms;
+    /** v1.30: a self-stop after at least this much run is the unit's own limit (re-armed); a quicker one pauses. */
+    static final long SELF_STOP_RUN_MS = 20000;
     /** The unit's quota as this app learnt it (MainActivity loads / saves it per unit). */
     final Quota quota = new Quota();
     private boolean minutesWanted;
@@ -636,11 +638,14 @@ final class Session {
         }
         // "00" while it should run: the unit stopped by itself — show it and let ▶ arm it again
         if (v[0] == 0 && wi == WI_RUN && state == RUNNING) {
-            // v1.26: a tight unit that stops by itself (its quota / its Dur over) is armed again, at most 3 times
-            if (quota.relaxed() && autoRearms < 3) {
+            // v1.30 (owner: "uninterrupted work, nothing stops by itself during a training"): a unit that stops by
+            // itself after a real run (its Dur over, its quota) is armed again at once, every time, any unit, key or
+            // not — the session goes on. A stop soon after its (re)start is not a limit (a fault, its button) → pause.
+            long ran = now - unitRunAt;
+            if (ran >= SELF_STOP_RUN_MS) {
                 autoRearms++;
-                rearm(now, "the unit notified \"00\" by itself, " + autoRearms + " of 3");
-            } else unitHalted("the unit notified \"00\" (it stopped)");
+                rearm(now, "the unit notified \"00\" by itself after " + ran / 1000 + " s of run (" + autoRearms + ")");
+            } else unitHalted("the unit notified \"00\" (it stopped " + ran / 1000 + " s after a start)");
         }
     }
 

@@ -1417,7 +1417,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L105 ## XEMS side (1.1.480-ai) — `wearable/voice/`
   - L118 ## Phase 3 — learned model
 
-`docs/xems-wiems-app.md` (420L)
+`docs/xems-wiems-app.md` (430L)
   - L1 # XEMS WiEMS — light tablet app for one WiEMS unit, XEMS or bodytech suit (wiems/app, v1.21)
   - L7 ## What it is
   - L31 ## Look (v1.1, owner: XBody's design level or better, never lower)
@@ -1446,8 +1446,9 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L351 ## v1.27 — find the unit's quota key ourselves, then the limit is simply gone (owner: "our own engineering, no vendor, nothing in the way of real work")
   - L372 ## v1.28 — the quota search runs itself, verifies, and never touches a real training (owner: "no people in the loop, auto-approve what works, instant fallback to the safe path, nothing felt during a training")
   - L395 ## v1.29 — a working key switches the 1.26 cycles off; segments off by default (audit of 1.26–1.28)
-  - L410 ## Build / test
-  - L417 ## Not verified yet
+  - L410 ## v1.30 — the unit never stops a training by itself (owner: "uninterrupted work — nothing stops, nothing gets in the way during a training")
+  - L420 ## Build / test
+  - L427 ## Not verified yet
 
 `docs/xems-wiems.md` (83L)
   - L1 # WiEMS unit in XEMS and on the XBody machine (1.1.446-ai, XBody mod v7, bridge v3)

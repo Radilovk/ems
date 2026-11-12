@@ -25,3 +25,11 @@ goal and by the program that ran.
   own (pain growing or running down the leg → a doctor).
 - **➤ Изпрати на клиента** (and Сподели → "Насоки за клиента"): a 1080 × 1920 picture with every tip and its why,
   the next session, the safety line and "Съветите са общи…". Browser preview: `#prog=<id>` picks a program.
+
+## In the client's phone app (XB-Studio, aidiet `studio.html`, 2026-11)
+- **Моят прогрес** shows the same advice (after the training / procedure, by `programId` from `/v1/history`, older
+  sessions by the program's name), the week against the goal, the rhythm and the course of a passive program; the
+  opt-in "Седмицата и съвети" turns it into local reminders (Sunday from the facts, a line 45 min after a booked hour,
+  one word when the rest is over). Details: aidiet `studio-platform/README.md`.
+- **The tip tables exist twice** — here (`G_TIPS`, `G_PROG`, `G_FAM`) and in aidiet `studio.html` (`TIP`, `PROG`, `FAM`,
+  the app in the formal "Вие"-free nominal style). Change both together.

@@ -1245,10 +1245,11 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L90 ## Базови настройки на „Main“ (1.1.334)
   - L104 ## Първият импулс на нула при следващо посещение (1.1.508)
 
-`docs/xems-program-info.md` (28L)
+`docs/xems-program-info.md` (36L)
   - L1 # Program info (ⓘ) and the advice in the report (owner, 1.1.516-ai)
   - L7 ## ⓘ on the program card — `ai/ProgramInfo`, text `ai/ProgramGuide`
   - L18 ## Advice in the report — `branding/report/session-report.html` (`renderGuide`, `shareGuide`)
+  - L29 ## In the client's phone app (XB-Studio, aidiet `studio.html`, 2026-11)
 
 `docs/xems-pulse-control.md` (195L)
   - L1 # Пулс модул: управление на импулсите по пулса (v1.1.59, задържане в зона от 1.1.270)

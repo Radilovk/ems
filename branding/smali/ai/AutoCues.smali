@@ -34,9 +34,9 @@
     if-eqz v0, :cond_13
 
     .line 128
-    const-string v0, "\u0422\u043e\u043d\u0443\u0441: \u0440\u0430\u0432\u043d\u043e\u043c\u0435\u0440\u043d\u0438 \u043c\u0435\u043a\u0438 \u0441\u0442\u044f\u0433\u0430\u043d\u0438\u044f \u2014 \u043c\u0443\u0441\u043a\u0443\u043b\u0438\u0442\u0435 \u043f\u043e\u0434 \u043a\u043e\u0436\u0430\u0442\u0430 \u0441\u0442\u0430\u0432\u0430\u0442 \u043f\u043e-\u043f\u043b\u044a\u0442\u043d\u0438 \u0438 \u0441\u0442\u0435\u0433\u043d\u0430\u0442\u0438."
+    const-string v0, "\u0417\u0430\u0445\u0430\u0440: \u043a\u0440\u0430\u043a\u0430\u0442\u0430 \u0440\u0430\u0431\u043e\u0442\u044f\u0442 \u0440\u0438\u0442\u043c\u0438\u0447\u043d\u043e \u0438 \u043f\u043e\u0435\u043c\u0430\u0442 \u0437\u0430\u0445\u0430\u0440 \u043e\u0442 \u043a\u0440\u044a\u0432\u0442\u0430 \u2014 \u0441\u043a\u043e\u043a\u044a\u0442 \u0441\u043b\u0435\u0434 \u0445\u0440\u0430\u043d\u0435\u043d\u0435 \u0435 \u043f\u043e-\u043c\u0430\u043b\u044a\u043a."
 
-    const-string v1, "Tone: even, soft holds \u2014 the muscles under the skin grow denser and firmer."
+    const-string v1, "Blood sugar: the legs work in a rhythm and take sugar from the blood \u2014 the rise after a meal is smaller."
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/ai/AiText;->t(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
@@ -57,9 +57,9 @@
     if-eqz v0, :cond_24
 
     .line 132
-    const-string v0, "\u0421\u0438\u043b\u0430: \u0440\u0430\u0431\u043e\u0442\u044f\u0442 \u0431\u044a\u0440\u0437\u0438\u0442\u0435 \u0432\u043b\u0430\u043a\u043d\u0430 \u2014 \u0442\u0435 \u0441\u0435 \u0433\u0443\u0431\u044f\u0442 \u043f\u044a\u0440\u0432\u0438 \u0441 \u0433\u043e\u0434\u0438\u043d\u0438\u0442\u0435 \u0438 \u043f\u0430\u0437\u044f\u0442 \u0441\u0438\u043b\u0430\u0442\u0430 \u0438 \u0441\u0442\u043e\u0439\u043a\u0430\u0442\u0430."
+    const-string v0, "\u041c\u0438\u043e\u043a\u0438\u043d\u0438: \u0440\u0430\u0431\u043e\u0442\u0435\u0449\u0438\u0442\u0435 \u043c\u0443\u0441\u043a\u0443\u043b\u0438 \u043f\u0443\u0441\u043a\u0430\u0442 \u0432 \u043a\u0440\u044a\u0432\u0442\u0430 \u0432\u0435\u0449\u0435\u0441\u0442\u0432\u0430, \u043a\u043e\u0438\u0442\u043e \u043f\u0430\u0437\u044f\u0442 \u043a\u043b\u0435\u0442\u043a\u0438\u0442\u0435 \u0438 \u0433\u0430\u0441\u044f\u0442 \u0432\u044a\u0437\u043f\u0430\u043b\u0435\u043d\u0438\u0435\u0442\u043e."
 
-    const-string v1, "Strength: the fast fibres work \u2014 the years take them first, and they keep the strength and the posture."
+    const-string v1, "Myokines: the working muscles release substances that protect the cells and calm inflammation."
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/ai/AiText;->t(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
@@ -69,7 +69,7 @@
 
     .line 135
     :cond_24
-    const-string v0, "QUICK"
+    const-string v0, "BRAIN"
 
     invoke-virtual {v0, p1}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
@@ -78,9 +78,9 @@
     if-eqz v0, :cond_35
 
     .line 136
-    const-string v0, "\u0411\u044a\u0440\u0437\u043e \u0441\u0442\u0430\u0432\u0430\u043d\u0435: \u043a\u0440\u0430\u0442\u043a\u0438 \u0441\u0438\u043b\u043d\u0438 \u0441\u0442\u044f\u0433\u0430\u043d\u0438\u044f \u2014 \u043c\u0443\u0441\u043a\u0443\u043b\u044a\u0442 \u0441\u0435 \u0443\u0447\u0438 \u0434\u0430 \u0440\u0435\u0430\u0433\u0438\u0440\u0430 \u0431\u044a\u0440\u0437\u043e, \u0442\u043e\u0432\u0430 \u043f\u0430\u0437\u0438 \u043e\u0442 \u043f\u0430\u0434\u0430\u043d\u0435."
+    const-string v0, "\u041c\u043e\u0437\u044a\u043a: \u043f\u0440\u0438 \u0442\u0430\u0437\u0438 \u0447\u0435\u0441\u0442\u043e\u0442\u0430 \u043c\u0443\u0441\u043a\u0443\u043b\u0438\u0442\u0435 \u043d\u0430 \u043a\u0440\u0430\u043a\u0430\u0442\u0430 \u043f\u043e\u0434\u0430\u0432\u0430\u0442 \u0441\u0438\u0433\u043d\u0430\u043b, \u043a\u043e\u0439\u0442\u043e \u0445\u0440\u0430\u043d\u0438 \u043d\u0435\u0440\u0432\u043d\u0438\u0442\u0435 \u043a\u043b\u0435\u0442\u043a\u0438 \u0438 \u043f\u0430\u043c\u0435\u0442\u0442\u0430."
 
-    const-string v1, "Quick rising: short strong holds \u2014 the muscle learns to react fast, which keeps one from falling."
+    const-string v1, "Brain: at this rate the leg muscles send a signal that feeds the nerve cells and the memory."
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/ai/AiText;->t(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
@@ -90,7 +90,7 @@
 
     .line 139
     :cond_35
-    const-string v0, "ENDURANCE"
+    const-string v0, "INTERVAL"
 
     invoke-virtual {v0, p1}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
@@ -99,9 +99,9 @@
     if-eqz v0, :cond_46
 
     .line 140
-    const-string v0, "\u0418\u0437\u0434\u0440\u044a\u0436\u043b\u0438\u0432\u043e\u0441\u0442: \u0431\u0430\u0432\u043d\u0438\u0442\u0435 \u0432\u043b\u0430\u043a\u043d\u0430 \u0440\u0430\u0431\u043e\u0442\u044f\u0442 \u0434\u044a\u043b\u0433\u043e \u2014 \u043f\u043e\u0432\u0435\u0447\u0435 \u0435\u043d\u0435\u0440\u0433\u0438\u044f \u0432 \u043a\u043b\u0435\u0442\u043a\u0438\u0442\u0435 \u0438 \u043f\u043e-\u0434\u043e\u0431\u044a\u0440 \u043a\u0440\u044a\u0432\u043e\u0442\u043e\u043a."
+    const-string v0, "\u0418\u043d\u0442\u0435\u0440\u0432\u0430\u043b\u0438: \u043a\u0440\u0430\u0442\u043a\u043e \u0441 \u0432\u0441\u0438\u0447\u043a\u0430 \u0441\u0438\u043b\u0430, \u043f\u043e\u0441\u043b\u0435 \u043e\u0442\u0434\u0438\u0445 \u2014 \u0442\u043e\u0432\u0430 \u0441\u0432\u0430\u043b\u044f \u0432\u044a\u0437\u043f\u0430\u043b\u0435\u043d\u0438\u0435\u0442\u043e \u0432 \u0442\u044f\u043b\u043e\u0442\u043e \u043d\u0430\u0439-\u0441\u0438\u043b\u043d\u043e."
 
-    const-string v1, "Endurance: the slow fibres work long \u2014 more energy in the cells and a better blood flow."
+    const-string v1, "Intervals: short and all out, then rest \u2014 this lowers inflammation in the body the most."
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/ai/AiText;->t(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
@@ -111,7 +111,7 @@
 
     .line 143
     :cond_46
-    const-string v0, "FLOW"
+    const-string v0, "VESSELS"
 
     invoke-virtual {v0, p1}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
@@ -120,9 +120,9 @@
     if-eqz v0, :cond_57
 
     .line 144
-    const-string v0, "\u041a\u0440\u044a\u0432\u043e\u0442\u043e\u043a: \u043b\u0435\u043a\u043e \u043f\u043e\u0442\u0440\u0435\u043f\u0432\u0430\u043d\u0435 \u0440\u0430\u0437\u0434\u0432\u0438\u0436\u0432\u0430 \u043a\u0440\u044a\u0432\u0442\u0430 \u0432 \u043c\u0430\u043b\u043a\u0438\u0442\u0435 \u0441\u044a\u0434\u043e\u0432\u0435 \u2014 \u043a\u043e\u0436\u0430\u0442\u0430 \u0438 \u043c\u0443\u0441\u043a\u0443\u043b\u0438\u0442\u0435 \u043f\u043e\u043b\u0443\u0447\u0430\u0432\u0430\u0442 \u043f\u043e\u0432\u0435\u0447\u0435 \u043a\u0438\u0441\u043b\u043e\u0440\u043e\u0434."
+    const-string v0, "\u0421\u044a\u0434\u043e\u0432\u0435: \u043b\u0435\u043a\u043e \u0440\u0438\u0442\u043c\u0438\u0447\u043d\u043e \u043f\u043e\u0442\u0440\u0435\u043f\u0432\u0430\u043d\u0435 \u2014 \u0430\u0440\u0442\u0435\u0440\u0438\u0438\u0442\u0435 \u043d\u0430 \u043a\u0440\u0430\u043a\u0430\u0442\u0430 \u0441\u0442\u0430\u0432\u0430\u0442 \u043f\u043e-\u0433\u044a\u0432\u043a\u0430\u0432\u0438."
 
-    const-string v1, "Blood flow: a light twitching moves the blood in the small vessels \u2014 skin and muscles get more oxygen."
+    const-string v1, "Vessels: a light rhythmic twitching \u2014 the leg arteries grow more supple."
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/ai/AiText;->t(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 

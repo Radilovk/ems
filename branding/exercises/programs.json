@@ -1659,6 +1659,7 @@
    "name": "Антиейджинг",
    "goals": [
     "tone",
+    "fat",
     "health"
    ],
    "ai": [
@@ -1667,178 +1668,183 @@
    "img": "squat",
    "T": 20,
    "share": [
-    15,
-    75,
+    10,
+    80,
     10
    ],
    "warm": "7 Hz · 350 µs",
-   "main": "85 Hz · 350 µs 4:4 · 85 Hz · 300 µs 2:6 · 30 Hz · 300 µs 6:4",
-   "cool": "5 Hz · 250 µs",
+   "main": "Миокини 30 Hz · 350 µs 4:6 · Мозък 20 Hz · 300 µs 8:2 · Интервали 70 Hz 4:2 ↔ 7 Hz",
+   "cool": "4 Hz · 250 µs",
    "cr10": "5–6",
-   "note": "Зоните са равни (100 %), силата е от калибрирането — треньорът ги задава за клиента. Без скокове.",
+   "note": "По доказателства (docs/xems-auto-mode-spec.md §6.12): миокини, BDNF, възпаление, захар, артерии. Зоните и силата — от треньора. Собствено тегло, без скокове.",
    "lv": {
     "1": {
      "T": 15,
-     "warm_s": 135,
-     "main_s": 670,
-     "cool_s": 95,
+     "warm_s": 90,
+     "main_s": 720,
+     "cool_s": 90,
      "on": 4,
      "off": 6,
      "stations": [
       {
        "ex": "bodyweight-squat",
-       "sec": 112,
-       "cycles": 11
+       "sec": 120,
+       "cycles": 12
       },
       {
        "ex": "banded-lat-pulldown",
-       "sec": 112,
-       "cycles": 11
+       "sec": 120,
+       "cycles": 12
+      },
+      {
+       "ex": "lateral-lunge",
+       "sec": 120,
+       "cycles": 12
       },
       {
        "ex": "incline-push-up",
-       "sec": 112,
-       "cycles": 11
-      },
-      {
-       "ex": "step-down",
-       "sec": 112,
-       "cycles": 11
+       "sec": 120,
+       "cycles": 12
       },
       {
        "ex": "glute-bridge",
-       "sec": 111,
-       "cycles": 11
+       "sec": 120,
+       "cycles": 12
       },
       {
-       "ex": "superman",
-       "sec": 111,
-       "cycles": 11
+       "ex": "step-down",
+       "sec": 120,
+       "cycles": 12
       }
      ],
      "warm": [
       {
        "ex": "bodyweight-squat",
-       "sec": 68
+       "sec": 45
       },
       {
        "ex": "lateral-lunge",
-       "sec": 67
+       "sec": 45
       }
      ]
     },
     "2": {
      "T": 20,
-     "warm_s": 180,
-     "main_s": 900,
+     "warm_s": 120,
+     "main_s": 960,
      "cool_s": 120,
      "on": 4,
-     "off": 4,
+     "off": 6,
      "stations": [
       {
-       "ex": "goblet-squat",
-       "sec": 129,
-       "cycles": 16
+       "ex": "bodyweight-squat",
+       "sec": 120,
+       "cycles": 12
       },
       {
-       "ex": "one-arm-dumbbell-row",
-       "sec": 129,
-       "cycles": 16
+       "ex": "forward-lunge",
+       "sec": 120,
+       "cycles": 12
+      },
+      {
+       "ex": "lateral-raise",
+       "sec": 120,
+       "cycles": 12
+      },
+      {
+       "ex": "bicep-curl",
+       "sec": 120,
+       "cycles": 12
       },
       {
        "ex": "incline-push-up",
-       "sec": 129,
-       "cycles": 16
-      },
-      {
-       "ex": "reverse-lunge",
-       "sec": 129,
-       "cycles": 16
-      },
-      {
-       "ex": "standing-dumbbell-press",
-       "sec": 128,
-       "cycles": 16
+       "sec": 120,
+       "cycles": 12
       },
       {
        "ex": "glute-bridge",
-       "sec": 128,
-       "cycles": 16
+       "sec": 120,
+       "cycles": 12
+      },
+      {
+       "ex": "step-down",
+       "sec": 120,
+       "cycles": 12
       },
       {
        "ex": "superman",
-       "sec": 128,
-       "cycles": 16
+       "sec": 120,
+       "cycles": 12
       }
      ],
      "warm": [
       {
        "ex": "bodyweight-squat",
-       "sec": 90
+       "sec": 60
       },
       {
        "ex": "lateral-lunge",
-       "sec": 90
+       "sec": 60
       }
      ]
     },
     "3": {
      "T": 20,
-     "warm_s": 180,
-     "main_s": 900,
+     "warm_s": 120,
+     "main_s": 960,
      "cool_s": 120,
      "on": 4,
-     "off": 4,
+     "off": 6,
      "stations": [
       {
        "ex": "goblet-squat",
-       "sec": 113,
-       "cycles": 14
-      },
-      {
-       "ex": "dumbbell-bent-over-row",
-       "sec": 113,
-       "cycles": 14
-      },
-      {
-       "ex": "knee-push-up",
-       "sec": 113,
-       "cycles": 14
+       "sec": 120,
+       "cycles": 12
       },
       {
        "ex": "reverse-lunge",
-       "sec": 113,
-       "cycles": 14
+       "sec": 120,
+       "cycles": 12
       },
       {
-       "ex": "standing-dumbbell-press",
-       "sec": 112,
-       "cycles": 14
+       "ex": "lateral-raise",
+       "sec": 120,
+       "cycles": 12
       },
       {
-       "ex": "kettlebell-romanian-deadlift",
-       "sec": 112,
-       "cycles": 14
+       "ex": "hammer-curl",
+       "sec": 120,
+       "cycles": 12
+      },
+      {
+       "ex": "knee-push-up",
+       "sec": 120,
+       "cycles": 12
       },
       {
        "ex": "single-leg-glute-bridge",
-       "sec": 112,
-       "cycles": 14
+       "sec": 120,
+       "cycles": 12
       },
       {
-       "ex": "side-plank",
-       "sec": 112,
-       "cycles": 14
+       "ex": "elliptical",
+       "sec": 120,
+       "cycles": 12
+      },
+      {
+       "ex": "plank",
+       "sec": 120,
+       "cycles": 12
       }
      ],
      "warm": [
       {
        "ex": "bodyweight-squat",
-       "sec": 90
+       "sec": 60
       },
       {
        "ex": "lateral-lunge",
-       "sec": 90
+       "sec": 60
       }
      ]
     }
@@ -1999,13 +2005,14 @@
    "name": "Антиейджинг · процедура",
    "goals": [
     "tone",
+    "fat",
     "health"
    ],
    "ai": [
     "MASSAGE"
    ],
    "img": "line",
-   "pos": "Полулегнал, краката леко повдигнати",
+   "pos": "Седнал или полулегнал; най-добре 30–60 мин след хранене",
    "T": [
     15,
     20,
@@ -2017,7 +2024,7 @@
     "0.8"
    ],
    "cr10": "4–5",
-   "phases": "Загряване 5 Hz · кръвоток 10 Hz · тонус 50 Hz 4:6 · лимфна вълна „крака“ 35 Hz · 3 Hz; зоните и силата — от треньора"
+   "phases": "Загряване 5 Hz · захар 5 Hz · мозък 20 Hz 8:2 · съдове 4 Hz леко · 3 Hz; зоните и силата — от треньора"
   }
  ],
  "cond": {

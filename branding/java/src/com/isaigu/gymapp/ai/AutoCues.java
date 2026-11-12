@@ -125,24 +125,24 @@ public final class AutoCues {
     /** The anti-ageing programs' goal line (spec §6.12), by phase; null = the common text. */
     static String antiageGoal(boolean passive, String phase) {
         if (passive && "MAIN".equals(phase)) {
-            return AiText.t("Тонус: равномерни меки стягания — мускулите под кожата стават по-плътни и стегнати.",
-                    "Tone: even, soft holds — the muscles under the skin grow denser and firmer.");
+            return AiText.t("Захар: краката работят ритмично и поемат захар от кръвта — скокът след хранене е по-малък.",
+                    "Blood sugar: the legs work in a rhythm and take sugar from the blood — the rise after a meal is smaller.");
         }
         if ("MAIN".equals(phase)) {
-            return AiText.t("Сила: работят бързите влакна — те се губят първи с годините и пазят силата и стойката.",
-                    "Strength: the fast fibres work — the years take them first, and they keep the strength and the posture.");
+            return AiText.t("Миокини: работещите мускули пускат в кръвта вещества, които пазят клетките и гасят възпалението.",
+                    "Myokines: the working muscles release substances that protect the cells and calm inflammation.");
         }
-        if ("QUICK".equals(phase)) {
-            return AiText.t("Бързо ставане: кратки силни стягания — мускулът се учи да реагира бързо, това пази от падане.",
-                    "Quick rising: short strong holds — the muscle learns to react fast, which keeps one from falling.");
+        if ("BRAIN".equals(phase)) {
+            return AiText.t("Мозък: при тази честота мускулите на краката подават сигнал, който храни нервните клетки и паметта.",
+                    "Brain: at this rate the leg muscles send a signal that feeds the nerve cells and the memory.");
         }
-        if ("ENDURANCE".equals(phase)) {
-            return AiText.t("Издръжливост: бавните влакна работят дълго — повече енергия в клетките и по-добър кръвоток.",
-                    "Endurance: the slow fibres work long — more energy in the cells and a better blood flow.");
+        if ("INTERVAL".equals(phase)) {
+            return AiText.t("Интервали: кратко с всичка сила, после отдих — това сваля възпалението в тялото най-силно.",
+                    "Intervals: short and all out, then rest — this lowers inflammation in the body the most.");
         }
-        if ("FLOW".equals(phase)) {
-            return AiText.t("Кръвоток: леко потрепване раздвижва кръвта в малките съдове — кожата и мускулите получават повече кислород.",
-                    "Blood flow: a light twitching moves the blood in the small vessels — skin and muscles get more oxygen.");
+        if ("VESSELS".equals(phase)) {
+            return AiText.t("Съдове: леко ритмично потрепване — артериите на краката стават по-гъвкави.",
+                    "Vessels: a light rhythmic twitching — the leg arteries grow more supple.");
         }
         return null;
     }

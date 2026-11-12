@@ -249,7 +249,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `AiViews.java` (318L, compile:music-sync*,wearable) — Canvas-drawn widgets for the Smart Session UI (no resources needed).
 - `AutoBeep.java` (149L, compile:music-sync*,wearable) — The start signal of an automatic session (owner, 1.1.270): every start waits 3 s — three short beeps, one per second, a…
 - `AutoBoard.java` (223L, compile:music-sync*,wearable) — The Auto live board built into the training screen (owner, 1.1.278): while an automatic session runs, the training list…
-- `AutoCatalog.java` (1105L, compile:music-sync*,wearable) — The ready programs of the automatic mode (spec §5, §6): menu per goal × kind, what each program is, its zones, its phas…
+- `AutoCatalog.java` (1107L, compile:music-sync*,wearable) — The ready programs of the automatic mode (spec §5, §6): menu per goal × kind, what each program is, its zones, its phas…
 - `AutoCues.java` (323L, compile:music-sync*,wearable) — What the hint card on the training screen says during an automatic session (pure Java): the cue for the pulse / the pau…
 - `AutoDynamics.java` (432L, compile:music-sync*,wearable) — The impulse of the automatic mode changes while it runs (owner, 1.1.322 — docs/xems-auto-mode-spec.md §13, docs/xems-em…
 - `AutoEngine.java` (2417L, compile:music-sync*,wearable) — Automatic mode runtime (spec §4, §7, §8): walks the plan cycle by cycle and gives each cycle's parameters, planned stre…
@@ -927,7 +927,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L201 ## Действия по време на сесията (v1.1.68)
   - L222 ## Отворено: проверка на алгоритъма с реални данни (бъдеще)
 
-`docs/xems-auto-mode-spec.md` (728L)
+`docs/xems-auto-mode-spec.md` (752L)
   - L1 # XEMS Автоматичен режим — спецификация v1.0 (реализирано в 1.1.156-ai, опростено в 1.1.162-ai)
   - L24 ## 1. Място в менюто
   - L32 ## 2. Стъпки (3 + на живо; отчетът е в клиентския картон) — 1.1.257
@@ -953,19 +953,19 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L314 ### 6.9 Следродилно възстановяване (пасивна)
   - L327 ### 6.10 Регенерация и релакс · Пасивен метаболизъм (пасивни)
   - L336 ### 6.11 Здрав гръб и стойка · Здрави мускули 50+ (активни, Здраве)
-  - L346 ### 6.12 Антиейджинг (активна с упражнения · пасивна процедура; Тонус и Здраве) — 1.1.514-ai
-  - L364 ## 7. Опции по програма
-  - L386 ## 8. Какво човекът може по време на сесия
-  - L398 ## 9. Реализация
-  - L441 ## 11. Време, серии, почивки, старт и стоп (собственик, 1.1.270-ai)
-  - L476 ## 12. Таблото „на живо“ (собственик, 1.1.271-ai; вградено в тренировъчния екран от 1.1.278-ai)
-  - L597 ## 10. Подсказки (1.1.157-ai)
-  - L621 ## 13. Импулсът в движение (собственик, 1.1.322-ai — `ai/AutoDynamics`, физиология §3.5)
-  - L644 ## 14. „Само шаблон“ / „С упражнения“ (собственик, 1.1.325-ai)
-  - L654 ## 15. Менюто, цветовете и настройването (собственик, 1.1.336)
-  - L678 ## 16. Тялото, каналите, кръгът (собственик, 1.1.338)
-  - L687 ## 17. «Модулация» — пасивни процедури на bodytech костюм (собственик, 1.1.372)
-  - L696 ## 18. The plan clock is the real clock (owner, 1.1.494)
+  - L346 ### 6.12 Антиейджинг (активна с упражнения · пасивна процедура; Тонус, Отслабване, Здраве) — 1.1.514-ai
+  - L388 ## 7. Опции по програма
+  - L410 ## 8. Какво човекът може по време на сесия
+  - L422 ## 9. Реализация
+  - L465 ## 11. Време, серии, почивки, старт и стоп (собственик, 1.1.270-ai)
+  - L500 ## 12. Таблото „на живо“ (собственик, 1.1.271-ai; вградено в тренировъчния екран от 1.1.278-ai)
+  - L621 ## 10. Подсказки (1.1.157-ai)
+  - L645 ## 13. Импулсът в движение (собственик, 1.1.322-ai — `ai/AutoDynamics`, физиология §3.5)
+  - L668 ## 14. „Само шаблон“ / „С упражнения“ (собственик, 1.1.325-ai)
+  - L678 ## 15. Менюто, цветовете и настройването (собственик, 1.1.336)
+  - L702 ## 16. Тялото, каналите, кръгът (собственик, 1.1.338)
+  - L711 ## 17. «Модулация» — пасивни процедури на bodytech костюм (собственик, 1.1.372)
+  - L720 ## 18. The plan clock is the real clock (owner, 1.1.494)
 
 `docs/xems-bluetens.md` (124L)
   - L1 # Bluetens — protocol and the XEMS module plan

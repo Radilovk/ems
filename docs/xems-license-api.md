@@ -125,6 +125,12 @@ POST {server}/v1/profile            (от PWA, CORS *, 10 / мин / IP, до 4 
  "sex":"F|M","by":1990,"h":168,"w":61,"goal":"tone","fit":"mid","contra":["implant"],"note":"…","t":<unix>}}
 200 {"ok":true} · 404 unknown_studio · 429 full / rate_limit
 
+POST {server}/v1/profile/find       (приложението на клиента, CORS *, 20 / мин / IP — само чете)
+{"studio":"<код>","ek":"<sha256>","pk":"<sha256>"}
+200 {"ok":true,"profile":{"sex":"F","by":1990,"h":168,"w":61,"goal":"tone","fit":"mid","focus":["abs"]}} · 404 not_found
+  ← само тренировъчните полета (`profile.js` `publicProfile`): без име, контакт, здраве, състояние и бележка —
+    телефонът не доказва кой пита (собственик, 2026-11). Най-новият изпратен профил (`client_inbox`), иначе досието.
+
 POST {server}/v1/inbox              (таблет: {"token","device_id","since"}; само подпис + възраст на жетона)
 200 {"ok":true,"items":[{"k":"…","t":<unix>,"p":{…}}],"more":false}
 

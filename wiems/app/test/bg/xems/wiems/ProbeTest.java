@@ -98,7 +98,7 @@ public class ProbeTest {
         Probe.Cand target = cs[2];
         FakeUnit u = new FakeUnit(target.uuid, target.val);
         u.probe = new Probe(u);
-        u.probe.start(u.t);
+        u.probe.start(u.t, null);
         u.run(300000);
         ok("found the winning candidate", u.found != null && u.found.uuid.equals(target.uuid)
                 && Probe.hex(u.found.val).equals(Probe.hex(target.val)), String.valueOf(u.found == null ? "null" : u.found.label));
@@ -115,7 +115,7 @@ public class ProbeTest {
         // 3. nothing opens the gate: the probe tries every candidate, then reports none
         FakeUnit n = new FakeUnit(null, null);
         n.probe = new Probe(n);
-        n.probe.start(n.t);
+        n.probe.start(n.t, null);
         n.run(300000);
         ok("no winner when nothing opens it", n.found == null, "");
         ok("tried every candidate", n.arms == Probe.candidates().length, "arms " + n.arms);
@@ -124,18 +124,52 @@ public class ProbeTest {
         // 4. the first candidate wins: a single arm
         FakeUnit f = new FakeUnit(cs[0].uuid, cs[0].val);
         f.probe = new Probe(f);
-        f.probe.start(f.t);
+        f.probe.start(f.t, null);
         f.run(300000);
         ok("first candidate → one arm", f.arms == 1 && f.found != null, "arms " + f.arms);
 
         // 5. cancel mid-probe (a training started) leaves it stopped
         FakeUnit c = new FakeUnit(cs[4].uuid, cs[4].val);
         c.probe = new Probe(c);
-        c.probe.start(c.t);
+        c.probe.start(c.t, null);
         c.run(500);                    // part-way
         boolean wasRunning = c.probe.running();
         c.probe.cancel("training started");
         ok("cancel stops the probe", wasRunning && !c.probe.running() && c.found == null, "");
+
+        // 6. skip already-tried candidates: the winner is #1, but #1 is in the skip list → it must not be re-tried
+        java.util.List<String> tried = new java.util.ArrayList<String>();
+        tried.add(Probe.key(cs[0]));
+        FakeUnit sk = new FakeUnit(cs[3].uuid, cs[3].val);  // real winner is #4
+        sk.probe = new Probe(sk);
+        sk.probe.start(sk.t, tried);
+        sk.run(300000);
+        ok("skipped the tried candidate, found the next winner", sk.found != null
+                && Probe.key(sk.found).equals(Probe.key(cs[3])), String.valueOf(sk.found == null ? "null" : sk.found.label));
+        ok("failed candidates recorded as tried", sk.probe.tried().contains(Probe.key(cs[1])), sk.probe.tried().toString());
+
+        // 7. verify a stored key that still works → silent win, no re-search
+        FakeUnit v = new FakeUnit(cs[2].uuid, cs[2].val);
+        v.probe = new Probe(v);
+        v.probe.verify(v.t, cs[2]);
+        v.run(60000);
+        ok("verify of a good key wins", v.found != null && v.probe.verifying(), "");
+        ok("verify arms once", v.arms == 1, "arms " + v.arms);
+
+        // 8. verify a stored key that no longer works → no winner (host will discard + re-search)
+        FakeUnit vb = new FakeUnit(null, null);
+        vb.probe = new Probe(vb);
+        vb.probe.verify(vb.t, cs[2]);
+        vb.run(60000);
+        ok("verify of a stale key fails", vb.found == null && vb.probe.verifying(), "");
+
+        // 9. a refused candidate (02) moves on fast — a whole list of refusals finishes well under the silent timeout
+        FakeUnit fast = new FakeUnit(null, null);
+        fast.probe = new Probe(fast);
+        fast.probe.start(fast.t, null);
+        fast.run(500000);
+        ok("all-refused run is quick (< 2 s per candidate)", fast.t < Probe.candidates().length * 3000L,
+                "took " + fast.t + " ms for " + Probe.candidates().length + " candidates");
 
         System.out.println(fails == 0 ? "ProbeTest: ALL OK (" + checks + " checks)" : "ProbeTest: " + fails + " FAILED");
         if (fails != 0) System.exit(1);

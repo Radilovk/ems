@@ -94,6 +94,13 @@ final class Probe {
     private int lastCode = -1;
     private Cand winner;
     private int tested;
+    private boolean verifying;
+    private long refusedAt = -1;
+    /** Candidate keys the host has already tried and seen fail (skipped), and the ones this run adds. */
+    private java.util.List<String> skip;
+    private final java.util.List<String> tried = new java.util.ArrayList<String>();
+    /** After a definite refusal ("02") wait only this long before the next candidate; {@link #WAIT_MS} if silent. */
+    static final long REFUSE_GRACE_MS = 1500;
 
     Probe(Io io) {
         this.io = io;
@@ -103,13 +110,47 @@ final class Probe {
         return state != IDLE && state != DONE;
     }
 
-    /** Begin (the host has checked: linked, idle, this unit is tight and has no stored reset). */
-    void start(long now) {
+    /** True while checking one stored reset (vs. searching the whole list). */
+    boolean verifying() {
+        return verifying;
+    }
+
+    /** The candidate keys this run tried and saw fail — the host adds them to {@code tried_<mac>}. */
+    java.util.List<String> tried() {
+        return tried;
+    }
+
+    static String key(Cand c) {
+        return c.uuid + " " + hex(c.val);
+    }
+
+    /**
+     * Discovery: walk the candidate list, skipping any key in {@code alreadyTried}, arming each at zero current.
+     * (The host has checked: linked, idle, this unit is tight, no verified reset.)
+     */
+    void start(long now, java.util.List<String> alreadyTried) {
+        verifying = false;
+        skip = alreadyTried;
         cands = candidates();
         idx = 0;
         winner = null;
         tested = 0;
-        io.probeLog("quota probe: " + cands.length + " candidates, arming each at zero current (no output on the body)");
+        tried.clear();
+        io.probeLog("quota probe: " + cands.length + " candidates (skip " + (skip == null ? 0 : skip.size())
+                + " tried), arming each at zero current (no output on the body)");
+        writeCand(now);
+    }
+
+    /** Verification: check one stored reset silently (apply it, then one zero-current arm) before any training. */
+    void verify(long now, Cand reset) {
+        verifying = true;
+        skip = null;
+        cands = new Cand[] {reset};
+        idx = 0;
+        winner = null;
+        tested = 0;
+        tried.clear();
+        io.probeLog("quota verify: re-check the stored reset (" + reset.label + ") at zero current");
         writeCand(now);
     }
 
@@ -125,12 +166,14 @@ final class Probe {
     }
 
     private void writeCand(long now) {
+        while (idx < cands.length && skip != null && skip.contains(key(cands[idx]))) idx++;   // already failed: skip
         if (idx >= cands.length) {
             finish();
             return;
         }
         Cand c = cands[idx];
         tested++;
+        refusedAt = -1;
         io.probeLog("try " + (idx + 1) + "/" + cands.length + ": " + c.label);
         state = W_CAND;
         io.probeWrite(c.uuid, c.val);
@@ -152,6 +195,7 @@ final class Probe {
                     state = WAIT_RUN;
                     waitStart = now;
                     lastCode = -1;
+                    refusedAt = -1;
                 }
                 break;
             case STOPPING:
@@ -192,15 +236,19 @@ final class Probe {
             io.probeLog("WIN: \"" + winner.label + "\" let the unit run");
             stopAndFinish();
         } else if (b != 0) {
-            lastCode = b;                            // "02" (or another refusal): on to the next candidate
+            lastCode = b;                            // "02" (or another refusal): a definite no — move on shortly
+            if (refusedAt < 0) refusedAt = now;
         }
     }
 
-    /** Ticked by the host: the wait's timeout. */
+    /** Ticked by the host: a definite refusal moves on after a short grace; a silent unit after the full wait. */
     void tick(long now) {
-        if (state == WAIT_RUN && now - waitStart >= WAIT_MS) {
+        if (state != WAIT_RUN) return;
+        boolean refused = refusedAt >= 0 && now - refusedAt >= REFUSE_GRACE_MS;
+        if (refused || now - waitStart >= WAIT_MS) {
             io.probeLog("try " + (idx + 1) + ": no run (" + (lastCode >= 0 ? "code " + Integer.toHexString(lastCode) : "silent")
                     + ") — stop, next");
+            if (idx < cands.length) tried.add(key(cands[idx]));   // this candidate failed
             state = STOPPING;
             io.probeOp(WiProto.run(false));          // back to idle before the next candidate
         }
@@ -214,10 +262,18 @@ final class Probe {
 
     private void finish() {
         state = DONE;
-        String summary = winner != null
-                ? "Намерен е ключ срещу лимита (" + winner.label + ") — ще се подава сам при всяко свързване."
-                : "Нито един от " + tested + " кандидата не отвори лимита — остава по-краткото Dur и късите цикли.";
-        io.probeLog("quota probe done: " + (winner != null ? "winner = " + winner.label : "no winner after " + tested));
+        String summary;
+        if (verifying) {
+            summary = winner != null ? "" /* silent: nothing changed, the key still works */
+                    : "Запазеният ключ срещу лимита вече не върши работа — търся нов автоматично.";
+        } else {
+            summary = winner != null
+                    ? "Намерен е ключ срещу лимита (" + winner.label + ") — ще се подава сам при всяко свързване."
+                    : (skip != null && tried.isEmpty() ? "" /* nothing new tried this round */
+                            : "Нито един кандидат не отвори лимита — остава по-краткото Dur и късите цикли.");
+        }
+        io.probeLog("quota " + (verifying ? "verify" : "probe") + " done: "
+                + (winner != null ? "winner = " + winner.label : "no winner (tried " + tested + " this run)"));
         io.probeDone(winner, summary);
     }
 

@@ -348,6 +348,27 @@ via `Ble.readMinutes`, also its notifications):
 Not known yet (the first real trainings will tell, the trace says it): what Dur means to the unit, and whether the
 counter counts whole minutes of a run. The real fix stays the renewal (capture the Wiems app renewing it).
 
+## v1.27 — find the unit's quota key ourselves, then the limit is simply gone (owner: "our own engineering, no vendor, nothing in the way of real work")
+`Probe.java` — an offline, on-the-unit search for the one write that opens the unit's minutes gate, so the app sends
+it at every link and no relaxed cycle or lowered Dur is ever needed again.
+- The unit refuses "25" with "02" when used + Dur > bought (used = `7764d000`, read; bought is written by the vendor's
+  purchase sync, never in our capture). Two writes would open it — zero the used counter, or raise the bought one — so
+  the oracle that settles both is **"does ▶ run after this write?"**, not the counter alone.
+- The probe tries a short ordered list of candidate writes to the unit's write-only / counter characteristics
+  (`7764d000`, `7764a25c`, `77645cb2`: `000000`, `999999`, byte clears, `ff` fills) and, after each, really **arms the
+  unit with every channel at zero current — no output on the body** — and watches the run notify: `01` = that write
+  opened the gate (winner), `02` / silence = next. Only when idle and linked; a training, pause or lost link cancels it.
+- The winner is stored per unit (`reset_<mac>` = `uuid hex`) and sent once at every later link (`applyReset`), before
+  any training; then the unit never says "02", so the 1.25/1.26 fallbacks never trigger. The probe runs once per unit:
+  on the first "02" (`wantProbe`), or at link for a unit already marked tight with no stored reset.
+- Nothing reaches the vendor or any server except our own report (`Report`): the probe's result (winner / none) and
+  the full trace go to license.biocode-bg.com so the hourly check sees which key worked.
+- Trace / report header carry the known reset and every probe step. `ProbeTest` (5 scenarios): the winning candidate
+  found and saved, every arm at zero current, nothing-opens-it, first-candidate, cancel mid-probe.
+
+If no candidate opens the gate, the app says so and keeps the 1.26 fallback (short runs). The candidate list is the
+place to extend once a real unit narrows it down — the trace from the first run names what each write did.
+
 ## Build / test
 ```
 sh scripts/build-wiems-app.sh     # → wiems/dist/xems-wiems.apk (committed); version in wiems/app/VERSION

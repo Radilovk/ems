@@ -285,6 +285,22 @@ final class Ble {
         }
     }
 
+    /** v1.27 (the quota probe): write a value to any characteristic by UUID; the ack comes as {@link Listener#written}. */
+    boolean rawWrite(String uuid, byte[] val) {
+        if (!ready() || kind != Dev.WIEMS) return false;
+        try {
+            BluetoothGattCharacteristic c = findChr(gatt, uuid);
+            if (c == null) return false;
+            c.setValue(val);
+            c.setWriteType((c.getProperties() & BluetoothGattCharacteristic.PROPERTY_WRITE) != 0
+                    ? BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT : BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE);
+            return gatt.writeCharacteristic(c);
+        } catch (Throwable t) {
+            Log.e(TAG, "rawWrite: " + t);
+            return false;
+        }
+    }
+
     private boolean writeNow(byte[] op) {
         if (kind != Dev.WIEMS) {                    // a suit: the frame as it is, with response where it has it
             if (suitW == null) return false;

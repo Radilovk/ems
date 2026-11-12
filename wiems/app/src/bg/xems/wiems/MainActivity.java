@@ -51,6 +51,33 @@ public final class MainActivity extends Activity implements Ble.Listener, Host {
     void trace(String s) {
         if (trace != null) trace.add(now(), s);
     }
+
+    /** What stopped the training, on a card until the trainer taps РАЗБРАХ (v1.19); null = nothing. */
+    String[] problem;
+    /** The unit's own counter of minutes used (its 7764d000, ASCII), read at the link; null = not read. */
+    String unitMinutes;
+    /** The last op written (its name), for a refused write's message. */
+    String lastOp = "";
+
+    public String[] problem() {
+        return problem;
+    }
+
+    public void dismissProblem() {
+        problem = null;
+    }
+
+    void showProblem(String... lines) {
+        problem = lines;
+        StringBuilder b = new StringBuilder("PROBLEM SHOWN:");
+        for (String l : lines) b.append(" | ").append(l);
+        trace(b.toString());
+    }
+
+    /** GATT codes that mean the unit wants pairing / encryption. */
+    private static boolean authCode(int st) {
+        return st == 5 || st == 8 || st == 15 || st == 137;
+    }
     XView view;
     final List<Seen> seen = new ArrayList<Seen>();
     String linkingMac, linkedName, lastMac;
@@ -239,6 +266,7 @@ public final class MainActivity extends Activity implements Ble.Listener, Host {
         if (session != null || linkingMac != null) return;
         linkingMac = mac;
         linkingSince = now();
+        unitMinutes = null;
         linkedName = mac;
         linkingKind = mac.equals(lastMac) ? lastKind : Dev.WIEMS;
         for (Seen s : seen)
@@ -380,7 +408,16 @@ public final class MainActivity extends Activity implements Ble.Listener, Host {
             for (int z = 0; z < session.zones(); z++) session.setZone(z, savedZones[session.part(z)]);
             session.setStrength(savedStrength);
         }
-        trace("LINKED " + linkingMac + (back ? " (the same unit back: the training goes on)" : ""));
+        trace("LINKED " + linkingMac + (back ? " (the same unit back: the training goes on)" : "")
+                + (linkingKind == Dev.WIEMS ? " · run notifications " + (ble.runNotifyOk() ? "on" : "OFF") : "")
+                + (ble.setupFail().length() > 0 ? " · " + ble.setupFail() : ""));
+        if (linkingKind == Dev.WIEMS) {
+            session.setRunNotifyArmed(ble.runNotifyOk());
+            if (!ble.runNotifyOk()) {
+                setNote("WiEMS не праща потвърждения — ако ▶ не тръгне, изпрати дневника (задръж логото)", true);
+                noteUntil = now() + 20000;
+            }
+        }
         session.linked();             // whatever the unit does now: 0 and stopped
         lastMac = linkingMac;
         lastKind = linkingKind;
@@ -407,11 +444,19 @@ public final class MainActivity extends Activity implements Ble.Listener, Host {
 
     @Override
     public void written(boolean ok) {
-        trace(ok ? "  ack" : "  WRITE REJECTED by the unit");
+        int st = ble.lastWriteStatus();
+        trace(ok ? "  ack" : "  WRITE REJECTED by the unit: " + lastOp + " (GATT " + st + ")");
         if (session == null) return;
         if (!ok) {
+            String u = Dev.SHORT[session.kind];
             ble.disconnect(null);
-            lost(Dev.SHORT[session.kind] + " не прие команда — тренировката спря");
+            lost(u + " не прие команда — тренировката спря");
+            showProblem(u + " не прие команда",
+                    "Модулът отказа командата „" + opBg(lastOp) + "“ (Bluetooth код " + st + "). Тренировката спря, изходите са на 0.",
+                    authCode(st) ? "Модулът иска сдвояване (Bluetooth защита): махни го от Настройки → Bluetooth на таблета и го свържи пак."
+                            : "Модулът е свързан и с друго устройство (телефон / iPad с оригиналното приложение) — затвори приложението там.",
+                    "Изключи модула и го включи пак, после избери го отново тук.",
+                    "Ако се повтаря — изпрати дневника, кодът " + st + " казва точната причина.");
             return;
         }
         session.ack();
@@ -431,7 +476,8 @@ public final class MainActivity extends Activity implements Ble.Listener, Host {
 
     @Override
     public void notified(String what, byte[] v) {
-        trace("  ← " + what + " " + Trace.hex(v));
+        trace("  ← " + what + " " + Trace.hex(v) + (what.startsWith("read ") && v != null ? "  \"" + ascii(v) + "\"" : ""));
+        if (what.equals("read minutes") && v != null) unitMinutes = ascii(v).replaceFirst("^0+(?=\\d)", "");
     }
 
     @Override
@@ -474,6 +520,19 @@ public final class MainActivity extends Activity implements Ble.Listener, Host {
         if (session != null) {
             boolean was = session.state() != Session.IDLE;
             session.tick(t);
+            if (session.takeNoStart()) {
+                int code = session.noStartCode();
+                int bat = session.battery();
+                setNote("WiEMS не стартира", true);
+                showProblem("WiEMS не стартира",
+                        "Модулът прие СТАРТ, но не тръгна — няма потвърждение до " + Session.NO_START_MS / 1000 + " s ("
+                                + (code >= 0 ? "отговори с код " + Integer.toHexString(code) : "не отговори нищо") + ")."
+                                + (unitMinutes != null ? " Използвани минути в модула: " + unitMinutes + "." : "")
+                                + (bat >= 0 ? " Батерия " + bat + " %." : ""),
+                        "Свършили са платените минути. Оригиналното приложение WiEMS ги зарежда — свържи модула веднъж с него.",
+                        "Модулът е зает: свързан е и с друго устройство или е спрял в грешка. Изключи го, включи го и натисни ▶ пак.",
+                        bat >= 0 && bat < 20 ? "Батерията е слаба (" + bat + " %) — заредѝ модула." : "Слаба батерия — заредѝ модула и опитай пак.");
+            }
             if (session.takeUnitStopped()) {
                 int tz = session.takeTripZone();
                 if (tz != -1) {
@@ -492,9 +551,11 @@ public final class MainActivity extends Activity implements Ble.Listener, Host {
             String u = Dev.SHORT[session.kind];
             if (session.ackLate(t)) {
                 ble.disconnect(null);
+                trace("NO ANSWER to " + lastOp + " in " + Session.ACK_TIMEOUT_MS + " ms");
                 lost(u + " спря да отговаря — тренировката спря");
             } else if (ble.ready()) {
                 byte[] op = session.next(t);
+                if (op != null) lastOp = session.kind == Dev.WIEMS ? opName(op[0]) : "0x" + Trace.hex(new byte[] {op[0]});
                 if (op != null) trace("→ " + (session.kind == Dev.WIEMS
                         ? opName(op[0]) + " " + Trace.hex(com.isaigu.gymapp.bodytech.WiProto.value(op)) : Trace.hex(op)));
                 if (op != null && !ble.write(op)) {
@@ -509,6 +570,19 @@ public final class MainActivity extends Activity implements Ble.Listener, Host {
         }
         rememberZones(t);
         view.tick(t);
+    }
+
+    private static String opBg(String op) {
+        String[] en = {"currents", "program", "rest", "widths", "run"};
+        String[] bg = {"сили по зоните", "програма", "втори импулс", "ширини", "старт / стоп"};
+        for (int i = 0; i < en.length; i++) if (en[i].equals(op)) return bg[i];
+        return op;
+    }
+
+    private static String ascii(byte[] v) {
+        StringBuilder b = new StringBuilder();
+        for (byte x : v) b.append(x >= 32 && x < 127 ? (char) x : '.');
+        return b.toString();
     }
 
     private static String opName(int sel) {

@@ -148,6 +148,8 @@ final class XView extends View {
         b.append(slideZone).append(slideValue).append(a.viewKind()).append('|').append(a.note()).append(a.noteWarn()).append('|').append(pressed)
                 .append(sheet).append(confirm).append(sel).append(now < bubbleUntil).append(now < toastUntil)
                 .append(service).append(svcZone).append(a.channels().save()).append(a.dark());
+        String[] pb = a.problem();
+        if (pb != null) for (String x : pb) b.append('|').append(x);
         if (a.viewKind() == MainActivity.VIEW_PICK || a.viewKind() == MainActivity.VIEW_LINKING) {
             b.append((now / 400) % 4);
             for (Seen s : a.seen()) b.append(s.mac).append(bars(s.rssi));
@@ -191,6 +193,7 @@ final class XView extends View {
         if (v == MainActivity.VIEW_TRAIN && !modes && !sheet && !confirm && a.now() < bubbleUntil) paintBubble(c);
         if (sheet) paintSheet(c);
         if (confirm) paintConfirm(c);
+        if (a.problem() != null) paintProblem(c, a.problem());
         c.restore();
     }
 
@@ -1430,6 +1433,46 @@ final class XView extends View {
         }
     }
 
+    /**
+     * What stopped the training (v1.19): XBody's red band, the title big, what the unit did, then the likely causes
+     * side by side (landscape), the trace one tap away.
+     */
+    private void paintProblem(Canvas c, String[] pb) {
+        p.setColor(VEIL);
+        c.drawRect(0, 0, dw, 600, p);
+        hits.clear();
+        p.setColor(DIALOG);
+        c.drawRect(0, 110, dw, 470, p);
+        font(30, true);
+        text(c, elide(pb[0], dw - 80), 40, 126, dw - 40, 172, 0, WHITE);
+        font(17, false);
+        p.setColor(WHITE);
+        float tw = Math.min(dw - 120, 860), tl = (dw - tw) / 2;
+        wrap(c, pb[1], tl, 178, tw, 24, 2, WHITE);
+        int n = pb.length - 2;
+        if (n > 0) {
+            font(14, true);
+            text(c, "ВЪЗМОЖНИ ПРИЧИНИ", tl, 236, tl + tw, 256, -1, 0xCCFFFFFF);
+            float gap = 16, cw = (tw - gap * (n - 1)) / n;
+            for (int i = 0; i < n; i++) {
+                float l = tl + i * (cw + gap);
+                round(c, l, 262, l + cw, 382, 8, 0x24FFFFFF);
+                font(15, false);
+                wrap(c, (i + 1) + ". " + pb[2 + i], l + 12, 270, cw - 24, 21, 5, WHITE);
+            }
+        }
+        for (int i = 0; i < 2; i++) {
+            float l = i == 1 ? dw / 2 + 20 : dw / 2 - 250;
+            float r = i == 1 ? dw / 2 + 250 : dw / 2 - 20;
+            String id = i == 1 ? "prob-ok" : "prob-log";
+            if (id.equals(pressed)) round(c, l + 1, 398, r - 1, 452, 8, 0x3CFFFFFF);
+            stroke(c, l + 1, 398, r - 1, 452, 8, WHITE, 2);
+            font(18, false);
+            text(c, i == 1 ? "РАЗБРАХ" : "ИЗПРАТИ ДНЕВНИКА", l, 397, r, 453, 0, WHITE);
+            hit(l, 397, r, 453, id);
+        }
+    }
+
     // ---------------------------------------------------------------- touch
 
     private float[] toDesign(MotionEvent e) {
@@ -1752,6 +1795,14 @@ final class XView extends View {
         }
         if (id.equals("unit") && s != null && s.state() == Session.IDLE) {
             confirm = true;
+            return;
+        }
+        if (id.equals("prob-log")) {
+            a.shareLog();
+            return;
+        }
+        if (id.equals("prob-ok")) {
+            a.dismissProblem();
             return;
         }
         if (id.equals("confirm-no")) {

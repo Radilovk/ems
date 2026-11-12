@@ -81,6 +81,9 @@ public class AppTest {
         public void backToModes() { mode = -1; }
         public boolean held() { return false; }
         public void shareLog() {}
+        String[] problem;
+        public String[] problem() { return problem; }
+        public void dismissProblem() { problem = null; }
         public boolean xemsWiring() { return channels.suit == Channels.XEMS; }
         public void setXemsWiring(boolean x) { channels.suit = x ? Channels.XEMS : Channels.XBODY; channelsChanged(); }
         boolean female = true;
@@ -669,6 +672,19 @@ public class AppTest {
         h.session.tick(h.t);
         drain(h.session, h.t);
         shot(v2, dir, "8e-xems.png");
+
+        // v1.19: the unit took ▶ but never ran → the card says what and why; РАЗБРАХ closes it
+        h.problem = new String[] {"WiEMS не стартира",
+                "Модулът прие СТАРТ, но не тръгна — няма потвърждение до 9 s (не отговори нищо). Използвани минути в модула: 73200. Батерия 64 %.",
+                "Свършили са платените минути. Оригиналното приложение WiEMS ги зарежда — свържи модула веднъж с него.",
+                "Модулът е зает: свързан е и с друго устройство или е спрял в грешка. Изключи го, включи го и натисни ▶ пак.",
+                "Слаба батерия — заредѝ модула и опитай пак."};
+        shot(v2, dir, "9a-no-start.png");
+        h.dark = true;
+        shot(v2, dir, "9b-no-start-dark.png");
+        h.dark = false;
+        tap(v2, 615, 425);                                  // РАЗБРАХ
+        eq("РАЗБРАХ closes the card", true, h.problem == null);
 
         System.out.println(fails == 0 ? "AppTest: ALL OK (" + checks + " checks)" : "AppTest: " + fails + " FAIL");
         if (fails != 0) System.exit(1);

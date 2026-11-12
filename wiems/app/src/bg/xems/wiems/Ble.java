@@ -69,7 +69,20 @@ final class Ble {
      * current check (b1f5a058) and its clock (7764f042), then the battery read; READY after that.
      */
     private int setup = -1;
-    static final int READY = 5;
+    static final int READY = 100;
+    /** Set-up steps 10…: the reads that tell what the unit is and how it is (v1.19, for the trace / the screen). */
+    private static final int INFO = 10;
+    static final String[] INFO_NAME = {"minutes", "model", "serial", "firmware", "id", "config"};
+    private static final String[] INFO_UUID = {"7764d000-c6a9-11e4-8731-1681e6b88ec1",
+            "00002a24-0000-1000-8000-00805f9b34fb", "00002a25-0000-1000-8000-00805f9b34fb",
+            "00002a26-0000-1000-8000-00805f9b34fb", "7764f19a-c6a9-11e4-8731-1681e6b88ec1",
+            "776416cb-c717-11e4-8731-1681e6b88ec1"};
+    private final BluetoothGattCharacteristic[] info = new BluetoothGattCharacteristic[INFO_NAME.length];
+    /** The run control's notifications were switched on (its CCCD written OK): the unit's "01" will come. */
+    private boolean runNotifyOk;
+    /** The GATT status of the last write's answer (0 = OK) and of the last failed set-up step. */
+    private int lastWriteStatus;
+    private String setupFail = "";
     static final String CHR_STATUS = "b1f5a058-c717-11e4-8731-1681e6b88ec1";
     private BluetoothGattCharacteristic status, clock;
 
@@ -94,6 +107,19 @@ final class Ble {
 
     boolean connecting() {
         return gatt != null && setup != READY;
+    }
+
+    boolean runNotifyOk() {
+        return runNotifyOk;
+    }
+
+    int lastWriteStatus() {
+        return lastWriteStatus;
+    }
+
+    /** What failed in the last set-up ("" = nothing), for the trace. */
+    String setupFail() {
+        return setupFail;
     }
 
     String mac() {
@@ -298,6 +324,17 @@ final class Ble {
                 }
             } else if (setup == 4) {
                 if (batt == null || !gatt.readCharacteristic(batt)) {
+                    setup = INFO;
+                    step();
+                }
+            } else if (setup >= INFO && setup < READY) {
+                int i = setup - INFO;
+                while (i < info.length && (info[i] == null || !gatt.readCharacteristic(info[i]))) {
+                    if (info[i] == null) l.notified("read " + INFO_NAME[i] + ": not on this unit", null);
+                    i++;
+                }
+                setup = INFO + i;
+                if (i >= info.length) {
                     setup = READY;
                     l.linked();
                 }
@@ -312,7 +349,10 @@ final class Ble {
         if (c == null) return false;
         gatt.setCharacteristicNotification(c, true);
         BluetoothGattDescriptor d = c.getDescriptor(CCCD);
-        if (d == null) return false;
+        if (d == null) {
+            l.notified("notify " + c.getUuid() + ": no CCCD", null);
+            return false;
+        }
         d.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
         return gatt.writeDescriptor(d);
     }
@@ -347,6 +387,9 @@ final class Ble {
         batt = b != null ? b.getCharacteristic(UUID.fromString(WiProto.BATTERY_CHR)) : null;
         status = findChr(g, CHR_STATUS);
         clock = findChr(g, WiProto.CHR_CLOCK);
+        for (int i = 0; i < info.length; i++) info[i] = findChr(g, INFO_UUID[i]);
+        runNotifyOk = false;
+        setupFail = "";
         setup = 0;
         step();
     }
@@ -421,17 +464,29 @@ final class Ble {
                 else close("Не се свърза — опитай пак");
                 break;
             case EV_DESC:
+                if (kind == Dev.WIEMS && setup == 0) runNotifyOk = e.status == BluetoothGatt.GATT_SUCCESS;
+                if (e.status != BluetoothGatt.GATT_SUCCESS) {
+                    setupFail = "notifications of step " + setup + " refused (GATT " + e.status + ")";
+                    l.notified(setupFail, null);
+                }
                 setup++;
                 step();
                 break;
             case EV_READ:
                 if (e.c == batt && e.v != null && e.v.length == 1) l.battery(e.v[0] & 0xFF);
                 if (setup == 4) {
-                    setup = READY;
-                    l.linked();
+                    setup = INFO;
+                    step();
+                } else if (setup >= INFO && setup < READY) {
+                    int i = setup - INFO;
+                    l.notified("read " + INFO_NAME[i] + (e.status != BluetoothGatt.GATT_SUCCESS ? " failed (GATT " + e.status + ")" : ""),
+                            e.status == BluetoothGatt.GATT_SUCCESS ? e.v : null);
+                    setup++;
+                    step();
                 }
                 break;
             case EV_WRITE:
+                lastWriteStatus = e.status;
                 l.written(e.status == BluetoothGatt.GATT_SUCCESS);
                 break;
             case EV_CHANGED:

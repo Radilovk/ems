@@ -323,6 +323,7 @@ final class Session {
             wi = WI_COUNT;
             wiGo = false;
             wiAt = now;
+            countCode = -1;
         }
         if (preparing()) {
             startWanted = true;
@@ -417,7 +418,13 @@ final class Session {
         }
         // the count-down is over at the unit's first "01" (the vendor waits for it), else after 6 s; then, as the
         // vendor: strengths 0, the program with phase 0 — and start() sends the strengths
-        if (wi == WI_COUNT && !progQueued() && (wiGo || now - wiAt >= 6000)) {
+        // v1.19 (owner: "it links, ▶ does nothing, its LEDs stay dark"): with the run notifications on, a unit
+        // that took "25" and gave no "01" in NO_START_MS did NOT start — say so instead of running the clock blind
+        if (wi == WI_COUNT && !progQueued() && !wiGo && runNotifyArmed && now - wiAt >= NO_START_MS) {
+            noStart(now);
+            return;
+        }
+        if (wi == WI_COUNT && !progQueued() && (wiGo || (!runNotifyArmed && now - wiAt >= 6000))) {
             runSeenMs = now;
             log(wiGo ? "count-down over (unit \"01\")" : "count-down over (6 s, no \"01\")");
             push(WiProto.zero(), T_PLAIN);
@@ -501,6 +508,10 @@ final class Session {
         // status characteristic). The zones and strength go back to what the unit last ran with — else the next ▶
         // sends the same and it trips again — and the screen names what changed.
         int b = v[0] & 0xFF;
+        if (wi == WI_COUNT && b != 1) {
+            countCode = b;                          // the unit answered the start with something else: shown if it never runs
+            log("count-down: the unit notified " + Integer.toHexString(b));
+        }
         if ((b & 0x80) != 0 && wi == WI_RUN && state == RUNNING) {
             tripCode = b;
             lastTrip = b;
@@ -546,6 +557,42 @@ final class Session {
         tripCode = 0;
         tripZone = -1;
         return z < 0 ? -2 : z;
+    }
+
+    /** No "01" after a start: how long the unit may count down (the capture: ~4 s). */
+    static final long NO_START_MS = 9000;
+    /** The run control's notifications are on (Ble's set-up wrote its CCCD); else the old 6 s blind start. */
+    private boolean runNotifyArmed = true;
+    /** What the unit notified on the run control during the last count-down (−1: nothing). */
+    private int countCode = -1;
+    private boolean noStart;
+
+    void setRunNotifyArmed(boolean on) {
+        runNotifyArmed = on;
+    }
+
+    /** Taken once by the screen: the unit took ▶ but never ran. */
+    boolean takeNoStart() {
+        boolean b = noStart;
+        noStart = false;
+        return b;
+    }
+
+    /** What the unit answered during the failed count-down (−1: nothing at all). */
+    int noStartCode() {
+        return countCode;
+    }
+
+    private void noStart(long now) {
+        haltWhy = "no start: no \"01\" " + (now - wiAt) + " ms after \"25\""
+                + (countCode >= 0 ? ", the unit notified " + Integer.toHexString(countCode) : ", nothing notified");
+        log("UNIT DID NOT START: " + haltWhy);
+        startWanted = false;
+        dropQueued(T_PROG);
+        push(WiProto.zero(), T_PLAIN);
+        stopUnit();
+        sent = null;
+        noStart = true;
     }
 
     private void unitHalted(String why) {

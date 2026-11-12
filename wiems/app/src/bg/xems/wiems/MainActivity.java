@@ -24,7 +24,7 @@ import java.util.List;
  * ({@link Ble}).
  * The brain lives here: what the screen shows, what a tap does, the 50 ms tick that paces the unit.
  */
-public final class MainActivity extends Activity implements Ble.Listener, Host {
+public final class MainActivity extends Activity implements Ble.Listener, Host, Report.Done {
     static final int VIEW_NO_BT = 0, VIEW_PERMISSION = 1, VIEW_BT_OFF = 2, VIEW_PICK = 3, VIEW_LINKING = 4, VIEW_TRAIN = 5;
 
     Ble ble;
@@ -72,6 +72,58 @@ public final class MainActivity extends Activity implements Ble.Listener, Host {
         StringBuilder b = new StringBuilder("PROBLEM SHOWN:");
         for (String l : lines) b.append(" | ").append(l);
         trace(b.toString());
+        autoReport(lines[0]);
+    }
+
+    // ---------------------------------------------------------------- the trace to the server by itself (v1.20)
+
+    final Report report = new Report();
+    int reportState = Report.IDLE;
+    String reportWhy;
+    long reportAt, reportRetryAt;
+    int reportTries, appCode;
+    String appName = "?";
+
+    public int reportState() {
+        return reportState;
+    }
+
+    /**
+     * A training failed: the trace goes to the server without anyone asking (owner: "the client only tests"). At most
+     * one a minute (the server takes 10 an hour per studio); no internet → tried again every minute, 10 times.
+     */
+    void autoReport(String why) {
+        long t = now();
+        if (reportState == Report.SENDING || (reportAt > 0 && t - reportAt < 60000 && reportState == Report.SENT)) {
+            trace("report: " + why + " (with the previous one)");
+            return;
+        }
+        reportWhy = why;
+        reportTries = 0;
+        sendReport();
+    }
+
+    private void sendReport() {
+        reportAt = now();
+        reportTries++;
+        Session s = session != null ? session : held;
+        String mac = lastMac != null ? lastMac : linkingMac;
+        String head = "REPORT " + reportWhy + "\nXEMS WiEMS " + appName + " (" + appCode + ") · " + Build.MANUFACTURER + " "
+                + Build.MODEL + " · Android " + Build.VERSION.RELEASE + "\nunit " + linkedName + " " + mac + " · "
+                + Dev.SHORT[kind()] + (unitMinutes != null ? " · minutes used " + unitMinutes : "")
+                + (s != null ? " · battery " + s.battery() + "% · state " + s.state() + " · halt: " + s.haltReason() : "")
+                + "\n---\n";
+        if (report.send(mac, appCode, head + trace.dump(), this)) {
+            reportState = Report.SENDING;
+            trace("report → server (" + reportWhy + ", try " + reportTries + ")");
+        }
+    }
+
+    @Override
+    public void reported(boolean ok, String answer) {
+        reportState = ok ? Report.SENT : Report.FAILED;
+        trace("report " + (ok ? "sent: " : "FAILED: ") + answer);
+        reportRetryAt = ok || reportTries >= 10 ? 0 : now() + 60000;
     }
 
     /** GATT codes that mean the unit wants pairing / encryption. */
@@ -108,7 +160,14 @@ public final class MainActivity extends Activity implements Ble.Listener, Host {
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN | WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         java.io.File dir = getExternalFilesDir(null);
         trace = new Trace(new java.io.File(dir != null ? dir : getFilesDir(), "wiems-log.txt"));
-        trace("app start " + android.os.Build.MODEL + " Android " + Build.VERSION.RELEASE);
+        try {
+            android.content.pm.PackageInfo pi = getPackageManager().getPackageInfo(getPackageName(), 0);
+            appName = pi.versionName;
+            appCode = pi.versionCode;
+        } catch (Throwable t) {
+            appCode = 0;
+        }
+        trace("app start " + appName + " (" + appCode + ") " + android.os.Build.MODEL + " Android " + Build.VERSION.RELEASE);
         load();
         ble = new Ble(this, this);
         view = new XView(this, this);
@@ -435,6 +494,7 @@ public final class MainActivity extends Activity implements Ble.Listener, Host {
             held = session;
             heldMac = lastMac;
             why = why.replace("тренировката спря", "тренировката е на пауза") + " · свързвам отново…";
+            if (held.state() != Session.IDLE) autoReport("link lost mid-training: " + why);
         }
         session = null;
         linkingMac = null;
@@ -505,6 +565,10 @@ public final class MainActivity extends Activity implements Ble.Listener, Host {
     }
 
     private void step(long t) {
+        if (reportRetryAt > 0 && t >= reportRetryAt && !report.busy()) {
+            reportRetryAt = 0;
+            sendReport();
+        }
         for (int i = seen.size() - 1; i >= 0; i--) if (t - seen.get(i).lastMs > 6000) seen.remove(i);
         boolean wantScan = viewKind() == VIEW_PICK;
         if (held != null && lastMac == null) held = null;
@@ -540,9 +604,11 @@ public final class MainActivity extends Activity implements Ble.Listener, Host {
                             + (tz >= 0 ? " след промяната на " + session.zoneName(tz) : "")
                             + ". Силите са както вървяха. Без облечен костюм модулът не дава различни сили по зоните", true);
                     noteUntil = now() + 20000;
-                } else
+                } else {
                     setNote(session.haltReason().startsWith("no") ? "WiEMS не отговаря — пауза. Натисни ПРОДЪЛЖИ"
                             : "WiEMS спря сам — пауза. Натисни ПРОДЪЛЖИ", true);
+                }
+                autoReport("unit stopped: " + session.haltReason());
             }
             if (was && session.finished()) {
                 session.clearFinished();

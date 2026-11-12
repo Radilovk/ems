@@ -11,7 +11,7 @@ import exercisesAdminHtml from './exercises-admin.html';
 import exerciseLibrary from '../../branding/exercises/library.json';
 import { normalizePick, picksPayload, codeMatches, selectionPayload, APPS, appOf } from './exercises.js';
 import { LIMITS, limitsSummary } from './limits.js';
-import { handleUnitUpdate, handleUnitPack, handleUnitLog, adminUnits } from './units.js';
+import { handleUnitUpdate, handleUnitPack, handleUnitLog, handleUnitLogRead, adminUnits } from './units.js';
 import { handleVrlogPut, handleVrlogGet } from './vrlog.js';
 import {
   sessionId, validSummary, validRec, putSession, historyJson, SESSION_MAX_BYTES,
@@ -123,6 +123,9 @@ export default {
       // The XBody unit's mod (xems-net): only when a trainer asks on the unit — update check, its pack, a log.
       if (path === '/v1/unit/update' && request.method === 'GET') return handleUnitUpdate(url, env);
       if (path === '/v1/unit/pack' && request.method === 'GET') return handleUnitPack(url, env);
+      if (path.startsWith('/v1/unit/log/') && request.method === 'GET') {
+        return handleUnitLogRead(env, url, path.slice('/v1/unit/log/'.length));
+      }
       if (path === '/v1/unit/log' && request.method === 'POST') {
         return handleUnitLog(request, env, url, (k, max, sec) => rateLimit(env, k, max, sec));
       }

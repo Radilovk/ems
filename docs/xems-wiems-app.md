@@ -1,4 +1,4 @@
-# XEMS WiEMS — light tablet app for one WiEMS unit, XEMS or bodytech suit (wiems/app, v1.19)
+# XEMS WiEMS — light tablet app for one WiEMS unit, XEMS or bodytech suit (wiems/app, v1.20)
 
 Owner (2026-10-16): a separate APK for a small 8" tablet (Lenovo Tab M8 HD, 1280×800, 2 GB RAM), only for WiEMS,
 light, **in the same design and style as the XBody screen**. Not the XEMS app: no vendor APK, no music / AI /
@@ -278,6 +278,17 @@ order — once the service mode has checked both suits, port the two maps (the `
   firmware (2A24 / 2A25 / 2A26), `7764f19a`, `776416cb`; refused CCCDs are traced. The capture's unit had used 72323
   of 73200 bought minutes (2026-10-16) — the prime suspect when a unit stops starting.
 - Tests: `UnitSim` 5b (a unit that takes `25` and never runs; ▶ again works; no CCCD = blind start), shots `9a` / `9b`.
+
+## v1.20 — the trace reaches us by itself (owner: "the client only tests; nothing else asked of them")
+- Every failure card (no start, a refused write), a unit that stops by itself and a link lost mid-training send the
+  trace to the server **without a tap** (`Report.java`, a daemon thread, no lambdas): `POST
+  https://license.biocode-bg.com/v1/unit/log?app=wiems&unit=<the unit's MAC, 12 hex>&ver=<versionCode>`, first lines
+  `REPORT <why>` + app / tablet / unit / minutes / battery / halt reason, then the trace (last 200 000 chars). At most one
+  a minute; no internet → again every minute, 10 tries. The card's left button shows it: ИЗПРАЩАМ… / ✓ ДНЕВНИКЪТ Е
+  ИЗПРАТЕН (a tap still shares it by hand). INTERNET permission added.
+- Read without the admin (BLE trace only, no client data): `GET /v1/unit/log/recent?app=wiems[&since=<unix s>]`
+  (≤ 50, with the first 300 chars), `GET /v1/unit/log/<id>?app=wiems` (`server/src/units.js handleUnitLogRead`).
+  A scheduled Claude Code check reads them every hour and starts on the fix.
 
 ## Build / test
 ```

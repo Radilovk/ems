@@ -4,7 +4,7 @@ import { DatabaseSync } from 'node:sqlite';
 import { readFileSync, readdirSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import {
-  handleUnitUpdate, handleUnitPack, handleUnitLog, adminUnits, updateText, cleanLog, unitId, UNIT_LOG_MAX,
+  handleUnitUpdate, handleUnitPack, handleUnitLog, handleUnitLogRead, adminUnits, updateText, cleanLog, unitId, UNIT_LOG_MAX,
 } from '../src/units.js';
 import { sweep } from '../src/sweep.js';
 
@@ -73,6 +73,20 @@ describe('unit update', () => {
 
 describe('unit log', () => {
   const allow = async () => true;
+  it('the WiEMS reports are readable (list + text), the XBody logs are not', async () => {
+    const env = { DB: d1() };
+    const mk = (b) => new Request('https://x.test/', { method: 'POST', body: b });
+    await handleUnitLog(mk('REPORT WiEMS не стартира\nx'), env, U('/v1/unit/log?app=wiems&unit=886b0fccbe49&ver=21'), allow);
+    await handleUnitLog(mk('XEMS log'), env, U('/v1/unit/log?app=xbody&unit=0123456789ab&ver=21'), allow);
+    const list = await (await handleUnitLogRead(env, U('/v1/unit/log/recent?app=wiems'), 'recent')).json();
+    assert.equal(list.logs.length, 1);
+    assert.equal(list.logs[0].unit, '886b0fccbe49');
+    assert.match(list.logs[0].head, /не стартира/);
+    const id = list.logs[0].id;
+    assert.match(await (await handleUnitLogRead(env, U(`/v1/unit/log/${id}?app=wiems`), String(id))).text(), /REPORT/);
+    assert.equal((await handleUnitLogRead(env, U('/v1/unit/log/recent?app=xbody'), 'recent')).status, 404);
+    assert.equal((await handleUnitLogRead(env, U(`/v1/unit/log/${id + 1}?app=wiems`), String(id + 1))).status, 404);
+  });
   it('stores what the unit sent and answers OK <id>', async () => {
     const env = { DB: d1() };
     const req = new Request('https://x.test/', { method: 'POST', body: 'XEMS log\n2026-10-17 10:00:00.000 Info: x\n' });
@@ -88,6 +102,8 @@ describe('unit log', () => {
     const env = { DB: d1() };
     const mk = (b) => new Request('https://x.test/', { method: 'POST', body: b });
     assert.equal((await handleUnitLog(mk('x'), env, U('/v1/unit/log?app=xbody&unit=../x'), allow)).status, 400);
+    assert.equal((await handleUnitLog(mk('x'), env, U('/v1/unit/log?app=wiems&unit=886b0fccbe49&ver=21'), allow)).status, 200);
+    assert.equal((await handleUnitLog(mk('x'), env, U('/v1/unit/log?app=other&unit=886b0fccbe49'), allow)).status, 400);
     assert.equal((await handleUnitLog(mk(''), env, U('/v1/unit/log?app=xbody&unit=0123456789ab'), allow)).status, 400);
     assert.equal((await handleUnitLog(mk('x'), env, U('/v1/unit/log?app=xbody&unit=0123456789ab'), async () => false)).status, 429);
   });

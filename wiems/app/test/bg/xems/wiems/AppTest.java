@@ -84,6 +84,8 @@ public class AppTest {
         String[] problem;
         public String[] problem() { return problem; }
         public void dismissProblem() { problem = null; }
+        int report = Report.SENT;
+        public int reportState() { return report; }
         public boolean xemsWiring() { return channels.suit == Channels.XEMS; }
         public void setXemsWiring(boolean x) { channels.suit = x ? Channels.XEMS : Channels.XBODY; channelsChanged(); }
         boolean female = true;

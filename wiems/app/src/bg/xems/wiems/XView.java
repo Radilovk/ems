@@ -150,6 +150,7 @@ final class XView extends View {
                 .append(service).append(svcZone).append(a.channels().save()).append(a.dark());
         String[] pb = a.problem();
         if (pb != null) for (String x : pb) b.append('|').append(x);
+        if (pb != null) b.append(a.reportState());
         if (a.viewKind() == MainActivity.VIEW_PICK || a.viewKind() == MainActivity.VIEW_LINKING) {
             b.append((now / 400) % 4);
             for (Seen s : a.seen()) b.append(s.mac).append(bars(s.rssi));
@@ -1468,7 +1469,9 @@ final class XView extends View {
             if (id.equals(pressed)) round(c, l + 1, 398, r - 1, 452, 8, 0x3CFFFFFF);
             stroke(c, l + 1, 398, r - 1, 452, 8, WHITE, 2);
             font(18, false);
-            text(c, i == 1 ? "РАЗБРАХ" : "ИЗПРАТИ ДНЕВНИКА", l, 397, r, 453, 0, WHITE);
+            int rs = a.reportState();
+            text(c, i == 1 ? "РАЗБРАХ" : rs == Report.SENT ? "✓ ДНЕВНИКЪТ Е ИЗПРАТЕН" : rs == Report.SENDING ? "ИЗПРАЩАМ ДНЕВНИКА…"
+                    : "ИЗПРАТИ ДНЕВНИКА", l, 397, r, 453, 0, WHITE);
             hit(l, 397, r, 453, id);
         }
     }

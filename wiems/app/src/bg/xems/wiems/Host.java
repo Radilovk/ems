@@ -52,6 +52,8 @@ interface Host {
      */
     String[] problem();
     void dismissProblem();
+    /** The trace's automatic trip to the server ({@link Report}: IDLE / SENDING / SENT / FAILED). */
+    int reportState();
     /** An asset of the APK (null: none). */
     java.io.InputStream openAsset(String name);
 }

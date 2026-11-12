@@ -72,8 +72,17 @@ public final class MainActivity extends Activity implements Ble.Listener, Host, 
         StringBuilder b = new StringBuilder("PROBLEM SHOWN:");
         for (String l : lines) b.append(" | ").append(l);
         trace(b.toString());
-        autoReport(lines[0]);
+        // v1.24: the unit's whole state first (every readable value), then the report — at most 5 s later
+        if (session != null && session.kind == Dev.WIEMS && ble.ready()) {
+            snapWant = lines[0];
+            reportAfterSnap = lines[0];
+            snapDeadline = now() + 5000;
+        } else autoReport(lines[0]);
     }
+
+    /** A snapshot asked (its reason) — taken when no write is on air; the report that waits for it. */
+    String snapWant, reportAfterSnap;
+    long snapDeadline;
 
     // ---------------------------------------------------------------- the trace to the server by itself (v1.20)
 
@@ -588,6 +597,7 @@ public final class MainActivity extends Activity implements Ble.Listener, Host, 
             }
         }
         session.linked();             // whatever the unit does now: 0 and stopped
+        if (linkingKind == Dev.WIEMS) ble.snapshot("link");   // the unit's state as it came, before our first write
         lastMac = linkingMac;
         lastKind = linkingKind;
         linkingMac = null;
@@ -677,6 +687,13 @@ public final class MainActivity extends Activity implements Ble.Listener, Host, 
     }
 
     private void step(long t) {
+        if (reportAfterSnap != null && snapWant == null && (!ble.snapBusy() || t > snapDeadline)) {
+            String why = reportAfterSnap;
+            reportAfterSnap = null;
+            autoReport(why);
+        } else if (reportAfterSnap != null && t > snapDeadline) {
+            snapWant = null;
+        }
         // a downloaded update goes to the installer only while nothing trains (never mid-session)
         if (updater != null && updater.waiting() && held == null && (session == null || session.state() == Session.IDLE)
                 && (session == null || !session.busy())) updater.installIfReady();
@@ -734,7 +751,10 @@ public final class MainActivity extends Activity implements Ble.Listener, Host, 
                 ble.disconnect(null);
                 trace("NO ANSWER to " + lastOp + " in " + Session.ACK_TIMEOUT_MS + " ms");
                 lost(u + " спря да отговаря — тренировката спря");
-            } else if (ble.ready()) {
+            } else if (snapWant != null && !session.inFlight() && ble.ready()) {
+                ble.snapshot(snapWant);
+                snapWant = null;
+            } else if (ble.ready() && !ble.snapBusy()) {
                 byte[] op = session.next(t);
                 if (op != null) lastOp = session.kind == Dev.WIEMS ? opName(op[0]) : "0x" + Trace.hex(new byte[] {op[0]});
                 if (op != null) trace("→ " + (session.kind == Dev.WIEMS

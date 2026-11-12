@@ -107,7 +107,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/bluetens/run.sh` (17L) — Offline test of the Bluetens module: the real BluetensShell / BluetensLok / BluetensPrograms / BluetensProgram
 - `scripts/body_deltoid.py` (58L) — The deltoid (shoulder cap) on the body figures' zone maps — one cut for every figure: the report and the client card (s…
 - `scripts/build-motion-app.sh` (84L) — "XEMS Движение" — the XEMS Motion app for Android phones / tablets (motion/app, docs/xems-motion.md "The app"): the
-- `scripts/build-wiems-app.sh` (65L) — "XEMS WiEMS" — the light tablet app for one WiEMS unit (wiems/app, docs/xems-wiems-app.md): XBody's training
+- `scripts/build-wiems-app.sh` (67L) — "XEMS WiEMS" — the light tablet app for one WiEMS unit (wiems/app, docs/xems-wiems-app.md): XBody's training
 - `scripts/compile-avatar-cluster-java.sh` (49L, build:L81[SKIP_JAVA_RECOMPILE]) — Compile AvatarClusterLayout.java to smali (prebuilt fallback when SDK missing).
 - `scripts/compile-bodytech-java.sh` (47L, build:L84[SKIP_JAVA_RECOMPILE]) — Compile the bodytech suit driver (com.isaigu.gymapp.bodytech: BtProto, BtSettings, BtTranslator, BtBridge)
 - `scripts/compile-channel-scale-java.sh` (57L, build:L82[SKIP_JAVA_RECOMPILE]) — Compile ChannelStrengthScale.java to smali (prebuilt fallback when SDK missing).
@@ -1417,7 +1417,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L105 ## XEMS side (1.1.480-ai) — `wearable/voice/`
   - L118 ## Phase 3 — learned model
 
-`docs/xems-wiems-app.md` (319L)
+`docs/xems-wiems-app.md` (333L)
   - L1 # XEMS WiEMS — light tablet app for one WiEMS unit, XEMS or bodytech suit (wiems/app, v1.21)
   - L7 ## What it is
   - L31 ## Look (v1.1, owner: XBody's design level or better, never lower)
@@ -1440,8 +1440,9 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L282 ## v1.20 — the trace reaches us by itself (owner: "the client only tests; nothing else asked of them")
   - L293 ## v1.21 — no vendor anything (owner: "unlimited minutes; a full bypass of their server, nothing needs their internet")
   - L299 ## v1.23 — also what nobody would notice to report (owner: "automatic, no button, nothing asked of anyone")
-  - L309 ## Build / test
-  - L316 ## Not verified yet
+  - L309 ## v1.24 — everything the unit says, and updates with no tap (owner)
+  - L323 ## Build / test
+  - L330 ## Not verified yet
 
 `docs/xems-wiems.md` (83L)
   - L1 # WiEMS unit in XEMS and on the XBody machine (1.1.446-ai, XBody mod v7, bridge v3)

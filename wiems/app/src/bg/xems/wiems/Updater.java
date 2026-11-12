@@ -140,6 +140,13 @@ final class Updater {
                 PackageInstaller pi = ctx.getPackageManager().getPackageInstaller();
                 PackageInstaller.SessionParams sp = new PackageInstaller.SessionParams(PackageInstaller.SessionParams.MODE_FULL_INSTALL);
                 sp.setAppPackageName(ctx.getPackageName());
+                if (Build.VERSION.SDK_INT >= 31) {
+                    try {   // Android 12+: an app updating itself may skip the prompt (setRequireUserAction(2))
+                        PackageInstaller.SessionParams.class.getMethod("setRequireUserAction", int.class).invoke(sp, 2);
+                    } catch (Throwable t) {
+                        // older API: the prompt stays
+                    }
+                }
                 int id = pi.createSession(sp);
                 PackageInstaller.Session s = pi.openSession(id);
                 OutputStream o = s.openWrite("xems-wiems.apk", 0, f.length());
@@ -155,7 +162,7 @@ final class Updater {
                 PendingIntent p = PendingIntent.getBroadcast(ctx, id, i, fl);
                 s.commit(p.getIntentSender());
                 s.close();
-                post("update: handed to the installer (session " + id + ")", null);
+                post("update: handed to the installer (session " + id + ", device owner " + owner() + ")", null);
             } catch (Throwable t) {
                 post("update: install failed " + t, "Обновяването не успя — приложението работи както е");
             } finally {
@@ -184,6 +191,17 @@ final class Updater {
             } else if (st != PackageInstaller.STATUS_SUCCESS) {
                 out.note("Обновяването не мина (" + st + ") — приложението работи както е", true);
             }
+        }
+    }
+
+    /** Set up as the tablet's device owner: the installer asks nothing. */
+    boolean owner() {
+        try {
+            android.app.admin.DevicePolicyManager dpm =
+                    (android.app.admin.DevicePolicyManager) ctx.getSystemService(Context.DEVICE_POLICY_SERVICE);
+            return dpm != null && dpm.isDeviceOwnerApp(ctx.getPackageName());
+        } catch (Throwable t) {
+            return false;
         }
     }
 

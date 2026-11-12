@@ -136,6 +136,13 @@ public final class MainActivity extends Activity implements Ble.Listener, Host, 
 
     @Override
     public void reported(boolean ok, String answer) {
+        if (sendingPending) {
+            sendingPending = false;
+            if (ok) pendingFile().delete();
+            trace("crash report " + (ok ? "sent: " : "FAILED (kept for the next start): ") + answer);
+            reportState = Report.IDLE;
+            return;
+        }
         reportState = ok ? Report.SENT : Report.FAILED;
         trace("report " + (ok ? "sent: " : "FAILED: ") + answer);
         reportRetryAt = ok || reportTries >= 10 ? 0 : now() + 60000;
@@ -190,6 +197,89 @@ public final class MainActivity extends Activity implements Ble.Listener, Host, 
         setContentView(view);
         immersive();
         askPermission();
+        Thread.setDefaultUncaughtExceptionHandler(new Crash(Thread.getDefaultUncaughtExceptionHandler()));
+        sendPending();
+    }
+
+    // ---------------------------------------------------------------- what the trainer cannot report (v1.23)
+
+    /** A crash's report, written as the app dies and sent at the next start. */
+    java.io.File pendingFile() {
+        return new java.io.File(getFilesDir(), "pending-report.txt");
+    }
+
+    boolean sendingPending;
+
+    /** The app crashed last time (or a report never got out): it goes now, by itself. */
+    void sendPending() {
+        java.io.File f = pendingFile();
+        if (!f.exists() || f.length() == 0) return;
+        try {
+            byte[] b = new byte[(int) Math.min(f.length(), Report.MAX_CHARS * 2L)];
+            java.io.FileInputStream in = new java.io.FileInputStream(f);
+            int n = 0, r;
+            while (n < b.length && (r = in.read(b, n, b.length - n)) > 0) n += r;
+            in.close();
+            String text = new String(b, 0, n, "UTF-8");
+            if (report.send(lastMac, appCode, text, this)) {
+                sendingPending = true;
+                reportState = Report.SENDING;
+                trace("report → server: the last crash");
+            }
+        } catch (Throwable t) {
+            trace("pending report: " + t);
+        }
+    }
+
+    /** Any crash: what and where, with the trace before it, kept for the next start; then Android's own handling. */
+    final class Crash implements Thread.UncaughtExceptionHandler {
+        final Thread.UncaughtExceptionHandler prev;
+
+        Crash(Thread.UncaughtExceptionHandler prev) {
+            this.prev = prev;
+        }
+
+        @Override
+        public void uncaughtException(Thread th, Throwable e) {
+            try {
+                java.io.StringWriter sw = new java.io.StringWriter();
+                e.printStackTrace(new java.io.PrintWriter(sw));
+                String head = "REPORT app crash: " + e + "\nXEMS WiEMS " + appName + " (" + appCode + ") · " + Build.MANUFACTURER
+                        + " " + Build.MODEL + " · Android " + Build.VERSION.RELEASE + " · thread " + th.getName() + "\n" + sw + "---\n";
+                java.io.FileOutputStream o = new java.io.FileOutputStream(pendingFile());
+                o.write((head + (trace != null ? trace.dump() : "")).getBytes("UTF-8"));
+                o.close();
+            } catch (Throwable t) {
+                // dying anyway
+            }
+            if (prev != null) prev.uncaughtException(th, e);
+        }
+    }
+
+    /** A caught error inside the app's loop (a bug, even if the screen goes on): reported once per run. */
+    boolean errorReported;
+
+    void appError(String where, Throwable e) {
+        java.io.StringWriter sw = new java.io.StringWriter();
+        e.printStackTrace(new java.io.PrintWriter(sw));
+        trace("APP ERROR in " + where + ": " + sw);
+        if (!errorReported) {
+            errorReported = true;
+            autoReport("app error in " + where + ": " + e);
+        }
+    }
+
+    /** Link attempts that failed in a row; the second one is reported (once until a link works). */
+    int linkFails;
+    boolean linkReported;
+
+    void linkFailed(String why) {
+        linkFails++;
+        trace("LINK FAILED (" + linkFails + " in a row): " + why);
+        if (linkFails >= 2 && !linkReported) {
+            linkReported = true;
+            autoReport("link failed " + linkFails + " times: " + why);
+        }
     }
 
     @Override
@@ -466,6 +556,8 @@ public final class MainActivity extends Activity implements Ble.Listener, Host, 
 
     @Override
     public void linked() {
+        linkFails = 0;
+        linkReported = false;
         boolean back = held != null && linkingMac != null && linkingMac.equals(heldMac);
         if (back) {                   // the same unit is back: the training goes on from where it stopped
             session = held;
@@ -506,6 +598,7 @@ public final class MainActivity extends Activity implements Ble.Listener, Host, 
     @Override
     public void lost(String why) {
         trace("LOST: " + why);
+        if (linkingMac != null && session == null) linkFailed(why);
         // keep the training (unless it was being closed): the last unit reconnects by itself and it goes on
         if (session != null && !disconnectWhenIdle && lastMac != null) {
             session.lost(now());
@@ -574,6 +667,7 @@ public final class MainActivity extends Activity implements Ble.Listener, Host, 
                 step(t);
             } catch (Throwable e) {
                 android.util.Log.e(Ble.TAG, "tick: " + e);
+                appError("tick", e);
             }
             // keeps running while the screen is shown, or while a session runs behind another app
             // (and until the last "outputs off" went, so a training that ends behind another app stops the unit)
@@ -601,6 +695,7 @@ public final class MainActivity extends Activity implements Ble.Listener, Host, 
             ble.disconnect(null);
             linkingMac = null;
             setNote(Dev.SHORT[linkingKind] + " не отговори — включен ли е?", true);
+            linkFailed("no answer in 15 s");
         }
         if (session != null) {
             boolean was = session.state() != Session.IDLE;

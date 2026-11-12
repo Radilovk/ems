@@ -296,6 +296,16 @@ order — once the service mode has checked both suits, port the two maps (the `
 - The no-start card no longer names minutes or the vendor app (the owner's units are unlimited); the minutes counter
   stays in the trace only.
 
+## v1.23 — also what nobody would notice to report (owner: "automatic, no button, nothing asked of anyone")
+Reported by itself as well (the same `Report`, no button anywhere):
+- **a crash**: `MainActivity.Crash` (the default uncaught-exception handler) writes `REPORT app crash` + the stack +
+  the trace to `files/pending-report.txt` as the app dies; the next start sends it (kept until the server says OK);
+- **an error caught in the app's loop** (the tick's catch — the screen goes on, but it is a bug): once per run;
+- **a unit seen but not linking**: the 2nd failed link in a row (no answer in 15 s, GATT error, missing service), once
+  until a link works.
+Together with v1.20 (no start, a refused write, a unit that stops, no answer, a link lost mid-training) every failure
+the app can see reaches the server and the hourly check. The logo's long press (share by hand) stays, unneeded.
+
 ## Build / test
 ```
 sh scripts/build-wiems-app.sh     # → wiems/dist/xems-wiems.apk (committed); version in wiems/app/VERSION

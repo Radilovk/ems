@@ -567,11 +567,11 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `server/src/ems.js` (136L) — MAC адреси, които влизат в жетона (активни + чакащи дистанционно сдвояване).
 - `server/src/exercises.js` (89L) — The picker groups the admin may give an exercise ('' = the library's own).
 - `server/src/history.js` (77L) — A training id is its start time in ms: digits only, else null.
-- `server/src/index.js` (1339L) — Worker entry: routes /v1/license/activate|refresh, /v1/app/update, releases, admin API, rate limits
+- `server/src/index.js` (1374L) — Worker entry: routes /v1/license/activate|refresh, /v1/app/update, releases, admin API, rate limits
 - `server/src/limits.js` (31L) — Caps and rate-limit settings — stay safe on Workers free tier.
 - `server/src/measures.js` (110L) — The client's scale measurements: the tablet sends each weigh-in's compact result (no impedances, no name);
 - `server/src/plans.js` (28L) — Plan presets → mods / feat arrays (applied at license creation).
-- `server/src/profile.js` (84L) — Client profiles from the booking PWA → the studio's tablets (validation, studio code, cheap limiter).
+- `server/src/profile.js` (118L) — Client profiles from the booking PWA → the studio's tablets (validation, studio code, cheap limiter).
 - `server/src/report.js` (145L) — The client's copy of the tablet's training report (branding/report/session-report.html): the same page,
 - `server/src/sweep.js` (17L) — Nightly sweep (wrangler.toml crons): the tables that only grow.
 - `server/src/units.js` (165L) — Units without a license — the XBody unit's XEMS mod (xbody/overlay/opt/xems/bin/xems-net). The unit calls only
@@ -588,7 +588,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `server/test/history.test.js` (97L) — D1-shaped wrapper over node:sqlite with the real migration.
 - `server/test/measures.test.js` (116L) — 
 - `server/test/plans.test.js` (30L) — 
-- `server/test/profile.test.js` (57L) — 
+- `server/test/profile.test.js` (74L) — 
 - `server/test/report.test.js` (23L) — 
 - `server/test/sweep.test.js` (43L) — D1-shaped wrapper over node:sqlite with the real migrations.
 - `server/test/units.test.js` (125L) — 
@@ -1120,7 +1120,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L120 ## 1.1.445 — ring ± with muscles marked: same as the chip slide
   - L127 ## 1.1.449 — every muscle marked from a 0 start, the suit's link on the board
 
-`docs/xems-license-api.md` (197L)
+`docs/xems-license-api.md` (203L)
   - L1 # XEMS — лиценз, отключване на модули и обновяване (клиент v1.1.85)
   - L5 ## Модули
   - L24 ## Настройка на таблет (админ) и потребителски режим
@@ -1131,10 +1131,10 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L84 ### 2. Опресняване (веднъж на 24 h, във фон)
   - L97 ### 3. Проверка за нова версия
   - L114 ### 4. Клиентски картон (линк за клиента)
-  - L155 ### 5. XBody машината (мод v21) — само по заявка от треньора
-  - L169 ## Жетон (подписан от сървъра)
-  - L185 ## Какво остава за сървъра
-  - L192 ## Проверки (без Android)
+  - L161 ### 5. XBody машината (мод v21) — само по заявка от треньора
+  - L175 ## Жетон (подписан от сървъра)
+  - L191 ## Какво остава за сървъра
+  - L198 ## Проверки (без Android)
 
 `docs/xems-mastogo.md` (229L)
   - L1 # MASTOGO H-024B (DOMAS / PNrelief) — BLE protocol
@@ -1417,7 +1417,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L105 ## XEMS side (1.1.480-ai) — `wearable/voice/`
   - L118 ## Phase 3 — learned model
 
-`docs/xems-wiems-app.md` (333L)
+`docs/xems-wiems-app.md` (344L)
   - L1 # XEMS WiEMS — light tablet app for one WiEMS unit, XEMS or bodytech suit (wiems/app, v1.21)
   - L7 ## What it is
   - L31 ## Look (v1.1, owner: XBody's design level or better, never lower)
@@ -1441,8 +1441,9 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L293 ## v1.21 — no vendor anything (owner: "unlimited minutes; a full bypass of their server, nothing needs their internet")
   - L299 ## v1.23 — also what nobody would notice to report (owner: "automatic, no button, nothing asked of anyone")
   - L309 ## v1.24 — everything the unit says, and updates with no tap (owner)
-  - L323 ## Build / test
-  - L330 ## Not verified yet
+  - L323 ## v1.25 — the link loop of 1.24, and the unit's minutes quota (owner: "the counter must not stop the training")
+  - L334 ## Build / test
+  - L341 ## Not verified yet
 
 `docs/xems-wiems.md` (83L)
   - L1 # WiEMS unit in XEMS and on the XBody machine (1.1.446-ai, XBody mod v7, bridge v3)

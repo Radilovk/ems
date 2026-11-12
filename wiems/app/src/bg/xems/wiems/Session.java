@@ -315,7 +315,7 @@ final class Session {
         }
         if (kind == Dev.WIEMS && wi == WI_IDLE) {
             // the unit gets the program and starts its count-down now; the clock runs when the unit does (tick)
-            push(WiProto.program(cur.hz, cur.onS, cur.offS, cur.rampS(), cur.downS, WiProto.PHASE_ARM), T_PROG);
+            push(program(WiProto.PHASE_ARM), T_PROG);
             push(rest(cur), T_PROG);
             push(WiProto.widths(), T_PROG);
             push(WiProto.zero(), T_PROG);
@@ -324,6 +324,7 @@ final class Session {
             wiGo = false;
             wiAt = now;
             countCode = -1;
+            durTries = 0;
         }
         if (preparing()) {
             startWanted = true;
@@ -429,7 +430,7 @@ final class Session {
             log(wiGo ? "count-down over (unit \"01\")" : "count-down over (6 s, no \"01\")");
             push(WiProto.zero(), T_PLAIN);
             sent = null;
-            push(WiProto.program(cur.hz, cur.onS, cur.offS, cur.rampS(), cur.downS, WiProto.PHASE_RUN), T_PLAIN);
+            push(program(WiProto.PHASE_RUN), T_PLAIN);
             wi = WI_RUN;
             wiGo = false;
         }
@@ -456,7 +457,7 @@ final class Session {
                 dropLevels();
                 push(WiProto.zero(), T_PLAIN);         // outputs 0 while the rhythm changes (kept: not a level)
                 sent = null;
-                push(WiProto.program(cur.hz, cur.onS, cur.offS, cur.rampS(), cur.downS, WiProto.PHASE_RUN), T_PLAIN);
+                push(program(WiProto.PHASE_RUN), T_PLAIN);
                 push(rest(cur), T_PLAIN);
                 on = true;
                 phaseEndMs = now + cur.onS * 1000L;
@@ -486,7 +487,7 @@ final class Session {
             Program p = segProgram(seg, cycle, age60);
             if (p.hz != cur.hz) {
                 cur = p;
-                if (kind == Dev.WIEMS) push(WiProto.program(cur.hz, cur.onS, cur.offS, cur.rampS(), cur.downS, WiProto.PHASE_RUN), T_PLAIN);
+                if (kind == Dev.WIEMS) push(program(WiProto.PHASE_RUN), T_PLAIN);
             }
         }
     }
@@ -508,6 +509,7 @@ final class Session {
         // status characteristic). The zones and strength go back to what the unit last ran with — else the next ▶
         // sends the same and it trips again — and the screen names what changed.
         int b = v[0] & 0xFF;
+        if (wi == WI_COUNT && b == 2 && retryDur(now)) return;
         if (wi == WI_COUNT && b != 1) {
             countCode = b;                          // the unit answered the start with something else: shown if it never runs
             log("count-down: the unit notified " + Integer.toHexString(b));
@@ -557,6 +559,50 @@ final class Session {
         tripCode = 0;
         tripZone = -1;
         return z < 0 ? -2 : z;
+    }
+
+    /**
+     * The program's first byte ("Dur", the vendor always 41). v1.25: the owner's unit answers "25" with "02" and never
+     * runs once its own minutes counter (7764d000) is near its quota (73160 used of the 73200 the vendor sold:
+     * 73160 + 41 > 73200). So "02" in the count-down = start again at once with a smaller Dur: the session's
+     * minutes (≤ 40), then 1. The Dur that worked stays for the next starts.
+     */
+    static final int DUR_VENDOR = 41;
+    private int dur = DUR_VENDOR;
+    private int durTries;
+
+    private byte[] program(int phase) {
+        byte[] b = WiProto.program(cur.hz, cur.onS, cur.offS, cur.rampS(), cur.downS, phase);
+        if (dur != DUR_VENDOR && b.length == 11) {   // [selector, Dur … phase, XOR of the nine]
+            b[10] ^= (byte) ((b[1] & 0xFF) ^ dur);
+            b[1] = (byte) dur;
+        }
+        return b;
+    }
+
+    int dur() {
+        return dur;
+    }
+
+    /** "02" in the count-down: the quota — arm the unit again with a smaller Dur (true: a new try went out). */
+    private boolean retryDur(long now) {
+        int mins = (int) Math.max(1, Math.min(DUR_VENDOR - 1, (prog.totalS + 59) / 60));
+        int next = dur > mins ? mins : dur > 1 ? 1 : -1;
+        if (next < 1 || durTries >= 2) return false;
+        durTries++;
+        log("count-down: \"02\" — the unit's minutes quota; start again with Dur " + next + " (was " + dur + ")");
+        dur = next;
+        dropQueued(T_PROG);
+        push(WiProto.run(false), T_PROG);
+        push(program(WiProto.PHASE_ARM), T_PROG);
+        push(rest(cur), T_PROG);
+        push(WiProto.widths(), T_PROG);
+        push(WiProto.zero(), T_PROG);
+        push(WiProto.run(true), T_PROG);
+        wiAt = now;
+        wiGo = false;
+        countCode = -1;
+        return true;
     }
 
     /** No "01" after a start: how long the unit may count down (the capture: ~4 s). */

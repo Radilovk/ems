@@ -721,7 +721,13 @@ public final class MainActivity extends Activity implements Ble.Listener, Host, 
                 int code = session.noStartCode();
                 int bat = session.battery();
                 setNote("WiEMS не стартира", true);
-                showProblem("WiEMS не стартира",
+                if (code == 2) showProblem("WiEMS не стартира — броячът на минути",
+                        "Модулът отказва СТАРТ (код 2), дори с по-кратка сесия: вграденият му брояч"
+                                + (unitMinutes != null ? " (" + unitMinutes + " мин)" : "") + " е стигнал лимита си.",
+                        "Свържи модула веднъж с приложението Wiems на телефон / iPad с интернет — то подновява лимита.",
+                        "После затвори Wiems (или изключи Bluetooth там) и натисни ▶ тук пак.",
+                        "Изключи и включи модула, ако пак отказва.");
+                else showProblem("WiEMS не стартира",
                         "Модулът прие СТАРТ, но не тръгна — няма потвърждение до " + Session.NO_START_MS / 1000 + " s ("
                                 + (code >= 0 ? "отговори с код " + Integer.toHexString(code) : "не отговори нищо") + ")."
                                 + (bat >= 0 ? " Батерия " + bat + " %." : ""),

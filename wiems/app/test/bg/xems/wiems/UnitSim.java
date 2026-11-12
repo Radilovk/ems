@@ -37,6 +37,8 @@ public class UnitSim {
         int writes;
         boolean silent;             // stops notifying (a half-dead link)
         boolean refuses;            // takes "25" but never runs (its minutes are used up?) — owner, v1.19
+        int quotaLeft = -1;         // v1.25: minutes left of its quota; "25" with Dur > that → "02", stays idle
+        int dur = 41;
 
         void write(byte[] op, long t) {
             writes++;
@@ -74,6 +76,7 @@ public class UnitSim {
                 int phase = v[8] & 0xFF;
                 if (phase == WiProto.PHASE_ARM && state == RUN) faults.add("t=" + t + " arm while running");
                 if (phase == WiProto.PHASE_RUN && state != RUN) faults.add("t=" + t + " run-program while not running");
+                dur = v[0] & 0xFF;
                 hz = v[1] & 0xFF;
                 work = v[2] & 0xFF;
                 rest = v[3] & 0xFF;
@@ -86,7 +89,9 @@ public class UnitSim {
                 if ((v[0] & 0xFF) == WiProto.RUN_START) {
                     starts++;
                     if (state != IDLE) faults.add("t=" + t + " start while not idle");
-                    if (!refuses) {
+                    if (quotaLeft >= 0 && dur > quotaLeft) {
+                        notify.add(new byte[] {2});
+                    } else if (!refuses) {
                         state = COUNT;
                         countEnd = t + 4100;
                     }
@@ -317,6 +322,25 @@ public class UnitSim {
         r.s.start(r.t);
         r.run(8000);
         ok("5b no notifications → blind start as before", r.s.state() == Session.RUNNING && !r.s.takeNoStart(), "");
+
+        // 5c. v1.25 — the owner's unit: 73160 of 73200 minutes used, "25" with the vendor's Dur 41 → "02". The
+        // session starts again by itself with Dur = its minutes, and runs; a unit with 0 left still says "no start".
+        r = new Rig();
+        r.allZones(30);
+        r.u.quotaLeft = 40;
+        r.s.start(r.t);
+        r.run(8000);
+        ok("5c \"02\" → started again with a smaller Dur and runs", r.s.state() == Session.RUNNING && r.u.state == Unit.RUN
+                && r.u.dur <= 40 && !r.s.takeNoStart(), "state " + r.s.state() + " dur " + r.u.dur + " starts " + r.u.starts);
+        ok("5c no fault on the wire", r.u.faults.isEmpty(), String.valueOf(r.u.faults));
+        r = new Rig();
+        r.allZones(30);
+        r.u.quotaLeft = 0;
+        r.s.start(r.t);
+        r.run(12000);
+        ok("5c quota 0 → no start said, the unit 0 + stop", r.s.takeNoStart() && r.u.state == Unit.IDLE && r.u.outputsOff()
+                && r.s.noStartCode() == 2, "code " + r.s.noStartCode() + " starts " + r.u.starts);
+        ok("5c quota 0 → at most 3 starts", r.u.starts <= 3, "starts " + r.u.starts);
 
         // 6. The link drops mid-training and comes back: kept, paused, the time done kept, the unit 0 first.
         r = new Rig();

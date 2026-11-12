@@ -320,6 +320,17 @@ the app can see reaches the server and the hourly check. The logo's long press (
   policies). Without it the update still comes by itself, Android shows "Инсталирай" once. Android 12+: the session
   asks `setRequireUserAction(NOT_REQUIRED)` too. `Relaunch` (MY_PACKAGE_REPLACED) opens the app again after an update.
 
+## v1.25 — the link loop of 1.24, and the unit's minutes quota (owner: "the counter must not stop the training")
+- **1.24 never linked** (reports 9, 10: "no answer in 15 s", the battery read ~10× a second): `Ble.INFO` was 10, under
+  the new `BATT` 45, so the step after the battery read fell back into the notification steps → battery again, for ever.
+  `INFO` = 50 now.
+- **"02" to `25` = the unit's own minutes quota** (reports 7, 8: 73160 minutes used; the vendor sold 73200; the vendor's
+  Dur byte 41 → 73160 + 41 > 73200). The unit, not the vendor server, refuses. `Session.retryDur`: "02" in the
+  count-down → stop, arm again with Dur = the session's minutes (≤ 40), then 1; the Dur that ran stays. UnitSim 5c.
+- Still "02" after that → the card says it plainly: the counter is at its limit; one link with the vendor's Wiems app
+  (with internet) renews it. Truly unlimited needs that renewal decoded: capture (`.pklg`) the Wiems app renewing
+  it — the unit's write-only `7764a25c` / `77645cb2` are the candidates — and the app can do it itself.
+
 ## Build / test
 ```
 sh scripts/build-wiems-app.sh     # → wiems/dist/xems-wiems.apk (committed); version in wiems/app/VERSION

@@ -28,7 +28,7 @@ import {
   validMeasure, putMeasures, measuresJson, findBodyCard, MEASURE_MAX_BYTES, MEASURES_PUSH_MAX,
 } from './measures.js';
 import {
-  studioCode, isStudioCode, cleanProfile, allowHit,
+  studioCode, isStudioCode, cleanProfile, publicProfile, allowHit,
   PROFILE_MAX_BYTES, INBOX_KEEP_SEC, INBOX_MAX_PER_STUDIO, INBOX_BATCH, INBOX_TOKEN_MAX_AGE_SEC,
 } from './profile.js';
 import {
@@ -108,6 +108,10 @@ export default {
       }
       if (path.startsWith('/c/') && request.method === 'GET') {
         return serveCard(request, env, ctx, path.slice(3));
+      }
+      if (path === '/v1/profile/find') {
+        if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: CORS_HEADERS });
+        if (request.method === 'POST') return handleProfileFind(request, env);
       }
       if (path === '/v1/profile') {
         if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: CORS_HEADERS });
@@ -669,6 +673,37 @@ async function handleProfile(request, env) {
     env.DB.prepare('DELETE FROM client_inbox WHERE license_id = ? AND updated_at < ?').bind(lic.id, ts - INBOX_KEEP_SEC),
   ]);
   return cors(json({ ok: true }));
+}
+
+/**
+ * POST {studio, ek, pk} from the client's app → {ok, profile} with the training data of their own profile, so a client who
+ * filled it in elsewhere (the PWA, the web page) does not type it again. Only the fields of publicProfile (no contact,
+ * no health answers). The newest profile the client sent (client_inbox, 14 days), else the studio's dossier (clients).
+ * Read only: two indexed D1 reads.
+ */
+async function handleProfileFind(request, env) {
+  const ts = now();
+  const ip = request.headers.get('CF-Connecting-IP') || 'unknown';
+  if (!allowHit(`profilefind:ip:${ip}`, LIMITS.cardFindPerMinutePerIp, 60, ts)) {
+    return cors(json({ ok: false, error: 'rate_limit' }, 429));
+  }
+  const body = await readJsonBody(request);
+  const ek = lookupHash(body?.ek);
+  const pk = lookupHash(body?.pk);
+  if (!ek && !pk) return cors(err('bad_request', 'ek / pk'));
+  if (!isStudioCode(body?.studio)) return cors(err('bad_request', 'studio'));
+  const lic = await env.DB.prepare('SELECT id FROM licenses WHERE studio_code = ?').bind(body.studio).first();
+  if (!lic) return cors(json({ ok: false, error: 'not_found' }, 404));
+  const inbox = await env.DB.prepare(
+    'SELECT data FROM client_inbox WHERE license_id = ? AND pkey IN (?, ?) ORDER BY updated_at DESC LIMIT 1',
+  ).bind(lic.id, ek || '-', pk || '-').first();
+  const dossier = await env.DB.prepare(
+    'SELECT data FROM clients WHERE license_id = ? AND deleted = 0 AND (ek = ? OR pk = ?) ORDER BY t DESC LIMIT 1',
+  ).bind(lic.id, ek || '-', pk || '-').first();
+  const parse = (r) => { try { return r && r.data ? JSON.parse(r.data) : null; } catch { return null; } };
+  const profile = publicProfile(parse(inbox), parse(dossier));
+  if (!Object.keys(profile).length) return cors(json({ ok: false, error: 'not_found' }, 404));
+  return cors(json({ ok: true, profile }));
 }
 
 /**

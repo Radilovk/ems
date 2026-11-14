@@ -94,25 +94,6 @@ func _initialize() -> void:
 	L = pads.limbs(head, FWD, STAND_H, FLOOR)
 	var sl: Vector3 = (L.pos.knee_l - (L.pos.foot_l - L.dir.l * 0.06)).normalized()
 	_check("side tilt", absf(rad_to_deg(sl.angle_to(Vector3.UP)) - 15.0) < 2.0 and sl.x > 0.1, "shin_l %s" % sl)
-	# measured with a controller: a shin 10 % longer than the model's, feet turned out 10°, standing a bit wide
-	_step(STAND_H, I, I, 1.2)
-	var H := STAND_H / 0.936
-	var ls_true := 0.246 * H * 1.1
-	var ah := 0.039 * H
-	var ank := {"l": Vector3(-0.13, ah, 0.03), "r": Vector3(0.13, ah, 0.03)}
-	var toe_dir := {"l": FWD.rotated(Vector3.UP, deg_to_rad(10.0)), "r": FWD.rotated(Vector3.UP, deg_to_rad(-10.0))}
-	pads.start_measure()
-	for sd in ["l", "r"]:
-		pads.touch((ank[sd] as Vector3) + Vector3.UP * ls_true, head, FLOOR, STAND_H)
-		pads.touch((ank[sd] as Vector3) + (toe_dir[sd] as Vector3) * 0.16, head, FLOOR, STAND_H)
-	_check("measured", pads.measure == 4 and absf(float(pads.cal.ls) - ls_true) < 0.01,
-		"measure %d shin %.3f (true %.3f)" % [pads.measure, float(pads.cal.get("ls", 0.0)), ls_true])
-	_step(STAND_H, I, I, 1.2)
-	L = pads.limbs(head, FWD, STAND_H, FLOOR)
-	for sd in ["l", "r"]:
-		var an: Vector3 = (L.pos["foot_" + sd] as Vector3) - (L.dir[sd] as Vector3) * 0.06
-		var off := Vector2(an.x - (ank[sd] as Vector3).x, an.z - (ank[sd] as Vector3).z).length()
-		var turn := rad_to_deg((L.dir[sd] as Vector3).angle_to(toe_dir[sd]))
-		_check("measured stance %s" % sd, off < 0.02 and turn < 3.0, "ankle %.1f cm off, foot points %.1f° off" % [off * 100.0, turn])
+	# the measurement with a controller (8 touches + the control pose): cal_test.gd
 	print("pad_test: %s" % ("PASS" if fails == 0 else "FAIL (%d)" % fails))
 	quit(1 if fails else 0)

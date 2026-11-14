@@ -69,7 +69,28 @@ final class Ble {
      * current check (b1f5a058) and its clock (7764f042), then the battery read; READY after that.
      */
     private int setup = -1;
-    static final int READY = 5;
+    static final int READY = 100, BATT = 45;
+    /** The characteristics whose notifications the set-up switches on, in that order (run first). */
+    private final List<BluetoothGattCharacteristic> notifyList = new ArrayList<BluetoothGattCharacteristic>();
+    /** A snapshot: every readable characteristic read once, one at a time, its value to the trace (v1.24). */
+    private List<BluetoothGattCharacteristic> snap;
+    private int snapIdx;
+    private String snapWhy = "";
+    /** Set-up steps 10…: the reads that tell what the unit is and how it is (v1.19, for the trace / the screen). */
+    // v1.25: above BATT — at 10 (< BATT 45, v1.24) the step after the battery read went back into the notification
+    // steps and read the battery again for ever: the link never finished ("no answer in 15 s")
+    private static final int INFO = 50;
+    static final String[] INFO_NAME = {"minutes", "model", "serial", "firmware", "id", "config"};
+    private static final String[] INFO_UUID = {"7764d000-c6a9-11e4-8731-1681e6b88ec1",
+            "00002a24-0000-1000-8000-00805f9b34fb", "00002a25-0000-1000-8000-00805f9b34fb",
+            "00002a26-0000-1000-8000-00805f9b34fb", "7764f19a-c6a9-11e4-8731-1681e6b88ec1",
+            "776416cb-c717-11e4-8731-1681e6b88ec1"};
+    private final BluetoothGattCharacteristic[] info = new BluetoothGattCharacteristic[INFO_NAME.length];
+    /** The run control's notifications were switched on (its CCCD written OK): the unit's "01" will come. */
+    private boolean runNotifyOk;
+    /** The GATT status of the last write's answer (0 = OK) and of the last failed set-up step. */
+    private int lastWriteStatus;
+    private String setupFail = "";
     static final String CHR_STATUS = "b1f5a058-c717-11e4-8731-1681e6b88ec1";
     private BluetoothGattCharacteristic status, clock;
 
@@ -94,6 +115,19 @@ final class Ble {
 
     boolean connecting() {
         return gatt != null && setup != READY;
+    }
+
+    boolean runNotifyOk() {
+        return runNotifyOk;
+    }
+
+    int lastWriteStatus() {
+        return lastWriteStatus;
+    }
+
+    /** What failed in the last set-up ("" = nothing), for the trace. */
+    String setupFail() {
+        return setupFail;
     }
 
     String mac() {
@@ -212,6 +246,7 @@ final class Ble {
         } catch (Throwable t) {
             Log.e(TAG, "safe: " + t);
         }
+        snap = null;
         BluetoothGatt g = gatt;
         boolean safe = ready() && safeOp != null;
         gatt = null;
@@ -250,6 +285,22 @@ final class Ble {
         }
     }
 
+    /** v1.27 (the quota probe): write a value to any characteristic by UUID; the ack comes as {@link Listener#written}. */
+    boolean rawWrite(String uuid, byte[] val) {
+        if (!ready() || kind != Dev.WIEMS) return false;
+        try {
+            BluetoothGattCharacteristic c = findChr(gatt, uuid);
+            if (c == null) return false;
+            c.setValue(val);
+            c.setWriteType((c.getProperties() & BluetoothGattCharacteristic.PROPERTY_WRITE) != 0
+                    ? BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT : BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE);
+            return gatt.writeCharacteristic(c);
+        } catch (Throwable t) {
+            Log.e(TAG, "rawWrite: " + t);
+            return false;
+        }
+    }
+
     private boolean writeNow(byte[] op) {
         if (kind != Dev.WIEMS) {                    // a suit: the frame as it is, with response where it has it
             if (suitW == null) return false;
@@ -267,6 +318,7 @@ final class Ble {
     }
 
     private void close(String why) {
+        snap = null;
         BluetoothGatt g = gatt;
         gatt = null;
         setup = -1;
@@ -290,14 +342,29 @@ final class Ble {
                 l.linked();
                 return;
             }
-            if (setup >= 0 && setup <= 3) {
-                BluetoothGattCharacteristic[] n = {ops[WiProto.OP_RUN], batt, status, clock};
-                if (!notifyOn(n[setup])) {
+            if (setup >= 0 && setup < BATT) {
+                // v1.24: every characteristic the unit can notify — run first (as the vendor), then battery, status,
+                // clock and all the others of its service: whatever the unit says lands in the trace
+                if (setup >= notifyList.size()) {
+                    setup = BATT;
+                    step();
+                } else if (!notifyOn(notifyList.get(setup))) {
                     setup++;
                     step();
                 }
-            } else if (setup == 4) {
+            } else if (setup == BATT) {
                 if (batt == null || !gatt.readCharacteristic(batt)) {
+                    setup = INFO;
+                    step();
+                }
+            } else if (setup >= INFO && setup < READY) {
+                int i = setup - INFO;
+                while (i < info.length && (info[i] == null || !gatt.readCharacteristic(info[i]))) {
+                    if (info[i] == null) l.notified("read " + INFO_NAME[i] + ": not on this unit", null);
+                    i++;
+                }
+                setup = INFO + i;
+                if (i >= info.length) {
                     setup = READY;
                     l.linked();
                 }
@@ -308,12 +375,70 @@ final class Ble {
         }
     }
 
+    static String props(int p) {
+        StringBuilder b = new StringBuilder();
+        if ((p & BluetoothGattCharacteristic.PROPERTY_READ) != 0) b.append('R');
+        if ((p & BluetoothGattCharacteristic.PROPERTY_WRITE) != 0) b.append('W');
+        if ((p & BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE) != 0) b.append('w');
+        if ((p & BluetoothGattCharacteristic.PROPERTY_NOTIFY) != 0) b.append('N');
+        if ((p & BluetoothGattCharacteristic.PROPERTY_INDICATE) != 0) b.append('I');
+        return b.toString();
+    }
+
+    /**
+     * Read every readable characteristic once (its value → the trace): at the link and when a start fails, so the
+     * report shows the unit's whole state. The caller writes nothing meanwhile ({@link #snapBusy}).
+     */
+    void snapshot(String why) {
+        if (!ready() || snap != null || kind != Dev.WIEMS) return;
+        snap = new ArrayList<BluetoothGattCharacteristic>();
+        for (BluetoothGattService sv : gatt.getServices())
+            for (BluetoothGattCharacteristic c : sv.getCharacteristics())
+                if ((c.getProperties() & BluetoothGattCharacteristic.PROPERTY_READ) != 0) snap.add(c);
+        snapIdx = 0;
+        snapWhy = why;
+        l.notified("snapshot (" + why + "): " + snap.size() + " reads", null);
+        snapNext();
+    }
+
+    /** v1.26: the minutes counter alone (after a stop / a re-arm), the same way as a snapshot (writes wait). */
+    void readMinutes() {
+        if (!ready() || snap != null || kind != Dev.WIEMS || info[0] == null) return;
+        snap = new ArrayList<BluetoothGattCharacteristic>();
+        snap.add(info[0]);
+        snapIdx = 0;
+        snapWhy = MINUTES;
+        snapNext();
+    }
+
+    static final String MINUTES = "minutes";
+
+    boolean snapBusy() {
+        return snap != null;
+    }
+
+    private void snapNext() {
+        try {
+            while (snap != null && snapIdx < snap.size() && !gatt.readCharacteristic(snap.get(snapIdx))) snapIdx++;
+        } catch (Throwable t) {
+            snapIdx = snap != null ? snap.size() : 0;
+        }
+        if (snap != null && snapIdx >= snap.size()) {
+            snap = null;
+            if (!MINUTES.equals(snapWhy)) l.notified("snapshot done (" + snapWhy + ")", null);
+        }
+    }
+
     private boolean notifyOn(BluetoothGattCharacteristic c) {
         if (c == null) return false;
         gatt.setCharacteristicNotification(c, true);
         BluetoothGattDescriptor d = c.getDescriptor(CCCD);
-        if (d == null) return false;
-        d.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
+        boolean indicate = (c.getProperties() & BluetoothGattCharacteristic.PROPERTY_NOTIFY) == 0;
+        if (d == null) {
+            l.notified("notify " + c.getUuid() + ": no CCCD", null);
+            return false;
+        }
+        d.setValue(indicate ? BluetoothGattDescriptor.ENABLE_INDICATION_VALUE : BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
         return gatt.writeDescriptor(d);
     }
 
@@ -347,6 +472,24 @@ final class Ble {
         batt = b != null ? b.getCharacteristic(UUID.fromString(WiProto.BATTERY_CHR)) : null;
         status = findChr(g, CHR_STATUS);
         clock = findChr(g, WiProto.CHR_CLOCK);
+        for (int i = 0; i < info.length; i++) info[i] = findChr(g, INFO_UUID[i]);
+        notifyList.clear();
+        BluetoothGattCharacteristic[] first = {ops[WiProto.OP_RUN], batt, status, clock};
+        for (BluetoothGattCharacteristic c : first) if (c != null) notifyList.add(c);
+        StringBuilder map = new StringBuilder("GATT map:");
+        for (BluetoothGattService sv : g.getServices()) {
+            map.append("\n  service ").append(sv.getUuid());
+            for (BluetoothGattCharacteristic c : sv.getCharacteristics()) {
+                int pr = c.getProperties();
+                map.append("\n    ").append(c.getUuid()).append(' ').append(props(pr));
+                boolean gattSvc = sv.getUuid().toString().startsWith("00001801");     // service-changed: not ours
+                if ((pr & (BluetoothGattCharacteristic.PROPERTY_NOTIFY | BluetoothGattCharacteristic.PROPERTY_INDICATE)) != 0
+                        && !gattSvc && !notifyList.contains(c) && notifyList.size() < BATT) notifyList.add(c);
+            }
+        }
+        l.notified(map.toString(), null);
+        runNotifyOk = false;
+        setupFail = "";
         setup = 0;
         step();
     }
@@ -421,17 +564,36 @@ final class Ble {
                 else close("Не се свърза — опитай пак");
                 break;
             case EV_DESC:
+                if (kind == Dev.WIEMS && setup == 0) runNotifyOk = e.status == BluetoothGatt.GATT_SUCCESS;
+                if (e.status != BluetoothGatt.GATT_SUCCESS) {
+                    setupFail = "notifications of step " + setup + " refused (GATT " + e.status + ")";
+                    l.notified(setupFail, null);
+                }
                 setup++;
                 step();
                 break;
             case EV_READ:
                 if (e.c == batt && e.v != null && e.v.length == 1) l.battery(e.v[0] & 0xFF);
-                if (setup == 4) {
-                    setup = READY;
-                    l.linked();
+                if (setup == READY && snap != null) {
+                    l.notified("snap " + e.c.getUuid() + (e.status != BluetoothGatt.GATT_SUCCESS ? " failed (GATT " + e.status + ")" : ""),
+                            e.status == BluetoothGatt.GATT_SUCCESS ? e.v : null);
+                    snapIdx++;
+                    snapNext();
+                    break;
+                }
+                if (setup == BATT) {
+                    setup = INFO;
+                    step();
+                } else if (setup >= INFO && setup < READY) {
+                    int i = setup - INFO;
+                    l.notified("read " + INFO_NAME[i] + (e.status != BluetoothGatt.GATT_SUCCESS ? " failed (GATT " + e.status + ")" : ""),
+                            e.status == BluetoothGatt.GATT_SUCCESS ? e.v : null);
+                    setup++;
+                    step();
                 }
                 break;
             case EV_WRITE:
+                lastWriteStatus = e.status;
                 l.written(e.status == BluetoothGatt.GATT_SUCCESS);
                 break;
             case EV_CHANGED:

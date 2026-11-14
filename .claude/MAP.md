@@ -10,7 +10,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/add-builtin-exercise.py` (64L) — Make library exercises built-in: their figures ship in the APK (branding/exercises/exercises.json), so the ready progra…
 - `scripts/ai-sim/AiExSim.java` (332L) — Offline test of the Smart Session's exercises (AiExercises over AiEngine): whole sessions, synthetic pulse.
 - `scripts/ai-sim/AiSim.java` (459L) — Offline scenarios for the Smart Session engine.
-- `scripts/ai-sim/AutoSim.java` (2074L) — Offline checks of the automatic mode (docs/xems-auto-mode-spec.md): every program × goal × client profile is planned an…
+- `scripts/ai-sim/AutoSim.java` (2099L) — Offline checks of the automatic mode (docs/xems-auto-mode-spec.md): every program × goal × client profile is planned an…
 - `scripts/ai-sim/MapSim.java` (360L) — MapClock (the "By the map" runner's clock) over every ready map and a drawn one: exact cycles per block, rest seconds, …
 - `scripts/ai-sim/PathNormSim.java` (68L) — PathNorm (Java, on the tablet) must give exactly what scripts/exercise-paths.py gives: dir/*.svg vs dir/*.norm.
 - `scripts/ai-sim/TemplateSim.java` (250L) — Offline test of the exercise templates (AutoTemplates) over every active program × profile × history.
@@ -73,7 +73,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/apply-pulse-cycle-hook.py` (97L, build:L123[BETA_MUSIC]) — The pulse-cycle hook of TrainItem$2.onFinish (an ON phase begins) → AiSession.onPulseCycle, which drives the AI session…
 - `scripts/apply-quick-start.py` (111L, build:L137[BETA_MUSIC]) — Client list: ▶ quick start in every row, ↻ refresh next to the search (wearable/QuickStart).
 - `scripts/apply-ramp-setting.py` (77L, build:L135[BETA_MUSIC]) — Soft rise / fall (ramp) back in the program parameters dialog, in seconds (0.0–2.0 s).
-- `scripts/apply-session-report.py` (49L, build:L145[BETA_MUSIC]) — Ship the client report page: branding/report/session-report.html → assets/report/session-report.html, and the shareable…
+- `scripts/apply-session-report.py` (51L, build:L145[BETA_MUSIC]) — Ship the client report page: branding/report/session-report.html → assets/report/session-report.html, and the shareable…
 - `scripts/apply-settings-ui.py` (230L, build:L95) — Settings screen: language + dark/light theme only.
 - `scripts/apply-settings-username-theme.py` (64L, build:L92) — Dark-theme username label above avatar in operational settings dialog.
 - `scripts/apply-slider-theme.py` (374L, build:L61) — Improve vertical slider track depth and thumb contrast via smali patches.
@@ -107,14 +107,14 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/bluetens/run.sh` (17L) — Offline test of the Bluetens module: the real BluetensShell / BluetensLok / BluetensPrograms / BluetensProgram
 - `scripts/body_deltoid.py` (58L) — The deltoid (shoulder cap) on the body figures' zone maps — one cut for every figure: the report and the client card (s…
 - `scripts/build-motion-app.sh` (84L) — "XEMS Движение" — the XEMS Motion app for Android phones / tablets (motion/app, docs/xems-motion.md "The app"): the
-- `scripts/build-wiems-app.sh` (65L) — "XEMS WiEMS" — the light tablet app for one WiEMS unit (wiems/app, docs/xems-wiems-app.md): XBody's training
+- `scripts/build-wiems-app.sh` (67L) — "XEMS WiEMS" — the light tablet app for one WiEMS unit (wiems/app, docs/xems-wiems-app.md): XBody's training
 - `scripts/compile-avatar-cluster-java.sh` (49L, build:L81[SKIP_JAVA_RECOMPILE]) — Compile AvatarClusterLayout.java to smali (prebuilt fallback when SDK missing).
 - `scripts/compile-bodytech-java.sh` (47L, build:L84[SKIP_JAVA_RECOMPILE]) — Compile the bodytech suit driver (com.isaigu.gymapp.bodytech: BtProto, BtSettings, BtTranslator, BtBridge)
 - `scripts/compile-channel-scale-java.sh` (57L, build:L82[SKIP_JAVA_RECOMPILE]) — Compile ChannelStrengthScale.java to smali (prebuilt fallback when SDK missing).
 - `scripts/compile-interval-timer-java.sh` (103L, build:L113[BETA_MUSIC,SKIP_JAVA_RECOMPILE]) — Compile interval timer + block program classes from Java to smali.
 - `scripts/compile-music-sync-java.sh` (220L, build:L103[BETA_MUSIC,SKIP_JAVA_RECOMPILE]) — Compile BETA music-sync classes from Java to smali (avoids hand-written branch bugs).
 - `scripts/compile-softramp-java.sh` (44L, build:L83[SKIP_JAVA_RECOMPILE]) — Compile train/model/SoftRamp.java (the tablet-side ramp + the safety guard hook) to branding/smali/softramp/
-- `scripts/compile-wearable-java.sh` (279L, build:L118[BETA_MUSIC,SKIP_JAVA_RECOMPILE]) — Compile the wearable bridge + band UI, the Smart Session and the automatic mode (ai package) from Java to smali.
+- `scripts/compile-wearable-java.sh` (281L, build:L118[BETA_MUSIC,SKIP_JAVA_RECOMPILE]) — Compile the wearable bridge + band UI, the Smart Session and the automatic mode (ai package) from Java to smali.
 - `scripts/compile-xems-license-java.sh` (61L, build:L80[SKIP_JAVA_RECOMPILE]) — Compile XemsLicense*.java to branding/smali/widget/
 - `scripts/compile-xems-local-java.sh` (84L, build:L127[BETA_MUSIC,SKIP_JAVA_RECOMPILE]) — Compile XemsLocal*.java to branding/smali/widget/
 - `scripts/design-apply.sh` (96L) — Sync studio → validate → apply train design → optional APK build
@@ -169,6 +169,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/scale-sim/run.sh` (14L) — Offline test of the body-composition scale (wearable/scale: protocol A + B, WLA25 body composition) on the JVM,
 - `scripts/serve-branding.sh` (15L) — Local web server for branding YAML maps and DEVELOPMENT.md reference.
 - `scripts/setup-android-toolchain.sh` (57L) — Java → smali toolchain without the Google Android SDK (cloud sessions: dl.google.com is blocked).
+- `scripts/sync-xems-advice.py` (67L) — The advice after a training has ONE source: aidiet `xems-advice.js` (the XB-Studio app's live page, the XBody PWA). The…
 - `scripts/test-apk-safety.sh` (118L) — Automated safety test: BETA build must not change login-critical code vs baseline.
 - `scripts/toolchain/BakMain.java` (21L) — baksmali "d <dex> -o <dir>" on top of the baksmali library bundled in apktool.jar.
 - `scripts/ui-map.py` (126L, build:L67[DESIGN_PIPELINE]) — UI map utilities — validate layouts, explain structure, guide safe edits.
@@ -196,8 +197,8 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/vr-legs/legs_eval.py` (359L) — The game's PadLegs (vr-workout/scripts/game/pad_legs.gd) in Python, run on REAL human movement (CMU, via cmu_legs.py): …
 - `scripts/vr-legs/legs_prior.py` (397L) — The learned leg prior for the VR game (owner 2026-11-08: "improve it — real improvements, no needless complications"). …
 - `scripts/vr-legs/legs_proto.py` (296L) — VR legs from two shin sensors (vr-workout/scripts/game/pad_legs.gd): the old model (hips under the head, thigh guessed)…
-- `scripts/vr-legs/pad_replay.py` (57L) — The VR game's leg recording (vr-workout/scripts/game/legs_log.gd) by its code: fetch, unpack, and look at what the game…
-- `scripts/vr-legs/run.sh` (25L) — The VR legs link, both ends for real where they can run (docs/xems-motion.md "VR legs"):
+- `scripts/vr-legs/pad_replay.py` (59L) — The VR game's leg recording (vr-workout/scripts/game/legs_log.gd) by its code: fetch, unpack, and look at what the game…
+- `scripts/vr-legs/run.sh` (27L) — The VR legs link, both ends for real where they can run (docs/xems-motion.md "VR legs"):
 - `scripts/xbody/android/src/bg/xems/fleshka/BlockDev.java` (14L) — A disk as bytes: the SD card behind a USB reader (UsbDisk), an image file (FileDev), or either under an undo log.
 - `scripts/xbody/android/src/bg/xems/fleshka/CardUpdate.java` (163L) — The XBody unit's own SD card, updated from the phone: find its root partition (the ext one with /opt/xbody), put the mo…
 - `scripts/xbody/android/src/bg/xems/fleshka/Ext3.java` (812L) — Just enough ext2/3/4 to put the XEMS mod onto the XBody unit's own SD card from a phone — what build.py --img does with…
@@ -249,8 +250,8 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `AiViews.java` (318L, compile:music-sync*,wearable) — Canvas-drawn widgets for the Smart Session UI (no resources needed).
 - `AutoBeep.java` (149L, compile:music-sync*,wearable) — The start signal of an automatic session (owner, 1.1.270): every start waits 3 s — three short beeps, one per second, a…
 - `AutoBoard.java` (223L, compile:music-sync*,wearable) — The Auto live board built into the training screen (owner, 1.1.278): while an automatic session runs, the training list…
-- `AutoCatalog.java` (1041L, compile:music-sync*,wearable) — The ready programs of the automatic mode (spec §5, §6): menu per goal × kind, what each program is, its zones, its phas…
-- `AutoCues.java` (292L, compile:music-sync*,wearable) — What the hint card on the training screen says during an automatic session (pure Java): the cue for the pulse / the pau…
+- `AutoCatalog.java` (1107L, compile:music-sync*,wearable) — The ready programs of the automatic mode (spec §5, §6): menu per goal × kind, what each program is, its zones, its phas…
+- `AutoCues.java` (323L, compile:music-sync*,wearable) — What the hint card on the training screen says during an automatic session (pure Java): the cue for the pulse / the pau…
 - `AutoDynamics.java` (432L, compile:music-sync*,wearable) — The impulse of the automatic mode changes while it runs (owner, 1.1.322 — docs/xems-auto-mode-spec.md §13, docs/xems-em…
 - `AutoEngine.java` (2417L, compile:music-sync*,wearable) — Automatic mode runtime (spec §4, §7, §8): walks the plan cycle by cycle and gives each cycle's parameters, planned stre…
 - `AutoHints.java` (349L, compile:music-sync*,wearable) — Hint card on the training screen during an automatic session: a small floating card at the top (not modal — the screen …
@@ -260,9 +261,9 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `AutoModel.java` (316L, compile:music-sync*,wearable) — Automatic mode data model (docs/xems-auto-mode-spec.md): the wizard's answers, one device cycle (step), a phase with it…
 - `AutoPlanner.java` (295L, compile:music-sync*,wearable) — Program + client → plan with its hard limits (spec §3 modifiers, §3.3 strength envelope, §3.4 dose, §5 zones).
 - `AutoSession.java` (2187L, compile:music-sync*,wearable) — Android side of the automatic mode: owns the {@link AutoEngine}, writes each cycle to every participant row with that r…
-- `AutoTemplateData.java` (114L, compile:music-sync*,wearable) — GENERATED by scripts/gen-exercises.py from branding/exercises/*.json — do not edit.
-- `AutoTemplates.java` (528L, compile:music-sync*,wearable) — The exercises of an automatic session (pure Java; data in {@link AutoTemplateData}, from branding/exercises/).
-- `AutoUi.java` (2165L, compile:music-sync*,wearable) — Automatic mode UI (docs/xems-auto-mode-spec.md §2): the "Авто" tile opens a sheet with three short steps — program · cl…
+- `AutoTemplateData.java` (115L, compile:music-sync*,wearable) — GENERATED by scripts/gen-exercises.py from branding/exercises/*.json — do not edit.
+- `AutoTemplates.java` (529L, compile:music-sync*,wearable) — The exercises of an automatic session (pure Java; data in {@link AutoTemplateData}, from branding/exercises/).
+- `AutoUi.java` (2200L, compile:music-sync*,wearable) — Automatic mode UI (docs/xems-auto-mode-spec.md §2): the "Авто" tile opens a sheet with three short steps — program · cl…
 - `AutoViews.java` (1206L, compile:music-sync*,wearable) — The drawn parts of the Auto live board (docs/xems-auto-mode-spec.md §12): the set ring around the exercise, the body he…
 - `ExerciseFigure.java` (308L, compile:music-sync*,wearable) — An exercise figure that moves with the impulse: the frames of the exercise (assets/xems/exercises.json, from branding/e…
 - `ExerciseLibrary.java` (388L, compile:music-sync*,wearable) — The exercise library on the tablet: all 302 exercises (assets/xems/library.json — names, steps, muscles, position, cost…
@@ -276,6 +277,8 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `OutputOwner.java` (85L, compile:music-sync*,wearable) — Who drives the impulse of the rows right now (1.1.331): one answer for every mode, so two writers never fight over the …
 - `PathNorm.java` (355L, compile:music-sync*,wearable) — SVG path data → absolute M / L / C / Z only (what {@link ExerciseFigure} draws).
 - `ProgramArt.java` (196L, compile:music-sync*,wearable) — The picture of a program by its kind and the client's sex: neon line art, so it always sits on a dark tile — in the lig…
+- `ProgramGuide.java` (227L, compile:music-sync*,wearable) — What the ⓘ of a ready program says (owner, 1.1.516 — docs/xems-program-info.md): how this training or procedure works f…
+- `ProgramInfo.java` (238L, compile:music-sync*,wearable) — The ⓘ of a ready program card in Auto (owner, 1.1.516 — docs/xems-program-info.md): what this training or procedure is …
 - `PulseAdvice.java` (552L, compile:music-sync*,wearable) — Recommended impulses for the manual mode's four modes (Основен · Мускули · Кардио · Масаж) from the client's profile an…
 - `SafeLimits.java` (194L, compile:music-sync*,wearable) — Absolute limits of the impulse — every mode, every path to the suit (owner, 1.1.323; docs/xems-safety-limits.md).
 - `Workout.java` (594L, compile:music-sync*,wearable) — A workout is an impulse map: a line of blocks.
@@ -369,8 +372,8 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `SearchPad.java` (583L, compile:music-sync*,wearable) — Our own search keyboard for the client searches (Потребители, the client / program / device picker), made for a tablet …
 - `SecondParts.java` (182L, compile:music-sync*,wearable) — The second impulse's own strength per channel, kept per client.
 - `SessionInts.java` (41L, compile:music-sync*,wearable) — Growable int array for the per-second session columns.
-- `SessionRec.java` (424L, compile:music-sync*,wearable) — One training of one client, one sample per second: what the suit got (main strength, the ten channel shares, Hz, µs, im…
-- `SessionRecorder.java` (472L, compile:music-sync*,wearable) — Records every training on the tablet, one sample per second per slot, for the client report.
+- `SessionRec.java` (427L, compile:music-sync*,wearable) — One training of one client, one sample per second: what the suit got (main strength, the ten channel shares, Hz, µs, im…
+- `SessionRecorder.java` (483L, compile:music-sync*,wearable) — Records every training on the tablet, one sample per second per slot, for the client report.
 - `SessionStore.java` (151L, compile:music-sync*,wearable) — Recorded trainings on the tablet: files/xems_sessions/index.json (one summary per training, all clients) and s_&lt;id&g…
 - `SessionUploader.java` (162L, compile:music-sync*,wearable) — Sends what the client's training analysis needs (the summary + the per-second record from files/xems_sessions, gzip-com…
 - `SignalProbe.java` (198L, compile:music-sync*,wearable) — Three quick taps on a row's Bluetooth signal icon show how close the suit is — 0..100 %, no metres or dBm (owner, 1.1.4…
@@ -408,9 +411,9 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `FaceAuto.java` (311L, compile:music-sync*,wearable) — The XEMS suit as a face device: the automatic mode runs the face programs ({@code AutoCatalog.FACE*}: the arms channel …
 - `FaceCourse.java` (103L, compile:music-sync*,wearable) — A client's course of one face procedure — pure Java (the studio keeps the dates in prefs "xems_face", one line per clie…
 - `FaceDevice.java` (108L, compile:music-sync*,wearable) — What the face studio needs from a device (docs/xems-face.md): the XEMS suit through the automatic mode ({@link FaceAuto…
-- `FaceProgram.java` (374L, compile:music-sync*,wearable) — The face procedures as the studio sells them (docs/xems-face.md) — pure Java.
+- `FaceProgram.java` (360L, compile:music-sync*,wearable) — The face procedures as the studio sells them (docs/xems-face.md) — pure Java.
 - `FaceRing.java` (150L, compile:music-sync*,wearable) — The run's dial: the three phases as arcs (wake-up · work · let-go) with the time done filled, the time left big in the …
-- `FaceStudio.java` (1467L, compile:music-sync*,wearable) — The face studio (owner, 2026-11-06 — docs/xems-face.md): one full-screen page for the face procedures, the same for the…
+- `FaceStudio.java` (1444L, compile:music-sync*,wearable) — The face studio (owner, 2026-11-06 — docs/xems-face.md): one full-screen page for the face procedures, the same for the…
 - `FaceTimeline.java` (185L, compile:music-sync*,wearable) — Where a face procedure is at a moment — pure Java.
 - `FaceView.java` (279L, compile:music-sync*,wearable) — The face studio's picture: the owner's face image (assets/xems/face/face.webp) with the anatomy layer of {@link FaceArt…
 
@@ -564,16 +567,17 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `server/src/ems.js` (136L) — MAC адреси, които влизат в жетона (активни + чакащи дистанционно сдвояване).
 - `server/src/exercises.js` (89L) — The picker groups the admin may give an exercise ('' = the library's own).
 - `server/src/history.js` (77L) — A training id is its start time in ms: digits only, else null.
-- `server/src/index.js` (1332L) — Worker entry: routes /v1/license/activate|refresh, /v1/app/update, releases, admin API, rate limits
+- `server/src/index.js` (1394L) — Worker entry: routes /v1/license/activate|refresh, /v1/app/update, releases, admin API, rate limits
 - `server/src/limits.js` (31L) — Caps and rate-limit settings — stay safe on Workers free tier.
 - `server/src/measures.js` (110L) — The client's scale measurements: the tablet sends each weigh-in's compact result (no impedances, no name);
 - `server/src/plans.js` (28L) — Plan presets → mods / feat arrays (applied at license creation).
-- `server/src/profile.js` (84L) — Client profiles from the booking PWA → the studio's tablets (validation, studio code, cheap limiter).
+- `server/src/profile.js` (118L) — Client profiles from the booking PWA → the studio's tablets (validation, studio code, cheap limiter).
 - `server/src/report.js` (145L) — The client's copy of the tablet's training report (branding/report/session-report.html): the same page,
 - `server/src/sweep.js` (17L) — Nightly sweep (wrangler.toml crons): the tables that only grow.
-- `server/src/units.js` (138L) — Units without a license — the XBody unit's XEMS mod (xbody/overlay/opt/xems/bin/xems-net). The unit calls only
+- `server/src/units.js` (165L) — Units without a license — the XBody unit's XEMS mod (xbody/overlay/opt/xems/bin/xems-net). The unit calls only
 - `server/src/utils.js` (130L) — Shared helpers for license server (testable, no Worker bindings).
 - `server/src/vrlog.js` (69L) — The VR game's leg recordings (owner 2026-11-10: "the legs in the game are bad — record, find the cause"): the game
+- `server/src/wiemsapp.js` (35L) — "1.21 22" → {name, code}; null when it is not that.
 - `server/test/card.test.js` (104L) — 
 - `server/test/catalog.test.js` (29L) — 
 - `server/test/clients.test.js` (68L) — 
@@ -584,12 +588,13 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `server/test/history.test.js` (97L) — D1-shaped wrapper over node:sqlite with the real migration.
 - `server/test/measures.test.js` (116L) — 
 - `server/test/plans.test.js` (30L) — 
-- `server/test/profile.test.js` (57L) — 
+- `server/test/profile.test.js` (74L) — 
 - `server/test/report.test.js` (23L) — 
 - `server/test/sweep.test.js` (43L) — D1-shaped wrapper over node:sqlite with the real migrations.
-- `server/test/units.test.js` (109L) — 
+- `server/test/units.test.js` (125L) — 
 - `server/test/utils.test.js` (115L) — 
 - `server/test/vrlog.test.js` (71L) — 
+- `server/test/wiemsapp.test.js` (27L) — 
 - `server/migrations/0001_init.sql` (63L) — 
 - `server/migrations/0002_ems_devices.sql` (7L) — 
 - `server/migrations/0003_ems_devices_catalog.sql` (16L) — 
@@ -927,7 +932,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L201 ## Действия по време на сесията (v1.1.68)
   - L222 ## Отворено: проверка на алгоритъма с реални данни (бъдеще)
 
-`docs/xems-auto-mode-spec.md` (710L)
+`docs/xems-auto-mode-spec.md` (752L)
   - L1 # XEMS Автоматичен режим — спецификация v1.0 (реализирано в 1.1.156-ai, опростено в 1.1.162-ai)
   - L24 ## 1. Място в менюто
   - L32 ## 2. Стъпки (3 + на живо; отчетът е в клиентския картон) — 1.1.257
@@ -953,18 +958,19 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L314 ### 6.9 Следродилно възстановяване (пасивна)
   - L327 ### 6.10 Регенерация и релакс · Пасивен метаболизъм (пасивни)
   - L336 ### 6.11 Здрав гръб и стойка · Здрави мускули 50+ (активни, Здраве)
-  - L346 ## 7. Опции по програма
-  - L368 ## 8. Какво човекът може по време на сесия
-  - L380 ## 9. Реализация
-  - L423 ## 11. Време, серии, почивки, старт и стоп (собственик, 1.1.270-ai)
-  - L458 ## 12. Таблото „на живо“ (собственик, 1.1.271-ai; вградено в тренировъчния екран от 1.1.278-ai)
-  - L579 ## 10. Подсказки (1.1.157-ai)
-  - L603 ## 13. Импулсът в движение (собственик, 1.1.322-ai — `ai/AutoDynamics`, физиология §3.5)
-  - L626 ## 14. „Само шаблон“ / „С упражнения“ (собственик, 1.1.325-ai)
-  - L636 ## 15. Менюто, цветовете и настройването (собственик, 1.1.336)
-  - L660 ## 16. Тялото, каналите, кръгът (собственик, 1.1.338)
-  - L669 ## 17. «Модулация» — пасивни процедури на bodytech костюм (собственик, 1.1.372)
-  - L678 ## 18. The plan clock is the real clock (owner, 1.1.494)
+  - L346 ### 6.12 Антиейджинг (активна с упражнения · пасивна процедура; Тонус, Отслабване, Здраве) — 1.1.514-ai
+  - L388 ## 7. Опции по програма
+  - L410 ## 8. Какво човекът може по време на сесия
+  - L422 ## 9. Реализация
+  - L465 ## 11. Време, серии, почивки, старт и стоп (собственик, 1.1.270-ai)
+  - L500 ## 12. Таблото „на живо“ (собственик, 1.1.271-ai; вградено в тренировъчния екран от 1.1.278-ai)
+  - L621 ## 10. Подсказки (1.1.157-ai)
+  - L645 ## 13. Импулсът в движение (собственик, 1.1.322-ai — `ai/AutoDynamics`, физиология §3.5)
+  - L668 ## 14. „Само шаблон“ / „С упражнения“ (собственик, 1.1.325-ai)
+  - L678 ## 15. Менюто, цветовете и настройването (собственик, 1.1.336)
+  - L702 ## 16. Тялото, каналите, кръгът (собственик, 1.1.338)
+  - L711 ## 17. «Модулация» — пасивни процедури на bodytech костюм (собственик, 1.1.372)
+  - L720 ## 18. The plan clock is the real clock (owner, 1.1.494)
 
 `docs/xems-bluetens.md` (124L)
   - L1 # Bluetens — protocol and the XEMS module plan
@@ -1114,7 +1120,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L120 ## 1.1.445 — ring ± with muscles marked: same as the chip slide
   - L127 ## 1.1.449 — every muscle marked from a 0 start, the suit's link on the board
 
-`docs/xems-license-api.md` (195L)
+`docs/xems-license-api.md` (208L)
   - L1 # XEMS — лиценз, отключване на модули и обновяване (клиент v1.1.85)
   - L5 ## Модули
   - L24 ## Настройка на таблет (админ) и потребителски режим
@@ -1125,10 +1131,10 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L84 ### 2. Опресняване (веднъж на 24 h, във фон)
   - L97 ### 3. Проверка за нова версия
   - L114 ### 4. Клиентски картон (линк за клиента)
-  - L155 ### 5. XBody машината (мод v21) — само по заявка от треньора
-  - L167 ## Жетон (подписан от сървъра)
-  - L183 ## Какво остава за сървъра
-  - L190 ## Проверки (без Android)
+  - L166 ### 5. XBody машината (мод v21) — само по заявка от треньора
+  - L180 ## Жетон (подписан от сървъра)
+  - L196 ## Какво остава за сървъра
+  - L203 ## Проверки (без Android)
 
 `docs/xems-mastogo.md` (229L)
   - L1 # MASTOGO H-024B (DOMAS / PNrelief) — BLE protocol
@@ -1151,7 +1157,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L95 ## Left out on purpose
   - L103 ## Safety
 
-`docs/xems-motion.md` (769L)
+`docs/xems-motion.md` (848L)
   - L1 # XEMS Motion — body pose from five XIAO nRF52840 Sense sensors
   - L21 ## The app — "XEMS Движение" for Android (owner 2026-11-03: everything installable, as easy as possible)
   - L41 ### 1.1 / firmware 2 — "nothing lights, nothing is found" (owner's first try, 2026-11-04)
@@ -1184,22 +1190,26 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L505 ### 1.29 / firmware 13 — the leg sensors no longer move the Quest's menu (owner, 2026-11-10)
   - L517 ### 1.30 — the game's legs vs the app's; the legs' flight recorder (owner, 2026-11-10)
   - L528 ### 1.31 — the owner's recordings: the standing height (2026-11-11)
-  - L537 ### AI (Gemini) — where it fits and where not
-  - L544 ## Design in one picture
-  - L557 ## Hardware and placement
-  - L567 ## Sensor firmware (`fusion.h`, `xems_motion.ino`)
-  - L578 ## Calibration (≈ 6 s, one tap) — finds places, headings, zero
-  - L592 ## Pose solver (`Body.solve`, per back-sensor sample, < 1 ms)
-  - L611 ## Offline test (`sh scripts/motion-sim/run.sh`, ≈ 10 s)
-  - L628 ## Real movements — CMU motion capture (owner 2026-11-03: "precise movement templates")
-  - L667 ## The figure: the VR workout's android (owner 2026-11-03: "use the model we had, don't make a new one")
-  - L681 ## The 3-D body (owner 2026-11-03: "a 3-D model that moves in sync with the body")
-  - L698 ## Precision today — what to trust (5 sensors)
-  - L705 ## Arms: the learned corrector (owner 2026-11-03: "make the arms as accurate as the legs")
-  - L722 ### Tested: dead reckoning of the elbow from the zero pose (owner's idea, 2026-11-03)
-  - L735 ### Teacher recordings — exact arms with the same 5 sensors (built 2026-11-03)
-  - L751 ## Limits with five sensors (honest)
-  - L760 ## Roadmap
+  - L537 ### 1.32 — the owner's takes 2A49MQ2AH8, MFCMVC9YXW: flicker, floating feet, a 0.58 m shin (2026-11-11)
+  - L564 ### 1.33 — calibrated every session; the legs drawn as legs (owner, 2026-11-11)
+  - L594 ### 1.34 — android legs (owner, 2026-11-11: "more futuristic — a robot, the android we have; the gloves look like a superhero's, the legs are plain")
+  - L608 ### 1.35 — the player's look: cyan · white · pink (owner, 2026-11-11)
+  - L616 ### AI (Gemini) — where it fits and where not
+  - L623 ## Design in one picture
+  - L636 ## Hardware and placement
+  - L646 ## Sensor firmware (`fusion.h`, `xems_motion.ino`)
+  - L657 ## Calibration (≈ 6 s, one tap) — finds places, headings, zero
+  - L671 ## Pose solver (`Body.solve`, per back-sensor sample, < 1 ms)
+  - L690 ## Offline test (`sh scripts/motion-sim/run.sh`, ≈ 10 s)
+  - L707 ## Real movements — CMU motion capture (owner 2026-11-03: "precise movement templates")
+  - L746 ## The figure: the VR workout's android (owner 2026-11-03: "use the model we had, don't make a new one")
+  - L760 ## The 3-D body (owner 2026-11-03: "a 3-D model that moves in sync with the body")
+  - L777 ## Precision today — what to trust (5 sensors)
+  - L784 ## Arms: the learned corrector (owner 2026-11-03: "make the arms as accurate as the legs")
+  - L801 ### Tested: dead reckoning of the elbow from the zero pose (owner's idea, 2026-11-03)
+  - L814 ### Teacher recordings — exact arms with the same 5 sensors (built 2026-11-03)
+  - L830 ## Limits with five sensors (honest)
+  - L839 ## Roadmap
 
 `docs/xems-part-strength.md` (212L)
   - L1 # Избрани мускулни групи: сила на импулсите само за тях (v1.1.85, двата импулса поотделно от 1.1.366)
@@ -1237,6 +1247,12 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L83 ## ⚙ на реда и ⚙ Master
   - L90 ## Базови настройки на „Main“ (1.1.334)
   - L104 ## Първият импулс на нула при следващо посещение (1.1.508)
+
+`docs/xems-program-info.md` (39L)
+  - L1 # Program info (ⓘ) and the advice in the report (owner, 1.1.516-ai)
+  - L7 ## ⓘ on the program card — `ai/ProgramInfo`, text `ai/ProgramGuide`
+  - L18 ## Advice in the report — `branding/report/session-report.html` (`renderGuide`, `shareGuide`)
+  - L29 ## In the client's phone app (XB-Studio, aidiet `studio.html`, 2026-11)
 
 `docs/xems-pulse-control.md` (195L)
   - L1 # Пулс модул: управление на импулсите по пулса (v1.1.59, задържане в зона от 1.1.270)
@@ -1401,8 +1417,8 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L105 ## XEMS side (1.1.480-ai) — `wearable/voice/`
   - L118 ## Phase 3 — learned model
 
-`docs/xems-wiems-app.md` (277L)
-  - L1 # XEMS WiEMS — light tablet app for one WiEMS unit, XEMS or bodytech suit (wiems/app, v1.18)
+`docs/xems-wiems-app.md` (430L)
+  - L1 # XEMS WiEMS — light tablet app for one WiEMS unit, XEMS or bodytech suit (wiems/app, v1.21)
   - L7 ## What it is
   - L31 ## Look (v1.1, owner: XBody's design level or better, never lower)
   - L41 ## v1.2 — lighter figures, double impulse, ramp (owner)
@@ -1420,8 +1436,19 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L209 ### Figures with relief, a slider that needs its fader (parallel 1.8)
   - L220 ## v1.15 — XEMS and bodytech suits, dark theme, the measured WiEMS map (owner)
   - L260 ## v1.18 — smooth figures (owner: "jagged at the edges, smeared inside")
-  - L267 ## Build / test
-  - L274 ## Not verified yet
+  - L267 ## v1.19 — a unit that links but does not start says so (owner: "links, ▶ does nothing, LEDs dark — show where it fails")
+  - L282 ## v1.20 — the trace reaches us by itself (owner: "the client only tests; nothing else asked of them")
+  - L293 ## v1.21 — no vendor anything (owner: "unlimited minutes; a full bypass of their server, nothing needs their internet")
+  - L299 ## v1.23 — also what nobody would notice to report (owner: "automatic, no button, nothing asked of anyone")
+  - L309 ## v1.24 — everything the unit says, and updates with no tap (owner)
+  - L323 ## v1.25 — the link loop of 1.24, and the unit's minutes quota (owner: "the counter must not stop the training")
+  - L334 ## v1.26 — a wider bypass of the unit's minutes quota (owner: "more than 40 minutes, until the renewal is found")
+  - L351 ## v1.27 — find the unit's quota key ourselves, then the limit is simply gone (owner: "our own engineering, no vendor, nothing in the way of real work")
+  - L372 ## v1.28 — the quota search runs itself, verifies, and never touches a real training (owner: "no people in the loop, auto-approve what works, instant fallback to the safe path, nothing felt during a training")
+  - L395 ## v1.29 — a working key switches the 1.26 cycles off; segments off by default (audit of 1.26–1.28)
+  - L410 ## v1.30 — the unit never stops a training by itself (owner: "uninterrupted work — nothing stops, nothing gets in the way during a training")
+  - L420 ## Build / test
+  - L427 ## Not verified yet
 
 `docs/xems-wiems.md` (83L)
   - L1 # WiEMS unit in XEMS and on the XBody machine (1.1.446-ai, XBody mod v7, bridge v3)
@@ -1581,17 +1608,17 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L111 ## Limits (what still needs a hand)
   - L118 ## Build & test
 
-`vr-workout/README.md` (214L)
+`vr-workout/README.md` (216L)
   - L1 # XEMS Studio — EMS VR workout for Quest 3
   - L7 ## The game (v0.4) — on the beat, felt three ways
   - L18 ## Real legs from the XEMS Motion sensors (body.gd source 0)
-  - L27 ## The chef — scenario "Готвачът" (home menu → Сценарий)
-  - L69 ## Power of a hit — every scenario (`scripts/game/power.gd`)
-  - L187 ## In the Quest browser (WebXR) — the way it ships now
-  - L201 ## Build / preview
-  - L210 ## Licences
+  - L29 ## The chef — scenario "Готвачът" (home menu → Сценарий)
+  - L71 ## Power of a hit — every scenario (`scripts/game/power.gd`)
+  - L189 ## In the Quest browser (WebXR) — the way it ships now
+  - L203 ## Build / preview
+  - L212 ## Licences
 
-`vr-workout/assets/CREDITS.md` (29L)
+`vr-workout/assets/CREDITS.md` (30L)
   - L1 # Asset credits
 
 `wiems/PROTOCOL.md` (92L)

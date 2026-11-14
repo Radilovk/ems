@@ -87,6 +87,12 @@ public final class AutoCues {
             return AiText.t("Дренаж: последователни съкращения изтласкват течността под кожата към лимфните пътища.",
                     "Drainage: contractions in sequence push the fluid under the skin towards the lymph pathways.");
         }
+        if (AutoCatalog.ANTIAGE.equals(id) || AutoCatalog.ANTIAGE_PASSIVE.equals(id)) {
+            String g = antiageGoal(AutoCatalog.ANTIAGE_PASSIVE.equals(id), p);
+            if (g != null) {
+                return g;
+            }
+        }
         if ("RELAX".equals(p)) {
             return AiText.t("Отпускане на напрежението и спазъма в гърба.", "Releasing the tension and spasm in the back.");
         }
@@ -116,6 +122,31 @@ public final class AutoCues {
         return plan.program.desc();
     }
 
+    /** The anti-ageing programs' goal line (spec §6.12), by phase; null = the common text. */
+    static String antiageGoal(boolean passive, String phase) {
+        if (passive && "MAIN".equals(phase)) {
+            return AiText.t("Захар: краката работят ритмично и поемат захар от кръвта — скокът след хранене е по-малък.",
+                    "Blood sugar: the legs work in a rhythm and take sugar from the blood — the rise after a meal is smaller.");
+        }
+        if ("MAIN".equals(phase)) {
+            return AiText.t("Миокини: работещите мускули пускат в кръвта вещества, които пазят клетките и гасят възпалението.",
+                    "Myokines: the working muscles release substances that protect the cells and calm inflammation.");
+        }
+        if ("BRAIN".equals(phase)) {
+            return AiText.t("Мозък: при тази честота мускулите на краката подават сигнал, който храни нервните клетки и паметта.",
+                    "Brain: at this rate the leg muscles send a signal that feeds the nerve cells and the memory.");
+        }
+        if ("INTERVAL".equals(phase)) {
+            return AiText.t("Интервали: кратко с всичка сила, после отдих — това сваля възпалението в тялото най-силно.",
+                    "Intervals: short and all out, then rest — this lowers inflammation in the body the most.");
+        }
+        if ("VESSELS".equals(phase)) {
+            return AiText.t("Съдове: леко ритмично потрепване — артериите на краката стават по-гъвкави.",
+                    "Vessels: a light rhythmic twitching — the leg arteries grow more supple.");
+        }
+        return null;
+    }
+
     /** The face programs' goal line (docs/xems-face.md §9), by program and phase. */
     static String faceGoal(String id, String phase) {
         if (AutoCatalog.FACE_DRAIN.equals(id)) {
@@ -126,31 +157,31 @@ public final class AutoCues {
                     "Lymph wave: the muscles tighten one after another from the nose to the jaw and the ear and pump the held fluid.");
         }
         if (AutoCatalog.FACE_TONE.equals(id)) {
-            return AiText.t("Стегнат овал: по-дълги меки стягания — мускулите на лицето стават издръжливи и пазят лифтинга.",
-                    "Firm contour: longer soft holds — the face muscles grow enduring and keep the lift.");
+            return AiText.t("Тонус и стегнатост: по-дълги меки стягания — мускулите на лицето стават издръжливи и пазят лифтинга.",
+                    "Tone & firmness: longer soft holds — the face muscles grow enduring and keep the lift.");
         }
         if (AutoCatalog.FACE_OVAL.equals(id)) {
-            return AiText.t("Лифтинг на овала: скулите и брадичката се редуват — всеки мускул работи 3 s и почива 6.",
-                    "Oval lift: the cheekbones and the chin take turns — every muscle works 3 s and rests 6.");
+            return AiText.t("Скулптуриране на лицето: скулите и брадичката се редуват — всеки мускул работи 3 s и почива 6.",
+                    "Firm contour: the cheekbones and the chin take turns — every muscle works 3 s and rests 6.");
         }
         if (AutoCatalog.FACE_RELAX.equals(id)) {
             return AiText.t("Ботокс ефект: нежният ток по сетивните нерви сваля тонуса на мимическите мускули — челото се отпуска.",
                     "Botox effect: the gentle current on the sensory nerves lowers the tone of the expression muscles.");
         }
         if (AutoCatalog.FACE_CALM.equals(id)) {
-            return AiText.t("Спокойно лице: сетивният ток по челото и челюстта сваля напрежението — честотата се сменя, за да не привикне.",
-                    "Calm face: the sensory current on the forehead and the jaw lowers the tension — the rate changes so it never wears off.");
+            return AiText.t("Свежо лице: сетивният ток по челото и челюстта сваля напрежението — честотата се сменя, за да не привикне.",
+                    "Fresh face: the sensory current on the forehead and the jaw lowers the tension — the rate changes so it never wears off.");
         }
         if (AutoCatalog.FACE_JAW.equals(id)) {
-            return AiText.t("Отпусната челюст: бавни импулси в дъвкателния мускул — тонусът му в покой спада.",
-                    "Relaxed jaw: slow impulses in the masseter — its resting tone drops.");
+            return AiText.t("Релаксация на челюстта: бавни импулси в дъвкателния мускул — тонусът му в покой спада.",
+                    "Jaw relaxation: slow impulses in the masseter — its resting tone drops.");
         }
         if (AutoCatalog.FACE_CHIN.equals(id)) {
-            return AiText.t("Стегната брадичка: мускулите под брадичката се стягат и оформят профила.",
-                    "Firm chin: the muscles under the chin tighten and shape the profile.");
+            return AiText.t("Стегнат профил: мускулите под брадичката се стягат и оформят профила.",
+                    "Firm profile: the muscles under the chin tighten and shape the profile.");
         }
-        return AiText.t("Лифтинг 3D: скулите, назолабиалната зона и долната буза работят заедно — по-плътна опора за цялата средна част.",
-                "Lift 3D: the cheekbones, the nasolabial area and the lower cheek work together — fuller support for the whole mid-face.");
+        return AiText.t("Лифтинг на скулите: скулите, назолабиалната зона и долната буза работят заедно — по-плътна опора за цялата средна част.",
+                "Cheekbone lift: the cheekbones, the nasolabial area and the lower cheek work together — fuller support for the whole mid-face.");
     }
 
     /** What the current impulse does in the body (by its frequency, the wave and the 2nd impulse). */

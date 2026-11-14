@@ -86,7 +86,7 @@ func _forward(x: PackedFloat32Array) -> PackedFloat32Array:
 
 ## Once a frame. U/A: shin direction and knee hinge per side (world); acc: vertical acceleration (g, offset removed)
 ## per side, or {} without it; head: eyes (world); S: eye height above the ankle standing; ankle_floor_y: the ankle's
-## height standing (world y). Returns {"ground": {sd: bool}, "thigh": {sd: world dir}, "pc": hip centre (world)}.
+## height standing (world y). Returns {"ground": {sd: bool}, "p": {sd: P(on the floor)}, "thigh": {sd: world dir}, "pc": hip centre (world)}.
 func step(t: float, delta: float, U: Dictionary, A: Dictionary, acc: Dictionary, head: Vector3, S: float,
 		ankle_floor_y: float, hands := {}) -> Dictionary:
 	var bf := Vector3.ZERO
@@ -105,7 +105,7 @@ func step(t: float, delta: float, U: Dictionary, A: Dictionary, acc: Dictionary,
 		_uprev[sd] = u
 	var has_acc := not acc.is_empty()
 	var has_hands := hands.has("l") and hands.has("r")
-	var out := {"ground": {}, "thigh": {}, "pc": Vector3.ZERO}
+	var out := {"ground": {}, "p": {}, "thigh": {}, "pc": Vector3.ZERO}
 	for pair in [["l", "r", 1.0], ["r", "l", -1.0]]:
 		var sd: String = pair[0]
 		var od: String = pair[1]
@@ -142,6 +142,7 @@ func step(t: float, delta: float, U: Dictionary, A: Dictionary, acc: Dictionary,
 		var p := 1.0 / (1.0 + exp(-o[0]))
 		gnd[sd] = p > 0.4 if gnd[sd] else p > 0.6
 		out.ground[sd] = gnd[sd]
+		out.p[sd] = p
 		var th := Vector3(o[1], o[2], o[3]).normalized()
 		out.thigh[sd] = (th.x * bf + side * th.y * left + th.z * Vector3.UP).normalized()
 		out.pc += (head + (o[4] * bf + side * o[5] * left + o[6] * Vector3.UP) * S) * 0.5

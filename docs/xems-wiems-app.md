@@ -1,4 +1,4 @@
-# XEMS WiEMS — light tablet app for one WiEMS unit, XEMS or bodytech suit (wiems/app, v1.18)
+# XEMS WiEMS — light tablet app for one WiEMS unit, XEMS or bodytech suit (wiems/app, v1.21)
 
 Owner (2026-10-16): a separate APK for a small 8" tablet (Lenovo Tab M8 HD, 1280×800, 2 GB RAM), only for WiEMS,
 light, **in the same design and style as the XBody screen**. Not the XEMS app: no vendor APK, no music / AI /
@@ -263,6 +263,159 @@ order — once the service mode has checked both suits, port the two maps (the `
   full-size art at 500 px (372 design px × 1.33 on the Lenovo): every step at full size, one premultiplied Lanczos
   downscale, lossless WebP. `BodyFig` only loads them — the run-time stretch / 3×3 blur / hard-mask rim of 1.15–1.17 on
   the 640-px lossy copies made the stair steps and the smear.
+
+## v1.19 — a unit that links but does not start says so (owner: "links, ▶ does nothing, LEDs dark — show where it fails")
+- Before: no "01" from the unit 6 s after `25` → the clock ran anyway (the screen trained, the unit did nothing, no word).
+  Now, with the run notifications on (their CCCD written OK — `Ble.runNotifyOk`), no "01" in `Session.NO_START_MS`
+  (9 s) = **did not start**: 0 + stop to the unit, the session stays where it was, and a card (XBody's red band,
+  `XView.paintProblem`, `Host.problem()`) says "WiEMS не стартира", what the unit answered on the run control during
+  the count-down (a code or nothing) and its battery, the likely causes side by side (the unit held by another
+  device; stuck in an error → power cycle; a weak battery), ИЗПРАТИ ДНЕВНИКА /
+  РАЗБРАХ. No CCCD on the run control → the old blind 6 s start, with a note at the link.
+- A refused write → the same card with the op and its GATT code (5 / 8 / 15 / 137 → "pair it again"); no answer in
+  1.5 s → the trace names the op.
+- At the link the app reads (trace only, after the battery): minutes used `7764d000` (ASCII), DIS model / serial /
+  firmware (2A24 / 2A25 / 2A26), `7764f19a`, `776416cb`; refused CCCDs are traced. The capture's unit had used 72323
+  of 73200 bought minutes (2026-10-16) — the prime suspect when a unit stops starting.
+- Tests: `UnitSim` 5b (a unit that takes `25` and never runs; ▶ again works; no CCCD = blind start), shots `9a` / `9b`.
+
+## v1.20 — the trace reaches us by itself (owner: "the client only tests; nothing else asked of them")
+- Every failure card (no start, a refused write), a unit that stops by itself and a link lost mid-training send the
+  trace to the server **without a tap** (`Report.java`, a daemon thread, no lambdas): `POST
+  https://license.biocode-bg.com/v1/unit/log?app=wiems&unit=<the unit's MAC, 12 hex>&ver=<versionCode>`, first lines
+  `REPORT <why>` + app / tablet / unit / minutes / battery / halt reason, then the trace (last 200 000 chars). At most one
+  a minute; no internet → again every minute, 10 tries. The card's left button shows it: ИЗПРАЩАМ… / ✓ ДНЕВНИКЪТ Е
+  ИЗПРАТЕН (a tap still shares it by hand). INTERNET permission added.
+- Read without the admin (BLE trace only, no client data): `GET /v1/unit/log/recent?app=wiems[&since=<unix s>]`
+  (≤ 50, with the first 300 chars), `GET /v1/unit/log/<id>?app=wiems` (`server/src/units.js handleUnitLogRead`).
+  A scheduled Claude Code check reads them every hour and starts on the fix.
+
+## v1.21 — no vendor anything (owner: "unlimited minutes; a full bypass of their server, nothing needs their internet")
+- The app never talks to WiEMS / WiemsPro servers and needs no internet to train: BLE to the unit only. Its one network
+  call is `Report` to **our** server (license.biocode-bg.com), only after a failure, and a failed upload changes nothing.
+- The no-start card no longer names minutes or the vendor app (the owner's units are unlimited); the minutes counter
+  stays in the trace only.
+
+## v1.23 — also what nobody would notice to report (owner: "automatic, no button, nothing asked of anyone")
+Reported by itself as well (the same `Report`, no button anywhere):
+- **a crash**: `MainActivity.Crash` (the default uncaught-exception handler) writes `REPORT app crash` + the stack +
+  the trace to `files/pending-report.txt` as the app dies; the next start sends it (kept until the server says OK);
+- **an error caught in the app's loop** (the tick's catch — the screen goes on, but it is a bug): once per run;
+- **a unit seen but not linking**: the 2nd failed link in a row (no answer in 15 s, GATT error, missing service), once
+  until a link works.
+Together with v1.20 (no start, a refused write, a unit that stops, no answer, a link lost mid-training) every failure
+the app can see reaches the server and the hourly check. The logo's long press (share by hand) stays, unneeded.
+
+## v1.24 — everything the unit says, and updates with no tap (owner)
+- **Owner: "the problem is the start — see what the unit sends; there usually is a reason".** At the link the trace
+  gets the unit's **GATT map** (every service / characteristic with R W w N I); notifications are switched on for
+  **every** notifiable characteristic (run first, then battery, status, clock, then the rest of its services — not
+  1801), so whatever the unit says is in the trace (`← <uuid> <hex>`). A **snapshot** (`Ble.snapshot`: every readable
+  characteristic once, `snap <uuid> <hex>`) is taken at the link (before our first write) and when a failure card
+  shows (no start…): the report waits for it (≤ 5 s), writes wait while it reads. So a report holds the unit's state
+  as it came, everything it notified during the start, and its state right after the failure.
+- **Updates with no tap**: Android installs without asking only for a device-owner app. One-time set-up per tablet
+  (a computer with adb, USB debugging on, no Google / other accounts on the tablet — Android refuses device owner
+  otherwise): `adb shell dpm set-device-owner bg.xems.wiems/.Admin` (`Admin.java`, a DeviceAdminReceiver with no
+  policies). Without it the update still comes by itself, Android shows "Инсталирай" once. Android 12+: the session
+  asks `setRequireUserAction(NOT_REQUIRED)` too. `Relaunch` (MY_PACKAGE_REPLACED) opens the app again after an update.
+
+## v1.25 — the link loop of 1.24, and the unit's minutes quota (owner: "the counter must not stop the training")
+- **1.24 never linked** (reports 9, 10: "no answer in 15 s", the battery read ~10× a second): `Ble.INFO` was 10, under
+  the new `BATT` 45, so the step after the battery read fell back into the notification steps → battery again, for ever.
+  `INFO` = 50 now.
+- **"02" to `25` = the unit's own minutes quota** (reports 7, 8: 73160 minutes used; the vendor sold 73200; the vendor's
+  Dur byte 41 → 73160 + 41 > 73200). The unit, not the vendor server, refuses. `Session.retryDur`: "02" in the
+  count-down → stop, arm again with Dur = the session's minutes (≤ 40), then 1; the Dur that ran stays. UnitSim 5c.
+- Still "02" after that → the card says it plainly: the counter is at its limit; one link with the vendor's Wiems app
+  (with internet) renews it. Truly unlimited needs that renewal decoded: capture (`.pklg`) the Wiems app renewing
+  it — the unit's write-only `7764a25c` / `77645cb2` are the candidates — and the app can do it itself.
+
+## v1.26 — a wider bypass of the unit's minutes quota (owner: "more than 40 minutes, until the renewal is found")
+`Quota.java` — what the app learnt about one unit, kept per unit (prefs `quota_<mac>`: tight, Dur, verdict), in the
+trace and every report header. Layers, each checked against the counter (`7764d000`, read after every stop / re-arm
+via `Ble.readMinutes`, also its notifications):
+- **Dur ladder** on "02": 41 → the session's minutes (≤ 40) → 1 → 0; the Dur that ran is kept and used first on a
+  "tight" unit (one that said "02").
+- **Segments**: on a tight unit every unit run stays under a minute — armed again in a pause after 48 s (55 s at the
+  latest), its ~4 s count-down given back to the session clock (`Session.rearm` / `segmentCheck`). If the counter counts
+  whole minutes of one run, it never moves. The procedure's phases wait for the run; pause / stop drop a re-arm.
+- **Verdict**: the counter moved although every run since the last read was < 60 s → segments off for the unit;
+  ≥ 3 min of segments with the counter still → "segments work".
+- **Self-stop**: a tight unit that notifies "00" by itself is armed again (≤ 3 per start) instead of the pause.
+- All Dur refused / a re-arm refused → the quota card. UnitSim 5c–5g (a minute counter, a counter that counts
+  anyway, a stop at the quota, a quota gone for every Dur).
+Not known yet (the first real trainings will tell, the trace says it): what Dur means to the unit, and whether the
+counter counts whole minutes of a run. The real fix stays the renewal (capture the Wiems app renewing it).
+
+## v1.27 — find the unit's quota key ourselves, then the limit is simply gone (owner: "our own engineering, no vendor, nothing in the way of real work")
+`Probe.java` — an offline, on-the-unit search for the one write that opens the unit's minutes gate, so the app sends
+it at every link and no relaxed cycle or lowered Dur is ever needed again.
+- The unit refuses "25" with "02" when used + Dur > bought (used = `7764d000`, read; bought is written by the vendor's
+  purchase sync, never in our capture). Two writes would open it — zero the used counter, or raise the bought one — so
+  the oracle that settles both is **"does ▶ run after this write?"**, not the counter alone.
+- The probe tries a short ordered list of candidate writes to the unit's write-only / counter characteristics
+  (`7764d000`, `7764a25c`, `77645cb2`: `000000`, `999999`, byte clears, `ff` fills) and, after each, really **arms the
+  unit with every channel at zero current — no output on the body** — and watches the run notify: `01` = that write
+  opened the gate (winner), `02` / silence = next. Only when idle and linked; a training, pause or lost link cancels it.
+- The winner is stored per unit (`reset_<mac>` = `uuid hex`) and sent once at every later link (`applyReset`), before
+  any training; then the unit never says "02", so the 1.25/1.26 fallbacks never trigger. The probe runs once per unit:
+  on the first "02" (`wantProbe`), or at link for a unit already marked tight with no stored reset.
+- Nothing reaches the vendor or any server except our own report (`Report`): the probe's result (winner / none) and
+  the full trace go to license.biocode-bg.com so the hourly check sees which key worked.
+- Trace / report header carry the known reset and every probe step. `ProbeTest` (5 scenarios): the winning candidate
+  found and saved, every arm at zero current, nothing-opens-it, first-candidate, cancel mid-probe.
+
+If no candidate opens the gate, the app says so and keeps the 1.26 fallback (short runs). The candidate list is the
+place to extend once a real unit narrows it down — the trace from the first run names what each write did.
+
+## v1.28 — the quota search runs itself, verifies, and never touches a real training (owner: "no people in the loop, auto-approve what works, instant fallback to the safe path, nothing felt during a training")
+The whole decision loop is in the app (the algorithm the owner asked for); a person is never needed, and Claude only
+reads the auto-sent reports when asked — no standing cost.
+- **Unattended search.** A tight unit with no working key runs the probe on its own, idle and linked (on the first
+  "02", and at each later link), skipping candidates already tried (`tried_<mac>`) so it converges and never repeats.
+  A definite refusal ("02") moves to the next candidate in ~1.5 s, so a full pass is seconds, not minutes.
+- **Auto-approval.** A candidate that makes the unit run ("01") at zero current is the approval — stored as the unit's
+  reset (`reset_<mac>`) with no human step.
+- **Silent verification before every training.** At each link a stored key is re-applied and re-checked by one
+  zero-current arm (`Probe.verify`) *before* the client trains. Still works → ready, nothing shown. Stale → the key is
+  discarded and the search restarts; the client never meets a dead key.
+- **Instant fallback, training untouched.** The probe only ever runs when the unit is idle; linking ▶ / any session
+  activity cancels it at once. If a key ever fails on a real start ("02"), the 1.25/1.26 safe path (shorter Dur, short
+  runs) carries that session with no interruption, the key is dropped, and the search re-runs when the unit is next idle.
+- **All data to Claude automatically.** Every probe / verify outcome and the full trace go to license.biocode-bg.com
+  (`Report`); the report header now carries the current key, whether it is verified, and how many candidates were
+  tried — enough to analyse a unit's quota behaviour from the logs alone, on demand.
+- Tests: `ProbeTest` (16 checks) — find / save / none / first-hit / cancel, skip-already-tried, verify good / stale,
+  and the fast all-refused pass.
+
+Zero output on the body at any point (every arm is all-channels-0). The candidate list is where a real unit's first
+logs let us add or reorder strategies — but the loop above needs no change to pick a new winner.
+
+## v1.29 — a working key switches the 1.26 cycles off; segments off by default (audit of 1.26–1.28)
+The audit found that a verified key did **not** stop the 1.26 cycles: `Session` never knew about the key
+(`MainActivity.knownReset`), `Quota.tight` stays true for good, so a keyed unit was still cut into 48 s runs with a
+~4 s re-arm count-down each — exactly what the owner wanted gone.
+- **`Quota.keyed`** (not saved — proved again at every link): set by `MainActivity` only when the key is verified on
+  this link (probe win / `Probe.verify` ok), cleared when it is discarded. While keyed: no segments, no auto re-arm on
+  "00" (a real stop pauses as on any unit), the vendor's Dur 41. `Quota.relaxed()` = tight && !keyed gates the 1.26 layer.
+- **Stale key on a real start:** "02" with the key on → `keyed` off, `keyStale` flagged, the Dur ladder starts that
+  same session at once (no interruption); `MainActivity` drops `reset_<mac>` and searches again when idle.
+- **Segments off by default** (`Quota.segmentsOn = false`): no real log has shown a per-minute counter yet, and they
+  are the only layer that re-arms a live training. The counter trace (moves vs. run length) still logs the evidence;
+  the switch is kept for an explicit experiment. The cheap fallback (smaller Dur) stays on.
+- Removed the unused `Probe.CONFIG`. Tests: `UnitSim` 5h (one run by default), 5i (keyed: vendor Dur, one run, "00"
+  pauses), 5j (stale key → fallback Dur, flagged once); 5d/5e switch the segments on explicitly.
+
+## v1.30 — the unit never stops a training by itself (owner: "uninterrupted work — nothing stops, nothing gets in the way during a training")
+- **Self-stop "00" after a real run (≥ `SELF_STOP_RUN_MS` = 20 s) → armed again at once, every time**, on any unit,
+  with or without a quota key (was: only a tight unit without a key, at most 3 times, then the pause). This covers the
+  unit's own Dur running out on a long session and its quota stopping it; the client feels only the unit's ~4 s
+  count-down, the session clock goes on. A "02" on that re-arm takes the Dur ladder as at the start.
+- A stop **sooner** than 20 s after a (re)start is not a limit (a fault / the unit's own button) → the pause, as before.
+- What still pauses, on purpose (safety, not the quota): the unit's current protection (0x8_), no "01" for 5 s, a
+  re-arm that never starts, a lost link (kept, paused — never re-started on its own on a body).
+- Test: `UnitSim` 5k — a unit that stops itself every minute; the 10 min training finishes with no pause.
 
 ## Build / test
 ```

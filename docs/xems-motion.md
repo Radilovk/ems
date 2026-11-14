@@ -534,6 +534,85 @@ reading the player as jumping (both feet "in the air" most of the time, knees dr
 takes the standing height from the headset: the highest the head was in the last 20 s (not below 85 % of the game's).
 Test `stand_test` (the game says 1.64, the head stands at 1.57 → calibrates).
 
+### 1.32 — the owner's takes 2A49MQ2AH8, MFCMVC9YXW: flicker, floating feet, a 0.58 m shin (2026-11-11)
+Owner: "the legs react badly even when walking or lifting, the picture flickers all the time, they get lost". The
+takes were played through the game's own PadLegs (`vr-workout/test/replay.gd`: the raw axes, headset and hands as
+they came; the mounting found again from what the game drew). Four causes, each measured on the take:
+- **The sensors send ~32 values a second while moving, the game draws 72** — each shin held 2–3 frames, then a jump
+  (80 % of the frames repeat the last value). Now each new value is reached over the usual gap between values
+  (`_smooth_q`, ~15 ms later on average): a smooth path instead of steps.
+- **The prior with the hands:** in CMU people stand with their arms down, in VR the controllers are at the chest —
+  standing still, both shins upright: P(foot on the floor) 0.00 with the hands, 0.94 without. The hands are no longer
+  given to it (`prior_hands`; it was trained also without them).
+- **Its answer flipped nearly every frame**, each flip moving the knee 8–12 cm; the feet re-placed under the hips at a
+  still stand also jumped (18 cm). Now P(on the floor) is smoothed (80 ms), the prior's thighs and hips (50 ms), and a
+  switch planted ⇄ lifted or a re-placing cross-fades from where the leg was (smoothstep, 0.1 s — speed ramps from 0).
+  Physics on top: off the floor both only in a jump (the head going up > 0.8 m/s near standing, 0.5 s); both shins
+  upright (< 10°) and still (< 40°/s) = both feet down, unless the measured height shows one lifted (a knee raise).
+- **The four touches gave a 0.58 m shin** (the clamp's top; 0.41 from the height: the kneecap is above the joint and
+  the controller's tip is a guess) and it was saved → every session stood on 1.16 m legs. A measured shin is now taken
+  only within ±12 % of 0.246 H (else the lengths from the height; the feet's turn and stance kept, the ankle moved
+  down the model's shin); such a saved shin is thrown away on load. The standing height counts only what the head
+  held 0.3 s (a jump's top made the legs longer for 20 s).
+On the takes (jumps = a knee / foot whose step changes by > 5 cm between frames; standing tall = both feet in the air):
+2A49MQ2AH8 40 → 1.1 / s, 70 → 0 %; MFCMVC9YXW 48 → 1.7 / s, 83 → 0 %. `pad_truth` unchanged within 1 cm (knee raise
+worst 17 → 25 cm: the upright rule's first moments). Test `floor_test` (prior on, hands at the chest: standing = both
+down every frame, a kick without jumps, a jump allowed, the 40 %-long shin refused, the saved one thrown away).
+Replay a take: `python3 scripts/vr-legs/pad_replay.py <CODE> f.jsonl` then
+`REPLAY=f.jsonl godot --headless --path vr-workout --script res://test/replay.gd`.
+
+### 1.33 — calibrated every session; the legs drawn as legs (owner, 2026-11-11)
+Owner: "calibrate every time the sensors go on — touches with the controllers, a control pose — precision every time;
+the legs are drawn far too thin next to the big boots; think through the thigh and where the knee bends".
+**Calibration (every connection, ~30 s, after the stand + knee bend):** four bony points per leg with the controller's
+tip — the bump at the side of the hip (greater trochanter), the outer side of the knee at its crease (lateral
+epicondyle), the outer ankle bone (lateral malleolus), the shoe's tip — a glowing point on the drawn leg shows where
+(a touch > 25 cm from it is not taken); then the **control pose**: tall and still, feet parallel. Each joint is a
+known distance inside its bony point (`PadLegs.LM_*`). The person may bend to reach: each touch keeps the shin's
+turn at that moment (its sensor), so the knee and ankle touched at different moments give the true shin — length
+**and direction against the strap** (`u0`, per leg; a strap never sits along the bone) — and the hip touch with the
+knee where the shin puts it then gives the thigh. Also: ankle height, hip width, each foot's turn, the boot's length,
+where the feet stand (from the eyes in the control pose). Lengths outside ±15 % of the height's are not taken.
+**The controller's tip** is found, not guessed: the first time, hold the trigger and rock the controller with its tip
+on the point — pivot calibration (least squares over tip + point, `PadLegs.pivot`), kept on the headset
+(`user://legs_tip.json`). Test `cal_test`: a body unlike the model (shin +8 %, thigh −6 %, hips +12 %, ankles +20 %,
+the shins 5° off their straps, feet turned 9° / −6°), bending 20–30° while touching, a tip 8 cm off where the game
+guesses → shin, thigh, ankle height, hip width exact (≤ 1 mm), the shins' direction 0.0°, the tip ≤ 1 mm, a squat
+drawn on the true knees (0.0 cm). (Found on the way: the foot's turn changes the leg's frame — the touches' shin
+turns are carried over into it before the shin's direction is taken, else 2.5–3.8° off.)
+**The look (`avatar.gd`):** before — the gloves' forearm piece stretched along the shin and again along the thigh
+(thin tubes, open at the top, gaps at the knee). Now the suit along a real leg's cross-sections (thigh 17 → 10 cm,
+calf 11 cm bulging behind, ankle 6.5 cm; scaled to the player's height), **one ball joint exactly at the knee point**
+(thigh and shin both end in it: the bend is where the solve puts the knee, no gap at any angle), the kneecap riding
+round the joint (halfway between the thigh's front and the shin's), the thigh's front taken from the knee's hinge
+(a raised knee's thigh faces up), cyan plates on the shin bone and the thigh's front, light lines down both sides,
+the boot on the **ankle** (before: on the foot point 6 cm ahead of it — the shin leaned back ~8°) with a cuff, its
+length from the measured toe. No box of hips: from the eyes it hid the legs (the trunk is not drawn). Preview:
+`xvfb-run -a godot --path vr-workout --rendering-driver opengl3 --script res://test/legs_look.gd -- --out=x.png
+--view=three|side|front|eye [--pose=stand|squat|knee|kick|step]` (`docs/vr-legs-1.33.png`).
+
+### 1.34 — android legs (owner, 2026-11-11: "more futuristic — a robot, the android we have; the gloves look like a superhero's, the legs are plain")
+Whenever the hips are known (the sensors: gamepads or the phone), the legs are **the XEMS figure's android** ("White
+Android Robot", Cedric Ricci, CC BY 4.0 — `vr-workout/assets/robot/android.glb`, the same 45 k-triangle rigged model
+as `motion/viewer/models/android.js`) posed on the solved joints (`robot_legs.gd`): each of its thigh / calf bones is
+turned from its rest onto the segment (the front from the knee's hinge, as the shin sensor gives it), stretched to
+the segment's length and scaled to the player; a planted foot stands flat turned to where it points, a lifted one
+keeps its rest angle to the shin. The android's own skinning makes the knee — the bend is exactly at the solved knee.
+Its pelvis is placed between the hips, narrowed to their width (only so the thighs' tops stay smooth) and, with the
+trunk, arms and head, **dissolved in the shader by the skin's weights** (dithered discard: no blending, no sorting) —
+from the eyes a pelvis would hide the legs; the hands stay the gloves. `shaders/robot.gdshader`: its white panels
+tinted to the gloves' suit (cyan metal, dark joints), a rim + glow in the combo colour; `tint = 0` keeps it white
+(`docs/vr-legs-1.34.png`: top tinted, bottom white). Without the hips (a controller on an ankle, Meta's estimate) the
+drawn suit legs of §1.33 stay. Preview: `legs_look.gd -- --robot=0|1 --tint=0..1`.
+
+### 1.35 — the player's look: cyan · white · pink (owner, 2026-11-11)
+Settings → Игра → **Външен вид**: Циан (as before), Бяло (white and black like the android — its own textures, the
+gloves' plates white on black), Розово (for women's sessions). One choice for everything seen from the headset:
+the gloves' plates, sleeves and lights, their hit flash (cyan → magenta, white → cyan, pink → gold), the android's
+legs (`robot.gdshader` tint / plate / dark), the drawn legs, ×1 of the combo colour (×2–×4 stay green / magenta /
+gold). `Avatar.LOOKS`, `Avatar.set_look`, `GameSettings.look` (saved). Preview: `legs_look.gd -- --look=0|1|2
+--hands=1` (`docs/vr-looks-1.35.png`).
+
 ### AI (Gemini) — where it fits and where not
 Not for the live figure: a cloud model answers in 0.5–3 s, needs the network, costs per call and does not return
 reliable joint angles — the figure must follow the body in < 50 ms. "Natural" comes from local models learned from

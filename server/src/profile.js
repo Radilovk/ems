@@ -81,3 +81,37 @@ export function allowHit(key, max, windowSec, nowSec) {
   h.n += 1;
   return h.n <= max;
 }
+
+/**
+ * What a client may read back of their own profile, found by the hashes of their e-mail / phone (POST /v1/profile/find):
+ * the training data only — sex, birth year, height, weight, goal, how often, focus zones. Never the name, the contact,
+ * the health answers, the state or the note: a phone number alone is no proof of who asks (owner, 2026-11).
+ * `inbox` = a profile the client sent (cleanProfile shape); `dossier` = the tablet's record (XemsDossier.data).
+ */
+export function publicProfile(inbox, dossier) {
+  const out = {};
+  const put = (k, v) => { if (v !== null && v !== undefined && v !== '' && !(Array.isArray(v) && !v.length)) out[k] = v; };
+  if (inbox && typeof inbox === 'object') {
+    put('sex', inbox.sex === 'F' || inbox.sex === 'M' ? inbox.sex : '');
+    put('by', int(inbox.by, 1920, 2100));
+    put('h', int(inbox.h, 100, 230));
+    put('w', int(inbox.w, 30, 250));
+    put('goal', GOALS.includes(inbox.goal) ? inbox.goal : '');
+    put('fit', FITNESS.includes(inbox.fit) ? inbox.fit : '');
+    put('focus', pick(inbox.focus, FOCUS));
+  }
+  if (dossier && typeof dossier === 'object') {
+    const f = dossier.form && typeof dossier.form === 'object' ? dossier.form : {};
+    const [goal, fit] = String(f.u || '').split('|');
+    const birth = Number(dossier.birth);
+    if (!out.sex) put('sex', dossier.sex === 'F' || dossier.sex === 'M' ? dossier.sex : '');
+    if (!out.by && birth > 0) put('by', int(new Date(birth).getUTCFullYear(), 1920, 2100));
+    if (!out.h) put('h', int(Math.round(Number(dossier.h)), 100, 230));
+    if (!out.w) put('w', int(Math.round(Number(dossier.w)), 30, 250));
+    if (!out.goal) put('goal', GOALS.includes(goal) ? goal : '');
+    if (!out.fit) put('fit', FITNESS.includes(fit) ? fit : '');
+    if (!out.focus) put('focus', pick(String(f.focus || '').split(',').map((x) => x.trim()), FOCUS));
+  }
+  return out;
+}
+

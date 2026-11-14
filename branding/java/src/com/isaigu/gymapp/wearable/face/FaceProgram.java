@@ -103,41 +103,41 @@ public final class FaceProgram {
 
     private static final FaceProgram[] ALL = {
             // Kavanagh 2012 RCT: 20 min, 5×/week, 12 weeks → zygomaticus +18.6 %; ours 2 weeks × 3 then × 5 = 56
-            new FaceProgram(LIFT, CHEEK, false, "Лифтинг 3D", "Lift 3D",
-                    "Повдигнати скули, по-мека бразда", "Lifted cheekbones, a softer fold",
-                    "Скулови мускули и повдигачите на устната", "Cheek and lip-lifting muscles",
+            new FaceProgram(LIFT, CHEEK, false, "Лифтинг на скулите", "Cheekbone lift",
+                    "Изразителни скули, по-мека гънка", "Defined cheekbones, a softer fold",
+                    "Мускулите на скулите и горната устна", "Cheekbone and upper-lip muscles",
                     "m. zygomaticus major et minor · m. levator labii sup.",
                     70, 3, 6, 0xFFFF6F91, "↗", 3, 2, 1, 12, 56),
-            new FaceProgram(FIRM, CHEEK, false, "Стегнат овал", "Firm contour",
-                    "Еластичност, която пази лифтинга", "Elasticity that keeps the lift",
-                    "Мимически мускули на бузата", "Mid-face muscles", "mm. faciei",
+            new FaceProgram(FIRM, CHEEK, false, "Тонус и стегнатост", "Tone & firmness",
+                    "Поддържа ефекта от лифтинга", "Keeps the lift's effect",
+                    "Мимическите мускули на бузите", "The cheeks' expression muscles", "mm. faciei",
                     35, 5, 5, 0xFFC084FC, "◇", 2, 3, 3, 0, 0),
-            new FaceProgram(DRAIN, CHEEK, false, "Детокс от отоци", "Depuff detox",
-                    "По-малко подпухване, по-ясни черти", "Less puffiness, clearer features",
-                    "Мускулна помпа на бузата", "Cheek muscle pump", "m. zygomaticus · m. buccinator",
+            new FaceProgram(DRAIN, CHEEK, false, "Лимфодренаж на лицето", "Facial lymph drainage",
+                    "По-малко подпухване, свеж тен", "Less puffiness, a fresh complexion",
+                    "Мимическите мускули на бузите", "The cheeks' expression muscles", "m. zygomaticus · m. buccinator",
                     30, 1, 2, 0xFF38BDF8, "≋", 2, 1, 1, 0, 0),
-            new FaceProgram(OVAL, CHEEK, false, "Лифтинг на овала", "Oval lift",
-                    "Скули и стегната брадичка наведнъж", "Cheekbones and a firm chin at once",
-                    "Скулови и надподезични мускули", "Cheek and suprahyoid muscles", "m. zygomaticus · m. digastricus",
+            new FaceProgram(OVAL, CHEEK, false, "Скулптуриране на лицето", "Face sculpting",
+                    "Оформя и стяга контура на лицето", "Shapes and firms the face contour",
+                    "Мускулите на скулите и под брадичката", "Cheekbone and under-chin muscles", "m. zygomaticus · m. digastricus",
                     70, 3, 6, 0xFFFB7185, "◎", 2, 2, 1, 12, 56),
-            new FaceProgram(CALM, FOREHEAD, true, "Спокойно лице", "Calm face",
-                    "Без напрежение в челото и челюстта", "No tension in the forehead and the jaw",
-                    "Сетивни нерви на челото и дъвкателните мускули", "Forehead nerves and the masseters",
+            new FaceProgram(CALM, FOREHEAD, true, "Свежо лице", "Fresh face",
+                    "Отпуска напрежението в челото и челюстта", "Eases tension in the forehead and jaw",
+                    "Челото и дъвкателните мускули", "The forehead and the jaw muscles",
                     "n. supraorbitalis · m. masseter",
                     100, 0, 0, 0xFF2DD4BF, "◌", 2, 1, 1, 0, 0),
             // supraorbital TENS (Cefaly: 60 Hz, 250–300 µs, 20 min daily) + TENS lowers muscle tone (meta-analyses)
             new FaceProgram(RELAX, FOREHEAD, true, "Ботокс ефект", "Botox effect",
-                    "Гладко чело без игла", "A smooth forehead, no needle",
-                    "Сетивни нерви на челото", "Forehead sensory nerves", "n. supraorbitalis · n. supratrochlearis",
+                    "Отпуска мимическите линии, без игла", "Softens expression lines, no needle",
+                    "Мимическите мускули на челото", "The forehead's expression muscles", "n. supraorbitalis · n. supratrochlearis",
                     100, 0, 0, 0xFFF5B021, "∿", 2, 1, 1, 0, 0),
             // TENS on the masseter lowers its resting EMG (RCT in TMD, short term)
-            new FaceProgram(JAW_RELAX, JAW, true, "Отпусната челюст", "Relaxed jaw",
-                    "По-мек долен овал, без напрежение", "A softer jawline, no tension",
-                    "Дъвкателен мускул", "Masseter", "m. masseter",
+            new FaceProgram(JAW_RELAX, JAW, true, "Релаксация на челюстта", "Jaw relaxation",
+                    "Отпуска дъвкателните мускули", "Relaxes the jaw muscles",
+                    "Дъвкателните мускули", "The jaw muscles", "m. masseter",
                     2, 0, 0, 0xFF34D399, "◠", 2, 2, 2, 0, 0),
-            new FaceProgram(CONTOUR, CHIN, false, "Стегната брадичка", "Firm chin",
-                    "По-стегнат профил под брадичката", "A firmer profile under the chin",
-                    "Надподезични мускули", "Suprahyoid muscles", "m. digastricus · m. mylohyoideus",
+            new FaceProgram(CONTOUR, CHIN, false, "Стегнат профил", "Firm profile",
+                    "Оформя линията под брадичката", "Defines the line under the chin",
+                    "Мускулите под брадичката", "The muscles under the chin", "m. digastricus · m. mylohyoideus",
                     30, 4, 8, 0xFF818CF8, "◡", 1, 2, 2, 0, 0)};
 
     public static FaceProgram get(int id) {
@@ -210,82 +210,68 @@ public final class FaceProgram {
         }
     }
 
-    /** What happens, behind ⓘ — the neurophysiology in plain words, then the aesthetic reason, then how sure. */
+    /** What it does, behind ⓘ — in the salon's words: what the client feels, what she sees, how often. */
     public String how(boolean bg) {
         switch (id) {
             case LIFT:
-                return bg ? "Лифтинг 3D работи с трите мускула, които държат средната част на лицето: големия скулов, "
-                        + "повдигачите на горната устна (назолабиалната зона) и мускулите на долната буза. "
-                        + "Импулсът възбужда двигателните разклонения на лицевия нерв (n. facialis) и мускулите се "
-                        + "съкращават сами — 3 секунди работа, 6 секунди отдих, защото лицевите мускули са бързи и се уморяват бързо. "
-                        + "Мускулите на лицето нямат сухожилия: те са вплетени в кожата. По-плътният мускул дава опора отвътре "
-                        + "там, където с годините изтъняват мастните възглавнички — бузата стои по-високо, скулата е по-изразена. "
-                        + "В клинично проучване (12 седмици, 5 пъти седмично) мускулът е станал с около 18 % по-дебел."
-                        : "The impulse excites the motor branches of the facial nerve and the cheek muscle contracts by itself — "
-                        + "3 seconds of work, 6 of rest, as face muscles are fast and tire fast. Face muscles have no tendons: they "
-                        + "weave into the skin. A fuller muscle supports the cheek from within where the fat pads thin with age. "
-                        + "In a clinical trial (12 weeks, 5 times a week) the muscle grew about 18 % thicker.";
+                return bg ? "Електростимулация на мускулите на скулите и горната устна. Мускулите се съкращават сами — "
+                        + "3 секунди работа, 6 секунди отдих, без усилие от клиента и без мимически бръчки.\n\n"
+                        + "С всеки курс мускулите стават по-плътни и повдигат тъканите отвътре: скулите са по-изразителни, "
+                        + "назолабиалната гънка — по-мека, лицето изглежда стегнато и отпочинало. В клинично проучване "
+                        + "за 12 седмици мускулът е станал с около 18 % по-плътен.\n\n"
+                        + "Курс 12 седмици, после „Тонус и стегнатост“ 2–3 пъти седмично пази резултата."
+                        : "Electrical stimulation of the cheekbone and upper-lip muscles. They contract by themselves — 3 seconds "
+                        + "on, 6 off, no effort and no expression lines.\n\nOver the course the muscles grow fuller and lift the "
+                        + "tissue from within: defined cheekbones, a softer nasolabial fold. In a clinical trial the muscle grew "
+                        + "about 18 % thicker in 12 weeks.\n\nA 12-week course, then Tone & firmness 2–3 times a week.";
             case FIRM:
-                return bg ? "По-ниска честота (35 Hz) дава меко, почти слято стягане, което уморява много по-бавно. Така тренира "
-                        + "издръжливите влакна на мимическите мускули — лицето държи формата си през деня. След курса за "
-                        + "лифтинг това е поддръжката: без нея постигнатото постепенно отслабва."
-                        : "A lower rate (35 Hz) gives a soft, nearly fused hold that tires far slower — it trains the enduring "
-                        + "fibres, so the face keeps its shape through the day. After the lift course this is the upkeep.";
+                return bg ? "По-меко и по-дълго стягане на мимическите мускули на бузите. Тонизира мускулите и пази "
+                        + "стегнатостта, постигната с лифтинга.\n\n"
+                        + "2–3 пъти седмично след курса за лифтинг."
+                        : "A softer, longer hold of the cheek muscles. It tones them and keeps the firmness the lift built."
+                        + "\n\n2–3 times a week after the lift course.";
             case DRAIN:
-                return bg ? "Кратки ритмични стягания — 1 секунда работа, 2 секунди отдих — превръщат мускула в помпа: той притиска "
-                        + "лимфните и венозните съдове и изтласква задържаната течност към лимфните възли пред ухото и под "
-                        + "челюстта. При Bluetens двете бузи се редуват като вълна. Че електрическото стягане намалява отоци, е "
-                        + "доказано (систематичен преглед); при лицето работи същият механизъм. Най-добре сутрин, когато "
-                        + "течността от нощта е задържана."
-                        : "Short rhythmic holds — 1 second on, 2 off — turn the muscle into a pump that presses the lymph and "
-                        + "venous vessels and moves the held fluid towards the nodes in front of the ear and under the jaw. On "
-                        + "Bluetens the cheeks take turns, like a wave. That electrical contraction reduces swelling is proven "
-                        + "(a systematic review); the face works by the same mechanism. Best in the morning.";
+                return bg ? "Кратки ритмични съкращения действат като помпа: изтласкват задържаната течност към лимфните "
+                        + "възли пред ухото и под челюстта.\n\n"
+                        + "Подпухването намалява, тенът е по-свеж, чертите — по-ясни. Резултатът се вижда още след "
+                        + "процедурата.\n\nНай-добре сутрин или преди събитие."
+                        : "Short rhythmic contractions work like a pump, moving held fluid towards the lymph nodes in front of "
+                        + "the ear and under the jaw.\n\nLess puffiness, a fresher complexion — visible right after.\n\n"
+                        + "Best in the morning or before an event.";
             case RELAX:
-                return bg ? "Нежен ток (100 Hz, тесен импулс 50 µs) докосва само сетивните влакна на допир в кожата на челото — "
-                        + "мускулът не се движи. Сетивният поток потиска възбудимостта на двигателните неврони и тонусът на "
-                        + "мимическите мускули спада: челото и междувеждието се отпускат, бръчките от мимика омекват. Че такъв "
-                        + "ток намалява мускулния тонус, е доказано (мета-анализи; 100 Hz е най-ефективната честота). Импулсът е "
-                        + "тесен нарочно: болковите влакна на костната обвивка отговарят само на дълги импулси, затова на тънката "
-                        + "кожа на челото усещането остава приятно изтръпване, а не болка в костта. Ефектът е за часове и се "
-                        + "натрупва с редовност. Не замества ботулиновия токсин."
-                        : "A gentle current (100 Hz, a narrow 50 µs pulse) touches only the touch fibres of the forehead skin — the "
-                        + "muscle does not move. The sensory input damps the excitability of the motor neurons and the tone of the "
-                        + "expression muscles drops: the forehead and the frown relax, expression lines soften. That such current "
-                        + "lowers muscle tone is proven (meta-analyses; 100 Hz works best). The pulse is narrow on purpose: the pain "
-                        + "fibres of the bone's lining answer only long pulses, so on the thin forehead skin it stays a pleasant "
-                        + "tingle, not an ache in the bone. The effect lasts hours and builds with regular use. It does not "
-                        + "replace botulinum toxin.";
+                return bg ? "Нежен ток по челото — усеща се като приятно изтръпване, веждите не мърдат.\n\n"
+                        + "Мимическите мускули на челото се отпускат, линиите от мимика омекват, челото изглежда гладко и "
+                        + "отпочинало. Ефектът е за няколко часа и се натрупва с редовни процедури."
+                        : "A gentle current on the forehead — a pleasant tingle, the brows stay still.\n\nThe forehead's "
+                        + "expression muscles relax and the lines soften. The effect lasts a few hours and builds with "
+                        + "regular sessions.";
             case OVAL:
-                return bg ? "Скулите и мускулите под брадичката работят на смени — 3 секунди скулите, 3 секунди брадичката: всеки "
-                        + "мускул почива двойно по-дълго, отколкото работи. Скулите получават лифтинга (клинично проучване: "
-                        + "+18 % дебелина за 12 седмици), брадичката — стягане на ъгъла между нея и шията. Цял овал в една "
-                        + "сесия. Мускулите под брадичката са и мускулите на преглъщането — седнал, без храна и вода."
-                        : "The cheeks and the muscles under the chin take turns — 3 seconds each, so every muscle rests twice as "
-                        + "long as it works. The cheeks get the lift (a clinical trial: +18 % thickness in 12 weeks), the chin a "
-                        + "firmer angle to the neck. The whole oval in one session; seated, no food or drink.";
+                return bg ? "Скулите и мускулите под брадичката работят на смени — 3 секунди едните, 3 секунди другите.\n\n"
+                        + "Така в една процедура се оформя целият контур: повдигнати скули и по-стегната линия под "
+                        + "брадичката.\n\nКлиентът седи и не яде и не пие по време на процедурата."
+                        : "The cheekbones and the muscles under the chin take turns — 3 seconds each.\n\nOne session sculpts "
+                        + "the whole contour: lifted cheekbones and a firmer line under the chin.\n\nSeated, no food or "
+                        + "drink during the session.";
             case CALM:
-                return bg ? "Нежен сетивен ток едновременно по челото и по двата дъвкателни мускула — там, където лицето държи "
-                        + "напрежението от деня. Сетивният поток сваля тонуса на мускулите (доказано за такъв ток); "
-                        + "честотата се сменя между 80 и 100 Hz, при тесен импулс, за да не привикнат нервите и да няма дълбока болка. Челото се отпуска, челюстта се "
-                        + "разтваря, чертите омекват. Идеално вечер или след стрес."
-                        : "A gentle sensory current on the forehead and both masseters at once — where the face holds the day's "
-                        + "tension. The sensory input lowers muscle tone (proven for such current); the rate alternates 80 ↔ 100 Hz at a narrow pulse "
-                        + "so the nerves do not get used to it. Best in the evening or after stress.";
+                return bg ? "Нежен ток по челото и дъвкателните мускули — там, където лицето държи напрежението от деня. "
+                        + "Мускулите не се движат, усеща се само леко изтръпване.\n\n"
+                        + "Челото и челюстта се отпускат, чертите омекват, лицето изглежда свежо.\n\n"
+                        + "Идеално вечер или след напрегнат ден."
+                        : "A gentle current on the forehead and the jaw muscles, where the face holds the day's tension. "
+                        + "Nothing moves, only a light tingle.\n\nThe forehead and the jaw relax, the features soften."
+                        + "\n\nBest in the evening or after a long day.";
             case JAW_RELAX:
-                return bg ? "Бавни ритмични импулси, два пъти в секунда, върху дъвкателния мускул (m. masseter) — при Bluetens "
-                        + "като кратки серии — усещат се като дълбоко потупване. В клинично проучване при напрежение в челюстта "
-                        + "такъв ток намалява активността на мускула в покой. Резултат: отпусната челюст, по-мек долен овал, "
-                        + "по-малко напрежение от стискане на зъби. Укрепване на този мускул никога: то разширява челюстта."
-                        : "Slow rhythmic impulses, twice a second, on the masseter (on Bluetens as short bursts) — felt as a deep "
-                        + "tapping. In a clinical trial in jaw tension such current lowered the muscle's resting activity: a "
-                        + "relaxed jaw, a softer lower face. Never strengthening this muscle: that widens the jaw.";
+                return bg ? "Бавно ритмично потупване по дъвкателните мускули.\n\n"
+                        + "Мускулите се отпускат, напрежението от стискане на зъби намалява, а долната част на лицето "
+                        + "изглежда по-мека.\n\nВинаги, когато челюстта е напрегната."
+                        : "A slow rhythmic tapping on the jaw muscles.\n\nThey relax, the tension from clenching eases and the "
+                        + "lower face looks softer.\n\nWhenever the jaw feels tense.";
             default:
-                return bg ? "Двустомашният и челюстно-подезичният мускул (m. digastricus, m. mylohyoideus) повдигат подезичната "
-                        + "кост; стягането им оформя ъгъла между брадичката и шията. Това са и мускулите на преглъщането — "
-                        + "процедурата е седнал, без храна и вода. Ефектът за контура не е измерен в проучване."
-                        : "The digastric and mylohyoid lift the hyoid; their tone shapes the angle between chin and neck. They are "
-                        + "also the swallowing muscles — seated, no food or drink. A contour effect is not measured in studies.";
+                return bg ? "Стягане на мускулите под брадичката — те оформят линията между брадичката и шията.\n\n"
+                        + "Профилът изглежда по-стегнат и оформен.\n\n"
+                        + "Клиентът седи и не яде и не пие по време на процедурата."
+                        : "Toning the muscles under the chin, which shape the line between the chin and the neck.\n\n"
+                        + "A firmer, more defined profile.\n\nSeated, no food or drink during the session.";
         }
     }
 
@@ -360,7 +346,7 @@ public final class FaceProgram {
     /** What the client feels / what the face does right now (the run's hint). */
     public String runHint(boolean on, boolean bg) {
         if (sensory) {
-            return id == RELAX ? (bg ? "Затвори очи, отпусни челото — токът работи по нервите" : "Close the eyes, let the forehead go")
+            return id == RELAX ? (bg ? "Затвори очи и отпусни челото" : "Close the eyes, let the forehead go")
                     : id == CALM ? (bg ? "Затвори очи, отпусни челото и челюстта" : "Close the eyes, let the forehead and the jaw go")
                     : (bg ? "Отпусни челюстта, зъбите да не се допират" : "Let the jaw hang, teeth apart");
         }

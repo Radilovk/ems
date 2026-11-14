@@ -63,7 +63,7 @@ Byte 1 = Hz 84 → 89 → 92 (log "fr"); rest Hz 5 → 6 → 7; program 7 adds r
 - Units of Dur (41), dec (1406) and of the widths in 0x001c; pulse-width range.
 - Bit 7 in 0x002e (the app's log of the same write has no such bit).
 - Watchdog: does the unit stop by itself when the tablet goes silent (the app writes 0x002e at least every few s)?
-- Minutes quota: does the unit itself refuse `25` when used ≥ bought?
+- Minutes quota: **yes, the unit refuses** — `25` → run notifies `02`, never runs (73160 used of 73200, Dur 41; WiEMS app 1.25 retries with a smaller Dur). How the vendor app renews the quota (`7764a25c` / `77645cb2`, write-only?) — not captured.
 Next capture, same way: change only the **pulse width** (2–3 values), then only **session length**, then leave a
 session running 2 min untouched; name the channels on screen. Then the probe on the tablet.
 

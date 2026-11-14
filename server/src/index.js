@@ -11,8 +11,9 @@ import exercisesAdminHtml from './exercises-admin.html';
 import exerciseLibrary from '../../branding/exercises/library.json';
 import { normalizePick, picksPayload, codeMatches, selectionPayload, APPS, appOf } from './exercises.js';
 import { LIMITS, limitsSummary } from './limits.js';
-import { handleUnitUpdate, handleUnitPack, handleUnitLog, adminUnits } from './units.js';
+import { handleUnitUpdate, handleUnitPack, handleUnitLog, handleUnitLogRead, adminUnits } from './units.js';
 import { handleVrlogPut, handleVrlogGet } from './vrlog.js';
+import { handleWiemsUpdate, handleWiemsApk } from './wiemsapp.js';
 import {
   sessionId, validSummary, validRec, putSession, historyJson, SESSION_MAX_BYTES,
 } from './history.js';
@@ -28,7 +29,7 @@ import {
   validMeasure, putMeasures, measuresJson, findBodyCard, MEASURE_MAX_BYTES, MEASURES_PUSH_MAX,
 } from './measures.js';
 import {
-  studioCode, isStudioCode, cleanProfile, allowHit,
+  studioCode, isStudioCode, cleanProfile, publicProfile, allowHit,
   PROFILE_MAX_BYTES, INBOX_KEEP_SEC, INBOX_MAX_PER_STUDIO, INBOX_BATCH, INBOX_TOKEN_MAX_AGE_SEC,
 } from './profile.js';
 import {
@@ -74,7 +75,7 @@ export default {
         return handleAuto(request, env);
       }
       if (path === '/v1/app/update' && request.method === 'GET') {
-        return handleUpdate(url, env);
+        return handleUpdate(url, env, ctx);
       }
       if (path === '/v1/exercises/selection' && (request.method === 'GET' || request.method === 'OPTIONS')) {
         return handleSelection(request, env);
@@ -109,6 +110,10 @@ export default {
       if (path.startsWith('/c/') && request.method === 'GET') {
         return serveCard(request, env, ctx, path.slice(3));
       }
+      if (path === '/v1/profile/find') {
+        if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: CORS_HEADERS });
+        if (request.method === 'POST') return handleProfileFind(request, env);
+      }
       if (path === '/v1/profile') {
         if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: CORS_HEADERS });
         if (request.method === 'POST') return handleProfile(request, env);
@@ -123,6 +128,12 @@ export default {
       // The XBody unit's mod (xems-net): only when a trainer asks on the unit — update check, its pack, a log.
       if (path === '/v1/unit/update' && request.method === 'GET') return handleUnitUpdate(url, env);
       if (path === '/v1/unit/pack' && request.method === 'GET') return handleUnitPack(url, env);
+      // The WiEMS tablet app's self-update from the repo's main (src/wiemsapp.js).
+      if (path === '/v1/wiems/update' && request.method === 'GET') return handleWiemsUpdate(url);
+      if (path === '/v1/wiems/apk' && request.method === 'GET') return handleWiemsApk();
+      if (path.startsWith('/v1/unit/log/') && request.method === 'GET') {
+        return handleUnitLogRead(env, url, path.slice('/v1/unit/log/'.length));
+      }
       if (path === '/v1/unit/log' && request.method === 'POST') {
         return handleUnitLog(request, env, url, (k, max, sec) => rateLimit(env, k, max, sec));
       }
@@ -672,6 +683,37 @@ async function handleProfile(request, env) {
 }
 
 /**
+ * POST {studio, ek, pk} from the client's app → {ok, profile} with the training data of their own profile, so a client who
+ * filled it in elsewhere (the PWA, the web page) does not type it again. Only the fields of publicProfile (no contact,
+ * no health answers). The newest profile the client sent (client_inbox, 14 days), else the studio's dossier (clients).
+ * Read only: two indexed D1 reads.
+ */
+async function handleProfileFind(request, env) {
+  const ts = now();
+  const ip = request.headers.get('CF-Connecting-IP') || 'unknown';
+  if (!allowHit(`profilefind:ip:${ip}`, LIMITS.cardFindPerMinutePerIp, 60, ts)) {
+    return cors(json({ ok: false, error: 'rate_limit' }, 429));
+  }
+  const body = await readJsonBody(request);
+  const ek = lookupHash(body?.ek);
+  const pk = lookupHash(body?.pk);
+  if (!ek && !pk) return cors(err('bad_request', 'ek / pk'));
+  if (!isStudioCode(body?.studio)) return cors(err('bad_request', 'studio'));
+  const lic = await env.DB.prepare('SELECT id FROM licenses WHERE studio_code = ?').bind(body.studio).first();
+  if (!lic) return cors(json({ ok: false, error: 'not_found' }, 404));
+  const inbox = await env.DB.prepare(
+    'SELECT data FROM client_inbox WHERE license_id = ? AND pkey IN (?, ?) ORDER BY updated_at DESC LIMIT 1',
+  ).bind(lic.id, ek || '-', pk || '-').first();
+  const dossier = await env.DB.prepare(
+    'SELECT data FROM clients WHERE license_id = ? AND deleted = 0 AND (ek = ? OR pk = ?) ORDER BY t DESC LIMIT 1',
+  ).bind(lic.id, ek || '-', pk || '-').first();
+  const parse = (r) => { try { return r && r.data ? JSON.parse(r.data) : null; } catch { return null; } };
+  const profile = publicProfile(parse(inbox), parse(dossier));
+  if (!Object.keys(profile).length) return cors(json({ ok: false, error: 'not_found' }, 404));
+  return cors(json({ ok: true, profile }));
+}
+
+/**
  * POST {token, device_id, since} from a tablet → the profiles newer than `since` (oldest first, ≤ 100).
  * Checked by the token's signature and age only: one indexed D1 read per poll, nothing written.
  */
@@ -728,11 +770,31 @@ async function handleClientsPut(request, env) {
   return json({ ok: true, ids });
 }
 
-async function handleUpdate(url, env) {
+async function handleUpdate(url, env, ctx) {
   const app = url.searchParams.get('app') || 'xems';
   const channel = url.searchParams.get('channel') || 'stable';
   const code = parseInt(url.searchParams.get('code') || '0', 10);
   if (app !== 'xems') return json({ ok: true, version_code: 0 });
+  // the answer is the same for every tablet on this version: kept 10 min at the edge (no D1 read per tablet);
+  // the key leaves the device id out. A new release reaches the tablets within those 10 min.
+  const key = new Request(`${url.origin}/v1/app/update?channel=${encodeURIComponent(channel)}&code=${code}`);
+  let cache = null;
+  try {
+    cache = caches.default;
+    const hit = await cache.match(key);
+    if (hit) return new Response(hit.body, { headers: { 'Content-Type': 'application/json; charset=utf-8' } });
+  } catch { cache = null; }
+  const res = await updateAnswer(url, env, channel, code);
+  if (cache && ctx) {
+    const body = await res.clone().text();
+    ctx.waitUntil(cache.put(key, new Response(body, {
+      headers: { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'public, max-age=600' },
+    })));
+  }
+  return res;
+}
+
+async function updateAnswer(url, env, channel, code) {
 
   const rel = await env.DB.prepare(
     `SELECT * FROM releases

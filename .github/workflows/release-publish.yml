@@ -1,0 +1,57 @@
+# Every new XEMS build on main → a release on the update server, so EVERY tablet (with a licence or without) gets it.
+# Before this the releases were added by hand in the admin panel and stopped at 1.1.495 (620); its URL pointed at
+# raw/main/xems27.apk, which moves with every build, so its pinned SHA-256 no longer matched → "bad_checksum".
+# Now: the APK of THIS commit (immutable raw URL), its own SHA-256 and size, the version from RELEASE_VERSION.
+# Repository secrets (the same as server-deploy): CLOUDFLARE_API_TOKEN (D1:Edit), CLOUDFLARE_ACCOUNT_ID.
+name: release-publish
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'xems27.apk'
+      - 'RELEASE_VERSION'
+      - '.github/workflows/release-publish.yml'
+concurrency: release-publish
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Read the build
+        id: rel
+        run: |
+          CODE=$(sed -n 's/^versionCode=//p' RELEASE_VERSION | tr -dc '0-9')
+          NAME=$(sed -n 's/^versionName=//p' RELEASE_VERSION | tr -dc 'A-Za-z0-9._-')
+          test -n "$CODE" && test -n "$NAME"
+          SHA=$(sha256sum xems27.apk | cut -d' ' -f1)
+          SIZE=$(stat -c %s xems27.apk)
+          test "$SIZE" -gt 1000000
+          URL="https://github.com/${GITHUB_REPOSITORY}/raw/${GITHUB_SHA}/xems27.apk"
+          echo "code=$CODE" >> "$GITHUB_OUTPUT"; echo "name=$NAME" >> "$GITHUB_OUTPUT"
+          echo "sha=$SHA" >> "$GITHUB_OUTPUT"; echo "size=$SIZE" >> "$GITHUB_OUTPUT"; echo "url=$URL" >> "$GITHUB_OUTPUT"
+          echo "XEMS $NAME ($CODE) · $SIZE B · $SHA · $URL"
+      - name: The APK downloads and matches
+        run: |
+          curl -fsSL "${{ steps.rel.outputs.url }}" -o /tmp/x.apk
+          test "$(sha256sum /tmp/x.apk | cut -d' ' -f1)" = "${{ steps.rel.outputs.sha }}"
+      - name: Register the release (D1 xems-license)
+        working-directory: server
+        run: |
+          npm ci
+          npx wrangler d1 execute xems-license --remote --command \
+            "INSERT OR REPLACE INTO releases (version_code, version_name, channel, object_key, sha256, size, notes, mandatory, min_code, published_at)
+             VALUES (${{ steps.rel.outputs.code }}, '${{ steps.rel.outputs.name }}', 'stable', '${{ steps.rel.outputs.url }}',
+                     '${{ steps.rel.outputs.sha }}', ${{ steps.rel.outputs.size }}, '', 1, NULL, CAST(strftime('%s','now') AS INTEGER));"
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      - name: Check — an older tablet is offered this build
+        run: |
+          R=$(curl -fsS "https://license.biocode-bg.com/v1/app/update?app=xems&channel=stable&code=$(( ${{ steps.rel.outputs.code }} - 1 ))")
+          echo "$R"
+          echo "$R" | grep -q "\"version_code\":${{ steps.rel.outputs.code }}"
+          echo "$R" | grep -q "${{ steps.rel.outputs.sha }}"

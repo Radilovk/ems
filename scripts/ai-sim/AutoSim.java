@@ -7,6 +7,7 @@ import com.isaigu.gymapp.ai.AutoLimits;
 import com.isaigu.gymapp.ai.AutoModel;
 import com.isaigu.gymapp.ai.AutoPlanner;
 import com.isaigu.gymapp.ai.AutoTemplates;
+import com.isaigu.gymapp.ai.ProgramGuide;
 import com.isaigu.gymapp.ai.PulseAdvice;
 import com.isaigu.gymapp.ai.SafeLimits;
 
@@ -51,6 +52,7 @@ public final class AutoSim {
         blocks();
         zones();
         passiveTexts();
+        guides();
         windows();
         hrCap();
         corridor();
@@ -346,10 +348,33 @@ public final class AutoSim {
         check(z[AutoModel.ABS] <= 40, "zones: diastasis abs ≤ 40");
     }
 
+    /** Owner (1.1.516): every ready program of every menu has its ⓘ — three short plain lines, how often, the course. */
+    static void guides() {
+        for (AutoModel.Goal g : AutoModel.Goal.values()) {
+            for (AutoModel.Kind k : AutoModel.Kind.values()) {
+                for (AutoCatalog.Program p : AutoCatalog.menu(g, k)) {
+                    ProgramGuide.Entry e = ProgramGuide.get(p.id);
+                    check(e != null, "guide: " + p.id + " has an info text");
+                    if (e == null) {
+                        continue;
+                    }
+                    String[][] all = {e.howBg, e.howEn, {e.oftenBg, e.oftenEn, e.courseBg, e.courseEn}};
+                    for (String[] xs : all) {
+                        for (String x : xs) {
+                            check(x != null && x.length() > 3 && x.length() <= 110, "guide: " + p.id + " line length: " + x);
+                            check(x == null || !(x.contains("Hz") || x.contains("µs") || x.contains("mTOR")), "guide: " + p.id + " no jargon: " + x);
+                        }
+                    }
+                    check(e.howBg.length == 3 && e.howEn.length == 3, "guide: " + p.id + " three lines");
+                }
+            }
+        }
+    }
+
     /** Owner (1.1.287): a passive session says the goal of every phase and what the current does. */
     static void passiveTexts() {
         String[] ids = {AutoCatalog.CELLULITE, AutoCatalog.DRAIN, AutoCatalog.PASSIVE_METABOLIC, AutoCatalog.BACK_PAIN,
-                AutoCatalog.POSTPARTUM, AutoCatalog.RECOVERY, AutoCatalog.FACE, AutoCatalog.FACE_TONE,
+                AutoCatalog.POSTPARTUM, AutoCatalog.RECOVERY, AutoCatalog.ANTIAGE_PASSIVE, AutoCatalog.FACE, AutoCatalog.FACE_TONE,
                 AutoCatalog.FACE_OVAL, AutoCatalog.FACE_DRAIN, AutoCatalog.FACE_RELAX, AutoCatalog.FACE_CALM,
                 AutoCatalog.FACE_JAW, AutoCatalog.FACE_CHIN};
         for (String id : ids) {

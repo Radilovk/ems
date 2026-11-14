@@ -63,41 +63,41 @@
     .registers 10
 
     .prologue
-    .line 143
+    .line 151
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 125
+    .line 133
     const-wide/high16 v0, 0x3ff0000000000000L    # 1.0
 
     iput-wide v0, p0, Lcom/isaigu/gymapp/ai/AutoCatalog$Program;->envMax:D
 
-    .line 130
+    .line 138
     const/4 v0, 0x2
 
     iput v0, p0, Lcom/isaigu/gymapp/ai/AutoCatalog$Program;->level:I
 
-    .line 144
+    .line 152
     iput-object p1, p0, Lcom/isaigu/gymapp/ai/AutoCatalog$Program;->id:Ljava/lang/String;
 
-    .line 145
+    .line 153
     iput-object p2, p0, Lcom/isaigu/gymapp/ai/AutoCatalog$Program;->nameBg:Ljava/lang/String;
 
-    .line 146
+    .line 154
     iput-object p3, p0, Lcom/isaigu/gymapp/ai/AutoCatalog$Program;->nameEn:Ljava/lang/String;
 
-    .line 147
+    .line 155
     iput-object p4, p0, Lcom/isaigu/gymapp/ai/AutoCatalog$Program;->descBg:Ljava/lang/String;
 
-    .line 148
+    .line 156
     iput-object p5, p0, Lcom/isaigu/gymapp/ai/AutoCatalog$Program;->descEn:Ljava/lang/String;
 
-    .line 149
+    .line 157
     iput-object p6, p0, Lcom/isaigu/gymapp/ai/AutoCatalog$Program;->kind:Lcom/isaigu/gymapp/ai/AutoModel$Kind;
 
-    .line 150
+    .line 158
     iput-object p7, p0, Lcom/isaigu/gymapp/ai/AutoCatalog$Program;->zones:[I
 
-    .line 151
+    .line 159
     return-void
 .end method
 
@@ -107,7 +107,7 @@
     .registers 3
 
     .prologue
-    .line 162
+    .line 170
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AutoCatalog$Program;->descBg:Ljava/lang/String;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/ai/AutoCatalog$Program;->descEn:Ljava/lang/String;
@@ -123,7 +123,7 @@
     .registers 3
 
     .prologue
-    .line 154
+    .line 162
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AutoCatalog$Program;->kind:Lcom/isaigu/gymapp/ai/AutoModel$Kind;
 
     sget-object v1, Lcom/isaigu/gymapp/ai/AutoModel$Kind;->ACTIVE:Lcom/isaigu/gymapp/ai/AutoModel$Kind;
@@ -145,7 +145,7 @@
     .registers 3
 
     .prologue
-    .line 158
+    .line 166
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AutoCatalog$Program;->nameBg:Ljava/lang/String;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/ai/AutoCatalog$Program;->nameEn:Ljava/lang/String;

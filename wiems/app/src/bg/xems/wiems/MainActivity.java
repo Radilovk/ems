@@ -24,7 +24,7 @@ import java.util.List;
  * ({@link Ble}).
  * The brain lives here: what the screen shows, what a tap does, the 50 ms tick that paces the unit.
  */
-public final class MainActivity extends Activity implements Ble.Listener, Host {
+public final class MainActivity extends Activity implements Ble.Listener, Host, Report.Done {
     static final int VIEW_NO_BT = 0, VIEW_PERMISSION = 1, VIEW_BT_OFF = 2, VIEW_PICK = 3, VIEW_LINKING = 4, VIEW_TRAIN = 5;
 
     Ble ble;
@@ -50,6 +50,198 @@ public final class MainActivity extends Activity implements Ble.Listener, Host {
 
     void trace(String s) {
         if (trace != null) trace.add(now(), s);
+    }
+
+    /** v1.27: the quota probe drives the unit through these (one op in flight; acks / run notifies come back below). */
+    final class ProbeIo implements Probe.Io {
+        @Override
+        public void probeWrite(String uuid, byte[] val) {
+            lastOp = "probe " + uuid.substring(0, 8);
+            trace("→ probe " + uuid.substring(0, 8) + " = " + Trace.hex(val));
+            if (!ble.rawWrite(uuid, val)) probe.cancel("write to " + uuid.substring(0, 8) + " refused");
+        }
+
+        @Override
+        public void probeOp(byte[] op) {
+            lastOp = opName(op[0]);
+            if (!ble.write(op)) probe.cancel("op " + opName(op[0]) + " refused");
+        }
+
+        @Override
+        public void probeLog(String s) {
+            trace("  [probe] " + s);
+        }
+
+        @Override
+        public void probeDone(Probe.Cand winner, String summary) {
+            boolean verify = probe.verifying();
+            SharedPreferences pr = getSharedPreferences("wiems", MODE_PRIVATE);
+            for (String k : probe.tried()) if (!triedKeys.contains(k)) triedKeys.add(k);   // what failed this run
+            if (quotaMac != null) pr.edit().putString("tried_" + quotaMac, joinKeys(triedKeys)).apply();
+            if (verify) {
+                if (winner != null) {
+                    resetVerified = true;               // the key still opens the gate; the unit is ready
+                    if (session != null) session.quota.keyed = true;   // v1.29: no 1.26 cycles while it holds
+                    trace("quota reset verified for " + quotaMac);
+                } else if (quotaMac != null) {          // stale: drop it and search again when idle
+                    knownReset = null;
+                    if (session != null) session.quota.keyed = false;
+                    pr.edit().remove("reset_" + quotaMac).apply();
+                    wantProbe = session != null && session.quota.tight;
+                    trace("quota reset discarded (stale) for " + quotaMac + " — will search again");
+                }
+            } else if (winner != null && quotaMac != null) {
+                knownReset = winner;
+                resetVerified = true;                   // a probe win is itself a zero-current run that succeeded
+                if (session != null) session.quota.keyed = true;
+                pr.edit().putString("reset_" + quotaMac, Probe.save(winner)).apply();
+                trace("quota probe: saved reset for " + quotaMac + " = " + Probe.save(winner));
+            }
+            if (summary != null && summary.length() > 0) {
+                setNote(summary, winner == null);
+                noteUntil = now() + 20000;
+            }
+            autoReport("quota " + (verify ? "verify " : "probe ") + (winner != null ? "ok: " + winner.label : "no key"));
+        }
+    }
+
+    /** Candidate keys (uuid + hex, space inside) joined by ';' for prefs; and back. */
+    static String joinKeys(java.util.List<String> keys) {
+        StringBuilder b = new StringBuilder();
+        for (String k : keys) {
+            if (b.length() > 0) b.append(';');
+            b.append(k);
+        }
+        return b.toString();
+    }
+
+    static java.util.List<String> splitKeys(String s) {
+        java.util.List<String> out = new java.util.ArrayList<String>();
+        if (s != null && s.length() > 0) for (String k : s.split(";")) if (k.length() > 0) out.add(k);
+        return out;
+    }
+
+    /** What stopped the training, on a card until the trainer taps РАЗБРАХ (v1.19); null = nothing. */
+    String[] problem;
+    /** The unit's own counter of minutes used (its 7764d000, ASCII), read at the link; null = not read. */
+    String unitMinutes;
+    /** v1.26: read the minutes counter at the next free moment; the unit the quota is saved for. */
+    private boolean minutesWant;
+    private String quotaMac;
+    /** v1.27 / v1.28: the quota probe, the reset found for this unit, and the unattended triggers. */
+    final Probe probe = new Probe(new ProbeIo());
+    private Probe.Cand knownReset;
+    private boolean resetVerified;
+    /** wantVerify: re-check the stored reset silently before any training; wantProbe: search for one. */
+    private boolean wantProbe, wantVerify;
+    /** Candidate keys already tried and seen fail for this unit (prefs tried_&lt;mac&gt;), so the search converges. */
+    private java.util.List<String> triedKeys = new java.util.ArrayList<String>();
+    /** The last op written (its name), for a refused write's message. */
+    String lastOp = "";
+
+    public String[] problem() {
+        return problem;
+    }
+
+    public void dismissProblem() {
+        problem = null;
+    }
+
+    void showProblem(String... lines) {
+        problem = lines;
+        StringBuilder b = new StringBuilder("PROBLEM SHOWN:");
+        for (String l : lines) b.append(" | ").append(l);
+        trace(b.toString());
+        // v1.24: the unit's whole state first (every readable value), then the report — at most 5 s later
+        if (session != null && session.kind == Dev.WIEMS && ble.ready()) {
+            snapWant = lines[0];
+            reportAfterSnap = lines[0];
+            snapDeadline = now() + 5000;
+        } else autoReport(lines[0]);
+    }
+
+    /** A snapshot asked (its reason) — taken when no write is on air; the report that waits for it. */
+    String snapWant, reportAfterSnap;
+    long snapDeadline;
+
+    // ---------------------------------------------------------------- the trace to the server by itself (v1.20)
+
+    final Report report = new Report();
+    int reportState = Report.IDLE;
+    String reportWhy;
+    long reportAt, reportRetryAt;
+    int reportTries, appCode;
+    String appName = "?";
+
+    /** Self-update at start (v1.22, {@link Updater}). */
+    Updater updater;
+
+    final class UpLog implements Updater.Log {
+        @Override
+        public void log(String s) {
+            trace(s);
+        }
+
+        @Override
+        public void note(String s, boolean warn) {
+            setNote(s, warn);
+        }
+    }
+
+    public int reportState() {
+        return reportState;
+    }
+
+    /**
+     * A training failed: the trace goes to the server without anyone asking (owner: "the client only tests"). At most
+     * one a minute (the server takes 10 an hour per studio); no internet → tried again every minute, 10 times.
+     */
+    void autoReport(String why) {
+        long t = now();
+        if (reportState == Report.SENDING || (reportAt > 0 && t - reportAt < 60000 && reportState == Report.SENT)) {
+            trace("report: " + why + " (with the previous one)");
+            return;
+        }
+        reportWhy = why;
+        reportTries = 0;
+        sendReport();
+    }
+
+    private void sendReport() {
+        reportAt = now();
+        reportTries++;
+        Session s = session != null ? session : held;
+        String mac = lastMac != null ? lastMac : linkingMac;
+        String head = "REPORT " + reportWhy + "\nXEMS WiEMS " + appName + " (" + appCode + ") · " + Build.MANUFACTURER + " "
+                + Build.MODEL + " · Android " + Build.VERSION.RELEASE + "\nunit " + linkedName + " " + mac + " · "
+                + Dev.SHORT[kind()] + (unitMinutes != null ? " · minutes used " + unitMinutes : "") + (session != null && session.kind == Dev.WIEMS ? " · " + session.quota : "")
+                + (knownReset != null ? " · reset " + knownReset.uuid.substring(0, 8) + "=" + Trace.hex(knownReset.val) + (resetVerified ? " (verified)" : "") : "")
+                + (triedKeys != null && !triedKeys.isEmpty() ? " · tried " + triedKeys.size() : "")
+                + (s != null ? " · battery " + s.battery() + "% · state " + s.state() + " · halt: " + s.haltReason() : "")
+                + "\n---\n";
+        if (report.send(mac, appCode, head + trace.dump(), this)) {
+            reportState = Report.SENDING;
+            trace("report → server (" + reportWhy + ", try " + reportTries + ")");
+        }
+    }
+
+    @Override
+    public void reported(boolean ok, String answer) {
+        if (sendingPending) {
+            sendingPending = false;
+            if (ok) pendingFile().delete();
+            trace("crash report " + (ok ? "sent: " : "FAILED (kept for the next start): ") + answer);
+            reportState = Report.IDLE;
+            return;
+        }
+        reportState = ok ? Report.SENT : Report.FAILED;
+        trace("report " + (ok ? "sent: " : "FAILED: ") + answer);
+        reportRetryAt = ok || reportTries >= 10 ? 0 : now() + 60000;
+    }
+
+    /** GATT codes that mean the unit wants pairing / encryption. */
+    private static boolean authCode(int st) {
+        return st == 5 || st == 8 || st == 15 || st == 137;
     }
     XView view;
     final List<Seen> seen = new ArrayList<Seen>();
@@ -81,19 +273,111 @@ public final class MainActivity extends Activity implements Ble.Listener, Host {
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN | WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         java.io.File dir = getExternalFilesDir(null);
         trace = new Trace(new java.io.File(dir != null ? dir : getFilesDir(), "wiems-log.txt"));
-        trace("app start " + android.os.Build.MODEL + " Android " + Build.VERSION.RELEASE);
+        try {
+            android.content.pm.PackageInfo pi = getPackageManager().getPackageInfo(getPackageName(), 0);
+            appName = pi.versionName;
+            appCode = pi.versionCode;
+        } catch (Throwable t) {
+            appCode = 0;
+        }
+        updater = new Updater(this, appCode, new UpLog());
+        trace("app start " + appName + " (" + appCode + ") " + android.os.Build.MODEL + " Android " + Build.VERSION.RELEASE);
         load();
         ble = new Ble(this, this);
         view = new XView(this, this);
         setContentView(view);
         immersive();
         askPermission();
+        Thread.setDefaultUncaughtExceptionHandler(new Crash(Thread.getDefaultUncaughtExceptionHandler()));
+        sendPending();
+    }
+
+    // ---------------------------------------------------------------- what the trainer cannot report (v1.23)
+
+    /** A crash's report, written as the app dies and sent at the next start. */
+    java.io.File pendingFile() {
+        return new java.io.File(getFilesDir(), "pending-report.txt");
+    }
+
+    boolean sendingPending;
+
+    /** The app crashed last time (or a report never got out): it goes now, by itself. */
+    void sendPending() {
+        java.io.File f = pendingFile();
+        if (!f.exists() || f.length() == 0) return;
+        try {
+            byte[] b = new byte[(int) Math.min(f.length(), Report.MAX_CHARS * 2L)];
+            java.io.FileInputStream in = new java.io.FileInputStream(f);
+            int n = 0, r;
+            while (n < b.length && (r = in.read(b, n, b.length - n)) > 0) n += r;
+            in.close();
+            String text = new String(b, 0, n, "UTF-8");
+            if (report.send(lastMac, appCode, text, this)) {
+                sendingPending = true;
+                reportState = Report.SENDING;
+                trace("report → server: the last crash");
+            }
+        } catch (Throwable t) {
+            trace("pending report: " + t);
+        }
+    }
+
+    /** Any crash: what and where, with the trace before it, kept for the next start; then Android's own handling. */
+    final class Crash implements Thread.UncaughtExceptionHandler {
+        final Thread.UncaughtExceptionHandler prev;
+
+        Crash(Thread.UncaughtExceptionHandler prev) {
+            this.prev = prev;
+        }
+
+        @Override
+        public void uncaughtException(Thread th, Throwable e) {
+            try {
+                java.io.StringWriter sw = new java.io.StringWriter();
+                e.printStackTrace(new java.io.PrintWriter(sw));
+                String head = "REPORT app crash: " + e + "\nXEMS WiEMS " + appName + " (" + appCode + ") · " + Build.MANUFACTURER
+                        + " " + Build.MODEL + " · Android " + Build.VERSION.RELEASE + " · thread " + th.getName() + "\n" + sw + "---\n";
+                java.io.FileOutputStream o = new java.io.FileOutputStream(pendingFile());
+                o.write((head + (trace != null ? trace.dump() : "")).getBytes("UTF-8"));
+                o.close();
+            } catch (Throwable t) {
+                // dying anyway
+            }
+            if (prev != null) prev.uncaughtException(th, e);
+        }
+    }
+
+    /** A caught error inside the app's loop (a bug, even if the screen goes on): reported once per run. */
+    boolean errorReported;
+
+    void appError(String where, Throwable e) {
+        java.io.StringWriter sw = new java.io.StringWriter();
+        e.printStackTrace(new java.io.PrintWriter(sw));
+        trace("APP ERROR in " + where + ": " + sw);
+        if (!errorReported) {
+            errorReported = true;
+            autoReport("app error in " + where + ": " + e);
+        }
+    }
+
+    /** Link attempts that failed in a row; the second one is reported (once until a link works). */
+    int linkFails;
+    boolean linkReported;
+
+    void linkFailed(String why) {
+        linkFails++;
+        trace("LINK FAILED (" + linkFails + " in a row): " + why);
+        if (linkFails >= 2 && !linkReported) {
+            linkReported = true;
+            autoReport("link failed " + linkFails + " times: " + why);
+        }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         resumed = true;
+        if (updater != null) updater.check(now());
         immersive();
         main.removeCallbacks(tick);
         main.post(tick);
@@ -110,6 +394,7 @@ public final class MainActivity extends Activity implements Ble.Listener, Host {
 
     @Override
     protected void onDestroy() {
+        if (updater != null) updater.close();
         main.removeCallbacks(tick);
         if (session != null) session.stop();
         ble.disconnect(Session.safeOp(ble.kind()));
@@ -239,6 +524,7 @@ public final class MainActivity extends Activity implements Ble.Listener, Host {
         if (session != null || linkingMac != null) return;
         linkingMac = mac;
         linkingSince = now();
+        unitMinutes = null;
         linkedName = mac;
         linkingKind = mac.equals(lastMac) ? lastKind : Dev.WIEMS;
         for (Seen s : seen)
@@ -361,6 +647,8 @@ public final class MainActivity extends Activity implements Ble.Listener, Host {
 
     @Override
     public void linked() {
+        linkFails = 0;
+        linkReported = false;
         boolean back = held != null && linkingMac != null && linkingMac.equals(heldMac);
         if (back) {                   // the same unit is back: the training goes on from where it stopped
             session = held;
@@ -380,8 +668,35 @@ public final class MainActivity extends Activity implements Ble.Listener, Host {
             for (int z = 0; z < session.zones(); z++) session.setZone(z, savedZones[session.part(z)]);
             session.setStrength(savedStrength);
         }
-        trace("LINKED " + linkingMac + (back ? " (the same unit back: the training goes on)" : ""));
+        trace("LINKED " + linkingMac + (back ? " (the same unit back: the training goes on)" : "")
+                + (linkingKind == Dev.WIEMS ? " · run notifications " + (ble.runNotifyOk() ? "on" : "OFF") : "")
+                + (ble.setupFail().length() > 0 ? " · " + ble.setupFail() : ""));
+        if (linkingKind == Dev.WIEMS) {
+            if (!back) {                  // v1.26: what this app learnt about this unit's minutes quota
+                SharedPreferences pr = getSharedPreferences("wiems", MODE_PRIVATE);
+                session.quota.load(pr.getString("quota_" + linkingMac, null));
+                quotaMac = linkingMac;
+                // v1.27: a reset found earlier for this unit → send it at this link so the quota never bites;
+                // a tight unit with none → run the probe once (idle), to find it
+                knownReset = Probe.load(pr.getString("reset_" + linkingMac, null));
+                triedKeys = splitKeys(pr.getString("tried_" + linkingMac, null));
+                resetVerified = false;
+                session.quota.keyed = false;          // v1.29: only a key verified on this link switches the cycles off
+                wantVerify = knownReset != null;      // v1.28: prove the stored key still works, silently, before use
+                wantProbe = knownReset == null && session.quota.tight;
+                if (knownReset != null) trace("quota reset known for this unit: " + Probe.save(knownReset) + " (will re-verify)");
+            }
+            long n = unitMinutes != null ? Quota.parse(unitMinutes.getBytes()) : -1;
+            if (n >= 0) session.minutes(n);
+            trace(session.quota.toString());
+            session.setRunNotifyArmed(ble.runNotifyOk());
+            if (!ble.runNotifyOk()) {
+                setNote("WiEMS не праща потвърждения — ако ▶ не тръгне, изпрати дневника (задръж логото)", true);
+                noteUntil = now() + 20000;
+            }
+        }
         session.linked();             // whatever the unit does now: 0 and stopped
+        if (linkingKind == Dev.WIEMS) ble.snapshot("link");   // the unit's state as it came, before our first write
         lastMac = linkingMac;
         lastKind = linkingKind;
         linkingMac = null;
@@ -392,12 +707,17 @@ public final class MainActivity extends Activity implements Ble.Listener, Host {
     @Override
     public void lost(String why) {
         trace("LOST: " + why);
+        probe.cancel("link lost");
+        wantProbe = false;
+        wantVerify = false;
+        if (linkingMac != null && session == null) linkFailed(why);
         // keep the training (unless it was being closed): the last unit reconnects by itself and it goes on
         if (session != null && !disconnectWhenIdle && lastMac != null) {
             session.lost(now());
             held = session;
             heldMac = lastMac;
             why = why.replace("тренировката спря", "тренировката е на пауза") + " · свързвам отново…";
+            if (held.state() != Session.IDLE) autoReport("link lost mid-training: " + why);
         }
         session = null;
         linkingMac = null;
@@ -407,11 +727,24 @@ public final class MainActivity extends Activity implements Ble.Listener, Host {
 
     @Override
     public void written(boolean ok) {
-        trace(ok ? "  ack" : "  WRITE REJECTED by the unit");
+        int st = ble.lastWriteStatus();
+        trace(ok ? "  ack" : "  WRITE REJECTED by the unit: " + lastOp + " (GATT " + st + ")");
+        if (probe.running()) {                       // v1.27: the probe paces itself by its acks
+            if (ok) probe.onAck(now());
+            else probe.cancel("write rejected (GATT " + st + ")");
+            return;
+        }
         if (session == null) return;
         if (!ok) {
+            String u = Dev.SHORT[session.kind];
             ble.disconnect(null);
-            lost(Dev.SHORT[session.kind] + " не прие команда — тренировката спря");
+            lost(u + " не прие команда — тренировката спря");
+            showProblem(u + " не прие команда",
+                    "Модулът отказа командата „" + opBg(lastOp) + "“ (Bluetooth код " + st + "). Тренировката спря, изходите са на 0.",
+                    authCode(st) ? "Модулът иска сдвояване (Bluetooth защита): махни го от Настройки → Bluetooth на таблета и го свържи пак."
+                            : "Модулът е свързан и с друго устройство (телефон / iPad) — изключи Bluetooth там.",
+                    "Изключи модула и го включи пак, после избери го отново тук.",
+                    "Ако се повтаря — изпрати дневника, кодът " + st + " казва точната причина.");
             return;
         }
         session.ack();
@@ -420,6 +753,10 @@ public final class MainActivity extends Activity implements Ble.Listener, Host {
     @Override
     public void runNotify(byte[] v) {
         trace("  ← run " + Trace.hex(v));
+        if (probe.running()) {                       // v1.27: "01"/"02" to the probe's arm, not the session
+            probe.onRun(v, now());
+            return;
+        }
         if (session != null) session.runNotify(v, now());
     }
 
@@ -431,7 +768,16 @@ public final class MainActivity extends Activity implements Ble.Listener, Host {
 
     @Override
     public void notified(String what, byte[] v) {
-        trace("  ← " + what + " " + Trace.hex(v));
+        trace("  ← " + what + " " + Trace.hex(v) + (what.startsWith("read ") && v != null ? "  \"" + ascii(v) + "\"" : ""));
+        if (what.equals("read minutes") && v != null) unitMinutes = ascii(v).replaceFirst("^0+(?=\\d)", "");
+        // v1.26: the counter (read at the link, after a stop / re-arm, or notified) feeds the quota's verdict
+        if (what.contains("7764d000") && v != null) {
+            long n = Quota.parse(v);
+            if (n >= 0) {
+                unitMinutes = String.valueOf(n);
+                if (session != null && session.kind == Dev.WIEMS) session.minutes(n);
+            }
+        }
     }
 
     @Override
@@ -450,6 +796,7 @@ public final class MainActivity extends Activity implements Ble.Listener, Host {
                 step(t);
             } catch (Throwable e) {
                 android.util.Log.e(Ble.TAG, "tick: " + e);
+                appError("tick", e);
             }
             // keeps running while the screen is shown, or while a session runs behind another app
             // (and until the last "outputs off" went, so a training that ends behind another app stops the unit)
@@ -459,6 +806,20 @@ public final class MainActivity extends Activity implements Ble.Listener, Host {
     }
 
     private void step(long t) {
+        if (reportAfterSnap != null && snapWant == null && (!ble.snapBusy() || t > snapDeadline)) {
+            String why = reportAfterSnap;
+            reportAfterSnap = null;
+            autoReport(why);
+        } else if (reportAfterSnap != null && t > snapDeadline) {
+            snapWant = null;
+        }
+        // a downloaded update goes to the installer only while nothing trains (never mid-session)
+        if (updater != null && updater.waiting() && held == null && (session == null || session.state() == Session.IDLE)
+                && (session == null || !session.busy())) updater.installIfReady();
+        if (reportRetryAt > 0 && t >= reportRetryAt && !report.busy()) {
+            reportRetryAt = 0;
+            sendReport();
+        }
         for (int i = seen.size() - 1; i >= 0; i--) if (t - seen.get(i).lastMs > 6000) seen.remove(i);
         boolean wantScan = viewKind() == VIEW_PICK;
         if (held != null && lastMac == null) held = null;
@@ -470,10 +831,41 @@ public final class MainActivity extends Activity implements Ble.Listener, Host {
             ble.disconnect(null);
             linkingMac = null;
             setNote(Dev.SHORT[linkingKind] + " не отговори — включен ли е?", true);
+            linkFailed("no answer in 15 s");
+        }
+        if (probe.running()) {                       // v1.27: the owner tapping ▶ (session busy / preparing) cancels it
+            if (session == null || session.state() != Session.IDLE || session.busy() || session.preparing())
+                probe.cancel("training started");
+            else probe.tick(t);
         }
         if (session != null) {
             boolean was = session.state() != Session.IDLE;
             session.tick(t);
+            if (session.takeNoStart()) {
+                int code = session.noStartCode();
+                int bat = session.battery();
+                setNote("WiEMS не стартира", true);
+                if (code == 2 && knownReset != null && quotaMac != null) {  // v1.28: a verified key went stale — drop it
+                    getSharedPreferences("wiems", MODE_PRIVATE).edit().remove("reset_" + quotaMac).apply();
+                    trace("quota reset failed on a real start — discarded, will search again");
+                    knownReset = null;
+                }
+                if (code == 2) wantProbe = true;        // search again when the unit is next idle (the session already fell back)
+                if (code == 2) showProblem("WiEMS не стартира — броячът на минути",
+                        "Модулът отказва СТАРТ (код 2): вграденият му брояч"
+                                + (unitMinutes != null ? " (" + unitMinutes + " мин)" : "") + " е стигнал лимита си."
+                                + (knownReset == null ? " Приложението ще потърси ключ срещу това само (без импулс по тялото)." : ""),
+                        "Остави модула свързан и в покой за около минута — ще пробва автоматично.",
+                        "Ако не успее: изключи и включи модула и натисни ▶ пак.",
+                        "При нужда — изпрати дневника (задръж логото).");
+                else showProblem("WiEMS не стартира",
+                        "Модулът прие СТАРТ, но не тръгна — няма потвърждение до " + Session.NO_START_MS / 1000 + " s ("
+                                + (code >= 0 ? "отговори с код " + Integer.toHexString(code) : "не отговори нищо") + ")."
+                                + (bat >= 0 ? " Батерия " + bat + " %." : ""),
+                        "Модулът е свързан и с друго устройство (телефон / iPad) — изключи Bluetooth там.",
+                        "Модулът е спрял в грешка: изключи го, включи го и натисни ▶ пак.",
+                        bat >= 0 && bat < 20 ? "Батерията е слаба (" + bat + " %) — заредѝ модула." : "Слаба батерия — заредѝ модула и опитай пак.");
+            }
             if (session.takeUnitStopped()) {
                 int tz = session.takeTripZone();
                 if (tz != -1) {
@@ -481,20 +873,52 @@ public final class MainActivity extends Activity implements Ble.Listener, Host {
                             + (tz >= 0 ? " след промяната на " + session.zoneName(tz) : "")
                             + ". Силите са както вървяха. Без облечен костюм модулът не дава различни сили по зоните", true);
                     noteUntil = now() + 20000;
-                } else
+                } else {
                     setNote(session.haltReason().startsWith("no") ? "WiEMS не отговаря — пауза. Натисни ПРОДЪЛЖИ"
                             : "WiEMS спря сам — пауза. Натисни ПРОДЪЛЖИ", true);
+                }
+                autoReport("unit stopped: " + session.haltReason());
             }
             if (was && session.finished()) {
                 session.clearFinished();
                 setNote("Тренировката завърши ✓", false);
             }
             String u = Dev.SHORT[session.kind];
+            if (session.takeMinutesWanted()) minutesWant = true;
+            if (session.quota.takeKeyStale() && quotaMac != null) {   // v1.29: "02" with the key on — it went stale
+                getSharedPreferences("wiems", MODE_PRIVATE).edit().remove("reset_" + quotaMac).apply();
+                trace("quota reset refused on a real start — discarded, fell back to a smaller Dur, will search again");
+                knownReset = null;
+                resetVerified = false;
+                wantProbe = true;
+            }
+            if (session.quota.dirty && quotaMac != null) {
+                getSharedPreferences("wiems", MODE_PRIVATE).edit().putString("quota_" + quotaMac, session.quota.save()).apply();
+                trace("saved " + session.quota);
+            }
             if (session.ackLate(t)) {
                 ble.disconnect(null);
+                trace("NO ANSWER to " + lastOp + " in " + Session.ACK_TIMEOUT_MS + " ms");
                 lost(u + " спря да отговаря — тренировката спря");
-            } else if (ble.ready()) {
+            } else if (snapWant != null && !session.inFlight() && ble.ready()) {
+                ble.snapshot(snapWant);
+                snapWant = null;
+            } else if (minutesWant && !session.inFlight() && ble.ready() && !ble.snapBusy()) {
+                ble.readMinutes();
+                minutesWant = false;
+            } else if (wantVerify && knownReset != null && !probe.running() && session.state() == Session.IDLE
+                    && !session.busy() && !session.inFlight() && ble.ready() && !ble.snapBusy()) {
+                // v1.28: re-apply + silently check the stored key (zero current) before the client trains
+                wantVerify = false;
+                probe.verify(t, knownReset);
+            } else if (wantProbe && !probe.running() && session.state() == Session.IDLE && !session.busy()
+                    && !session.inFlight() && ble.ready() && !ble.snapBusy()) {
+                // v1.27/28: a tight unit with no working key — search (idle, zero current), skipping what already failed
+                wantProbe = false;
+                probe.start(t, triedKeys);
+            } else if (!probe.running() && ble.ready() && !ble.snapBusy()) {
                 byte[] op = session.next(t);
+                if (op != null) lastOp = session.kind == Dev.WIEMS ? opName(op[0]) : "0x" + Trace.hex(new byte[] {op[0]});
                 if (op != null) trace("→ " + (session.kind == Dev.WIEMS
                         ? opName(op[0]) + " " + Trace.hex(com.isaigu.gymapp.bodytech.WiProto.value(op)) : Trace.hex(op)));
                 if (op != null && !ble.write(op)) {
@@ -509,6 +933,19 @@ public final class MainActivity extends Activity implements Ble.Listener, Host {
         }
         rememberZones(t);
         view.tick(t);
+    }
+
+    private static String opBg(String op) {
+        String[] en = {"currents", "program", "rest", "widths", "run"};
+        String[] bg = {"сили по зоните", "програма", "втори импулс", "ширини", "старт / стоп"};
+        for (int i = 0; i < en.length; i++) if (en[i].equals(op)) return bg[i];
+        return op;
+    }
+
+    private static String ascii(byte[] v) {
+        StringBuilder b = new StringBuilder();
+        for (byte x : v) b.append(x >= 32 && x < 127 ? (char) x : '.');
+        return b.toString();
     }
 
     private static String opName(int sel) {

@@ -125,6 +125,12 @@ POST {server}/v1/profile            (от PWA, CORS *, 10 / мин / IP, до 4 
  "sex":"F|M","by":1990,"h":168,"w":61,"goal":"tone","fit":"mid","contra":["implant"],"note":"…","t":<unix>}}
 200 {"ok":true} · 404 unknown_studio · 429 full / rate_limit
 
+POST {server}/v1/profile/find       (приложението на клиента, CORS *, 20 / мин / IP — само чете)
+{"studio":"<код>","ek":"<sha256>","pk":"<sha256>"}
+200 {"ok":true,"profile":{"sex":"F","by":1990,"h":168,"w":61,"goal":"tone","fit":"mid","focus":["abs"]}} · 404 not_found
+  ← само тренировъчните полета (`profile.js` `publicProfile`): без име, контакт, здраве, състояние и бележка —
+    телефонът не доказва кой пита (собственик, 2026-11). Най-новият изпратен профил (`client_inbox`), иначе досието.
+
 POST {server}/v1/inbox              (таблет: {"token","device_id","since"}; само подпис + възраст на жетона)
 200 {"ok":true,"items":[{"k":"…","t":<unix>,"p":{…}}],"more":false}
 
@@ -147,6 +153,11 @@ POST {server}/v1/card/find          (CORS *, 20 заявки / мин / IP)
 - Един клиент (`client_key` = id на клиента в таблета) = един линк. Ново изпращане обновява данните на същия
   адрес. Линкът изтича 365 дни след последното обновяване; `noindex`, без референт.
 - Приема се само жетон, подписан от този сървър (`verifyToken`), за активен лиценз и устройство.
+- **Нова версия за таблетите:** `.github/workflows/release-publish.yml` — всеки нов `xems27.apk` в main се записва
+  сам в `releases` (адресът е на самия commit, SHA-256 и размер от файла, `mandatory`), за всички таблети — с лиценз и без.
+  Отговорът на `/v1/app/update` се кешира 10 мин на ръба (ключ: канал + версия, без устройството) — без четене от D1
+  на всеки таблет; таблетът пита ≤ 1 / 12 ч.
+  Преди версиите се добавяха на ръка и спряха на 1.1.495 (620) с подвижен адрес → `bad_checksum` при всички.
 - Качване: `.github/workflows/server-deploy.yml` (при промяна в `server/` на main или ръчно; нужни са
   тайните `CLOUDFLARE_API_TOKEN` и `CLOUDFLARE_ACCOUNT_ID` в GitHub).
 - Таблица `client_cards` (миграция `0004_client_cards.sql`). Без сървър или без връзка таблетът праща картона
@@ -160,6 +171,8 @@ POST {server}/v1/card/find          (CORS *, 20 заявки / мин / IP)
 GET  /v1/unit/update?app=xbody&have=20&unit=<12 hex>   → version=21\nsha256=<64 hex>\nsize=788480\nnotes=…\n   (version=0 = последната е)
 GET  /v1/unit/pack?app=xbody&v=21                     → пакетът (tar), прекаран през сървъра от регистрирания HTTPS адрес
 POST /v1/unit/log?app=xbody&unit=<12 hex>&ver=21      (текст ≤ 256 KB) → OK <№>      (10 на час от IP)
+GET  /v1/unit/log/recent?app=wiems[&since=<unix s>]       → {ok, logs:[{id,ts,unit,version,size,head}]}  (само wiems)
+GET  /v1/unit/log/<№>?app=wiems                     → текстът (WiEMS приложението праща сам при грешка)
 ```
 Админ: `GET /admin/api/units`, `POST /admin/api/units/release {version,url,notes}` (сървърът сваля пакета и пази
 sha256/size), `DELETE /admin/api/units/release/xbody/<v>`, `GET|DELETE /admin/api/units/log/<id>`. Логовете се пазят 60 дни.

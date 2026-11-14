@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
-import { cleanProfile, isStudioCode, studioCode, allowHit } from '../src/profile.js';
+import { cleanProfile, isStudioCode, studioCode, allowHit, publicProfile } from '../src/profile.js';
 
 const NOW = 1790000000;
 const p = (o = {}) => ({ consent: true, name: 'Мария Иванова', email: 'Maria@X.bg', phone: '+359 888 123 456',
@@ -52,5 +52,22 @@ describe('allowHit', () => {
     for (let i = 0; i < 3; i++) assert.equal(allowHit('t', 3, 60, NOW), true);
     assert.equal(allowHit('t', 3, 60, NOW), false);
     assert.equal(allowHit('t', 3, 60, NOW + 60), true);
+  });
+});
+
+describe('publicProfile (the client reads back their own training data)', () => {
+  it('gives the training fields of a sent profile and never the contact, the health or the note', () => {
+    const o = publicProfile(cleanProfile(p({ focus: ['abs'], cond: ['back'], note: 'тайна' }), NOW), null);
+    assert.deepEqual(o, { sex: 'F', by: 1990, h: 168, w: 61, goal: 'tone', fit: 'mid', focus: ['abs'] });
+  });
+  it('fills the rest from the tablet\'s dossier (birth date, form "goal|fit|…", focus "a,b")', () => {
+    const d = { name: 'X', email: 'x@y.bg', sex: 'M', birth: Date.UTC(1985, 5, 1), h: 181, w: 84.4, remark: 'r',
+      form: { u: 'fat|high|implant', focus: 'abs,legs,bogus', cond: 'back', note: 'n' } };
+    assert.deepEqual(publicProfile(null, d), { sex: 'M', by: 1985, h: 181, w: 84, goal: 'fat', fit: 'high', focus: ['abs', 'legs'] });
+    assert.deepEqual(publicProfile({ sex: 'F', goal: 'tone' }, d), { sex: 'F', goal: 'tone', by: 1985, h: 181, w: 84, fit: 'high', focus: ['abs', 'legs'] });
+  });
+  it('is empty when nothing is known', () => {
+    assert.deepEqual(publicProfile(null, null), {});
+    assert.deepEqual(publicProfile({}, { form: {} }), {});
   });
 });

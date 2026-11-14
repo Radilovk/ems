@@ -47,12 +47,12 @@
     {
       "id": 0,
       "auto_id": "face",
-      "name_bg": "Лифтинг 3D",
-      "name_en": "Lift 3D",
-      "tag_bg": "Повдигнати скули, по-мека бразда",
-      "tag_en": "Lifted cheekbones, a softer fold",
-      "muscle_bg": "Скулови мускули и повдигачите на устната",
-      "muscle_en": "Cheek and lip-lifting muscles",
+      "name_bg": "Лифтинг на скулите",
+      "name_en": "Cheekbone lift",
+      "tag_bg": "Изразителни скули, по-мека гънка",
+      "tag_en": "Defined cheekbones, a softer fold",
+      "muscle_bg": "Мускулите на скулите и горната устна",
+      "muscle_en": "Cheekbone and upper-lip muscles",
       "latin": "m. zygomaticus major et minor · m. levator labii sup.",
       "sensory": false,
       "evidence": 3,
@@ -66,8 +66,8 @@
         "gap_early_days": 2,
         "gap_later_days": 1
       },
-      "how_bg": "Лифтинг 3D работи с трите мускула, които държат средната част на лицето: големия скулов, повдигачите на горната устна (назолабиалната зона) и мускулите на долната буза. Импулсът възбужда двигателните разклонения на лицевия нерв (n. facialis) и мускулите се съкращават сами — 3 секунди работа, 6 секунди отдих, защото лицевите мускули са бързи и се уморяват бързо. Мускулите на лицето нямат сухожилия: те са вплетени в кожата. По-плътният мускул дава опора отвътре там, където с годините изтъняват мастните възглавнички — бузата стои по-високо, скулата е по-изразена. В клинично проучване (12 седмици, 5 пъти седмично) мускулът е станал с около 18 % по-дебел.",
-      "how_en": "The impulse excites the motor branches of the facial nerve and the cheek muscle contracts by itself — 3 seconds of work, 6 of rest, as face muscles are fast and tire fast. Face muscles have no tendons: they weave into the skin. A fuller muscle supports the cheek from within where the fat pads thin with age. In a clinical trial (12 weeks, 5 times a week) the muscle grew about 18 % thicker.",
+      "how_bg": "Електростимулация на мускулите на скулите и горната устна. Мускулите се съкращават сами — 3 секунди работа, 6 секунди отдих, без усилие от клиента и без мимически бръчки.\n\nС всеки курс мускулите стават по-плътни и повдигат тъканите отвътре: скулите са по-изразителни, назолабиалната гънка — по-мека, лицето изглежда стегнато и отпочинало. В клинично проучване за 12 седмици мускулът е станал с около 18 % по-плътен.\n\nКурс 12 седмици, после „Тонус и стегнатост“ 2–3 пъти седмично пази резултата.",
+      "how_en": "Electrical stimulation of the cheekbone and upper-lip muscles. They contract by themselves — 3 seconds on, 6 off, no effort and no expression lines.\n\nOver the course the muscles grow fuller and lift the tissue from within: defined cheekbones, a softer nasolabial fold. In a clinical trial the muscle grew about 18 % thicker in 12 weeks.\n\nA 12-week course, then Tone & firmness 2–3 times a week.",
       "place_xems_bg": ["Почисти лицето, без крем", "Всяка двойка — по линията на мускула си, както на картината", "Нищо по-близо от 2 пръста до окото, нищо на устната"],
       "place_bluetens_bg": ["Почисти кожата, без крем", "1 — под скулата, на мускула, не върху костта", "2 — по линията към ъгъла на устата, не на устната"],
       "strength_goal_bg": "Качвай, докато ъгълът на устата видимо се повдигне — без болка, без мигане",
@@ -102,12 +102,12 @@
     {
       "id": 6,
       "auto_id": "face_oval",
-      "name_bg": "Лифтинг на овала",
-      "name_en": "Oval lift",
-      "tag_bg": "Скули и стегната брадичка наведнъж",
-      "tag_en": "Cheekbones and a firm chin at once",
-      "muscle_bg": "Скулови и надподезични мускули",
-      "muscle_en": "Cheek and suprahyoid muscles",
+      "name_bg": "Скулптуриране на лицето",
+      "name_en": "Face sculpting",
+      "tag_bg": "Оформя и стяга контура на лицето",
+      "tag_en": "Shapes and firms the face contour",
+      "muscle_bg": "Мускулите на скулите и под брадичката",
+      "muscle_en": "Cheekbone and under-chin muscles",
       "latin": "m. zygomaticus · m. digastricus",
       "sensory": false,
       "evidence": 2,
@@ -121,8 +121,8 @@
         "gap_early_days": 2,
         "gap_later_days": 1
       },
-      "how_bg": "Скулите и мускулите под брадичката работят на смени — 3 секунди скулите, 3 секунди брадичката: всеки мускул почива двойно по-дълго, отколкото работи. Скулите получават лифтинга (клинично проучване: +18 % дебелина за 12 седмици), брадичката — стягане на ъгъла между нея и шията. Цял овал в една сесия. Мускулите под брадичката са и мускулите на преглъщането — седнал, без храна и вода.",
-      "how_en": "The cheeks and the muscles under the chin take turns — 3 seconds each, so every muscle rests twice as long as it works. The cheeks get the lift (a clinical trial: +18 % thickness in 12 weeks), the chin a firmer angle to the neck. The whole oval in one session; seated, no food or drink.",
+      "how_bg": "Скулите и мускулите под брадичката работят на смени — 3 секунди едните, 3 секунди другите.\n\nТака в една процедура се оформя целият контур: повдигнати скули и по-стегната линия под брадичката.\n\nКлиентът седи и не яде и не пие по време на процедурата.",
+      "how_en": "The cheekbones and the muscles under the chin take turns — 3 seconds each.\n\nOne session sculpts the whole contour: lifted cheekbones and a firmer line under the chin.\n\nSeated, no food or drink during the session.",
       "place_xems_bg": ["Почисти лицето, без крем", "Всяка двойка — по линията на мускула си, както на картината", "Нищо по-близо от 2 пръста до окото, нищо на устната"],
       "place_bluetens_bg": ["Почисти лицето, без крем", "Всяка двойка — по линията на мускула си, както на картината", "Нищо по-близо от 2 пръста до окото, нищо на устната"],
       "strength_goal_bg": "Качвай, докато ъгълът на устата видимо се повдигне — без болка, без мигане",
@@ -159,12 +159,12 @@
     {
       "id": 1,
       "auto_id": "face_tone",
-      "name_bg": "Стегнат овал",
-      "name_en": "Firm contour",
-      "tag_bg": "Еластичност, която пази лифтинга",
-      "tag_en": "Elasticity that keeps the lift",
-      "muscle_bg": "Мимически мускули на бузата",
-      "muscle_en": "Mid-face muscles",
+      "name_bg": "Тонус и стегнатост",
+      "name_en": "Tone & firmness",
+      "tag_bg": "Поддържа ефекта от лифтинга",
+      "tag_en": "Keeps the lift's effect",
+      "muscle_bg": "Мимическите мускули на бузите",
+      "muscle_en": "The cheeks' expression muscles",
       "latin": "mm. faciei",
       "sensory": false,
       "evidence": 2,
@@ -178,8 +178,8 @@
         "gap_early_days": 3,
         "gap_later_days": 3
       },
-      "how_bg": "По-ниска честота (35 Hz) дава меко, почти слято стягане, което уморява много по-бавно. Така тренира издръжливите влакна на мимическите мускули — лицето държи формата си през деня. След курса за лифтинг това е поддръжката: без нея постигнатото постепенно отслабва.",
-      "how_en": "A lower rate (35 Hz) gives a soft, nearly fused hold that tires far slower — it trains the enduring fibres, so the face keeps its shape through the day. After the lift course this is the upkeep.",
+      "how_bg": "По-меко и по-дълго стягане на мимическите мускули на бузите. Тонизира мускулите и пази стегнатостта, постигната с лифтинга.\n\n2–3 пъти седмично след курса за лифтинг.",
+      "how_en": "A softer, longer hold of the cheek muscles. It tones them and keeps the firmness the lift built.\n\n2–3 times a week after the lift course.",
       "place_xems_bg": ["Почисти лицето, без крем", "Всяка двойка — по линията на мускула си, както на картината", "Нищо по-близо от 2 пръста до окото, нищо на устната"],
       "place_bluetens_bg": ["Почисти кожата, без крем", "1 — под скулата, на мускула, не върху костта", "2 — по линията към ъгъла на устата, не на устната"],
       "strength_goal_bg": "Качвай, докато ъгълът на устата видимо се повдигне — без болка, без мигане",
@@ -198,7 +198,7 @@
               {"hz": 35, "pw_us": 100, "on_s": 2, "off_s": 8, "ramp_up_ms": 500, "ramp_down_ms": 500, "sigma": 1, "zones": null}
             ]
           },
-          {"id": "MAIN", "name_bg": "Стегнат овал", "duration_s": 694, "cooldown": false, "wave": false, "phi": [0.70, 0.70], "env": [1, 1], "hint_bg": "Меко, равномерно стягане — усеща се, не боли",
+          {"id": "MAIN", "name_bg": "Тонус и стегнатост", "duration_s": 694, "cooldown": false, "wave": false, "phi": [0.70, 0.70], "env": [1, 1], "hint_bg": "Меко, равномерно стягане — усеща се, не боли",
             "steps": [
               {"hz": 35, "pw_us": 100, "on_s": 4, "off_s": 5, "ramp_up_ms": 500, "ramp_down_ms": 500, "sigma": 1, "zones": null}
             ]
@@ -214,12 +214,12 @@
     {
       "id": 2,
       "auto_id": "face_drain",
-      "name_bg": "Детокс от отоци",
-      "name_en": "Depuff detox",
-      "tag_bg": "По-малко подпухване, по-ясни черти",
-      "tag_en": "Less puffiness, clearer features",
-      "muscle_bg": "Мускулна помпа на бузата",
-      "muscle_en": "Cheek muscle pump",
+      "name_bg": "Лимфодренаж на лицето",
+      "name_en": "Facial lymph drainage",
+      "tag_bg": "По-малко подпухване, свеж тен",
+      "tag_en": "Less puffiness, a fresh complexion",
+      "muscle_bg": "Мимическите мускули на бузите",
+      "muscle_en": "The cheeks' expression muscles",
       "latin": "m. zygomaticus · m. buccinator",
       "sensory": false,
       "evidence": 2,
@@ -233,8 +233,8 @@
         "gap_early_days": 1,
         "gap_later_days": 1
       },
-      "how_bg": "Кратки ритмични стягания — 1 секунда работа, 2 секунди отдих — превръщат мускула в помпа: той притиска лимфните и венозните съдове и изтласква задържаната течност към лимфните възли пред ухото и под челюстта. При Bluetens двете бузи се редуват като вълна. Че електрическото стягане намалява отоци, е доказано (систематичен преглед); при лицето работи същият механизъм. Най-добре сутрин, когато течността от нощта е задържана.",
-      "how_en": "Short rhythmic holds — 1 second on, 2 off — turn the muscle into a pump that presses the lymph and venous vessels and moves the held fluid towards the nodes in front of the ear and under the jaw. On Bluetens the cheeks take turns, like a wave. That electrical contraction reduces swelling is proven (a systematic review); the face works by the same mechanism. Best in the morning.",
+      "how_bg": "Кратки ритмични съкращения действат като помпа: изтласкват задържаната течност към лимфните възли пред ухото и под челюстта.\n\nПодпухването намалява, тенът е по-свеж, чертите — по-ясни. Резултатът се вижда още след процедурата.\n\nНай-добре сутрин или преди събитие.",
+      "how_en": "Short rhythmic contractions work like a pump, moving held fluid towards the lymph nodes in front of the ear and under the jaw.\n\nLess puffiness, a fresher complexion — visible right after.\n\nBest in the morning or before an event.",
       "place_xems_bg": ["Почисти лицето, без крем", "Всяка двойка — по линията на мускула си, както на картината", "Нищо по-близо от 2 пръста до окото, нищо на устната"],
       "place_bluetens_bg": ["Почисти кожата, без крем", "1 — под скулата, на мускула, не върху костта", "2 — по линията към ъгъла на устата, не на устната"],
       "strength_goal_bg": "Качвай, докато бузата ритмично се повдига — меко, без болка",
@@ -276,10 +276,10 @@
       "auto_id": "face_relax",
       "name_bg": "Ботокс ефект",
       "name_en": "Botox effect",
-      "tag_bg": "Гладко чело без игла",
-      "tag_en": "A smooth forehead, no needle",
-      "muscle_bg": "Сетивни нерви на челото",
-      "muscle_en": "Forehead sensory nerves",
+      "tag_bg": "Отпуска мимическите линии, без игла",
+      "tag_en": "Softens expression lines, no needle",
+      "muscle_bg": "Мимическите мускули на челото",
+      "muscle_en": "The forehead's expression muscles",
       "latin": "n. supraorbitalis · n. supratrochlearis",
       "sensory": true,
       "evidence": 2,
@@ -293,8 +293,8 @@
         "gap_early_days": 1,
         "gap_later_days": 1
       },
-      "how_bg": "Нежен ток (100 Hz, тесен импулс 50 µs) докосва само сетивните влакна на допир в кожата на челото — мускулът не се движи. Сетивният поток потиска възбудимостта на двигателните неврони и тонусът на мимическите мускули спада: челото и междувеждието се отпускат, бръчките от мимика омекват. Че такъв ток намалява мускулния тонус, е доказано (мета-анализи; 100 Hz е най-ефективната честота). Импулсът е тесен нарочно: болковите влакна на костната обвивка отговарят само на дълги импулси, затова на тънката кожа на челото усещането остава приятно изтръпване, а не болка в костта. Ефектът е за часове и се натрупва с редовност. Не замества ботулиновия токсин.",
-      "how_en": "A gentle current (100 Hz, a narrow 50 µs pulse) touches only the touch fibres of the forehead skin — the muscle does not move. The sensory input damps the excitability of the motor neurons and the tone of the expression muscles drops: the forehead and the frown relax, expression lines soften. That such current lowers muscle tone is proven (meta-analyses; 100 Hz works best). The pulse is narrow on purpose: the pain fibres of the bone's lining answer only long pulses, so on the thin forehead skin it stays a pleasant tingle, not an ache in the bone. The effect lasts hours and builds with regular use. It does not replace botulinum toxin.",
+      "how_bg": "Нежен ток по челото — усеща се като приятно изтръпване, веждите не мърдат.\n\nМимическите мускули на челото се отпускат, линиите от мимика омекват, челото изглежда гладко и отпочинало. Ефектът е за няколко часа и се натрупва с редовни процедури.",
+      "how_en": "A gentle current on the forehead — a pleasant tingle, the brows stay still.\n\nThe forehead's expression muscles relax and the lines soften. The effect lasts a few hours and builds with regular sessions.",
       "place_xems_bg": ["Почисти челото, без крем", "Двойката близо — един пръст между електродите, в средата на челото", "Два пръста над веждите, под косата — никога към окото"],
       "place_bluetens_bg": ["Почисти челото, без крем", "Двойката близо — един пръст между електродите, в средата на челото", "Два пръста над веждите, под косата — никога към окото"],
       "strength_goal_bg": "Качвай до ясно, приятно изтръпване — веждите не мърдат",
@@ -313,7 +313,7 @@
               {"hz": 100, "pw_us": 50, "on_s": 4, "off_s": 4, "ramp_up_ms": 1000, "ramp_down_ms": 1000, "sigma": 1, "zones": null}
             ]
           },
-          {"id": "MAIN", "name_bg": "Отпускане на мимиката", "duration_s": 1104, "cooldown": false, "wave": false, "phi": [0.70, 0.70], "env": [1, 1], "hint_bg": "Затвори очи, отпусни челото — токът работи по нервите",
+          {"id": "MAIN", "name_bg": "Отпускане на мимиката", "duration_s": 1104, "cooldown": false, "wave": false, "phi": [0.70, 0.70], "env": [1, 1], "hint_bg": "Затвори очи и отпусни челото",
             "steps": [
               {"hz": 100, "pw_us": 50, "on_s": 4, "off_s": 4, "ramp_up_ms": 1000, "ramp_down_ms": 1000, "sigma": 1, "zones": null}
             ]
@@ -329,12 +329,12 @@
     {
       "id": 7,
       "auto_id": "face_calm",
-      "name_bg": "Спокойно лице",
-      "name_en": "Calm face",
-      "tag_bg": "Без напрежение в челото и челюстта",
-      "tag_en": "No tension in the forehead and the jaw",
-      "muscle_bg": "Сетивни нерви на челото и дъвкателните мускули",
-      "muscle_en": "Forehead nerves and the masseters",
+      "name_bg": "Свежо лице",
+      "name_en": "Fresh face",
+      "tag_bg": "Отпуска напрежението в челото и челюстта",
+      "tag_en": "Eases tension in the forehead and jaw",
+      "muscle_bg": "Челото и дъвкателните мускули",
+      "muscle_en": "The forehead and the jaw muscles",
       "latin": "n. supraorbitalis · m. masseter",
       "sensory": true,
       "evidence": 2,
@@ -348,8 +348,8 @@
         "gap_early_days": 1,
         "gap_later_days": 1
       },
-      "how_bg": "Нежен сетивен ток едновременно по челото и по двата дъвкателни мускула — там, където лицето държи напрежението от деня. Сетивният поток сваля тонуса на мускулите (доказано за такъв ток); честотата се сменя между 80 и 100 Hz, при тесен импулс, за да не привикнат нервите и да няма дълбока болка. Челото се отпуска, челюстта се разтваря, чертите омекват. Идеално вечер или след стрес.",
-      "how_en": "A gentle sensory current on the forehead and both masseters at once — where the face holds the day's tension. The sensory input lowers muscle tone (proven for such current); the rate alternates 80 ↔ 100 Hz at a narrow pulse so the nerves do not get used to it. Best in the evening or after stress.",
+      "how_bg": "Нежен ток по челото и дъвкателните мускули — там, където лицето държи напрежението от деня. Мускулите не се движат, усеща се само леко изтръпване.\n\nЧелото и челюстта се отпускат, чертите омекват, лицето изглежда свежо.\n\nИдеално вечер или след напрегнат ден.",
+      "how_en": "A gentle current on the forehead and the jaw muscles, where the face holds the day's tension. Nothing moves, only a light tingle.\n\nThe forehead and the jaw relax, the features soften.\n\nBest in the evening or after a long day.",
       "place_xems_bg": ["Почисти челото и бузите, без крем", "Чело — двойката близо, два пръста над веждите · челюст — стисни зъби, сложи на мускула", "Никога към окото, никога отстрани на шията"],
       "place_bluetens_bg": ["Почисти челото и бузите, без крем", "Чело — двойката близо, два пръста над веждите · челюст — стисни зъби, сложи на мускула", "Никога към окото, никога отстрани на шията"],
       "strength_goal_bg": "Качвай до ясно, приятно изтръпване — нищо не мърда",
@@ -368,7 +368,7 @@
               {"hz": 100, "pw_us": 50, "on_s": 4, "off_s": 4, "ramp_up_ms": 1000, "ramp_down_ms": 1000, "sigma": 1, "zones": null}
             ]
           },
-          {"id": "MAIN", "name_bg": "Спокойно лице", "duration_s": 1104, "cooldown": false, "wave": false, "phi": [0.70, 0.70], "env": [1, 1], "hint_bg": "Отпусни челото и челюстта, зъбите да не се допират",
+          {"id": "MAIN", "name_bg": "Свежо лице", "duration_s": 1104, "cooldown": false, "wave": false, "phi": [0.70, 0.70], "env": [1, 1], "hint_bg": "Отпусни челото и челюстта, зъбите да не се допират",
             "steps": [
               {"hz": 100, "pw_us": 50, "on_s": 4, "off_s": 4, "ramp_up_ms": 1000, "ramp_down_ms": 1000, "sigma": 1, "zones": null},
               {"hz": 80, "pw_us": 50, "on_s": 4, "off_s": 4, "ramp_up_ms": 1000, "ramp_down_ms": 1000, "sigma": 1, "zones": null}
@@ -385,12 +385,12 @@
     {
       "id": 4,
       "auto_id": "face_jaw",
-      "name_bg": "Отпусната челюст",
-      "name_en": "Relaxed jaw",
-      "tag_bg": "По-мек долен овал, без напрежение",
-      "tag_en": "A softer jawline, no tension",
-      "muscle_bg": "Дъвкателен мускул",
-      "muscle_en": "Masseter",
+      "name_bg": "Релаксация на челюстта",
+      "name_en": "Jaw relaxation",
+      "tag_bg": "Отпуска дъвкателните мускули",
+      "tag_en": "Relaxes the jaw muscles",
+      "muscle_bg": "Дъвкателните мускули",
+      "muscle_en": "The jaw muscles",
       "latin": "m. masseter",
       "sensory": true,
       "evidence": 2,
@@ -404,8 +404,8 @@
         "gap_early_days": 2,
         "gap_later_days": 2
       },
-      "how_bg": "Бавни ритмични импулси, два пъти в секунда, върху дъвкателния мускул (m. masseter) — при Bluetens като кратки серии — усещат се като дълбоко потупване. В клинично проучване при напрежение в челюстта такъв ток намалява активността на мускула в покой. Резултат: отпусната челюст, по-мек долен овал, по-малко напрежение от стискане на зъби. Укрепване на този мускул никога: то разширява челюстта.",
-      "how_en": "Slow rhythmic impulses, twice a second, on the masseter (on Bluetens as short bursts) — felt as a deep tapping. In a clinical trial in jaw tension such current lowered the muscle's resting activity: a relaxed jaw, a softer lower face. Never strengthening this muscle: that widens the jaw.",
+      "how_bg": "Бавно ритмично потупване по дъвкателните мускули.\n\nМускулите се отпускат, напрежението от стискане на зъби намалява, а долната част на лицето изглежда по-мека.\n\nВинаги, когато челюстта е напрегната.",
+      "how_en": "A slow rhythmic tapping on the jaw muscles.\n\nThey relax, the tension from clenching eases and the lower face looks softer.\n\nWhenever the jaw feels tense.",
       "place_xems_bg": ["Стисни зъби — под пръстите се надува дъвкателният мускул", "1 — горе на мускула, под скулата · 2 — долу, над ъгъла на челюстта", "Лява и дясна страна — по едно устройство"],
       "place_bluetens_bg": ["Стисни зъби — под пръстите се надува дъвкателният мускул", "1 — горе на мускула, под скулата · 2 — долу, над ъгъла на челюстта", "Лява и дясна страна — по едно устройство"],
       "strength_goal_bg": "Качвай до дълбоко, приятно потупване в мускула — без болка",
@@ -424,7 +424,7 @@
               {"hz": 2, "pw_us": 150, "on_s": 10, "off_s": 1, "ramp_up_ms": 200, "ramp_down_ms": 200, "sigma": 1, "zones": null}
             ]
           },
-          {"id": "MAIN", "name_bg": "Отпусната челюст", "duration_s": 828, "cooldown": false, "wave": false, "phi": [1, 1], "env": [1, 1], "hint_bg": "Отпусни челюстта, зъбите да не се допират",
+          {"id": "MAIN", "name_bg": "Релаксация на челюстта", "duration_s": 828, "cooldown": false, "wave": false, "phi": [1, 1], "env": [1, 1], "hint_bg": "Отпусни челюстта, зъбите да не се допират",
             "steps": [
               {"hz": 2, "pw_us": 150, "on_s": 10, "off_s": 1, "ramp_up_ms": 200, "ramp_down_ms": 200, "sigma": 1, "zones": null}
             ]
@@ -440,12 +440,12 @@
     {
       "id": 5,
       "auto_id": "face_chin",
-      "name_bg": "Стегната брадичка",
-      "name_en": "Firm chin",
-      "tag_bg": "По-стегнат профил под брадичката",
-      "tag_en": "A firmer profile under the chin",
-      "muscle_bg": "Надподезични мускули",
-      "muscle_en": "Suprahyoid muscles",
+      "name_bg": "Стегнат профил",
+      "name_en": "Firm profile",
+      "tag_bg": "Оформя линията под брадичката",
+      "tag_en": "Defines the line under the chin",
+      "muscle_bg": "Мускулите под брадичката",
+      "muscle_en": "The muscles under the chin",
       "latin": "m. digastricus · m. mylohyoideus",
       "sensory": false,
       "evidence": 1,
@@ -459,8 +459,8 @@
         "gap_early_days": 2,
         "gap_later_days": 2
       },
-      "how_bg": "Двустомашният и челюстно-подезичният мускул (m. digastricus, m. mylohyoideus) повдигат подезичната кост; стягането им оформя ъгъла между брадичката и шията. Това са и мускулите на преглъщането — процедурата е седнал, без храна и вода. Ефектът за контура не е измерен в проучване.",
-      "how_en": "The digastric and mylohyoid lift the hyoid; their tone shapes the angle between chin and neck. They are also the swallowing muscles — seated, no food or drink. A contour effect is not measured in studies.",
+      "how_bg": "Стягане на мускулите под брадичката — те оформят линията между брадичката и шията.\n\nПрофилът изглежда по-стегнат и оформен.\n\nКлиентът седи и не яде и не пие по време на процедурата.",
+      "how_en": "Toning the muscles under the chin, which shape the line between the chin and the neck.\n\nA firmer, more defined profile.\n\nSeated, no food or drink during the session.",
       "place_xems_bg": ["Почисти кожата под брадичката", "1 и 2 — под брадичката, от двете страни на средата", "Между костта на брадичката и подезичната кост — никога отстрани на шията"],
       "place_bluetens_bg": ["Почисти кожата под брадичката", "1 и 2 — под брадичката, от двете страни на средата", "Между костта на брадичката и подезичната кост — никога отстрани на шията"],
       "strength_goal_bg": "Качвай, докато под брадичката се усети ясно стягане — без болка",
@@ -479,7 +479,7 @@
               {"hz": 30, "pw_us": 150, "on_s": 2, "off_s": 6, "ramp_up_ms": 500, "ramp_down_ms": 500, "sigma": 1, "zones": null}
             ]
           },
-          {"id": "MAIN", "name_bg": "Стегната брадичка", "duration_s": 641, "cooldown": false, "wave": false, "phi": [0.70, 0.70], "env": [1, 1], "hint_bg": "Под брадичката се стяга — не преглъщай по време на стягането",
+          {"id": "MAIN", "name_bg": "Стегнат профил", "duration_s": 641, "cooldown": false, "wave": false, "phi": [0.70, 0.70], "env": [1, 1], "hint_bg": "Под брадичката се стяга — не преглъщай по време на стягането",
             "steps": [
               {"hz": 30, "pw_us": 150, "on_s": 4, "off_s": 8, "ramp_up_ms": 500, "ramp_down_ms": 500, "sigma": 1, "zones": null}
             ]

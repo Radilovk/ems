@@ -46,6 +46,8 @@ final class Updater {
     private volatile File ready;
     private volatile String readyName;
     private final Status status = new Status();
+    /** What the update is doing, in plain Bulgarian for the screen ("" = not checked yet). */
+    volatile String state = "";
 
     Updater(Context ctx, int haveCode, Log out) {
         this.ctx = ctx;
@@ -71,6 +73,7 @@ final class Updater {
         if (busy || ready != null || (lastCheck > 0 && now - lastCheck < EVERY_MS)) return;
         lastCheck = now;
         busy = true;
+        state = "проверявам за нова версия…";
         Thread th = new Thread(new Check(), "wiems-update");
         th.setDaemon(true);
         th.start();
@@ -82,6 +85,7 @@ final class Updater {
         if (f == null || busy) return;
         ready = null;
         busy = true;
+        state = "инсталирам " + readyName + "…";
         out.note("Инсталирам XEMS WiEMS " + readyName + "…", false);
         Thread th = new Thread(new Install(f), "wiems-install");
         th.setDaemon(true);
@@ -104,22 +108,27 @@ final class Updater {
                     if (l.startsWith("name=")) name = l.substring(5).trim();
                 }
                 if (code <= haveCode) {
+                    state = "последна версия ✓";
                     post("update: up to date (" + haveCode + ")", null);
                     return;
                 }
+                state = "изтеглям нова версия " + name + "…";
                 post("update: " + name + " (" + code + ") on the server — downloading", null);
                 File f = new File(ctx.getCacheDir(), "xems-wiems-update.apk");
                 download(BASE + "apk", f);
                 PackageInfo pi = ctx.getPackageManager().getPackageArchiveInfo(f.getPath(), 0);
                 if (pi == null || !ctx.getPackageName().equals(pi.packageName) || pi.versionCode != code) {
+                    state = "изтеглянето на " + name + " не е наред — опитвам пак по-късно";
                     post("update: the download is not " + ctx.getPackageName() + " " + code + " — dropped", null);
                     f.delete();
                     return;
                 }
                 readyName = name;
                 ready = f;
+                state = "нова версия " + name + " — инсталира се, когато няма тренировка";
                 post("update: " + name + " ready", null);
             } catch (Throwable t) {
+                state = "няма връзка със сървъра за обновления";
                 post("update: check failed " + t, null);   // no internet: the app works as it is
             } finally {
                 busy = false;
@@ -164,6 +173,7 @@ final class Updater {
                 s.close();
                 post("update: handed to the installer (session " + id + ", device owner " + owner() + ")", null);
             } catch (Throwable t) {
+                state = "инсталирането не успя — работи тази версия";
                 post("update: install failed " + t, "Обновяването не успя — приложението работи както е");
             } finally {
                 busy = false;
@@ -183,12 +193,14 @@ final class Updater {
                     confirm.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     try {
                         c.startActivity(confirm);
+                        state = "натисни „Инсталирай“";
                         out.note("Нова версия — натисни „Инсталирай“", false);
                     } catch (Throwable t) {
                         out.log("update: confirm " + t);
                     }
                 }
             } else if (st != PackageInstaller.STATUS_SUCCESS) {
+                state = "обновяването не мина (" + st + ") — работи тази версия";
                 out.note("Обновяването не мина (" + st + ") — приложението работи както е", true);
             }
         }

@@ -172,6 +172,19 @@ public final class MainActivity extends Activity implements Ble.Listener, Host, 
     long reportAt, reportRetryAt;
     int reportTries, appCode;
     String appName = "?";
+    /** The version this tablet ran before an update ("" = none this start). */
+    String updatedFrom = "";
+
+    public String appVersion() {
+        return appName + " (" + appCode + ")";
+    }
+
+    public String updateState() {
+        String u = updater != null ? updater.state : "";
+        if (updatedFrom.length() > 0 && (u.length() == 0 || u.startsWith("последна") || u.startsWith("проверявам")))
+            return "обновена от " + updatedFrom + " ✓";
+        return u;
+    }
 
     /** Self-update at start (v1.22, {@link Updater}). */
     Updater updater;
@@ -282,12 +295,25 @@ public final class MainActivity extends Activity implements Ble.Listener, Host, 
         }
         updater = new Updater(this, appCode, new UpLog());
         trace("app start " + appName + " (" + appCode + ") " + android.os.Build.MODEL + " Android " + Build.VERSION.RELEASE);
+        try {   // after an update: say it once, in words (owner: the tablet is far away, see the version on the screen)
+            android.content.SharedPreferences vp = getSharedPreferences("wiems", MODE_PRIVATE);
+            int was = vp.getInt("ran_code", 0);
+            String wasName = vp.getString("ran_name", "");
+            if (was > 0 && was != appCode) {
+                updatedFrom = wasName;
+                trace("updated " + wasName + " (" + was + ") → " + appName + " (" + appCode + ")");
+            }
+            if (was != appCode) vp.edit().putInt("ran_code", appCode).putString("ran_name", appName).apply();
+        } catch (Throwable t) {
+            // no prefs: nothing to say
+        }
         load();
         ble = new Ble(this, this);
         view = new XView(this, this);
         setContentView(view);
         immersive();
         askPermission();
+        if (updatedFrom.length() > 0) setNote("Обновено: " + updatedFrom + " → " + appName + " ✓", false);
         Thread.setDefaultUncaughtExceptionHandler(new Crash(Thread.getDefaultUncaughtExceptionHandler()));
         sendPending();
     }

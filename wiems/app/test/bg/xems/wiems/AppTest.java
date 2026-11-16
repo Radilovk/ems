@@ -55,6 +55,9 @@ public class AppTest {
         public List<Seen> seen() { return seen; }
         public Session session() { return session; }
         public String linkedName() { return "WIEMS - EMS Device"; }
+        String update = "последна версия ✓";
+        public String appVersion() { return "1.32 (33)"; }
+        public String updateState() { return update; }
         public String linkingMac() { return null; }
         public boolean age60() { return false; }
         public void askPermission() {}

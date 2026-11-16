@@ -337,6 +337,8 @@ final class XView extends View {
         line(c, 155, 6, 155, 50, HEAD_LINE, 1);
         line(c, dw - 148, 6, dw - 148, 50, HEAD_LINE, 1);
         logo(c, 22, 28);
+        font(10, false);                              // the version, on every screen (owner: the tablet is far away)
+        text(c, "v" + a.appVersion(), 22, 42, 152, 55, -1, SOFT);
         hit(0, 0, 155, 56, "logo");                   // a long press sends the unit trace
         boolean unit = a.session() != null || a.linkingMac() != null || a.held();
         if (unit) {                                   // the kind in use, small, after the logo
@@ -407,6 +409,7 @@ final class XView extends View {
         }
         paintHeader(c, title, sub, n.length() > 0 && a.noteWarn(), n.length() > 0 && !a.noteWarn());
         themeButton(c);
+        paintVersion(c);
         if (big != null) {
             font(26, false);
             text(c, big, 0, 230, dw, 280, 0, INK);
@@ -452,6 +455,21 @@ final class XView extends View {
             text(c, d.name.toUpperCase(), l - 45, t + 158, l + 195, t + 186, 0, INK);
             if (a.linkingMac() == null) hit(l - 45, t + 150, l + 195, t + 190, id);
         }
+    }
+
+    /**
+     * The list / splash screen's foot: the app's version and what the self-update does (owner: "on the search screen
+     * — like a splash — show which version it is"; the tablet is far away, the version must be readable from a photo).
+     */
+    private void paintVersion(Canvas c) {
+        String u = a.updateState();
+        String line = "XEMS WiEMS " + a.appVersion() + (u.length() > 0 ? "  ·  " + u : "");
+        boolean warn = u.startsWith("няма") || u.contains("не успя") || u.contains("не мина") || u.contains("не е наред");
+        boolean ok = u.endsWith("✓");
+        font(15, true);
+        float tw = Math.min(dw - 40, p.measureText(line) + 36);
+        round(c, (dw - tw) / 2, 552, (dw + tw) / 2, 586, 17, darkNow ? 0xFF2A2F37 : 0xFFF0F1F3);
+        text(c, elide(line, dw - 76), 0, 552, dw, 586, 0, warn ? RED : ok ? GREEN : INK);
     }
 
     // ---------------------------------------------------------------- XBody's "Program selection"

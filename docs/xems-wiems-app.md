@@ -417,6 +417,14 @@ The audit found that a verified key did **not** stop the 1.26 cycles: `Session` 
   re-arm that never starts, a lost link (kept, paused — never re-started on its own on a body).
 - Test: `UnitSim` 5k — a unit that stops itself every minute; the 10 min training finishes with no pause.
 
+## v1.32 — the version always on the screen (owner: "the tablet is not with me — we work remotely")
+- Every screen: `v1.32 (33)` small under the logo (`XView.paintHeader`).
+- The device list (the first screen after a start, like a splash): a pill at the foot — `XEMS WiEMS <name> (<code>)` and
+  what the self-update does (`Updater.state`): checking / последна версия ✓ / downloading / waits for the training to
+  end / press „Инсталирай“ / no server; green when fine, red when it failed (`XView.paintVersion`).
+- After an update, once: the note „Обновено: 1.31 → 1.32 ✓“ and the pill says „обновена от 1.31 ✓“ (prefs
+  `ran_code` / `ran_name`; the trace gets `updated … → …`).
+
 ## Build / test
 ```
 sh scripts/build-wiems-app.sh     # → wiems/dist/xems-wiems.apk (committed); version in wiems/app/VERSION

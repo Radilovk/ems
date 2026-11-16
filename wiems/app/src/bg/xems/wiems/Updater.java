@@ -29,7 +29,8 @@ import java.net.URL;
 final class Updater {
     static final String BASE = "https://license.biocode-bg.com/v1/wiems/";
     static final String ACTION = "bg.xems.wiems.INSTALL_STATUS";
-    static final long EVERY_MS = 6 * 3600 * 1000L;
+    /** At start, on resume and while the app runs: at most hourly — each check is the server's sign of life (1.33). */
+    static final long EVERY_MS = 3600 * 1000L;
 
     interface Log {
         void log(String s);
@@ -48,6 +49,9 @@ final class Updater {
     private final Status status = new Status();
     /** What the update is doing, in plain Bulgarian for the screen ("" = not checked yet). */
     volatile String state = "";
+    /** Sent with each check so the server shows which version runs where (1.33): version name, tablet, last unit. */
+    volatile String name = "", device = "", unit = "";
+    private volatile String said = "";
 
     Updater(Context ctx, int haveCode, Log out) {
         this.ctx = ctx;
@@ -73,7 +77,8 @@ final class Updater {
         if (busy || ready != null || (lastCheck > 0 && now - lastCheck < EVERY_MS)) return;
         lastCheck = now;
         busy = true;
-        state = "проверявам за нова версия…";
+        said = state;                                  // what the last check said goes with this one
+        if (state.length() == 0) state = "проверявам за нова версия…";
         Thread th = new Thread(new Check(), "wiems-update");
         th.setDaemon(true);
         th.start();
@@ -100,7 +105,8 @@ final class Updater {
         @Override
         public void run() {
             try {
-                String ans = get(BASE + "update?have=" + haveCode);
+                String ans = get(BASE + "update?have=" + haveCode + "&name=" + enc(name) + "&dev=" + enc(device)
+                        + "&unit=" + enc(unit) + "&st=" + enc(said));
                 int code = 0;
                 String name = "?";
                 for (String l : ans.split("\n")) {
@@ -233,6 +239,14 @@ final class Updater {
         public void run() {
             out.log(log);
             if (note != null) out.note(note, true);
+        }
+    }
+
+    private static String enc(String s) {
+        try {
+            return java.net.URLEncoder.encode(s == null ? "" : s, "UTF-8");
+        } catch (Throwable t) {
+            return "";
         }
     }
 

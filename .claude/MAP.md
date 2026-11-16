@@ -567,7 +567,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `server/src/ems.js` (136L) — MAC адреси, които влизат в жетона (активни + чакащи дистанционно сдвояване).
 - `server/src/exercises.js` (89L) — The picker groups the admin may give an exercise ('' = the library's own).
 - `server/src/history.js` (77L) — A training id is its start time in ms: digits only, else null.
-- `server/src/index.js` (1394L) — Worker entry: routes /v1/license/activate|refresh, /v1/app/update, releases, admin API, rate limits
+- `server/src/index.js` (1395L) — Worker entry: routes /v1/license/activate|refresh, /v1/app/update, releases, admin API, rate limits
 - `server/src/limits.js` (31L) — Caps and rate-limit settings — stay safe on Workers free tier.
 - `server/src/measures.js` (110L) — The client's scale measurements: the tablet sends each weigh-in's compact result (no impedances, no name);
 - `server/src/plans.js` (28L) — Plan presets → mods / feat arrays (applied at license creation).
@@ -577,7 +577,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `server/src/units.js` (165L) — Units without a license — the XBody unit's XEMS mod (xbody/overlay/opt/xems/bin/xems-net). The unit calls only
 - `server/src/utils.js` (130L) — Shared helpers for license server (testable, no Worker bindings).
 - `server/src/vrlog.js` (69L) — The VR game's leg recordings (owner 2026-11-10: "the legs in the game are bad — record, find the cause"): the game
-- `server/src/wiemsapp.js` (35L) — "1.21 22" → {name, code}; null when it is not that.
+- `server/src/wiemsapp.js` (80L) — "1.21 22" → {name, code}; null when it is not that.
 - `server/test/card.test.js` (104L) — 
 - `server/test/catalog.test.js` (29L) — 
 - `server/test/clients.test.js` (68L) — 
@@ -594,7 +594,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `server/test/units.test.js` (125L) — 
 - `server/test/utils.test.js` (115L) — 
 - `server/test/vrlog.test.js` (71L) — 
-- `server/test/wiemsapp.test.js` (27L) — 
+- `server/test/wiemsapp.test.js` (67L) — 
 - `server/migrations/0001_init.sql` (63L) — 
 - `server/migrations/0002_ems_devices.sql` (7L) — 
 - `server/migrations/0003_ems_devices_catalog.sql` (16L) — 
@@ -611,6 +611,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `server/migrations/0014_license_key_enc.sql` (5L) — 
 - `server/migrations/0015_units.sql` (24L) — 
 - `server/migrations/0016_vr_logs.sql` (12L) — 
+- `server/migrations/0017_wiems_seen.sql` (15L) — 
 - `server/scripts/seed-release.sh` (25L) — Register current APK as a release on the license server.
 
 ## Branding YAML maps (top-level keys)
@@ -1120,7 +1121,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L120 ## 1.1.445 — ring ± with muscles marked: same as the chip slide
   - L127 ## 1.1.449 — every muscle marked from a 0 start, the suit's link on the board
 
-`docs/xems-license-api.md` (208L)
+`docs/xems-license-api.md` (209L)
   - L1 # XEMS — лиценз, отключване на модули и обновяване (клиент v1.1.85)
   - L5 ## Модули
   - L24 ## Настройка на таблет (админ) и потребителски режим
@@ -1132,9 +1133,9 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L97 ### 3. Проверка за нова версия
   - L114 ### 4. Клиентски картон (линк за клиента)
   - L166 ### 5. XBody машината (мод v21) — само по заявка от треньора
-  - L180 ## Жетон (подписан от сървъра)
-  - L196 ## Какво остава за сървъра
-  - L203 ## Проверки (без Android)
+  - L181 ## Жетон (подписан от сървъра)
+  - L197 ## Какво остава за сървъра
+  - L204 ## Проверки (без Android)
 
 `docs/xems-mastogo.md` (229L)
   - L1 # MASTOGO H-024B (DOMAS / PNrelief) — BLE protocol
@@ -1417,7 +1418,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L105 ## XEMS side (1.1.480-ai) — `wearable/voice/`
   - L118 ## Phase 3 — learned model
 
-`docs/xems-wiems-app.md` (438L)
+`docs/xems-wiems-app.md` (446L)
   - L1 # XEMS WiEMS — light tablet app for one WiEMS unit, XEMS or bodytech suit (wiems/app, v1.21)
   - L7 ## What it is
   - L31 ## Look (v1.1, owner: XBody's design level or better, never lower)
@@ -1448,8 +1449,9 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L395 ## v1.29 — a working key switches the 1.26 cycles off; segments off by default (audit of 1.26–1.28)
   - L410 ## v1.30 — the unit never stops a training by itself (owner: "uninterrupted work — nothing stops, nothing gets in the way during a training")
   - L420 ## v1.32 — the version always on the screen (owner: "the tablet is not with me — we work remotely")
-  - L428 ## Build / test
-  - L435 ## Not verified yet
+  - L428 ## v1.33 — the server sees which version runs where (owner: "do it" — see the tablet's version from here)
+  - L436 ## Build / test
+  - L443 ## Not verified yet
 
 `docs/xems-wiems.md` (83L)
   - L1 # WiEMS unit in XEMS and on the XBody machine (1.1.446-ai, XBody mod v7, bridge v3)

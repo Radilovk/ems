@@ -54,6 +54,10 @@ interface Host {
     void dismissProblem();
     /** The trace's automatic trip to the server ({@link Report}: IDLE / SENDING / SENT / FAILED). */
     int reportState();
+    /** This app's version for the screen, e.g. "1.31 (32)" (owner: always visible, the tablet is far away). */
+    String appVersion();
+    /** The self-update's state / "обновена от 1.30" after an update ("" = nothing to say). */
+    String updateState();
     /** An asset of the APK (null: none). */
     java.io.InputStream openAsset(String name);
 }

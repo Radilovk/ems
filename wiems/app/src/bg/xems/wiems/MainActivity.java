@@ -294,6 +294,8 @@ public final class MainActivity extends Activity implements Ble.Listener, Host, 
             appCode = 0;
         }
         updater = new Updater(this, appCode, new UpLog());
+        updater.name = appName;
+        updater.device = Build.MANUFACTURER + " " + Build.MODEL;
         trace("app start " + appName + " (" + appCode + ") " + android.os.Build.MODEL + " Android " + Build.VERSION.RELEASE);
         try {   // after an update: say it once, in words (owner: the tablet is far away, see the version on the screen)
             android.content.SharedPreferences vp = getSharedPreferences("wiems", MODE_PRIVATE);
@@ -838,6 +840,12 @@ public final class MainActivity extends Activity implements Ble.Listener, Host, 
             autoReport(why);
         } else if (reportAfterSnap != null && t > snapDeadline) {
             snapWant = null;
+        }
+        // hourly while it runs: the update check is also the server's sign of life (which version, which unit)
+        if (updater != null) {
+            String m = lastMac != null ? lastMac : linkingMac;
+            if (m != null) updater.unit = m;
+            updater.check(t);
         }
         // a downloaded update goes to the installer only while nothing trains (never mid-session)
         if (updater != null && updater.waiting() && held == null && (session == null || session.state() == Session.IDLE)

@@ -425,6 +425,14 @@ The audit found that a verified key did **not** stop the 1.26 cycles: `Session` 
 - After an update, once: the note „Обновено: 1.31 → 1.32 ✓“ and the pill says „обновена от 1.31 ✓“ (prefs
   `ran_code` / `ran_name`; the trace gets `updated … → …`).
 
+## v1.33 — the server sees which version runs where (owner: "do it" — see the tablet's version from here)
+- Each update check also says: the version name, the tablet (`Build.MANUFACTURER MODEL`), the last unit's MAC, what
+  the previous check said (`Updater.name / device / unit / said`). Checks: at start, on resume and **hourly while the
+  app runs** (was 6 h) — so the last check is also the tablet's last sign of life.
+- Server: every `/v1/wiems/update` is kept in `wiems_seen` (no IP; 90 days), read with
+  `GET https://license.biocode-bg.com/v1/wiems/seen[?since=<unix s>]` → the last 50 `{ts, code, name, device, unit,
+  state, offered, country}`. Apps before 1.33 show there too, with their code only.
+
 ## Build / test
 ```
 sh scripts/build-wiems-app.sh     # → wiems/dist/xems-wiems.apk (committed); version in wiems/app/VERSION

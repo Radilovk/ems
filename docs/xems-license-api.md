@@ -173,6 +173,7 @@ GET  /v1/unit/pack?app=xbody&v=21                     → пакетът (tar), 
 POST /v1/unit/log?app=xbody&unit=<12 hex>&ver=21      (текст ≤ 256 KB) → OK <№>      (10 на час от IP)
 GET  /v1/unit/log/recent?app=wiems[&since=<unix s>]       → {ok, logs:[{id,ts,unit,version,size,head}]}  (само wiems)
 GET  /v1/unit/log/<№>?app=wiems                     → текстът (WiEMS приложението праща сам при грешка)
+GET  /v1/wiems/seen[?since=<unix s>]                   → {ok, now, seen:[{ts,code,name,device,unit,state,offered,country}]} — всяка проверка за обновление на WiEMS приложението (коя версия къде работи)
 ```
 Админ: `GET /admin/api/units`, `POST /admin/api/units/release {version,url,notes}` (сървърът сваля пакета и пази
 sha256/size), `DELETE /admin/api/units/release/xbody/<v>`, `GET|DELETE /admin/api/units/log/<id>`. Логовете се пазят 60 дни.

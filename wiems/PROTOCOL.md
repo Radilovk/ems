@@ -87,5 +87,24 @@ names and string literals readable with ILSpy even when IL is stripped. Its own 
 values** (ch 3 = bit 4 … ch 7 = bit 0). Every vendor write in the capture fits (`09 00 00 00 80 00 00 80 00 00`:
 XOR 9 = 01001 → ch 4, ch 7; `12 0f 0f 8f 0f 0f 0f 8f 0c 00`: 0x11 → ch 3, ch 7; equal channels XOR to 0 → no bits).
 A write without the bits whose XOR is not 0 makes the unit stop with `86`, `00` — any channel set apart from the
-others; all channels equal always passed. That is the vendor's log "Curr_comp: Calculada / Recibida". Scale: the
-vendor's 100 % ≈ byte 19–20 (`WiProto.UNIT_MAX` 20). The earlier "86 = channel" / "no load" readings are wrong.
+others; all channels equal always passed. That is the vendor's log "Curr_comp: Calculada / Recibida". Scale: see
+"From the vendor's code" below — the check is really 8 bits and the top is 125.
+
+## From the vendor's code (NooFit Pro = Wiems Easy for Android, `com.wiemspro.wiemsProEasy`, 2026-11-09)
+The Play listing "NooFit Pro" is the same package as Wiems Easy on iOS. .NET MAUI: the IL is in
+`lib/arm64-v8a/libassemblies.arm64-v8a.blob.so` (XABA store, each assembly `XALZ` + LZ4), read with dnfile + dncil.
+Class `WiemsProEasy.Models.Aux.DispositivoConectado` names every UUID (`uuidEnvioCorrientes` = 966e06c6,
+`uuidAnchuras` = 7764e556 …). Facts (only these go into our code — no vendor code in the repo):
+- **Strength = the screen's number, 0..125, step 1.** `ClientsTrainingModel.Mas` raises a channel while it is
+  < 125; `ParseCanal2Envio` rounds the channel value (moved to its lead by the suit's map); `ConfigRealCurrents`
+  sends `value × percent / 100` with percent 100 in training (other percents: mute / set-up returns). Our 100 % =
+  125 (`WiProto.UNIT_MAX`; 20 and 31 before were guesses).
+- **Check bits** (`getCurrentsCoded`): XOR of the ten bytes, bit 7 − i of it into bit 7 of byte i, i = 0..7 (byte 0
+  = bit 7 … byte 7 = bit 0) — 8 bits, so every value up to 125 is covered (for values ≤ 31 the same bytes as the
+  5-bit reading from the capture).
+- **Width byte** (`getAnchuraCoded`): bits 0–2 = positive half-wave (100 µs → 1, 150 → 2 … 350 → 6, ≥ 400 → 7),
+  3–5 = negative (same codes), 6–7 = the gap (0 → 0, 50 µs → 1, ≥ 100 → 2). Capture 1 `7f 7f 6d 49 7f 7f 64 52 7f 52`
+  = 400 400 300 100 400 400 250 150 400 150 µs, gap 50. Widths come per channel from the program
+  (`sessionProgramChanels`); the vendor's default `ChannelModel` per channel 1..10: 400 300 250 100 250 300 250 150
+  350 150. So a width belongs to a muscle: an XEMS suit on the unit's leads must move it with the muscle
+  (`WiProto.widths(muscleOf)`, app 1.20, 1.1.508-ai, mod v32) — before, Седалище on an XEMS suit got 100 µs. The earlier "86 = channel" / "no load" readings are wrong.

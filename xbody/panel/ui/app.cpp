@@ -2,6 +2,7 @@
 #include "panel.h"
 #include "../core/bridge.h"
 #include "../core/safe.h"
+#include "../core/wiproto.h"
 #include <QDateTime>
 #include <QDir>
 #include <map>
@@ -459,6 +460,12 @@ void App::load() {
         for (int i = 0; i < Suit::MAX_CH; i++) keptZones_[k][i] = i < z.size() ? z[i].toInt() : 0;
         keptStrength_[k] = st.value(QString::fromLatin1("zones/strength%1").arg(k), 100).toInt();
     }
+    // WiEMS 100 % = byte 125 now (the vendor's top), was 20 / 31: a kept zone would come back 4–6× stronger —
+    // once, its zones start again at 0.
+    if (st.value("zones/wi_scale", 0).toInt() != wi::UNIT_MAX) {
+        for (int i = 0; i < Suit::MAX_CH; i++) keptZones_[Suit::WIEMS][i] = 0;
+        st.setValue("zones/wi_scale", (int)wi::UNIT_MAX);
+    }
     // Saved values go through the limits too (an older file, a hand edit).
     int v[safe::N] = {prog_.hz, prog_.us, prog_.onS, prog_.offS, prog_.dbl ? 1 : 0, prog_.dblHz, prog_.dblPct, prog_.rampMs};
     safe::apply(v, age60_ ? 65 : -1, 0);
@@ -586,7 +593,7 @@ void App::setWiring(int w) {
         for (int i = 0; i < n; i++) s->setZone(to[i], 0);
         for (int i = 0; i < n; i++) s->setZone(to[i], pct[i]);
     }
-    if (s && s->kind() == Suit::WIEMS) wiWiring_ = w;
+    if (s && s->kind() == Suit::WIEMS) { wiWiring_ = w; s->setWiWiring(w); }
     else wiring_ = w;
     if (s) ses_[cur_].wiring = w;
     save();
@@ -705,6 +712,7 @@ void App::line(const std::string &l, unsigned t) {
         n.suit = new Suit(k);
         n.suit->setProgram(prog_, age60_ ? 65 : -1, 0);
         n.wiring = k == Suit::WIEMS ? wiWiring_ : wiring_;
+        if (k == Suit::WIEMS) n.suit->setWiWiring(wiWiring_);   // the pulse widths follow the muscles
         restoreZones(n);          // the zones and strength as left last time (owner); a new suit: zones 0, strength 100
         n.suit->linked(t);
         n.mac = e.mac;

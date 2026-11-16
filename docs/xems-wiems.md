@@ -39,10 +39,10 @@ suit only adds a driver under the existing screen.
 | XEMS | WiEMS |
 |---|---|
 | slider of a body part (Гърди, Корем, Предно бедро, Прасец, Ръце, Трапец, Гръб, Кръст, Седалище, Задно бедро) | the unit channel of that body part — **XBody's channel order** (owner: a WiEMS suit is an XBody-standard suit): 0 Трапец, 1 Гръб, 2 Гърди, 3 Кръст, 4 Ръце, 5 Седалище, 6 Корем, 7 Предно бедро, 8 Задно бедро, 9 Прасец |
-| strength % | `WiProto.unit`: 100 % → byte 20 (the vendor's top, seen ≤ 18); the write carries the vendor's check bits (XOR of the ten values in bit 7 of ch 3..7) — without them unequal channels stop the unit with `86` (`wiems/PROTOCOL.md`) |
+| strength % | `WiProto.unit`: 100 % → byte 125 = the vendor's own top (its code: "+" stops at 125, the value goes out as is; 20 / 31 before were guesses); the write carries the vendor's 8-bit check (XOR in bit 7 of bytes 0..7); the write carries the vendor's check bits (XOR of the ten values in bit 7 of ch 3..7) — without them unequal channels stop the unit with `86` (`wiems/PROTOCOL.md`) |
 | Hz, impulse s, pause s | program `fr`, `w`, `r` (Ru = Rd = 0: the row ramps itself) |
 | second impulse Hz | rest Hz (`frecuenciaResting`, rest strength 100 as the vendor) |
-| width | **not sent** — the unit keeps the vendor's per-channel widths (unit of 0x001c unknown) |
+| width | not set from the row: the vendor's per-muscle widths (`WiProto.WIDTH_US`, coded as its `getAnchuraCoded`), moved with the muscles for an XEMS suit (`WiTranslator.muscleOf`) |
 
 ## Safety
 - Strength ≤ 100; upstream XEMS limits (`docs/xems-safety-limits.md`) act before the translator.

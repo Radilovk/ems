@@ -16,7 +16,7 @@ import java.util.List;
  * again with phase 0 and the strengths). The row keeps its own clock; every phase only sets the strengths: the
  * impulse its sliders, a pause without second impulse 0 — so the unit gives out only where both say "work".
  * <p>
- * Safety: strength ≤ {@link WiProto#MAX_CURRENT}; F2 / stop / reset = strengths 0 + run stop; strengths nobody renewed
+ * Safety: strength ≤ 100 % (= {@link WiProto#UNIT_MAX}); F2 / stop / reset = strengths 0 + run stop; strengths nobody renewed
  * for the longer phase + 3 s go to 0 ({@link #heartbeat}); after a lost link the next command first stops the unit.
  */
 public final class WiTranslator {
@@ -199,6 +199,18 @@ public final class WiTranslator {
         return t;
     }
 
+    /**
+     * Per unit channel, the vendor-suit channel whose muscle it drives (an XEMS suit sits on other leads): the
+     * vendor's per-muscle widths follow the muscle ({@link WiProto#widths(int[])}).
+     */
+    int[] muscleOf() {
+        int[] m = new int[WiProto.CHANNELS];
+        java.util.Arrays.fill(m, -1);
+        if (!xemsSuit) return m;
+        for (int s = 0; s < 10; s++) m[SLIDER_TO_CH_XEMS[s]] = SLIDER_TO_CH[s];
+        return m;
+    }
+
     // ------------------------------------------------------------------ internals
 
     private static int at(byte[] p, int i) {
@@ -218,7 +230,7 @@ public final class WiTranslator {
     private void startUnit(List<byte[]> out, long nowMs) {
         out.add(WiProto.program(hz, workS, restS, 0, 0, WiProto.PHASE_ARM));
         out.add(WiProto.rest(restHz, 100));
-        out.add(WiProto.widths());
+        out.add(WiProto.widths(muscleOf()));
         setCurrents(out, null);
         out.add(WiProto.run(true));
         devHz = hz;

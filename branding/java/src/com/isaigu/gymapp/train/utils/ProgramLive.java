@@ -248,12 +248,80 @@ public final class ProgramLive {
                 STAGE_CLOCK.put(it, new int[] {cut, b.workLength});
             }
             it.workLength = b.workLength;
+            if (!it.data.start) {
+                synchronized (HELD) {
+                    HELD.put(it, Boolean.TRUE);         // paused: the full new time is a pause, not an end
+                }
+            }
             synchronized (CLOCK) {
                 CLOCK.remove(it);                       // the new countdown starts from whole seconds
             }
             return it.data.start ? b.workLength * 1000L : 0L;
         } catch (Throwable t) {
             return 0L;
+        }
+    }
+
+    /** Rows switched to another mode while paused: their time is back at the new mode's full length (1.1.519). */
+    private static final Map<TrainItem, Boolean> HELD = new WeakHashMap<TrainItem, Boolean>();
+
+    /**
+     * For the session recorder: the row was paused, then switched to another mode, and has not run or been reset
+     * since. Its time reads the new mode's full length, as after ■ Stop — but the training is not over (owner,
+     * 1.1.519: the report only at ■, the end of the time or the end of the massage).
+     */
+    public static boolean heldStage(TrainItem it) {
+        synchronized (HELD) {
+            return it != null && HELD.containsKey(it);
+        }
+    }
+
+    /**
+     * Hook: TrainItem.reset (■ Stop, the end of the time, a new client / program) — scripts/apply-mode-stages.py.
+     * The training is over: the shown training clock goes back to 0:00, a held stage is an end again.
+     */
+    public static void noteReset(TrainItem it) {
+        if (it == null) {
+            return;
+        }
+        synchronized (HELD) {
+            HELD.remove(it);
+        }
+        synchronized (ELAPSED) {
+            ELAPSED.remove(it);
+        }
+    }
+
+    /** Per row: {work milliseconds since the training began, elapsedRealtime of the last countdown tick}. */
+    private static final Map<TrainItem, long[]> ELAPSED = new WeakHashMap<TrainItem, long[]>();
+    /** Ticks come every 100 ms; a longer gap is a pause (not counted). */
+    static final long TICK_GAP_MS = 400L;
+
+    /**
+     * Hook: TrainViewHolder.updateTime (scripts/apply-avatar-timer.py) — the row's clock (and the focus board, which
+     * reads it) counts up: how long the training has run since it began, over every mode, without the pauses
+     * (owner, 1.1.519). Back to 0:00 at ■ / the end of the time.
+     */
+    public static int shownTime(TrainItem it) {
+        synchronized (ELAPSED) {
+            long[] e = it != null ? ELAPSED.get(it) : null;
+            return e != null ? (int) (e[0] / 1000L) : 0;
+        }
+    }
+
+    static void countTick(TrainItem it) {
+        long now = android.os.SystemClock.elapsedRealtime();
+        synchronized (ELAPSED) {
+            long[] e = ELAPSED.get(it);
+            if (e == null) {
+                ELAPSED.put(it, new long[] {0L, now});
+                return;
+            }
+            long d = now - e[1];
+            if (e[1] > 0L && d > 0L && d <= TICK_GAP_MS) {
+                e[0] += d;
+            }
+            e[1] = now;
         }
     }
 
@@ -278,6 +346,9 @@ public final class ProgramLive {
     public static int tickWork(TrainItem it, long ms) {
         long left = Math.max(0L, ms);
         int sec = (int) ((left + 999L) / 1000L);
+        if (it != null && it.data != null && it.data.start) {
+            countTick(it);
+        }
         if (it != null) {
             synchronized (CLOCK) {
                 CLOCK.put(it, new long[] {left, sec});
@@ -293,6 +364,19 @@ public final class ProgramLive {
      */
     public static long workMs(TrainItem it) {
         int sec = it != null ? it.workLength : 0;
+        if (it != null) {
+            synchronized (HELD) {
+                HELD.remove(it);                        // ▶ after a held stage: the training goes on
+            }
+            synchronized (ELAPSED) {
+                long[] e = ELAPSED.get(it);
+                if (e == null) {
+                    ELAPSED.put(it, new long[] {0L, android.os.SystemClock.elapsedRealtime()});
+                } else {
+                    e[1] = android.os.SystemClock.elapsedRealtime();   // the first tick after ▶ counts from now
+                }
+            }
+        }
         long[] c;
         synchronized (CLOCK) {
             c = it != null ? CLOCK.get(it) : null;

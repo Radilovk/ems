@@ -15,6 +15,8 @@
 - TrainItem.startPulse: every ON / pause phase started when the previous one's callback ran, so each boundary added
   its lateness and the counted cycles (Auto, maps, Smart Session) ran slower than the clock. ProgramLive.phaseMs
   times a phase from the planned end of the one before (1.1.494).
+- TrainItem.reset (■, the end of the time, a new client): ProgramLive.noteReset — the counted-up row clock goes back to
+  0:00; a mode chosen while paused (ProgramLive.heldStage) no longer reads as an end to the recorder (owner, 1.1.519).
 Runs after apply-double-impulse.py (modeCarry + xemsRestartPulse) and apply-live-settings.py.
 """
 from __future__ import annotations
@@ -185,6 +187,17 @@ def main() -> None:
     text = text[:a] + body + text[b:]
     ITEM.write_text(text, encoding="utf-8")
     print("TrainItem.startPulse: each ON / pause phase is timed from the planned end of the one before")
+
+    text = ITEM.read_text(encoding="utf-8")
+    a, b = method(text, ".method public reset()V")
+    body = text[a:b]
+    m = re.search(r"\.locals \d+\n", body)
+    if not m:
+        sys.exit("apply-mode-stages: TrainItem.reset not found")
+    body = body[:m.end()] + (f"\n    invoke-static {{p0}}, {PL}->noteReset({TI})V\n") + body[m.end():]
+    text = text[:a] + body + text[b:]
+    ITEM.write_text(text, encoding="utf-8")
+    print("TrainItem.reset: the training clock back to 0:00, a held stage ends again")
 
     tick = TICK.read_text(encoding="utf-8")
     m = TICK_RE.search(tick)

@@ -7,7 +7,7 @@ Idea: the BodyTech mock-ups (landscape) — one client fills the place of the ro
 ## Layout
 - **Top bar:** client chips (photo from the row, name, dot: green = running, grey = stopped, red = no link) + `+`
   (presses the list's empty slot); modes Основен / Мускули / Кардио / Масаж (press the row's mode buttons);
-  time left and battery (read from the row); ⚙ (the row's `setting`); `☰ Редове` → classic rows.
+  the training time so far (counts up, 1.1.519) and battery (read from the row); ⚙ (the row's `setting`); `☰ Редове` → classic rows.
 - **Middle:** 5 front muscles left, 5 back muscles right (tap = the header's `buweiN` → PartPick green / yellow / off),
   a sideways slide on a chip = that channel's slider (1.1.414: relative to the finger, right = more, 1.2 × chip width
   = 100 %, sent on release via `PartStrength.bar` + `addAllPartValue(0, true)` — the row's channel-bar path; refused
@@ -99,6 +99,15 @@ Idea: the BodyTech mock-ups (landscape) — one client fills the place of the ro
   manual mode the clock now starts the new mode's own full time (`ProgramLive.stageClock`): Основен with 2:00 left
   → Масаж runs the massage's whole time, not the 2:00 left. The report's plan drops the old mode's unused time and
   adds the new one (`ProgramLive.takeStage` → `SessionRecorder`). AI / Auto keep one clock across their modes.
+- **1.1.520 — a picked muscle in the theme colour (owner):** the 1st tap on a muscle chip (the main impulse under
+  control) was red, while the main impulse running shows its percents in the theme colour — two colours for one
+  impulse. Now the pick, its slide and its point on the figure use `XemsUi.ACCENT` (pink theme → pink, blue →
+  blue); the 2nd tap stays yellow (the second impulse).
+- **1.1.519 — the report only at the end; the clock counts up (owner):** a mode chosen while ❚❚ put the new mode's
+  full time on the row, which the recorder read as ■ and opened the report. Now (`ProgramLive.heldStage`) that is
+  still a pause; the report opens only at ■, the end of the time or the end of the massage. The row's clock
+  (`@id/time`, and this board's) shows the training's time so far — over every mode, without the pauses — not the
+  time left (`ProgramLive.shownTime`, counted on the countdown ticks; 0:00 again at `TrainItem.reset`).
 - **1.1.508 — the board no longer vanishes:** it hid (and its ◎ pill with it) whenever Auto / AI were in any stage,
   so an Auto / AI card left in its setup or report — or an Auto board left in a training screen that was rebuilt —
   took it away for good. Now only an Auto board on screen, Auto / AI calibrating or running, or a map run hide it.

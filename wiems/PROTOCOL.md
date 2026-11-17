@@ -122,6 +122,16 @@ bootloader's CRC/signature) with a real brick risk, not a BLE write we can deriv
 limit, so they do not help. We do **not** fetch the vendor firmware or attempt a reflash. This is recorded as protocol
 fact only; the safe XEMS path remains the zero-current `77645cb2` experiment (app 1.35) plus the vendor re-provision.
 
+## Every BLE write in the vendor app (complete inventory, 17.11)
+Enumerated all `WriteAsync` sites in `WiemsProEasy` by target characteristic. The EMS unit is ever written on only:
+`uuidArrancarParar` (start/stop), `uuidEnvioCorrientes` (currents), `uuidAnchuras`/`uuidAnchurasExt` (widths),
+`uuidFrec`/`uuidFreqDiv` (frequency), `uuidExtra1` (ConfigTraining), `uuidFirmware` (DFU). (Plus Blautic sensor
+configs on other devices.) **`uuidSerieMinutos` (77645cb2) and `uuidMinutosUsados` (7764d000) are written by
+nothing, in any flow — including after a top-up.** So sniffing the end-user app's BLE while a quota is added shows
+**no** unlock reaching the unit: the app never sends one. The unit's allowance is set out-of-band (a distributor
+provisioning tool writing `77645cb2`, or the factory). The only BLE capture that reveals the unlock is of that
+provisioning step, not of the consumer app.
+
 ## Sequences seen
 Connect: MTU → read 2A25, 2A24 → CCCD on 2A19, 0x0031, 0x0035 → read 0x0039, 0x003d, 0x0043 (`00`) → CCCD 0x0043
 → read 0x004d → write 0x0043 `00`.

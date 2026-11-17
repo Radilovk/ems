@@ -187,7 +187,10 @@ public final class SessionRecorder {
                         continue;
                     }
                     // Paused, or ended: the countdown goes back to the planned time (reset) or to 0.
-                    boolean reset = it.workLength <= 0 || r.segPlanS > 0 && it.workLength >= r.segPlanS;
+                    // A mode chosen while paused puts the new mode's full time on the row, as ■ would: still a pause
+                    // (owner, 1.1.519 — the report only at ■, the end of the time or the end of the massage).
+                    boolean reset = !com.isaigu.gymapp.train.utils.ProgramLive.heldStage(it)
+                            && (it.workLength <= 0 || r.segPlanS > 0 && it.workLength >= r.segPlanS);
                     r.idle = reset ? r.idle + 1 : 0;
                     r.pausedS = reset ? r.pausedS : r.pausedS + 1;
                     if (reset && r.idle >= END_CONFIRM_S) {

@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""Remove avatar wave fill; show interval seconds only while training is running."""
+"""Remove avatar wave fill; show interval seconds only while training is running.
+
+The row's clock (@id/time) counts up — the training's time so far, over every mode, without pauses
+(ProgramLive.shownTime, owner 1.1.519); it was the time left (workLength).
+"""
 
 from pathlib import Path
 
@@ -276,7 +280,9 @@ UPDATE_TIME_NEW = """.method private updateTime()V
 
     iget-object v3, p0, Lcom/isaigu/gymapp/train/TrainViewHolder;->item:Lcom/isaigu/gymapp/train/model/TrainItem;
 
-    iget v3, v3, Lcom/isaigu/gymapp/train/model/TrainItem;->workLength:I
+    invoke-static {v3}, Lcom/isaigu/gymapp/train/utils/ProgramLive;->shownTime(Lcom/isaigu/gymapp/train/model/TrainItem;)I
+
+    move-result v3
 
     invoke-static {v3}, Lcom/isaigu/gymapp/mgr/CommonUtils;->formatTime(I)Ljava/lang/String;
 
@@ -305,8 +311,35 @@ def patch_update_time() -> None:
     print("TrainViewHolder.updateTime: removed wave fill, gated seconds on start")
 
 
+TIME_LEFT = """    iget v3, v3, Lcom/isaigu/gymapp/train/model/TrainItem;->workLength:I
+
+    invoke-static {v3}, Lcom/isaigu/gymapp/mgr/CommonUtils;->formatTime(I)Ljava/lang/String;"""
+TIME_UP = """    invoke-static {v3}, Lcom/isaigu/gymapp/train/utils/ProgramLive;->shownTime(Lcom/isaigu/gymapp/train/model/TrainItem;)I
+
+    move-result v3
+
+    invoke-static {v3}, Lcom/isaigu/gymapp/mgr/CommonUtils;->formatTime(I)Ljava/lang/String;"""
+
+
+def patch_time_up() -> None:
+    """The row's clock counts the training's time up (an earlier script may have written updateTime already)."""
+    text = HOLDER.read_text(encoding="utf-8")
+    a = text.find(".method private updateTime()V")
+    b = text.find(".end method", a)
+    body = text[a:b]
+    if "ProgramLive;->shownTime" in body:
+        print("TrainViewHolder.updateTime: clock already counts up")
+        return
+    if a < 0 or body.count(TIME_LEFT) != 1:
+        raise RuntimeError("TrainViewHolder.updateTime: workLength -> formatTime not found")
+    text = text[:a] + body.replace(TIME_LEFT, TIME_UP, 1) + text[b:]
+    HOLDER.write_text(text, encoding="utf-8")
+    print("TrainViewHolder.updateTime: the row's clock counts the training's time up")
+
+
 def main() -> None:
     patch_update_time()
+    patch_time_up()
     print("Avatar timer patches applied.")
 
 

@@ -100,6 +100,12 @@ The firmware characteristic `7764a25c` (`uuidFirmware`) is written **only** by t
 - `ResponseWebService..ctor` sets `miURLFirmware` to a fixed vendor directory on `wiemspro.com/firmware/<two opaque
   path tokens>/easy/` (the "easy" model). `LecturaFirmwareAsync` GETs it (version string), `DownloadFirmwareAsync`
   GETs the binary into `fwData` (plain `GetAsync`, `ReadAsByteArrayAsync`, `no-cache` — HTTP, no signing in the app).
+- The firmware files (from `CheckFWVersion`): the unit reports a version, mapped to a file on `miURLFirmware` =
+  `http://wiemspro.com/firmware/<two opaque tokens>/easy/` + `archivo`: `1.2` → `EMS_V1.bin`, `2.5` → `EMS_V2.bin`,
+  `2.6` → `EMS_V26.bin` (the owner's unit is 1.2.x → `EMS_V1.bin`). **As of 2026-11-17 these URLs 404** (the host is
+  now WordPress behind Cloudflare; the path is gone or gated) and there is no Wayback snapshot — the image cannot be
+  fetched from here. To study the minute check / the `77645cb2` format we need the `.bin` by another route (a unit
+  dump over SWD/UART, a captured vendor DFU, or an older build that bundled it).
 - `IniciaTelecarga` streams it: for `numPaqueteFirmware` = 0 … `numPaquetesTotales`, call `cargarPaqueteDeFirmware`,
   `Delay(10)` between packets, progress 0→100 %, then `FirmwareOK`. No start/stop/handshake command — just the stream.
 - `cargarPaqueteDeFirmware` builds a **19-byte packet** and `WriteAsync`es it to `7764a25c`:

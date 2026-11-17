@@ -474,6 +474,15 @@ Changes:
   idle only) and may still surface a win if the format is simple; otherwise the unit only runs once the vendor tops it up.
 - Tests: `ProbeTest` updated (refuse-by-value); 20 checks pass.
 
+## v1.36 — broad quota-key sweep on uuidSerieMinutos (after the 1.35 live test)
+Report #18 (1.35, real unit): all 6 crude values on `77645cb2` still got `02`, **except** the 2- and 4-byte all-FF
+writes, which made the unit go **silent** instead of refusing — a hint the real shape is a binary integer. v1.36
+widens `Probe.candidates()` from 6 to 23 (the 6 are kept first and skipped as already-tried): binary LE/BE ints of
+3–4 bytes with sane-large values (999999 / 100000), ASCII numbers of several widths, BCD, zero-resets, one
+command-prefixed form. All on `77645cb2` only, zero current; firmware char and the read-only counter are never
+written. Still a guess, not a known key — if the unlock is a signed/per-device token none open it. New helpers
+`Probe.le/be(value,width)`. Tests unchanged (ProbeTest 20, dynamic candidate count).
+
 ## Build / test
 ```
 sh scripts/build-wiems-app.sh     # → wiems/dist/xems-wiems.apk (committed); version in wiems/app/VERSION

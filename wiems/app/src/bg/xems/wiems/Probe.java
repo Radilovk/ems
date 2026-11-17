@@ -78,7 +78,7 @@ final class Probe {
         void probeDone(Cand winner, String summary);
     }
 
-    private static final int IDLE = 0, W_CAND = 1, ARMING = 2, WAIT_RUN = 3, STOPPING = 4, DONE = 5;
+    private static final int IDLE = 0, W_CAND = 1, ARMING = 2, WAIT_RUN = 3, STOPPING = 4, DONE = 5, NEXT = 6;
     /** The arm after a candidate: the vendor's five writes, every channel 0 (no output). */
     private static final int ARM_OPS = 5;
     /** How long to wait for "01" / "02" after "25" (the unit's count-down ~4 s; its "02" is immediate). */
@@ -178,6 +178,22 @@ final class Probe {
         io.probeWrite(c.uuid, c.val);
     }
 
+    /**
+     * v1.34 — the candidate's write could not even go out (the tablet refuses a write to a read-only characteristic:
+     * on the owner's unit 7764d000 is "RN"). That candidate is a definite no: record it as tried and go on with the
+     * next one at the next tick — before, the whole search was cancelled here, at candidate 1, at every link, so the
+     * other nine were never tried. The host calls it when the write cannot go out, and when the unit rejects it (GATT
+     * error); false: not a candidate write (the host cancels as before).
+     */
+    boolean writeRefused(long now) {
+        if (state != W_CAND || cands == null || idx >= cands.length) return false;
+        io.probeLog("try " + (idx + 1) + ": the write cannot go out (not writable) — next");
+        tried.add(key(cands[idx]));
+        idx++;
+        state = NEXT;
+        return true;
+    }
+
     /** A write was acknowledged (one op in flight; the host calls this on every {@code written}). */
     void onAck(long now) {
         switch (state) {
@@ -242,6 +258,10 @@ final class Probe {
 
     /** Ticked by the host: a definite refusal moves on after a short grace; a silent unit after the full wait. */
     void tick(long now) {
+        if (state == NEXT) {
+            writeCand(now);
+            return;
+        }
         if (state != WAIT_RUN) return;
         boolean refused = refusedAt >= 0 && now - refusedAt >= REFUSE_GRACE_MS;
         if (refused || now - waitStart >= WAIT_MS) {

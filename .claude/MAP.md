@@ -1418,7 +1418,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L105 ## XEMS side (1.1.480-ai) — `wearable/voice/`
   - L118 ## Phase 3 — learned model
 
-`docs/xems-wiems-app.md` (446L)
+`docs/xems-wiems-app.md` (468L)
   - L1 # XEMS WiEMS — light tablet app for one WiEMS unit, XEMS or bodytech suit (wiems/app, v1.21)
   - L7 ## What it is
   - L31 ## Look (v1.1, owner: XBody's design level or better, never lower)
@@ -1450,8 +1450,9 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L410 ## v1.30 — the unit never stops a training by itself (owner: "uninterrupted work — nothing stops, nothing gets in the way during a training")
   - L420 ## v1.32 — the version always on the screen (owner: "the tablet is not with me — we work remotely")
   - L428 ## v1.33 — the server sees which version runs where (owner: "do it" — see the tablet's version from here)
-  - L436 ## Build / test
-  - L443 ## Not verified yet
+  - L436 ## v1.34 — the key search really runs (reports 13–15, 16–17.11)
+  - L458 ## Build / test
+  - L465 ## Not verified yet
 
 `docs/xems-wiems.md` (83L)
   - L1 # WiEMS unit in XEMS and on the XBody machine (1.1.446-ai, XBody mod v7, bridge v3)

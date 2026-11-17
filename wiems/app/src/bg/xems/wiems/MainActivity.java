@@ -58,13 +58,13 @@ public final class MainActivity extends Activity implements Ble.Listener, Host, 
         public void probeWrite(String uuid, byte[] val) {
             lastOp = "probe " + uuid.substring(0, 8);
             trace("→ probe " + uuid.substring(0, 8) + " = " + Trace.hex(val));
-            if (!ble.rawWrite(uuid, val)) probe.cancel("write to " + uuid.substring(0, 8) + " refused");
+            if (!ble.rawWrite(uuid, val)) probe.writeRefused(now());   // v1.34: skip this candidate, not the search
         }
 
         @Override
         public void probeOp(byte[] op) {
             lastOp = opName(op[0]);
-            if (!ble.write(op)) probe.cancel("op " + opName(op[0]) + " refused");
+            if (!ble.write(op)) cancelProbe("op " + opName(op[0]) + " refused");
         }
 
         @Override
@@ -106,6 +106,16 @@ public final class MainActivity extends Activity implements Ble.Listener, Host, 
     }
 
     /** Candidate keys (uuid + hex, space inside) joined by ';' for prefs; and back. */
+    /** v1.34: stop the probe and keep what it already tried, so the next search goes on from there. */
+    private void cancelProbe(String why) {
+        boolean was = probe.running();
+        probe.cancel(why);
+        if (!was) return;
+        for (String k : probe.tried()) if (!triedKeys.contains(k)) triedKeys.add(k);
+        if (quotaMac != null) getSharedPreferences("wiems", MODE_PRIVATE).edit()
+                .putString("tried_" + quotaMac, joinKeys(triedKeys)).apply();
+    }
+
     static String joinKeys(java.util.List<String> keys) {
         StringBuilder b = new StringBuilder();
         for (String k : keys) {
@@ -735,7 +745,7 @@ public final class MainActivity extends Activity implements Ble.Listener, Host, 
     @Override
     public void lost(String why) {
         trace("LOST: " + why);
-        probe.cancel("link lost");
+        cancelProbe("link lost");
         wantProbe = false;
         wantVerify = false;
         if (linkingMac != null && session == null) linkFailed(why);
@@ -759,7 +769,7 @@ public final class MainActivity extends Activity implements Ble.Listener, Host, 
         trace(ok ? "  ack" : "  WRITE REJECTED by the unit: " + lastOp + " (GATT " + st + ")");
         if (probe.running()) {                       // v1.27: the probe paces itself by its acks
             if (ok) probe.onAck(now());
-            else probe.cancel("write rejected (GATT " + st + ")");
+            else if (!probe.writeRefused(now())) cancelProbe("write rejected (GATT " + st + ")");   // v1.34: a candidate → next
             return;
         }
         if (session == null) return;
@@ -869,7 +879,7 @@ public final class MainActivity extends Activity implements Ble.Listener, Host, 
         }
         if (probe.running()) {                       // v1.27: the owner tapping ▶ (session busy / preparing) cancels it
             if (session == null || session.state() != Session.IDLE || session.busy() || session.preparing())
-                probe.cancel("training started");
+                cancelProbe("training started");
             else probe.tick(t);
         }
         if (session != null) {

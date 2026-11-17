@@ -23,6 +23,7 @@ public class ProbeTest {
         final String magicUuid;
         final String magicHex;       // null = nothing opens it (every start refuses)
         boolean open;
+        String readOnly;             // a characteristic the tablet cannot write (the owner's 7764d000 is "RN")
         int arms, lastRun = -1;      // the last currents were zero?
         byte[] lastCurrents;
         Probe probe;
@@ -41,6 +42,10 @@ public class ProbeTest {
 
         @Override
         public void probeWrite(String uuid, byte[] val) {
+            if (readOnly != null && readOnly.equals(uuid)) {   // the tablet refuses the write (not writable)
+                probe.writeRefused(t);
+                return;
+            }
             if (magicHex != null && uuid.equals(magicUuid) && Probe.hex(val).equals(magicHex)) open = true;
             pendingAck = true;
         }
@@ -170,6 +175,25 @@ public class ProbeTest {
         fast.run(500000);
         ok("all-refused run is quick (< 2 s per candidate)", fast.t < Probe.candidates().length * 3000L,
                 "took " + fast.t + " ms for " + Probe.candidates().length + " candidates");
+
+        // 10. v1.34 — the owner's unit: 7764d000 is read-only, the tablet refuses that write. The search must not stop
+        // there (it did, at every link): those candidates are recorded as tried and the next ones run.
+        FakeUnit ro = new FakeUnit(cs[3].uuid, cs[3].val);   // the winner is #4
+        ro.readOnly = Probe.COUNTER;
+        ro.probe = new Probe(ro);
+        ro.probe.start(ro.t, null);
+        ro.run(300000);
+        ok("read-only first candidate skipped, the search goes on to the winner", ro.found != null
+                && Probe.key(ro.found).equals(Probe.key(cs[3])), String.valueOf(ro.found == null ? "null" : ro.found.label));
+        ok("the unwritable candidate is recorded as tried", ro.probe.tried().contains(Probe.key(cs[0])), ro.probe.tried().toString());
+        ok("no arm for an unwritable candidate (3 arms: #2 #3 #4)", ro.arms == 3, "arms " + ro.arms);
+        FakeUnit ro2 = new FakeUnit(null, null);           // nothing opens it: every writable one tried, the search ends
+        ro2.readOnly = Probe.COUNTER;
+        ro2.probe = new Probe(ro2);
+        ro2.probe.start(ro2.t, null);
+        ro2.run(500000);
+        ok("read-only + none: ends with every candidate tried", !ro2.probe.running() && ro2.found == null
+                && ro2.probe.tried().size() == Probe.candidates().length, "tried " + ro2.probe.tried().size());
 
         System.out.println(fails == 0 ? "ProbeTest: ALL OK (" + checks + " checks)" : "ProbeTest: " + fails + " FAILED");
         if (fails != 0) System.exit(1);

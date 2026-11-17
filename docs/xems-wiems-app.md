@@ -433,6 +433,28 @@ The audit found that a verified key did **not** stop the 1.26 cycles: `Session` 
   `GET https://license.biocode-bg.com/v1/wiems/seen[?since=<unix s>]` → the last 50 `{ts, code, name, device, unit,
   state, offered, country}`. Apps before 1.33 show there too, with their code only.
 
+## v1.34 — the key search really runs (reports 13–15, 16–17.11)
+What the reports showed:
+- **The search never got past candidate 1.** At every link (1.30, 1.33): `try 1/10: used counter 7764d000 = 000000`
+  → `quota probe cancelled (write to 7764d000 refused)`. 7764d000 is read-only on this unit (GATT map: `RN`), Android
+  refuses the write locally, and the probe treated that as "stop everything" — without recording it as tried, so the
+  same thing happened at the next link. The other nine candidates were **never** tried on the unit.
+- **The unit is now fully locked:** counter 73223 (over the 73200 thought to be its limit), "02" for Dur 25, 10, 1
+  and 0 — the Dur ladder has nothing left; only a key can open it.
+- The counter is not read live: after 23 min of run (Dur 25, 17.11 09:25–09:48) it still read 73163 at the stop,
+  and 73223 at the next link (+60). So "the counter did not move after a stop" is not proof of anything — one more
+  reason the segments stay off.
+- `776416cb` (config) notifies at every arm: byte 0 `da` → `00`, byte 8 `0c` → `01` (refused) / `02` (ran) — the
+  unit's own start state. Logged, not written.
+
+Fixed:
+- `Probe.writeRefused`: a candidate whose write cannot go out (not writable) **or that the unit rejects (GATT error)**
+  is a definite no → recorded as tried, the next candidate at the next tick. The search goes through the whole list.
+- `MainActivity.cancelProbe`: a cancelled search (▶, link lost) keeps what it already tried (`tried_<mac>`), so the
+  next idle moment goes on from there instead of starting over.
+- Tests: `ProbeTest` 10 — a read-only first candidate is skipped (no arm), the winner #4 is found; with none, the
+  search ends with every candidate tried.
+
 ## Build / test
 ```
 sh scripts/build-wiems-app.sh     # → wiems/dist/xems-wiems.apk (committed); version in wiems/app/VERSION

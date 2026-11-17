@@ -64,6 +64,37 @@ would have to come from a capture of a vendor top-up, or from the firmware. Writ
 (it is the firmware-update characteristic). Our probe therefore targets only `77645cb2`, at zero current, as a
 labelled experiment (WiEMS app 1.35).
 
+## The vendor server (from NooFit Pro 1.1.4 IL, 17.11) — activation / minutes
+Hosts (`DnsFallback` class, name → fallback IP):
+
+| host | IP | role |
+|---|---|---|
+| `pro.wiemspro.com` | 82.223.24.208 | main REST API (`api/dispositivos/…`, `api/competicion/…`, `api/circuito/…`) |
+| `wcommerce.wiemspro.com` | 82.223.205.107 | **commerce / billing** (where minutes/subscriptions are bought) |
+| `testws.wiemspro.com` | 82.223.132.36 | test web service |
+| `biosensorssuit.com` | 82.223.14.222 | — |
+| `n8nwiemspro.es` | 194.164.175.53 | n8n automation |
+
+(A dev base `http://82.223.23.119:8500` also appears.) We do **not** probe these — third-party, account-gated.
+
+**How activation / minutes work in the app (server-side only, class `ResponseWebService`):**
+- Minutes live as a **subscription / cuota under a trainer-manager account**, not on the unit. Routes:
+  `getCuotas`, `guardarCuota`, `creaSuscripcionManager`, `cancelaSuscripcionManager`, `getSuscripcionesApp/Manager`,
+  `findCodigosActivacionByManager?idManager=`, `eliminaCodigoActivacion`, then `api/dispositivos/sincronizar`
+  (returns `"OK"`). The device model carries `minutos_buyed` / `minutos_used` / `minutosTotales` as **data read from
+  the server and the unit** — the app displays and books them.
+- An **activation code** (`CodigoActivacion`) is redeemed on the server (it credits the manager's cuota); the app then
+  calls `sincronizar`. **No route adds minutes to the unit, and no BLE write to the unit happens on activation.**
+- Confirmed against the BLE layer: `uuidSerieMinutos` (`77645cb2`, the only writable minutes characteristic) is
+  **never referenced** in the app; `uuidMinutosUsados` (`7764d000`) is **read-only**. So the unit's firmware minute
+  gate is **provisioned out-of-band** (distributor/factory tool writing `77645cb2`, or at manufacture) — it is not
+  refreshed by this app over BLE, even after a purchase.
+
+**Consequence for XEMS:** there is no activation payload we can replay to the unit. Lifting the owner's unit limit
+needs either the vendor to re-provision it (the legitimate path, via `wcommerce.wiemspro.com`), a capture of a
+distributor provisioning write to `77645cb2`, or the unit firmware. The XEMS probe stays a safe, zero-current
+experiment on `77645cb2` only (app 1.35).
+
 ## Sequences seen
 Connect: MTU → read 2A25, 2A24 → CCCD on 2A19, 0x0031, 0x0035 → read 0x0039, 0x003d, 0x0043 (`00`) → CCCD 0x0043
 → read 0x004d → write 0x0043 `00`.

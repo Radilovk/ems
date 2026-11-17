@@ -406,7 +406,7 @@
     .line 1925
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$ChipTouch;->chip:Lcom/isaigu/gymapp/ai/FocusBoard$Chip;
 
-    sget v1, Lcom/isaigu/gymapp/widget/XemsUi;->DANGER:I
+    sget v1, Lcom/isaigu/gymapp/widget/XemsUi;->ACCENT:I
 
     iput v1, v0, Lcom/isaigu/gymapp/ai/FocusBoard$Chip;->tint:I
 

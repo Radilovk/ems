@@ -1108,7 +1108,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L319 ## 13. Open
   - L325 ## Sources
 
-`docs/xems-focus-board.md` (141L)
+`docs/xems-focus-board.md` (145L)
   - L1 # Training screen — focus layout (1.1.412)
   - L7 ## Layout
   - L24 ## Rules
@@ -1117,9 +1117,9 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L57 ## 1.1.419 — upright (button)
   - L72 ## 1.1.423 — board and rows in step, remove from the board
   - L81 ## 1.1.440 — chip slide past Интензитет 1, massage from the left mode
-  - L114 ## 1.1.444 — chip slide: both impulses in proportion, back down, yellow to 100
-  - L125 ## 1.1.445 — ring ± with muscles marked: same as the chip slide
-  - L132 ## 1.1.449 — every muscle marked from a 0 start, the suit's link on the board
+  - L118 ## 1.1.444 — chip slide: both impulses in proportion, back down, yellow to 100
+  - L129 ## 1.1.445 — ring ± with muscles marked: same as the chip slide
+  - L136 ## 1.1.449 — every muscle marked from a 0 start, the suit's link on the board
 
 `docs/xems-license-api.md` (209L)
   - L1 # XEMS — лиценз, отключване на модули и обновяване (клиент v1.1.85)

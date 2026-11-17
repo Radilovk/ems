@@ -6281,7 +6281,7 @@
 
     .line 1396
     :goto_221
-    sget v10, Lcom/isaigu/gymapp/widget/XemsUi;->DANGER:I
+    sget v10, Lcom/isaigu/gymapp/widget/XemsUi;->ACCENT:I
 
     goto :goto_1c1
 

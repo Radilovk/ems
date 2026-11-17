@@ -99,6 +99,10 @@ Idea: the BodyTech mock-ups (landscape) — one client fills the place of the ro
   manual mode the clock now starts the new mode's own full time (`ProgramLive.stageClock`): Основен with 2:00 left
   → Масаж runs the massage's whole time, not the 2:00 left. The report's plan drops the old mode's unused time and
   adds the new one (`ProgramLive.takeStage` → `SessionRecorder`). AI / Auto keep one clock across their modes.
+- **1.1.520 — a picked muscle in the theme colour (owner):** the 1st tap on a muscle chip (the main impulse under
+  control) was red, while the main impulse running shows its percents in the theme colour — two colours for one
+  impulse. Now the pick, its slide and its point on the figure use `XemsUi.ACCENT` (pink theme → pink, blue →
+  blue); the 2nd tap stays yellow (the second impulse).
 - **1.1.519 — the report only at the end; the clock counts up (owner):** a mode chosen while ❚❚ put the new mode's
   full time on the row, which the recorder read as ■ and opened the report. Now (`ProgramLive.heldStage`) that is
   still a pause; the report opens only at ■, the end of the time or the end of the massage. The row's clock

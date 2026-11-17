@@ -1383,7 +1383,7 @@ public final class FocusBoard {
                 dis[k] = off(it, k);
                 prog[k] = Math.min(1.25, level / 60.0);
                 if (chips[k] != null) {
-                    // marked: 1st tap red = the main impulse under control, 2nd tap yellow = the second one;
+                    // marked: 1st tap the theme colour (as the main impulse running, owner 1.1.520) = the main impulse under control, 2nd tap yellow = the second one;
                     // unmarked: the impulse on the screen (cyan / yellow)
                     boolean yel = m && PartPick.isYellow(k);
                     int cl = level;
@@ -1393,7 +1393,7 @@ public final class FocusBoard {
                         ct = XemsUi.AMBER;
                     } else if (m) {
                         cl = main != null && k < main.length ? main[k] : 0;
-                        ct = XemsUi.DANGER;
+                        ct = XemsUi.ACCENT;
                     }
                     chips[k].set(cl, ct, m, yel, dis[k]);
                 }
@@ -1916,13 +1916,13 @@ public final class FocusBoard {
                             x0 = e.getRawX();
                             if (!chip.sel) {
                                 // a slide on an unmarked muscle marks it first, as its 1st tap (owner, 1.1.442):
-                                // red, both impulses; the slide goes from its main impulse's level
+                                // theme colour, both impulses; the slide goes from its main impulse's level
                                 chipClick(chip.k);
                                 TrainItem it = current();
                                 int[] lv = PartStrength.levels(it, bean(it), false);
                                 start = lv != null && chip.k < lv.length ? lv[chip.k] : start;
                                 chip.sel = true;
-                                chip.tint = XemsUi.DANGER;
+                                chip.tint = XemsUi.ACCENT;
                             }
                             if (v.getParent() != null) {
                                 v.getParent().requestDisallowInterceptTouchEvent(true);
@@ -2049,7 +2049,7 @@ public final class FocusBoard {
 
     /**
      * A muscle on the side of the figures: icon, name, the channel's real strength in the impulse shown (number and
-     * bar in that impulse's colour: cyan = 1, yellow = 2); marked = 1st tap red (the main impulse, its level), 2nd tap yellow (the second impulse, its level).
+     * bar in that impulse's colour: cyan = 1, yellow = 2); marked = 1st tap the theme colour (the main impulse, its level), 2nd tap yellow (the second impulse, its level).
      */
     static final class Chip {
         final LinearLayout view;

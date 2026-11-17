@@ -57,21 +57,65 @@ final class Probe {
         return v;
     }
 
+    /** {@code value} as {@code width} little-endian bytes (low byte first). */
+    static byte[] le(long value, int width) {
+        byte[] v = new byte[width];
+        for (int i = 0; i < width; i++) v[i] = (byte) (value >> (8 * i));
+        return v;
+    }
+
+    /** {@code value} as {@code width} big-endian bytes (high byte first). */
+    static byte[] be(long value, int width) {
+        byte[] v = new byte[width];
+        for (int i = 0; i < width; i++) v[width - 1 - i] = (byte) (value >> (8 * i));
+        return v;
+    }
+
     /**
-     * The candidate list — ONLY the vendor's writable minutes characteristic (uuidSerieMinutos, 77645cb2), at zero
-     * current (no output on the body). The firmware characteristic (7764a25c) and the read-only counter (7764d000)
-     * are never written. The values are guesses at the unknown format (the app never writes this characteristic, so
-     * there is no example): zero the series, a large value, binary forms. Until a vendor top-up is captured this is
-     * an experiment, not a known key; a win is recorded and re-sent, a definite refusal moves to the next.
+     * v1.36 — the BROAD experiment on the vendor's writable minutes characteristic (uuidSerieMinutos, 77645cb2) only,
+     * at zero current (no output on the body). The firmware char (7764a25c) and the read-only counter (7764d000) are
+     * never written. The 1.35 run tried the six crude values (they are kept first, so the host skips them as already
+     * tried) and all still answered "02" — except the 2- and 4-byte all-FF writes, which made the unit go SILENT
+     * instead of refusing: a hint that a binary integer is the real shape. So this set sweeps the plausible plain
+     * encodings of "set bought high" / "reset used": binary LE/BE ints of 2–4 bytes with sane-large values, ASCII
+     * numbers of several widths, BCD, zero-resets, and one command-prefixed form. This is still a guess, not a known
+     * key: if the unlock is a signed/per-device token none of these open it. A win is recorded and re-sent; a refusal
+     * moves on. The owner's unit has used ~73223, so a "bought" value must exceed that to matter (2-byte max 65535
+     * cannot, kept only as a reset probe).
      */
     static Cand[] candidates() {
         return new Cand[] {
+            // the 1.35 six (kept first; skipped as already-tried, listed so the set is self-documenting)
             new Cand(SERIE_MINUTOS, digits("000000"), "uuidSerieMinutos = 000000 (zero the series)"),
-            new Cand(SERIE_MINUTOS, digits("999999"), "uuidSerieMinutos = 999999 (max the series)"),
+            new Cand(SERIE_MINUTOS, digits("999999"), "uuidSerieMinutos = 999999 (max, 6 ascii)"),
             new Cand(SERIE_MINUTOS, bytes(0, 0, 0, 0, 0, 0), "uuidSerieMinutos = 00 x6"),
             new Cand(SERIE_MINUTOS, bytes(0xFF, 0xFF, 0xFF, 0xFF), "uuidSerieMinutos = ff x4"),
             new Cand(SERIE_MINUTOS, bytes(0xFF, 0xFF), "uuidSerieMinutos = ff x2"),
             new Cand(SERIE_MINUTOS, bytes(1), "uuidSerieMinutos = 01"),
+            // --- v1.36 broad sweep ---
+            // binary little-endian "bought high" (the FF-silent hint), sane-large values, 4 / 3 bytes
+            new Cand(SERIE_MINUTOS, le(999999, 4), "LE uint32 999999"),
+            new Cand(SERIE_MINUTOS, le(100000, 4), "LE uint32 100000"),
+            new Cand(SERIE_MINUTOS, le(999999, 3), "LE uint24 999999"),
+            new Cand(SERIE_MINUTOS, le(100000, 3), "LE uint24 100000"),
+            // binary big-endian, same values
+            new Cand(SERIE_MINUTOS, be(999999, 4), "BE uint32 999999"),
+            new Cand(SERIE_MINUTOS, be(100000, 4), "BE uint32 100000"),
+            new Cand(SERIE_MINUTOS, be(999999, 3), "BE uint24 999999"),
+            // ASCII numbers of other widths (set bought high)
+            new Cand(SERIE_MINUTOS, digits("4294967295"), "ascii 4294967295"),
+            new Cand(SERIE_MINUTOS, digits("9999999999"), "ascii 9999999999"),
+            new Cand(SERIE_MINUTOS, digits("99999999"), "ascii 99999999 (8)"),
+            new Cand(SERIE_MINUTOS, digits("0999999"), "ascii 0999999 (7)"),
+            // reset "used" to zero / to current, other widths
+            new Cand(SERIE_MINUTOS, le(0, 4), "LE uint32 0 (reset used)"),
+            new Cand(SERIE_MINUTOS, digits("00000000"), "ascii 00000000 (8)"),
+            new Cand(SERIE_MINUTOS, digits("073223"), "ascii 073223 (current used)"),
+            // BCD "999999" / "99999999"
+            new Cand(SERIE_MINUTOS, bytes(0x99, 0x99, 0x99), "bcd 999999"),
+            new Cand(SERIE_MINUTOS, bytes(0x99, 0x99, 0x99, 0x99), "bcd 99999999"),
+            // one command-prefixed form: 0x01 + LE uint32 999999
+            new Cand(SERIE_MINUTOS, bytes(0x01, 0x3F, 0x42, 0x0F, 0x00), "cmd01 + LE 999999"),
         };
     }
 

@@ -132,6 +132,17 @@ nothing, in any flow — including after a top-up.** So sniffing the end-user ap
 provisioning tool writing `77645cb2`, or the factory). The only BLE capture that reveals the unlock is of that
 provisioning step, not of the consumer app.
 
+## Live probe result on the owner's unit (1.35, 17.11 13:15 Sofia, report #18)
+The 1.35 probe ran on the real locked unit (used 73223, tight). `77645cb2` **accepts writes** (no GATT error — unlike
+read-only `7764d000`), so our writes reached it. But the gate did **not** open: after each write + zero-current arm the
+unit still answered `02` (refuse). All six guessed values failed:
+`000000`, `999999`, `00×6`, `ff×4`, `ff×2`, `01` → every one → `run 02`.
+So the unlock is **not** a trivial value on `uuidSerieMinutos`: setting "bought" high (`999999`) does nothing, zeroing
+does nothing. The format is non-trivial (a specific command or a signed token), or the reset lives behind another
+path (e.g. a crafted packet on `7764a25c`/firmware, or `776439af`/`776416cb`). Blind guessing is exhausted — the next
+step must read the firmware (`EMS_V1.bin`) to learn the exact `77645cb2` contract, or capture a real distributor
+provisioning. The probe stays installed and safe (zero current); it records these 6 as tried and will not repeat them.
+
 ## Sequences seen
 Connect: MTU → read 2A25, 2A24 → CCCD on 2A19, 0x0031, 0x0035 → read 0x0039, 0x003d, 0x0043 (`00`) → CCCD 0x0043
 → read 0x004d → write 0x0043 `00`.

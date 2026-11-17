@@ -455,6 +455,25 @@ Fixed:
 - Tests: `ProbeTest` 10 — a read-only first candidate is skipped (no arm), the winner #4 is found; with none, the
   search ends with every candidate tried.
 
+## v1.35 — the vendor app has no quota key (decompiled NooFit Pro 1.1.4, 17.11)
+The owner provided the vendor APK (NooFit Pro = Wiems Easy, `com.wiemspro.wiemsProEasy`). Decompiled its .NET MAUI IL
+(`WiemsProEasy.Models.Aux.DispositivoConectado`). Findings (full table in wiems/PROTOCOL.md):
+- **No BLE write renews the minutes quota.** The app only *reads* minutes used (`7764d000` = `uuidMinutosUsados`),
+  and runs the whole quota server-side (Cuotas / códigos de activación). The limit is firmware-enforced on the unit.
+- `77645cb2` = **`uuidSerieMinutos`** — defined but **never read or written by the app**. It is the vendor's
+  provisioning/top-up characteristic; the consumer app never touches it, so its value format is unknown.
+- `7764a25c` = **`uuidFirmware`** (DFU) — NOT a quota key. v1.27–1.34 probed it; a stray write there can brick the
+  unit. **Removed from the candidates.**
+- `7764d000` is read-only — which is exactly why every probe since 1.27 stopped at candidate 1 (1.34 fixed the stop;
+  this fixes the premise).
+
+Changes:
+- `Probe.candidates()` now targets **only** `77645cb2` (uuidSerieMinutos), at zero current — a clearly-labelled
+  experiment, not a known key. The firmware characteristic and the read-only counter are never written.
+- Honest status: a real key needs a capture of a vendor top-up (or the firmware). The probe stays safe (zero current,
+  idle only) and may still surface a win if the format is simple; otherwise the unit only runs once the vendor tops it up.
+- Tests: `ProbeTest` updated (refuse-by-value); 20 checks pass.
+
 ## Build / test
 ```
 sh scripts/build-wiems-app.sh     # → wiems/dist/xems-wiems.apk (committed); version in wiems/app/VERSION

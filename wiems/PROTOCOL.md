@@ -31,10 +31,38 @@ App log lines that name the fields (verbatim):
 | `966e06c6` | 0x002e | R W | **Live channel strength**, 10 B = 10 unit channels; which muscle each reaches is the suit's (first assumed "XBody's order" with 5 Седалище / 6 Корем — the old static decode; XBody's measured order has 5 Корем / 6 Седалище; the WiEMS app sets it per suit in its service mode), value in bits 0–6 (seen 0–0x14), bit 7 = flag (unknown — the app logs the values without it). No checksum (log "Corrientes enviadas") |
 | `7764f042` | 0x0035 | R N | **Session clock** (log "Segundos running"): 6 ASCII digits = elapsed time in 0.1 s; bit 7 of the first byte set = work phase started, clear = pause started. Capture: work ≈ 4 s, pause ≈ 8 s (sure for the clock, likely for the phase bit) |
 | `b1f5a058` | 0x0031 | R N | Status / current check: idle `00 0N 00… c5 5c`; at each work start the unit sends `…a5…` then 20 small values 0–3 → the app's "Curr_comp" (current comparison, calculated vs received) |
-| `7764d000` | 0x0039 | R N | **Minutes used** (log "Minutos usados"): ASCII `072323`, read after every stop. The app also gets "minutes bought" (73200) from the vendor server — a pay-per-minute scheme; whether the **unit** refuses to start at the limit is unknown (matters for XEMS) |
+| `7764d000` | 0x0039 | R N | **Minutes used** (log "Minutos usados"): ASCII `072323`, read after every stop. The app also gets "minutes bought" (73200) from the vendor server — a pay-per-minute scheme. The **unit does refuse** at the limit (run → "02"); the app never writes a reset (see the name table below) |
 | `7764f19a` | 0x003d | R | `aa 27 ef 16 7d 28` — read once at connect (unit id / key?) |
 | `776416cb` | 0x004d | R N | `da 00 00 01 13 02 00 00 0c 00` — read once at connect (config) |
 | `7764db60 dcaa e038 e420 e678 e79a dde0 df0c a25c 5cb2` | — | — | never touched by the app in this capture |
+
+## Characteristic names from the vendor app's code (NooFit Pro 1.1.4, read 2026-11-17)
+Decompiled `WiemsProEasy` (.NET MAUI, `libassemblies.arm64-v8a.blob.so` → XALZ/LZ4 → IL). Class
+`WiemsProEasy.Models.Aux.DispositivoConectado` names every characteristic; these are facts only (no vendor code here):
+
+| UUID | vendor field | the app uses it in |
+|---|---|---|
+| `7764eda8` | `uuidArrancarParar` | start/stop (Arrancar/Parar/Pausar/Reanudar) — our "run" 0x25/stop |
+| `966e06c6` | `uuidEnvioCorrientes` | live channel strengths (ConfigRealCurrents) |
+| `7764e556` | `uuidAnchuras` | pulse widths |
+| `7764e678` | `uuidAnchurasExt` | widths (fisio) |
+| `7764e8bc` | `uuidFrec` / `7764e79a` `uuidFreqDiv` | frequency, freq-divider |
+| `7764f042` | `uuidSesRunning` | session running |
+| `b1f5a058` | `uuidChStatus` | channel status / current check |
+| `776439af` | `uuidExtra1` | ConfigTraining (the program set-up) |
+| `776416cb` | `uuidExtra2` | ReadExtra2 (the start-state byte: `…0c` idle, `…01` ran, `…02` refused) |
+| `7764d000` | `uuidMinutosUsados` | **read only** (ReadMinutesUsed) — minutes used |
+| `77645cb2` | `uuidSerieMinutos` | **defined but NEVER read or written by the app** |
+| `7764a25c` | `uuidFirmware` | **firmware DFU only** (cargarPaqueteDeFirmware) — not a quota key |
+
+**The minutes quota is not renewed over BLE by the consumer app.** Every characteristic was checked: the app only
+*reads* minutes used (`7764d000`), and manages the quota entirely server-side (Cuotas, Códigos de activación — the
+vendor backend). The unit's firmware enforces the limit and counts minutes; the one writable minutes characteristic,
+`uuidSerieMinutos` (`77645cb2`), is the vendor's provisioning/top-up path and the end-user app never touches it, so
+its value format is unknown from the app alone. There is **no magic BLE write to discover in the app**: a real key
+would have to come from a capture of a vendor top-up, or from the firmware. Writing guesses to `7764a25c` is unsafe
+(it is the firmware-update characteristic). Our probe therefore targets only `77645cb2`, at zero current, as a
+labelled experiment (WiEMS app 1.35).
 
 ## Sequences seen
 Connect: MTU → read 2A25, 2A24 → CCCD on 2A19, 0x0031, 0x0035 → read 0x0039, 0x003d, 0x0043 (`00`) → CCCD 0x0043

@@ -1418,7 +1418,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L105 ## XEMS side (1.1.480-ai) — `wearable/voice/`
   - L118 ## Phase 3 — learned model
 
-`docs/xems-wiems-app.md` (468L)
+`docs/xems-wiems-app.md` (487L)
   - L1 # XEMS WiEMS — light tablet app for one WiEMS unit, XEMS or bodytech suit (wiems/app, v1.21)
   - L7 ## What it is
   - L31 ## Look (v1.1, owner: XBody's design level or better, never lower)
@@ -1451,8 +1451,9 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L420 ## v1.32 — the version always on the screen (owner: "the tablet is not with me — we work remotely")
   - L428 ## v1.33 — the server sees which version runs where (owner: "do it" — see the tablet's version from here)
   - L436 ## v1.34 — the key search really runs (reports 13–15, 16–17.11)
-  - L458 ## Build / test
-  - L465 ## Not verified yet
+  - L458 ## v1.35 — the vendor app has no quota key (decompiled NooFit Pro 1.1.4, 17.11)
+  - L477 ## Build / test
+  - L484 ## Not verified yet
 
 `docs/xems-wiems.md` (83L)
   - L1 # WiEMS unit in XEMS and on the XBody machine (1.1.446-ai, XBody mod v7, bridge v3)
@@ -1625,16 +1626,17 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 `vr-workout/assets/CREDITS.md` (30L)
   - L1 # Asset credits
 
-`wiems/PROTOCOL.md` (111L)
+`wiems/PROTOCOL.md` (139L)
   - L1 # WiEMS unit — BLE protocol (from capture 1)
   - L16 ## Device
   - L24 ## Characteristics (value handle on this unit; match by UUID, never by handle)
-  - L39 ## Sequences seen
-  - L62 ## Still open
-  - L70 ## Wiems Easy (com.wiemspro.wiemsProEasy 2.0.1)
-  - L74 ## Seen on the unit (XEMS WiEMS app trace, 2026-10-16)
-  - L85 ## The strengths write carries a check (decoded 2026-10-16) — the cause of "86"
-  - L93 ## From the vendor's code (NooFit Pro = Wiems Easy for Android, `com.wiemspro.wiemsProEasy`, 2026-11-09)
+  - L39 ## Characteristic names from the vendor app's code (NooFit Pro 1.1.4, read 2026-11-17)
+  - L67 ## Sequences seen
+  - L90 ## Still open
+  - L98 ## Wiems Easy (com.wiemspro.wiemsProEasy 2.0.1)
+  - L102 ## Seen on the unit (XEMS WiEMS app trace, 2026-10-16)
+  - L113 ## The strengths write carries a check (decoded 2026-10-16) — the cause of "86"
+  - L121 ## From the vendor's code (NooFit Pro = Wiems Easy for Android, `com.wiemspro.wiemsProEasy`, 2026-11-09)
 
 `wiems/README.md` (74L)
   - L1 # WiEMS (WiemsPro) EMS unit → XEMS — how we get the BLE protocol

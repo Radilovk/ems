@@ -20,10 +20,19 @@ import com.isaigu.gymapp.bodytech.WiProto;
  * runs when the unit is idle and linked; a real training, a pause or a lost link stops it at once ({@link #cancel}).
  */
 final class Probe {
-    /** The unit's counter / write-only characteristics the quota likely lives behind. */
-    static final String COUNTER = "7764d000-c6a9-11e4-8731-1681e6b88ec1";
-    static final String WO1 = "7764a25c-c6a9-11e4-8731-1681e6b88ec1";
-    static final String WO2 = "77645cb2-c6a9-11e4-8731-1681e6b88ec1";
+    /**
+     * The unit's characteristics, named from the vendor app's own code (NooFit Pro = Wiems Easy, .NET MAUI, class
+     * {@code WiemsProEasy.Models.Aux.DispositivoConectado}, read 2026-11-17; see wiems/PROTOCOL.md):
+     *   7764d000 = uuidMinutosUsados (minutes used, READ-only — the app only reads it; writing it is refused).
+     *   77645cb2 = uuidSerieMinutos ("minutes series", WRITE — the only writable minutes characteristic; the consumer
+     *              app never writes it, so it is the vendor's provisioning/top-up characteristic. Format unknown).
+     *   7764a25c = uuidFirmware (the firmware-update characteristic — the app writes it ONLY in cargarPaqueteDeFirmware
+     *              (a DFU package). NEVER probed: a stray write here can brick the unit.)
+     * The consumer app has NO BLE write that renews the minutes quota (every characteristic was checked). So this
+     * probe can only ever be an experiment against uuidSerieMinutos; a real win needs a capture of a vendor top-up.
+     */
+    static final String COUNTER = "7764d000-c6a9-11e4-8731-1681e6b88ec1";   // read-only (never a write target)
+    static final String SERIE_MINUTOS = "77645cb2-c6a9-11e4-8731-1681e6b88ec1";   // the only writable minutes char
 
     static final class Cand {
         final String uuid;
@@ -49,22 +58,20 @@ final class Probe {
     }
 
     /**
-     * The ordered candidate list — cheapest / most likely first: zero the used counter (directly, then through each
-     * write-only characteristic), then load a large bought value, then the plain clears. Six-digit ASCII matches the
-     * counter's own format; the short byte forms cover a binary counter.
+     * The candidate list — ONLY the vendor's writable minutes characteristic (uuidSerieMinutos, 77645cb2), at zero
+     * current (no output on the body). The firmware characteristic (7764a25c) and the read-only counter (7764d000)
+     * are never written. The values are guesses at the unknown format (the app never writes this characteristic, so
+     * there is no example): zero the series, a large value, binary forms. Until a vendor top-up is captured this is
+     * an experiment, not a known key; a win is recorded and re-sent, a definite refusal moves to the next.
      */
     static Cand[] candidates() {
         return new Cand[] {
-            new Cand(COUNTER, digits("000000"), "used counter 7764d000 = 000000"),
-            new Cand(WO1, digits("000000"), "7764a25c = 000000 (zero used)"),
-            new Cand(WO2, digits("000000"), "77645cb2 = 000000 (zero used)"),
-            new Cand(WO1, digits("999999"), "7764a25c = 999999 (raise bought)"),
-            new Cand(WO2, digits("999999"), "77645cb2 = 999999 (raise bought)"),
-            new Cand(COUNTER, bytes(0, 0, 0, 0, 0, 0), "7764d000 = 00 x6"),
-            new Cand(WO1, bytes(0), "7764a25c = 00"),
-            new Cand(WO2, bytes(0), "77645cb2 = 00"),
-            new Cand(WO1, bytes(0xFF, 0xFF, 0xFF, 0xFF), "7764a25c = ff x4 (raise bought)"),
-            new Cand(WO2, bytes(0xFF, 0xFF, 0xFF, 0xFF), "77645cb2 = ff x4 (raise bought)"),
+            new Cand(SERIE_MINUTOS, digits("000000"), "uuidSerieMinutos = 000000 (zero the series)"),
+            new Cand(SERIE_MINUTOS, digits("999999"), "uuidSerieMinutos = 999999 (max the series)"),
+            new Cand(SERIE_MINUTOS, bytes(0, 0, 0, 0, 0, 0), "uuidSerieMinutos = 00 x6"),
+            new Cand(SERIE_MINUTOS, bytes(0xFF, 0xFF, 0xFF, 0xFF), "uuidSerieMinutos = ff x4"),
+            new Cand(SERIE_MINUTOS, bytes(0xFF, 0xFF), "uuidSerieMinutos = ff x2"),
+            new Cand(SERIE_MINUTOS, bytes(1), "uuidSerieMinutos = 01"),
         };
     }
 
@@ -78,7 +85,7 @@ final class Probe {
         void probeDone(Cand winner, String summary);
     }
 
-    private static final int IDLE = 0, W_CAND = 1, ARMING = 2, WAIT_RUN = 3, STOPPING = 4, DONE = 5;
+    private static final int IDLE = 0, W_CAND = 1, ARMING = 2, WAIT_RUN = 3, STOPPING = 4, DONE = 5, NEXT = 6;
     /** The arm after a candidate: the vendor's five writes, every channel 0 (no output). */
     private static final int ARM_OPS = 5;
     /** How long to wait for "01" / "02" after "25" (the unit's count-down ~4 s; its "02" is immediate). */
@@ -178,6 +185,22 @@ final class Probe {
         io.probeWrite(c.uuid, c.val);
     }
 
+    /**
+     * v1.34 — the candidate's write could not even go out (the tablet refuses a write to a read-only characteristic:
+     * on the owner's unit 7764d000 is "RN"). That candidate is a definite no: record it as tried and go on with the
+     * next one at the next tick — before, the whole search was cancelled here, at candidate 1, at every link, so the
+     * other nine were never tried. The host calls it when the write cannot go out, and when the unit rejects it (GATT
+     * error); false: not a candidate write (the host cancels as before).
+     */
+    boolean writeRefused(long now) {
+        if (state != W_CAND || cands == null || idx >= cands.length) return false;
+        io.probeLog("try " + (idx + 1) + ": the write cannot go out (not writable) — next");
+        tried.add(key(cands[idx]));
+        idx++;
+        state = NEXT;
+        return true;
+    }
+
     /** A write was acknowledged (one op in flight; the host calls this on every {@code written}). */
     void onAck(long now) {
         switch (state) {
@@ -242,6 +265,10 @@ final class Probe {
 
     /** Ticked by the host: a definite refusal moves on after a short grace; a silent unit after the full wait. */
     void tick(long now) {
+        if (state == NEXT) {
+            writeCand(now);
+            return;
+        }
         if (state != WAIT_RUN) return;
         boolean refused = refusedAt >= 0 && now - refusedAt >= REFUSE_GRACE_MS;
         if (refused || now - waitStart >= WAIT_MS) {

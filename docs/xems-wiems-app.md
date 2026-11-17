@@ -433,6 +433,47 @@ The audit found that a verified key did **not** stop the 1.26 cycles: `Session` 
   `GET https://license.biocode-bg.com/v1/wiems/seen[?since=<unix s>]` → the last 50 `{ts, code, name, device, unit,
   state, offered, country}`. Apps before 1.33 show there too, with their code only.
 
+## v1.34 — the key search really runs (reports 13–15, 16–17.11)
+What the reports showed:
+- **The search never got past candidate 1.** At every link (1.30, 1.33): `try 1/10: used counter 7764d000 = 000000`
+  → `quota probe cancelled (write to 7764d000 refused)`. 7764d000 is read-only on this unit (GATT map: `RN`), Android
+  refuses the write locally, and the probe treated that as "stop everything" — without recording it as tried, so the
+  same thing happened at the next link. The other nine candidates were **never** tried on the unit.
+- **The unit is now fully locked:** counter 73223 (over the 73200 thought to be its limit), "02" for Dur 25, 10, 1
+  and 0 — the Dur ladder has nothing left; only a key can open it.
+- The counter is not read live: after 23 min of run (Dur 25, 17.11 09:25–09:48) it still read 73163 at the stop,
+  and 73223 at the next link (+60). So "the counter did not move after a stop" is not proof of anything — one more
+  reason the segments stay off.
+- `776416cb` (config) notifies at every arm: byte 0 `da` → `00`, byte 8 `0c` → `01` (refused) / `02` (ran) — the
+  unit's own start state. Logged, not written.
+
+Fixed:
+- `Probe.writeRefused`: a candidate whose write cannot go out (not writable) **or that the unit rejects (GATT error)**
+  is a definite no → recorded as tried, the next candidate at the next tick. The search goes through the whole list.
+- `MainActivity.cancelProbe`: a cancelled search (▶, link lost) keeps what it already tried (`tried_<mac>`), so the
+  next idle moment goes on from there instead of starting over.
+- Tests: `ProbeTest` 10 — a read-only first candidate is skipped (no arm), the winner #4 is found; with none, the
+  search ends with every candidate tried.
+
+## v1.35 — the vendor app has no quota key (decompiled NooFit Pro 1.1.4, 17.11)
+The owner provided the vendor APK (NooFit Pro = Wiems Easy, `com.wiemspro.wiemsProEasy`). Decompiled its .NET MAUI IL
+(`WiemsProEasy.Models.Aux.DispositivoConectado`). Findings (full table in wiems/PROTOCOL.md):
+- **No BLE write renews the minutes quota.** The app only *reads* minutes used (`7764d000` = `uuidMinutosUsados`),
+  and runs the whole quota server-side (Cuotas / códigos de activación). The limit is firmware-enforced on the unit.
+- `77645cb2` = **`uuidSerieMinutos`** — defined but **never read or written by the app**. It is the vendor's
+  provisioning/top-up characteristic; the consumer app never touches it, so its value format is unknown.
+- `7764a25c` = **`uuidFirmware`** (DFU) — NOT a quota key. v1.27–1.34 probed it; a stray write there can brick the
+  unit. **Removed from the candidates.**
+- `7764d000` is read-only — which is exactly why every probe since 1.27 stopped at candidate 1 (1.34 fixed the stop;
+  this fixes the premise).
+
+Changes:
+- `Probe.candidates()` now targets **only** `77645cb2` (uuidSerieMinutos), at zero current — a clearly-labelled
+  experiment, not a known key. The firmware characteristic and the read-only counter are never written.
+- Honest status: a real key needs a capture of a vendor top-up (or the firmware). The probe stays safe (zero current,
+  idle only) and may still surface a win if the format is simple; otherwise the unit only runs once the vendor tops it up.
+- Tests: `ProbeTest` updated (refuse-by-value); 20 checks pass.
+
 ## Build / test
 ```
 sh scripts/build-wiems-app.sh     # → wiems/dist/xems-wiems.apk (committed); version in wiems/app/VERSION

@@ -31,10 +31,106 @@ App log lines that name the fields (verbatim):
 | `966e06c6` | 0x002e | R W | **Live channel strength**, 10 B = 10 unit channels; which muscle each reaches is the suit's (first assumed "XBody's order" with 5 Седалище / 6 Корем — the old static decode; XBody's measured order has 5 Корем / 6 Седалище; the WiEMS app sets it per suit in its service mode), value in bits 0–6 (seen 0–0x14), bit 7 = flag (unknown — the app logs the values without it). No checksum (log "Corrientes enviadas") |
 | `7764f042` | 0x0035 | R N | **Session clock** (log "Segundos running"): 6 ASCII digits = elapsed time in 0.1 s; bit 7 of the first byte set = work phase started, clear = pause started. Capture: work ≈ 4 s, pause ≈ 8 s (sure for the clock, likely for the phase bit) |
 | `b1f5a058` | 0x0031 | R N | Status / current check: idle `00 0N 00… c5 5c`; at each work start the unit sends `…a5…` then 20 small values 0–3 → the app's "Curr_comp" (current comparison, calculated vs received) |
-| `7764d000` | 0x0039 | R N | **Minutes used** (log "Minutos usados"): ASCII `072323`, read after every stop. The app also gets "minutes bought" (73200) from the vendor server — a pay-per-minute scheme; whether the **unit** refuses to start at the limit is unknown (matters for XEMS) |
+| `7764d000` | 0x0039 | R N | **Minutes used** (log "Minutos usados"): ASCII `072323`, read after every stop. The app also gets "minutes bought" (73200) from the vendor server — a pay-per-minute scheme. The **unit does refuse** at the limit (run → "02"); the app never writes a reset (see the name table below) |
 | `7764f19a` | 0x003d | R | `aa 27 ef 16 7d 28` — read once at connect (unit id / key?) |
 | `776416cb` | 0x004d | R N | `da 00 00 01 13 02 00 00 0c 00` — read once at connect (config) |
 | `7764db60 dcaa e038 e420 e678 e79a dde0 df0c a25c 5cb2` | — | — | never touched by the app in this capture |
+
+## Characteristic names from the vendor app's code (NooFit Pro 1.1.4, read 2026-11-17)
+Decompiled `WiemsProEasy` (.NET MAUI, `libassemblies.arm64-v8a.blob.so` → XALZ/LZ4 → IL). Class
+`WiemsProEasy.Models.Aux.DispositivoConectado` names every characteristic; these are facts only (no vendor code here):
+
+| UUID | vendor field | the app uses it in |
+|---|---|---|
+| `7764eda8` | `uuidArrancarParar` | start/stop (Arrancar/Parar/Pausar/Reanudar) — our "run" 0x25/stop |
+| `966e06c6` | `uuidEnvioCorrientes` | live channel strengths (ConfigRealCurrents) |
+| `7764e556` | `uuidAnchuras` | pulse widths |
+| `7764e678` | `uuidAnchurasExt` | widths (fisio) |
+| `7764e8bc` | `uuidFrec` / `7764e79a` `uuidFreqDiv` | frequency, freq-divider |
+| `7764f042` | `uuidSesRunning` | session running |
+| `b1f5a058` | `uuidChStatus` | channel status / current check |
+| `776439af` | `uuidExtra1` | ConfigTraining (the program set-up) |
+| `776416cb` | `uuidExtra2` | ReadExtra2 (the start-state byte: `…0c` idle, `…01` ran, `…02` refused) |
+| `7764d000` | `uuidMinutosUsados` | **read only** (ReadMinutesUsed) — minutes used |
+| `77645cb2` | `uuidSerieMinutos` | **defined but NEVER read or written by the app** |
+| `7764a25c` | `uuidFirmware` | **firmware DFU only** (cargarPaqueteDeFirmware) — not a quota key |
+
+**The minutes quota is not renewed over BLE by the consumer app.** Every characteristic was checked: the app only
+*reads* minutes used (`7764d000`), and manages the quota entirely server-side (Cuotas, Códigos de activación — the
+vendor backend). The unit's firmware enforces the limit and counts minutes; the one writable minutes characteristic,
+`uuidSerieMinutos` (`77645cb2`), is the vendor's provisioning/top-up path and the end-user app never touches it, so
+its value format is unknown from the app alone. There is **no magic BLE write to discover in the app**: a real key
+would have to come from a capture of a vendor top-up, or from the firmware. Writing guesses to `7764a25c` is unsafe
+(it is the firmware-update characteristic). Our probe therefore targets only `77645cb2`, at zero current, as a
+labelled experiment (WiEMS app 1.35).
+
+## The vendor server (from NooFit Pro 1.1.4 IL, 17.11) — activation / minutes
+Hosts (`DnsFallback` class, name → fallback IP):
+
+| host | IP | role |
+|---|---|---|
+| `pro.wiemspro.com` | 82.223.24.208 | main REST API (`api/dispositivos/…`, `api/competicion/…`, `api/circuito/…`) |
+| `wcommerce.wiemspro.com` | 82.223.205.107 | **commerce / billing** (where minutes/subscriptions are bought) |
+| `testws.wiemspro.com` | 82.223.132.36 | test web service |
+| `biosensorssuit.com` | 82.223.14.222 | — |
+| `n8nwiemspro.es` | 194.164.175.53 | n8n automation |
+
+(A dev base `http://82.223.23.119:8500` also appears.) We do **not** probe these — third-party, account-gated.
+
+**How activation / minutes work in the app (server-side only, class `ResponseWebService`):**
+- Minutes live as a **subscription / cuota under a trainer-manager account**, not on the unit. Routes:
+  `getCuotas`, `guardarCuota`, `creaSuscripcionManager`, `cancelaSuscripcionManager`, `getSuscripcionesApp/Manager`,
+  `findCodigosActivacionByManager?idManager=`, `eliminaCodigoActivacion`, then `api/dispositivos/sincronizar`
+  (returns `"OK"`). The device model carries `minutos_buyed` / `minutos_used` / `minutosTotales` as **data read from
+  the server and the unit** — the app displays and books them.
+- An **activation code** (`CodigoActivacion`) is redeemed on the server (it credits the manager's cuota); the app then
+  calls `sincronizar`. **No route adds minutes to the unit, and no BLE write to the unit happens on activation.**
+- Confirmed against the BLE layer: `uuidSerieMinutos` (`77645cb2`, the only writable minutes characteristic) is
+  **never referenced** in the app; `uuidMinutosUsados` (`7764d000`) is **read-only**. So the unit's firmware minute
+  gate is **provisioned out-of-band** (distributor/factory tool writing `77645cb2`, or at manufacture) — it is not
+  refreshed by this app over BLE, even after a purchase.
+
+**Consequence for XEMS:** there is no activation payload we can replay to the unit. Lifting the owner's unit limit
+needs either the vendor to re-provision it (the legitimate path, via `wcommerce.wiemspro.com`), a capture of a
+distributor provisioning write to `77645cb2`, or the unit firmware. The XEMS probe stays a safe, zero-current
+experiment on `77645cb2` only (app 1.35).
+
+## Firmware update (DFU) path — from NooFit Pro 1.1.4 IL (17.11)
+The firmware characteristic `7764a25c` (`uuidFirmware`) is written **only** by the DFU flow. The chain:
+- `ResponseWebService..ctor` sets `miURLFirmware` to a fixed vendor directory on `wiemspro.com/firmware/<two opaque
+  path tokens>/easy/` (the "easy" model). `LecturaFirmwareAsync` GETs it (version string), `DownloadFirmwareAsync`
+  GETs the binary into `fwData` (plain `GetAsync`, `ReadAsByteArrayAsync`, `no-cache` — HTTP, no signing in the app).
+- The firmware files (from `CheckFWVersion`): the unit reports a version, mapped to a file on `miURLFirmware` =
+  `http://wiemspro.com/firmware/<two opaque tokens>/easy/` + `archivo`: `1.2` → `EMS_V1.bin`, `2.5` → `EMS_V2.bin`,
+  `2.6` → `EMS_V26.bin` (the owner's unit is 1.2.x → `EMS_V1.bin`). **As of 2026-11-17 these URLs 404** (the host is
+  now WordPress behind Cloudflare; the path is gone or gated) and there is no Wayback snapshot — the image cannot be
+  fetched from here. To study the minute check / the `77645cb2` format we need the `.bin` by another route (a unit
+  dump over SWD/UART, a captured vendor DFU, or an older build that bundled it).
+- `IniciaTelecarga` streams it: for `numPaqueteFirmware` = 0 … `numPaquetesTotales`, call `cargarPaqueteDeFirmware`,
+  `Delay(10)` between packets, progress 0→100 %, then `FirmwareOK`. No start/stop/handshake command — just the stream.
+- `cargarPaqueteDeFirmware` builds a **19-byte packet** and `WriteAsync`es it to `7764a25c`:
+  `[0..1]` = packet index (from `numPaqueteFirmware`, ×256 = hi/lo), `[2..17]` = **16 firmware bytes** from
+  `fwData` at that packet's offset, `[18]` = trailing byte. So 16 payload bytes per packet; `numPaquetesTotales` =
+  `fwData.length / 16`.
+
+**What this means for the minute limit.** `7764a25c` is the only characteristic that rewrites the unit's program, so
+it is the one place the firmware-level limit could change. But the app only *relays* a vendor-built binary and does no
+crypto itself — any integrity/authenticity check lives in the unit's **bootloader**. Lifting the limit this way would
+need a firmware image that does not enforce it, i.e. a **modified image** that still passes the bootloader. That is a
+full MCU-firmware reverse-engineering project (dump/obtain the image, find and remove the minutes check, satisfy the
+bootloader's CRC/signature) with a real brick risk, not a BLE write we can derive. The vendor's own images enforce the
+limit, so they do not help. We do **not** fetch the vendor firmware or attempt a reflash. This is recorded as protocol
+fact only; the safe XEMS path remains the zero-current `77645cb2` experiment (app 1.35) plus the vendor re-provision.
+
+## Every BLE write in the vendor app (complete inventory, 17.11)
+Enumerated all `WriteAsync` sites in `WiemsProEasy` by target characteristic. The EMS unit is ever written on only:
+`uuidArrancarParar` (start/stop), `uuidEnvioCorrientes` (currents), `uuidAnchuras`/`uuidAnchurasExt` (widths),
+`uuidFrec`/`uuidFreqDiv` (frequency), `uuidExtra1` (ConfigTraining), `uuidFirmware` (DFU). (Plus Blautic sensor
+configs on other devices.) **`uuidSerieMinutos` (77645cb2) and `uuidMinutosUsados` (7764d000) are written by
+nothing, in any flow — including after a top-up.** So sniffing the end-user app's BLE while a quota is added shows
+**no** unlock reaching the unit: the app never sends one. The unit's allowance is set out-of-band (a distributor
+provisioning tool writing `77645cb2`, or the factory). The only BLE capture that reveals the unlock is of that
+provisioning step, not of the consumer app.
 
 ## Sequences seen
 Connect: MTU → read 2A25, 2A24 → CCCD on 2A19, 0x0031, 0x0035 → read 0x0039, 0x003d, 0x0043 (`00`) → CCCD 0x0043

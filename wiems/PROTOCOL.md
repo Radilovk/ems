@@ -95,6 +95,27 @@ needs either the vendor to re-provision it (the legitimate path, via `wcommerce.
 distributor provisioning write to `77645cb2`, or the unit firmware. The XEMS probe stays a safe, zero-current
 experiment on `77645cb2` only (app 1.35).
 
+## Firmware update (DFU) path — from NooFit Pro 1.1.4 IL (17.11)
+The firmware characteristic `7764a25c` (`uuidFirmware`) is written **only** by the DFU flow. The chain:
+- `ResponseWebService..ctor` sets `miURLFirmware` to a fixed vendor directory on `wiemspro.com/firmware/<two opaque
+  path tokens>/easy/` (the "easy" model). `LecturaFirmwareAsync` GETs it (version string), `DownloadFirmwareAsync`
+  GETs the binary into `fwData` (plain `GetAsync`, `ReadAsByteArrayAsync`, `no-cache` — HTTP, no signing in the app).
+- `IniciaTelecarga` streams it: for `numPaqueteFirmware` = 0 … `numPaquetesTotales`, call `cargarPaqueteDeFirmware`,
+  `Delay(10)` between packets, progress 0→100 %, then `FirmwareOK`. No start/stop/handshake command — just the stream.
+- `cargarPaqueteDeFirmware` builds a **19-byte packet** and `WriteAsync`es it to `7764a25c`:
+  `[0..1]` = packet index (from `numPaqueteFirmware`, ×256 = hi/lo), `[2..17]` = **16 firmware bytes** from
+  `fwData` at that packet's offset, `[18]` = trailing byte. So 16 payload bytes per packet; `numPaquetesTotales` =
+  `fwData.length / 16`.
+
+**What this means for the minute limit.** `7764a25c` is the only characteristic that rewrites the unit's program, so
+it is the one place the firmware-level limit could change. But the app only *relays* a vendor-built binary and does no
+crypto itself — any integrity/authenticity check lives in the unit's **bootloader**. Lifting the limit this way would
+need a firmware image that does not enforce it, i.e. a **modified image** that still passes the bootloader. That is a
+full MCU-firmware reverse-engineering project (dump/obtain the image, find and remove the minutes check, satisfy the
+bootloader's CRC/signature) with a real brick risk, not a BLE write we can derive. The vendor's own images enforce the
+limit, so they do not help. We do **not** fetch the vendor firmware or attempt a reflash. This is recorded as protocol
+fact only; the safe XEMS path remains the zero-current `77645cb2` experiment (app 1.35) plus the vendor re-provision.
+
 ## Sequences seen
 Connect: MTU → read 2A25, 2A24 → CCCD on 2A19, 0x0031, 0x0035 → read 0x0039, 0x003d, 0x0043 (`00`) → CCCD 0x0043
 → read 0x004d → write 0x0043 `00`.

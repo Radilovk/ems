@@ -1418,7 +1418,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L105 ## XEMS side (1.1.480-ai) — `wearable/voice/`
   - L118 ## Phase 3 — learned model
 
-`docs/xems-wiems-app.md` (496L)
+`docs/xems-wiems-app.md` (507L)
   - L1 # XEMS WiEMS — light tablet app for one WiEMS unit, XEMS or bodytech suit (wiems/app, v1.21)
   - L7 ## What it is
   - L31 ## Look (v1.1, owner: XBody's design level or better, never lower)
@@ -1453,8 +1453,9 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L436 ## v1.34 — the key search really runs (reports 13–15, 16–17.11)
   - L458 ## v1.35 — the vendor app has no quota key (decompiled NooFit Pro 1.1.4, 17.11)
   - L477 ## v1.36 — broad quota-key sweep on uuidSerieMinutos (after the 1.35 live test)
-  - L486 ## Build / test
-  - L493 ## Not verified yet
+  - L486 ## v1.37 — the self-update retries a failed install by itself (owner: the client tablet must update with no one there)
+  - L497 ## Build / test
+  - L504 ## Not verified yet
 
 `docs/xems-wiems.md` (83L)
   - L1 # WiEMS unit in XEMS and on the XBody machine (1.1.446-ai, XBody mod v7, bridge v3)

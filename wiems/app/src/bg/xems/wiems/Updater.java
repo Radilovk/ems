@@ -52,6 +52,13 @@ final class Updater {
     /** Sent with each check so the server shows which version runs where (1.33): version name, tablet, last unit. */
     volatile String name = "", device = "", unit = "";
     private volatile String said = "";
+    /** v1.37: the last downloaded APK, kept so a failed install retries without re-downloading. */
+    private volatile File keepApk;
+    private int installTries;
+    private volatile long retryAt;
+    /** A verification failure (Play Protect — often transient, esp. on weak internet) is retried automatically. */
+    static final int MAX_INSTALL_TRIES = 6;
+    static final long RETRY_MS = 90000;
 
     Updater(Context ctx, int haveCode, Log out) {
         this.ctx = ctx;
@@ -88,13 +95,35 @@ final class Updater {
     void installIfReady() {
         File f = ready;
         if (f == null || busy) return;
+        if (retryAt > 0 && System.currentTimeMillis() < retryAt) return;   // v1.37: wait before a retry
         ready = null;
         busy = true;
-        state = "инсталирам " + readyName + "…";
+        keepApk = f;
+        state = "инсталирам " + readyName + (installTries > 0 ? " (пак)" : "") + "…";
         out.note("Инсталирам XEMS WiEMS " + readyName + "…", false);
         Thread th = new Thread(new Install(f), "wiems-install");
         th.setDaemon(true);
         th.start();
+    }
+
+    /**
+     * v1.37: a failed install (verification / transient) is re-armed to try again by itself, a few times, so the
+     * tablet updates without a person — the Play Protect verification that blocked it (status 3) usually passes on a
+     * later try (it did for 1.35). On SUCCESS the app is replaced and relaunches, so no reset is needed there.
+     */
+    private void scheduleRetry(int st) {
+        installTries++;
+        if (installTries < MAX_INSTALL_TRIES && keepApk != null && keepApk.exists()) {
+            ready = keepApk;                              // put it back; installIfReady retries after retryAt
+            retryAt = System.currentTimeMillis() + RETRY_MS;
+            state = "обновяването не мина (" + st + ") — пробвам пак (" + installTries + "/" + MAX_INSTALL_TRIES + ")";
+            post("update: install status " + st + " — auto-retry " + installTries + "/" + MAX_INSTALL_TRIES
+                    + " in " + (RETRY_MS / 1000) + "s", null);
+        } else {
+            retryAt = 0;
+            state = "обновяването не мина (" + st + ") — работи тази версия";
+            out.note("Обновяването не мина (" + st + ") — приложението работи както е", true);
+        }
     }
 
     boolean waiting() {
@@ -130,6 +159,8 @@ final class Updater {
                     return;
                 }
                 readyName = name;
+                installTries = 0;                          // v1.37: a fresh version gets fresh retries
+                retryAt = 0;
                 ready = f;
                 state = "нова версия " + name + " — инсталира се, когато няма тренировка";
                 post("update: " + name + " ready", null);
@@ -179,8 +210,8 @@ final class Updater {
                 s.close();
                 post("update: handed to the installer (session " + id + ", device owner " + owner() + ")", null);
             } catch (Throwable t) {
-                state = "инсталирането не успя — работи тази версия";
-                post("update: install failed " + t, "Обновяването не успя — приложението работи както е");
+                post("update: install failed " + t, null);
+                scheduleRetry(-100);                        // v1.37: a commit error is retried too
             } finally {
                 busy = false;
             }
@@ -206,8 +237,7 @@ final class Updater {
                     }
                 }
             } else if (st != PackageInstaller.STATUS_SUCCESS) {
-                state = "обновяването не мина (" + st + ") — работи тази версия";
-                out.note("Обновяването не мина (" + st + ") — приложението работи както е", true);
+                scheduleRetry(st);                          // v1.37: verification / transient failure → retry by itself
             }
         }
     }

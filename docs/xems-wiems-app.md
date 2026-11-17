@@ -483,6 +483,17 @@ command-prefixed form. All on `77645cb2` only, zero current; firmware char and t
 written. Still a guess, not a known key — if the unlock is a signed/per-device token none open it. New helpers
 `Probe.le/be(value,width)`. Tests unchanged (ProbeTest 20, dynamic candidate count).
 
+## v1.37 — the self-update retries a failed install by itself (owner: the client tablet must update with no one there)
+Reports #17/#22/#27/#28/#29: the install reaches the installer, then fails with **status 3
+`INSTALL_FAILED_VERIFICATION_FAILURE`** — the device's package verifier (Play Protect) rejects it, a **transient**
+failure (it hit 1.35 too, yet 1.35 eventually installed on a later attempt). The old updater stopped on failure and
+needed a manual app restart to try again. v1.37 keeps the downloaded APK and **re-arms the install automatically**
+(`Updater.scheduleRetry`, up to `MAX_INSTALL_TRIES`=6, every `RETRY_MS`=90 s), so the tablet keeps trying until the
+verification passes — no person at the tablet. A fresh version resets the retry count; on success the app is replaced
+and relaunches as before. (Note: this helps from 1.37 onward — 1.37 itself still lands via the current flaky path, so
+it may take a few auto-checks the first time. A guaranteed one-time fix is disabling Play Protect "Verify apps" on the
+tablet, or making the app device owner: `adb shell dpm set-device-owner bg.xems.wiems/.BootReceiver`.)
+
 ## Build / test
 ```
 sh scripts/build-wiems-app.sh     # → wiems/dist/xems-wiems.apk (committed); version in wiems/app/VERSION

@@ -956,9 +956,9 @@
 
     const-string v13, "50+ \u00b7 Muscle, bone, blood sugar"
 
-    const-string v14, "\u0421\u0440\u0435\u0449\u0443 \u0437\u0430\u0433\u0443\u0431\u0430\u0442\u0430 \u043d\u0430 \u043c\u0443\u0441\u043a\u0443\u043b\u0438 \u0438 \u043a\u043e\u0441\u0442\u0438 \u0441 \u0432\u044a\u0437\u0440\u0430\u0441\u0442\u0442\u0430; \u0437\u0430\u0445\u0430\u0440\u0442\u0430 \u0438 \u043c\u0435\u043d\u043e\u043f\u0430\u0443\u0437\u0430\u0442\u0430"
+    const-string v14, "\u0421\u0438\u043b\u0430, \u0437\u0434\u0440\u0430\u0432\u0438 \u043a\u043e\u0441\u0442\u0438, \u0434\u043e\u0431\u0440\u0430 \u0437\u0430\u0445\u0430\u0440 \u2014 \u0438 \u043f\u0440\u0435\u0437 \u043c\u0435\u043d\u043e\u043f\u0430\u0443\u0437\u0430\u0442\u0430"
 
-    const-string v15, "Against the loss of muscle and bone with age; blood sugar and menopause"
+    const-string v15, "Strength, strong bones, good blood sugar \u2014 through menopause too"
 
     sget-object v16, Lcom/isaigu/gymapp/ai/AutoModel$Kind;->ACTIVE:Lcom/isaigu/gymapp/ai/AutoModel$Kind;
 

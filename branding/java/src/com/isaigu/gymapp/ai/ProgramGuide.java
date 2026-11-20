@@ -134,19 +134,19 @@ public final class ProgramGuide {
                         ACTIVE_OFTEN_BG, ACTIVE_OFTEN_EN,
                         "Курс от 8–12 тренировки", "A course of 8–12 sessions");
             case AutoCatalog.SENIOR:
-                return e("Срещу загубата на мускули с възрастта: сила и бързина за стол, стълби и сигурна крачка.",
+                return e("Сила и бързина за всеки ден: лесно ставане, стълби и сигурна, лека крачка.",
                         "Кости: стягане с леки удари на петите — сигнал костта да пази плътността си.",
-                        "Захар и менопауза: краката поемат захар; мускулите и костите се пазят, когато хормоните спадат.",
-                        "Against the loss of muscle with age: strength and speed for the chair, the stairs, a sure step.",
+                        "Захар и менопауза: краката поемат захар; мускулите и костите остават силни.",
+                        "Strength and speed for every day: easy rising, stairs and a sure, light step.",
                         "Bone: holds with light heel drops — a signal for the bone to keep its density.",
-                        "Sugar and menopause: the legs take up sugar; muscle and bone are kept as the hormones fall.",
+                        "Sugar and menopause: the legs take up sugar; muscle and bone stay strong.",
                         "1 път седмично в началото, после до 2", "Once a week at first, then up to twice",
                         "Курс от 10–12 тренировки", "A course of 10–12 sessions");
             case AutoCatalog.ANTIAGE:
-                return e("Дълголетие на всяка възраст: пази младостта на клетките, не лекува възрастта (тя е 50+).",
+                return e("Дълголетие на всяка възраст: пази тялото младо и функциите му в пълна сила.",
                         "Мускулите пускат вещества срещу възпалението; ходенето с импулса храни мозъка.",
                         "Кратки интервали с всичка сила — издръжливостта е най-силният знак за дълъг живот.",
-                        "Longevity at any age: keeps the cells young, it does not treat age (that is 50+).",
+                        "Longevity at any age: keeps the body young and its functions at full strength.",
                         "The muscles release substances against inflammation; walking with the impulse feeds the brain.",
                         "Short all-out intervals — endurance is the strongest sign of a long life.",
                         ACTIVE_OFTEN_BG, ACTIVE_OFTEN_EN,
@@ -206,10 +206,10 @@ public final class ProgramGuide {
                         "След всяка тежка тренировка", "After every hard session",
                         "Колкото е нужно", "As needed");
             case AutoCatalog.ANTIAGE_PASSIVE:
-                return e("Дълголетие в покой: захарта, мозъкът и съдовете — пътищата, по които тялото старее.",
+                return e("Дълголетие в покой: захарта, мозъкът и съдовете остават в добра форма.",
                         "Краката работят целите — поемат захар и подават сигнал, полезен за мозъка.",
                         "Леко потрепване накрая — съдовете на краката стават по-еластични.",
-                        "Longevity at rest: sugar, brain and vessels — the paths by which the body ages.",
+                        "Longevity at rest: sugar, brain and vessels stay in good shape.",
                         "The whole legs work — they take up sugar and send a signal good for the brain.",
                         "A light twitching at the end — the leg vessels grow more elastic.",
                         "2–3 пъти седмично", "2–3 times a week",
@@ -274,11 +274,11 @@ public final class ProgramGuide {
                         "For the experienced — after the first 4 sessions.",
                         "1 път седмично", "Once a week", "Курс от 6–8 процедури", "A course of 6–8 treatments");
             case AutoCatalog.SENIOR_P:
-                return e("Седнал, краката работят сами — срещу загубата на мускули, по-лесно ставане.",
-                        "Гърбът и раменете — срещу прегърбването с възрастта.",
+                return e("Седнал, краката работят сами — сила и по-лесно ставане.",
+                        "Гърбът и раменете — за изправена, уверена стойка.",
                         "Накрая ритъм на краката за захарта — най-добре 30–60 мин след хранене.",
-                        "Seated, the legs work by themselves — against muscle loss, easier rising.",
-                        "The back and shoulders — against the stoop of age.",
+                        "Seated, the legs work by themselves — strength and easier rising.",
+                        "The back and shoulders — for an upright, confident posture.",
                         "At the end a leg rhythm for the blood sugar — best 30–60 min after a meal.",
                         PASSIVE_OFTEN_BG, PASSIVE_OFTEN_EN, "Курс от 12 процедури за 6 седмици",
                         "A course of 12 treatments in 6 weeks");

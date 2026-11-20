@@ -269,11 +269,11 @@ public final class AutoCatalog {
                 Kind.ACTIVE, AutoModel.zones(50, 70, 80, 90, 80, 100, 100, 80, 60, 60)));
         p.cr10Lo = 5; p.cr10Hi = 6; p.xCap = 0.80; p.envMax = 1.15; p.asksBack = true; p.impulse = AutoDynamics.GENTLE;
 
-        // 50+ = gerontology (owner, 1.1.527 — spec §6.15): the conditions of age — sarcopenia (strength, power),
-        // bone density, the blood sugar, menopause, posture and falls. Not anti-ageing (that is longevity).
+        // 50+ (owner, 1.1.527 — spec §6.15): strength and power (sarcopenia), bone density, the blood sugar, menopause,
+        // posture, a sure step. Not anti-ageing (that is longevity). Never worded as "old" (owner, 1.1.528).
         p = add(new Program(SENIOR, "50+ · Мускули, кости, захар", "50+ · Muscle, bone, blood sugar",
-                "Срещу загубата на мускули и кости с възрастта; захарта и менопаузата",
-                "Against the loss of muscle and bone with age; blood sugar and menopause",
+                "Сила, здрави кости, добра захар — и през менопаузата",
+                "Strength, strong bones, good blood sugar — through menopause too",
                 Kind.ACTIVE, AutoModel.zones(80, 100, 90, 100, 70, 80, 80, 60, 60, 70)));
         p.cr10Lo = 5; p.cr10Hi = 6; p.xCap = 0.75; p.envMax = 1.0; p.impulse = AutoDynamics.GENTLE;
 
@@ -310,7 +310,7 @@ public final class AutoCatalog {
         p.cr10Lo = 3; p.cr10Hi = 5; p.xCap = 0.45;
 
         // anti-ageing = longevity (owner, 1.1.527): keeping the body young and its functions — the pathways of ageing,
-        // at any age; not the conditions of age (that is 50+)
+        // at any age; not the needs after 50 (that is 50+)
         p = add(new Program(ANTIAGE, "Антиейджинг · Longevity", "Anti-ageing · Longevity",
                 "Дълголетие на всяка възраст: миокини, мозък, интервали, съдове",
                 "Longevity at any age: myokines, brain, intervals, vessels",
@@ -851,7 +851,7 @@ public final class AutoCatalog {
                 break;
             }
             case SENIOR: {
-                // 50+ = gerontology (owner, 1.1.527 — spec §6.15), each block for one condition of age:
+                // 50+ (owner, 1.1.527 — spec §6.15), each block for one need after 50:
                 // sarcopenia — WB-EMS 85 Hz · 350 µs · 4 : 4–6 with slow functional moves (Kemmler: FrOST, FORMOsA —
                 //   muscle mass and strength up in sarcopenic older adults);
                 // power — after 50 it falls faster than strength and predicts falls and function (Reid & Fielding
@@ -959,7 +959,7 @@ public final class AutoCatalog {
                 break;
             }
             case SENIOR_P: {
-                // 50+ at rest = gerontology (spec §6.15): NMES of the legs in older adults — 50 Hz, wide pulse, 4 : 8 —
+                // 50+ at rest (spec §6.15): NMES of the legs in older adults — 50 Hz, wide pulse, 4 : 8 —
                 // raises the thigh strength and the chair-rise (Langeard 2017; Benavent-Caballer 2014); the back
                 // chain against the age stoop (back-extensor work lessens kyphosis — Katzman 2017); then the leg
                 // rhythm for the blood sugar (NMES lowers glycaemia at any rate; best 30–60 min after a meal)

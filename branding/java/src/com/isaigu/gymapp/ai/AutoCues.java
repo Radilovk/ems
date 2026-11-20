@@ -65,12 +65,12 @@ public final class AutoCues {
                     "Let go: soft short holds at half strength — the muscle leaves the work without fatigue.");
         }
         if (ph.isCooldown()) {
-            return AiText.t("Възстановяване: пулсът и дишането се успокояват, мускулите се отпускат и се изчистват от продуктите на умората.",
-                    "Recovery: the HR and breathing settle, the muscles relax and clear the products of fatigue.");
+            return AiText.t("Разпускане: пулсът и дишането се успокояват, мускулите се отпускат.",
+                    "Cool-down: the pulse and breathing settle, the muscles relax.");
         }
         if ("WARMUP".equals(p)) {
-            return AiText.t("Подготовка: кръвта приижда в мускулите, нервите и ставите се загряват, за да понесат силата.",
-                    "Preparation: blood flows into the muscles, nerves and joints warm up to take the strength.");
+            return AiText.t("Загряване: кръвообращението се засилва, мускулите и ставите се подготвят за натоварването.",
+                    "Warm-up: the circulation picks up, the muscles and joints get ready for the work.");
         }
         if ("OPEN".equals(p)) {
             return AiText.t("Отваряне: първо се раздвижват пътищата в корема и раменете, за да има къде да се оттече течността.",
@@ -84,8 +84,8 @@ public final class AutoCues {
             return AiText.t("Дренаж на ръцете и гърба към гърдите.", "Drainage of the arms and back towards the chest.");
         }
         if ("WAVE".equals(p) || ph.wave) {
-            return AiText.t("Дренаж: последователни съкращения изтласкват течността под кожата към лимфните пътища.",
-                    "Drainage: contractions in sequence push the fluid under the skin towards the lymph pathways.");
+            return AiText.t("Лимфен дренаж: мускулите се свиват един след друг и изтласкват задържаната течност към лимфните пътища.",
+                    "Lymphatic drainage: the muscles contract one after another and push the held fluid towards the lymph pathways.");
         }
         if (AutoCatalog.ANTIAGE.equals(id) || AutoCatalog.ANTIAGE_PASSIVE.equals(id)) {
             String g = antiageGoal(AutoCatalog.ANTIAGE_PASSIVE.equals(id), p);
@@ -97,12 +97,12 @@ public final class AutoCues {
             return AiText.t("Отпускане на напрежението и спазъма в гърба.", "Releasing the tension and spasm in the back.");
         }
         if ("RELIEF".equals(p)) {
-            return AiText.t("Обезболяване: ниската честота намалява усещането за болка.", "Pain relief: the low frequency dampens the pain.");
+            return AiText.t("Облекчаване на болката: спокойната ниска честота намалява усещането за болка.", "Pain relief: the calm low rate dampens the feeling of pain.");
         }
         if (AutoCatalog.PASSIVE_METABOLIC.equals(id)) {
             return "Tone".equals(ph.nameEn)
-                    ? AiText.t("Тонус: кратко стягане между блоковете за изгаряне.", "Tone: a short firming between the burning blocks.")
-                    : AiText.t("Изгаряне на енергия без умора: бавните влакна работят непрекъснато.",
+                    ? AiText.t("Тонус: кратко стягане между блоковете, които изразходват енергия.", "Tone: a short firming between the burning blocks.")
+                    : AiText.t("Изразходване на енергия: мускулите работят ритмично, без да се уморяват.",
                             "Burning energy without fatigue: the slow fibres work non-stop.");
         }
         if (AutoCatalog.BACK_PAIN.equals(id)) {
@@ -113,56 +113,56 @@ public final class AutoCues {
             return AiText.t("Тазово дъно и корем: сила и контрол след раждането.", "Pelvic floor and abs: strength and control after birth.");
         }
         if (AutoCatalog.CELLULITE.equals(id)) {
-            return AiText.t("Тонус на мускулите под кожата — по-стегнат вид.", "Tone of the muscles under the skin — a firmer look.");
+            return AiText.t("Тонус: мускулите под кожата се стягат — кожата изглежда по-гладка и стегната.", "Tone of the muscles under the skin — a firmer look.");
         }
         if (AutoCatalog.RECOVERY.equals(id)) {
-            return AiText.t("Масаж: по-добър кръвоток, отпускане и по-бързо възстановяване след натоварване.",
+            return AiText.t("Масаж: по-добро кръвообращение, отпуснати мускули, по-бързо възстановяване.",
                     "Massage: better blood flow, relaxation and faster recovery after training.");
         }
         // the phases of the passive versions and of the reviewed 50+ (1.1.526, spec §6.11 / §6.13)
         // 50+ (1.1.527, spec §6.15)
         if ("BONE".equals(p)) {
-            return AiText.t("Кости: силното стягане и леките удари на петите натоварват костта — сигнал да пази плътността си.",
-                    "Bone: the strong hold and the light heel drops load the bone — a signal to keep its density.");
+            return AiText.t("Здрави кости: силното стягане и повдигането на пръсти натоварват костите — така те се укрепват.",
+                    "Strong bones: the strong hold and rising on the toes load the bones — this is how they get stronger.");
         }
         if ("SUGAR".equals(p)) {
-            return AiText.t("Захар: големите мускули на краката поемат захар от кръвта с всяко съкращение.",
-                    "Blood sugar: the big leg muscles take sugar from the blood with every contraction.");
+            return AiText.t("Кръвна захар: големите мускули на краката поемат захарта от кръвта при всяко съкращение.",
+                    "Blood sugar: the big leg muscles take up sugar from the blood with every contraction.");
         }
         if (AutoCatalog.SENIOR.equals(id) && "MAIN".equals(p)) {
-            return AiText.t("Мускули: стягане за сила и тонус — лесно ставане, стълби, покупки.",
-                    "Muscle: holds for strength and tone — easy rising, stairs, shopping.");
+            return AiText.t("Сила: по-силни мускули на краката и тялото — по-лесно ставане, стълби, носене на покупки.",
+                    "Strength: stronger leg and body muscles — easier rising, stairs, carrying shopping.");
         }
         if ("FLOW".equals(p)) {
-            return AiText.t("Кръвоток: ритмични потрепвания помпят кръвта и отнасят умората от стягането.",
-                    "Blood flow: rhythmic twitches pump the blood and carry away the fatigue of the holds.");
+            return AiText.t("Кръвообращение: ритмичното потрепване раздвижва кръвта и отнася умората от стягането.",
+                    "Circulation: the rhythmic twitching moves the blood and carries away the fatigue of the holds.");
         }
         if ("POSTURE".equals(p)) {
-            return AiText.t("Стойка: гърбът, кръстът и раменете се стягат — по-изправено тяло и по-сигурна крачка.",
-                    "Posture: the back, lower back and shoulders firm up — a straighter body and a surer step.");
+            return AiText.t("Изправена стойка: мускулите на гърба и раменете се укрепват — тялото е по-изправено и стабилно.",
+                    "Upright posture: the back and shoulder muscles get stronger — the body is more upright and stable.");
         }
         if ("SPEED".equals(p)) {
-            return AiText.t("Бързина: кратко бързо усилие — пъргави крака и сигурна крачка.",
-                    "Speed: a short quick effort — nimble legs and a sure step.");
+            return AiText.t("Реакция и баланс: бързата крачка тренира равновесието и стабилността на краката — по-сигурна стъпка.",
+                    "Reaction and balance: the quick step trains balance and leg stability — a surer step.");
         }
         if (AutoCatalog.SENIOR_P.equals(id)) {
-            return AiText.t("Сила на краката: големите мускули на бедрата се стягат дълбоко — по-лесно ставане и ходене.",
-                    "Leg strength: the big thigh muscles hold deeply — easier rising and walking.");
+            return AiText.t("Сила и стабилност на краката: мускулите на бедрата се стягат дълбоко — по-лесно ставане и ходене.",
+                    "Leg strength and stability: the thigh muscles hold deeply — easier rising and walking.");
         }
         if (AutoCatalog.MASS_P.equals(id)) {
-            return AiText.t("Дълги стягания: силно напрежение в мускула — сигнал да расте; дългата почивка пази всяко стягане пълно.",
+            return AiText.t("Дълги стягания: силното напрежение е сигнал мускулът да расте; дългата почивка прави всяко стягане пълно.",
                     "Long holds: strong tension in the muscle — a signal to grow; the long rest keeps every hold full.");
         }
         if (AutoCatalog.POWER_P.equals(id)) {
-            return AiText.t("Взривни импулси: бързите влакна се включват изцяло за миг; почивката им връща енергията.",
+            return AiText.t("Взривни импулси: бързите мускулни влакна се включват изцяло за миг; почивката им връща енергията.",
                     "Explosive bursts: the fast fibres fire in full for a moment; the rest gives back their energy.");
         }
         if (AutoCatalog.CORE_P.equals(id)) {
-            return AiText.t("Опора: корем, кръст и гръб се стягат заедно — корсет около гръбнака.",
+            return AiText.t("Дълбоки мускули: корем, кръст и гръб се стягат заедно — естествен корсет около гръбнака.",
                     "Support: abs, lower back and back hold together — a corset around the spine.");
         }
         if (AutoCatalog.GENERAL_P.equals(id) || AutoCatalog.UPPER_P.equals(id) || AutoCatalog.GLUTES_P.equals(id)) {
-            return AiText.t("Тонус в покой: токът стяга мускула изцяло, без движение; дългата пауза пази качеството.",
+            return AiText.t("Тонус в покой: импулсът стяга мускулите изцяло, без движение; дългата пауза пази качеството.",
                     "Tone at rest: the current tightens the muscle fully, without moving; the long pause keeps the quality.");
         }
         return plan.program.desc();
@@ -171,24 +171,24 @@ public final class AutoCues {
     /** The anti-ageing programs' goal line (spec §6.12), by phase; null = the common text. */
     static String antiageGoal(boolean passive, String phase) {
         if (passive && "MAIN".equals(phase)) {
-            return AiText.t("Захар: краката работят ритмично и поемат захар от кръвта — скокът след хранене е по-малък.",
-                    "Blood sugar: the legs work in a rhythm and take sugar from the blood — the rise after a meal is smaller.");
+            return AiText.t("Кръвна захар: краката работят ритмично и поемат захарта — покачването след хранене е по-малко.",
+                    "Blood sugar: the legs work in a rhythm and take up sugar — the rise after a meal is smaller.");
         }
         if ("MAIN".equals(phase)) {
-            return AiText.t("Миокини: работещите мускули пускат в кръвта вещества, които пазят клетките и гасят възпалението.",
-                    "Myokines: the working muscles release substances that protect the cells and calm inflammation.");
+            return AiText.t("Срещу възпалението: работещите мускули отделят вещества, които намаляват хроничното възпаление.",
+                    "Against inflammation: the working muscles release substances that lower chronic inflammation.");
         }
         if ("BRAIN".equals(phase)) {
-            return AiText.t("Мозък: при тази честота мускулите на краката подават сигнал, който храни нервните клетки и паметта.",
-                    "Brain: at this rate the leg muscles send a signal that feeds the nerve cells and the memory.");
+            return AiText.t("Мозък и памет: при тази работа на краката се отделя вещество, което подпомага нервните клетки и паметта.",
+                    "Brain and memory: this leg work releases a substance that supports the nerve cells and memory.");
         }
         if ("INTERVAL".equals(phase)) {
-            return AiText.t("Интервали: кратко с всичка сила, после отдих — това сваля възпалението в тялото най-силно.",
-                    "Intervals: short and all out, then rest — this lowers inflammation in the body the most.");
+            return AiText.t("Интервали: кратко пълно усилие и почивка — подобрява издръжливостта и намалява възпалението.",
+                    "Intervals: a short full effort and rest — better endurance, less inflammation.");
         }
         if ("VESSELS".equals(phase)) {
-            return AiText.t("Съдове: леко ритмично потрепване — артериите на краката стават по-гъвкави.",
-                    "Vessels: a light rhythmic twitching — the leg arteries grow more supple.");
+            return AiText.t("Кръвоносни съдове: лекото ритмично потрепване прави съдовете на краката по-еластични.",
+                    "Blood vessels: the light rhythmic twitching makes the leg vessels more elastic.");
         }
         return null;
     }

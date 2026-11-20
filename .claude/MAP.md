@@ -250,7 +250,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `AiViews.java` (318L, compile:music-sync*,wearable) — Canvas-drawn widgets for the Smart Session UI (no resources needed).
 - `AutoBeep.java` (149L, compile:music-sync*,wearable) — The start signal of an automatic session (owner, 1.1.270): every start waits 3 s — three short beeps, one per second, a…
 - `AutoBoard.java` (223L, compile:music-sync*,wearable) — The Auto live board built into the training screen (owner, 1.1.278): while an automatic session runs, the training list…
-- `AutoCatalog.java` (1363L, compile:music-sync*,wearable) — The ready programs of the automatic mode (spec §5, §6): menu per goal × kind, what each program is, its zones, its phas…
+- `AutoCatalog.java` (1382L, compile:music-sync*,wearable) — The ready programs of the automatic mode (spec §5, §6): menu per goal × kind, what each program is, its zones, its phas…
 - `AutoCues.java` (369L, compile:music-sync*,wearable) — What the hint card on the training screen says during an automatic session (pure Java): the cue for the pulse / the pau…
 - `AutoDynamics.java` (432L, compile:music-sync*,wearable) — The impulse of the automatic mode changes while it runs (owner, 1.1.322 — docs/xems-auto-mode-spec.md §13, docs/xems-em…
 - `AutoEngine.java` (2417L, compile:music-sync*,wearable) — Automatic mode runtime (spec §4, §7, §8): walks the plan cycle by cycle and gives each cycle's parameters, planned stre…
@@ -277,7 +277,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `OutputOwner.java` (85L, compile:music-sync*,wearable) — Who drives the impulse of the rows right now (1.1.331): one answer for every mode, so two writers never fight over the …
 - `PathNorm.java` (355L, compile:music-sync*,wearable) — SVG path data → absolute M / L / C / Z only (what {@link ExerciseFigure} draws).
 - `ProgramArt.java` (196L, compile:music-sync*,wearable) — The picture of a program by its kind and the client's sex: neon line art, so it always sits on a dark tile — in the lig…
-- `ProgramGuide.java` (290L, compile:music-sync*,wearable) — What the ⓘ of a ready program says (owner, 1.1.516 — docs/xems-program-info.md): how this training or procedure works f…
+- `ProgramGuide.java` (294L, compile:music-sync*,wearable) — What the ⓘ of a ready program says (owner, 1.1.516 — docs/xems-program-info.md): how this training or procedure works f…
 - `ProgramInfo.java` (238L, compile:music-sync*,wearable) — The ⓘ of a ready program card in Auto (owner, 1.1.516 — docs/xems-program-info.md): what this training or procedure is …
 - `PulseAdvice.java` (552L, compile:music-sync*,wearable) — Recommended impulses for the manual mode's four modes (Основен · Мускули · Кардио · Масаж) from the client's profile an…
 - `SafeLimits.java` (194L, compile:music-sync*,wearable) — Absolute limits of the impulse — every mode, every path to the suit (owner, 1.1.323; docs/xems-safety-limits.md).
@@ -1257,6 +1257,33 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L7 ## ⓘ on the program card — `ai/ProgramInfo`, text `ai/ProgramGuide`
   - L18 ## Advice in the report — `branding/report/session-report.html` (`renderGuide`, `shareGuide`)
   - L29 ## In the client's phone app (XB-Studio, aidiet `studio.html`, 2026-11)
+
+`docs/xems-program-names.md` (222L)
+  - L1 # Готовите програми — имена и текстове (1.1.529)
+  - L8 ## Стягане на цялото тяло
+  - L17 ## Седалище и бедра
+  - L26 ## Мускулна маса и сила
+  - L35 ## Горна част на тялото
+  - L44 ## Талия и корем
+  - L53 ## Сила и експлозивност
+  - L62 ## Изгаряне на мазнини
+  - L71 ## Здрав гръб и правилна стойка
+  - L80 ## 50+ · Сила, баланс, здрави кости
+  - L89 ## Антицелулитна процедура
+  - L98 ## Възстановяване след раждане
+  - L107 ## Лимфен дренаж
+  - L116 ## Активиране на метаболизма
+  - L125 ## Облекчаване на болки в гърба
+  - L134 ## Възстановяване и релакс
+  - L141 ## Антиейджинг и дълголетие
+  - L150 ## Антиейджинг и дълголетие · процедура
+  - L159 ## Стягане на цялото тяло · процедура
+  - L168 ## Седалище и бедра · процедура
+  - L177 ## Мускулна маса и сила · процедура
+  - L186 ## Горна част на тялото · процедура
+  - L195 ## Талия и корем · процедура
+  - L204 ## Сила и експлозивност · процедура
+  - L213 ## 50+ · процедура
 
 `docs/xems-pulse-control.md` (195L)
   - L1 # Пулс модул: управление на импулсите по пулса (v1.1.59, задържане в зона от 1.1.270)

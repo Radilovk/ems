@@ -229,135 +229,154 @@ public final class AutoCatalog {
 
     static {
         Program p;
-        p = add(new Program(GENERAL, "Общо стягане и оформяне", "Full-body toning",
-                "Цялото тяло, силова работа с упражнения", "Whole body, strength work with exercises",
+        p = add(new Program(GENERAL, "Стягане на цялото тяло", "Full-body toning",
+                "Стегнато тяло и по-силни мускули — с упражнения",
+                "A firmer body and stronger muscles — with exercises",
                 Kind.ACTIVE, AutoModel.zones(70, 90, 90, 100, 90, 80, 90, 70, 80, 75)));
         p.cr10Lo = 6; p.cr10Hi = 7; p.xCap = 0.85; p.envMax = 1.25; p.doublePulse = true; p.impulse = AutoDynamics.STRENGTH;
 
         p = add(new Program(GLUTES_LEGS, "Седалище и бедра", "Glutes & thighs",
-                "Акцент върху седалището и задното бедро", "Focus on glutes and hamstrings",
+                "Оформено седалище и стегнати бедра",
+                "Shaped glutes and firm thighs",
                 Kind.ACTIVE, AutoModel.zones(60, 85, 95, 100, 70, 75, 60, 40, 40, 40)));
         p.cr10Lo = 6; p.cr10Hi = 7; p.xCap = 0.85; p.envMax = 1.25; p.doublePulse = true; p.femaleOnly = true; p.impulse = AutoDynamics.STRENGTH;
 
-        p = add(new Program(MASS, "Мускулна маса", "Muscle mass",
-                "Цялото тяло, тежки бавни повторения — обем и сила", "Whole body, heavy slow reps — size and strength",
+        p = add(new Program(MASS, "Мускулна маса и сила", "Muscle mass & strength",
+                "Повече мускули и сила — бавни, тежки повторения",
+                "More muscle and strength — slow, heavy reps",
                 Kind.ACTIVE, AutoModel.zones(60, 85, 80, 80, 80, 75, 100, 90, 100, 100)));
         p.cr10Lo = 7; p.cr10Hi = 7; p.xCap = 0.85; p.envMax = 1.3; p.maleOnly = true; p.impulse = AutoDynamics.STRENGTH;
 
-        p = add(new Program(UPPER, "Гърди, рамене и ръце", "Chest, shoulders & arms",
-                "Горната част: гърди, гръб, рамене и ръце", "Upper body: chest, back, shoulders and arms",
+        p = add(new Program(UPPER, "Горна част на тялото", "Upper body",
+                "Гърди, гръб, рамене и ръце — сила и релеф",
+                "Chest, back, shoulders and arms — strength and definition",
                 Kind.ACTIVE, AutoModel.zones(40, 60, 55, 60, 80, 70, 100, 100, 100, 100)));
         p.cr10Lo = 6; p.cr10Hi = 7; p.xCap = 0.85; p.envMax = 1.25; p.maleOnly = true; p.impulse = AutoDynamics.STRENGTH;
 
         p = add(new Program(CORE, "Талия и корем", "Waist & core",
-                "Корем с кръста в баланс — пази гръбнака", "Abs balanced with the lower back",
+                "По-тънка талия и силен корем, защитен гръб",
+                "A slimmer waist and strong core, a protected back",
                 Kind.ACTIVE, AutoModel.zones(40, 60, 60, 70, 100, 90, 75, 45, 55, 40)));
         p.cr10Lo = 6; p.cr10Hi = 6; p.xCap = 0.85; p.envMax = 1.25; p.doublePulse = true; p.impulse = AutoDynamics.STRENGTH;
 
-        p = add(new Program(POWER, "Сила и бързина", "Power & speed",
-                "Бързи влакна: кратък взривен импулс, дълга почивка", "Fast fibres: short explosive pulse, long rest",
+        p = add(new Program(POWER, "Сила и експлозивност", "Power & explosiveness",
+                "Експлозивна сила и бързина на движенията",
+                "Explosive strength and fast movement",
                 Kind.ACTIVE, AutoModel.zones(80, 100, 100, 100, 85, 80, 90, 70, 85, 80)));
         p.cr10Lo = 7; p.cr10Hi = 7; p.xCap = 0.85; p.envMax = 1.15; p.impulse = AutoDynamics.POWER;
 
-        p = add(new Program(CARDIO, "Кардио-метаболитна", "Cardio-metabolic",
-                "Изгаряне: сила ↔ 7 Hz, пулсът в зоната на мазнините", "Burn: strength ↔ 7 Hz, HR in the fat zone",
+        p = add(new Program(CARDIO, "Изгаряне на мазнини", "Fat burning",
+                "Ускорено изгаряне на мазнини, пулсът в оптималната зона",
+                "Faster fat burning, heart rate in the optimal zone",
                 Kind.ACTIVE, AutoModel.zones(90, 100, 100, 100, 70, 70, 80, 50, 60, 70)));
         p.cr10Lo = 5; p.cr10Hi = 6; p.xCap = 0.80; p.envMax = 1.10; p.doublePulse = true; p.impulse = AutoDynamics.CARDIO;
 
-        p = add(new Program(BACK_ACTIVE, "Здрав гръб и стойка", "Healthy back & posture",
-                "Гръб, кръст и корем заедно, с упражнения", "Back, lower back and core together, with exercises",
+        p = add(new Program(BACK_ACTIVE, "Здрав гръб и правилна стойка", "Healthy back & good posture",
+                "Силни мускули на гърба — изправена стойка, по-малко напрежение",
+                "Strong back muscles — upright posture, less strain",
                 Kind.ACTIVE, AutoModel.zones(50, 70, 80, 90, 80, 100, 100, 80, 60, 60)));
         p.cr10Lo = 5; p.cr10Hi = 6; p.xCap = 0.80; p.envMax = 1.15; p.asksBack = true; p.impulse = AutoDynamics.GENTLE;
 
         // 50+ (owner, 1.1.527 — spec §6.15): strength and power (sarcopenia), bone density, the blood sugar, menopause,
         // posture, a sure step. Not anti-ageing (that is longevity). Never worded as "old" (owner, 1.1.528).
-        p = add(new Program(SENIOR, "50+ · Мускули, кости, захар", "50+ · Muscle, bone, blood sugar",
-                "Сила, здрави кости, добра захар — и през менопаузата",
-                "Strength, strong bones, good blood sugar — through menopause too",
+        p = add(new Program(SENIOR, "50+ · Сила, баланс, здрави кости", "50+ · Strength, balance, strong bones",
+                "Сила на краката, баланс и стабилност, здрави кости, нормална кръвна захар",
+                "Leg strength, balance and stability, strong bones, healthy blood sugar",
                 Kind.ACTIVE, AutoModel.zones(80, 100, 90, 100, 70, 80, 80, 60, 60, 70)));
         p.cr10Lo = 5; p.cr10Hi = 6; p.xCap = 0.75; p.envMax = 1.0; p.impulse = AutoDynamics.GENTLE;
 
-        p = add(new Program(CELLULITE, "Антицелулит", "Anti-cellulite",
-                "Тонус на долната част + дренажна вълна", "Lower-body tone + drainage wave",
+        p = add(new Program(CELLULITE, "Антицелулитна процедура", "Anti-cellulite treatment",
+                "По-гладка кожа и по-малко задържана течност",
+                "Smoother skin and less fluid retention",
                 Kind.PASSIVE, AutoModel.zones(70, 100, 100, 100, 75, 60, 0, 0, 0, 50)));
         p.cr10Lo = 5; p.cr10Hi = 5; p.xCap = 0.60; p.doublePulse = true; p.femaleOnly = true;
 
-        p = add(new Program(POSTPARTUM, "Следродилно възстановяване", "Postpartum recovery",
-                "Тазово дъно, седалище и кръст; коремът — внимателно", "Pelvic floor, glutes, lower back; abs gently",
+        p = add(new Program(POSTPARTUM, "Възстановяване след раждане", "Postnatal recovery",
+                "Тазово дъно, корем и кръст — внимателно и постепенно",
+                "Pelvic floor, abs and lower back — gently, step by step",
                 Kind.PASSIVE, AutoModel.zones(50, 70, 80, 100, 60, 90, 60, 50, 40, 50)));
         p.cr10Lo = 4; p.cr10Hi = 5; p.xCap = 0.45; p.femaleOnly = true; p.asksPostpartum = true; p.impulse = AutoDynamics.GENTLE;
 
-        p = add(new Program(DRAIN, "Дренаж", "Lymph drainage",
-                "Вълна по зоните от периферията към центъра", "A wave through the zones towards the centre",
+        p = add(new Program(DRAIN, "Лимфен дренаж", "Lymphatic drainage",
+                "По-малко отоци и задържана течност, леки крака",
+                "Less swelling and fluid retention, light legs",
                 Kind.PASSIVE, AutoModel.zones(100, 100, 100, 100, 100, 100, 100, 100, 100, 100)));
         p.cr10Lo = 3; p.cr10Hi = 4; p.xCap = 0.45; p.envMax = 1.0;
         p.variantsBg = new String[] {"Стандартен (35 Hz)", "Чувствителен (8 Hz)"};
         p.variantsEn = new String[] {"Standard (35 Hz)", "Sensitive (8 Hz)"};
 
-        p = add(new Program(PASSIVE_METABOLIC, "Пасивен метаболизъм", "Passive metabolism",
-                "6 Hz — най-голям енергоразход без движение", "6 Hz — most energy use without moving",
+        p = add(new Program(PASSIVE_METABOLIC, "Активиране на метаболизма", "Metabolism boost",
+                "Изразходване на енергия в покой, без натоварване",
+                "Energy use at rest, without strain",
                 Kind.PASSIVE, AutoModel.zones(90, 100, 100, 100, 60, 60, 70, 40, 40, 60)));
         p.cr10Lo = 4; p.cr10Hi = 5; p.xCap = 0.60;
 
-        p = add(new Program(BACK_PAIN, "Болки в гърба и кръста", "Back & low-back pain",
-                "Отпускане, стабилизация, обезболяване", "Relax, stabilise, relieve",
+        p = add(new Program(BACK_PAIN, "Облекчаване на болки в гърба", "Back pain relief",
+                "Отпуска напрежението, укрепва дълбоките мускули, облекчава болката",
+                "Eases tension, strengthens the deep muscles, relieves pain",
                 Kind.PASSIVE, AutoModel.zones(0, 40, 60, 80, 70, 100, 90, 60, 0, 0)));
         p.cr10Lo = 4; p.cr10Hi = 4; p.xCap = 0.45; p.asksBack = true;
 
-        p = add(new Program(RECOVERY, "Регенерация и релакс", "Recovery & relax",
-                "3 ↔ 8 Hz масаж след натоварване", "3 ↔ 8 Hz massage after training",
+        p = add(new Program(RECOVERY, "Възстановяване и релакс", "Recovery & relaxation",
+                "По-бързо възстановяване след натоварване, отпуснати мускули",
+                "Faster recovery after training, relaxed muscles",
                 Kind.PASSIVE, AutoModel.zones(80, 90, 90, 90, 50, 70, 80, 80, 40, 60)));
         p.cr10Lo = 3; p.cr10Hi = 5; p.xCap = 0.45;
 
         // anti-ageing = longevity (owner, 1.1.527): keeping the body young and its functions — the pathways of ageing,
         // at any age; not the needs after 50 (that is 50+)
-        p = add(new Program(ANTIAGE, "Антиейджинг · Longevity", "Anti-ageing · Longevity",
-                "Дълголетие на всяка възраст: миокини, мозък, интервали, съдове",
-                "Longevity at any age: myokines, brain, intervals, vessels",
+        p = add(new Program(ANTIAGE, "Антиейджинг и дълголетие", "Anti-ageing & longevity",
+                "По-малко възпаление, добра кръвна захар, здрави съдове и мозък",
+                "Less inflammation, healthy blood sugar, healthy vessels and brain",
                 Kind.ACTIVE, AutoModel.zones(100, 100, 100, 100, 100, 100, 100, 100, 100, 100)));
         p.cr10Lo = 5; p.cr10Hi = 6; p.xCap = 0.80; p.envMax = 1.10; p.impulse = AutoDynamics.CARDIO;
 
-        p = add(new Program(ANTIAGE_PASSIVE, "Антиейджинг · Longevity процедура", "Anti-ageing · Longevity treatment",
-                "Захар, мозък, съдове — в покой, най-добре след хранене",
-                "Blood sugar, brain, vessels — at rest, best after a meal",
+        p = add(new Program(ANTIAGE_PASSIVE, "Антиейджинг и дълголетие · процедура", "Anti-ageing & longevity · treatment",
+                "Кръвна захар, мозък и съдове — в покой, най-добре след хранене",
+                "Blood sugar, brain and vessels — at rest, best after a meal",
                 Kind.PASSIVE, AutoModel.zones(100, 100, 100, 100, 100, 100, 100, 100, 100, 100)));
         p.cr10Lo = 4; p.cr10Hi = 5; p.xCap = 0.55; p.envMax = 1.0;
 
         // ---- the passive version of every active template (1.1.526, spec §6.13)
-        p = add(new Program(GENERAL_P, "Общо стягане · процедура", "Full-body toning · treatment",
-                "Цялото тяло в покой: дълбоки стягания с дълга почивка", "The whole body at rest: deep holds, long rests",
+        p = add(new Program(GENERAL_P, "Стягане на цялото тяло · процедура", "Full-body toning · treatment",
+                "Цялото тяло в покой — дълбоко стягане без упражнения",
+                "The whole body at rest — a deep hold, no exercises",
                 Kind.PASSIVE, ALL_ON.clone()));
         p.cr10Lo = 5; p.cr10Hi = 6; p.xCap = 0.55; p.doublePulse = true; p.impulse = AutoDynamics.STRENGTH;
 
         p = add(new Program(GLUTES_P, "Седалище и бедра · процедура", "Glutes & thighs · treatment",
-                "Седалище и бедра в покой + дренажна вълна на краката", "Glutes and thighs at rest + a leg drainage wave",
+                "Седалище и бедра в покой + лимфен дренаж на краката",
+                "Glutes and thighs at rest + leg lymphatic drainage",
                 Kind.PASSIVE, only(LOWER)));
         p.cr10Lo = 5; p.cr10Hi = 6; p.xCap = 0.55; p.doublePulse = true; p.femaleOnly = true; p.impulse = AutoDynamics.STRENGTH;
 
-        p = add(new Program(MASS_P, "Мускулна маса · процедура", "Muscle mass · treatment",
-                "Големите мускули в покой: дълги силни стягания", "The big muscles at rest: long strong holds",
+        p = add(new Program(MASS_P, "Мускулна маса и сила · процедура", "Muscle mass & strength · treatment",
+                "Големите мускули в покой — дълги, силни стягания",
+                "The big muscles at rest — long, strong holds",
                 Kind.PASSIVE, ALL_ON.clone()));
         p.cr10Lo = 6; p.cr10Hi = 7; p.xCap = 0.55; p.maleOnly = true; p.impulse = AutoDynamics.STRENGTH;
 
-        p = add(new Program(UPPER_P, "Гърди, рамене и ръце · процедура", "Chest, shoulders & arms · treatment",
-                "Горната част в покой: гърди, гръб, рамене, ръце", "The upper body at rest: chest, back, shoulders, arms",
+        p = add(new Program(UPPER_P, "Горна част на тялото · процедура", "Upper body · treatment",
+                "Гърди, гръб, рамене и ръце в покой",
+                "Chest, back, shoulders and arms at rest",
                 Kind.PASSIVE, only(UPPER_BODY)));
         p.cr10Lo = 5; p.cr10Hi = 6; p.xCap = 0.55; p.maleOnly = true; p.impulse = AutoDynamics.STRENGTH;
 
         p = add(new Program(CORE_P, "Талия и корем · процедура", "Waist & core · treatment",
-                "Корем, кръст и гръб в покой — опора за гръбнака", "Abs, lower back and back at rest — support for the spine",
+                "Корем, кръст и гръб в покой — опора за гръбнака",
+                "Abs, lower back and back at rest — support for the spine",
                 Kind.PASSIVE, only(TRUNK)));
         p.cr10Lo = 5; p.cr10Hi = 6; p.xCap = 0.55; p.impulse = AutoDynamics.STRENGTH;
 
-        p = add(new Program(POWER_P, "Сила и бързина · процедура", "Power & speed · treatment",
-                "Бързите влакна в покой: кратки взривни импулси, дълга почивка",
-                "Fast fibres at rest: short explosive bursts, long rest",
+        p = add(new Program(POWER_P, "Сила и експлозивност · процедура", "Power & explosiveness · treatment",
+                "Бързите мускулни влакна в покой — кратки силни импулси",
+                "The fast muscle fibres at rest — short strong bursts",
                 Kind.PASSIVE, ALL_ON.clone()));
         p.cr10Lo = 6; p.cr10Hi = 6; p.xCap = 0.55; p.impulse = AutoDynamics.POWER;
 
         p = add(new Program(SENIOR_P, "50+ · процедура", "50+ · treatment",
-                "Седнал: сила на краката, стойка, захар — без натоварване на ставите",
-                "Seated: leg strength, posture, blood sugar — no load on the joints",
+                "Седнал: сила и стабилност на краката, изправена стойка, кръвна захар",
+                "Seated: leg strength and stability, upright posture, blood sugar",
                 Kind.PASSIVE, only(CALF, FRONT_THIGH, BACK_THIGH, GLUTES, ABS, LOWER_BACK, BACK, TRAPS)));
         p.cr10Lo = 4; p.cr10Hi = 5; p.xCap = 0.50; p.impulse = AutoDynamics.GENTLE;
 
@@ -778,7 +797,7 @@ public final class AutoCatalog {
                     hBg = "Клек, напад, лицеви от колене, гребане";
                     hEn = "Squat, lunge, knee push-ups, rows";
                 }
-                Phase w = phase(out, "WARMUP", "Загрявка", "Warm-up", slim ? 0.10 : 0.15, total, 0.6, 1.0);
+                Phase w = phase(out, "WARMUP", "Загряване", "Warm-up", slim ? 0.10 : 0.15, total, 0.6, 1.0);
                 w.envStart = 0.6;
                 w.envEnd = 1.0;
                 w.hintBg = "Клек, ходене на място";
@@ -792,7 +811,7 @@ public final class AutoCatalog {
                 Step ms = tet(85, 350, oo[0], oo[1]);
                 m.steps.add(slim ? pause(ms, 6, 0.45) : ms);
                 if (slim) {
-                    Phase mt = phase(out, "METABOLIC", "Изгаряне", "Burn", 0.35, total, 0.8, 0.8);
+                    Phase mt = phase(out, "METABOLIC", "Изгаряне на мазнини", "Fat burning", 0.35, total, 0.8, 0.8);
                     mt.envEnd = 1.0;
                     mt.hintBg = "Ходене, степ, леки клекове";
                     mt.hintEn = "Walking, step, light squats";
@@ -803,7 +822,7 @@ public final class AutoCatalog {
                 break;
             }
             case POWER: {
-                Phase w = phase(out, "WARMUP", "Загрявка", "Warm-up", 0.20, total, 0.6, 0.9);
+                Phase w = phase(out, "WARMUP", "Загряване", "Warm-up", 0.20, total, 0.6, 0.9);
                 w.envStart = 0.6;
                 w.envEnd = 0.9;
                 w.steps.add(twitch(WARMUP_HZ, 350, 10, 1, 1.0));          // 7 Hz twitches: warm, no fatigue
@@ -821,14 +840,14 @@ public final class AutoCatalog {
                 break;
             }
             case CARDIO: {
-                Phase w = phase(out, "WARMUP", "Загрявка", "Warm-up", 0.10, total, 0.6, 0.9);
+                Phase w = phase(out, "WARMUP", "Загряване", "Warm-up", 0.10, total, 0.6, 0.9);
                 w.envStart = 0.6;
                 w.envEnd = 0.9;
                 w.steps.add(twitch(WARMUP_HZ, 350, 10, 1, 1.0));          // 7 Hz twitches: warm, no fatigue
-                Phase mt = phase(out, "METABOLIC", "Изгаряне", "Burn", 0.80, total, 0.9, 0.9);
+                Phase mt = phase(out, "METABOLIC", "Изгаряне на мазнини", "Fat burning", 0.80, total, 0.9, 0.9);
                 mt.envStart = 1.0;
                 mt.envEnd = ENV_MAX;
-                mt.hintBg = "Степ, ходене, клек — без спиране";
+                mt.hintBg = "Степ, ходене, клекове — без спиране";
                 mt.hintEn = "Step, walking, squats — keep moving";
                 mt.steps.add(tet(85, 350, 4, 1));
                 mt.steps.add(twitch(7, 350, 4, 1, 0.7));
@@ -837,7 +856,7 @@ public final class AutoCatalog {
             }
             case BACK_ACTIVE: {
                 int[] oo = onOff(in, 6, 4);
-                Phase w = phase(out, "WARMUP", "Загрявка", "Warm-up", 0.15, total, 0.6, 0.9);
+                Phase w = phase(out, "WARMUP", "Загряване", "Warm-up", 0.15, total, 0.6, 0.9);
                 w.envStart = 0.6;
                 w.envEnd = 0.9;
                 w.steps.add(twitch(WARMUP_HZ, 350, 10, 1, 1.0));          // 7 Hz twitches: warm, no fatigue
@@ -867,26 +886,26 @@ public final class AutoCatalog {
                 if (in.fitness == AiModel.Fitness.HIGH) {
                     oo = new int[] {4, 4};
                 }
-                Phase w = phase(out, "WARMUP", "Загрявка", "Warm-up", 0.12, total, 1.0, 1.0);
+                Phase w = phase(out, "WARMUP", "Загряване", "Warm-up", 0.12, total, 1.0, 1.0);
                 w.hintBg = "Ходене на място, кръгове с раменете";
                 w.hintEn = "Marching, shoulder circles";
                 w.steps.add(twitch(WARMUP_HZ, 350, 10, 1, 1.0));          // 7 Hz twitches: warm, no fatigue
-                Phase m = phase(out, "MAIN", "Мускули", "Muscle", 0.38, total, 1.0, 1.0);
+                Phase m = phase(out, "MAIN", "Сила", "Strength", 0.38, total, 1.0, 1.0);
                 m.window = Window.main();
-                m.hintBg = "Ставане от стол, гребане с ластик, мост — бавно и контролирано";
+                m.hintBg = "Ставане от стол, гребане с ластик, мост — бавно и с контрол";
                 m.hintEn = "Sit-to-stand, band rows, bridge — slow and controlled";
                 m.steps.add(tet(85, 350, oo[0], oo[1]));
-                Phase sp = phase(out, "SPEED", "Бързина", "Speed", 0.15, total, 1.0, 1.0);
-                sp.hintBg = "С импулса — бързо ставане от стол или бърза крачка, после бавно надолу";
-                sp.hintEn = "With the impulse — a quick sit-to-stand or a quick step, then slowly down";
+                Phase sp = phase(out, "SPEED", "Реакция и баланс", "Reaction & balance", 0.15, total, 1.0, 1.0);
+                sp.hintBg = "С импулса — бърза крачка напред или встрани и задръж равновесие";
+                sp.hintEn = "With the impulse — a quick step forward or sideways, then hold your balance";
                 sp.steps.add(tet(70, 300, 2, 6));
-                Phase bn = phase(out, "BONE", "Кости", "Bone", 0.15, total, 1.0, 1.0);
-                bn.hintBg = "С импулса — на пръсти и пусни петите на пода; при остеопороза — без удар";
-                bn.hintEn = "With the impulse — up on the toes and drop the heels; with osteoporosis — no impact";
+                Phase bn = phase(out, "BONE", "Здрави кости", "Strong bones", 0.15, total, 1.0, 1.0);
+                bn.hintBg = "С импулса — повдигни се на пръсти и отпусни петите на пода (при остеопороза — плавно)";
+                bn.hintEn = "With the impulse — rise on the toes and let the heels down (with osteoporosis — gently)";
                 bn.steps.add(tet(85, 350, 3, 5));
-                Phase sg = phase(out, "SUGAR", "Захар", "Blood sugar", 0.10, total, 1.0, 1.0);
-                sg.hintBg = "Ходене на място — краката работят непрекъснато";
-                sg.hintEn = "Marching — the legs keep working";
+                Phase sg = phase(out, "SUGAR", "Кръвна захар", "Blood sugar", 0.10, total, 1.0, 1.0);
+                sg.hintBg = "Ходене на място в спокойно темпо";
+                sg.hintEn = "Marching at an easy pace";
                 Step ss = tet(15, 300, 8, 2);
                 ss.zones = only(LOWER);
                 sg.steps.add(ss);
@@ -902,14 +921,14 @@ public final class AutoCatalog {
                 boolean core = CORE_P.equals(p.id);
                 Phase w = phase(out, "WARMUP", "Загряване", "Warm-up", 0.10, total, 1.0, 1.0);
                 w.steps.add(twitch(5, 250, 10, 1, 1.0));
-                Phase m = phase(out, "MAIN", core ? "Опора" : "Тонус", core ? "Support" : "Tone", 0.70, total, 1.0, 1.0);
+                Phase m = phase(out, "MAIN", core ? "Дълбоки мускули" : "Тонус", core ? "Deep muscles" : "Tone", 0.70, total, 1.0, 1.0);
                 m.window = Window.main();
                 m.hintBg = core ? "Легни по гръб, коленете свити — само дишай с импулса"
                         : "Легни удобно — мускулите работят сами, не се съпротивлявай";
                 m.hintEn = core ? "Lie on your back, knees bent — just breathe with the impulse"
                         : "Lie comfortably — the muscles work by themselves, do not resist";
                 m.steps.add(pause(tet(80, core ? 300 : 350, 4, 8), 6, 0.40));
-                Phase f = phase(out, "FLOW", "Кръвоток", "Blood flow", 0.20, total, 1.0, 1.0);
+                Phase f = phase(out, "FLOW", "Кръвообращение", "Circulation", 0.20, total, 1.0, 1.0);
                 f.steps.add(twitch(6, 350, 10, 2, 1.0));
                 cooldown(out, total, 0.10, 3);
                 break;
@@ -923,7 +942,7 @@ public final class AutoCatalog {
                 m.hintBg = "Легни по корем — седалището и бедрата работят сами";
                 m.hintEn = "Lie face down — the glutes and thighs work by themselves";
                 m.steps.add(pause(tet(80, 350, 4, 8), 6, 0.40));
-                Phase wv = phase(out, "WAVE", "Дренажна вълна", "Drainage wave", 0.30, total, 1.0, 1.0);
+                Phase wv = phase(out, "WAVE", "Лимфен дренаж", "Lymphatic drainage", 0.30, total, 1.0, 1.0);
                 wv.wave = true;
                 legWave(wv, 35, 300);
                 cooldown(out, total, 0.10, 3);
@@ -936,10 +955,10 @@ public final class AutoCatalog {
                 w.steps.add(twitch(5, 250, 10, 1, 1.0));
                 Phase m = phase(out, "MAIN", "Дълги стягания", "Long holds", 0.75, total, 1.0, 1.0);
                 m.window = Window.main();
-                m.hintBg = "Легни удобно — силно, дълбоко стягане; дишай спокойно";
+                m.hintBg = "Легни удобно и дишай спокойно — стягането е силно и дълбоко";
                 m.hintEn = "Lie comfortably — a strong, deep hold; breathe calmly";
                 m.steps.add(tet(75, 400, 4, 10));
-                Phase f = phase(out, "FLOW", "Кръвоток", "Blood flow", 0.15, total, 1.0, 1.0);
+                Phase f = phase(out, "FLOW", "Кръвообращение", "Circulation", 0.15, total, 1.0, 1.0);
                 f.steps.add(twitch(6, 350, 10, 2, 1.0));
                 cooldown(out, total, 0.10, 3);
                 break;
@@ -950,10 +969,10 @@ public final class AutoCatalog {
                 w.steps.add(twitch(5, 250, 10, 1, 1.0));
                 Phase m = phase(out, "MAIN", "Взривни импулси", "Explosive bursts", 0.70, total, 1.0, 1.0);
                 m.window = Window.main();
-                m.hintBg = "Легни удобно — кратък силен удар, дълга почивка";
+                m.hintBg = "Легни удобно — кратък силен импулс, после дълга почивка";
                 m.hintEn = "Lie comfortably — a short strong burst, a long rest";
                 m.steps.add(tet(100, 300, 2, 10));
-                Phase f = phase(out, "FLOW", "Кръвоток", "Blood flow", 0.15, total, 1.0, 1.0);
+                Phase f = phase(out, "FLOW", "Кръвообращение", "Circulation", 0.15, total, 1.0, 1.0);
                 f.steps.add(twitch(6, 350, 10, 2, 1.0));
                 cooldown(out, total, 0.10, 3);
                 break;
@@ -965,21 +984,21 @@ public final class AutoCatalog {
                 // rhythm for the blood sugar (NMES lowers glycaemia at any rate; best 30–60 min after a meal)
                 Phase w = phase(out, "WARMUP", "Загряване", "Warm-up", 0.12, total, 1.0, 1.0);
                 w.steps.add(twitch(5, 250, 10, 1, 1.0));
-                Phase m = phase(out, "MAIN", "Сила на краката", "Leg strength", 0.40, total, 1.0, 1.0);
+                Phase m = phase(out, "MAIN", "Сила и стабилност на краката", "Leg strength & stability", 0.40, total, 1.0, 1.0);
                 m.window = Window.main();
                 m.hintBg = "Седни удобно, стъпалата на пода — краката работят сами";
                 m.hintEn = "Sit comfortably, feet on the floor — the legs work by themselves";
                 Step ls = tet(50, 350, 4, 8);
                 ls.zones = only(LOWER);
                 m.steps.add(ls);
-                Phase ps = phase(out, "POSTURE", "Стойка", "Posture", 0.23, total, 1.0, 1.0);
-                ps.hintBg = "Седни изправен — гърбът и раменете работят";
-                ps.hintEn = "Sit up — the back and shoulders work";
+                Phase ps = phase(out, "POSTURE", "Изправена стойка", "Upright posture", 0.23, total, 1.0, 1.0);
+                ps.hintBg = "Седни изправен, раменете назад и надолу";
+                ps.hintEn = "Sit up, shoulders back and down";
                 Step bs = tet(50, 300, 4, 8);
                 bs.zones = only(POSTURE);
                 ps.steps.add(bs);
-                Phase f = phase(out, "SUGAR", "Захар", "Blood sugar", 0.25, total, 1.0, 1.0);
-                f.hintBg = "Отпусни се — краката потрепват ритмично; най-добре 30–60 мин след хранене";
+                Phase f = phase(out, "SUGAR", "Кръвна захар", "Blood sugar", 0.25, total, 1.0, 1.0);
+                f.hintBg = "Отпусни се — краката работят ритмично; най-добре 30–60 мин след хранене";
                 f.hintEn = "Relax — the legs twitch in a rhythm; best 30–60 min after a meal";
                 Step fs = twitch(5, 300, 10, 1, 1.0);
                 fs.zones = only(CALF, FRONT_THIGH, BACK_THIGH, GLUTES);
@@ -993,7 +1012,7 @@ public final class AutoCatalog {
                 Phase m1 = phase(out, "MAIN", "Тонус", "Tone", 0.40, total, 0.6, 0.6);
                 m1.window = Window.main();
                 m1.steps.add(pause(tet(85, 350, 4, 6), 8, 0.50));
-                Phase m2 = phase(out, "WAVE", "Дренажна вълна", "Drainage wave", 0.40, total, 0.7, 0.7);
+                Phase m2 = phase(out, "WAVE", "Лимфен дренаж", "Lymphatic drainage", 0.40, total, 0.7, 0.7);
                 m2.wave = true;
                 legWave(m2, 35, 300);
                 cooldown(out, total, 0.10, 3);
@@ -1041,7 +1060,7 @@ public final class AutoCatalog {
                 m.window = Window.main();
                 m.window.offMinus = 0;
                 m.steps.add(tet(80, 300, 4, 8));
-                Phase e = phase(out, "RELIEF", "Обезболяване", "Relief", 0.25, total, 0.7, 0.7);
+                Phase e = phase(out, "RELIEF", "Облекчаване на болката", "Pain relief", 0.25, total, 0.7, 0.7);
                 e.steps.add(twitch(2, 200, 10, 1, 1.0));
                 cooldown(out, total, 0.10, 2);
                 break;
@@ -1054,7 +1073,7 @@ public final class AutoCatalog {
                 Phase m = phase(out, "MAIN", "Тазово дъно", "Pelvic floor", 0.70, total, 0.6, phiEnd);
                 m.envStart = 0.6;
                 m.envEnd = phiEnd;
-                m.hintBg = "Стягай тазовото дъно в свое темпо";
+                m.hintBg = "Стягай тазовото дъно заедно с импулса, в свое темпо";
                 m.hintEn = "Lift the pelvic floor at your own pace";
                 m.steps.add(pause(tet(hz, 250, 4, 8), 6, 0.35));
                 cooldown(out, total, 0.15, 3);
@@ -1157,19 +1176,19 @@ public final class AutoCatalog {
                 // rose only at 20 Hz, not 4 / 80); intervals — HIIT, not EMS alone, lowered CRP / IL-6, so short strong
                 // holds with the client's own effort; the 10-min recovery at 4 Hz = the low-intensity 4 Hz that eased
                 // arterial stiffness
-                Phase w = phase(out, "WARMUP", "Загрявка", "Warm-up", 0.10, total, 0.6, 0.9);
+                Phase w = phase(out, "WARMUP", "Загряване", "Warm-up", 0.10, total, 0.6, 0.9);
                 w.envStart = 0.6;
                 w.envEnd = 0.9;
                 w.hintBg = "Ходене на място, леки клекове";
                 w.hintEn = "Marching, light squats";
                 w.steps.add(twitch(WARMUP_HZ, 350, 10, 1, 1.0));          // 7 Hz twitches: warm, no fatigue
-                Phase m = phase(out, "MAIN", "Миокини", "Myokines", 0.40, total, 0.9, 0.9);
+                Phase m = phase(out, "MAIN", "Срещу възпалението", "Against inflammation", 0.40, total, 0.9, 0.9);
                 m.envEnd = 1.0;
                 m.window = Window.main();
                 m.hintBg = "Клек, напад, разтваряне, сгъване — със собствено тегло, в свое темпо";
                 m.hintEn = "Squat, lunge, raises, curls — body weight, at your own pace";
                 m.steps.add(tet(30, 350, 4, 6));
-                Phase br = phase(out, "BRAIN", "Мозък", "Brain", 0.30, total, 0.8, 0.8);
+                Phase br = phase(out, "BRAIN", "Мозък и памет", "Brain & memory", 0.30, total, 0.8, 0.8);
                 br.envEnd = 0.9;
                 br.hintBg = "Ходене на място, степ — краката работят целите";
                 br.hintEn = "Marching, step — the whole legs work";
@@ -1188,11 +1207,11 @@ public final class AutoCatalog {
                 // passive 20 Hz on the whole legs (BDNF, cathepsin B); the vessels — low-intensity 4 Hz (stiffness ↓)
                 Phase w = phase(out, "WARMUP", "Загряване", "Warm-up", 0.10, total, 0.6, 0.7);
                 w.steps.add(twitch(5, 250, 10, 1, 1.0));
-                Phase m = phase(out, "MAIN", "Захар", "Blood sugar", 0.35, total, 0.7, 0.7);
+                Phase m = phase(out, "MAIN", "Кръвна захар", "Blood sugar", 0.35, total, 0.7, 0.7);
                 m.steps.add(twitch(5, 300, 10, 1, 1.0));
-                Phase br = phase(out, "BRAIN", "Мозък", "Brain", 0.35, total, 0.7, 0.7);
+                Phase br = phase(out, "BRAIN", "Мозък и памет", "Brain & memory", 0.35, total, 0.7, 0.7);
                 br.steps.add(tet(20, 300, 8, 2));
-                Phase v = phase(out, "VESSELS", "Съдове", "Vessels", 0.20, total, 0.5, 0.5);
+                Phase v = phase(out, "VESSELS", "Кръвоносни съдове", "Blood vessels", 0.20, total, 0.5, 0.5);
                 v.steps.add(twitch(4, 250, 10, 1, 1.0));
                 cooldown(out, total, 0.10, 3);
                 break;
@@ -1245,7 +1264,7 @@ public final class AutoCatalog {
     }
 
     private static Phase cooldown(List<Phase> out, int total, double share, int hz) {
-        Phase c = phase(out, "COOLDOWN", "Охлаждане", "Cool-down", share, total, 0.5, 0.5);
+        Phase c = phase(out, "COOLDOWN", "Разпускане", "Cool-down", share, total, 0.5, 0.5);
         c.envStart = 0.5;
         c.envEnd = 0.5;
         c.steps.add(twitch(hz, 250, 10, 1, 1.0));

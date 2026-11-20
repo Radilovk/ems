@@ -7,7 +7,7 @@ Idea: the BodyTech mock-ups (landscape) — one client fills the place of the ro
 ## Layout
 - **Top bar:** client chips (photo from the row, name, dot: green = running, grey = stopped, red = no link) + `+`
   (presses the list's empty slot); modes Основен / Мускули / Кардио / Масаж (press the row's mode buttons);
-  the training time so far (counts up, 1.1.519) and battery (read from the row); ⚙ (the row's `setting`); `☰ Редове` → classic rows.
+  the tablet's clock (time of day, 1.1.521) and battery (read from the row); ⚙ (the row's `setting`); `☰ Редове` → classic rows.
 - **Middle:** 5 front muscles left, 5 back muscles right (tap = the header's `buweiN` → PartPick green / yellow / off),
   a sideways slide on a chip = that channel's slider (1.1.414: relative to the finger, right = more, 1.2 × chip width
   = 100 %, sent on release via `PartStrength.bar` + `addAllPartValue(0, true)` — the row's channel-bar path; refused
@@ -99,6 +99,13 @@ Idea: the BodyTech mock-ups (landscape) — one client fills the place of the ro
   manual mode the clock now starts the new mode's own full time (`ProgramLive.stageClock`): Основен with 2:00 left
   → Масаж runs the massage's whole time, not the 2:00 left. The report's plan drops the old mode's unused time and
   adds the new one (`ProgramLive.takeStage` → `SessionRecorder`). AI / Auto keep one clock across their modes.
+- **1.1.521 — mode menu, clock, training timeline (owner):** the four mode tabs became one key (`modeKey`: dot,
+  the mode's name, ▾) that opens a non-focusable menu of the four modes (name, what it is for, its minutes, ✓ on the
+  one on; `ModePick` presses the row's own mode button). The top bar shows the time of day. Over the figures the
+  **training timeline** (`SessionBar`): the whole time of the training / procedure as one bar, filled in the theme
+  colour as far as it got (done = `ProgramLive.shownTime`, whole = done + the row's time left), a mark per minute,
+  numbered every 5; the time so far big on the right, the state and mode on the left. The impulse cycle
+  (`Timeline`) moved under the feet, inside the pane with 18 dp side margins.
 - **1.1.520 — a picked muscle in the theme colour (owner):** the 1st tap on a muscle chip (the main impulse under
   control) was red, while the main impulse running shows its percents in the theme colour — two colours for one
   impulse. Now the pick, its slide and its point on the figure use `XemsUi.ACCENT` (pink theme → pink, blue →

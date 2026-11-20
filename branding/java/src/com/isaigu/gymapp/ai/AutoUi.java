@@ -500,6 +500,14 @@ public final class AutoUi {
 
     // ================================================================ 1 · program
 
+    /** "Всички" (owner, 1.1.526): the goal's active and passive programs in one strip. */
+    private static boolean allKinds;
+
+    /** The program strip of the goal: active, passive, or all of them. */
+    private static List<Program> uiMenu(AutoModel.Input in) {
+        return allKinds ? AutoCatalog.menuAll(in.goal) : AutoCatalog.menu(in.goal, in.kind);
+    }
+
     private static void screenProgram(Context c) {
         AutoModel.Input in = AutoSession.getInput();
         shell.title.setText(AiText.t("Какво правим днес?", "What are we doing today?"));
@@ -523,14 +531,16 @@ public final class AutoUi {
         boolean both = !AutoCatalog.menu(in.goal, Kind.ACTIVE).isEmpty() && !AutoCatalog.menu(in.goal, Kind.PASSIVE).isEmpty();
         if (both) {
             choose.addView(XemsUi.segmented(c, new String[] {
-                    AiText.t("Активна", "Active"), AiText.t("Пасивна", "Passive")},
-                    in.kind == Kind.ACTIVE ? 0 : 1, new Act(A_KIND, 0)), XemsUi.weight(1f, 14, c));
+                    AiText.t("Активна", "Active"), AiText.t("Пасивна", "Passive"), AiText.t("Всички", "All")},
+                    allKinds ? 2 : in.kind == Kind.ACTIVE ? 0 : 1, new Act(A_KIND, 0)), XemsUi.weight(1.3f, 14, c));
+        } else {
+            allKinds = false;
         }
         body.addView(choose, XemsUi.matchWrap(c, 4));
         // "Шаблон" / "С упражнения" (owner, 1.1.325 / 1.1.336): the ready template alone, or the programs made in
         // Програми (with exercises) that are linked to this goal
-        boolean withEx = in.kind == Kind.ACTIVE && in.exercises;
-        if (in.kind == Kind.ACTIVE) {
+        boolean withEx = !allKinds && in.kind == Kind.ACTIVE && in.exercises;
+        if (!allKinds && in.kind == Kind.ACTIVE) {
             body.addView(XemsUi.segmented(c, new String[] {AiText.t("Шаблон", "Template"),
                     AiText.t("С упражнения", "With exercises")}, in.exercises ? 1 : 0, new Act(A_EXERCISES, 0)),
                     XemsUi.matchWrap(c, 12));
@@ -580,16 +590,19 @@ public final class AutoUi {
                         "\u201d. Make them in Programs — mark their goal and level.")), XemsUi.matchWrap(c, 14));
             }
         } else {
-            List<Program> menu = AutoCatalog.menu(in.goal, in.kind);
+            List<Program> menu = uiMenu(in);
             Program rec = AutoCatalog.recommended(in.goal, in.kind, in);
             Program chosen = AutoCatalog.get(in.programId);
-            if (in.kind != Kind.PASSIVE || modRow() == null) {
+            if (allKinds || in.kind != Kind.PASSIVE || modRow() == null) {
                 modId = null;
             }
             if (modId != null) {
                 in.programId = null;
             } else if (chosen == null || !menu.contains(chosen) || AutoCatalog.blockReason(chosen, in.goal, in, false) != null) {
                 in.programId = AutoCatalog.blockReason(rec, in.goal, in, false) == null ? rec.id : null;
+            }
+            if (allKinds && AutoCatalog.get(in.programId) != null) {
+                in.kind = AutoCatalog.get(in.programId).kind;      // the plan follows the card picked
             }
             // every template of the goal as a card: the colour is the difficulty, the three times the plan
             for (int i = 0; i < menu.size(); i++) {
@@ -612,7 +625,7 @@ public final class AutoUi {
                         AutoCatalog.times(p, in.goal, in), null, new Act(A_PROGRAM, i), p), cardParams(c));
                 shown++;
             }
-            if (in.kind == Kind.PASSIVE) {
+            if (!allKinds && in.kind == Kind.PASSIVE) {
                 shown += modCards(c, strip, in);
                 com.isaigu.gymapp.bodytech.BtAus.T mt = com.isaigu.gymapp.bodytech.BtAus.byId(modId);
                 if (mt != null) {
@@ -1942,7 +1955,10 @@ public final class AutoUi {
                 break;
             case A_KIND:
                 stripX = 0;
-                in.kind = value == 0 ? Kind.ACTIVE : Kind.PASSIVE;
+                allKinds = value == 2;
+                if (!allKinds) {
+                    in.kind = value == 0 ? Kind.ACTIVE : Kind.PASSIVE;
+                }
                 in.programId = null;
                 break;
             case A_OPERATOR:
@@ -1953,9 +1969,10 @@ public final class AutoUi {
             case A_DETAILS: details = !details; break;
             case A_PROGRAM: {
                 stripX = programStrip != null ? programStrip.getScrollX() : 0;
-                List<Program> menu = AutoCatalog.menu(in.goal, in.kind);
+                List<Program> menu = uiMenu(in);
                 if (arg < menu.size()) {
                     in.programId = menu.get(arg).id;
+                    in.kind = menu.get(arg).kind;
                     modId = null;
                 }
                 break;

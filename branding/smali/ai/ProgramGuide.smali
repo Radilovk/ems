@@ -16,6 +16,14 @@
 
 .field static final ACTIVE_OFTEN_EN:Ljava/lang/String; = "1\u20132 times a week, 2\u20133 days of rest between"
 
+.field static final PASSIVE_COURSE_BG:Ljava/lang/String; = "\u041a\u0443\u0440\u0441 \u043e\u0442 10\u201312 \u043f\u0440\u043e\u0446\u0435\u0434\u0443\u0440\u0438"
+
+.field static final PASSIVE_COURSE_EN:Ljava/lang/String; = "A course of 10\u201312 treatments"
+
+.field static final PASSIVE_OFTEN_BG:Ljava/lang/String; = "2 \u043f\u044a\u0442\u0438 \u0441\u0435\u0434\u043c\u0438\u0447\u043d\u043e, \u0432 \u0434\u043d\u0438\u0442\u0435 \u0431\u0435\u0437 \u0430\u043a\u0442\u0438\u0432\u043d\u0430"
+
+.field static final PASSIVE_OFTEN_EN:Ljava/lang/String; = "Twice a week, on the days without an active one"
+
 
 # direct methods
 .method private constructor <init>()V
@@ -32,7 +40,7 @@
     .registers 17
 
     .prologue
-    .line 48
+    .line 52
     new-instance v0, Lcom/isaigu/gymapp/ai/ProgramGuide$Entry;
 
     const/4 v1, 0x3
@@ -86,14 +94,14 @@
     .prologue
     const/4 v0, 0x0
 
-    .line 53
+    .line 57
     if-nez p0, :cond_4
 
-    .line 223
+    .line 286
     :goto_3
     return-object v0
 
-    .line 56
+    .line 60
     :cond_4
     const-string v1, "face"
 
@@ -103,10 +111,10 @@
 
     if-eqz v1, :cond_e
 
-    .line 57
+    .line 61
     const-string p0, "face"
 
-    .line 59
+    .line 63
     :cond_e
     const/4 v1, -0x1
 
@@ -114,15 +122,15 @@
 
     move-result v2
 
-    sparse-switch v2, :sswitch_data_2b4
+    sparse-switch v2, :sswitch_data_3be
 
     :cond_16
     :goto_16
-    packed-switch v1, :pswitch_data_2fe
+    packed-switch v1, :pswitch_data_424
 
     goto :goto_3
 
-    .line 61
+    .line 65
     :pswitch_1a
     const-string v0, "\u0422\u043e\u043a\u044a\u0442 \u0441\u0442\u0438\u0433\u0430 \u0438 \u0434\u044a\u043b\u0431\u043e\u043a\u0438\u0442\u0435 \u043c\u0443\u0441\u043a\u0443\u043b\u043d\u0438 \u0432\u043b\u0430\u043a\u043d\u0430, \u0434\u043e \u043a\u043e\u0438\u0442\u043e \u043e\u0431\u0438\u043a\u043d\u043e\u0432\u0435\u043d\u0430\u0442\u0430 \u0442\u0440\u0435\u043d\u0438\u0440\u043e\u0432\u043a\u0430 \u0442\u0440\u0443\u0434\u043d\u043e \u0434\u043e\u0441\u0442\u0438\u0433\u0430."
 
@@ -150,7 +158,7 @@
 
     goto :goto_3
 
-    .line 59
+    .line 63
     :sswitch_33
     const-string v2, "general"
 
@@ -385,15 +393,106 @@
 
     goto/16 :goto_16
 
-    .line 70
-    :pswitch_fa
-    const-string v0, "\u041f\u043e\u0432\u0435\u0447\u0435 \u0442\u043e\u043a \u0432 \u0441\u0435\u0434\u0430\u043b\u0438\u0449\u0435\u0442\u043e \u0438 \u0437\u0430\u0434\u043d\u043e\u0442\u043e \u0431\u0435\u0434\u0440\u043e \u2014 \u0442\u0430\u043c \u0435 \u0430\u043a\u0446\u0435\u043d\u0442\u044a\u0442."
+    :sswitch_fa
+    const-string v2, "general_passive"
+
+    invoke-virtual {p0, v2}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v2
+
+    if-eqz v2, :cond_16
+
+    const/16 v1, 0x12
+
+    goto/16 :goto_16
+
+    :sswitch_106
+    const-string v2, "glutes_passive"
+
+    invoke-virtual {p0, v2}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v2
+
+    if-eqz v2, :cond_16
+
+    const/16 v1, 0x13
+
+    goto/16 :goto_16
+
+    :sswitch_112
+    const-string v2, "mass_passive"
+
+    invoke-virtual {p0, v2}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v2
+
+    if-eqz v2, :cond_16
+
+    const/16 v1, 0x14
+
+    goto/16 :goto_16
+
+    :sswitch_11e
+    const-string v2, "upper_passive"
+
+    invoke-virtual {p0, v2}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v2
+
+    if-eqz v2, :cond_16
+
+    const/16 v1, 0x15
+
+    goto/16 :goto_16
+
+    :sswitch_12a
+    const-string v2, "core_passive"
+
+    invoke-virtual {p0, v2}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v2
+
+    if-eqz v2, :cond_16
+
+    const/16 v1, 0x16
+
+    goto/16 :goto_16
+
+    :sswitch_136
+    const-string v2, "power_passive"
+
+    invoke-virtual {p0, v2}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v2
+
+    if-eqz v2, :cond_16
+
+    const/16 v1, 0x17
+
+    goto/16 :goto_16
+
+    :sswitch_142
+    const-string v2, "senior_passive"
+
+    invoke-virtual {p0, v2}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v2
+
+    if-eqz v2, :cond_16
+
+    const/16 v1, 0x18
+
+    goto/16 :goto_16
+
+    .line 74
+    :pswitch_14e
+    const-string v0, "\u0410\u043a\u0446\u0435\u043d\u0442\u044a\u0442 \u0435 \u0432 \u0443\u043f\u0440\u0430\u0436\u043d\u0435\u043d\u0438\u044f\u0442\u0430 \u0437\u0430 \u0441\u0435\u0434\u0430\u043b\u0438\u0449\u0435\u0442\u043e \u0438 \u0437\u0430\u0434\u043d\u043e\u0442\u043e \u0431\u0435\u0434\u0440\u043e; \u0441\u0438\u043b\u0430\u0442\u0430 \u043f\u043e \u0437\u043e\u043d\u0438 \u044f \u043d\u0430\u0433\u043b\u0430\u0441\u044f\u0432\u0430 \u0442\u0440\u0435\u043d\u044c\u043e\u0440\u044a\u0442."
 
     const-string v1, "\u041a\u043b\u0435\u043a\u043e\u0432\u0435, \u043d\u0430\u043f\u0430\u0434\u0438 \u0438 \u043c\u043e\u0441\u0442\u043e\u0432\u0435 \u0437\u0430\u0435\u0434\u043d\u043e \u0441 \u0438\u043c\u043f\u0443\u043b\u0441\u0430 \u2014 \u0441\u0442\u044f\u0433\u0430\u043d\u0435\u0442\u043e \u0435 \u043f\u043e-\u0434\u044a\u043b\u0431\u043e\u043a\u043e."
 
     const-string v2, "\u041e\u0444\u043e\u0440\u043c\u044f \u043b\u0438\u043d\u0438\u044f\u0442\u0430 \u043d\u0430 \u0441\u0435\u0434\u0430\u043b\u0438\u0449\u0435\u0442\u043e \u0438 \u0431\u0435\u0434\u0440\u0430\u0442\u0430."
 
-    const-string v3, "More current in the glutes and the back of the thighs \u2014 that is the focus."
+    const-string v3, "The focus is in the glute and hamstring exercises; the trainer sets the strength per zone."
 
     const-string v4, "Squats, lunges and bridges together with the impulse \u2014 a deeper hold."
 
@@ -413,8 +512,8 @@
 
     goto/16 :goto_3
 
-    .line 79
-    :pswitch_114
+    .line 83
+    :pswitch_168
     const-string v0, "\u0411\u0430\u0432\u043d\u0438 \u0442\u0435\u0436\u043a\u0438 \u043f\u043e\u0432\u0442\u043e\u0440\u0435\u043d\u0438\u044f \u0441 \u043f\u043e-\u0434\u044a\u043b\u0433\u0438 \u0441\u0442\u044f\u0433\u0430\u043d\u0438\u044f \u2014 \u0441\u0438\u0433\u043d\u0430\u043b \u043c\u0443\u0441\u043a\u0443\u043b\u044a\u0442 \u0434\u0430 \u0440\u0430\u0441\u0442\u0435."
 
     const-string v1, "\u0410\u043a\u0446\u0435\u043d\u0442 \u043d\u0430 \u0433\u043e\u043b\u0435\u043c\u0438\u0442\u0435 \u043c\u0443\u0441\u043a\u0443\u043b\u0438: \u043a\u0440\u0430\u043a\u0430, \u0433\u0440\u044a\u0431, \u0433\u044a\u0440\u0434\u0438."
@@ -441,15 +540,15 @@
 
     goto/16 :goto_3
 
-    .line 88
-    :pswitch_12e
-    const-string v0, "\u041f\u043e\u0432\u0435\u0447\u0435 \u0442\u043e\u043a \u0432 \u0433\u044a\u0440\u0434\u0438\u0442\u0435, \u0433\u044a\u0440\u0431\u0430, \u0440\u0430\u043c\u0435\u043d\u0435\u0442\u0435 \u0438 \u0440\u044a\u0446\u0435\u0442\u0435."
+    .line 92
+    :pswitch_182
+    const-string v0, "\u0413\u044a\u0440\u0434\u0438\u0442\u0435, \u0433\u044a\u0440\u0431\u044a\u0442, \u0440\u0430\u043c\u0435\u043d\u0435\u0442\u0435 \u0438 \u0440\u044a\u0446\u0435\u0442\u0435 \u0440\u0430\u0431\u043e\u0442\u044f\u0442 \u0441 \u0443\u043f\u0440\u0430\u0436\u043d\u0435\u043d\u0438\u044f \u0437\u0430 \u0433\u043e\u0440\u043d\u0430\u0442\u0430 \u0447\u0430\u0441\u0442."
 
     const-string v1, "\u041b\u0438\u0446\u0435\u0432\u0438 \u043e\u043f\u043e\u0440\u0438, \u0433\u0440\u0435\u0431\u0430\u043d\u0435 \u0438 \u043f\u0440\u0435\u0441\u0430 \u0437\u0430\u0435\u0434\u043d\u043e \u0441 \u0438\u043c\u043f\u0443\u043b\u0441\u0430."
 
     const-string v2, "\u041f\u043e-\u0441\u0442\u0435\u0433\u043d\u0430\u0442\u0430 \u0438 \u043f\u043e-\u0441\u0438\u043b\u043d\u0430 \u0433\u043e\u0440\u043d\u0430 \u0447\u0430\u0441\u0442 \u043d\u0430 \u0442\u044f\u043b\u043e\u0442\u043e."
 
-    const-string v3, "More current in the chest, back, shoulders and arms."
+    const-string v3, "The chest, back, shoulders and arms work with upper-body exercises."
 
     const-string v4, "Push-ups, rows and presses together with the impulse."
 
@@ -469,8 +568,8 @@
 
     goto/16 :goto_3
 
-    .line 97
-    :pswitch_148
+    .line 101
+    :pswitch_19c
     const-string v0, "\u041a\u043e\u0440\u0435\u043c\u044a\u0442 \u0438 \u043a\u0440\u044a\u0441\u0442\u044a\u0442 \u0440\u0430\u0431\u043e\u0442\u044f\u0442 \u0437\u0430\u0435\u0434\u043d\u043e \u2014 \u0433\u0440\u044a\u0431\u043d\u0430\u043a\u044a\u0442 \u0435 \u043f\u0430\u0437\u0435\u043d."
 
     const-string v1, "\u0414\u044a\u043b\u0431\u043e\u043a\u0438\u0442\u0435 \u043c\u0443\u0441\u043a\u0443\u043b\u0438 \u043d\u0430 \u043a\u043e\u0440\u0435\u043c\u0430 \u0441\u0442\u044f\u0433\u0430\u0442 \u0442\u0430\u043b\u0438\u044f\u0442\u0430 \u043a\u0430\u0442\u043e \u043a\u043e\u043b\u0430\u043d."
@@ -497,8 +596,8 @@
 
     goto/16 :goto_3
 
-    .line 106
-    :pswitch_162
+    .line 110
+    :pswitch_1b6
     const-string v0, "\u041a\u0440\u0430\u0442\u044a\u043a \u0441\u0438\u043b\u0435\u043d \u0438\u043c\u043f\u0443\u043b\u0441 \u0438 \u0434\u044a\u043b\u0433\u0430 \u043f\u043e\u0447\u0438\u0432\u043a\u0430 \u2014 \u0440\u0430\u0431\u043e\u0442\u044f\u0442 \u0431\u044a\u0440\u0437\u0438\u0442\u0435 \u043c\u0443\u0441\u043a\u0443\u043b\u043d\u0438 \u0432\u043b\u0430\u043a\u043d\u0430."
 
     const-string v1, "\u0412\u0437\u0440\u0438\u0432\u043d\u0438 \u0434\u0432\u0438\u0436\u0435\u043d\u0438\u044f \u0432 \u0441\u043e\u0431\u0441\u0442\u0432\u0435\u043d\u043e \u0442\u0435\u043c\u043f\u043e: \u043a\u043b\u0435\u043a, \u043e\u0442\u0441\u043a\u043e\u043a, \u0445\u0432\u044a\u0440\u043b\u044f\u043d\u0435."
@@ -525,8 +624,8 @@
 
     goto/16 :goto_3
 
-    .line 115
-    :pswitch_17c
+    .line 119
+    :pswitch_1d0
     const-string v0, "\u0421\u0438\u043b\u043d\u0438 \u0441\u0442\u044f\u0433\u0430\u043d\u0438\u044f \u0441\u0435 \u0440\u0435\u0434\u0443\u0432\u0430\u0442 \u0441 \u0431\u044a\u0440\u0437\u043e \u043f\u043e\u0442\u0440\u0435\u043f\u0432\u0430\u043d\u0435 \u2014 \u043f\u0443\u043b\u0441\u044a\u0442 \u0441\u0435 \u0432\u0434\u0438\u0433\u0430 \u0438 \u0442\u044f\u043b\u043e\u0442\u043e \u0433\u043e\u0440\u0438 \u043c\u0430\u0437\u043d\u0438\u043d\u0438."
 
     const-string v1, "\u0414\u0432\u0438\u0436\u0435\u043d\u0438\u0435\u0442\u043e \u043d\u0435 \u0441\u043f\u0438\u0440\u0430: \u0441\u0442\u0435\u043f, \u0445\u043e\u0434\u0435\u043d\u0435, \u043a\u043b\u0435\u043a\u043e\u0432\u0435."
@@ -553,8 +652,8 @@
 
     goto/16 :goto_3
 
-    .line 124
-    :pswitch_196
+    .line 128
+    :pswitch_1ea
     const-string v0, "\u0413\u044a\u0440\u0431\u044a\u0442, \u043a\u0440\u044a\u0441\u0442\u044a\u0442 \u0438 \u043a\u043e\u0440\u0435\u043c\u044a\u0442 \u0441\u0442\u044f\u0433\u0430\u0442 \u0437\u0430\u0435\u0434\u043d\u043e \u2014 \u043a\u0430\u0442\u043e \u043a\u043e\u0440\u0441\u0435\u0442 \u043e\u043a\u043e\u043b\u043e \u0433\u0440\u044a\u0431\u043d\u0430\u043a\u0430."
 
     const-string v1, "\u0423\u043f\u0440\u0430\u0436\u043d\u0435\u043d\u0438\u044f \u0431\u0435\u0437 \u0443\u0441\u0443\u043a\u0432\u0430\u043d\u0435 \u043f\u043e\u0434 \u0442\u043e\u0432\u0430\u0440."
@@ -581,17 +680,17 @@
 
     goto/16 :goto_3
 
-    .line 133
-    :pswitch_1b0
-    const-string v0, "\u0421\u0438\u043b\u0430 \u0437\u0430 \u0432\u0441\u0435\u043a\u0438 \u0434\u0435\u043d: \u0441\u0442\u0430\u0432\u0430\u043d\u0435 \u043e\u0442 \u0441\u0442\u043e\u043b, \u0441\u0442\u044a\u043b\u0431\u0438, \u043d\u043e\u0441\u0435\u043d\u0435 \u043d\u0430 \u043f\u043e\u043a\u0443\u043f\u043a\u0438."
+    .line 137
+    :pswitch_204
+    const-string v0, "\u0421\u0438\u043b\u0430 \u0437\u0430 \u0432\u0441\u0435\u043a\u0438 \u0434\u0435\u043d: \u0441\u0442\u0430\u0432\u0430\u043d\u0435 \u043e\u0442 \u0441\u0442\u043e\u043b, \u0441\u0442\u044a\u043b\u0431\u0438, \u043d\u043e\u0441\u0435\u043d\u0435 \u043d\u0430 \u043f\u043e\u043a\u0443\u043f\u043a\u0438 \u2014 \u0431\u0430\u0432\u043d\u0438, \u0441\u0438\u0433\u0443\u0440\u043d\u0438 \u0434\u0432\u0438\u0436\u0435\u043d\u0438\u044f."
 
-    const-string v1, "\u0411\u0430\u0432\u043d\u0438, \u0441\u0438\u0433\u0443\u0440\u043d\u0438 \u0434\u0432\u0438\u0436\u0435\u043d\u0438\u044f, \u0431\u0435\u0437 \u0441\u043a\u043e\u043a\u043e\u0432\u0435."
+    const-string v1, "\u041a\u0440\u0430\u0442\u044a\u043a \u0431\u043b\u043e\u043a \u0431\u044a\u0440\u0437\u0438\u043d\u0430: \u0441\u043b\u0435\u0434 50 \u0433. \u0442\u044f \u043f\u0430\u0434\u0430 \u043f\u044a\u0440\u0432\u0430, \u0430 \u043f\u0430\u0437\u0438 \u043e\u0442 \u043f\u0430\u0434\u0430\u043d\u0435."
 
     const-string v2, "\u041f\u044a\u0440\u0432\u0438\u0442\u0435 \u0442\u0440\u0435\u043d\u0438\u0440\u043e\u0432\u043a\u0438 \u0441\u0430 \u043f\u043e-\u043a\u0440\u0430\u0442\u043a\u0438 \u2014 \u0442\u044f\u043b\u043e\u0442\u043e \u0441\u0432\u0438\u043a\u0432\u0430 \u043f\u043e\u0441\u0442\u0435\u043f\u0435\u043d\u043d\u043e."
 
-    const-string v3, "Strength for every day: getting up from a chair, stairs, carrying shopping."
+    const-string v3, "Strength for every day: rising from a chair, stairs, carrying shopping \u2014 slow, safe moves."
 
-    const-string v4, "Slow, safe movements, no jumps."
+    const-string v4, "A short speed block: after 50 speed fades first, and it prevents falls."
 
     const-string v5, "The first sessions are shorter \u2014 the body gets used to it step by step."
 
@@ -609,8 +708,8 @@
 
     goto/16 :goto_3
 
-    .line 142
-    :pswitch_1ca
+    .line 146
+    :pswitch_21e
     const-string v0, "\u0420\u0430\u0431\u043e\u0442\u0435\u0449\u0438\u0442\u0435 \u043c\u0443\u0441\u043a\u0443\u043b\u0438 \u043f\u0443\u0441\u043a\u0430\u0442 \u0432 \u043a\u0440\u044a\u0432\u0442\u0430 \u0432\u0435\u0449\u0435\u0441\u0442\u0432\u0430, \u043a\u043e\u0438\u0442\u043e \u0443\u0441\u043f\u043e\u043a\u043e\u044f\u0432\u0430\u0442 \u0432\u044a\u0437\u043f\u0430\u043b\u0435\u043d\u0438\u0435\u0442\u043e \u0438 \u043f\u0430\u0437\u044f\u0442 \u043a\u043b\u0435\u0442\u043a\u0438\u0442\u0435."
 
     const-string v1, "\u0425\u043e\u0434\u0435\u043d\u0435\u0442\u043e \u0441 \u0438\u043c\u043f\u0443\u043b\u0441\u0430 \u043d\u0430\u0442\u043e\u0432\u0430\u0440\u0432\u0430 \u0446\u0435\u043b\u0438\u0442\u0435 \u043a\u0440\u0430\u043a\u0430 \u2014 \u0441\u0438\u0433\u043d\u0430\u043b, \u043f\u043e\u043b\u0435\u0437\u0435\u043d \u0438 \u0437\u0430 \u043c\u043e\u0437\u044a\u043a\u0430."
@@ -637,8 +736,8 @@
 
     goto/16 :goto_3
 
-    .line 151
-    :pswitch_1e4
+    .line 155
+    :pswitch_238
     const-string v0, "\u041c\u0443\u0441\u043a\u0443\u043b\u0438\u0442\u0435 \u043f\u043e\u0434 \u043a\u043e\u0436\u0430\u0442\u0430 \u0441\u0435 \u0441\u0442\u044f\u0433\u0430\u0442 \u2014 \u0432\u0438\u0434\u044a\u0442 \u0441\u0442\u0430\u0432\u0430 \u043f\u043e-\u0433\u043b\u0430\u0434\u044a\u043a \u0438 \u0441\u0442\u0435\u0433\u043d\u0430\u0442."
 
     const-string v1, "\u0412\u044a\u043b\u043d\u0430 \u043f\u043e \u043a\u0440\u0430\u043a\u0430\u0442\u0430 \u0438\u0437\u0442\u043b\u0430\u0441\u043a\u0432\u0430 \u0437\u0430\u0434\u044a\u0440\u0436\u0430\u043d\u0430\u0442\u0430 \u0442\u0435\u0447\u043d\u043e\u0441\u0442 \u043d\u0430\u0433\u043e\u0440\u0435."
@@ -665,17 +764,17 @@
 
     goto/16 :goto_3
 
-    .line 160
-    :pswitch_1fe
+    .line 164
+    :pswitch_252
     const-string v0, "\u0422\u0430\u0437\u043e\u0432\u043e\u0442\u043e \u0434\u044a\u043d\u043e, \u0441\u0435\u0434\u0430\u043b\u0438\u0449\u0435\u0442\u043e \u0438 \u043a\u0440\u044a\u0441\u0442\u044a\u0442 \u0441\u0438 \u0432\u0440\u044a\u0449\u0430\u0442 \u0441\u0438\u043b\u0430\u0442\u0430 \u0438 \u043a\u043e\u043d\u0442\u0440\u043e\u043b\u0430."
 
-    const-string v1, "\u041a\u043e\u0440\u0435\u043c\u044a\u0442 \u0440\u0430\u0431\u043e\u0442\u0438 \u0432\u043d\u0438\u043c\u0430\u0442\u0435\u043b\u043d\u043e, \u0441 \u043f\u043e-\u043c\u0430\u043b\u043a\u0430 \u0441\u0438\u043b\u0430."
+    const-string v1, "\u041a\u043e\u0440\u0435\u043c\u044a\u0442 \u2014 \u0432\u043d\u0438\u043c\u0430\u0442\u0435\u043b\u043d\u043e: \u0441\u0438\u043b\u0430\u0442\u0430 \u043c\u0443 \u044f \u043d\u0430\u0433\u043b\u0430\u0441\u044f\u0432\u0430 \u0442\u0440\u0435\u043d\u044c\u043e\u0440\u044a\u0442."
 
     const-string v2, "\u041d\u0430\u0439-\u0440\u0430\u043d\u043e 6 \u0441\u0435\u0434\u043c\u0438\u0446\u0438 \u0441\u043b\u0435\u0434 \u0440\u0430\u0436\u0434\u0430\u043d\u0435\u0442\u043e, \u0441\u043b\u0435\u0434 \u0446\u0435\u0437\u0430\u0440\u043e\u0432\u043e \u2014 12."
 
     const-string v3, "The pelvic floor, glutes and lower back get their strength and control back."
 
-    const-string v4, "The abs work gently, with less strength."
+    const-string v4, "The abs gently: the trainer sets their strength."
 
     const-string v5, "Not before 6 weeks after birth, 12 after a caesarean."
 
@@ -693,8 +792,8 @@
 
     goto/16 :goto_3
 
-    .line 169
-    :pswitch_218
+    .line 173
+    :pswitch_26c
     const-string v0, "\u0412\u044a\u043b\u043d\u0430 \u043e\u0442 \u043f\u0440\u0430\u0441\u0435\u0446\u0430 \u043d\u0430\u0433\u043e\u0440\u0435 \u043a\u044a\u043c \u043a\u043e\u0440\u0435\u043c\u0430 \u0438 \u0440\u0430\u043c\u0435\u043d\u0435\u0442\u0435 \u2014 \u043a\u0430\u0442\u043e \u0440\u044a\u0447\u0435\u043d \u043b\u0438\u043c\u0444\u0435\u043d \u043c\u0430\u0441\u0430\u0436."
 
     const-string v1, "\u041c\u0443\u0441\u043a\u0443\u043b\u0438\u0442\u0435 \u0438\u0437\u043f\u043e\u043c\u043f\u0432\u0430\u0442 \u0437\u0430\u0434\u044a\u0440\u0436\u0430\u043d\u0430\u0442\u0430 \u0442\u0435\u0447\u043d\u043e\u0441\u0442 \u043a\u044a\u043c \u043b\u0438\u043c\u0444\u043d\u0438\u0442\u0435 \u043f\u044a\u0442\u0438\u0449\u0430."
@@ -721,8 +820,8 @@
 
     goto/16 :goto_3
 
-    .line 178
-    :pswitch_232
+    .line 182
+    :pswitch_286
     const-string v0, "\u0420\u0438\u0442\u043c\u0438\u0447\u043d\u043e \u043f\u043e\u0442\u0440\u0435\u043f\u0432\u0430\u043d\u0435 \u2014 \u043c\u0443\u0441\u043a\u0443\u043b\u0438\u0442\u0435 \u0433\u043e\u0440\u044f\u0442 \u0435\u043d\u0435\u0440\u0433\u0438\u044f, \u0431\u0435\u0437 \u0434\u0430 \u0441\u0435 \u0443\u043c\u043e\u0440\u044f\u0432\u0430\u0442."
 
     const-string v1, "\u041a\u0440\u0430\u0442\u043a\u0438 \u0431\u043b\u043e\u043a\u043e\u0432\u0435 \u0441\u0442\u044f\u0433\u0430\u043d\u0435 \u043c\u0435\u0436\u0434\u0443 \u0442\u044f\u0445 \u043f\u0430\u0437\u044f\u0442 \u0442\u043e\u043d\u0443\u0441\u0430."
@@ -749,8 +848,8 @@
 
     goto/16 :goto_3
 
-    .line 187
-    :pswitch_24c
+    .line 191
+    :pswitch_2a0
     const-string v0, "\u041f\u044a\u0440\u0432\u043e \u0441\u0435 \u043e\u0442\u043f\u0443\u0441\u043a\u0430\u0442 \u043d\u0430\u043f\u0440\u0435\u0433\u043d\u0430\u0442\u0438\u0442\u0435 \u043c\u0443\u0441\u043a\u0443\u043b\u0438 \u043d\u0430 \u0433\u044a\u0440\u0431\u0430."
 
     const-string v1, "\u041b\u0435\u043a\u043e \u0441\u0442\u044f\u0433\u0430\u043d\u0435 \u043d\u0430 \u0434\u044a\u043b\u0431\u043e\u043a\u0438\u0442\u0435 \u043c\u0443\u0441\u043a\u0443\u043b\u0438 \u2014 \u0442\u0435 \u043f\u043e\u0435\u043c\u0430\u0442 \u0442\u043e\u0432\u0430\u0440\u0430 \u043e\u0442 \u0433\u0440\u044a\u0431\u043d\u0430\u043a\u0430."
@@ -777,8 +876,8 @@
 
     goto/16 :goto_3
 
-    .line 196
-    :pswitch_266
+    .line 200
+    :pswitch_2ba
     const-string v0, "\u0411\u0430\u0432\u043d\u043e \u0438 \u0431\u044a\u0440\u0437\u043e \u043f\u043e\u0442\u0440\u0435\u043f\u0432\u0430\u043d\u0435 \u0441\u0435 \u0440\u0435\u0434\u0443\u0432\u0430\u0442 \u2014 \u043a\u0440\u044a\u0432\u0442\u0430 \u043f\u0440\u0438\u0438\u0436\u0434\u0430, \u043c\u0443\u0441\u043a\u0443\u043b\u0438\u0442\u0435 \u0441\u0435 \u043e\u0442\u043f\u0443\u0441\u043a\u0430\u0442."
 
     const-string v1, "\u041c\u0443\u0441\u043a\u0443\u043b\u0438\u0442\u0435 \u0441\u0435 \u0432\u044a\u0437\u0441\u0442\u0430\u043d\u043e\u0432\u044f\u0432\u0430\u0442 \u043f\u043e-\u0431\u044a\u0440\u0437\u043e 1\u20132 \u0434\u043d\u0438 \u0441\u043b\u0435\u0434 \u043d\u0430\u0442\u043e\u0432\u0430\u0440\u0432\u0430\u043d\u0435."
@@ -805,8 +904,8 @@
 
     goto/16 :goto_3
 
-    .line 205
-    :pswitch_280
+    .line 209
+    :pswitch_2d4
     const-string v0, "\u0420\u0438\u0442\u043c\u0438\u0447\u043d\u0430\u0442\u0430 \u0440\u0430\u0431\u043e\u0442\u0430 \u043d\u0430 \u043a\u0440\u0430\u043a\u0430\u0442\u0430 \u043f\u043e\u0435\u043c\u0430 \u0437\u0430\u0445\u0430\u0440 \u043e\u0442 \u043a\u0440\u044a\u0432\u0442\u0430 \u2014 \u043e\u0441\u043e\u0431\u0435\u043d\u043e \u043f\u043e\u043b\u0435\u0437\u043d\u043e \u0441\u043b\u0435\u0434 \u0445\u0440\u0430\u043d\u0435\u043d\u0435."
 
     const-string v1, "\u041a\u0440\u0430\u043a\u0430\u0442\u0430 \u0440\u0430\u0431\u043e\u0442\u044f\u0442 \u0446\u0435\u043b\u0438\u0442\u0435 \u2014 \u0441\u0438\u0433\u043d\u0430\u043b, \u043f\u043e\u043b\u0435\u0437\u0435\u043d \u0438 \u0437\u0430 \u043c\u043e\u0437\u044a\u043a\u0430."
@@ -833,8 +932,8 @@
 
     goto/16 :goto_3
 
-    .line 214
-    :pswitch_29a
+    .line 218
+    :pswitch_2ee
     const-string v0, "\u0422\u044a\u043d\u044a\u043a, \u043d\u0435\u0436\u0435\u043d \u0438\u043c\u043f\u0443\u043b\u0441 \u0441\u0442\u044f\u0433\u0430 \u043c\u0443\u0441\u043a\u0443\u043b\u0438\u0442\u0435 \u043d\u0430 \u043b\u0438\u0446\u0435\u0442\u043e \u043f\u043e\u0434 \u043a\u043e\u0436\u0430\u0442\u0430."
 
     const-string v1, "\u0412\u0441\u044f\u043a\u0430 \u043f\u0440\u043e\u0446\u0435\u0434\u0443\u0440\u0430 \u0438\u043c\u0430 \u0441\u0432\u043e\u0438 \u043c\u0435\u0441\u0442\u0430 \u2014 \u0438\u0437\u0431\u0438\u0440\u0430\u0442 \u0441\u0435 \u0432 \u0441\u0442\u0443\u0434\u0438\u043e\u0442\u043e \u0437\u0430 \u043b\u0438\u0446\u0435."
@@ -861,16 +960,215 @@
 
     goto/16 :goto_3
 
-    .line 59
-    :sswitch_data_2b4
+    .line 229
+    :pswitch_308
+    const-string v0, "\u0421\u044a\u0449\u0430\u0442\u0430 \u0446\u0435\u043b \u043a\u0430\u0442\u043e \u041e\u0431\u0449\u043e \u0441\u0442\u044f\u0433\u0430\u043d\u0435, \u043d\u043e \u0432 \u043f\u043e\u043a\u043e\u0439: \u0442\u043e\u043a\u044a\u0442 \u0441\u0442\u044f\u0433\u0430 \u043c\u0443\u0441\u043a\u0443\u043b\u0438\u0442\u0435 \u0438\u0437\u0446\u044f\u043b\u043e, \u0431\u0435\u0437 \u0434\u0432\u0438\u0436\u0435\u043d\u0438\u0435."
+
+    const-string v1, "\u0414\u044a\u043b\u0433\u043e \u043e\u0442\u043f\u0443\u0441\u043a\u0430\u043d\u0435 \u0441\u043b\u0435\u0434 \u0432\u0441\u044f\u043a\u043e \u0441\u0442\u044f\u0433\u0430\u043d\u0435 \u2014 \u043f\u0430\u0441\u0438\u0432\u043d\u043e\u0442\u043e \u0441\u0442\u044f\u0433\u0430\u043d\u0435 \u0443\u043c\u043e\u0440\u044f\u0432\u0430 \u043f\u043e-\u0431\u044a\u0440\u0437\u043e."
+
+    const-string v2, "\u0417\u0430 \u0434\u043d\u0438\u0442\u0435 \u043c\u0435\u0436\u0434\u0443 \u0430\u043a\u0442\u0438\u0432\u043d\u0438\u0442\u0435 \u0442\u0440\u0435\u043d\u0438\u0440\u043e\u0432\u043a\u0438 \u0438\u043b\u0438 \u043a\u043e\u0433\u0430\u0442\u043e \u0434\u0432\u0438\u0436\u0435\u043d\u0438\u0435 \u0434\u043d\u0435\u0441 \u043d\u0435 \u0435 \u0432\u044a\u0437\u043c\u043e\u0436\u043d\u043e."
+
+    const-string v3, "The same goal as Full-body toning, at rest: the current tightens the muscles fully, no moving."
+
+    const-string v4, "A long release after every hold \u2014 a passive hold tires sooner."
+
+    const-string v5, "For the days between active sessions, or when moving is not possible today."
+
+    const-string v6, "2 \u043f\u044a\u0442\u0438 \u0441\u0435\u0434\u043c\u0438\u0447\u043d\u043e, \u0432 \u0434\u043d\u0438\u0442\u0435 \u0431\u0435\u0437 \u0430\u043a\u0442\u0438\u0432\u043d\u0430"
+
+    const-string v7, "Twice a week, on the days without an active one"
+
+    const-string v8, "\u041a\u0443\u0440\u0441 \u043e\u0442 10\u201312 \u043f\u0440\u043e\u0446\u0435\u0434\u0443\u0440\u0438"
+
+    const-string v9, "A course of 10\u201312 treatments"
+
+    invoke-static/range {v0 .. v9}, Lcom/isaigu/gymapp/ai/ProgramGuide;->e(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Lcom/isaigu/gymapp/ai/ProgramGuide$Entry;
+
+    move-result-object v0
+
+    goto/16 :goto_3
+
+    .line 237
+    :pswitch_322
+    const-string v0, "\u0421\u0435\u0434\u0430\u043b\u0438\u0449\u0435\u0442\u043e \u0438 \u0431\u0435\u0434\u0440\u0430\u0442\u0430 \u0441\u0435 \u0441\u0442\u044f\u0433\u0430\u0442 \u0432 \u043f\u043e\u043a\u043e\u0439 \u2014 \u0441\u044a\u0449\u0430\u0442\u0430 \u0446\u0435\u043b \u043a\u0430\u0442\u043e \u0430\u043a\u0442\u0438\u0432\u043d\u0430\u0442\u0430."
+
+    const-string v1, "\u041d\u0430\u043a\u0440\u0430\u044f \u0432\u044a\u043b\u043d\u0430 \u043f\u043e \u043a\u0440\u0430\u043a\u0430\u0442\u0430 \u0438\u0437\u0442\u043b\u0430\u0441\u043a\u0432\u0430 \u0437\u0430\u0434\u044a\u0440\u0436\u0430\u043d\u0430\u0442\u0430 \u0442\u0435\u0447\u043d\u043e\u0441\u0442 \u043d\u0430\u0433\u043e\u0440\u0435."
+
+    const-string v2, "\u041c\u0435\u0436\u0434\u0443 \u0430\u043a\u0442\u0438\u0432\u043d\u0438\u0442\u0435 \u0442\u0440\u0435\u043d\u0438\u0440\u043e\u0432\u043a\u0438 \u2014 \u043f\u043e\u0434\u0434\u044a\u0440\u0436\u0430 \u0442\u043e\u043d\u0443\u0441\u0430 \u0431\u0435\u0437 \u043d\u0430\u0442\u043e\u0432\u0430\u0440\u0432\u0430\u043d\u0435."
+
+    const-string v3, "The glutes and thighs tighten at rest \u2014 the same goal as the active one."
+
+    const-string v4, "At the end a wave along the legs pushes the held fluid upwards."
+
+    const-string v5, "Between the active sessions \u2014 keeps the tone without strain."
+
+    const-string v6, "2 \u043f\u044a\u0442\u0438 \u0441\u0435\u0434\u043c\u0438\u0447\u043d\u043e, \u0432 \u0434\u043d\u0438\u0442\u0435 \u0431\u0435\u0437 \u0430\u043a\u0442\u0438\u0432\u043d\u0430"
+
+    const-string v7, "Twice a week, on the days without an active one"
+
+    const-string v8, "\u041a\u0443\u0440\u0441 \u043e\u0442 10\u201312 \u043f\u0440\u043e\u0446\u0435\u0434\u0443\u0440\u0438"
+
+    const-string v9, "A course of 10\u201312 treatments"
+
+    invoke-static/range {v0 .. v9}, Lcom/isaigu/gymapp/ai/ProgramGuide;->e(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Lcom/isaigu/gymapp/ai/ProgramGuide$Entry;
+
+    move-result-object v0
+
+    goto/16 :goto_3
+
+    .line 245
+    :pswitch_33c
+    const-string v0, "\u0414\u044a\u043b\u0433\u0438 \u0441\u0438\u043b\u043d\u0438 \u0441\u0442\u044f\u0433\u0430\u043d\u0438\u044f \u0432 \u043f\u043e\u043a\u043e\u0439 \u2014 \u043d\u0430\u043f\u0440\u0435\u0436\u0435\u043d\u0438\u0435\u0442\u043e \u0432 \u043c\u0443\u0441\u043a\u0443\u043b\u0430 \u0435 \u0441\u0438\u0433\u043d\u0430\u043b\u044a\u0442 \u0437\u0430 \u0440\u0430\u0441\u0442\u0435\u0436."
+
+    const-string v1, "\u0414\u044a\u043b\u0433\u0430 \u043f\u043e\u0447\u0438\u0432\u043a\u0430, \u0437\u0430 \u0434\u0430 \u0435 \u043f\u044a\u043b\u043d\u043e \u0432\u0441\u044f\u043a\u043e \u0441\u0442\u044f\u0433\u0430\u043d\u0435."
+
+    const-string v2, "\u0414\u043e\u043f\u044a\u043b\u0432\u0430 \u0430\u043a\u0442\u0438\u0432\u043d\u0430\u0442\u0430, \u043d\u0435 \u044f \u0437\u0430\u043c\u0435\u043d\u044f: \u0440\u0430\u0441\u0442\u0435\u0436\u044a\u0442 \u0438\u0434\u0432\u0430 \u0441 \u0445\u0440\u0430\u043d\u0430, \u0441\u044a\u043d \u0438 \u0442\u0440\u0435\u043d\u0438\u0440\u043e\u0432\u043a\u0430."
+
+    const-string v3, "Long strong holds at rest \u2014 the tension in the muscle is the signal to grow."
+
+    const-string v4, "A long rest so every hold is full."
+
+    const-string v5, "It adds to the active one, it does not replace it: growth needs food, sleep and training."
+
+    const-string v6, "2 \u043f\u044a\u0442\u0438 \u0441\u0435\u0434\u043c\u0438\u0447\u043d\u043e, \u0432 \u0434\u043d\u0438\u0442\u0435 \u0431\u0435\u0437 \u0430\u043a\u0442\u0438\u0432\u043d\u0430"
+
+    const-string v7, "Twice a week, on the days without an active one"
+
+    const-string v8, "\u041a\u0443\u0440\u0441 \u043e\u0442 10\u201312 \u043f\u0440\u043e\u0446\u0435\u0434\u0443\u0440\u0438"
+
+    const-string v9, "A course of 10\u201312 treatments"
+
+    invoke-static/range {v0 .. v9}, Lcom/isaigu/gymapp/ai/ProgramGuide;->e(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Lcom/isaigu/gymapp/ai/ProgramGuide$Entry;
+
+    move-result-object v0
+
+    goto/16 :goto_3
+
+    .line 253
+    :pswitch_356
+    const-string v0, "\u0413\u044a\u0440\u0434\u0438\u0442\u0435, \u0433\u044a\u0440\u0431\u044a\u0442, \u0440\u0430\u043c\u0435\u043d\u0435\u0442\u0435 \u0438 \u0440\u044a\u0446\u0435\u0442\u0435 \u0441\u0435 \u0441\u0442\u044f\u0433\u0430\u0442 \u0432 \u043f\u043e\u043a\u043e\u0439."
+
+    const-string v1, "\u041a\u0440\u0430\u043a\u0430\u0442\u0430 \u043f\u043e\u0447\u0438\u0432\u0430\u0442 \u2014 \u043f\u043e\u0434\u0445\u043e\u0434\u044f\u0449\u043e \u0441\u043b\u0435\u0434 \u0442\u0440\u0435\u043d\u0438\u0440\u043e\u0432\u043a\u0430 \u043d\u0430 \u043a\u0440\u0430\u043a\u0430\u0442\u0430."
+
+    const-string v2, "\u041f\u043e\u0434\u0434\u044a\u0440\u0436\u0430 \u0433\u043e\u0440\u043d\u0430\u0442\u0430 \u0447\u0430\u0441\u0442 \u043c\u0435\u0436\u0434\u0443 \u0430\u043a\u0442\u0438\u0432\u043d\u0438\u0442\u0435 \u0442\u0440\u0435\u043d\u0438\u0440\u043e\u0432\u043a\u0438."
+
+    const-string v3, "The chest, back, shoulders and arms tighten at rest."
+
+    const-string v4, "The legs rest \u2014 good after a leg session."
+
+    const-string v5, "Keeps the upper body up between the active sessions."
+
+    const-string v6, "2 \u043f\u044a\u0442\u0438 \u0441\u0435\u0434\u043c\u0438\u0447\u043d\u043e, \u0432 \u0434\u043d\u0438\u0442\u0435 \u0431\u0435\u0437 \u0430\u043a\u0442\u0438\u0432\u043d\u0430"
+
+    const-string v7, "Twice a week, on the days without an active one"
+
+    const-string v8, "\u041a\u0443\u0440\u0441 \u043e\u0442 10\u201312 \u043f\u0440\u043e\u0446\u0435\u0434\u0443\u0440\u0438"
+
+    const-string v9, "A course of 10\u201312 treatments"
+
+    invoke-static/range {v0 .. v9}, Lcom/isaigu/gymapp/ai/ProgramGuide;->e(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Lcom/isaigu/gymapp/ai/ProgramGuide$Entry;
+
+    move-result-object v0
+
+    goto/16 :goto_3
+
+    .line 261
+    :pswitch_370
+    const-string v0, "\u041a\u043e\u0440\u0435\u043c\u044a\u0442, \u043a\u0440\u044a\u0441\u0442\u044a\u0442 \u0438 \u0433\u044a\u0440\u0431\u044a\u0442 \u0441\u0435 \u0441\u0442\u044f\u0433\u0430\u0442 \u0437\u0430\u0435\u0434\u043d\u043e \u2014 \u043a\u043e\u0440\u0441\u0435\u0442 \u043e\u043a\u043e\u043b\u043e \u0433\u0440\u044a\u0431\u043d\u0430\u043a\u0430."
+
+    const-string v1, "\u041b\u0435\u0433\u043d\u0430\u043b, \u0441\u0430\u043c\u043e \u0434\u0438\u0448\u0430\u0448 \u0441 \u0438\u043c\u043f\u0443\u043b\u0441\u0430 \u2014 \u0431\u0435\u0437 \u043d\u0430\u0442\u043e\u0432\u0430\u0440\u0432\u0430\u043d\u0435 \u043d\u0430 \u0433\u0440\u044a\u0431\u043d\u0430\u043a\u0430."
+
+    const-string v2, "\u0421\u044a\u0449\u0430\u0442\u0430 \u0446\u0435\u043b \u043a\u0430\u0442\u043e \u0422\u0430\u043b\u0438\u044f \u0438 \u043a\u043e\u0440\u0435\u043c, \u0437\u0430 \u0434\u043d\u0438\u0442\u0435 \u0431\u0435\u0437 \u0430\u043a\u0442\u0438\u0432\u043d\u0430 \u0442\u0440\u0435\u043d\u0438\u0440\u043e\u0432\u043a\u0430."
+
+    const-string v3, "The abs, lower back and back hold together \u2014 a corset around the spine."
+
+    const-string v4, "Lying down, you only breathe with the impulse \u2014 no load on the spine."
+
+    const-string v5, "The same goal as Waist & core, for the days without an active session."
+
+    const-string v6, "2 \u043f\u044a\u0442\u0438 \u0441\u0435\u0434\u043c\u0438\u0447\u043d\u043e, \u0432 \u0434\u043d\u0438\u0442\u0435 \u0431\u0435\u0437 \u0430\u043a\u0442\u0438\u0432\u043d\u0430"
+
+    const-string v7, "Twice a week, on the days without an active one"
+
+    const-string v8, "\u041a\u0443\u0440\u0441 \u043e\u0442 10\u201312 \u043f\u0440\u043e\u0446\u0435\u0434\u0443\u0440\u0438"
+
+    const-string v9, "A course of 10\u201312 treatments"
+
+    invoke-static/range {v0 .. v9}, Lcom/isaigu/gymapp/ai/ProgramGuide;->e(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Lcom/isaigu/gymapp/ai/ProgramGuide$Entry;
+
+    move-result-object v0
+
+    goto/16 :goto_3
+
+    .line 269
+    :pswitch_38a
+    const-string v0, "\u041a\u0440\u0430\u0442\u043a\u0438 \u0432\u0437\u0440\u0438\u0432\u043d\u0438 \u0438\u043c\u043f\u0443\u043b\u0441\u0438 \u0432 \u043f\u043e\u043a\u043e\u0439 \u2014 \u0431\u044a\u0440\u0437\u0438\u0442\u0435 \u0432\u043b\u0430\u043a\u043d\u0430 \u0441\u0435 \u0432\u043a\u043b\u044e\u0447\u0432\u0430\u0442 \u0438\u0437\u0446\u044f\u043b\u043e."
+
+    const-string v1, "\u0414\u044a\u043b\u0433\u0430 \u043f\u043e\u0447\u0438\u0432\u043a\u0430 \u0441\u043b\u0435\u0434 \u0432\u0441\u0435\u043a\u0438 \u0438\u043c\u043f\u0443\u043b\u0441 \u2014 \u0435\u043d\u0435\u0440\u0433\u0438\u044f\u0442\u0430 \u0438\u043c \u0441\u0435 \u0432\u0440\u044a\u0449\u0430."
+
+    const-string v2, "\u0417\u0430 \u043d\u0430\u043f\u0440\u0435\u0434\u043d\u0430\u043b\u0438 \u2014 \u0441\u043b\u0435\u0434 \u043f\u044a\u0440\u0432\u0438\u0442\u0435 4 \u0442\u0440\u0435\u043d\u0438\u0440\u043e\u0432\u043a\u0438."
+
+    const-string v3, "Short explosive bursts at rest \u2014 the fast fibres fire in full."
+
+    const-string v4, "A long rest after every burst \u2014 their energy comes back."
+
+    const-string v5, "For the experienced \u2014 after the first 4 sessions."
+
+    const-string v6, "1 \u043f\u044a\u0442 \u0441\u0435\u0434\u043c\u0438\u0447\u043d\u043e"
+
+    const-string v7, "Once a week"
+
+    const-string v8, "\u041a\u0443\u0440\u0441 \u043e\u0442 6\u20138 \u043f\u0440\u043e\u0446\u0435\u0434\u0443\u0440\u0438"
+
+    const-string v9, "A course of 6\u20138 treatments"
+
+    invoke-static/range {v0 .. v9}, Lcom/isaigu/gymapp/ai/ProgramGuide;->e(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Lcom/isaigu/gymapp/ai/ProgramGuide$Entry;
+
+    move-result-object v0
+
+    goto/16 :goto_3
+
+    .line 277
+    :pswitch_3a4
+    const-string v0, "\u0421\u0435\u0434\u043d\u0430\u043b, \u043a\u0440\u0430\u043a\u0430\u0442\u0430 \u0440\u0430\u0431\u043e\u0442\u044f\u0442 \u0441\u0430\u043c\u0438 \u2014 \u043f\u043e-\u043b\u0435\u0441\u043d\u043e \u0441\u0442\u0430\u0432\u0430\u043d\u0435 \u043e\u0442 \u0441\u0442\u043e\u043b \u0438 \u0445\u043e\u0434\u0435\u043d\u0435."
+
+    const-string v1, "\u041f\u043e\u0441\u043b\u0435 \u0433\u044a\u0440\u0431\u044a\u0442 \u0438 \u0440\u0430\u043c\u0435\u043d\u0435\u0442\u0435 \u2014 \u0437\u0430 \u043f\u043e-\u0438\u0437\u043f\u0440\u0430\u0432\u0435\u043d\u0430 \u0441\u0442\u043e\u0439\u043a\u0430."
+
+    const-string v2, "\u0411\u0435\u0437 \u043d\u0430\u0442\u043e\u0432\u0430\u0440\u0432\u0430\u043d\u0435 \u043d\u0430 \u0441\u0442\u0430\u0432\u0438\u0442\u0435 \u2014 \u043f\u043e\u0434\u0445\u043e\u0434\u044f\u0449\u043e \u0438 \u043a\u043e\u0433\u0430\u0442\u043e \u0434\u0432\u0438\u0436\u0435\u043d\u0438\u0435\u0442\u043e \u0435 \u0442\u0440\u0443\u0434\u043d\u043e."
+
+    const-string v3, "Seated, the legs work by themselves \u2014 easier rising from a chair and walking."
+
+    const-string v4, "Then the back and shoulders \u2014 for a straighter posture."
+
+    const-string v5, "No load on the joints \u2014 suitable when moving is hard too."
+
+    const-string v6, "2 \u043f\u044a\u0442\u0438 \u0441\u0435\u0434\u043c\u0438\u0447\u043d\u043e, \u0432 \u0434\u043d\u0438\u0442\u0435 \u0431\u0435\u0437 \u0430\u043a\u0442\u0438\u0432\u043d\u0430"
+
+    const-string v7, "Twice a week, on the days without an active one"
+
+    const-string v8, "\u041a\u0443\u0440\u0441 \u043e\u0442 12 \u043f\u0440\u043e\u0446\u0435\u0434\u0443\u0440\u0438 \u0437\u0430 6 \u0441\u0435\u0434\u043c\u0438\u0446\u0438"
+
+    const-string v9, "A course of 12 treatments in 6 weeks"
+
+    invoke-static/range {v0 .. v9}, Lcom/isaigu/gymapp/ai/ProgramGuide;->e(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Lcom/isaigu/gymapp/ai/ProgramGuide$Entry;
+
+    move-result-object v0
+
+    goto/16 :goto_3
+
+    .line 63
+    :sswitch_data_3be
     .sparse-switch
         -0x6f0d1d95 -> :sswitch_a6
+        -0x6ef04930 -> :sswitch_fa
         -0x626b8aa2 -> :sswitch_79
+        -0x558a3613 -> :sswitch_136
         -0x5183fbca -> :sswitch_6f
         -0x4a13fe0e -> :sswitch_3d
         -0x35ffd1d0 -> :sswitch_83
         -0x327a9da3 -> :sswitch_8e
         -0x2fa1806b -> :sswitch_d6
+        -0x2b99fa26 -> :sswitch_106
         -0x1ac634bb -> :sswitch_e2
         -0x4c6f718 -> :sswitch_33
         0x2eaf9f -> :sswitch_5b
@@ -880,29 +1178,40 @@
         0x65e8905 -> :sswitch_65
         0x6a558a2 -> :sswitch_51
         0x1c4fe11c -> :sswitch_be
+        0x2deab687 -> :sswitch_12a
+        0x40211418 -> :sswitch_142
+        0x4875ac8a -> :sswitch_11e
         0x4f930f2e -> :sswitch_ca
         0x625d7281 -> :sswitch_9a
+        0x6660e8dc -> :sswitch_112
     .end sparse-switch
 
-    :pswitch_data_2fe
+    :pswitch_data_424
     .packed-switch 0x0
         :pswitch_1a
-        :pswitch_fa
-        :pswitch_114
-        :pswitch_12e
-        :pswitch_148
-        :pswitch_162
-        :pswitch_17c
-        :pswitch_196
-        :pswitch_1b0
-        :pswitch_1ca
-        :pswitch_1e4
-        :pswitch_1fe
-        :pswitch_218
-        :pswitch_232
-        :pswitch_24c
-        :pswitch_266
-        :pswitch_280
-        :pswitch_29a
+        :pswitch_14e
+        :pswitch_168
+        :pswitch_182
+        :pswitch_19c
+        :pswitch_1b6
+        :pswitch_1d0
+        :pswitch_1ea
+        :pswitch_204
+        :pswitch_21e
+        :pswitch_238
+        :pswitch_252
+        :pswitch_26c
+        :pswitch_286
+        :pswitch_2a0
+        :pswitch_2ba
+        :pswitch_2d4
+        :pswitch_2ee
+        :pswitch_308
+        :pswitch_322
+        :pswitch_33c
+        :pswitch_356
+        :pswitch_370
+        :pswitch_38a
+        :pswitch_3a4
     .end packed-switch
 .end method

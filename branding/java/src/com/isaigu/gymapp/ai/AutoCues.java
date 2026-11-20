@@ -119,6 +119,39 @@ public final class AutoCues {
             return AiText.t("Масаж: по-добър кръвоток, отпускане и по-бързо възстановяване след натоварване.",
                     "Massage: better blood flow, relaxation and faster recovery after training.");
         }
+        // the phases of the passive versions and of the reviewed 50+ (1.1.526, spec §6.11 / §6.13)
+        if ("FLOW".equals(p)) {
+            return AiText.t("Кръвоток: ритмични потрепвания помпят кръвта и отнасят умората от стягането.",
+                    "Blood flow: rhythmic twitches pump the blood and carry away the fatigue of the holds.");
+        }
+        if ("POSTURE".equals(p)) {
+            return AiText.t("Стойка: гърбът, кръстът и раменете се стягат — по-изправено тяло и по-сигурна крачка.",
+                    "Posture: the back, lower back and shoulders firm up — a straighter body and a surer step.");
+        }
+        if ("SPEED".equals(p)) {
+            return AiText.t("Бързина: кратко бързо усилие — след 50 г. бързината на мускула пада първа, а тя пази от падане.",
+                    "Speed: a short quick effort — after 50 the muscle's speed fades first, and it is what prevents falls.");
+        }
+        if (AutoCatalog.SENIOR_P.equals(id)) {
+            return AiText.t("Сила на краката: големите мускули на бедрата се стягат дълбоко — по-лесно ставане и ходене.",
+                    "Leg strength: the big thigh muscles hold deeply — easier rising and walking.");
+        }
+        if (AutoCatalog.MASS_P.equals(id)) {
+            return AiText.t("Дълги стягания: силно напрежение в мускула — сигнал да расте; дългата почивка пази всяко стягане пълно.",
+                    "Long holds: strong tension in the muscle — a signal to grow; the long rest keeps every hold full.");
+        }
+        if (AutoCatalog.POWER_P.equals(id)) {
+            return AiText.t("Взривни импулси: бързите влакна се включват изцяло за миг; почивката им връща енергията.",
+                    "Explosive bursts: the fast fibres fire in full for a moment; the rest gives back their energy.");
+        }
+        if (AutoCatalog.CORE_P.equals(id)) {
+            return AiText.t("Опора: корем, кръст и гръб се стягат заедно — корсет около гръбнака.",
+                    "Support: abs, lower back and back hold together — a corset around the spine.");
+        }
+        if (AutoCatalog.GENERAL_P.equals(id) || AutoCatalog.UPPER_P.equals(id) || AutoCatalog.GLUTES_P.equals(id)) {
+            return AiText.t("Тонус в покой: токът стяга мускула изцяло, без движение; дългата пауза пази качеството.",
+                    "Tone at rest: the current tightens the muscle fully, without moving; the long pause keeps the quality.");
+        }
         return plan.program.desc();
     }
 

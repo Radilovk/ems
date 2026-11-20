@@ -130,7 +130,17 @@ public final class AutoSim {
         check(plan.phases.get(plan.phases.size() - 1).isCooldown(), tag + ": the recovery is last");
         if (plan.program.isActive() && in.sessions == 0) {
             check(plan.activeS <= 720, tag + ": first active session ≤ 12 min");
-            check(plan.phiMax <= 0.7 + 1e-9, tag + ": first session φ ≤ 0.7");
+            if (AutoCatalog.isFace(plan.program)) {
+                check(plan.phiMax <= 0.7 + 1e-9, tag + ": first session φ ≤ 0.7 (face)");
+            } else {
+                // the body: the strength is the person's (owner, 1.1.526) — the first-session dose is advice
+                check(plan.phiMax == 1.0, tag + ": first session — the program sets no strength");
+                boolean advice = false;
+                for (String n : plan.notesBg) {
+                    advice |= n.startsWith("Първа сесия: препоръка");
+                }
+                check(advice, tag + ": first session — the dose advice is shown");
+            }
         }
         if (in.extra.breastfeeding && !AutoCatalog.isFace(plan.program)) {
             check(plan.zones[AutoModel.CHEST] == 0 && plan.zoneLocked[AutoModel.CHEST], tag + ": chest off");
@@ -177,7 +187,8 @@ public final class AutoSim {
                                 : min >= AutoEngine.REST_FLOOR_S && min <= AutoEngine.REST_MAX_S,
                         tag + ": rest " + min + " s in its bounds");
                 if (min > 0) {
-                    check(!e.requestGo(t + 1000, t + 1000) && e.getState() == AutoEngine.State.REST,
+                    long early = t + Math.max(0L, min * 1000L - 500L);      // half a second before the rest ends
+                    check(!e.requestGo(early, early) && e.getState() == AutoEngine.State.REST,
                             tag + ": ▶ too early does not start");
                 }
                 t += min * 1000L;
@@ -248,8 +259,20 @@ public final class AutoSim {
         check(c.frac <= plan.phiMax + 1e-9, at + ": frac ≤ φmax");
         check(c.ceiling >= c.frac - 1e-9, at + ": ceiling ≥ frac");
         check(c.ceiling <= plan.envMax * plan.phiMax + 1e-9, at + ": ceiling ≤ E·φmax");
-        if (ph.isCooldown()) {
-            check(c.ceiling <= 0.5 + 1e-9, at + ": cool-down ceiling ≤ 0.5");
+        boolean face = AutoCatalog.isFace(plan.program);
+        if (ph.isCooldown() && face) {
+            check(c.ceiling <= 0.5 + 1e-9, at + ": cool-down ceiling ≤ 0.5 (face)");
+        }
+        if (!face) {
+            // owner, 1.1.526: a body program never sets the strength — every phase at the calibration (σ is only the
+            // step's shape inside the cycle, e.g. the 7 Hz twitch next to the 85 Hz hold)
+            check(Math.abs(c.phi - 1.0) < 1e-9 && plan.phiMax == 1.0 && plan.envMax == 1.0,
+                    at + ": the program sets no strength (φ = 1, E = 1)");
+            check(plan.zoneDelta >= 100, at + ": a zone goes up as far as the person wants");
+            for (int z = 0; z < AutoModel.CHANNELS; z++) {
+                check(plan.zones[z] == 0 || plan.zones[z] == 100 || plan.zones[z] == plan.zoneMax[z],
+                        at + ": a zone is on or off, never a share (a medical bound — diastasis — aside)");
+            }
         }
         if (c.pauseHz > 0) {
             check(plan.doublePulseAllowed, at + ": L12 double pulse only where allowed");
@@ -257,8 +280,8 @@ public final class AutoSim {
                     at + ": L12 no double pulse in drain / power");
             check(!plan.input.solo() || c.pauseSigma <= 0.40 + 1e-9, at + ": SOLO pause ≤ 40 %");
         }
-        if (!plan.program.isActive() && ph.hasTetanic() && !ph.wave) {
-            check(c.frac <= 0.7 + 1e-9, at + ": passive tetanic φ ≤ 0.7");
+        if (face && !plan.program.isActive() && ph.hasTetanic() && !ph.wave) {
+            check(c.frac <= 0.7 + 1e-9, at + ": passive tetanic φ ≤ 0.7 (face)");
         }
     }
 
@@ -771,7 +794,13 @@ public final class AutoSim {
             AutoModel.Plan p = AutoPlanner.build(in, 70);
             check(p != null && p.program != null, "today " + k + " still plans");
             check(p != null && p.phiMax <= p0.phiMax + 1e-9, "today " + k + " never raises the ceiling");
-            check(p != null && p.phiMax < p0.phiMax - 1e-9, "today " + k + " lowers the ceiling");
+            if (AutoCatalog.isFace(p0.program)) {
+                check(p != null && p.phiMax < p0.phiMax - 1e-9, "today " + k + " lowers the ceiling");
+            } else {
+                // the body: today's state is advice + longer pauses, not less strength (owner, 1.1.526)
+                check(p != null && p.phiMax == 1.0 && p.notesBg.size() > p0.notesBg.size(),
+                        "today " + k + " — advice, the strength stays the person's");
+            }
         }
         check(com.isaigu.gymapp.ai.AiPersonal.periodApplies(AiModel.Sex.FEMALE, 30, new java.util.HashSet<String>()),
                 "period offered to a woman of 30");

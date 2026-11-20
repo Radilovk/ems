@@ -115,6 +115,60 @@ public final class AutoCatalog {
     public static final String MASS = "mass";
     public static final String UPPER = "upper";
 
+    /**
+     * The passive version of every active template (owner, 1.1.526 — docs/xems-auto-mode-spec.md §6.13): the same
+     * goal at rest, lying or sitting — involuntary isometric work (NMES), so longer rests (≥ 2 × ON), ON ≤ 4 s (L1),
+     * and the muscles the active one trains. Cardio's is Passive metabolism, the healthy back's the back-pain one,
+     * anti-ageing's its treatment.
+     */
+    public static final String GENERAL_P = "general_passive";
+    public static final String GLUTES_P = "glutes_passive";
+    public static final String MASS_P = "mass_passive";
+    public static final String UPPER_P = "upper_passive";
+    public static final String CORE_P = "core_passive";
+    public static final String POWER_P = "power_passive";
+    public static final String SENIOR_P = "senior_passive";
+
+    /** Active template → its passive version (null = none). */
+    public static String passiveOf(String id) {
+        if (id == null) {
+            return null;
+        }
+        switch (id) {
+            case GENERAL: return GENERAL_P;
+            case GLUTES_LEGS: return GLUTES_P;
+            case MASS: return MASS_P;
+            case UPPER: return UPPER_P;
+            case CORE: return CORE_P;
+            case POWER: return POWER_P;
+            case SENIOR: return SENIOR_P;
+            case CARDIO: return PASSIVE_METABOLIC;
+            case BACK_ACTIVE: return BACK_PAIN;
+            case ANTIAGE: return ANTIAGE_PASSIVE;
+            default: return null;
+        }
+    }
+
+    /** Body channels of the lower half + the trunk that holds it (the passive legs / glutes, the 50+ legs). */
+    static final int[] LOWER = {CALF, FRONT_THIGH, BACK_THIGH, GLUTES, ABS, LOWER_BACK};
+    /** Upper body + the trunk (the passive chest · shoulders · arms). */
+    static final int[] UPPER_BODY = {ABS, LOWER_BACK, BACK, TRAPS, CHEST, ARMS};
+    /** The trunk's deep and big stabilisers (the passive waist & core). */
+    static final int[] TRUNK = {ABS, LOWER_BACK, BACK, GLUTES};
+    /** Posture: the back chain (the 50+ posture block). */
+    static final int[] POSTURE = {LOWER_BACK, BACK, TRAPS, GLUTES};
+
+    /** Which muscles work (100) and which rest (0) — the program never sets how strong (owner, 1.1.526). */
+    static int[] only(int... chs) {
+        int[] z = new int[CHANNELS];
+        for (int k : chs) {
+            z[k] = 100;
+        }
+        return z;
+    }
+
+    static final int[] ALL_ON = {100, 100, 100, 100, 100, 100, 100, 100, 100, 100};
+
     /** Marker for {@link Phase#envEnd}: the planner puts the plan's envelope ceiling there. */
     static final double ENV_MAX = -1;
 
@@ -264,6 +318,44 @@ public final class AutoCatalog {
                 Kind.PASSIVE, AutoModel.zones(100, 100, 100, 100, 100, 100, 100, 100, 100, 100)));
         p.cr10Lo = 4; p.cr10Hi = 5; p.xCap = 0.55; p.envMax = 1.0;
 
+        // ---- the passive version of every active template (1.1.526, spec §6.13)
+        p = add(new Program(GENERAL_P, "Общо стягане · процедура", "Full-body toning · treatment",
+                "Цялото тяло в покой: дълбоки стягания с дълга почивка", "The whole body at rest: deep holds, long rests",
+                Kind.PASSIVE, ALL_ON.clone()));
+        p.cr10Lo = 5; p.cr10Hi = 6; p.xCap = 0.55; p.doublePulse = true; p.impulse = AutoDynamics.STRENGTH;
+
+        p = add(new Program(GLUTES_P, "Седалище и бедра · процедура", "Glutes & thighs · treatment",
+                "Седалище и бедра в покой + дренажна вълна на краката", "Glutes and thighs at rest + a leg drainage wave",
+                Kind.PASSIVE, only(LOWER)));
+        p.cr10Lo = 5; p.cr10Hi = 6; p.xCap = 0.55; p.doublePulse = true; p.femaleOnly = true; p.impulse = AutoDynamics.STRENGTH;
+
+        p = add(new Program(MASS_P, "Мускулна маса · процедура", "Muscle mass · treatment",
+                "Големите мускули в покой: дълги силни стягания", "The big muscles at rest: long strong holds",
+                Kind.PASSIVE, ALL_ON.clone()));
+        p.cr10Lo = 6; p.cr10Hi = 7; p.xCap = 0.55; p.maleOnly = true; p.impulse = AutoDynamics.STRENGTH;
+
+        p = add(new Program(UPPER_P, "Гърди, рамене и ръце · процедура", "Chest, shoulders & arms · treatment",
+                "Горната част в покой: гърди, гръб, рамене, ръце", "The upper body at rest: chest, back, shoulders, arms",
+                Kind.PASSIVE, only(UPPER_BODY)));
+        p.cr10Lo = 5; p.cr10Hi = 6; p.xCap = 0.55; p.maleOnly = true; p.impulse = AutoDynamics.STRENGTH;
+
+        p = add(new Program(CORE_P, "Талия и корем · процедура", "Waist & core · treatment",
+                "Корем, кръст и гръб в покой — опора за гръбнака", "Abs, lower back and back at rest — support for the spine",
+                Kind.PASSIVE, only(TRUNK)));
+        p.cr10Lo = 5; p.cr10Hi = 6; p.xCap = 0.55; p.impulse = AutoDynamics.STRENGTH;
+
+        p = add(new Program(POWER_P, "Сила и бързина · процедура", "Power & speed · treatment",
+                "Бързите влакна в покой: кратки взривни импулси, дълга почивка",
+                "Fast fibres at rest: short explosive bursts, long rest",
+                Kind.PASSIVE, ALL_ON.clone()));
+        p.cr10Lo = 6; p.cr10Hi = 6; p.xCap = 0.55; p.impulse = AutoDynamics.POWER;
+
+        p = add(new Program(SENIOR_P, "Здрави мускули 50+ · процедура", "Strong muscles 50+ · treatment",
+                "Сила на краката и стойка, седнал — без натоварване на ставите",
+                "Leg strength and posture, seated — no load on the joints",
+                Kind.PASSIVE, only(CALF, FRONT_THIGH, BACK_THIGH, GLUTES, ABS, LOWER_BACK, BACK, TRAPS)));
+        p.cr10Lo = 4; p.cr10Hi = 5; p.xCap = 0.50; p.impulse = AutoDynamics.GENTLE;
+
         p = add(new Program(FACE, "Лице · Лифтинг на скулите", "Face · Cheekbone lift",
                 "Лифтинг · Скулптуриране · Лимфодренаж · Ботокс ефект · Свежо лице — избор в студиото за лице",
                 "Lift · Oval · Facial lymphatic drainage · Botox effect · Fresh face — chosen in the face studio",
@@ -297,7 +389,8 @@ public final class AutoCatalog {
 
         // difficulty (owner, 1.1.336; design values): what the program asks of the body — the feeling it aims at,
         // the explosive / metabolic work. Green = easy, amber = medium, red = hard.
-        for (String id : new String[] {BACK_ACTIVE, SENIOR, POSTPARTUM, DRAIN, BACK_PAIN, RECOVERY, ANTIAGE_PASSIVE}) {
+        for (String id : new String[] {BACK_ACTIVE, SENIOR, POSTPARTUM, DRAIN, BACK_PAIN, RECOVERY, ANTIAGE_PASSIVE,
+                SENIOR_P, CORE_P, GENERAL_P}) {
             get(id).level = 1;
         }
         for (String id : new String[] {POWER, CARDIO, MASS}) {
@@ -424,6 +517,12 @@ public final class AutoCatalog {
     }
 
     private static Program add(Program p) {
+        if (!p.id.startsWith("face")) {
+            // the zones say which muscles the program works, not how strong (owner, 1.1.526): any share → on
+            for (int i = 0; i < p.zones.length; i++) {
+                p.zones[i] = p.zones[i] > 0 ? 100 : 0;
+            }
+        }
         ALL.add(p);
         return p;
     }
@@ -445,20 +544,23 @@ public final class AutoCatalog {
     public static List<Program> menu(Goal goal, Kind kind) {
         String[] ids;
         switch (goal) {
+            // the passive menus start with the passive version of each active template, in the same order (1.1.526)
             case TONE:
                 ids = kind == Kind.ACTIVE
                         ? new String[] {GENERAL, MASS, UPPER, GLUTES_LEGS, CORE, POWER, ANTIAGE}
-                        : new String[] {CELLULITE, POSTPARTUM, PASSIVE_METABOLIC, ANTIAGE_PASSIVE, FACE};
+                        : new String[] {GENERAL_P, MASS_P, UPPER_P, GLUTES_P, CORE_P, POWER_P, ANTIAGE_PASSIVE,
+                                CELLULITE, POSTPARTUM, PASSIVE_METABOLIC, FACE};
                 break;
             case SLIM:
                 ids = kind == Kind.ACTIVE
                         ? new String[] {CARDIO, GENERAL, GLUTES_LEGS, CORE, POWER, ANTIAGE}
-                        : new String[] {CELLULITE, DRAIN, PASSIVE_METABOLIC, ANTIAGE_PASSIVE};
+                        : new String[] {PASSIVE_METABOLIC, GENERAL_P, GLUTES_P, CORE_P, POWER_P, ANTIAGE_PASSIVE,
+                                CELLULITE, DRAIN};
                 break;
             default:
                 ids = kind == Kind.ACTIVE
                         ? new String[] {BACK_ACTIVE, SENIOR, ANTIAGE}
-                        : new String[] {BACK_PAIN, DRAIN, POSTPARTUM, RECOVERY, ANTIAGE_PASSIVE};
+                        : new String[] {BACK_PAIN, SENIOR_P, ANTIAGE_PASSIVE, DRAIN, POSTPARTUM, RECOVERY};
                 break;
         }
         List<Program> out = new ArrayList<Program>();
@@ -468,11 +570,34 @@ public final class AutoCatalog {
         return out;
     }
 
+    /**
+     * "Всички" (owner, 1.1.526): the goal's active and passive programs in one list — each active template followed by
+     * its passive version, then the passive ones of their own.
+     */
+    public static List<Program> menuAll(Goal goal) {
+        List<Program> act = menu(goal, Kind.ACTIVE);
+        List<Program> pas = menu(goal, Kind.PASSIVE);
+        List<Program> out = new ArrayList<Program>();
+        for (Program a : act) {
+            out.add(a);
+            Program v = get(passiveOf(a.id));
+            if (v != null && pas.contains(v) && !out.contains(v)) {
+                out.add(v);
+            }
+        }
+        for (Program v : pas) {
+            if (!out.contains(v)) {
+                out.add(v);
+            }
+        }
+        return out;
+    }
+
     /** The card marked "recommended" for this client in the menu (spec §6.0). */
     public static Program recommended(Goal goal, Kind kind, Input in) {
         List<Program> menu = menu(goal, kind);
-        if (goal == Goal.HEALTH && kind == Kind.ACTIVE && in.age >= 50) {
-            return get(SENIOR);
+        if (goal == Goal.HEALTH && in.age >= 50) {
+            return get(kind == Kind.ACTIVE ? SENIOR : SENIOR_P);
         }
         if (in.sex == AiModel.Sex.FEMALE && in.extra.weeksSinceBirth > 0
                 && menu.contains(get(POSTPARTUM))) {
@@ -533,14 +658,14 @@ public final class AutoCatalog {
         if (in.age >= 70 && p.isActive() && goal != Goal.HEALTH) {
             return AiText.t("След 70 г. — програмите за здраве", "After 70 — the health programs");
         }
-        if (POWER.equals(p.id)) {
+        if (POWER.equals(p.id) || POWER_P.equals(p.id)) {
             if (in.sessions < 4) {
                 return AiText.t("След 4 сесии (адаптация)", "After 4 sessions (adaptation)");
             }
             if (in.age >= 60) {
                 return AiText.t("До 60 г.", "Under 60");
             }
-            if (in.fitness == AiModel.Fitness.LOW) {
+            if (in.fitness == AiModel.Fitness.LOW && POWER.equals(p.id)) {
                 return AiText.t("Нужна е средна кондиция", "Needs medium fitness");
             }
         }
@@ -584,6 +709,12 @@ public final class AutoCatalog {
             case CELLULITE:
             case PASSIVE_METABOLIC:
                 return 1500;
+            case GENERAL_P:
+            case GLUTES_P:
+            case CORE_P:
+                return slim ? 1500 : 1200;
+            case POWER_P:
+                return 900;
             case FACE:
             case FACE_OVAL:
                 return 1080;
@@ -715,20 +846,121 @@ public final class AutoCatalog {
                 break;
             }
             case SENIOR: {
+                // reviewed 1.1.526 (spec §6.11): WB-EMS in older adults (Kemmler — TEST-III, FORMOsA) 85 Hz · 350 µs ·
+                // 4 : 4–6 with slow functional moves; after 50 the power (speed of force) falls faster than the
+                // strength and predicts falls and daily function better (Reid & Fielding 2012) — so a short speed
+                // block: a fast rise on each impulse, a long rest (≤ 85 Hz: the 60+ limit)
                 int[] oo = onOff(in, 4, 6);
                 if (in.fitness == AiModel.Fitness.HIGH) {
                     oo = new int[] {4, 4};
                 }
-                Phase w = phase(out, "WARMUP", "Загрявка", "Warm-up", 0.20, total, 0.6, 1.0);
+                Phase w = phase(out, "WARMUP", "Загрявка", "Warm-up", 0.15, total, 0.6, 1.0);
                 w.envStart = 0.6;
                 w.envEnd = 1.0;
+                w.hintBg = "Ходене на място, кръгове с раменете";
+                w.hintEn = "Marching, shoulder circles";
                 w.steps.add(twitch(WARMUP_HZ, 350, 10, 1, 1.0));          // 7 Hz twitches: warm, no fatigue
-                Phase m = phase(out, "MAIN", "Сила", "Strength", 0.70, total, 1.0, 1.0);
+                Phase m = phase(out, "MAIN", "Сила", "Strength", 0.55, total, 1.0, 1.0);
                 m.window = Window.main();
-                m.hintBg = "Ставане от стол, повдигане на пръсти, гребане с ластик";
-                m.hintEn = "Sit-to-stand, calf raises, band rows";
+                m.hintBg = "Ставане от стол, повдигане на пръсти, гребане с ластик — бавно";
+                m.hintEn = "Sit-to-stand, calf raises, band rows — slowly";
                 m.steps.add(tet(85, 350, oo[0], oo[1]));
+                Phase sp = phase(out, "SPEED", "Бързина", "Speed", 0.20, total, 1.0, 1.0);
+                sp.hintBg = "С импулса — бързо ставане от стол или бърза крачка, после бавно надолу";
+                sp.hintEn = "With the impulse — a quick sit-to-stand or a quick step, then slowly down";
+                sp.steps.add(tet(70, 300, 2, 6));
                 cooldown(out, total, 0.10, 5);
+                break;
+            }
+            case GENERAL_P:
+            case UPPER_P:
+            case CORE_P: {
+                // passive isometric NMES for tone and strength (Maffiuletti 2010; Gondin 2011): 50–100 Hz, wide pulse
+                // for depth, ON ≤ 4 s (L1) and a rest twice as long — a passive contraction recruits the same fibres
+                // every time and tires sooner than a voluntary one; then a muscle-pump block for the blood flow
+                boolean core = CORE_P.equals(p.id);
+                Phase w = phase(out, "WARMUP", "Загряване", "Warm-up", 0.10, total, 1.0, 1.0);
+                w.steps.add(twitch(5, 250, 10, 1, 1.0));
+                Phase m = phase(out, "MAIN", core ? "Опора" : "Тонус", core ? "Support" : "Tone", 0.70, total, 1.0, 1.0);
+                m.window = Window.main();
+                m.hintBg = core ? "Легни по гръб, коленете свити — само дишай с импулса"
+                        : "Легни удобно — мускулите работят сами, не се съпротивлявай";
+                m.hintEn = core ? "Lie on your back, knees bent — just breathe with the impulse"
+                        : "Lie comfortably — the muscles work by themselves, do not resist";
+                m.steps.add(pause(tet(80, core ? 300 : 350, 4, 8), 6, 0.40));
+                Phase f = phase(out, "FLOW", "Кръвоток", "Blood flow", 0.20, total, 1.0, 1.0);
+                f.steps.add(twitch(6, 350, 10, 2, 1.0));
+                cooldown(out, total, 0.10, 3);
+                break;
+            }
+            case GLUTES_P: {
+                // the glutes and thighs at rest (passive tone, 4 : 8), then the leg drainage wave of §6.6
+                Phase w = phase(out, "WARMUP", "Загряване", "Warm-up", 0.10, total, 1.0, 1.0);
+                w.steps.add(twitch(5, 250, 10, 1, 1.0));
+                Phase m = phase(out, "MAIN", "Тонус", "Tone", 0.60, total, 1.0, 1.0);
+                m.window = Window.main();
+                m.hintBg = "Легни по корем — седалището и бедрата работят сами";
+                m.hintEn = "Lie face down — the glutes and thighs work by themselves";
+                m.steps.add(pause(tet(80, 350, 4, 8), 6, 0.40));
+                Phase wv = phase(out, "WAVE", "Дренажна вълна", "Drainage wave", 0.30, total, 1.0, 1.0);
+                wv.wave = true;
+                legWave(wv, 35, 300);
+                cooldown(out, total, 0.10, 3);
+                break;
+            }
+            case MASS_P: {
+                // mechanical tension at rest: the longest passive hold (4 s, L1), a wide pulse (400 µs at 75 Hz — L4)
+                // for the deep fibres, a long rest (1 : 2.5) so every hold is full
+                Phase w = phase(out, "WARMUP", "Загряване", "Warm-up", 0.10, total, 1.0, 1.0);
+                w.steps.add(twitch(5, 250, 10, 1, 1.0));
+                Phase m = phase(out, "MAIN", "Дълги стягания", "Long holds", 0.75, total, 1.0, 1.0);
+                m.window = Window.main();
+                m.hintBg = "Легни удобно — силно, дълбоко стягане; дишай спокойно";
+                m.hintEn = "Lie comfortably — a strong, deep hold; breathe calmly";
+                m.steps.add(tet(75, 400, 4, 10));
+                Phase f = phase(out, "FLOW", "Кръвоток", "Blood flow", 0.15, total, 1.0, 1.0);
+                f.steps.add(twitch(6, 350, 10, 2, 1.0));
+                cooldown(out, total, 0.10, 3);
+                break;
+            }
+            case POWER_P: {
+                // the fast fibres at rest: 100 Hz · 300 µs (L4), a 2 s burst and a 10 s rest for the phosphocreatine
+                Phase w = phase(out, "WARMUP", "Загряване", "Warm-up", 0.15, total, 1.0, 1.0);
+                w.steps.add(twitch(5, 250, 10, 1, 1.0));
+                Phase m = phase(out, "MAIN", "Взривни импулси", "Explosive bursts", 0.70, total, 1.0, 1.0);
+                m.window = Window.main();
+                m.hintBg = "Легни удобно — кратък силен удар, дълга почивка";
+                m.hintEn = "Lie comfortably — a short strong burst, a long rest";
+                m.steps.add(tet(100, 300, 2, 10));
+                Phase f = phase(out, "FLOW", "Кръвоток", "Blood flow", 0.15, total, 1.0, 1.0);
+                f.steps.add(twitch(6, 350, 10, 2, 1.0));
+                cooldown(out, total, 0.10, 3);
+                break;
+            }
+            case SENIOR_P: {
+                // 50+ at rest (spec §6.13): NMES of the legs in older adults — 50 Hz, wide pulse, 4 : 8 — raises the
+                // thigh strength and the chair-rise (Langeard 2017, Benavent-Caballer 2014); then the back chain for
+                // the posture, then a light leg pump for the vessels; seated, no load on the joints
+                Phase w = phase(out, "WARMUP", "Загряване", "Warm-up", 0.15, total, 1.0, 1.0);
+                w.steps.add(twitch(5, 250, 10, 1, 1.0));
+                Phase m = phase(out, "MAIN", "Сила на краката", "Leg strength", 0.45, total, 1.0, 1.0);
+                m.window = Window.main();
+                m.hintBg = "Седни удобно, стъпалата на пода — краката работят сами";
+                m.hintEn = "Sit comfortably, feet on the floor — the legs work by themselves";
+                Step ls = tet(50, 350, 4, 8);
+                ls.zones = only(LOWER);
+                m.steps.add(ls);
+                Phase ps = phase(out, "POSTURE", "Стойка", "Posture", 0.25, total, 1.0, 1.0);
+                ps.hintBg = "Седни изправен — гърбът и раменете работят";
+                ps.hintEn = "Sit up — the back and shoulders work";
+                Step bs = tet(50, 300, 4, 8);
+                bs.zones = only(POSTURE);
+                ps.steps.add(bs);
+                Phase f = phase(out, "FLOW", "Кръвоток", "Blood flow", 0.15, total, 1.0, 1.0);
+                Step fs = twitch(5, 300, 10, 1, 1.0);
+                fs.zones = only(CALF, FRONT_THIGH, BACK_THIGH, GLUTES);
+                f.steps.add(fs);
+                cooldown(out, total, 0.10, 3);
                 break;
             }
             case CELLULITE: {

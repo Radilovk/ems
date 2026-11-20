@@ -22,7 +22,7 @@
     .registers 4
 
     .prologue
-    .line 127
+    .line 160
     if-eqz p0, :cond_13
 
     const-string v0, "MAIN"
@@ -33,7 +33,7 @@
 
     if-eqz v0, :cond_13
 
-    .line 128
+    .line 161
     const-string v0, "\u0417\u0430\u0445\u0430\u0440: \u043a\u0440\u0430\u043a\u0430\u0442\u0430 \u0440\u0430\u0431\u043e\u0442\u044f\u0442 \u0440\u0438\u0442\u043c\u0438\u0447\u043d\u043e \u0438 \u043f\u043e\u0435\u043c\u0430\u0442 \u0437\u0430\u0445\u0430\u0440 \u043e\u0442 \u043a\u0440\u044a\u0432\u0442\u0430 \u2014 \u0441\u043a\u043e\u043a\u044a\u0442 \u0441\u043b\u0435\u0434 \u0445\u0440\u0430\u043d\u0435\u043d\u0435 \u0435 \u043f\u043e-\u043c\u0430\u043b\u044a\u043a."
 
     const-string v1, "Blood sugar: the legs work in a rhythm and take sugar from the blood \u2014 the rise after a meal is smaller."
@@ -42,11 +42,11 @@
 
     move-result-object v0
 
-    .line 147
+    .line 180
     :goto_12
     return-object v0
 
-    .line 131
+    .line 164
     :cond_13
     const-string v0, "MAIN"
 
@@ -56,7 +56,7 @@
 
     if-eqz v0, :cond_24
 
-    .line 132
+    .line 165
     const-string v0, "\u041c\u0438\u043e\u043a\u0438\u043d\u0438: \u0440\u0430\u0431\u043e\u0442\u0435\u0449\u0438\u0442\u0435 \u043c\u0443\u0441\u043a\u0443\u043b\u0438 \u043f\u0443\u0441\u043a\u0430\u0442 \u0432 \u043a\u0440\u044a\u0432\u0442\u0430 \u0432\u0435\u0449\u0435\u0441\u0442\u0432\u0430, \u043a\u043e\u0438\u0442\u043e \u043f\u0430\u0437\u044f\u0442 \u043a\u043b\u0435\u0442\u043a\u0438\u0442\u0435 \u0438 \u0433\u0430\u0441\u044f\u0442 \u0432\u044a\u0437\u043f\u0430\u043b\u0435\u043d\u0438\u0435\u0442\u043e."
 
     const-string v1, "Myokines: the working muscles release substances that protect the cells and calm inflammation."
@@ -67,7 +67,7 @@
 
     goto :goto_12
 
-    .line 135
+    .line 168
     :cond_24
     const-string v0, "BRAIN"
 
@@ -77,7 +77,7 @@
 
     if-eqz v0, :cond_35
 
-    .line 136
+    .line 169
     const-string v0, "\u041c\u043e\u0437\u044a\u043a: \u043f\u0440\u0438 \u0442\u0430\u0437\u0438 \u0447\u0435\u0441\u0442\u043e\u0442\u0430 \u043c\u0443\u0441\u043a\u0443\u043b\u0438\u0442\u0435 \u043d\u0430 \u043a\u0440\u0430\u043a\u0430\u0442\u0430 \u043f\u043e\u0434\u0430\u0432\u0430\u0442 \u0441\u0438\u0433\u043d\u0430\u043b, \u043a\u043e\u0439\u0442\u043e \u0445\u0440\u0430\u043d\u0438 \u043d\u0435\u0440\u0432\u043d\u0438\u0442\u0435 \u043a\u043b\u0435\u0442\u043a\u0438 \u0438 \u043f\u0430\u043c\u0435\u0442\u0442\u0430."
 
     const-string v1, "Brain: at this rate the leg muscles send a signal that feeds the nerve cells and the memory."
@@ -88,7 +88,7 @@
 
     goto :goto_12
 
-    .line 139
+    .line 172
     :cond_35
     const-string v0, "INTERVAL"
 
@@ -98,7 +98,7 @@
 
     if-eqz v0, :cond_46
 
-    .line 140
+    .line 173
     const-string v0, "\u0418\u043d\u0442\u0435\u0440\u0432\u0430\u043b\u0438: \u043a\u0440\u0430\u0442\u043a\u043e \u0441 \u0432\u0441\u0438\u0447\u043a\u0430 \u0441\u0438\u043b\u0430, \u043f\u043e\u0441\u043b\u0435 \u043e\u0442\u0434\u0438\u0445 \u2014 \u0442\u043e\u0432\u0430 \u0441\u0432\u0430\u043b\u044f \u0432\u044a\u0437\u043f\u0430\u043b\u0435\u043d\u0438\u0435\u0442\u043e \u0432 \u0442\u044f\u043b\u043e\u0442\u043e \u043d\u0430\u0439-\u0441\u0438\u043b\u043d\u043e."
 
     const-string v1, "Intervals: short and all out, then rest \u2014 this lowers inflammation in the body the most."
@@ -109,7 +109,7 @@
 
     goto :goto_12
 
-    .line 143
+    .line 176
     :cond_46
     const-string v0, "VESSELS"
 
@@ -119,7 +119,7 @@
 
     if-eqz v0, :cond_57
 
-    .line 144
+    .line 177
     const-string v0, "\u0421\u044a\u0434\u043e\u0432\u0435: \u043b\u0435\u043a\u043e \u0440\u0438\u0442\u043c\u0438\u0447\u043d\u043e \u043f\u043e\u0442\u0440\u0435\u043f\u0432\u0430\u043d\u0435 \u2014 \u0430\u0440\u0442\u0435\u0440\u0438\u0438\u0442\u0435 \u043d\u0430 \u043a\u0440\u0430\u043a\u0430\u0442\u0430 \u0441\u0442\u0430\u0432\u0430\u0442 \u043f\u043e-\u0433\u044a\u0432\u043a\u0430\u0432\u0438."
 
     const-string v1, "Vessels: a light rhythmic twitching \u2014 the leg arteries grow more supple."
@@ -130,7 +130,7 @@
 
     goto :goto_12
 
-    .line 147
+    .line 180
     :cond_57
     const/4 v0, 0x0
 
@@ -143,7 +143,7 @@
     .prologue
     const-wide/16 v4, 0x0
 
-    .line 189
+    .line 222
     if-eqz p1, :cond_a
 
     iget-wide v0, p1, Lcom/isaigu/gymapp/ai/AutoEngine$Cmd;->frac:D
@@ -152,7 +152,7 @@
 
     if-gtz v0, :cond_13
 
-    .line 190
+    .line 223
     :cond_a
     const-string v0, "\u041f\u0430\u0443\u0437\u0430 \u2014 \u043c\u0443\u0441\u043a\u0443\u043b\u0438\u0442\u0435 \u043f\u043e\u0447\u0438\u0432\u0430\u0442, \u0441\u044a\u0434\u043e\u0432\u0435\u0442\u0435 \u0441\u0435 \u043f\u044a\u043b\u043d\u044f\u0442."
 
@@ -162,12 +162,12 @@
 
     move-result-object v0
 
-    .line 213
+    .line 246
     :cond_12
     :goto_12
     return-object v0
 
-    .line 193
+    .line 226
     :cond_13
     if-eqz p0, :cond_79
 
@@ -175,7 +175,7 @@
 
     if-eqz v0, :cond_79
 
-    .line 194
+    .line 227
     const-string v0, "\u0417\u043e\u043d\u0438\u0442\u0435 \u0441\u0435 \u0441\u044a\u043a\u0440\u0430\u0449\u0430\u0432\u0430\u0442 \u0435\u0434\u043d\u0430 \u0441\u043b\u0435\u0434 \u0434\u0440\u0443\u0433\u0430 \u2014 \u043a\u0430\u0442\u043e \u0440\u044a\u0446\u0435, \u043a\u043e\u0438\u0442\u043e \u0438\u0437\u0441\u0442\u0438\u0441\u043a\u0432\u0430\u0442 \u0442\u0435\u0447\u043d\u043e\u0441\u0442\u0442\u0430 \u043a\u044a\u043c \u0441\u044a\u0440\u0446\u0435\u0442\u043e."
 
     const-string v1, "The zones contract one after another \u2014 like hands squeezing the fluid towards the heart."
@@ -184,7 +184,7 @@
 
     move-result-object v0
 
-    .line 209
+    .line 242
     :goto_21
     if-eqz p2, :cond_12
 
@@ -198,7 +198,7 @@
 
     if-lez v1, :cond_12
 
-    .line 210
+    .line 243
     new-instance v1, Ljava/lang/StringBuilder;
 
     invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
@@ -273,7 +273,7 @@
 
     goto :goto_12
 
-    .line 196
+    .line 229
     :cond_79
     iget v0, p1, Lcom/isaigu/gymapp/ai/AutoEngine$Cmd;->hz:I
 
@@ -281,7 +281,7 @@
 
     if-gt v0, v1, :cond_ae
 
-    .line 197
+    .line 230
     new-instance v0, Ljava/lang/StringBuilder;
 
     invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
@@ -328,7 +328,7 @@
 
     goto/16 :goto_21
 
-    .line 199
+    .line 232
     :cond_ae
     iget v0, p1, Lcom/isaigu/gymapp/ai/AutoEngine$Cmd;->hz:I
 
@@ -336,7 +336,7 @@
 
     if-gt v0, v1, :cond_e4
 
-    .line 200
+    .line 233
     new-instance v0, Ljava/lang/StringBuilder;
 
     invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
@@ -383,7 +383,7 @@
 
     goto/16 :goto_21
 
-    .line 202
+    .line 235
     :cond_e4
     iget v0, p1, Lcom/isaigu/gymapp/ai/AutoEngine$Cmd;->hz:I
 
@@ -391,7 +391,7 @@
 
     if-gt v0, v1, :cond_11a
 
-    .line 203
+    .line 236
     new-instance v0, Ljava/lang/StringBuilder;
 
     invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
@@ -438,7 +438,7 @@
 
     goto/16 :goto_21
 
-    .line 206
+    .line 239
     :cond_11a
     new-instance v0, Ljava/lang/StringBuilder;
 
@@ -491,7 +491,7 @@
     .registers 4
 
     .prologue
-    .line 152
+    .line 185
     const-string v0, "face_drain"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
@@ -500,7 +500,7 @@
 
     if-eqz v0, :cond_22
 
-    .line 153
+    .line 186
     const-string v0, "OPEN"
 
     invoke-virtual {v0, p1}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
@@ -509,7 +509,7 @@
 
     if-eqz v0, :cond_19
 
-    .line 154
+    .line 187
     const-string v0, "\u041e\u0442\u0432\u0430\u0440\u044f\u043d\u0435: \u043f\u044a\u0440\u0432\u043e \u0441\u0435 \u0440\u0430\u0437\u0434\u0432\u0438\u0436\u0432\u0430 \u043f\u044a\u0442\u044f\u0442 \u043f\u043e\u0434 \u0431\u0440\u0430\u0434\u0438\u0447\u043a\u0430\u0442\u0430, \u0437\u0430 \u0434\u0430 \u0438\u043c\u0430 \u043a\u044a\u0434\u0435 \u0434\u0430 \u0441\u0435 \u043e\u0442\u0442\u0435\u0447\u0435 \u0442\u0435\u0447\u043d\u043e\u0441\u0442\u0442\u0430."
 
     const-string v1, "Opening: the way under the chin moves first, so the fluid has somewhere to go."
@@ -518,11 +518,11 @@
 
     move-result-object v0
 
-    .line 183
+    .line 216
     :goto_18
     return-object v0
 
-    .line 156
+    .line 189
     :cond_19
     const-string v0, "\u041b\u0438\u043c\u0444\u043d\u0430 \u0432\u044a\u043b\u043d\u0430: \u043c\u0443\u0441\u043a\u0443\u043b\u0438\u0442\u0435 \u0441\u0435 \u0441\u0442\u044f\u0433\u0430\u0442 \u0435\u0434\u0438\u043d \u0441\u043b\u0435\u0434 \u0434\u0440\u0443\u0433 \u043e\u0442 \u043d\u043e\u0441\u0430 \u043a\u044a\u043c \u0447\u0435\u043b\u044e\u0441\u0442\u0442\u0430 \u0438 \u0443\u0445\u043e\u0442\u043e \u0438 \u0438\u0437\u043f\u043e\u043c\u043f\u0432\u0430\u0442 \u0437\u0430\u0434\u044a\u0440\u0436\u0430\u043d\u0430\u0442\u0430 \u0442\u0435\u0447\u043d\u043e\u0441\u0442."
 
@@ -534,7 +534,7 @@
 
     goto :goto_18
 
-    .line 159
+    .line 192
     :cond_22
     const-string v0, "face_tone"
 
@@ -544,7 +544,7 @@
 
     if-eqz v0, :cond_33
 
-    .line 160
+    .line 193
     const-string v0, "\u0422\u043e\u043d\u0443\u0441 \u0438 \u0441\u0442\u0435\u0433\u043d\u0430\u0442\u043e\u0441\u0442: \u043f\u043e-\u0434\u044a\u043b\u0433\u0438 \u043c\u0435\u043a\u0438 \u0441\u0442\u044f\u0433\u0430\u043d\u0438\u044f \u2014 \u043c\u0443\u0441\u043a\u0443\u043b\u0438\u0442\u0435 \u043d\u0430 \u043b\u0438\u0446\u0435\u0442\u043e \u0441\u0442\u0430\u0432\u0430\u0442 \u0438\u0437\u0434\u0440\u044a\u0436\u043b\u0438\u0432\u0438 \u0438 \u043f\u0430\u0437\u044f\u0442 \u043b\u0438\u0444\u0442\u0438\u043d\u0433\u0430."
 
     const-string v1, "Tone & firmness: longer soft holds \u2014 the face muscles grow enduring and keep the lift."
@@ -555,7 +555,7 @@
 
     goto :goto_18
 
-    .line 163
+    .line 196
     :cond_33
     const-string v0, "face_oval"
 
@@ -565,7 +565,7 @@
 
     if-eqz v0, :cond_44
 
-    .line 164
+    .line 197
     const-string v0, "\u0421\u043a\u0443\u043b\u043f\u0442\u0443\u0440\u0438\u0440\u0430\u043d\u0435 \u043d\u0430 \u043b\u0438\u0446\u0435\u0442\u043e: \u0441\u043a\u0443\u043b\u0438\u0442\u0435 \u0438 \u0431\u0440\u0430\u0434\u0438\u0447\u043a\u0430\u0442\u0430 \u0441\u0435 \u0440\u0435\u0434\u0443\u0432\u0430\u0442 \u2014 \u0432\u0441\u0435\u043a\u0438 \u043c\u0443\u0441\u043a\u0443\u043b \u0440\u0430\u0431\u043e\u0442\u0438 3 s \u0438 \u043f\u043e\u0447\u0438\u0432\u0430 6."
 
     const-string v1, "Firm contour: the cheekbones and the chin take turns \u2014 every muscle works 3 s and rests 6."
@@ -576,7 +576,7 @@
 
     goto :goto_18
 
-    .line 167
+    .line 200
     :cond_44
     const-string v0, "face_relax"
 
@@ -586,7 +586,7 @@
 
     if-eqz v0, :cond_55
 
-    .line 168
+    .line 201
     const-string v0, "\u0411\u043e\u0442\u043e\u043a\u0441 \u0435\u0444\u0435\u043a\u0442: \u043d\u0435\u0436\u043d\u0438\u044f\u0442 \u0442\u043e\u043a \u043f\u043e \u0441\u0435\u0442\u0438\u0432\u043d\u0438\u0442\u0435 \u043d\u0435\u0440\u0432\u0438 \u0441\u0432\u0430\u043b\u044f \u0442\u043e\u043d\u0443\u0441\u0430 \u043d\u0430 \u043c\u0438\u043c\u0438\u0447\u0435\u0441\u043a\u0438\u0442\u0435 \u043c\u0443\u0441\u043a\u0443\u043b\u0438 \u2014 \u0447\u0435\u043b\u043e\u0442\u043e \u0441\u0435 \u043e\u0442\u043f\u0443\u0441\u043a\u0430."
 
     const-string v1, "Botox effect: the gentle current on the sensory nerves lowers the tone of the expression muscles."
@@ -597,7 +597,7 @@
 
     goto :goto_18
 
-    .line 171
+    .line 204
     :cond_55
     const-string v0, "face_calm"
 
@@ -607,7 +607,7 @@
 
     if-eqz v0, :cond_66
 
-    .line 172
+    .line 205
     const-string v0, "\u0421\u0432\u0435\u0436\u043e \u043b\u0438\u0446\u0435: \u0441\u0435\u0442\u0438\u0432\u043d\u0438\u044f\u0442 \u0442\u043e\u043a \u043f\u043e \u0447\u0435\u043b\u043e\u0442\u043e \u0438 \u0447\u0435\u043b\u044e\u0441\u0442\u0442\u0430 \u0441\u0432\u0430\u043b\u044f \u043d\u0430\u043f\u0440\u0435\u0436\u0435\u043d\u0438\u0435\u0442\u043e \u2014 \u0447\u0435\u0441\u0442\u043e\u0442\u0430\u0442\u0430 \u0441\u0435 \u0441\u043c\u0435\u043d\u044f, \u0437\u0430 \u0434\u0430 \u043d\u0435 \u043f\u0440\u0438\u0432\u0438\u043a\u043d\u0435."
 
     const-string v1, "Fresh face: the sensory current on the forehead and the jaw lowers the tension \u2014 the rate changes so it never wears off."
@@ -618,7 +618,7 @@
 
     goto :goto_18
 
-    .line 175
+    .line 208
     :cond_66
     const-string v0, "face_jaw"
 
@@ -628,7 +628,7 @@
 
     if-eqz v0, :cond_77
 
-    .line 176
+    .line 209
     const-string v0, "\u0420\u0435\u043b\u0430\u043a\u0441\u0430\u0446\u0438\u044f \u043d\u0430 \u0447\u0435\u043b\u044e\u0441\u0442\u0442\u0430: \u0431\u0430\u0432\u043d\u0438 \u0438\u043c\u043f\u0443\u043b\u0441\u0438 \u0432 \u0434\u044a\u0432\u043a\u0430\u0442\u0435\u043b\u043d\u0438\u044f \u043c\u0443\u0441\u043a\u0443\u043b \u2014 \u0442\u043e\u043d\u0443\u0441\u044a\u0442 \u043c\u0443 \u0432 \u043f\u043e\u043a\u043e\u0439 \u0441\u043f\u0430\u0434\u0430."
 
     const-string v1, "Jaw relaxation: slow impulses in the masseter \u2014 its resting tone drops."
@@ -639,7 +639,7 @@
 
     goto :goto_18
 
-    .line 179
+    .line 212
     :cond_77
     const-string v0, "face_chin"
 
@@ -649,7 +649,7 @@
 
     if-eqz v0, :cond_88
 
-    .line 180
+    .line 213
     const-string v0, "\u0421\u0442\u0435\u0433\u043d\u0430\u0442 \u043f\u0440\u043e\u0444\u0438\u043b: \u043c\u0443\u0441\u043a\u0443\u043b\u0438\u0442\u0435 \u043f\u043e\u0434 \u0431\u0440\u0430\u0434\u0438\u0447\u043a\u0430\u0442\u0430 \u0441\u0435 \u0441\u0442\u044f\u0433\u0430\u0442 \u0438 \u043e\u0444\u043e\u0440\u043c\u044f\u0442 \u043f\u0440\u043e\u0444\u0438\u043b\u0430."
 
     const-string v1, "Firm profile: the muscles under the chin tighten and shape the profile."
@@ -660,7 +660,7 @@
 
     goto :goto_18
 
-    .line 183
+    .line 216
     :cond_88
     const-string v0, "\u041b\u0438\u0444\u0442\u0438\u043d\u0433 \u043d\u0430 \u0441\u043a\u0443\u043b\u0438\u0442\u0435: \u0441\u043a\u0443\u043b\u0438\u0442\u0435, \u043d\u0430\u0437\u043e\u043b\u0430\u0431\u0438\u0430\u043b\u043d\u0430\u0442\u0430 \u0437\u043e\u043d\u0430 \u0438 \u0434\u043e\u043b\u043d\u0430\u0442\u0430 \u0431\u0443\u0437\u0430 \u0440\u0430\u0431\u043e\u0442\u044f\u0442 \u0437\u0430\u0435\u0434\u043d\u043e \u2014 \u043f\u043e-\u043f\u043b\u044a\u0442\u043d\u0430 \u043e\u043f\u043e\u0440\u0430 \u0437\u0430 \u0446\u044f\u043b\u0430\u0442\u0430 \u0441\u0440\u0435\u0434\u043d\u0430 \u0447\u0430\u0441\u0442."
 
@@ -677,7 +677,7 @@
     .registers 4
 
     .prologue
-    .line 250
+    .line 283
     const/16 v0, 0xa
 
     new-array v0, v0, [Ljava/lang/String;
@@ -712,7 +712,7 @@
 
     const-string v3, "nasolabial L"
 
-    .line 251
+    .line 284
     invoke-static {v2, v3}, Lcom/isaigu/gymapp/ai/AiText;->t(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v2
@@ -737,7 +737,7 @@
 
     const-string v3, "lower cheek L"
 
-    .line 252
+    .line 285
     invoke-static {v2, v3}, Lcom/isaigu/gymapp/ai/AiText;->t(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v2
@@ -762,7 +762,7 @@
 
     const-string v3, "jaw L"
 
-    .line 253
+    .line 286
     invoke-static {v2, v3}, Lcom/isaigu/gymapp/ai/AiText;->t(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v2
@@ -799,14 +799,14 @@
 
     const-string v3, "chin"
 
-    .line 254
+    .line 287
     invoke-static {v2, v3}, Lcom/isaigu/gymapp/ai/AiText;->t(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v2
 
     aput-object v2, v0, v1
 
-    .line 250
+    .line 283
     return-object v0
 .end method
 
@@ -814,33 +814,33 @@
     .registers 6
 
     .prologue
-    .line 259
+    .line 292
     if-eqz p0, :cond_6
 
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AutoEngine$Cmd;->zones:[I
 
     if-nez v0, :cond_9
 
-    .line 260
+    .line 293
     :cond_6
     const-string v0, ""
 
-    .line 269
+    .line 302
     :goto_8
     return-object v0
 
-    .line 262
+    .line 295
     :cond_9
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoCues;->faceSiteNames()[Ljava/lang/String;
 
     move-result-object v2
 
-    .line 263
+    .line 296
     new-instance v3, Ljava/lang/StringBuilder;
 
     invoke-direct {v3}, Ljava/lang/StringBuilder;-><init>()V
 
-    .line 264
+    .line 297
     const/4 v0, 0x0
 
     :goto_13
@@ -854,7 +854,7 @@
 
     if-ge v0, v1, :cond_3a
 
-    .line 265
+    .line 298
     iget-object v1, p0, Lcom/isaigu/gymapp/ai/AutoEngine$Cmd;->zones:[I
 
     aget v1, v1, v0
@@ -863,7 +863,7 @@
 
     if-lt v1, v4, :cond_34
 
-    .line 266
+    .line 299
     invoke-virtual {v3}, Ljava/lang/StringBuilder;->length()I
 
     move-result v1
@@ -881,19 +881,19 @@
 
     invoke-virtual {v1, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 264
+    .line 297
     :cond_34
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_13
 
-    .line 266
+    .line 299
     :cond_37
     const-string v1, ""
 
     goto :goto_2b
 
-    .line 269
+    .line 302
     :cond_3a
     invoke-virtual {v3}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
@@ -906,7 +906,7 @@
     .registers 5
 
     .prologue
-    .line 303
+    .line 336
     new-instance v0, Ljava/lang/StringBuilder;
 
     invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
@@ -952,7 +952,7 @@
 
     move-result-object v0
 
-    .line 304
+    .line 337
     new-instance v1, Ljava/lang/StringBuilder;
 
     invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
@@ -977,7 +977,7 @@
 
     const-string v2, " \u00b7 weaker \u2192 raise, pain \u2192 lower"
 
-    .line 305
+    .line 338
     invoke-static {v1, v2}, Lcom/isaigu/gymapp/ai/AiText;->t(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v1
@@ -990,10 +990,10 @@
 
     move-result-object v0
 
-    .line 304
+    .line 337
     return-object v0
 
-    .line 303
+    .line 336
     :cond_54
     const-string v0, ""
 
@@ -1004,21 +1004,21 @@
     .registers 10
 
     .prologue
-    .line 289
+    .line 322
     const-wide/high16 v0, 0x4034000000000000L    # 20.0
 
     cmpl-double v0, p2, v0
 
     if-lez v0, :cond_9
 
-    .line 290
+    .line 323
     const-string v0, ""
 
-    .line 297
+    .line 330
     :goto_8
     return-object v0
 
-    .line 292
+    .line 325
     :cond_9
     add-int/lit8 v0, p1, 0x1
 
@@ -1030,7 +1030,7 @@
 
     if-lt v0, v1, :cond_31
 
-    .line 293
+    .line 326
     new-instance v0, Ljava/lang/StringBuilder;
 
     invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
@@ -1061,7 +1061,7 @@
 
     goto :goto_8
 
-    .line 295
+    .line 328
     :cond_31
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->phases:Ljava/util/List;
 
@@ -1073,12 +1073,12 @@
 
     check-cast v0, Lcom/isaigu/gymapp/ai/AutoModel$Phase;
 
-    .line 296
+    .line 329
     invoke-static {p0, v0}, Lcom/isaigu/gymapp/ai/AutoCues;->phaseHint(Lcom/isaigu/gymapp/ai/AutoModel$Plan;Lcom/isaigu/gymapp/ai/AutoModel$Phase;)Ljava/lang/String;
 
     move-result-object v1
 
-    .line 297
+    .line 330
     new-instance v2, Ljava/lang/StringBuilder;
 
     invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
@@ -1121,7 +1121,7 @@
 
     move-result-object v2
 
-    .line 298
+    .line 331
     invoke-virtual {v1}, Ljava/lang/String;->length()I
 
     move-result v0
@@ -1167,14 +1167,14 @@
     .registers 5
 
     .prologue
-    .line 238
+    .line 271
     if-eqz p2, :cond_f
 
     iget v0, p2, Lcom/isaigu/gymapp/ai/AutoEngine$Cmd;->pauseHz:I
 
     if-lez v0, :cond_f
 
-    .line 239
+    .line 272
     const-string v0, "\u041e\u0442\u043f\u0443\u0441\u043d\u0438 \u2014 \u043b\u0435\u043a \u0438\u043c\u043f\u0443\u043b\u0441 \u0437\u0430 \u0432\u044a\u0437\u0441\u0442\u0430\u043d\u043e\u0432\u044f\u0432\u0430\u043d\u0435"
 
     const-string v1, "Relax \u2014 a light recovery pulse"
@@ -1183,11 +1183,11 @@
 
     move-result-object v0
 
-    .line 244
+    .line 277
     :goto_e
     return-object v0
 
-    .line 241
+    .line 274
     :cond_f
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->program:Lcom/isaigu/gymapp/ai/AutoCatalog$Program;
 
@@ -1197,7 +1197,7 @@
 
     if-eqz v0, :cond_20
 
-    .line 242
+    .line 275
     const-string v0, "\u041e\u0442\u043f\u0443\u0441\u043d\u0438 \u00b7 \u0434\u0438\u0448\u0430\u0439"
 
     const-string v1, "Relax \u00b7 breathe"
@@ -1208,7 +1208,7 @@
 
     goto :goto_e
 
-    .line 244
+    .line 277
     :cond_20
     const-string v0, "\u041e\u0442\u043f\u0443\u0441\u043d\u0438"
 
@@ -1225,7 +1225,7 @@
     .registers 7
 
     .prologue
-    .line 218
+    .line 251
     if-eqz p2, :cond_a
 
     iget-wide v0, p2, Lcom/isaigu/gymapp/ai/AutoEngine$Cmd;->frac:D
@@ -1236,7 +1236,7 @@
 
     if-gtz v0, :cond_13
 
-    .line 219
+    .line 252
     :cond_a
     const-string v0, "\u041f\u0430\u0443\u0437\u0430 \u2014 \u0441\u044a\u0434\u043e\u0432\u0435\u0442\u0435 \u0441\u0435 \u043f\u044a\u043b\u043d\u044f\u0442"
 
@@ -1246,11 +1246,11 @@
 
     move-result-object v0
 
-    .line 233
+    .line 266
     :goto_12
     return-object v0
 
-    .line 221
+    .line 254
     :cond_13
     if-eqz p1, :cond_44
 
@@ -1258,7 +1258,7 @@
 
     if-eqz v0, :cond_44
 
-    .line 222
+    .line 255
     new-instance v0, Ljava/lang/StringBuilder;
 
     invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
@@ -1305,7 +1305,7 @@
 
     goto :goto_36
 
-    .line 224
+    .line 257
     :cond_44
     iget v0, p2, Lcom/isaigu/gymapp/ai/AutoEngine$Cmd;->hz:I
 
@@ -1313,7 +1313,7 @@
 
     if-ge v0, v1, :cond_53
 
-    .line 225
+    .line 258
     const-string v0, "\u0420\u0438\u0442\u043c\u0438\u0447\u043d\u043e \u043f\u043e\u0442\u0440\u0435\u043f\u0432\u0430\u043d\u0435 \u2014 \u043e\u0442\u043f\u0443\u0441\u043d\u0438 \u0441\u0435"
 
     const-string v1, "Rhythmic twitching \u2014 relax"
@@ -1324,7 +1324,7 @@
 
     goto :goto_12
 
-    .line 227
+    .line 260
     :cond_53
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->program:Lcom/isaigu/gymapp/ai/AutoCatalog$Program;
 
@@ -1334,7 +1334,7 @@
 
     if-nez v0, :cond_64
 
-    .line 228
+    .line 261
     const-string v0, "\u0418\u043c\u043f\u0443\u043b\u0441 \u2014 \u043d\u0435 \u0441\u0435 \u0441\u044a\u043f\u0440\u043e\u0442\u0438\u0432\u043b\u044f\u0432\u0430\u0439"
 
     const-string v1, "Pulse \u2014 do not resist"
@@ -1345,7 +1345,7 @@
 
     goto :goto_12
 
-    .line 230
+    .line 263
     :cond_64
     const-string v0, "power"
 
@@ -1371,7 +1371,7 @@
 
     if-eqz v0, :cond_85
 
-    .line 231
+    .line 264
     const-string v0, "\u0412\u0417\u0420\u0418\u0412\u041d\u041e \u2014 \u0441\u0435\u0433\u0430!"
 
     const-string v1, "EXPLODE \u2014 now!"
@@ -1382,7 +1382,7 @@
 
     goto :goto_12
 
-    .line 233
+    .line 266
     :cond_85
     const-string v0, "\u0421\u0422\u0415\u0413\u041d\u0418 \u2014 \u0434\u0432\u0438\u0436\u0438 \u0441\u0435"
 
@@ -1405,7 +1405,7 @@
     .line 56
     const-string v0, ""
 
-    .line 122
+    .line 155
     :goto_4
     return-object v0
 
@@ -1672,9 +1672,9 @@
 
     invoke-virtual {v1, v0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
-    move-result v0
+    move-result v1
 
-    if-eqz v0, :cond_e9
+    if-eqz v1, :cond_e9
 
     .line 100
     const-string v0, "\u041e\u0431\u0435\u0437\u0431\u043e\u043b\u044f\u0432\u0430\u043d\u0435: \u043d\u0438\u0441\u043a\u0430\u0442\u0430 \u0447\u0435\u0441\u0442\u043e\u0442\u0430 \u043d\u0430\u043c\u0430\u043b\u044f\u0432\u0430 \u0443\u0441\u0435\u0449\u0430\u043d\u0435\u0442\u043e \u0437\u0430 \u0431\u043e\u043b\u043a\u0430."
@@ -1689,13 +1689,13 @@
 
     .line 102
     :cond_e9
-    const-string v0, "passive_metabolic"
+    const-string v1, "passive_metabolic"
 
-    invoke-virtual {v0, v2}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+    invoke-virtual {v1, v2}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
-    move-result v0
+    move-result v1
 
-    if-eqz v0, :cond_10f
+    if-eqz v1, :cond_10f
 
     .line 103
     const-string v0, "Tone"
@@ -1733,13 +1733,13 @@
 
     .line 108
     :cond_10f
-    const-string v0, "back_pain"
+    const-string v1, "back_pain"
 
-    invoke-virtual {v0, v2}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+    invoke-virtual {v1, v2}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
-    move-result v0
+    move-result v1
 
-    if-eqz v0, :cond_121
+    if-eqz v1, :cond_121
 
     .line 109
     const-string v0, "\u0421\u0442\u0430\u0431\u0438\u043b\u0438\u0437\u0430\u0446\u0438\u044f: \u0434\u044a\u043b\u0431\u043e\u043a\u0438\u0442\u0435 \u043c\u0443\u0441\u043a\u0443\u043b\u0438 \u043d\u0430 \u043a\u043e\u0440\u0435\u043c\u0430 \u0438 \u0433\u044a\u0440\u0431\u0430 \u043f\u043e\u0435\u043c\u0430\u0442 \u0442\u043e\u0432\u0430\u0440\u0430 \u043e\u0442 \u0433\u0440\u044a\u0431\u043d\u0430\u043a\u0430."
@@ -1754,13 +1754,13 @@
 
     .line 112
     :cond_121
-    const-string v0, "postpartum"
+    const-string v1, "postpartum"
 
-    invoke-virtual {v0, v2}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+    invoke-virtual {v1, v2}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
-    move-result v0
+    move-result v1
 
-    if-eqz v0, :cond_133
+    if-eqz v1, :cond_133
 
     .line 113
     const-string v0, "\u0422\u0430\u0437\u043e\u0432\u043e \u0434\u044a\u043d\u043e \u0438 \u043a\u043e\u0440\u0435\u043c: \u0441\u0438\u043b\u0430 \u0438 \u043a\u043e\u043d\u0442\u0440\u043e\u043b \u0441\u043b\u0435\u0434 \u0440\u0430\u0436\u0434\u0430\u043d\u0435\u0442\u043e."
@@ -1775,13 +1775,13 @@
 
     .line 115
     :cond_133
-    const-string v0, "cellulite"
+    const-string v1, "cellulite"
 
-    invoke-virtual {v0, v2}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+    invoke-virtual {v1, v2}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
-    move-result v0
+    move-result v1
 
-    if-eqz v0, :cond_145
+    if-eqz v1, :cond_145
 
     .line 116
     const-string v0, "\u0422\u043e\u043d\u0443\u0441 \u043d\u0430 \u043c\u0443\u0441\u043a\u0443\u043b\u0438\u0442\u0435 \u043f\u043e\u0434 \u043a\u043e\u0436\u0430\u0442\u0430 \u2014 \u043f\u043e-\u0441\u0442\u0435\u0433\u043d\u0430\u0442 \u0432\u0438\u0434."
@@ -1796,13 +1796,13 @@
 
     .line 118
     :cond_145
-    const-string v0, "recovery"
+    const-string v1, "recovery"
 
-    invoke-virtual {v0, v2}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+    invoke-virtual {v1, v2}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
-    move-result v0
+    move-result v1
 
-    if-eqz v0, :cond_157
+    if-eqz v1, :cond_157
 
     .line 119
     const-string v0, "\u041c\u0430\u0441\u0430\u0436: \u043f\u043e-\u0434\u043e\u0431\u044a\u0440 \u043a\u0440\u044a\u0432\u043e\u0442\u043e\u043a, \u043e\u0442\u043f\u0443\u0441\u043a\u0430\u043d\u0435 \u0438 \u043f\u043e-\u0431\u044a\u0440\u0437\u043e \u0432\u044a\u0437\u0441\u0442\u0430\u043d\u043e\u0432\u044f\u0432\u0430\u043d\u0435 \u0441\u043b\u0435\u0434 \u043d\u0430\u0442\u043e\u0432\u0430\u0440\u0432\u0430\u043d\u0435."
@@ -1815,8 +1815,193 @@
 
     goto/16 :goto_4
 
-    .line 122
+    .line 123
     :cond_157
+    const-string v1, "FLOW"
+
+    invoke-virtual {v1, v0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v1
+
+    if-eqz v1, :cond_169
+
+    .line 124
+    const-string v0, "\u041a\u0440\u044a\u0432\u043e\u0442\u043e\u043a: \u0440\u0438\u0442\u043c\u0438\u0447\u043d\u0438 \u043f\u043e\u0442\u0440\u0435\u043f\u0432\u0430\u043d\u0438\u044f \u043f\u043e\u043c\u043f\u044f\u0442 \u043a\u0440\u044a\u0432\u0442\u0430 \u0438 \u043e\u0442\u043d\u0430\u0441\u044f\u0442 \u0443\u043c\u043e\u0440\u0430\u0442\u0430 \u043e\u0442 \u0441\u0442\u044f\u0433\u0430\u043d\u0435\u0442\u043e."
+
+    const-string v1, "Blood flow: rhythmic twitches pump the blood and carry away the fatigue of the holds."
+
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/ai/AiText;->t(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
+
+    goto/16 :goto_4
+
+    .line 127
+    :cond_169
+    const-string v1, "POSTURE"
+
+    invoke-virtual {v1, v0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v1
+
+    if-eqz v1, :cond_17b
+
+    .line 128
+    const-string v0, "\u0421\u0442\u043e\u0439\u043a\u0430: \u0433\u044a\u0440\u0431\u044a\u0442, \u043a\u0440\u044a\u0441\u0442\u044a\u0442 \u0438 \u0440\u0430\u043c\u0435\u043d\u0435\u0442\u0435 \u0441\u0435 \u0441\u0442\u044f\u0433\u0430\u0442 \u2014 \u043f\u043e-\u0438\u0437\u043f\u0440\u0430\u0432\u0435\u043d\u043e \u0442\u044f\u043b\u043e \u0438 \u043f\u043e-\u0441\u0438\u0433\u0443\u0440\u043d\u0430 \u043a\u0440\u0430\u0447\u043a\u0430."
+
+    const-string v1, "Posture: the back, lower back and shoulders firm up \u2014 a straighter body and a surer step."
+
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/ai/AiText;->t(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
+
+    goto/16 :goto_4
+
+    .line 131
+    :cond_17b
+    const-string v1, "SPEED"
+
+    invoke-virtual {v1, v0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v0
+
+    if-eqz v0, :cond_18d
+
+    .line 132
+    const-string v0, "\u0411\u044a\u0440\u0437\u0438\u043d\u0430: \u043a\u0440\u0430\u0442\u043a\u043e \u0431\u044a\u0440\u0437\u043e \u0443\u0441\u0438\u043b\u0438\u0435 \u2014 \u0441\u043b\u0435\u0434 50 \u0433. \u0431\u044a\u0440\u0437\u0438\u043d\u0430\u0442\u0430 \u043d\u0430 \u043c\u0443\u0441\u043a\u0443\u043b\u0430 \u043f\u0430\u0434\u0430 \u043f\u044a\u0440\u0432\u0430, \u0430 \u0442\u044f \u043f\u0430\u0437\u0438 \u043e\u0442 \u043f\u0430\u0434\u0430\u043d\u0435."
+
+    const-string v1, "Speed: a short quick effort \u2014 after 50 the muscle\'s speed fades first, and it is what prevents falls."
+
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/ai/AiText;->t(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
+
+    goto/16 :goto_4
+
+    .line 135
+    :cond_18d
+    const-string v0, "senior_passive"
+
+    invoke-virtual {v0, v2}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v0
+
+    if-eqz v0, :cond_19f
+
+    .line 136
+    const-string v0, "\u0421\u0438\u043b\u0430 \u043d\u0430 \u043a\u0440\u0430\u043a\u0430\u0442\u0430: \u0433\u043e\u043b\u0435\u043c\u0438\u0442\u0435 \u043c\u0443\u0441\u043a\u0443\u043b\u0438 \u043d\u0430 \u0431\u0435\u0434\u0440\u0430\u0442\u0430 \u0441\u0435 \u0441\u0442\u044f\u0433\u0430\u0442 \u0434\u044a\u043b\u0431\u043e\u043a\u043e \u2014 \u043f\u043e-\u043b\u0435\u0441\u043d\u043e \u0441\u0442\u0430\u0432\u0430\u043d\u0435 \u0438 \u0445\u043e\u0434\u0435\u043d\u0435."
+
+    const-string v1, "Leg strength: the big thigh muscles hold deeply \u2014 easier rising and walking."
+
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/ai/AiText;->t(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
+
+    goto/16 :goto_4
+
+    .line 139
+    :cond_19f
+    const-string v0, "mass_passive"
+
+    invoke-virtual {v0, v2}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v0
+
+    if-eqz v0, :cond_1b1
+
+    .line 140
+    const-string v0, "\u0414\u044a\u043b\u0433\u0438 \u0441\u0442\u044f\u0433\u0430\u043d\u0438\u044f: \u0441\u0438\u043b\u043d\u043e \u043d\u0430\u043f\u0440\u0435\u0436\u0435\u043d\u0438\u0435 \u0432 \u043c\u0443\u0441\u043a\u0443\u043b\u0430 \u2014 \u0441\u0438\u0433\u043d\u0430\u043b \u0434\u0430 \u0440\u0430\u0441\u0442\u0435; \u0434\u044a\u043b\u0433\u0430\u0442\u0430 \u043f\u043e\u0447\u0438\u0432\u043a\u0430 \u043f\u0430\u0437\u0438 \u0432\u0441\u044f\u043a\u043e \u0441\u0442\u044f\u0433\u0430\u043d\u0435 \u043f\u044a\u043b\u043d\u043e."
+
+    const-string v1, "Long holds: strong tension in the muscle \u2014 a signal to grow; the long rest keeps every hold full."
+
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/ai/AiText;->t(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
+
+    goto/16 :goto_4
+
+    .line 143
+    :cond_1b1
+    const-string v0, "power_passive"
+
+    invoke-virtual {v0, v2}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v0
+
+    if-eqz v0, :cond_1c3
+
+    .line 144
+    const-string v0, "\u0412\u0437\u0440\u0438\u0432\u043d\u0438 \u0438\u043c\u043f\u0443\u043b\u0441\u0438: \u0431\u044a\u0440\u0437\u0438\u0442\u0435 \u0432\u043b\u0430\u043a\u043d\u0430 \u0441\u0435 \u0432\u043a\u043b\u044e\u0447\u0432\u0430\u0442 \u0438\u0437\u0446\u044f\u043b\u043e \u0437\u0430 \u043c\u0438\u0433; \u043f\u043e\u0447\u0438\u0432\u043a\u0430\u0442\u0430 \u0438\u043c \u0432\u0440\u044a\u0449\u0430 \u0435\u043d\u0435\u0440\u0433\u0438\u044f\u0442\u0430."
+
+    const-string v1, "Explosive bursts: the fast fibres fire in full for a moment; the rest gives back their energy."
+
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/ai/AiText;->t(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
+
+    goto/16 :goto_4
+
+    .line 147
+    :cond_1c3
+    const-string v0, "core_passive"
+
+    invoke-virtual {v0, v2}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v0
+
+    if-eqz v0, :cond_1d5
+
+    .line 148
+    const-string v0, "\u041e\u043f\u043e\u0440\u0430: \u043a\u043e\u0440\u0435\u043c, \u043a\u0440\u044a\u0441\u0442 \u0438 \u0433\u0440\u044a\u0431 \u0441\u0435 \u0441\u0442\u044f\u0433\u0430\u0442 \u0437\u0430\u0435\u0434\u043d\u043e \u2014 \u043a\u043e\u0440\u0441\u0435\u0442 \u043e\u043a\u043e\u043b\u043e \u0433\u0440\u044a\u0431\u043d\u0430\u043a\u0430."
+
+    const-string v1, "Support: abs, lower back and back hold together \u2014 a corset around the spine."
+
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/ai/AiText;->t(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
+
+    goto/16 :goto_4
+
+    .line 151
+    :cond_1d5
+    const-string v0, "general_passive"
+
+    invoke-virtual {v0, v2}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v0
+
+    if-nez v0, :cond_1ed
+
+    const-string v0, "upper_passive"
+
+    invoke-virtual {v0, v2}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v0
+
+    if-nez v0, :cond_1ed
+
+    const-string v0, "glutes_passive"
+
+    invoke-virtual {v0, v2}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v0
+
+    if-eqz v0, :cond_1f7
+
+    .line 152
+    :cond_1ed
+    const-string v0, "\u0422\u043e\u043d\u0443\u0441 \u0432 \u043f\u043e\u043a\u043e\u0439: \u0442\u043e\u043a\u044a\u0442 \u0441\u0442\u044f\u0433\u0430 \u043c\u0443\u0441\u043a\u0443\u043b\u0430 \u0438\u0437\u0446\u044f\u043b\u043e, \u0431\u0435\u0437 \u0434\u0432\u0438\u0436\u0435\u043d\u0438\u0435; \u0434\u044a\u043b\u0433\u0430\u0442\u0430 \u043f\u0430\u0443\u0437\u0430 \u043f\u0430\u0437\u0438 \u043a\u0430\u0447\u0435\u0441\u0442\u0432\u043e\u0442\u043e."
+
+    const-string v1, "Tone at rest: the current tightens the muscle fully, without moving; the long pause keeps the quality."
+
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/ai/AiText;->t(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
+
+    goto/16 :goto_4
+
+    .line 155
+    :cond_1f7
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->program:Lcom/isaigu/gymapp/ai/AutoCatalog$Program;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/ai/AutoCatalog$Program;->desc()Ljava/lang/String;
@@ -2048,33 +2233,33 @@
     .registers 7
 
     .prologue
-    .line 273
+    .line 306
     if-eqz p0, :cond_6
 
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AutoEngine$Cmd;->zones:[I
 
     if-nez v0, :cond_9
 
-    .line 274
+    .line 307
     :cond_6
     const-string v0, ""
 
-    .line 284
+    .line 317
     :goto_8
     return-object v0
 
-    .line 276
+    .line 309
     :cond_9
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoCues;->zoneNames()[Ljava/lang/String;
 
     move-result-object v2
 
-    .line 277
+    .line 310
     new-instance v3, Ljava/lang/StringBuilder;
 
     invoke-direct {v3}, Ljava/lang/StringBuilder;-><init>()V
 
-    .line 278
+    .line 311
     const/4 v0, 0x0
 
     :goto_13
@@ -2084,12 +2269,12 @@
 
     if-ge v0, v1, :cond_40
 
-    .line 279
+    .line 312
     sget-object v1, Lcom/isaigu/gymapp/ai/AutoModel;->DISPLAY_ORDER:[I
 
     aget v4, v1, v0
 
-    .line 280
+    .line 313
     iget-object v1, p0, Lcom/isaigu/gymapp/ai/AutoEngine$Cmd;->zones:[I
 
     array-length v1, v1
@@ -2104,7 +2289,7 @@
 
     if-lt v1, v5, :cond_3a
 
-    .line 281
+    .line 314
     invoke-virtual {v3}, Ljava/lang/StringBuilder;->length()I
 
     move-result v1
@@ -2122,19 +2307,19 @@
 
     invoke-virtual {v1, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 278
+    .line 311
     :cond_3a
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_13
 
-    .line 281
+    .line 314
     :cond_3d
     const-string v1, ""
 
     goto :goto_31
 
-    .line 284
+    .line 317
     :cond_40
     invoke-virtual {v3}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
@@ -2147,12 +2332,12 @@
     .registers 4
 
     .prologue
-    .line 309
+    .line 342
     const/16 v0, 0xa
 
     new-array v0, v0, [Ljava/lang/String;
 
-    .line 310
+    .line 343
     const/4 v1, 0x3
 
     const-string v2, "\u041f\u0440\u0430\u0441\u0435\u0446"
@@ -2165,7 +2350,7 @@
 
     aput-object v2, v0, v1
 
-    .line 311
+    .line 344
     const/4 v1, 0x2
 
     const-string v2, "\u041f\u0440\u0435\u0434\u043d\u043e \u0431\u0435\u0434\u0440\u043e"
@@ -2178,7 +2363,7 @@
 
     aput-object v2, v0, v1
 
-    .line 312
+    .line 345
     const/16 v1, 0x9
 
     const-string v2, "\u0417\u0430\u0434\u043d\u043e \u0431\u0435\u0434\u0440\u043e"
@@ -2191,7 +2376,7 @@
 
     aput-object v2, v0, v1
 
-    .line 313
+    .line 346
     const/16 v1, 0x8
 
     const-string v2, "\u0421\u0435\u0434\u0430\u043b\u0438\u0449\u0435"
@@ -2204,7 +2389,7 @@
 
     aput-object v2, v0, v1
 
-    .line 314
+    .line 347
     const/4 v1, 0x1
 
     const-string v2, "\u041a\u043e\u0440\u0435\u043c"
@@ -2217,7 +2402,7 @@
 
     aput-object v2, v0, v1
 
-    .line 315
+    .line 348
     const/4 v1, 0x7
 
     const-string v2, "\u041a\u0440\u044a\u0441\u0442"
@@ -2230,7 +2415,7 @@
 
     aput-object v2, v0, v1
 
-    .line 316
+    .line 349
     const/4 v1, 0x6
 
     const-string v2, "\u0413\u0440\u044a\u0431"
@@ -2243,7 +2428,7 @@
 
     aput-object v2, v0, v1
 
-    .line 317
+    .line 350
     const/4 v1, 0x5
 
     const-string v2, "\u0422\u0440\u0430\u043f\u0435\u0446"
@@ -2256,7 +2441,7 @@
 
     aput-object v2, v0, v1
 
-    .line 318
+    .line 351
     const/4 v1, 0x0
 
     const-string v2, "\u0413\u044a\u0440\u0434\u0438"
@@ -2269,7 +2454,7 @@
 
     aput-object v2, v0, v1
 
-    .line 319
+    .line 352
     const/4 v1, 0x4
 
     const-string v2, "\u0420\u044a\u0446\u0435"
@@ -2282,6 +2467,6 @@
 
     aput-object v2, v0, v1
 
-    .line 320
+    .line 353
     return-object v0
 .end method

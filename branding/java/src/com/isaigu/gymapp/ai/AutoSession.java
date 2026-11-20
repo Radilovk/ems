@@ -1047,10 +1047,13 @@ public final class AutoSession {
                 }
             }
             if (any) {
-                tip("btn_raise", AiText.t("+5 % за всички, но никога над тавана на фазата и най-много +5 на импулс.",
-                        "+5 % for all, never above the phase ceiling and at most +5 per pulse."), System.currentTimeMillis());
+                boolean face = plan != null && AutoCatalog.isFace(plan.program);
+                tip("btn_raise", face ? AiText.t("+5 % за всички, но никога над тавана на фазата и най-много +5 на импулс.",
+                        "+5 % for all, never above the phase ceiling and at most +5 per pulse.")
+                        : AiText.t("+5 % за всички — силата е твоя; плавно, най-много +5 на импулс.",
+                        "+5 % for all — the strength is yours; gradually, at most +5 per pulse."), System.currentTimeMillis());
             } else {
-                notice(AiText.t("Таванът на силата за тази фаза е достигнат", "Strength ceiling of this phase reached"),
+                notice(AiText.t("Силата е на максимума", "The strength is at its maximum"),
                         LIMIT, System.currentTimeMillis());
             }
         }
@@ -1476,7 +1479,9 @@ public final class AutoSession {
         }
         AutoModel.Plan rp = r.plan != null ? r.plan : plan;
         double f = AutoEngine.rowFrac(c, rp.phiMax);
-        double ceil = engine != null ? engine.rowCeiling(c, rp.phiMax, rp.envMax) : f;
+        // the body programs: no program ceiling — the strength is the person's (owner, 1.1.526); only the face keeps one
+        double ceil = !AutoCatalog.isFace(rp.program) ? 100.0
+                : engine != null ? engine.rowCeiling(c, rp.phiMax, rp.envMax) : f;
         int v = AutoLimits.rowStrength(r.cal, f, r.user, ceil, r.lastStrength);
         r.lastStrength = v;
         return v;
@@ -1805,8 +1810,12 @@ public final class AutoSession {
                         } else if (moved >= 0 && msgKind == INFO) {
                             msgKey = "zone";
                             msg = who(r) + AutoCues.zoneNames()[moved] + " " + z[moved]
-                                    + AiText.t(" % — пази се до края. Надолу свободно, нагоре до +", " % — kept to the end. Down freely, up to +")
-                                    + rp.zoneDelta + AiText.t(" от програмата.", " over the program.");
+                                    + (rp.zoneDelta >= 100
+                                    ? AiText.t(" % — пази се до края. Силата на зоната е твоя.",
+                                            " % — kept to the end. The zone's strength is yours.")
+                                    : AiText.t(" % — пази се до края. Надолу свободно, нагоре до +",
+                                            " % — kept to the end. Down freely, up to +")
+                                    + rp.zoneDelta + AiText.t(" от програмата.", " over the program."));
                         }
                     }
                     rewrite = true;

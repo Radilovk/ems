@@ -40,6 +40,10 @@ public final class ProgramGuide {
         }
     }
 
+    static final String PASSIVE_OFTEN_BG = "2 пъти седмично, в дните без активна";
+    static final String PASSIVE_OFTEN_EN = "Twice a week, on the days without an active one";
+    static final String PASSIVE_COURSE_BG = "Курс от 10–12 процедури";
+    static final String PASSIVE_COURSE_EN = "A course of 10–12 treatments";
     static final String ACTIVE_OFTEN_BG = "1–2 пъти седмично, с 2–3 дни почивка";
     static final String ACTIVE_OFTEN_EN = "1–2 times a week, 2–3 days of rest between";
 
@@ -67,10 +71,10 @@ public final class ProgramGuide {
                         ACTIVE_OFTEN_BG, ACTIVE_OFTEN_EN,
                         "Първите промени се усещат след 4–6 тренировки", "The first changes are felt after 4–6 sessions");
             case AutoCatalog.GLUTES_LEGS:
-                return e("Повече ток в седалището и задното бедро — там е акцентът.",
+                return e("Акцентът е в упражненията за седалището и задното бедро; силата по зони я нагласява треньорът.",
                         "Клекове, напади и мостове заедно с импулса — стягането е по-дълбоко.",
                         "Оформя линията на седалището и бедрата.",
-                        "More current in the glutes and the back of the thighs — that is the focus.",
+                        "The focus is in the glute and hamstring exercises; the trainer sets the strength per zone.",
                         "Squats, lunges and bridges together with the impulse — a deeper hold.",
                         "Shapes the line of the glutes and thighs.",
                         ACTIVE_OFTEN_BG, ACTIVE_OFTEN_EN,
@@ -85,10 +89,10 @@ public final class ProgramGuide {
                         ACTIVE_OFTEN_BG, ACTIVE_OFTEN_EN,
                         "Курс от 10–12 тренировки", "A course of 10–12 sessions");
             case AutoCatalog.UPPER:
-                return e("Повече ток в гърдите, гърба, раменете и ръцете.",
+                return e("Гърдите, гърбът, раменете и ръцете работят с упражнения за горната част.",
                         "Лицеви опори, гребане и преса заедно с импулса.",
                         "По-стегната и по-силна горна част на тялото.",
-                        "More current in the chest, back, shoulders and arms.",
+                        "The chest, back, shoulders and arms work with upper-body exercises.",
                         "Push-ups, rows and presses together with the impulse.",
                         "A firmer and stronger upper body.",
                         ACTIVE_OFTEN_BG, ACTIVE_OFTEN_EN,
@@ -130,11 +134,11 @@ public final class ProgramGuide {
                         ACTIVE_OFTEN_BG, ACTIVE_OFTEN_EN,
                         "Курс от 8–12 тренировки", "A course of 8–12 sessions");
             case AutoCatalog.SENIOR:
-                return e("Сила за всеки ден: ставане от стол, стълби, носене на покупки.",
-                        "Бавни, сигурни движения, без скокове.",
+                return e("Сила за всеки ден: ставане от стол, стълби, носене на покупки — бавни, сигурни движения.",
+                        "Кратък блок бързина: след 50 г. тя пада първа, а пази от падане.",
                         "Първите тренировки са по-кратки — тялото свиква постепенно.",
-                        "Strength for every day: getting up from a chair, stairs, carrying shopping.",
-                        "Slow, safe movements, no jumps.",
+                        "Strength for every day: rising from a chair, stairs, carrying shopping — slow, safe moves.",
+                        "A short speed block: after 50 speed fades first, and it prevents falls.",
                         "The first sessions are shorter — the body gets used to it step by step.",
                         "1 път седмично в началото, после до 2", "Once a week at first, then up to twice",
                         "Курс от 10–12 тренировки", "A course of 10–12 sessions");
@@ -158,10 +162,10 @@ public final class ProgramGuide {
                         "Курс от 10–12 процедури", "A course of 10–12 treatments");
             case AutoCatalog.POSTPARTUM:
                 return e("Тазовото дъно, седалището и кръстът си връщат силата и контрола.",
-                        "Коремът работи внимателно, с по-малка сила.",
+                        "Коремът — внимателно: силата му я нагласява треньорът.",
                         "Най-рано 6 седмици след раждането, след цезарово — 12.",
                         "The pelvic floor, glutes and lower back get their strength and control back.",
-                        "The abs work gently, with less strength.",
+                        "The abs gently: the trainer sets their strength.",
                         "Not before 6 weeks after birth, 12 after a caesarean.",
                         "2 пъти седмично", "Twice a week",
                         "Курс от 10–12 процедури", "A course of 10–12 treatments");
@@ -219,6 +223,65 @@ public final class ProgramGuide {
                         "It feels like a light tingle, never pain.",
                         "2–3 пъти седмично", "2–3 times a week",
                         "Курс от 10–12 процедури", "A course of 10–12 treatments");
+            // ---- the passive versions (1.1.526): the same goal at rest — for the days between the active ones,
+            // or when moving is not possible today
+            case AutoCatalog.GENERAL_P:
+                return e("Същата цел като Общо стягане, но в покой: токът стяга мускулите изцяло, без движение.",
+                        "Дълго отпускане след всяко стягане — пасивното стягане уморява по-бързо.",
+                        "За дните между активните тренировки или когато движение днес не е възможно.",
+                        "The same goal as Full-body toning, at rest: the current tightens the muscles fully, no moving.",
+                        "A long release after every hold — a passive hold tires sooner.",
+                        "For the days between active sessions, or when moving is not possible today.",
+                        PASSIVE_OFTEN_BG, PASSIVE_OFTEN_EN, PASSIVE_COURSE_BG, PASSIVE_COURSE_EN);
+            case AutoCatalog.GLUTES_P:
+                return e("Седалището и бедрата се стягат в покой — същата цел като активната.",
+                        "Накрая вълна по краката изтласква задържаната течност нагоре.",
+                        "Между активните тренировки — поддържа тонуса без натоварване.",
+                        "The glutes and thighs tighten at rest — the same goal as the active one.",
+                        "At the end a wave along the legs pushes the held fluid upwards.",
+                        "Between the active sessions — keeps the tone without strain.",
+                        PASSIVE_OFTEN_BG, PASSIVE_OFTEN_EN, PASSIVE_COURSE_BG, PASSIVE_COURSE_EN);
+            case AutoCatalog.MASS_P:
+                return e("Дълги силни стягания в покой — напрежението в мускула е сигналът за растеж.",
+                        "Дълга почивка, за да е пълно всяко стягане.",
+                        "Допълва активната, не я заменя: растежът идва с храна, сън и тренировка.",
+                        "Long strong holds at rest — the tension in the muscle is the signal to grow.",
+                        "A long rest so every hold is full.",
+                        "It adds to the active one, it does not replace it: growth needs food, sleep and training.",
+                        PASSIVE_OFTEN_BG, PASSIVE_OFTEN_EN, PASSIVE_COURSE_BG, PASSIVE_COURSE_EN);
+            case AutoCatalog.UPPER_P:
+                return e("Гърдите, гърбът, раменете и ръцете се стягат в покой.",
+                        "Краката почиват — подходящо след тренировка на краката.",
+                        "Поддържа горната част между активните тренировки.",
+                        "The chest, back, shoulders and arms tighten at rest.",
+                        "The legs rest — good after a leg session.",
+                        "Keeps the upper body up between the active sessions.",
+                        PASSIVE_OFTEN_BG, PASSIVE_OFTEN_EN, PASSIVE_COURSE_BG, PASSIVE_COURSE_EN);
+            case AutoCatalog.CORE_P:
+                return e("Коремът, кръстът и гърбът се стягат заедно — корсет около гръбнака.",
+                        "Легнал, само дишаш с импулса — без натоварване на гръбнака.",
+                        "Същата цел като Талия и корем, за дните без активна тренировка.",
+                        "The abs, lower back and back hold together — a corset around the spine.",
+                        "Lying down, you only breathe with the impulse — no load on the spine.",
+                        "The same goal as Waist & core, for the days without an active session.",
+                        PASSIVE_OFTEN_BG, PASSIVE_OFTEN_EN, PASSIVE_COURSE_BG, PASSIVE_COURSE_EN);
+            case AutoCatalog.POWER_P:
+                return e("Кратки взривни импулси в покой — бързите влакна се включват изцяло.",
+                        "Дълга почивка след всеки импулс — енергията им се връща.",
+                        "За напреднали — след първите 4 тренировки.",
+                        "Short explosive bursts at rest — the fast fibres fire in full.",
+                        "A long rest after every burst — their energy comes back.",
+                        "For the experienced — after the first 4 sessions.",
+                        "1 път седмично", "Once a week", "Курс от 6–8 процедури", "A course of 6–8 treatments");
+            case AutoCatalog.SENIOR_P:
+                return e("Седнал, краката работят сами — по-лесно ставане от стол и ходене.",
+                        "После гърбът и раменете — за по-изправена стойка.",
+                        "Без натоварване на ставите — подходящо и когато движението е трудно.",
+                        "Seated, the legs work by themselves — easier rising from a chair and walking.",
+                        "Then the back and shoulders — for a straighter posture.",
+                        "No load on the joints — suitable when moving is hard too.",
+                        PASSIVE_OFTEN_BG, PASSIVE_OFTEN_EN, "Курс от 12 процедури за 6 седмици",
+                        "A course of 12 treatments in 6 weeks");
             default:
                 return null;
         }

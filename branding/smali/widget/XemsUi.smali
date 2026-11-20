@@ -85,6 +85,8 @@
     .registers 2
 
     .prologue
+    const v1, -0xa4fdf
+
     .line 39
     const v0, -0xf9f4ec
 
@@ -146,9 +148,7 @@
     sput v0, Lcom/isaigu/gymapp/widget/XemsUi;->GO_TEXT:I
 
     .line 51
-    const v0, -0xa4fdf
-
-    sput v0, Lcom/isaigu/gymapp/widget/XemsUi;->AMBER:I
+    sput v1, Lcom/isaigu/gymapp/widget/XemsUi;->AMBER:I
 
     .line 52
     const v0, -0x10bbbc
@@ -166,9 +166,7 @@
     sput v0, Lcom/isaigu/gymapp/widget/XemsUi;->ON_ACCENT:I
 
     .line 56
-    const v0, -0x74a30a
-
-    sput v0, Lcom/isaigu/gymapp/widget/XemsUi;->PAUSE:I
+    sput v1, Lcom/isaigu/gymapp/widget/XemsUi;->PAUSE:I
 
     .line 57
     const/4 v0, 0x1
@@ -1775,17 +1773,15 @@
     .registers 5
 
     .prologue
-    const-wide v2, 0x3fd999999999999aL    # 0.4
-
     .line 84
-    if-nez p0, :cond_8
+    if-nez p0, :cond_3
 
     .line 105
-    :goto_7
+    :goto_2
     return-void
 
     .line 87
-    :cond_8
+    :cond_3
     const-string v0, "bg_screen"
 
     sget v1, Lcom/isaigu/gymapp/widget/XemsUi;->BG:I
@@ -1962,19 +1958,8 @@
     sput v0, Lcom/isaigu/gymapp/widget/XemsUi;->ON_ACCENT:I
 
     .line 103
-    sget v0, Lcom/isaigu/gymapp/widget/XemsUi;->BG:I
+    sget v0, Lcom/isaigu/gymapp/widget/XemsUi;->AMBER:I
 
-    invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsUi;->luminance(I)D
-
-    move-result-wide v0
-
-    cmpg-double v0, v0, v2
-
-    if-gez v0, :cond_c6
-
-    const v0, -0x74a30a
-
-    :goto_b5
     sput v0, Lcom/isaigu/gymapp/widget/XemsUi;->PAUSE:I
 
     .line 104
@@ -1984,28 +1969,23 @@
 
     move-result-wide v0
 
+    const-wide v2, 0x3fd999999999999aL    # 0.4
+
     cmpg-double v0, v0, v2
 
-    if-gez v0, :cond_ca
+    if-gez v0, :cond_bb
 
     const/4 v0, 0x1
 
-    :goto_c2
+    :goto_b7
     sput-boolean v0, Lcom/isaigu/gymapp/widget/XemsUi;->dark:Z
 
-    goto/16 :goto_7
+    goto/16 :goto_2
 
-    .line 103
-    :cond_c6
-    const v0, -0x83c513
-
-    goto :goto_b5
-
-    .line 104
-    :cond_ca
+    :cond_bb
     const/4 v0, 0x0
 
-    goto :goto_c2
+    goto :goto_b7
 .end method
 
 .method public static isMagenta(Landroid/content/Context;)Z

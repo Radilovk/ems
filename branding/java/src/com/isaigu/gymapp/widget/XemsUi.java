@@ -52,8 +52,8 @@ public final class XemsUi {
     public static int DANGER = 0xFFEF4444;
     public static int ORANGE = 0xFFF59E0B;
     public static int ON_ACCENT = 0xFFFFFFFF;
-    /** ❚❚ Pause everywhere (owner, 1.1.523): its own colour — accent is impulse 1, amber impulse 2, green start, red stop. */
-    public static int PAUSE = 0xFF8B5CF6;
+    /** ❚❚ Pause everywhere: amber, as it always was (owner, 1.1.524 — the violet of 1.1.523 went back). */
+    public static int PAUSE = 0xFFF5B021;
     public static boolean dark = true;
 
     public static final int PRIMARY = 0;   // green solid — start / activate / save
@@ -100,7 +100,7 @@ public final class XemsUi {
         DANGER = color(c, "pause_accent", DANGER);
         ORANGE = color(c, "light_orange_exister", ORANGE);
         ON_ACCENT = color(c, "text_on_accent", ON_ACCENT);
-        PAUSE = luminance(BG) < 0.4 ? 0xFF8B5CF6 : 0xFF7C3AED;
+        PAUSE = AMBER;
         dark = luminance(BG) < 0.4;
     }
 

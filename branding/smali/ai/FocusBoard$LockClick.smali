@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 536
+    .line 643
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -36,12 +36,12 @@
     .prologue
     const/4 v0, 0x0
 
-    .line 539
+    .line 646
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsUi;->haptic(Landroid/view/View;)V
 
-    .line 540
+    .line 647
     # getter for: Lcom/isaigu/gymapp/ai/FocusBoard;->locked:Z
-    invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$300()Z
+    invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$700()Z
 
     move-result v1
 
@@ -51,30 +51,30 @@
 
     :cond_b
     # setter for: Lcom/isaigu/gymapp/ai/FocusBoard;->locked:Z
-    invoke-static {v0}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$302(Z)Z
+    invoke-static {v0}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$702(Z)Z
 
-    .line 541
+    .line 648
     # getter for: Lcom/isaigu/gymapp/ai/FocusBoard;->RATIO:Ljava/util/WeakHashMap;
-    invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$400()Ljava/util/WeakHashMap;
+    invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$800()Ljava/util/WeakHashMap;
 
     move-result-object v0
 
     invoke-virtual {v0}, Ljava/util/WeakHashMap;->clear()V
 
-    .line 542
+    .line 649
     # invokes: Lcom/isaigu/gymapp/ai/FocusBoard;->current()Lcom/isaigu/gymapp/train/model/TrainItem;
-    invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$500()Lcom/isaigu/gymapp/train/model/TrainItem;
+    invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$900()Lcom/isaigu/gymapp/train/model/TrainItem;
 
     move-result-object v0
 
-    .line 543
+    .line 650
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/FocusBoard;->bean(Lcom/isaigu/gymapp/train/model/TrainItem;)Lcom/isaigu/gymapp/bean/ProgramDataBean;
 
     move-result-object v1
 
-    .line 544
+    .line 651
     # getter for: Lcom/isaigu/gymapp/ai/FocusBoard;->locked:Z
-    invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$300()Z
+    invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$700()Z
 
     move-result v2
 
@@ -82,15 +82,15 @@
 
     if-eqz v1, :cond_37
 
-    .line 545
+    .line 652
     iget v2, v1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenth:I
 
     iget v1, v1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseStrenthPercent:I
 
     # invokes: Lcom/isaigu/gymapp/ai/FocusBoard;->ratio(Lcom/isaigu/gymapp/train/model/TrainItem;II)F
-    invoke-static {v0, v2, v1}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$600(Lcom/isaigu/gymapp/train/model/TrainItem;II)F
+    invoke-static {v0, v2, v1}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$1000(Lcom/isaigu/gymapp/train/model/TrainItem;II)F
 
-    .line 546
+    .line 653
     const-string v0, "\u0421\u044a\u043e\u0442\u043d\u043e\u0448\u0435\u043d\u0438\u0435\u0442\u043e \u0435 \u0437\u0430\u043a\u043b\u044e\u0447\u0435\u043d\u043e: 1 \u0438 2 \u0441\u0435 \u0434\u0432\u0438\u0436\u0430\u0442 \u0437\u0430\u0435\u0434\u043d\u043e."
 
     const-string v1, "Ratio locked: 1 and 2 move together."
@@ -100,9 +100,9 @@
     move-result-object v0
 
     # invokes: Lcom/isaigu/gymapp/ai/FocusBoard;->hint(Ljava/lang/String;)V
-    invoke-static {v0}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$100(Ljava/lang/String;)V
+    invoke-static {v0}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$600(Ljava/lang/String;)V
 
-    .line 550
+    .line 657
     :cond_37
     :try_start_37
     invoke-virtual {p1}, Landroid/view/View;->getContext()Landroid/content/Context;
@@ -124,7 +124,7 @@
     const-string v1, "lock"
 
     # getter for: Lcom/isaigu/gymapp/ai/FocusBoard;->locked:Z
-    invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$300()Z
+    invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$700()Z
 
     move-result v2
 
@@ -132,24 +132,24 @@
 
     move-result-object v0
 
-    .line 551
+    .line 658
     invoke-interface {v0}, Landroid/content/SharedPreferences$Editor;->apply()V
     :try_end_53
     .catch Ljava/lang/Throwable; {:try_start_37 .. :try_end_53} :catch_5b
 
-    .line 554
+    .line 661
     :goto_53
     invoke-virtual {p1}, Landroid/view/View;->getContext()Landroid/content/Context;
 
     move-result-object v0
 
     # invokes: Lcom/isaigu/gymapp/ai/FocusBoard;->paintLock(Landroid/content/Context;)V
-    invoke-static {v0}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$700(Landroid/content/Context;)V
+    invoke-static {v0}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$1100(Landroid/content/Context;)V
 
-    .line 555
+    .line 662
     return-void
 
-    .line 552
+    .line 659
     :catch_5b
     move-exception v0
 

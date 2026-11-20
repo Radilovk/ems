@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 799
+    .line 906
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,19 +34,19 @@
     .registers 3
 
     .prologue
-    .line 802
+    .line 909
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsUi;->haptic(Landroid/view/View;)V
 
-    .line 803
+    .line 910
     # getter for: Lcom/isaigu/gymapp/ai/FocusBoard;->modePop:Landroid/widget/PopupWindow;
-    invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$900()Landroid/widget/PopupWindow;
+    invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$1300()Landroid/widget/PopupWindow;
 
     move-result-object v0
 
     if-eqz v0, :cond_17
 
     # getter for: Lcom/isaigu/gymapp/ai/FocusBoard;->modePop:Landroid/widget/PopupWindow;
-    invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$900()Landroid/widget/PopupWindow;
+    invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$1300()Landroid/widget/PopupWindow;
 
     move-result-object v0
 
@@ -56,17 +56,17 @@
 
     if-eqz v0, :cond_17
 
-    .line 804
+    .line 911
     invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->closeModeMenu()V
 
-    .line 808
+    .line 915
     :goto_16
     return-void
 
-    .line 807
+    .line 914
     :cond_17
     # invokes: Lcom/isaigu/gymapp/ai/FocusBoard;->openModeMenu(Landroid/view/View;)V
-    invoke-static {p1}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$1000(Landroid/view/View;)V
+    invoke-static {p1}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$1400(Landroid/view/View;)V
 
     goto :goto_16
 .end method

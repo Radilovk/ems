@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 1928
+    .line 2079
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 1929
+    .line 2080
     iput-object p1, p0, Lcom/isaigu/gymapp/ai/FocusBoard$RemoveClick;->item:Lcom/isaigu/gymapp/train/model/TrainItem;
 
-    .line 1930
+    .line 2081
     return-void
 .end method
 
@@ -48,36 +48,36 @@
 
     const/high16 v6, 0x3f800000    # 1.0f
 
-    .line 1934
+    .line 2085
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsUi;->haptic(Landroid/view/View;)V
 
-    .line 1935
+    .line 2086
     invoke-virtual {p1}, Landroid/view/View;->getContext()Landroid/content/Context;
 
     move-result-object v0
 
     # invokes: Lcom/isaigu/gymapp/ai/FocusBoard;->activity(Landroid/content/Context;)Landroid/app/Activity;
-    invoke-static {v0}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$2800(Landroid/content/Context;)Landroid/app/Activity;
+    invoke-static {v0}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$3100(Landroid/content/Context;)Landroid/app/Activity;
 
     move-result-object v1
 
-    .line 1936
+    .line 2087
     if-nez v1, :cond_13
 
-    .line 1955
+    .line 2106
     :goto_12
     return-void
 
-    .line 1939
+    .line 2090
     :cond_13
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$RemoveClick;->item:Lcom/isaigu/gymapp/train/model/TrainItem;
 
     # invokes: Lcom/isaigu/gymapp/ai/FocusBoard;->name(Lcom/isaigu/gymapp/train/model/TrainItem;)Ljava/lang/String;
-    invoke-static {v0}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$2900(Lcom/isaigu/gymapp/train/model/TrainItem;)Ljava/lang/String;
+    invoke-static {v0}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$3200(Lcom/isaigu/gymapp/train/model/TrainItem;)Ljava/lang/String;
 
     move-result-object v0
 
-    .line 1940
+    .line 2091
     new-instance v2, Ljava/lang/StringBuilder;
 
     invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
@@ -109,7 +109,7 @@
 
     const-string v3, " from the training?"
 
-    .line 1941
+    .line 2092
     invoke-static {v2, v3}, Lcom/isaigu/gymapp/ai/AiText;->t(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v2
@@ -122,11 +122,11 @@
 
     move-result-object v2
 
-    .line 1942
+    .line 2093
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$RemoveClick;->item:Lcom/isaigu/gymapp/train/model/TrainItem;
 
     # invokes: Lcom/isaigu/gymapp/ai/FocusBoard;->running(Lcom/isaigu/gymapp/train/model/TrainItem;)Z
-    invoke-static {v0}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$3000(Lcom/isaigu/gymapp/train/model/TrainItem;)Z
+    invoke-static {v0}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$200(Lcom/isaigu/gymapp/train/model/TrainItem;)Z
 
     move-result v0
 
@@ -140,16 +140,16 @@
 
     move-result-object v0
 
-    .line 1944
+    .line 2095
     :goto_54
     const/16 v3, 0x230
 
-    .line 1940
+    .line 2091
     invoke-static {v1, v2, v0, v3}, Lcom/isaigu/gymapp/widget/XemsUi;->shell(Landroid/app/Activity;Ljava/lang/String;Ljava/lang/String;I)Lcom/isaigu/gymapp/widget/XemsUi$Shell;
 
     move-result-object v0
 
-    .line 1946
+    .line 2097
     const-string v2, "\u041e\u0441\u0442\u0430\u0432\u0438"
 
     const-string v3, "Keep"
@@ -164,7 +164,7 @@
 
     move-result-object v2
 
-    .line 1947
+    .line 2098
     new-instance v3, Lcom/isaigu/gymapp/ai/FocusBoard$RemoveAnswer;
 
     const/4 v4, 0x0
@@ -173,7 +173,7 @@
 
     invoke-virtual {v2, v3}, Landroid/widget/TextView;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
-    .line 1948
+    .line 2099
     iget-object v3, v0, Lcom/isaigu/gymapp/widget/XemsUi$Shell;->footer:Landroid/widget/LinearLayout;
 
     new-instance v4, Landroid/widget/LinearLayout$LayoutParams;
@@ -186,7 +186,7 @@
 
     invoke-virtual {v3, v2, v4}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 1949
+    .line 2100
     const-string v2, "\u041c\u0430\u0445\u043d\u0438"
 
     const-string v3, "Remove"
@@ -201,7 +201,7 @@
 
     move-result-object v2
 
-    .line 1950
+    .line 2101
     new-instance v3, Lcom/isaigu/gymapp/ai/FocusBoard$RemoveAnswer;
 
     iget-object v4, p0, Lcom/isaigu/gymapp/ai/FocusBoard$RemoveClick;->item:Lcom/isaigu/gymapp/train/model/TrainItem;
@@ -210,7 +210,7 @@
 
     invoke-virtual {v2, v3}, Landroid/widget/TextView;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
-    .line 1951
+    .line 2102
     new-instance v3, Landroid/widget/LinearLayout$LayoutParams;
 
     invoke-static {v1, v7}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
@@ -219,7 +219,7 @@
 
     invoke-direct {v3, v8, v4, v6}, Landroid/widget/LinearLayout$LayoutParams;-><init>(IIF)V
 
-    .line 1952
+    .line 2103
     const/high16 v4, 0x41400000    # 12.0f
 
     invoke-static {v1, v4}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
@@ -228,19 +228,19 @@
 
     iput v1, v3, Landroid/widget/LinearLayout$LayoutParams;->leftMargin:I
 
-    .line 1953
+    .line 2104
     iget-object v1, v0, Lcom/isaigu/gymapp/widget/XemsUi$Shell;->footer:Landroid/widget/LinearLayout;
 
     invoke-virtual {v1, v2, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 1954
+    .line 2105
     iget-object v0, v0, Lcom/isaigu/gymapp/widget/XemsUi$Shell;->dialog:Landroid/app/Dialog;
 
     invoke-virtual {v0}, Landroid/app/Dialog;->show()V
 
     goto/16 :goto_12
 
-    .line 1940
+    .line 2091
     :cond_b2
     const-string v0, "\u043a\u043b\u0438\u0435\u043d\u0442\u0430"
 
@@ -252,7 +252,7 @@
 
     goto/16 :goto_30
 
-    .line 1944
+    .line 2095
     :cond_bc
     const-string v0, "\u041a\u043e\u0441\u0442\u044e\u043c\u044a\u0442 \u0441\u0435 \u0438\u0437\u043a\u043b\u044e\u0447\u0432\u0430; \u043a\u043b\u0438\u0435\u043d\u0442\u044a\u0442 \u043e\u0441\u0442\u0430\u0432\u0430 \u0432 \u0441\u043f\u0438\u0441\u044a\u043a\u0430 \u0441 \u043a\u043b\u0438\u0435\u043d\u0442\u0438."
 

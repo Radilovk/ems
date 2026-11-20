@@ -99,6 +99,13 @@ Idea: the BodyTech mock-ups (landscape) — one client fills the place of the ro
   manual mode the clock now starts the new mode's own full time (`ProgramLive.stageClock`): Основен with 2:00 left
   → Масаж runs the massage's whole time, not the 2:00 left. The report's plan drops the old mode's unused time and
   adds the new one (`ProgramLive.takeStage` → `SessionRecorder`). AI / Auto keep one clock across their modes.
+- **1.1.523 — who the keys act on; pause colour; „АКТИВЕН“ (owner):** with more clients on the board ▶ / ❚❚ / ■ act
+  on the picked ones — the master panel's rule (`XemsLocalAvatar` picks, shared with the rows' photos): a client's
+  chip focuses it **and** picks it alone; „Всички“ (first in the client row, lit while active) = nobody picked = all
+  of them; ▶ / ❚❚ then reads "за всички". One client: its own row's keys, as before. ■ with more clients presses the
+  master ■ (picked ones reset; nobody picked = the end for everyone). The main panel's ■ and ▶ / ❚❚ hide whenever
+  the board is up (Auto keeps them). ❚❚ has its own colour everywhere — `XemsUi.PAUSE` violet (accent = impulse 1,
+  amber = impulse 2, green = start, red = stop). The training bar's state reads „АКТИВЕН“.
 - **1.1.522 — on the real screen (owner's screenshots):** the training bar fits the narrow middle column: a state
   pill (● ТРЕНИРОВКА / ❚❚ ПАУЗА / ГОТОВ / КРАЙ) on the left — the mode is on its key up top — the time so far 28 sp
   on the right with "от 20:00" beside it, a 10 dp bar, minutes 0′ … 20′. ❚❚ (here and on the main panel) is in the

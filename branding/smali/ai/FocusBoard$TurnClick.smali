@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 1042
+    .line 1149
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -36,16 +36,16 @@
     .prologue
     const/4 v0, 0x0
 
-    .line 1045
+    .line 1152
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsUi;->haptic(Landroid/view/View;)V
 
-    .line 1046
+    .line 1153
     invoke-virtual {p1}, Landroid/view/View;->getContext()Landroid/content/Context;
 
     move-result-object v1
 
     # invokes: Lcom/isaigu/gymapp/ai/FocusBoard;->wantUpright(Landroid/content/Context;)Z
-    invoke-static {v1}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$1300(Landroid/content/Context;)Z
+    invoke-static {v1}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$1700(Landroid/content/Context;)Z
 
     move-result v1
 
@@ -53,7 +53,7 @@
 
     const/4 v0, 0x1
 
-    .line 1048
+    .line 1155
     :cond_f
     :try_start_f
     invoke-virtual {p1}, Landroid/view/View;->getContext()Landroid/content/Context;
@@ -82,14 +82,14 @@
     :try_end_27
     .catch Ljava/lang/Throwable; {:try_start_f .. :try_end_27} :catch_2b
 
-    .line 1051
+    .line 1158
     :goto_27
     invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->tick()V
 
-    .line 1052
+    .line 1159
     return-void
 
-    .line 1049
+    .line 1156
     :catch_2b
     move-exception v0
 

@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 815
+    .line 922
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 816
+    .line 923
     iput p1, p0, Lcom/isaigu/gymapp/ai/FocusBoard$ModePick;->mode:I
 
-    .line 817
+    .line 924
     return-void
 .end method
 
@@ -42,23 +42,23 @@
     .registers 4
 
     .prologue
-    .line 821
+    .line 928
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsUi;->haptic(Landroid/view/View;)V
 
-    .line 822
+    .line 929
     invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->closeModeMenu()V
 
-    .line 823
+    .line 930
     # invokes: Lcom/isaigu/gymapp/ai/FocusBoard;->current()Lcom/isaigu/gymapp/train/model/TrainItem;
-    invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$500()Lcom/isaigu/gymapp/train/model/TrainItem;
+    invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$900()Lcom/isaigu/gymapp/train/model/TrainItem;
 
     move-result-object v0
 
-    .line 824
+    .line 931
     if-eqz v0, :cond_15
 
     # invokes: Lcom/isaigu/gymapp/ai/FocusBoard;->mode(Lcom/isaigu/gymapp/train/model/TrainItem;)I
-    invoke-static {v0}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$1100(Lcom/isaigu/gymapp/train/model/TrainItem;)I
+    invoke-static {v0}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$1500(Lcom/isaigu/gymapp/train/model/TrainItem;)I
 
     move-result v0
 
@@ -66,14 +66,14 @@
 
     if-ne v0, v1, :cond_15
 
-    .line 829
+    .line 936
     :goto_14
     return-void
 
-    .line 827
+    .line 934
     :cond_15
     # getter for: Lcom/isaigu/gymapp/ai/FocusBoard;->MODE_IDS:[Ljava/lang/String;
-    invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$1200()[Ljava/lang/String;
+    invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$1600()[Ljava/lang/String;
 
     move-result-object v0
 
@@ -83,9 +83,9 @@
 
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/FocusBoard;->press(Ljava/lang/String;)Z
 
-    .line 828
+    .line 935
     # invokes: Lcom/isaigu/gymapp/ai/FocusBoard;->later()V
-    invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$200()V
+    invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$300()V
 
     goto :goto_14
 .end method

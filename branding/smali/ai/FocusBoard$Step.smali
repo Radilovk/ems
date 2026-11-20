@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 1849
+    .line 1996
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 1850
+    .line 1997
     iput p1, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Step;->what:I
 
-    .line 1851
+    .line 1998
     return-void
 .end method
 
@@ -42,11 +42,11 @@
     .registers 3
 
     .prologue
-    .line 1855
+    .line 2002
     iget v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Step;->what:I
 
     invoke-static {v0, p1}, Lcom/isaigu/gymapp/ai/FocusBoard;->step(II)V
 
-    .line 1856
+    .line 2003
     return-void
 .end method

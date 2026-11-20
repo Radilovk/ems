@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 1862
+    .line 2009
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 1863
+    .line 2010
     iput-object p1, p0, Lcom/isaigu/gymapp/ai/FocusBoard$FocusClick;->item:Lcom/isaigu/gymapp/train/model/TrainItem;
 
-    .line 1864
+    .line 2011
     return-void
 .end method
 
@@ -42,41 +42,65 @@
     .registers 4
 
     .prologue
-    .line 1868
+    const/4 v1, 0x1
+
+    .line 2015
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsUi;->haptic(Landroid/view/View;)V
 
-    .line 1869
+    .line 2016
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$FocusClick;->item:Lcom/isaigu/gymapp/train/model/TrainItem;
 
     # setter for: Lcom/isaigu/gymapp/ai/FocusBoard;->focus:Lcom/isaigu/gymapp/train/model/TrainItem;
-    invoke-static {v0}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$2402(Lcom/isaigu/gymapp/train/model/TrainItem;)Lcom/isaigu/gymapp/train/model/TrainItem;
+    invoke-static {v0}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$2702(Lcom/isaigu/gymapp/train/model/TrainItem;)Lcom/isaigu/gymapp/train/model/TrainItem;
 
-    .line 1870
+    .line 2017
     const/4 v0, 0x0
 
     # setter for: Lcom/isaigu/gymapp/ai/FocusBoard;->sexOf:Lcom/isaigu/gymapp/train/model/TrainItem;
-    invoke-static {v0}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$2502(Lcom/isaigu/gymapp/train/model/TrainItem;)Lcom/isaigu/gymapp/train/model/TrainItem;
+    invoke-static {v0}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$2802(Lcom/isaigu/gymapp/train/model/TrainItem;)Lcom/isaigu/gymapp/train/model/TrainItem;
 
-    .line 1871
-    iget-object v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$FocusClick;->item:Lcom/isaigu/gymapp/train/model/TrainItem;
+    .line 2018
+    # invokes: Lcom/isaigu/gymapp/ai/FocusBoard;->clients()Ljava/util/List;
+    invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$000()Ljava/util/List;
 
-    # invokes: Lcom/isaigu/gymapp/ai/FocusBoard;->position(Lcom/isaigu/gymapp/train/model/TrainItem;)I
-    invoke-static {v0}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$2600(Lcom/isaigu/gymapp/train/model/TrainItem;)I
+    move-result-object v0
+
+    invoke-interface {v0}, Ljava/util/List;->size()I
 
     move-result v0
 
-    const/4 v1, 0x1
+    if-le v0, v1, :cond_21
+
+    .line 2019
+    iget-object v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$FocusClick;->item:Lcom/isaigu/gymapp/train/model/TrainItem;
+
+    invoke-static {v0}, Lcom/isaigu/gymapp/ai/FocusBoard;->pickOnly(Lcom/isaigu/gymapp/train/model/TrainItem;)V
+
+    .line 2020
+    const-string v0, ""
+
+    # setter for: Lcom/isaigu/gymapp/ai/FocusBoard;->clientsKey:Ljava/lang/String;
+    invoke-static {v0}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$402(Ljava/lang/String;)Ljava/lang/String;
+
+    .line 2022
+    :cond_21
+    iget-object v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$FocusClick;->item:Lcom/isaigu/gymapp/train/model/TrainItem;
+
+    # invokes: Lcom/isaigu/gymapp/ai/FocusBoard;->position(Lcom/isaigu/gymapp/train/model/TrainItem;)I
+    invoke-static {v0}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$2900(Lcom/isaigu/gymapp/train/model/TrainItem;)I
+
+    move-result v0
 
     # invokes: Lcom/isaigu/gymapp/ai/FocusBoard;->rowAt(IZ)Landroid/view/View;
-    invoke-static {v0, v1}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$2700(IZ)Landroid/view/View;
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$3000(IZ)Landroid/view/View;
 
-    .line 1872
+    .line 2023
     # invokes: Lcom/isaigu/gymapp/ai/FocusBoard;->later()V
-    invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$200()V
+    invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$300()V
 
-    .line 1873
+    .line 2024
     invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->refresh()V
 
-    .line 1874
+    .line 2025
     return-void
 .end method

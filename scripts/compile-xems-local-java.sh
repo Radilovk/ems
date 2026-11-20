@@ -23,6 +23,7 @@ SOURCES=(
   "${WIDGET_SRC}/XemsLocalGate.java"
   "${WIDGET_SRC}/XemsLocalUserForm.java"
   "${WIDGET_SRC}/XemsLocalAvatar.java"
+  "${WIDGET_SRC}/XemsLocalConsent.java"
   "${WIDGET_SRC}/XemsClientSync.java"
 )
 
@@ -63,6 +64,7 @@ mkdir -p "${OUT_DIR}/dex"
     com/isaigu/gymapp/widget/XemsLocalGate*.class \
     com/isaigu/gymapp/widget/XemsLocalUserForm*.class \
     com/isaigu/gymapp/widget/XemsLocalAvatar*.class \
+    com/isaigu/gymapp/widget/XemsLocalConsent*.class \
     com/isaigu/gymapp/widget/XemsClientSync*.class
 )
 mv "${OUT_DIR}/dex/classes.dex" "${DEX_FILE}"
@@ -71,7 +73,7 @@ echo "Baksmaling..."
 rm -rf "${SMALI_OUT}"
 java -jar "${BAKSMALI}" d "${DEX_FILE}" -o "${SMALI_OUT}"
 
-for f in XemsSearch XemsLocalStore XemsLocalApi XemsLocalSection XemsLocalGate XemsLocalUserForm XemsLocalAvatar XemsClientSync; do
+for f in XemsSearch XemsLocalStore XemsLocalApi XemsLocalSection XemsLocalGate XemsLocalUserForm XemsLocalAvatar XemsLocalConsent XemsClientSync; do
   src="${SMALI_OUT}/com/isaigu/gymapp/widget/${f}.smali"
   [[ -f "$src" ]] && cp "$src" "${BRANDING_SMALI}/${f}.smali"
   rm -f "${BRANDING_SMALI}/${f}"\$*.smali   # inner classes the Java no longer has

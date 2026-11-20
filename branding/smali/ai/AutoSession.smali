@@ -255,23 +255,23 @@
     .registers 11
 
     .prologue
-    .line 1908
+    .line 1917
     iput p1, p0, Lcom/isaigu/gymapp/ai/AutoSession$Row;->writtenStrength:I
 
-    .line 1909
+    .line 1918
     iput p1, p0, Lcom/isaigu/gymapp/ai/AutoSession$Row;->lastStrength:I
 
-    .line 1910
+    .line 1919
     if-nez p2, :cond_30
 
-    .line 1911
+    .line 1920
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AutoSession$Row;->plan:Lcom/isaigu/gymapp/ai/AutoModel$Plan;
 
     if-eqz v0, :cond_31
 
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AutoSession$Row;->plan:Lcom/isaigu/gymapp/ai/AutoModel$Plan;
 
-    .line 1912
+    .line 1921
     :goto_c
     sget-object v1, Lcom/isaigu/gymapp/ai/AutoSession;->written:Lcom/isaigu/gymapp/ai/AutoEngine$Cmd;
 
@@ -281,7 +281,7 @@
 
     move-result-wide v0
 
-    .line 1913
+    .line 1922
     iget v2, p0, Lcom/isaigu/gymapp/ai/AutoSession$Row;->cal:I
 
     if-lez v2, :cond_30
@@ -292,7 +292,7 @@
 
     if-lez v2, :cond_30
 
-    .line 1914
+    .line 1923
     const-wide v2, 0x3fb999999999999aL    # 0.1
 
     int-to-double v4, p1
@@ -311,11 +311,11 @@
 
     iput-wide v0, p0, Lcom/isaigu/gymapp/ai/AutoSession$Row;->user:D
 
-    .line 1917
+    .line 1926
     :cond_30
     return-void
 
-    .line 1911
+    .line 1920
     :cond_31
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoSession;->plan:Lcom/isaigu/gymapp/ai/AutoModel$Plan;
 
@@ -410,7 +410,7 @@
     .registers 5
 
     .prologue
-    .line 2129
+    .line 2138
     if-eqz p0, :cond_d
 
     :try_start_2
@@ -420,23 +420,23 @@
 
     if-eqz v0, :cond_d
 
-    .line 2130
+    .line 2139
     const-string v0, "auto"
 
     invoke-static {p0, v0}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->acquire(Landroid/app/Activity;Ljava/lang/String;)V
     :try_end_d
     .catch Ljava/lang/Throwable; {:try_start_2 .. :try_end_d} :catch_e
 
-    .line 2135
+    .line 2144
     :cond_d
     :goto_d
     return-void
 
-    .line 2132
+    .line 2141
     :catch_e
     move-exception v0
 
-    .line 2133
+    .line 2142
     const-string v1, "auto"
 
     new-instance v2, Ljava/lang/StringBuilder;
@@ -560,17 +560,17 @@
     .prologue
     const/16 v1, 0xa
 
-    .line 1264
+    .line 1267
     if-ltz p0, :cond_6
 
     if-lt p0, v1, :cond_7
 
-    .line 1275
+    .line 1278
     :cond_6
     :goto_6
     return-void
 
-    .line 1267
+    .line 1270
     :cond_7
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoSession;->rows:Ljava/util/List;
 
@@ -591,7 +591,7 @@
 
     check-cast v0, Lcom/isaigu/gymapp/ai/AutoSession$Row;
 
-    .line 1268
+    .line 1271
     iget-object v3, v0, Lcom/isaigu/gymapp/ai/AutoSession$Row;->zoneRatio:[I
 
     const/16 v4, 0x14
@@ -626,7 +626,7 @@
 
     goto :goto_26
 
-    .line 1270
+    .line 1273
     :cond_35
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoSession;->stage:Lcom/isaigu/gymapp/ai/AutoSession$Stage;
 
@@ -634,7 +634,7 @@
 
     if-ne v0, v1, :cond_4b
 
-    .line 1271
+    .line 1274
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoSession;->written:Lcom/isaigu/gymapp/ai/AutoEngine$Cmd;
 
     if-eqz v0, :cond_46
@@ -655,7 +655,7 @@
 
     goto :goto_41
 
-    .line 1272
+    .line 1275
     :cond_4b
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoSession;->stage:Lcom/isaigu/gymapp/ai/AutoSession$Stage;
 
@@ -681,7 +681,7 @@
 
     if-eqz v0, :cond_6
 
-    .line 1273
+    .line 1276
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoSession;->written:Lcom/isaigu/gymapp/ai/AutoEngine$Cmd;
 
     const/4 v1, 0x0
@@ -699,22 +699,22 @@
 
     const-wide/16 v4, 0x0
 
-    .line 1448
+    .line 1451
     if-nez p0, :cond_6
 
-    .line 1467
+    .line 1470
     :cond_5
     :goto_5
     return-void
 
-    .line 1451
+    .line 1454
     :cond_6
     sput-object p0, Lcom/isaigu/gymapp/ai/AutoSession;->lastApplied:Lcom/isaigu/gymapp/ai/AutoEngine$Cmd;
 
-    .line 1452
+    .line 1455
     sput-boolean v6, Lcom/isaigu/gymapp/ai/AutoSession;->zeroed:Z
 
-    .line 1453
+    .line 1456
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoSession;->rows:Ljava/util/List;
 
     invoke-interface {v0}, Ljava/util/List;->iterator()Ljava/util/Iterator;
@@ -734,18 +734,18 @@
 
     check-cast v0, Lcom/isaigu/gymapp/ai/AutoSession$Row;
 
-    .line 1454
+    .line 1457
     const-wide/high16 v2, 0x4014000000000000L    # 5.0
 
     iput-wide v2, v0, Lcom/isaigu/gymapp/ai/AutoSession$Row;->raiseBudget:D
 
     goto :goto_10
 
-    .line 1456
+    .line 1459
     :cond_21
     invoke-static {p0, v6}, Lcom/isaigu/gymapp/ai/AutoSession;->writeRows(Lcom/isaigu/gymapp/ai/AutoEngine$Cmd;Z)V
 
-    .line 1458
+    .line 1461
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoSession;->rows:Ljava/util/List;
 
     invoke-interface {v0}, Ljava/util/List;->iterator()Ljava/util/Iterator;
@@ -767,7 +767,7 @@
 
     check-cast v0, Lcom/isaigu/gymapp/ai/AutoSession$Row;
 
-    .line 1459
+    .line 1462
     iget-object v1, v0, Lcom/isaigu/gymapp/ai/AutoSession$Row;->plan:Lcom/isaigu/gymapp/ai/AutoModel$Plan;
 
     if-eqz v1, :cond_5f
@@ -781,7 +781,7 @@
 
     move-result-wide v6
 
-    .line 1460
+    .line 1463
     iget v1, v0, Lcom/isaigu/gymapp/ai/AutoSession$Row;->cal:I
 
     if-lez v1, :cond_6e
@@ -794,7 +794,7 @@
 
     if-ltz v1, :cond_6e
 
-    .line 1461
+    .line 1464
     iget v1, v0, Lcom/isaigu/gymapp/ai/AutoSession$Row;->writtenStrength:I
 
     int-to-double v10, v1
@@ -816,10 +816,10 @@
     :goto_5d
     move-wide v2, v0
 
-    .line 1463
+    .line 1466
     goto :goto_2b
 
-    .line 1459
+    .line 1462
     :cond_5f
     sget-object v1, Lcom/isaigu/gymapp/ai/AutoSession;->plan:Lcom/isaigu/gymapp/ai/AutoModel$Plan;
 
@@ -827,13 +827,13 @@
 
     goto :goto_3f
 
-    .line 1464
+    .line 1467
     :cond_64
     cmpl-double v0, v2, v4
 
     if-lez v0, :cond_5
 
-    .line 1465
+    .line 1468
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoSession;->engine:Lcom/isaigu/gymapp/ai/AutoEngine;
 
     invoke-virtual {v0, v2, v3}, Lcom/isaigu/gymapp/ai/AutoEngine;->setUserScale(D)V
@@ -866,7 +866,7 @@
     .prologue
     const/4 v0, 0x0
 
-    .line 2075
+    .line 2084
     if-eqz p0, :cond_11
 
     :try_start_3
@@ -886,12 +886,12 @@
 
     move-result-object v0
 
-    .line 2077
+    .line 2086
     :cond_11
     :goto_11
     return-object v0
 
-    .line 2076
+    .line 2085
     :catch_12
     move-exception v1
 
@@ -2150,7 +2150,7 @@
     .registers 3
 
     .prologue
-    .line 1279
+    .line 1282
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoSession;->rows:Ljava/util/List;
 
     invoke-interface {v0}, Ljava/util/List;->isEmpty()Z
@@ -2485,7 +2485,7 @@
     .prologue
     const/4 v0, -0x1
 
-    .line 1426
+    .line 1429
     :try_start_1
     sget-object v1, Lcom/isaigu/gymapp/ai/AutoSession;->stage:Lcom/isaigu/gymapp/ai/AutoSession$Stage;
 
@@ -2507,12 +2507,12 @@
 
     if-eq v1, v2, :cond_16
 
-    .line 1432
+    .line 1435
     :cond_15
     :goto_15
     return v0
 
-    .line 1429
+    .line 1432
     :cond_16
     sget-object v1, Lcom/isaigu/gymapp/ai/AutoSession;->engine:Lcom/isaigu/gymapp/ai/AutoEngine;
 
@@ -2520,7 +2520,7 @@
 
     move-result-object v1
 
-    .line 1430
+    .line 1433
     if-eqz v1, :cond_15
 
     invoke-static {v1}, Lcom/isaigu/gymapp/ai/AutoTemplates;->index(Ljava/lang/String;)I
@@ -2531,7 +2531,7 @@
 
     goto :goto_15
 
-    .line 1431
+    .line 1434
     :catch_23
     move-exception v1
 
@@ -2542,12 +2542,12 @@
     .registers 2
 
     .prologue
-    .line 1419
+    .line 1422
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoSession;->currentExercise()I
 
     move-result v0
 
-    .line 1420
+    .line 1423
     if-ltz v0, :cond_b
 
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/AutoTemplates;->met(I)D
@@ -2637,7 +2637,7 @@
 
     const/4 v4, 0x1
 
-    .line 1958
+    .line 1967
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoSession;->engine:Lcom/isaigu/gymapp/ai/AutoEngine;
 
     if-eqz v0, :cond_a
@@ -2646,12 +2646,12 @@
 
     if-nez v0, :cond_b
 
-    .line 1994
+    .line 2003
     :cond_a
     :goto_a
     return-void
 
-    .line 1961
+    .line 1970
     :cond_b
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoSession;->engine:Lcom/isaigu/gymapp/ai/AutoEngine;
 
@@ -2659,12 +2659,12 @@
 
     move-result v0
 
-    .line 1962
+    .line 1971
     sget v1, Lcom/isaigu/gymapp/ai/AutoSession;->seenCorridorExt:I
 
     if-le v0, v1, :cond_189
 
-    .line 1963
+    .line 1972
     new-instance v1, Ljava/lang/StringBuilder;
 
     invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
@@ -2733,7 +2733,7 @@
 
     sget-object v3, Lcom/isaigu/gymapp/ai/AutoSession;->engine:Lcom/isaigu/gymapp/ai/AutoEngine;
 
-    .line 1964
+    .line 1973
     invoke-virtual {v3, p0, p1}, Lcom/isaigu/gymapp/ai/AutoEngine;->getHr(J)I
 
     move-result v3
@@ -2750,7 +2750,7 @@
 
     sget-object v3, Lcom/isaigu/gymapp/ai/AutoSession;->plan:Lcom/isaigu/gymapp/ai/AutoModel$Plan;
 
-    .line 1965
+    .line 1974
     invoke-virtual {v3}, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->corridorHiHr()I
 
     move-result v3
@@ -2779,31 +2779,31 @@
 
     move-result-object v2
 
-    .line 1963
+    .line 1972
     invoke-static {v1, v2}, Lcom/isaigu/gymapp/ai/AiText;->t(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v1
 
     invoke-static {v1, v4, p0, p1}, Lcom/isaigu/gymapp/ai/AutoSession;->notice(Ljava/lang/String;IJ)V
 
-    .line 1969
+    .line 1978
     :cond_8e
     :goto_8e
     sput v0, Lcom/isaigu/gymapp/ai/AutoSession;->seenCorridorExt:I
 
-    .line 1970
+    .line 1979
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoSession;->engine:Lcom/isaigu/gymapp/ai/AutoEngine;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/ai/AutoEngine;->getDoseExt()I
 
     move-result v0
 
-    .line 1971
+    .line 1980
     sget v1, Lcom/isaigu/gymapp/ai/AutoSession;->seenDoseExt:I
 
     if-le v0, v1, :cond_d3
 
-    .line 1972
+    .line 1981
     new-instance v1, Ljava/lang/StringBuilder;
 
     invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
@@ -2858,25 +2858,25 @@
 
     invoke-static {v1, v4, p0, p1}, Lcom/isaigu/gymapp/ai/AutoSession;->notice(Ljava/lang/String;IJ)V
 
-    .line 1975
+    .line 1984
     :cond_d3
     sput v0, Lcom/isaigu/gymapp/ai/AutoSession;->seenDoseExt:I
 
-    .line 1976
+    .line 1985
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoSession;->engine:Lcom/isaigu/gymapp/ai/AutoEngine;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/ai/AutoEngine;->isRaiseLocked()Z
 
     move-result v0
 
-    .line 1977
+    .line 1986
     if-eqz v0, :cond_ec
 
     sget-boolean v1, Lcom/isaigu/gymapp/ai/AutoSession;->seenRaiseLocked:Z
 
     if-nez v1, :cond_ec
 
-    .line 1978
+    .line 1987
     const-string v1, "\u0414\u043e\u0437\u0430\u0442\u0430 \u0435 20 % \u043d\u0430\u0434 \u043f\u043b\u0430\u043d\u0430 \u2014 \u0441\u0438\u043b\u0430\u0442\u0430 \u043d\u0435 \u0441\u0435 \u043a\u0430\u0447\u0432\u0430 \u043f\u043e\u0432\u0435\u0447\u0435 \u0432 \u0442\u0430\u0437\u0438 \u0441\u0435\u0441\u0438\u044f"
 
     const-string v2, "Dose 20 % above plan \u2014 no more raising this session"
@@ -2887,11 +2887,11 @@
 
     invoke-static {v1, v4, p0, p1}, Lcom/isaigu/gymapp/ai/AutoSession;->notice(Ljava/lang/String;IJ)V
 
-    .line 1981
+    .line 1990
     :cond_ec
     sput-boolean v0, Lcom/isaigu/gymapp/ai/AutoSession;->seenRaiseLocked:Z
 
-    .line 1982
+    .line 1991
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoSession;->engine:Lcom/isaigu/gymapp/ai/AutoEngine;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/ai/AutoEngine;->isDoseStopped()Z
@@ -2904,10 +2904,10 @@
 
     if-nez v0, :cond_107
 
-    .line 1983
+    .line 1992
     sput-boolean v4, Lcom/isaigu/gymapp/ai/AutoSession;->seenDoseStop:Z
 
-    .line 1984
+    .line 1993
     const-string v0, "\u0411\u044e\u0434\u0436\u0435\u0442\u044a\u0442 \u043d\u0430 \u0434\u043e\u0437\u0430\u0442\u0430 \u0435 \u0438\u0437\u0447\u0435\u0440\u043f\u0430\u043d \u2014 \u043a\u044a\u043c \u043e\u0445\u043b\u0430\u0436\u0434\u0430\u043d\u0435"
 
     const-string v1, "Dose budget used up \u2014 to the cool-down"
@@ -2918,7 +2918,7 @@
 
     invoke-static {v0, v6, p0, p1}, Lcom/isaigu/gymapp/ai/AutoSession;->notice(Ljava/lang/String;IJ)V
 
-    .line 1987
+    .line 1996
     :cond_107
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoSession;->engine:Lcom/isaigu/gymapp/ai/AutoEngine;
 
@@ -2926,7 +2926,7 @@
 
     move-result v0
 
-    .line 1988
+    .line 1997
     if-lez v0, :cond_a
 
     sget-object v1, Lcom/isaigu/gymapp/ai/AutoSession;->plan:Lcom/isaigu/gymapp/ai/AutoModel$Plan;
@@ -2961,10 +2961,10 @@
 
     if-lez v1, :cond_a
 
-    .line 1990
+    .line 1999
     sput-wide p0, Lcom/isaigu/gymapp/ai/AutoSession;->hrNearMs:J
 
-    .line 1991
+    .line 2000
     new-instance v1, Ljava/lang/StringBuilder;
 
     invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
@@ -3049,7 +3049,7 @@
 
     goto/16 :goto_a
 
-    .line 1966
+    .line 1975
     :cond_189
     if-nez v0, :cond_8e
 
@@ -3057,7 +3057,7 @@
 
     if-lez v1, :cond_8e
 
-    .line 1967
+    .line 1976
     const-string v1, "corridor_ok"
 
     const-string v2, "\u041f\u0443\u043b\u0441\u044a\u0442 \u0435 \u0432 \u0437\u043e\u043d\u0430\u0442\u0430 \u2014 \u043f\u0430\u0443\u0437\u0438\u0442\u0435 \u0441\u0430 \u043e\u0442\u043d\u043e\u0432\u043e \u043d\u043e\u0440\u043c\u0430\u043b\u043d\u0438."
@@ -3077,12 +3077,12 @@
     .registers 4
 
     .prologue
-    .line 2099
+    .line 2108
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoSession;->leader()Lcom/isaigu/gymapp/train/model/TrainItem;
 
     move-result-object v0
 
-    .line 2100
+    .line 2109
     if-eqz v0, :cond_10
 
     iget-object v1, v0, Lcom/isaigu/gymapp/train/model/TrainItem;->data:Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
@@ -3095,12 +3095,12 @@
 
     if-eqz v0, :cond_11
 
-    .line 2108
+    .line 2117
     :cond_10
     :goto_10
     return-void
 
-    .line 2104
+    .line 2113
     :cond_11
     :try_start_11
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoSession;->manager:Lcom/isaigu/gymapp/train/TrainItemManager;
@@ -3111,11 +3111,11 @@
 
     goto :goto_10
 
-    .line 2105
+    .line 2114
     :catch_17
     move-exception v0
 
-    .line 2106
+    .line 2115
     const-string v1, "auto"
 
     new-instance v2, Ljava/lang/StringBuilder;
@@ -3145,7 +3145,7 @@
     .registers 1
 
     .prologue
-    .line 1251
+    .line 1254
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoSession;->plan:Lcom/isaigu/gymapp/ai/AutoModel$Plan;
 
     if-eqz v0, :cond_13
@@ -3165,10 +3165,10 @@
     :goto_f
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/AutoSession;->setFace(Z)V
 
-    .line 1252
+    .line 1255
     return-void
 
-    .line 1251
+    .line 1254
     :cond_13
     const/4 v0, 0x0
 
@@ -3179,19 +3179,19 @@
     .registers 1
 
     .prologue
-    .line 1242
+    .line 1245
     sget v0, Lcom/isaigu/gymapp/ai/AutoSession;->facePwUs:I
 
     if-lez v0, :cond_7
 
-    .line 1243
+    .line 1246
     sget v0, Lcom/isaigu/gymapp/ai/AutoSession;->facePwUs:I
 
-    .line 1246
+    .line 1249
     :goto_6
     return v0
 
-    .line 1245
+    .line 1248
     :cond_7
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoSession;->written:Lcom/isaigu/gymapp/ai/AutoEngine$Cmd;
 
@@ -3199,7 +3199,7 @@
 
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoSession;->written:Lcom/isaigu/gymapp/ai/AutoEngine$Cmd;
 
-    .line 1246
+    .line 1249
     :goto_d
     if-eqz v0, :cond_1d
 
@@ -3207,7 +3207,7 @@
 
     goto :goto_6
 
-    .line 1245
+    .line 1248
     :cond_12
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoSession;->plan:Lcom/isaigu/gymapp/ai/AutoModel$Plan;
 
@@ -3224,7 +3224,7 @@
 
     goto :goto_d
 
-    .line 1246
+    .line 1249
     :cond_1d
     const/4 v0, 0x0
 
@@ -3237,7 +3237,7 @@
     .prologue
     const/4 v7, 0x0
 
-    .line 1532
+    .line 1537
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoSession;->engine:Lcom/isaigu/gymapp/ai/AutoEngine;
 
     if-eqz v0, :cond_b
@@ -3248,16 +3248,16 @@
 
     if-eq v0, v1, :cond_c
 
-    .line 1567
+    .line 1572
     :cond_b
     :goto_b
     return-void
 
-    .line 1535
+    .line 1540
     :cond_c
     const/4 v1, 0x0
 
-    .line 1536
+    .line 1541
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoSession;->rows:Ljava/util/List;
 
     invoke-interface {v0}, Ljava/util/List;->iterator()Ljava/util/Iterator;
@@ -3277,7 +3277,7 @@
 
     check-cast v0, Lcom/isaigu/gymapp/ai/AutoSession$Row;
 
-    .line 1537
+    .line 1542
     iget-object v3, v0, Lcom/isaigu/gymapp/ai/AutoSession$Row;->block:Ljava/lang/String;
 
     if-nez v3, :cond_13
@@ -3288,7 +3288,7 @@
 
     move-object v6, v0
 
-    .line 1542
+    .line 1547
     :goto_28
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoSession;->engine:Lcom/isaigu/gymapp/ai/AutoEngine;
 
@@ -3296,7 +3296,7 @@
 
     move-result-object v8
 
-    .line 1544
+    .line 1549
     if-eqz v6, :cond_90
 
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoSession;->engine:Lcom/isaigu/gymapp/ai/AutoEngine;
@@ -3311,7 +3311,7 @@
 
     if-eqz v8, :cond_90
 
-    .line 1545
+    .line 1550
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoSession;->engine:Lcom/isaigu/gymapp/ai/AutoEngine;
 
     iget v1, v6, Lcom/isaigu/gymapp/ai/AutoSession$Row;->writtenStrength:I
@@ -3334,14 +3334,14 @@
 
     invoke-virtual/range {v0 .. v5}, Lcom/isaigu/gymapp/ai/AutoEngine;->setLive(D[IJ)V
 
-    .line 1546
+    .line 1551
     iget-object v0, v6, Lcom/isaigu/gymapp/ai/AutoSession$Row;->plan:Lcom/isaigu/gymapp/ai/AutoModel$Plan;
 
     if-eqz v0, :cond_cf
 
     iget-object v0, v6, Lcom/isaigu/gymapp/ai/AutoSession$Row;->plan:Lcom/isaigu/gymapp/ai/AutoModel$Plan;
 
-    .line 1547
+    .line 1552
     :goto_56
     iget-wide v0, v0, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->phiMax:D
 
@@ -3349,7 +3349,7 @@
 
     move-result-wide v0
 
-    .line 1548
+    .line 1553
     const-wide/16 v2, 0x0
 
     cmpl-double v2, v0, v2
@@ -3372,7 +3372,7 @@
 
     div-double v0, v2, v0
 
-    .line 1549
+    .line 1554
     :goto_6f
     sget-object v2, Lcom/isaigu/gymapp/ai/AutoSession;->engine:Lcom/isaigu/gymapp/ai/AutoEngine;
 
@@ -3380,7 +3380,7 @@
 
     move-result v3
 
-    .line 1550
+    .line 1555
     sget-wide v4, Lcom/isaigu/gymapp/ai/AutoSession;->forecastScale:D
 
     sub-double v4, v0, v4
@@ -3402,16 +3402,16 @@
     :cond_8a
     const/4 v2, 0x1
 
-    .line 1551
+    .line 1556
     :goto_8b
     sput-wide v0, Lcom/isaigu/gymapp/ai/AutoSession;->forecastScale:D
 
-    .line 1552
+    .line 1557
     sput-boolean v3, Lcom/isaigu/gymapp/ai/AutoSession;->forecastDouble:Z
 
     move v7, v2
 
-    .line 1556
+    .line 1561
     :cond_90
     sget-wide v0, Lcom/isaigu/gymapp/ai/AutoSession;->forecastMs:J
 
@@ -3435,11 +3435,11 @@
 
     if-ltz v0, :cond_b
 
-    .line 1557
+    .line 1562
     :cond_a6
     sput-wide p0, Lcom/isaigu/gymapp/ai/AutoSession;->forecastMs:J
 
-    .line 1559
+    .line 1564
     :try_start_a8
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoSession;->engine:Lcom/isaigu/gymapp/ai/AutoEngine;
 
@@ -3447,21 +3447,21 @@
 
     move-result-object v0
 
-    .line 1560
+    .line 1565
     if-eqz v0, :cond_b
 
-    .line 1561
+    .line 1566
     sput-object v0, Lcom/isaigu/gymapp/ai/AutoSession;->forecast:Lcom/isaigu/gymapp/ai/AutoEngine$Forecast;
     :try_end_b2
     .catch Ljava/lang/Throwable; {:try_start_a8 .. :try_end_b2} :catch_b4
 
     goto/16 :goto_b
 
-    .line 1563
+    .line 1568
     :catch_b4
     move-exception v0
 
-    .line 1564
+    .line 1569
     const-string v1, "auto"
 
     new-instance v2, Ljava/lang/StringBuilder;
@@ -3486,13 +3486,13 @@
 
     goto/16 :goto_b
 
-    .line 1546
+    .line 1551
     :cond_cf
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoSession;->plan:Lcom/isaigu/gymapp/ai/AutoModel$Plan;
 
     goto :goto_56
 
-    .line 1548
+    .line 1553
     :cond_d2
     const-wide/high16 v0, 0x3ff0000000000000L    # 1.0
 
@@ -3501,7 +3501,7 @@
     :cond_d5
     move v2, v7
 
-    .line 1550
+    .line 1555
     goto :goto_8b
 
     :cond_d7
@@ -3514,26 +3514,26 @@
     .registers 9
 
     .prologue
-    .line 1078
+    .line 1081
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoSession$Stage;->REPORT:Lcom/isaigu/gymapp/ai/AutoSession$Stage;
 
     sput-object v0, Lcom/isaigu/gymapp/ai/AutoSession;->stage:Lcom/isaigu/gymapp/ai/AutoSession$Stage;
 
-    .line 1079
+    .line 1082
     const/4 v0, 0x0
 
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/AutoLook;->unbindMainKeys(Z)V
 
-    .line 1080
+    .line 1083
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoBoard;->detach()V
 
-    .line 1081
+    .line 1084
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoHints;->hide()V
 
-    .line 1082
+    .line 1085
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoLook;->restore()V
 
-    .line 1084
+    .line 1087
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoSession;->handler:Landroid/os/Handler;
 
     new-instance v1, Lcom/isaigu/gymapp/ai/AutoSession$Finished;
@@ -3542,7 +3542,7 @@
 
     invoke-virtual {v0, v1}, Landroid/os/Handler;->post(Ljava/lang/Runnable;)Z
 
-    .line 1085
+    .line 1088
     sget-boolean v0, Lcom/isaigu/gymapp/ai/AutoSession;->recorded:Z
 
     if-nez v0, :cond_64
@@ -3551,12 +3551,12 @@
 
     if-eqz v0, :cond_64
 
-    .line 1086
+    .line 1089
     const/4 v0, 0x1
 
     sput-boolean v0, Lcom/isaigu/gymapp/ai/AutoSession;->recorded:Z
 
-    .line 1087
+    .line 1090
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoSession;->panelRoot:Landroid/view/View;
 
     if-eqz v0, :cond_62
@@ -3567,13 +3567,13 @@
 
     move-result-object v0
 
-    .line 1088
+    .line 1091
     :goto_30
     invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
 
     move-result-wide v6
 
-    .line 1089
+    .line 1092
     sget-object v1, Lcom/isaigu/gymapp/ai/AutoSession;->rows:Ljava/util/List;
 
     invoke-interface {v1}, Ljava/util/List;->iterator()Ljava/util/Iterator;
@@ -3594,7 +3594,7 @@
 
     check-cast v1, Lcom/isaigu/gymapp/ai/AutoSession$Row;
 
-    .line 1090
+    .line 1093
     iget-object v2, v1, Lcom/isaigu/gymapp/ai/AutoSession$Row;->block:Ljava/lang/String;
 
     if-nez v2, :cond_3a
@@ -3603,7 +3603,7 @@
 
     if-lez v2, :cond_3a
 
-    .line 1091
+    .line 1094
     iget-wide v1, v1, Lcom/isaigu/gymapp/ai/AutoSession$Row;->userId:J
 
     sget-object v3, Lcom/isaigu/gymapp/ai/AutoSession;->plan:Lcom/isaigu/gymapp/ai/AutoModel$Plan;
@@ -3624,13 +3624,13 @@
 
     goto :goto_3a
 
-    .line 1087
+    .line 1090
     :cond_62
     const/4 v0, 0x0
 
     goto :goto_30
 
-    .line 1095
+    .line 1098
     :cond_64
     return-void
 .end method
@@ -3653,7 +3653,7 @@
     .registers 1
 
     .prologue
-    .line 1442
+    .line 1445
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoSession;->energy:Lcom/isaigu/gymapp/ai/AiEnergy;
 
     return-object v0
@@ -3693,7 +3693,7 @@
     .registers 2
 
     .prologue
-    .line 1438
+    .line 1441
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoSession;->energy:Lcom/isaigu/gymapp/ai/AiEnergy;
 
     if-eqz v0, :cond_b
@@ -3777,7 +3777,7 @@
     .registers 1
 
     .prologue
-    .line 2184
+    .line 2193
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoSession;->panelRoot:Landroid/view/View;
 
     return-object v0
@@ -3858,17 +3858,17 @@
     .registers 24
 
     .prologue
-    .line 1649
+    .line 1654
     sget-object v2, Lcom/isaigu/gymapp/ai/AutoSession;->written:Lcom/isaigu/gymapp/ai/AutoEngine$Cmd;
 
     if-nez v2, :cond_5
 
-    .line 1895
+    .line 1904
     :cond_4
     :goto_4
     return-void
 
-    .line 1652
+    .line 1657
     :cond_5
     sget-object v2, Lcom/isaigu/gymapp/ai/AutoSession;->stage:Lcom/isaigu/gymapp/ai/AutoSession$Stage;
 
@@ -3880,7 +3880,7 @@
 
     move v9, v2
 
-    .line 1653
+    .line 1658
     :goto_d
     sget-object v2, Lcom/isaigu/gymapp/ai/AutoSession;->engine:Lcom/isaigu/gymapp/ai/AutoEngine;
 
@@ -3894,7 +3894,7 @@
 
     move-object v10, v2
 
-    .line 1654
+    .line 1659
     :goto_18
     sget-object v2, Lcom/isaigu/gymapp/ai/AutoSession;->engine:Lcom/isaigu/gymapp/ai/AutoEngine;
 
@@ -3912,7 +3912,7 @@
 
     const/4 v2, 0x1
 
-    .line 1655
+    .line 1660
     :goto_27
     if-nez v9, :cond_63
 
@@ -3920,12 +3920,12 @@
 
     if-eqz v3, :cond_63
 
-    .line 1656
+    .line 1661
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoSession;->leader()Lcom/isaigu/gymapp/train/model/TrainItem;
 
     move-result-object v3
 
-    .line 1657
+    .line 1662
     if-eqz v3, :cond_63
 
     iget-object v4, v3, Lcom/isaigu/gymapp/train/model/TrainItem;->data:Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
@@ -3940,17 +3940,17 @@
 
     if-eqz v2, :cond_63
 
-    .line 1658
+    .line 1663
     sget-object v2, Lcom/isaigu/gymapp/ai/AutoSession;->engine:Lcom/isaigu/gymapp/ai/AutoEngine;
 
     move-wide/from16 v0, p0
 
     invoke-virtual {v2, v0, v1}, Lcom/isaigu/gymapp/ai/AutoEngine;->userPause(J)V
 
-    .line 1659
+    .line 1664
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoSession;->zeroOutput()V
 
-    .line 1660
+    .line 1665
     const-string v2, "\u0421\u043f\u0440\u044f\u043d\u043e \u043e\u0442 \u043e\u0441\u043d\u043e\u0432\u043d\u0438\u044f \u0435\u043a\u0440\u0430\u043d \u2014 \u0410\u0432\u0442\u043e \u0435 \u043d\u0430 \u043f\u0430\u0443\u0437\u0430."
 
     const-string v3, "Stopped from the main screen \u2014 Auto paused."
@@ -3965,12 +3965,12 @@
 
     invoke-static {v2, v0, v1, v3}, Lcom/isaigu/gymapp/ai/AutoSession;->notice(Ljava/lang/String;JZ)V
 
-    .line 1662
+    .line 1667
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoUi;->show()V
 
     goto :goto_4
 
-    .line 1652
+    .line 1657
     :cond_5b
     const/4 v2, 0x0
 
@@ -3978,7 +3978,7 @@
 
     goto :goto_d
 
-    .line 1653
+    .line 1658
     :cond_5e
     const/4 v2, 0x0
 
@@ -3986,19 +3986,19 @@
 
     goto :goto_18
 
-    .line 1654
+    .line 1659
     :cond_61
     const/4 v2, 0x0
 
     goto :goto_27
 
-    .line 1666
+    .line 1671
     :cond_63
     if-nez v9, :cond_8a
 
     if-nez v2, :cond_8a
 
-    .line 1668
+    .line 1673
     sget-object v2, Lcom/isaigu/gymapp/ai/AutoSession;->rows:Ljava/util/List;
 
     invoke-interface {v2}, Ljava/util/List;->iterator()Ljava/util/Iterator;
@@ -4018,26 +4018,26 @@
 
     check-cast v2, Lcom/isaigu/gymapp/ai/AutoSession$Row;
 
-    .line 1669
+    .line 1674
     iget-object v2, v2, Lcom/isaigu/gymapp/ai/AutoSession$Row;->item:Lcom/isaigu/gymapp/train/model/TrainItem;
 
     invoke-static {v2}, Lcom/isaigu/gymapp/ai/AutoSession;->bean(Lcom/isaigu/gymapp/train/model/TrainItem;)Lcom/isaigu/gymapp/bean/ProgramDataBean;
 
     move-result-object v2
 
-    .line 1670
+    .line 1675
     if-eqz v2, :cond_6d
 
     iget v2, v2, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenth:I
 
     if-eqz v2, :cond_6d
 
-    .line 1671
+    .line 1676
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoSession;->zeroOutput()V
 
     goto/16 :goto_4
 
-    .line 1678
+    .line 1683
     :cond_8a
     sget-object v2, Lcom/isaigu/gymapp/ai/AutoSession;->rows:Ljava/util/List;
 
@@ -4058,17 +4058,17 @@
 
     check-cast v2, Lcom/isaigu/gymapp/ai/AutoSession$Row;
 
-    .line 1679
+    .line 1684
     iget-object v3, v2, Lcom/isaigu/gymapp/ai/AutoSession$Row;->item:Lcom/isaigu/gymapp/train/model/TrainItem;
 
     invoke-static {v3}, Lcom/isaigu/gymapp/ai/AutoSession;->bean(Lcom/isaigu/gymapp/train/model/TrainItem;)Lcom/isaigu/gymapp/bean/ProgramDataBean;
 
     move-result-object v11
 
-    .line 1680
+    .line 1685
     if-eqz v11, :cond_90
 
-    .line 1683
+    .line 1688
     iget v3, v11, Lcom/isaigu/gymapp/bean/ProgramDataBean;->hz:I
 
     sget-object v5, Lcom/isaigu/gymapp/ai/AutoSession;->written:Lcom/isaigu/gymapp/ai/AutoEngine$Cmd;
@@ -4093,7 +4093,7 @@
 
     iget v6, v6, Lcom/isaigu/gymapp/ai/AutoEngine$Cmd;->onS:I
 
-    .line 1684
+    .line 1689
     invoke-static {v5, v6}, Ljava/lang/Math;->max(II)I
 
     move-result v5
@@ -4117,7 +4117,7 @@
     :cond_ce
     const/4 v3, 0x1
 
-    .line 1685
+    .line 1690
     :goto_cf
     iget-boolean v5, v11, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
 
@@ -4133,7 +4133,7 @@
 
     iget-object v2, v2, Lcom/isaigu/gymapp/ai/AutoSession$Row;->item:Lcom/isaigu/gymapp/train/model/TrainItem;
 
-    .line 1686
+    .line 1691
     invoke-static {v2}, Lcom/isaigu/gymapp/ai/AiSession;->pauseAllowed(Lcom/isaigu/gymapp/train/model/TrainItem;)Z
 
     move-result v2
@@ -4160,13 +4160,13 @@
     :cond_f2
     const/4 v2, 0x1
 
-    .line 1688
+    .line 1693
     :goto_f3
     if-nez v3, :cond_f7
 
     if-eqz v2, :cond_90
 
-    .line 1691
+    .line 1696
     :cond_f7
     if-nez v9, :cond_fd
 
@@ -4174,13 +4174,13 @@
 
     if-nez v4, :cond_118
 
-    .line 1692
+    .line 1697
     :cond_fd
     sget-object v2, Lcom/isaigu/gymapp/ai/AutoSession;->written:Lcom/isaigu/gymapp/ai/AutoEngine$Cmd;
 
     invoke-static {v2, v9}, Lcom/isaigu/gymapp/ai/AutoSession;->writeRows(Lcom/isaigu/gymapp/ai/AutoEngine$Cmd;Z)V
 
-    .line 1693
+    .line 1698
     const-string v2, "\u041f\u0440\u0438 \u043a\u0430\u043b\u0438\u0431\u0440\u0438\u0440\u0430\u043d\u0435 \u0447\u0435\u0441\u0442\u043e\u0442\u0430\u0442\u0430 \u0438 \u043f\u0430\u0443\u0437\u0438\u0442\u0435 \u0441\u0430 \u043d\u0430 \u043f\u0440\u043e\u0433\u0440\u0430\u043c\u0430\u0442\u0430."
 
     const-string v3, "During calibration frequency and pauses belong to the program."
@@ -4197,13 +4197,13 @@
 
     goto/16 :goto_4
 
-    .line 1684
+    .line 1689
     :cond_112
     const/4 v3, 0x0
 
     goto :goto_cf
 
-    .line 1686
+    .line 1691
     :cond_114
     const/4 v2, 0x0
 
@@ -4214,16 +4214,16 @@
 
     goto :goto_f3
 
-    .line 1697
+    .line 1702
     :cond_118
     if-eqz v2, :cond_162
 
     if-nez v3, :cond_162
 
-    .line 1698
+    .line 1703
     iget-boolean v2, v11, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
 
-    .line 1699
+    .line 1704
     sget-object v3, Lcom/isaigu/gymapp/ai/AutoSession;->engine:Lcom/isaigu/gymapp/ai/AutoEngine;
 
     invoke-virtual {v3}, Lcom/isaigu/gymapp/ai/AutoEngine;->isDoublePulseAvailable()Z
@@ -4232,14 +4232,14 @@
 
     if-eqz v3, :cond_14c
 
-    .line 1700
+    .line 1705
     sget-object v3, Lcom/isaigu/gymapp/ai/AutoSession;->engine:Lcom/isaigu/gymapp/ai/AutoEngine;
 
     move-wide/from16 v0, p0
 
     invoke-virtual {v3, v2, v0, v1}, Lcom/isaigu/gymapp/ai/AutoEngine;->setDoublePulse(ZJ)V
 
-    .line 1701
+    .line 1706
     sget-object v2, Lcom/isaigu/gymapp/ai/AutoSession;->engine:Lcom/isaigu/gymapp/ai/AutoEngine;
 
     move-wide/from16 v0, p0
@@ -4248,15 +4248,15 @@
 
     move-result-object v2
 
-    .line 1702
+    .line 1707
     sput-object v2, Lcom/isaigu/gymapp/ai/AutoSession;->lastApplied:Lcom/isaigu/gymapp/ai/AutoEngine$Cmd;
 
-    .line 1703
+    .line 1708
     const/4 v3, 0x0
 
     invoke-static {v2, v3}, Lcom/isaigu/gymapp/ai/AutoSession;->writeRows(Lcom/isaigu/gymapp/ai/AutoEngine$Cmd;Z)V
 
-    .line 1704
+    .line 1709
     const-string v2, "double_main"
 
     const-string v3, "\u0414\u0432\u043e\u0435\u043d \u0438\u043c\u043f\u0443\u043b\u0441: \u043b\u0435\u043a \u043d\u0438\u0441\u043a\u043e\u0447\u0435\u0441\u0442\u043e\u0442\u0435\u043d \u0438\u043c\u043f\u0443\u043b\u0441 \u0432 \u043f\u0430\u0443\u0437\u0430\u0442\u0430. \u041f\u0440\u043e\u0433\u0440\u0430\u043c\u0430\u0442\u0430 \u0440\u0435\u0448\u0430\u0432\u0430 \u0432 \u043a\u043e\u0438 \u0444\u0430\u0437\u0438."
@@ -4273,7 +4273,7 @@
 
     goto/16 :goto_4
 
-    .line 1707
+    .line 1712
     :cond_14c
     sget-object v2, Lcom/isaigu/gymapp/ai/AutoSession;->written:Lcom/isaigu/gymapp/ai/AutoEngine$Cmd;
 
@@ -4281,7 +4281,7 @@
 
     invoke-static {v2, v3}, Lcom/isaigu/gymapp/ai/AutoSession;->writeRows(Lcom/isaigu/gymapp/ai/AutoEngine$Cmd;Z)V
 
-    .line 1708
+    .line 1713
     const-string v2, "\u0422\u0430\u0437\u0438 \u043f\u0440\u043e\u0433\u0440\u0430\u043c\u0430 / \u0444\u0430\u0437\u0430 \u043d\u044f\u043c\u0430 \u0434\u0432\u043e\u0435\u043d \u0438\u043c\u043f\u0443\u043b\u0441."
 
     const-string v3, "No double impulse in this program / phase."
@@ -4298,7 +4298,7 @@
 
     goto/16 :goto_4
 
-    .line 1713
+    .line 1718
     :cond_162
     iget v2, v11, Lcom/isaigu/gymapp/bean/ProgramDataBean;->hz:I
 
@@ -4310,7 +4310,7 @@
 
     iget v4, v11, Lcom/isaigu/gymapp/bean/ProgramDataBean;->hz:I
 
-    .line 1714
+    .line 1719
     :goto_16c
     iget v2, v11, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pulseContinue:I
 
@@ -4328,7 +4328,7 @@
 
     iget v5, v11, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pulseContinue:I
 
-    .line 1715
+    .line 1720
     :goto_17b
     iget v2, v11, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pulsePause:I
 
@@ -4344,7 +4344,7 @@
 
     if-eq v2, v3, :cond_247
 
-    .line 1716
+    .line 1721
     const/4 v2, 0x1
 
     iget v3, v11, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pulsePause:I
@@ -4361,7 +4361,7 @@
 
     move-result v6
 
-    .line 1717
+    .line 1722
     :goto_196
     iget v2, v11, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pulseWidth:I
 
@@ -4373,7 +4373,7 @@
 
     iget v7, v11, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pulseWidth:I
 
-    .line 1718
+    .line 1723
     :goto_1a0
     sget-object v3, Lcom/isaigu/gymapp/ai/AutoSession;->engine:Lcom/isaigu/gymapp/ai/AutoEngine;
 
@@ -4383,15 +4383,15 @@
 
     move-result-object v8
 
-    .line 1719
+    .line 1724
     const/4 v2, 0x0
 
     invoke-static {v8, v2}, Lcom/isaigu/gymapp/ai/AutoSession;->writeRows(Lcom/isaigu/gymapp/ai/AutoEngine$Cmd;Z)V
 
-    .line 1720
+    .line 1725
     sput-object v8, Lcom/isaigu/gymapp/ai/AutoSession;->lastApplied:Lcom/isaigu/gymapp/ai/AutoEngine$Cmd;
 
-    .line 1721
+    .line 1726
     if-lez v4, :cond_1b4
 
     iget v2, v8, Lcom/isaigu/gymapp/ai/AutoEngine$Cmd;->hz:I
@@ -4426,7 +4426,7 @@
 
     move v3, v2
 
-    .line 1723
+    .line 1728
     :goto_1ca
     if-eqz v10, :cond_251
 
@@ -4456,7 +4456,7 @@
 
     const/4 v2, 0x1
 
-    .line 1724
+    .line 1729
     :goto_1e5
     new-instance v4, Ljava/lang/StringBuilder;
 
@@ -4514,10 +4514,10 @@
 
     move-result-object v4
 
-    .line 1725
+    .line 1730
     if-eqz v2, :cond_253
 
-    .line 1726
+    .line 1731
     new-instance v2, Ljava/lang/StringBuilder;
 
     invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
@@ -4550,31 +4550,31 @@
 
     goto/16 :goto_4
 
-    .line 1713
+    .line 1718
     :cond_241
     const/4 v4, -0x1
 
     goto/16 :goto_16c
 
-    .line 1714
+    .line 1719
     :cond_244
     const/4 v5, -0x1
 
     goto/16 :goto_17b
 
-    .line 1716
+    .line 1721
     :cond_247
     const/4 v6, -0x1
 
     goto/16 :goto_196
 
-    .line 1717
+    .line 1722
     :cond_24a
     const/4 v7, -0x1
 
     goto/16 :goto_1a0
 
-    .line 1721
+    .line 1726
     :cond_24d
     const/4 v2, 0x0
 
@@ -4582,17 +4582,17 @@
 
     goto/16 :goto_1ca
 
-    .line 1723
+    .line 1728
     :cond_251
     const/4 v2, 0x0
 
     goto :goto_1e5
 
-    .line 1728
+    .line 1733
     :cond_253
     if-eqz v3, :cond_28a
 
-    .line 1729
+    .line 1734
     new-instance v2, Ljava/lang/StringBuilder;
 
     invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
@@ -4621,7 +4621,7 @@
 
     const-string v5, " \u2192 now "
 
-    .line 1730
+    .line 1735
     invoke-static {v3, v5}, Lcom/isaigu/gymapp/ai/AiText;->t(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v3
@@ -4640,14 +4640,14 @@
 
     const/4 v3, 0x1
 
-    .line 1729
+    .line 1734
     move-wide/from16 v0, p0
 
     invoke-static {v2, v3, v0, v1}, Lcom/isaigu/gymapp/ai/AutoSession;->notice(Ljava/lang/String;IJ)V
 
     goto/16 :goto_4
 
-    .line 1732
+    .line 1737
     :cond_28a
     const-string v2, "params"
 
@@ -4683,7 +4683,7 @@
 
     move-result-object v3
 
-    .line 1733
+    .line 1738
     invoke-static {v10, v8}, Lcom/isaigu/gymapp/ai/AutoSession;->windowText(Lcom/isaigu/gymapp/ai/AutoModel$Phase;Lcom/isaigu/gymapp/ai/AutoEngine$Cmd;)Ljava/lang/String;
 
     move-result-object v4
@@ -4696,27 +4696,27 @@
 
     move-result-object v3
 
-    .line 1732
+    .line 1737
     move-wide/from16 v0, p0
 
     invoke-static {v2, v3, v0, v1}, Lcom/isaigu/gymapp/ai/AutoSession;->tip(Ljava/lang/String;Ljava/lang/String;J)V
 
     goto/16 :goto_4
 
-    .line 1738
+    .line 1743
     :cond_2c0
     const/4 v13, 0x0
 
-    .line 1739
+    .line 1744
     const/4 v4, 0x0
 
-    .line 1740
+    .line 1745
     const/4 v11, 0x0
 
-    .line 1741
+    .line 1746
     const/4 v10, 0x0
 
-    .line 1742
+    .line 1747
     sget-object v2, Lcom/isaigu/gymapp/ai/AutoSession;->rows:Ljava/util/List;
 
     invoke-interface {v2}, Ljava/util/List;->iterator()Ljava/util/Iterator;
@@ -4735,7 +4735,7 @@
 
     move-result v2
 
-    if-eqz v2, :cond_7c0
+    if-eqz v2, :cond_7dc
 
     invoke-interface {v15}, Ljava/util/Iterator;->next()Ljava/lang/Object;
 
@@ -4745,48 +4745,48 @@
 
     check-cast v8, Lcom/isaigu/gymapp/ai/AutoSession$Row;
 
-    .line 1743
+    .line 1748
     iget-object v2, v8, Lcom/isaigu/gymapp/ai/AutoSession$Row;->item:Lcom/isaigu/gymapp/train/model/TrainItem;
 
     invoke-static {v2}, Lcom/isaigu/gymapp/ai/AutoSession;->bean(Lcom/isaigu/gymapp/train/model/TrainItem;)Lcom/isaigu/gymapp/bean/ProgramDataBean;
 
     move-result-object v14
 
-    .line 1744
+    .line 1749
     if-eqz v14, :cond_2cd
 
-    .line 1747
+    .line 1752
     iget-object v2, v8, Lcom/isaigu/gymapp/ai/AutoSession$Row;->plan:Lcom/isaigu/gymapp/ai/AutoModel$Plan;
 
     if-eqz v2, :cond_31e
 
     iget-object v2, v8, Lcom/isaigu/gymapp/ai/AutoSession$Row;->plan:Lcom/isaigu/gymapp/ai/AutoModel$Plan;
 
-    .line 1748
+    .line 1753
     :goto_2e8
     iget-object v7, v14, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenthBean:Lcom/isaigu/gymapp/bean/PartStrenthBean;
 
-    if-eqz v7, :cond_7e8
+    if-eqz v7, :cond_804
 
     iget-object v7, v14, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenthBean:Lcom/isaigu/gymapp/bean/PartStrenthBean;
 
     iget-object v7, v7, Lcom/isaigu/gymapp/bean/PartStrenthBean;->buwei:[I
 
-    if-eqz v7, :cond_7e8
+    if-eqz v7, :cond_804
 
     iget-object v7, v8, Lcom/isaigu/gymapp/ai/AutoSession$Row;->writtenZones:[I
 
-    if-eqz v7, :cond_7e8
+    if-eqz v7, :cond_804
 
-    .line 1749
+    .line 1754
     const/16 v7, 0xa
 
     new-array v12, v7, [I
 
-    .line 1750
+    .line 1755
     const/4 v11, 0x0
 
-    .line 1751
+    .line 1756
     const/4 v7, 0x0
 
     move v10, v7
@@ -4804,7 +4804,7 @@
 
     if-ge v10, v7, :cond_323
 
-    .line 1752
+    .line 1757
     iget-object v7, v14, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenthBean:Lcom/isaigu/gymapp/bean/PartStrenthBean;
 
     iget-object v7, v7, Lcom/isaigu/gymapp/bean/PartStrenthBean;->buwei:[I
@@ -4813,7 +4813,7 @@
 
     aput v7, v12, v10
 
-    .line 1753
+    .line 1758
     aget v7, v12, v10
 
     iget-object v13, v8, Lcom/isaigu/gymapp/ai/AutoSession$Row;->writtenZones:[I
@@ -4827,26 +4827,26 @@
     :goto_319
     or-int/2addr v11, v7
 
-    .line 1751
+    .line 1756
     add-int/lit8 v7, v10, 0x1
 
     move v10, v7
 
     goto :goto_2fd
 
-    .line 1747
+    .line 1752
     :cond_31e
     sget-object v2, Lcom/isaigu/gymapp/ai/AutoSession;->plan:Lcom/isaigu/gymapp/ai/AutoModel$Plan;
 
     goto :goto_2e8
 
-    .line 1753
+    .line 1758
     :cond_321
     const/4 v7, 0x0
 
     goto :goto_319
 
-    .line 1755
+    .line 1760
     :cond_323
     if-eqz v11, :cond_3ad
 
@@ -4854,14 +4854,14 @@
 
     if-nez v7, :cond_3ad
 
-    .line 1759
+    .line 1764
     sget-object v2, Lcom/isaigu/gymapp/ai/AutoSession;->written:Lcom/isaigu/gymapp/ai/AutoEngine$Cmd;
 
     invoke-static {v8, v2}, Lcom/isaigu/gymapp/ai/AutoSession;->stepZonesRaw(Lcom/isaigu/gymapp/ai/AutoSession$Row;Lcom/isaigu/gymapp/ai/AutoEngine$Cmd;)[I
 
     move-result-object v6
 
-    .line 1760
+    .line 1765
     const/4 v2, 0x0
 
     :goto_330
@@ -4869,7 +4869,7 @@
 
     if-ge v2, v7, :cond_376
 
-    .line 1761
+    .line 1766
     aget v7, v12, v2
 
     iget-object v10, v8, Lcom/isaigu/gymapp/ai/AutoSession$Row;->writtenZones:[I
@@ -4878,19 +4878,19 @@
 
     if-ne v7, v10, :cond_33f
 
-    .line 1760
+    .line 1765
     :goto_33c
     add-int/lit8 v2, v2, 0x1
 
     goto :goto_330
 
-    .line 1764
+    .line 1769
     :cond_33f
     aget v7, v6, v2
 
     if-lez v7, :cond_36f
 
-    .line 1765
+    .line 1770
     iget-object v7, v8, Lcom/isaigu/gymapp/ai/AutoSession$Row;->zoneRatio:[I
 
     const/4 v10, 0x0
@@ -4933,7 +4933,7 @@
 
     aput v10, v7, v2
 
-    .line 1766
+    .line 1771
     iget-object v7, v8, Lcom/isaigu/gymapp/ai/AutoSession$Row;->zoneOffset:[I
 
     const/4 v10, 0x0
@@ -4942,7 +4942,7 @@
 
     goto :goto_33c
 
-    .line 1768
+    .line 1773
     :cond_36f
     iget-object v7, v8, Lcom/isaigu/gymapp/ai/AutoSession$Row;->zoneOffset:[I
 
@@ -4952,14 +4952,14 @@
 
     goto :goto_33c
 
-    .line 1771
+    .line 1776
     :cond_376
-    if-nez v5, :cond_7ee
+    if-nez v5, :cond_80a
 
-    .line 1772
+    .line 1777
     const-string v2, "calib_zone"
 
-    .line 1773
+    .line 1778
     new-instance v3, Ljava/lang/StringBuilder;
 
     invoke-direct {v3}, Ljava/lang/StringBuilder;-><init>()V
@@ -4990,7 +4990,7 @@
 
     move-object v4, v3
 
-    .line 1776
+    .line 1781
     :goto_398
     const/4 v3, 0x1
 
@@ -5002,18 +5002,18 @@
 
     move v13, v3
 
-    .line 1815
+    .line 1824
     :goto_39d
     iget v0, v14, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenth:I
 
     move/from16 v16, v0
 
-    .line 1816
+    .line 1825
     iget v2, v8, Lcom/isaigu/gymapp/ai/AutoSession$Row;->writtenStrength:I
 
     move/from16 v0, v16
 
-    if-ne v0, v2, :cond_4a7
+    if-ne v0, v2, :cond_4c3
 
     move v5, v10
 
@@ -5023,19 +5023,19 @@
 
     move v6, v13
 
-    .line 1817
+    .line 1826
     goto/16 :goto_2cd
 
-    .line 1777
+    .line 1782
     :cond_3ad
-    if-eqz v11, :cond_7e8
+    if-eqz v11, :cond_804
 
-    .line 1778
+    .line 1783
     iget-object v6, v8, Lcom/isaigu/gymapp/ai/AutoSession$Row;->block:Ljava/lang/String;
 
     if-eqz v6, :cond_3d1
 
-    .line 1779
+    .line 1784
     new-instance v2, Ljava/lang/StringBuilder;
 
     invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
@@ -5058,10 +5058,10 @@
 
     move-result-object v4
 
-    .line 1780
+    .line 1785
     const/4 v2, 0x1
 
-    .line 1812
+    .line 1821
     :goto_3cb
     const/4 v5, 0x1
 
@@ -5075,7 +5075,7 @@
 
     goto :goto_39d
 
-    .line 1783
+    .line 1788
     :cond_3d1
     sget-object v6, Lcom/isaigu/gymapp/ai/AutoSession;->written:Lcom/isaigu/gymapp/ai/AutoEngine$Cmd;
 
@@ -5083,12 +5083,12 @@
 
     move-result-object v11
 
-    .line 1784
+    .line 1789
     const/16 v6, 0xa
 
     new-array v7, v6, [I
 
-    .line 1785
+    .line 1790
     const/4 v6, 0x0
 
     :goto_3dc
@@ -5096,7 +5096,7 @@
 
     if-ge v6, v10, :cond_3f7
 
-    .line 1786
+    .line 1791
     aget v10, v11, v6
 
     iget-object v13, v8, Lcom/isaigu/gymapp/ai/AutoSession$Row;->zoneOffset:[I
@@ -5119,18 +5119,18 @@
 
     aput v10, v7, v6
 
-    .line 1785
+    .line 1790
     add-int/lit8 v6, v6, 0x1
 
     goto :goto_3dc
 
-    .line 1788
+    .line 1793
     :cond_3f7
     invoke-static {v7, v11, v2}, Lcom/isaigu/gymapp/ai/AutoLimits;->clampZones([I[ILcom/isaigu/gymapp/ai/AutoModel$Plan;)[I
 
     move-result-object v13
 
-    .line 1789
+    .line 1794
     const/4 v6, 0x0
 
     :goto_3fc
@@ -5138,7 +5138,7 @@
 
     if-ge v6, v7, :cond_40d
 
-    .line 1790
+    .line 1795
     iget-object v7, v8, Lcom/isaigu/gymapp/ai/AutoSession$Row;->zoneOffset:[I
 
     aget v10, v13, v6
@@ -5149,19 +5149,19 @@
 
     aput v10, v7, v6
 
-    .line 1789
+    .line 1794
     add-int/lit8 v6, v6, 0x1
 
     goto :goto_3fc
 
-    .line 1792
+    .line 1797
     :cond_40d
     const/4 v6, -0x1
 
-    .line 1793
+    .line 1798
     const/4 v10, -0x1
 
-    .line 1794
+    .line 1799
     const/4 v7, 0x0
 
     :goto_410
@@ -5171,7 +5171,7 @@
 
     if-ge v7, v0, :cond_437
 
-    .line 1795
+    .line 1800
     aget v16, v13, v7
 
     aget v17, v12, v7
@@ -5186,7 +5186,7 @@
 
     move v6, v7
 
-    .line 1798
+    .line 1803
     :cond_423
     aget v16, v12, v7
 
@@ -5206,17 +5206,17 @@
 
     move v10, v7
 
-    .line 1794
+    .line 1799
     :cond_434
     add-int/lit8 v7, v7, 0x1
 
     goto :goto_410
 
-    .line 1802
+    .line 1807
     :cond_437
     if-ltz v6, :cond_459
 
-    .line 1803
+    .line 1808
     new-instance v4, Ljava/lang/StringBuilder;
 
     invoke-direct {v4}, Ljava/lang/StringBuilder;-><init>()V
@@ -5245,21 +5245,21 @@
 
     move-result-object v4
 
-    .line 1804
+    .line 1809
     const/4 v2, 0x1
 
     goto/16 :goto_3cb
 
-    .line 1805
+    .line 1810
     :cond_459
-    if-ltz v10, :cond_7e5
+    if-ltz v10, :cond_801
 
-    if-nez v5, :cond_7e5
+    if-nez v5, :cond_801
 
-    .line 1806
+    .line 1811
     const-string v3, "zone"
 
-    .line 1807
+    .line 1812
     new-instance v4, Ljava/lang/StringBuilder;
 
     invoke-direct {v4}, Ljava/lang/StringBuilder;-><init>()V
@@ -5294,35 +5294,25 @@
 
     move-result-object v4
 
-    const-string v6, " % \u2014 \u043f\u0430\u0437\u0438 \u0441\u0435 \u0434\u043e \u043a\u0440\u0430\u044f. \u041d\u0430\u0434\u043e\u043b\u0443 \u0441\u0432\u043e\u0431\u043e\u0434\u043d\u043e, \u043d\u0430\u0433\u043e\u0440\u0435 \u0434\u043e +"
+    .line 1813
+    iget v6, v2, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->zoneDelta:I
 
-    const-string v7, " % \u2014 kept to the end. Down freely, up to +"
+    const/16 v7, 0x64
 
-    .line 1808
-    invoke-static {v6, v7}, Lcom/isaigu/gymapp/ai/AiText;->t(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+    if-lt v6, v7, :cond_49b
 
-    move-result-object v6
+    .line 1814
+    const-string v2, " % \u2014 \u043f\u0430\u0437\u0438 \u0441\u0435 \u0434\u043e \u043a\u0440\u0430\u044f. \u0421\u0438\u043b\u0430\u0442\u0430 \u043d\u0430 \u0437\u043e\u043d\u0430\u0442\u0430 \u0435 \u0442\u0432\u043e\u044f."
 
-    invoke-virtual {v4, v6}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    const-string v6, " % \u2014 kept to the end. The zone\'s strength is yours."
 
-    move-result-object v4
-
-    iget v2, v2, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->zoneDelta:I
-
-    invoke-virtual {v4, v2}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+    invoke-static {v2, v6}, Lcom/isaigu/gymapp/ai/AiText;->t(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v2
 
-    const-string v4, " \u043e\u0442 \u043f\u0440\u043e\u0433\u0440\u0430\u043c\u0430\u0442\u0430."
-
-    const-string v6, " over the program."
-
-    .line 1809
-    invoke-static {v4, v6}, Lcom/isaigu/gymapp/ai/AiText;->t(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object v4
-
-    invoke-virtual {v2, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    .line 1818
+    :goto_490
+    invoke-virtual {v4, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     move-result-object v2
 
@@ -5334,16 +5324,59 @@
 
     goto/16 :goto_3cb
 
-    .line 1819
-    :cond_4a7
+    :cond_49b
+    new-instance v6, Ljava/lang/StringBuilder;
+
+    invoke-direct {v6}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v7, " % \u2014 \u043f\u0430\u0437\u0438 \u0441\u0435 \u0434\u043e \u043a\u0440\u0430\u044f. \u041d\u0430\u0434\u043e\u043b\u0443 \u0441\u0432\u043e\u0431\u043e\u0434\u043d\u043e, \u043d\u0430\u0433\u043e\u0440\u0435 \u0434\u043e +"
+
+    const-string v10, " % \u2014 kept to the end. Down freely, up to +"
+
+    .line 1816
+    invoke-static {v7, v10}, Lcom/isaigu/gymapp/ai/AiText;->t(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v7
+
+    invoke-virtual {v6, v7}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v6
+
+    iget v2, v2, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->zoneDelta:I
+
+    invoke-virtual {v6, v2}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    move-result-object v2
+
+    const-string v6, " \u043e\u0442 \u043f\u0440\u043e\u0433\u0440\u0430\u043c\u0430\u0442\u0430."
+
+    const-string v7, " over the program."
+
+    .line 1818
+    invoke-static {v6, v7}, Lcom/isaigu/gymapp/ai/AiText;->t(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v6
+
+    invoke-virtual {v2, v6}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v2
+
+    invoke-virtual {v2}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v2
+
+    goto :goto_490
+
+    .line 1828
+    :cond_4c3
     iget-object v2, v8, Lcom/isaigu/gymapp/ai/AutoSession$Row;->block:Ljava/lang/String;
 
-    if-eqz v2, :cond_4c9
+    if-eqz v2, :cond_4e5
 
-    .line 1820
+    .line 1829
     const/4 v13, 0x1
 
-    .line 1821
+    .line 1830
     new-instance v2, Ljava/lang/StringBuilder;
 
     invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
@@ -5366,7 +5399,7 @@
 
     move-result-object v4
 
-    .line 1822
+    .line 1831
     const/4 v10, 0x1
 
     move v5, v10
@@ -5375,29 +5408,29 @@
 
     move v6, v13
 
-    .line 1823
+    .line 1832
     goto/16 :goto_2cd
 
-    .line 1825
-    :cond_4c9
+    .line 1834
+    :cond_4e5
     iget v2, v8, Lcom/isaigu/gymapp/ai/AutoSession$Row;->writtenStrength:I
 
     move/from16 v0, v16
 
-    if-ge v0, v2, :cond_51a
+    if-ge v0, v2, :cond_536
 
-    .line 1826
+    .line 1835
     move/from16 v0, v16
 
     invoke-static {v8, v0, v9}, Lcom/isaigu/gymapp/ai/AutoSession;->acceptStrength(Lcom/isaigu/gymapp/ai/AutoSession$Row;IZ)V
 
-    .line 1827
-    if-nez v10, :cond_7df
+    .line 1836
+    if-nez v10, :cond_7fb
 
-    .line 1828
+    .line 1837
     const-string v11, "strength_down"
 
-    .line 1829
+    .line 1838
     new-instance v2, Ljava/lang/StringBuilder;
 
     invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
@@ -5446,7 +5479,7 @@
 
     const-string v4, ". A reduction is kept to the end."
 
-    .line 1830
+    .line 1839
     invoke-static {v3, v4}, Lcom/isaigu/gymapp/ai/AiText;->t(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v3
@@ -5467,8 +5500,8 @@
 
     goto/16 :goto_2cd
 
-    .line 1835
-    :cond_51a
+    .line 1844
+    :cond_536
     iget v2, v8, Lcom/isaigu/gymapp/ai/AutoSession$Row;->writtenStrength:I
 
     iget-wide v4, v8, Lcom/isaigu/gymapp/ai/AutoSession$Row;->raiseBudget:D
@@ -5487,20 +5520,20 @@
 
     move-result v14
 
-    .line 1836
-    if-nez v9, :cond_7dc
+    .line 1845
+    if-nez v9, :cond_7f8
 
-    .line 1837
+    .line 1846
     iget-object v2, v8, Lcom/isaigu/gymapp/ai/AutoSession$Row;->plan:Lcom/isaigu/gymapp/ai/AutoModel$Plan;
 
-    if-eqz v2, :cond_5ef
+    if-eqz v2, :cond_60b
 
     iget-object v2, v8, Lcom/isaigu/gymapp/ai/AutoSession$Row;->plan:Lcom/isaigu/gymapp/ai/AutoModel$Plan;
 
     move-object v6, v2
 
-    .line 1838
-    :goto_533
+    .line 1847
+    :goto_54f
     sget-object v2, Lcom/isaigu/gymapp/ai/AutoSession;->written:Lcom/isaigu/gymapp/ai/AutoEngine$Cmd;
 
     iget-wide v4, v6, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->phiMax:D
@@ -5509,18 +5542,18 @@
 
     move-result-wide v2
 
-    .line 1839
+    .line 1848
     iget v4, v8, Lcom/isaigu/gymapp/ai/AutoSession$Row;->cal:I
 
-    if-gtz v4, :cond_5f4
+    if-gtz v4, :cond_610
 
     const-wide/16 v4, 0x0
 
     cmpl-double v4, v2, v4
 
-    if-lez v4, :cond_5f4
+    if-lez v4, :cond_610
 
-    .line 1841
+    .line 1850
     const/16 v4, 0x64
 
     int-to-double v6, v14
@@ -5541,8 +5574,8 @@
 
     move v2, v14
 
-    .line 1852
-    :goto_556
+    .line 1861
+    :goto_572
     iget v3, v8, Lcom/isaigu/gymapp/ai/AutoSession$Row;->writtenStrength:I
 
     iget-wide v4, v8, Lcom/isaigu/gymapp/ai/AutoSession$Row;->raiseBudget:D
@@ -5555,7 +5588,7 @@
 
     add-int/2addr v3, v4
 
-    .line 1853
+    .line 1862
     iget v4, v8, Lcom/isaigu/gymapp/ai/AutoSession$Row;->writtenStrength:I
 
     const/16 v5, 0x64
@@ -5568,7 +5601,7 @@
 
     move-result v14
 
-    .line 1854
+    .line 1863
     const-wide/16 v4, 0x0
 
     iget-wide v6, v8, Lcom/isaigu/gymapp/ai/AutoSession$Row;->raiseBudget:D
@@ -5589,28 +5622,28 @@
 
     iput-wide v4, v8, Lcom/isaigu/gymapp/ai/AutoSession$Row;->raiseBudget:D
 
-    .line 1855
+    .line 1864
     invoke-static {v8, v14, v9}, Lcom/isaigu/gymapp/ai/AutoSession;->acceptStrength(Lcom/isaigu/gymapp/ai/AutoSession$Row;IZ)V
 
-    .line 1856
+    .line 1865
     move/from16 v0, v16
 
-    if-ge v14, v0, :cond_76e
+    if-ge v14, v0, :cond_78a
 
-    .line 1857
+    .line 1866
     const/4 v13, 0x1
 
-    .line 1858
+    .line 1867
     const/4 v12, 0x1
 
-    .line 1859
-    if-lt v14, v3, :cond_649
+    .line 1868
+    if-lt v14, v3, :cond_665
 
     const/16 v2, 0x64
 
-    if-ge v14, v2, :cond_649
+    if-ge v14, v2, :cond_665
 
-    .line 1860
+    .line 1869
     new-instance v2, Ljava/lang/StringBuilder;
 
     invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
@@ -5643,11 +5676,11 @@
 
     move-result-object v4
 
-    if-eqz v9, :cond_642
+    if-eqz v9, :cond_65e
 
     const-string v2, "\u0432 \u0441\u0435\u043a\u0443\u043d\u0434\u0430"
 
-    :goto_5b4
+    :goto_5d0
     invoke-virtual {v4, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     move-result-object v2
@@ -5676,12 +5709,12 @@
 
     move-result-object v5
 
-    .line 1861
-    if-eqz v9, :cond_646
+    .line 1870
+    if-eqz v9, :cond_662
 
     const-string v2, "second"
 
-    :goto_5d5
+    :goto_5f1
     invoke-virtual {v5, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     move-result-object v2
@@ -5690,7 +5723,7 @@
 
     move-result-object v2
 
-    .line 1860
+    .line 1869
     invoke-static {v4, v2}, Lcom/isaigu/gymapp/ai/AiText;->t(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v2
@@ -5705,26 +5738,26 @@
 
     move v10, v12
 
-    :goto_5ea
+    :goto_606
     move v5, v10
 
     move-object v3, v11
 
     move v6, v13
 
-    .line 1884
+    .line 1893
     goto/16 :goto_2cd
 
-    .line 1837
-    :cond_5ef
+    .line 1846
+    :cond_60b
     sget-object v2, Lcom/isaigu/gymapp/ai/AutoSession;->plan:Lcom/isaigu/gymapp/ai/AutoModel$Plan;
 
     move-object v6, v2
 
-    goto/16 :goto_533
+    goto/16 :goto_54f
 
-    .line 1845
-    :cond_5f4
+    .line 1854
+    :cond_610
     sget-object v2, Lcom/isaigu/gymapp/ai/AutoSession;->engine:Lcom/isaigu/gymapp/ai/AutoEngine;
 
     sget-object v3, Lcom/isaigu/gymapp/ai/AutoSession;->written:Lcom/isaigu/gymapp/ai/AutoEngine$Cmd;
@@ -5737,12 +5770,12 @@
 
     move-result-wide v2
 
-    .line 1846
+    .line 1855
     const-wide/16 v4, 0x0
 
     cmpl-double v4, v2, v4
 
-    if-lez v4, :cond_62d
+    if-lez v4, :cond_649
 
     iget v4, v8, Lcom/isaigu/gymapp/ai/AutoSession$Row;->cal:I
 
@@ -5760,9 +5793,9 @@
 
     double-to-int v4, v4
 
-    if-le v14, v4, :cond_62d
+    if-le v14, v4, :cond_649
 
-    .line 1847
+    .line 1856
     const/16 v4, 0x64
 
     int-to-double v6, v14
@@ -5785,8 +5818,8 @@
 
     iput v4, v8, Lcom/isaigu/gymapp/ai/AutoSession$Row;->cal:I
 
-    .line 1849
-    :cond_62d
+    .line 1858
+    :cond_649
     iget v4, v8, Lcom/isaigu/gymapp/ai/AutoSession$Row;->cal:I
 
     int-to-double v4, v4
@@ -5807,42 +5840,42 @@
 
     move-result v2
 
-    goto/16 :goto_556
+    goto/16 :goto_572
 
-    .line 1860
-    :cond_642
+    .line 1869
+    :cond_65e
     const-string v2, "\u043d\u0430 \u0438\u043c\u043f\u0443\u043b\u0441"
 
-    goto/16 :goto_5b4
+    goto/16 :goto_5d0
 
-    .line 1861
-    :cond_646
+    .line 1870
+    :cond_662
     const-string v2, "pulse"
 
-    goto :goto_5d5
+    goto :goto_5f1
 
-    .line 1862
-    :cond_649
-    if-nez v9, :cond_74e
+    .line 1871
+    :cond_665
+    if-nez v9, :cond_76a
 
-    .line 1863
+    .line 1872
     iget-object v2, v8, Lcom/isaigu/gymapp/ai/AutoSession$Row;->plan:Lcom/isaigu/gymapp/ai/AutoModel$Plan;
 
-    if-eqz v2, :cond_742
+    if-eqz v2, :cond_75e
 
     iget-object v2, v8, Lcom/isaigu/gymapp/ai/AutoSession$Row;->plan:Lcom/isaigu/gymapp/ai/AutoModel$Plan;
 
     move-object v10, v2
 
-    .line 1864
-    :goto_652
+    .line 1873
+    :goto_66e
     sget-object v2, Lcom/isaigu/gymapp/ai/AutoSession;->engine:Lcom/isaigu/gymapp/ai/AutoEngine;
 
     invoke-virtual {v2}, Lcom/isaigu/gymapp/ai/AutoEngine;->phase()Lcom/isaigu/gymapp/ai/AutoModel$Phase;
 
     move-result-object v16
 
-    .line 1865
+    .line 1874
     new-instance v2, Ljava/lang/StringBuilder;
 
     invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
@@ -5897,7 +5930,7 @@
 
     iget-wide v6, v10, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->envMax:D
 
-    .line 1866
+    .line 1875
     invoke-virtual/range {v2 .. v7}, Lcom/isaigu/gymapp/ai/AutoEngine;->rowCeiling(Lcom/isaigu/gymapp/ai/AutoEngine$Cmd;DD)D
 
     move-result-wide v2
@@ -5920,14 +5953,14 @@
 
     move-result-object v3
 
-    .line 1867
-    if-eqz v16, :cond_747
+    .line 1876
+    if-eqz v16, :cond_763
 
     move-object/from16 v0, v16
 
     iget-object v2, v0, Lcom/isaigu/gymapp/ai/AutoModel$Phase;->nameBg:Ljava/lang/String;
 
-    :goto_6ac
+    :goto_6c8
     invoke-virtual {v3, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     move-result-object v2
@@ -5984,7 +6017,7 @@
 
     iget-wide v6, v10, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->envMax:D
 
-    .line 1869
+    .line 1878
     invoke-virtual/range {v2 .. v7}, Lcom/isaigu/gymapp/ai/AutoEngine;->rowCeiling(Lcom/isaigu/gymapp/ai/AutoEngine$Cmd;DD)D
 
     move-result-wide v2
@@ -6005,14 +6038,14 @@
 
     move-result-object v3
 
-    .line 1870
-    if-eqz v16, :cond_74b
+    .line 1879
+    if-eqz v16, :cond_767
 
     move-object/from16 v0, v16
 
     iget-object v2, v0, Lcom/isaigu/gymapp/ai/AutoModel$Phase;->nameEn:Ljava/lang/String;
 
-    :goto_6ff
+    :goto_71b
     invoke-virtual {v3, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     move-result-object v2
@@ -6027,7 +6060,7 @@
 
     move-result-object v2
 
-    .line 1865
+    .line 1874
     move-object/from16 v0, v18
 
     invoke-static {v0, v2}, Lcom/isaigu/gymapp/ai/AiText;->t(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
@@ -6044,16 +6077,16 @@
 
     move-result-object v2
 
-    .line 1871
+    .line 1880
     sget-object v3, Lcom/isaigu/gymapp/ai/AutoSession;->engine:Lcom/isaigu/gymapp/ai/AutoEngine;
 
     invoke-virtual {v3}, Lcom/isaigu/gymapp/ai/AutoEngine;->isRaiseLocked()Z
 
     move-result v3
 
-    if-eqz v3, :cond_73e
+    if-eqz v3, :cond_75a
 
-    .line 1872
+    .line 1881
     new-instance v3, Ljava/lang/StringBuilder;
 
     invoke-direct {v3}, Ljava/lang/StringBuilder;-><init>()V
@@ -6078,36 +6111,36 @@
 
     move-result-object v2
 
-    :cond_73e
+    :cond_75a
     move v10, v12
 
     move-object v4, v2
 
-    .line 1874
-    goto/16 :goto_5ea
+    .line 1883
+    goto/16 :goto_606
 
-    .line 1863
-    :cond_742
+    .line 1872
+    :cond_75e
     sget-object v2, Lcom/isaigu/gymapp/ai/AutoSession;->plan:Lcom/isaigu/gymapp/ai/AutoModel$Plan;
 
     move-object v10, v2
 
-    goto/16 :goto_652
+    goto/16 :goto_66e
 
-    .line 1867
-    :cond_747
+    .line 1876
+    :cond_763
     const-string v2, ""
 
-    goto/16 :goto_6ac
+    goto/16 :goto_6c8
 
-    .line 1870
-    :cond_74b
+    .line 1879
+    :cond_767
     const-string v2, ""
 
-    goto :goto_6ff
+    goto :goto_71b
 
-    .line 1875
-    :cond_74e
+    .line 1884
+    :cond_76a
     new-instance v2, Ljava/lang/StringBuilder;
 
     invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
@@ -6138,19 +6171,19 @@
 
     move v10, v12
 
-    goto/16 :goto_5ea
+    goto/16 :goto_606
 
-    .line 1877
-    :cond_76e
-    if-nez v10, :cond_7d9
+    .line 1886
+    :cond_78a
+    if-nez v10, :cond_7f5
 
-    .line 1878
-    if-eqz v9, :cond_7b4
+    .line 1887
+    if-eqz v9, :cond_7d0
 
     const-string v2, "calib_up"
 
-    .line 1879
-    :goto_774
+    .line 1888
+    :goto_790
     new-instance v3, Ljava/lang/StringBuilder;
 
     invoke-direct {v3}, Ljava/lang/StringBuilder;-><init>()V
@@ -6193,8 +6226,8 @@
 
     move-result-object v4
 
-    .line 1880
-    if-eqz v9, :cond_7b7
+    .line 1889
+    if-eqz v9, :cond_7d3
 
     const-string v3, ". \u041a\u0430\u0447\u0432\u0430\u0439 \u0434\u043e \u0446\u0435\u043b\u0435\u0432\u043e\u0442\u043e \u0443\u0441\u0435\u0449\u0430\u043d\u0435, \u043d\u0430\u0439-\u043c\u043d\u043e\u0433\u043e +5 \u0432 \u0441\u0435\u043a\u0443\u043d\u0434\u0430."
 
@@ -6204,8 +6237,8 @@
 
     move-result-object v3
 
-    .line 1882
-    :goto_7a9
+    .line 1891
+    :goto_7c5
     invoke-virtual {v4, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     move-result-object v3
@@ -6216,16 +6249,16 @@
 
     move-object v11, v2
 
-    goto/16 :goto_5ea
+    goto/16 :goto_606
 
-    .line 1878
-    :cond_7b4
+    .line 1887
+    :cond_7d0
     const-string v2, "strength_up"
 
-    goto :goto_774
+    goto :goto_790
 
-    .line 1882
-    :cond_7b7
+    .line 1891
+    :cond_7d3
     const-string v3, ". \u041d\u0430\u0433\u043e\u0440\u0435 \u2014 \u0434\u043e \u0442\u0430\u0432\u0430\u043d\u0430 \u043d\u0430 \u0444\u0430\u0437\u0430\u0442\u0430, +5 \u043d\u0430 \u0438\u043c\u043f\u0443\u043b\u0441."
 
     const-string v5, ". Up \u2014 to the phase ceiling, +5 per pulse."
@@ -6234,50 +6267,50 @@
 
     move-result-object v3
 
-    goto :goto_7a9
+    goto :goto_7c5
 
-    .line 1885
-    :cond_7c0
-    if-eqz v6, :cond_7c7
+    .line 1894
+    :cond_7dc
+    if-eqz v6, :cond_7e3
 
-    .line 1886
+    .line 1895
     sget-object v2, Lcom/isaigu/gymapp/ai/AutoSession;->written:Lcom/isaigu/gymapp/ai/AutoEngine$Cmd;
 
     invoke-static {v2, v9}, Lcom/isaigu/gymapp/ai/AutoSession;->writeRows(Lcom/isaigu/gymapp/ai/AutoEngine$Cmd;Z)V
 
-    .line 1888
-    :cond_7c7
+    .line 1897
+    :cond_7e3
     if-eqz v4, :cond_4
 
-    .line 1889
-    if-nez v5, :cond_7d2
+    .line 1898
+    if-nez v5, :cond_7ee
 
-    .line 1890
+    .line 1899
     move-wide/from16 v0, p0
 
     invoke-static {v3, v4, v0, v1}, Lcom/isaigu/gymapp/ai/AutoSession;->tip(Ljava/lang/String;Ljava/lang/String;J)V
 
     goto/16 :goto_4
 
-    .line 1892
-    :cond_7d2
+    .line 1901
+    :cond_7ee
     move-wide/from16 v0, p0
 
     invoke-static {v4, v5, v0, v1}, Lcom/isaigu/gymapp/ai/AutoSession;->notice(Ljava/lang/String;IJ)V
 
     goto/16 :goto_4
 
-    :cond_7d9
+    :cond_7f5
     move-object v4, v12
 
-    goto/16 :goto_5ea
+    goto/16 :goto_606
 
-    :cond_7dc
+    :cond_7f8
     move v2, v14
 
-    goto/16 :goto_556
+    goto/16 :goto_572
 
-    :cond_7df
+    :cond_7fb
     move v5, v10
 
     move-object v3, v11
@@ -6288,12 +6321,12 @@
 
     goto/16 :goto_2cd
 
-    :cond_7e5
+    :cond_801
     move v2, v5
 
     goto/16 :goto_3cb
 
-    :cond_7e8
+    :cond_804
     move v10, v5
 
     move-object v11, v3
@@ -6304,7 +6337,7 @@
 
     goto/16 :goto_39d
 
-    :cond_7ee
+    :cond_80a
     move-object v2, v3
 
     goto/16 :goto_398
@@ -6407,23 +6440,23 @@
     .end annotation
 
     .prologue
-    .line 2055
+    .line 2064
     new-instance v1, Ljava/util/ArrayList;
 
     invoke-direct {v1}, Ljava/util/ArrayList;-><init>()V
 
-    .line 2056
+    .line 2065
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoSession;->manager:Lcom/isaigu/gymapp/train/TrainItemManager;
 
     if-nez v0, :cond_b
 
     move-object v0, v1
 
-    .line 2070
+    .line 2079
     :goto_a
     return-object v0
 
-    .line 2060
+    .line 2069
     :cond_b
     :try_start_b
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoSession;->manager:Lcom/isaigu/gymapp/train/TrainItemManager;
@@ -6432,10 +6465,10 @@
 
     move-result-object v0
 
-    .line 2061
+    .line 2070
     if-eqz v0, :cond_36
 
-    .line 2062
+    .line 2071
     invoke-interface {v0}, Ljava/util/List;->iterator()Ljava/util/Iterator;
 
     move-result-object v2
@@ -6454,7 +6487,7 @@
 
     check-cast v0, Lcom/isaigu/gymapp/train/model/TrainItem;
 
-    .line 2063
+    .line 2072
     if-eqz v0, :cond_17
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/train/model/TrainItem;->isEmpty()Z
@@ -6469,21 +6502,21 @@
 
     if-eqz v3, :cond_17
 
-    .line 2064
+    .line 2073
     invoke-interface {v1, v0}, Ljava/util/List;->add(Ljava/lang/Object;)Z
     :try_end_34
     .catch Ljava/lang/Throwable; {:try_start_b .. :try_end_34} :catch_35
 
     goto :goto_17
 
-    .line 2068
+    .line 2077
     :catch_35
     move-exception v0
 
     :cond_36
     move-object v0, v1
 
-    .line 2070
+    .line 2079
     goto :goto_a
 .end method
 
@@ -6491,7 +6524,7 @@
     .registers 2
 
     .prologue
-    .line 1289
+    .line 1292
     sget-wide v0, Lcom/isaigu/gymapp/ai/AutoSession;->lastHookMs:J
 
     return-wide v0
@@ -6501,12 +6534,12 @@
     .registers 2
 
     .prologue
-    .line 2050
+    .line 2059
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoSession;->items()Ljava/util/List;
 
     move-result-object v0
 
-    .line 2051
+    .line 2060
     invoke-interface {v0}, Ljava/util/List;->isEmpty()Z
 
     move-result v1
@@ -6534,7 +6567,7 @@
     .registers 2
 
     .prologue
-    .line 1317
+    .line 1320
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoSession;->rows:Ljava/util/List;
 
     invoke-interface {v0}, Ljava/util/List;->isEmpty()Z
@@ -6568,7 +6601,7 @@
     .registers 2
 
     .prologue
-    .line 1308
+    .line 1311
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoSession;->rows:Ljava/util/List;
 
     invoke-interface {v0}, Ljava/util/List;->isEmpty()Z
@@ -6602,12 +6635,12 @@
     .registers 4
 
     .prologue
-    .line 1331
+    .line 1334
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoSession;->leader()Lcom/isaigu/gymapp/train/model/TrainItem;
 
     move-result-object v1
 
-    .line 1332
+    .line 1335
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoSession;->rows:Ljava/util/List;
 
     invoke-interface {v0}, Ljava/util/List;->iterator()Ljava/util/Iterator;
@@ -6627,12 +6660,12 @@
 
     check-cast v0, Lcom/isaigu/gymapp/ai/AutoSession$Row;
 
-    .line 1333
+    .line 1336
     iget-object v3, v0, Lcom/isaigu/gymapp/ai/AutoSession$Row;->item:Lcom/isaigu/gymapp/train/model/TrainItem;
 
     if-ne v3, v1, :cond_a
 
-    .line 1337
+    .line 1340
     :goto_1a
     return-object v0
 
@@ -6646,12 +6679,12 @@
     .registers 2
 
     .prologue
-    .line 1073
+    .line 1076
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoSession;->leader()Lcom/isaigu/gymapp/train/model/TrainItem;
 
     move-result-object v0
 
-    .line 1074
+    .line 1077
     if-eqz v0, :cond_12
 
     iget-object v1, v0, Lcom/isaigu/gymapp/train/model/TrainItem;->data:Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
@@ -6681,7 +6714,7 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 1294
+    .line 1297
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoSession;->rows:Ljava/util/List;
 
     invoke-interface {v0}, Ljava/util/List;->isEmpty()Z
@@ -6692,11 +6725,11 @@
 
     move v0, v1
 
-    .line 1304
+    .line 1307
     :goto_a
     return v0
 
-    .line 1297
+    .line 1300
     :cond_b
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoSession;->stage:Lcom/isaigu/gymapp/ai/AutoSession$Stage;
 
@@ -6704,7 +6737,7 @@
 
     if-ne v0, v2, :cond_20
 
-    .line 1298
+    .line 1301
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoSession;->rows:Ljava/util/List;
 
     invoke-interface {v0, v1}, Ljava/util/List;->get(I)Ljava/lang/Object;
@@ -6721,21 +6754,21 @@
 
     goto :goto_a
 
-    .line 1300
+    .line 1303
     :cond_20
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoSession;->leaderRow()Lcom/isaigu/gymapp/ai/AutoSession$Row;
 
     move-result-object v0
 
-    .line 1301
+    .line 1304
     if-nez v0, :cond_28
 
     move v0, v1
 
-    .line 1302
+    .line 1305
     goto :goto_a
 
-    .line 1304
+    .line 1307
     :cond_28
     iget v1, v0, Lcom/isaigu/gymapp/ai/AutoSession$Row;->writtenStrength:I
 
@@ -6759,7 +6792,7 @@
     .registers 2
 
     .prologue
-    .line 1312
+    .line 1315
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoSession;->rows:Ljava/util/List;
 
     invoke-interface {v0}, Ljava/util/List;->isEmpty()Z
@@ -6795,7 +6828,7 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 1284
+    .line 1287
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoSession;->rows:Ljava/util/List;
 
     invoke-interface {v0}, Ljava/util/List;->isEmpty()Z
@@ -6846,7 +6879,7 @@
     .registers 10
 
     .prologue
-    .line 1899
+    .line 1908
     if-nez p1, :cond_e
 
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoSession;->engine:Lcom/isaigu/gymapp/ai/AutoEngine;
@@ -6861,15 +6894,15 @@
 
     if-gtz v0, :cond_11
 
-    .line 1900
+    .line 1909
     :cond_e
     const-string v0, ""
 
-    .line 1904
+    .line 1913
     :goto_10
     return-object v0
 
-    .line 1902
+    .line 1911
     :cond_11
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AutoSession$Row;->plan:Lcom/isaigu/gymapp/ai/AutoModel$Plan;
 
@@ -6879,7 +6912,7 @@
 
     move-object v4, v0
 
-    .line 1903
+    .line 1912
     :goto_18
     iget v0, p0, Lcom/isaigu/gymapp/ai/AutoSession$Row;->cal:I
 
@@ -6909,7 +6942,7 @@
 
     double-to-int v0, v0
 
-    .line 1904
+    .line 1913
     new-instance v1, Ljava/lang/StringBuilder;
 
     invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
@@ -6948,7 +6981,7 @@
 
     goto :goto_10
 
-    .line 1902
+    .line 1911
     :cond_59
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoSession;->plan:Lcom/isaigu/gymapp/ai/AutoModel$Plan;
 
@@ -6961,21 +6994,21 @@
     .registers 5
 
     .prologue
-    .line 2148
+    .line 2157
     new-instance v0, Lcom/isaigu/gymapp/ai/AutoModel$Input;
 
     invoke-direct {v0}, Lcom/isaigu/gymapp/ai/AutoModel$Input;-><init>()V
 
     sput-object v0, Lcom/isaigu/gymapp/ai/AutoSession;->input:Lcom/isaigu/gymapp/ai/AutoModel$Input;
 
-    .line 2149
+    .line 2158
     if-nez p0, :cond_a
 
-    .line 2163
+    .line 2172
     :goto_9
     return-void
 
-    .line 2153
+    .line 2162
     :cond_a
     :try_start_a
     const-string v0, "auto_session"
@@ -6986,7 +7019,7 @@
 
     move-result-object v0
 
-    .line 2154
+    .line 2163
     sget-object v1, Lcom/isaigu/gymapp/ai/AutoSession;->input:Lcom/isaigu/gymapp/ai/AutoModel$Input;
 
     const-string v2, "goal"
@@ -7003,7 +7036,7 @@
 
     iput-object v2, v1, Lcom/isaigu/gymapp/ai/AutoModel$Input;->goal:Lcom/isaigu/gymapp/ai/AutoModel$Goal;
 
-    .line 2155
+    .line 2164
     sget-object v1, Lcom/isaigu/gymapp/ai/AutoSession;->input:Lcom/isaigu/gymapp/ai/AutoModel$Input;
 
     const-string v2, "kind"
@@ -7020,7 +7053,7 @@
 
     iput-object v2, v1, Lcom/isaigu/gymapp/ai/AutoModel$Input;->kind:Lcom/isaigu/gymapp/ai/AutoModel$Kind;
 
-    .line 2156
+    .line 2165
     sget-object v1, Lcom/isaigu/gymapp/ai/AutoSession;->input:Lcom/isaigu/gymapp/ai/AutoModel$Input;
 
     const-string v2, "program"
@@ -7033,7 +7066,7 @@
 
     iput-object v2, v1, Lcom/isaigu/gymapp/ai/AutoModel$Input;->programId:Ljava/lang/String;
 
-    .line 2157
+    .line 2166
     sget-object v1, Lcom/isaigu/gymapp/ai/AutoSession;->input:Lcom/isaigu/gymapp/ai/AutoModel$Input;
 
     const-string v2, "operator"
@@ -7050,7 +7083,7 @@
 
     iput-object v2, v1, Lcom/isaigu/gymapp/ai/AutoModel$Input;->operator:Lcom/isaigu/gymapp/ai/AiModel$Operator;
 
-    .line 2158
+    .line 2167
     sget-object v1, Lcom/isaigu/gymapp/ai/AutoSession;->input:Lcom/isaigu/gymapp/ai/AutoModel$Input;
 
     const-string v2, "intensity"
@@ -7067,7 +7100,7 @@
 
     iput-object v2, v1, Lcom/isaigu/gymapp/ai/AutoModel$Input;->intensity:Lcom/isaigu/gymapp/ai/AutoModel$Intensity;
 
-    .line 2159
+    .line 2168
     sget-object v1, Lcom/isaigu/gymapp/ai/AutoSession;->input:Lcom/isaigu/gymapp/ai/AutoModel$Input;
 
     const-string v2, "double"
@@ -7080,7 +7113,7 @@
 
     iput-boolean v2, v1, Lcom/isaigu/gymapp/ai/AutoModel$Input;->doublePulse:Z
 
-    .line 2160
+    .line 2169
     sget-object v1, Lcom/isaigu/gymapp/ai/AutoSession;->input:Lcom/isaigu/gymapp/ai/AutoModel$Input;
 
     const-string v2, "exercises"
@@ -7097,7 +7130,7 @@
 
     goto :goto_9
 
-    .line 2161
+    .line 2170
     :catch_73
     move-exception v0
 
@@ -7642,13 +7675,13 @@
     .registers 3
 
     .prologue
-    .line 2088
+    .line 2097
     :try_start_0
     iget-object v0, p0, Lcom/isaigu/gymapp/train/model/TrainItem;->data:Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;->trainUser:Lcom/isaigu/gymapp/bean/TrainUser;
 
-    .line 2089
+    .line 2098
     iget-object v1, v0, Lcom/isaigu/gymapp/bean/TrainUser;->nickName:Ljava/lang/String;
 
     if-eqz v1, :cond_13
@@ -7661,14 +7694,14 @@
 
     if-lez v1, :cond_13
 
-    .line 2090
+    .line 2099
     iget-object v0, v0, Lcom/isaigu/gymapp/bean/TrainUser;->nickName:Ljava/lang/String;
 
-    .line 2094
+    .line 2103
     :goto_12
     return-object v0
 
-    .line 2092
+    .line 2101
     :cond_13
     iget-object v1, v0, Lcom/isaigu/gymapp/bean/TrainUser;->name:Ljava/lang/String;
 
@@ -7685,11 +7718,11 @@
 
     goto :goto_12
 
-    .line 2093
+    .line 2102
     :catch_1d
     move-exception v0
 
-    .line 2094
+    .line 2103
     const-string v0, ""
 
     goto :goto_12
@@ -7994,7 +8027,7 @@
     .registers 8
 
     .prologue
-    .line 1928
+    .line 1937
     if-eqz p0, :cond_8
 
     invoke-virtual {p0}, Ljava/lang/String;->length()I
@@ -8003,12 +8036,12 @@
 
     if-nez v0, :cond_9
 
-    .line 1954
+    .line 1963
     :cond_8
     :goto_8
     return-void
 
-    .line 1931
+    .line 1940
     :cond_9
     sget v0, Lcom/isaigu/gymapp/ai/AutoSession;->lastNoticeKind:I
 
@@ -8024,7 +8057,7 @@
 
     if-ltz v0, :cond_8
 
-    .line 1934
+    .line 1943
     :cond_17
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoSession;->lastNotice:Ljava/lang/String;
 
@@ -8032,19 +8065,19 @@
 
     move-result v0
 
-    .line 1935
+    .line 1944
     sput-object p0, Lcom/isaigu/gymapp/ai/AutoSession;->lastNotice:Ljava/lang/String;
 
-    .line 1936
+    .line 1945
     sput p1, Lcom/isaigu/gymapp/ai/AutoSession;->lastNoticeKind:I
 
-    .line 1937
+    .line 1946
     sput-wide p2, Lcom/isaigu/gymapp/ai/AutoSession;->lastNoticeMs:J
 
-    .line 1938
+    .line 1947
     if-nez v0, :cond_47
 
-    .line 1939
+    .line 1948
     const-string v0, "auto"
 
     new-instance v1, Ljava/lang/StringBuilder;
@@ -8077,7 +8110,7 @@
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/WearableBleDiagLog;->log(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 1941
+    .line 1950
     :cond_47
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoHints;->isShowing()Z
 
@@ -8093,7 +8126,7 @@
 
     if-eqz p1, :cond_8
 
-    .line 1944
+    .line 1953
     const/4 v0, 0x2
 
     if-ge p1, v0, :cond_62
@@ -8108,17 +8141,17 @@
 
     if-ltz v0, :cond_8
 
-    .line 1947
+    .line 1956
     :cond_62
     sput-wide p2, Lcom/isaigu/gymapp/ai/AutoSession;->lastGuardToastMs:J
 
-    .line 1949
+    .line 1958
     :try_start_64
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoSession;->panelRoot:Landroid/view/View;
 
     if-eqz v0, :cond_8
 
-    .line 1950
+    .line 1959
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoSession;->panelRoot:Landroid/view/View;
 
     invoke-virtual {v0}, Landroid/view/View;->getContext()Landroid/content/Context;
@@ -8137,7 +8170,7 @@
 
     goto :goto_8
 
-    .line 1952
+    .line 1961
     :catch_77
     move-exception v0
 
@@ -8148,7 +8181,7 @@
     .registers 5
 
     .prologue
-    .line 1920
+    .line 1929
     if-eqz p3, :cond_7
 
     const/4 v0, 0x2
@@ -8156,10 +8189,10 @@
     :goto_3
     invoke-static {p0, v0, p1, p2}, Lcom/isaigu/gymapp/ai/AutoSession;->notice(Ljava/lang/String;IJ)V
 
-    .line 1921
+    .line 1930
     return-void
 
-    .line 1920
+    .line 1929
     :cond_7
     const/4 v0, 0x1
 
@@ -8170,7 +8203,7 @@
     .registers 15
 
     .prologue
-    .line 1322
+    .line 1325
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoSession;->rows:Ljava/util/List;
 
     invoke-interface {v0}, Ljava/util/List;->iterator()Ljava/util/Iterator;
@@ -8190,7 +8223,7 @@
 
     check-cast v0, Lcom/isaigu/gymapp/ai/AutoSession$Row;
 
-    .line 1323
+    .line 1326
     const-wide v4, 0x3fc999999999999aL    # 0.2
 
     const-wide/high16 v6, 0x4000000000000000L    # 2.0
@@ -8227,7 +8260,7 @@
 
     goto :goto_23
 
-    .line 1325
+    .line 1328
     :cond_33
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoSession;->engine:Lcom/isaigu/gymapp/ai/AutoEngine;
 
@@ -8247,14 +8280,14 @@
 
     if-eqz v0, :cond_4b
 
-    .line 1326
+    .line 1329
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoSession;->written:Lcom/isaigu/gymapp/ai/AutoEngine$Cmd;
 
     const/4 v1, 0x0
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/ai/AutoSession;->writeRows(Lcom/isaigu/gymapp/ai/AutoEngine$Cmd;Z)V
 
-    .line 1328
+    .line 1331
     :cond_4b
     return-void
 .end method
@@ -9018,9 +9051,9 @@
     .registers 12
 
     .prologue
-    const/4 v4, 0x1
-
     const-wide v10, 0x3fa999999999999aL    # 0.05
+
+    const/4 v4, 0x1
 
     const/4 v2, 0x0
 
@@ -9083,7 +9116,7 @@
     :cond_33
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoSession;->engine:Lcom/isaigu/gymapp/ai/AutoEngine;
 
-    if-eqz v0, :cond_93
+    if-eqz v0, :cond_a1
 
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoSession;->engine:Lcom/isaigu/gymapp/ai/AutoEngine;
 
@@ -9093,11 +9126,11 @@
 
     sget-object v1, Lcom/isaigu/gymapp/ai/AutoEngine$State;->RUN:Lcom/isaigu/gymapp/ai/AutoEngine$State;
 
-    if-ne v0, v1, :cond_93
+    if-ne v0, v1, :cond_a1
 
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoSession;->written:Lcom/isaigu/gymapp/ai/AutoEngine$Cmd;
 
-    if-eqz v0, :cond_93
+    if-eqz v0, :cond_a1
 
     .line 1039
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoSession;->written:Lcom/isaigu/gymapp/ai/AutoEngine$Cmd;
@@ -9116,7 +9149,7 @@
 
     move-result v0
 
-    if-ge v1, v0, :cond_80
+    if-ge v1, v0, :cond_7e
 
     .line 1042
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoSession;->rows:Ljava/util/List;
@@ -9128,33 +9161,32 @@
     check-cast v0, Lcom/isaigu/gymapp/ai/AutoSession$Row;
 
     .line 1043
-    iget v2, v0, Lcom/isaigu/gymapp/ai/AutoSession$Row;->writtenStrength:I
+    iget v6, v0, Lcom/isaigu/gymapp/ai/AutoSession$Row;->writtenStrength:I
 
-    aget v6, v5, v1
+    aget v7, v5, v1
 
-    if-le v2, v6, :cond_68
+    if-le v6, v7, :cond_67
 
-    move v0, v4
+    move v3, v4
 
     .line 1041
+    :cond_63
     :goto_63
-    add-int/lit8 v2, v1, 0x1
+    add-int/lit8 v0, v1, 0x1
 
-    move v1, v2
-
-    move v3, v0
+    move v1, v0
 
     goto :goto_4c
 
     .line 1045
-    :cond_68
-    iget v2, v0, Lcom/isaigu/gymapp/ai/AutoSession$Row;->cal:I
+    :cond_67
+    iget v6, v0, Lcom/isaigu/gymapp/ai/AutoSession$Row;->cal:I
 
-    if-lez v2, :cond_7e
+    if-lez v6, :cond_63
 
-    iget-object v2, v0, Lcom/isaigu/gymapp/ai/AutoSession$Row;->block:Ljava/lang/String;
+    iget-object v6, v0, Lcom/isaigu/gymapp/ai/AutoSession$Row;->block:Ljava/lang/String;
 
-    if-nez v2, :cond_7e
+    if-nez v6, :cond_63
 
     .line 1046
     const-wide v6, 0x3fb999999999999aL    # 0.1
@@ -9169,58 +9201,92 @@
 
     iput-wide v6, v0, Lcom/isaigu/gymapp/ai/AutoSession$Row;->user:D
 
-    :cond_7e
-    move v0, v3
-
     goto :goto_63
 
     .line 1049
-    :cond_80
-    if-eqz v3, :cond_94
+    :cond_7e
+    if-eqz v3, :cond_ad
 
     .line 1050
-    const-string v0, "btn_raise"
+    sget-object v0, Lcom/isaigu/gymapp/ai/AutoSession;->plan:Lcom/isaigu/gymapp/ai/AutoModel$Plan;
 
-    const-string v1, "+5 % \u0437\u0430 \u0432\u0441\u0438\u0447\u043a\u0438, \u043d\u043e \u043d\u0438\u043a\u043e\u0433\u0430 \u043d\u0430\u0434 \u0442\u0430\u0432\u0430\u043d\u0430 \u043d\u0430 \u0444\u0430\u0437\u0430\u0442\u0430 \u0438 \u043d\u0430\u0439-\u043c\u043d\u043e\u0433\u043e +5 \u043d\u0430 \u0438\u043c\u043f\u0443\u043b\u0441."
+    if-eqz v0, :cond_a2
+
+    sget-object v0, Lcom/isaigu/gymapp/ai/AutoSession;->plan:Lcom/isaigu/gymapp/ai/AutoModel$Plan;
+
+    iget-object v0, v0, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->program:Lcom/isaigu/gymapp/ai/AutoCatalog$Program;
+
+    invoke-static {v0}, Lcom/isaigu/gymapp/ai/AutoCatalog;->isFace(Lcom/isaigu/gymapp/ai/AutoCatalog$Program;)Z
+
+    move-result v0
+
+    if-eqz v0, :cond_a2
+
+    .line 1051
+    :goto_8e
+    const-string v1, "btn_raise"
+
+    if-eqz v4, :cond_a4
+
+    const-string v0, "+5 % \u0437\u0430 \u0432\u0441\u0438\u0447\u043a\u0438, \u043d\u043e \u043d\u0438\u043a\u043e\u0433\u0430 \u043d\u0430\u0434 \u0442\u0430\u0432\u0430\u043d\u0430 \u043d\u0430 \u0444\u0430\u0437\u0430\u0442\u0430 \u0438 \u043d\u0430\u0439-\u043c\u043d\u043e\u0433\u043e +5 \u043d\u0430 \u0438\u043c\u043f\u0443\u043b\u0441."
 
     const-string v2, "+5 % for all, never above the phase ceiling and at most +5 per pulse."
 
-    invoke-static {v1, v2}, Lcom/isaigu/gymapp/ai/AiText;->t(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+    invoke-static {v0, v2}, Lcom/isaigu/gymapp/ai/AiText;->t(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
-    move-result-object v1
+    move-result-object v0
 
-    .line 1051
+    .line 1054
+    :goto_9a
     invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
 
     move-result-wide v2
 
-    .line 1050
-    invoke-static {v0, v1, v2, v3}, Lcom/isaigu/gymapp/ai/AutoSession;->tip(Ljava/lang/String;Ljava/lang/String;J)V
+    .line 1051
+    invoke-static {v1, v0, v2, v3}, Lcom/isaigu/gymapp/ai/AutoSession;->tip(Ljava/lang/String;Ljava/lang/String;J)V
 
-    .line 1057
-    :cond_93
-    :goto_93
+    .line 1060
+    :cond_a1
+    :goto_a1
     return-void
 
-    .line 1053
-    :cond_94
-    const-string v0, "\u0422\u0430\u0432\u0430\u043d\u044a\u0442 \u043d\u0430 \u0441\u0438\u043b\u0430\u0442\u0430 \u0437\u0430 \u0442\u0430\u0437\u0438 \u0444\u0430\u0437\u0430 \u0435 \u0434\u043e\u0441\u0442\u0438\u0433\u043d\u0430\u0442"
+    :cond_a2
+    move v4, v2
 
-    const-string v1, "Strength ceiling of this phase reached"
+    .line 1050
+    goto :goto_8e
+
+    .line 1053
+    :cond_a4
+    const-string v0, "+5 % \u0437\u0430 \u0432\u0441\u0438\u0447\u043a\u0438 \u2014 \u0441\u0438\u043b\u0430\u0442\u0430 \u0435 \u0442\u0432\u043e\u044f; \u043f\u043b\u0430\u0432\u043d\u043e, \u043d\u0430\u0439-\u043c\u043d\u043e\u0433\u043e +5 \u043d\u0430 \u0438\u043c\u043f\u0443\u043b\u0441."
+
+    const-string v2, "+5 % for all \u2014 the strength is yours; gradually, at most +5 per pulse."
+
+    invoke-static {v0, v2}, Lcom/isaigu/gymapp/ai/AiText;->t(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
+
+    goto :goto_9a
+
+    .line 1056
+    :cond_ad
+    const-string v0, "\u0421\u0438\u043b\u0430\u0442\u0430 \u0435 \u043d\u0430 \u043c\u0430\u043a\u0441\u0438\u043c\u0443\u043c\u0430"
+
+    const-string v1, "The strength is at its maximum"
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/ai/AiText;->t(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v0
 
-    .line 1054
+    .line 1057
     invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
 
     move-result-wide v2
 
-    .line 1053
+    .line 1056
     invoke-static {v0, v4, v2, v3}, Lcom/isaigu/gymapp/ai/AutoSession;->notice(Ljava/lang/String;IJ)V
 
-    goto :goto_93
+    goto :goto_a1
 .end method
 
 .method public static reduceAll()V
@@ -9319,7 +9385,7 @@
     .registers 4
 
     .prologue
-    .line 2139
+    .line 2148
     :try_start_0
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoSession;->panelRoot:Landroid/view/View;
 
@@ -9338,21 +9404,21 @@
     :try_end_f
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_f} :catch_12
 
-    .line 2143
+    .line 2152
     :goto_f
     return-void
 
-    .line 2139
+    .line 2148
     :cond_10
     const/4 v0, 0x0
 
     goto :goto_a
 
-    .line 2140
+    .line 2149
     :catch_12
     move-exception v0
 
-    .line 2141
+    .line 2150
     const-string v1, "auto"
 
     new-instance v2, Ljava/lang/StringBuilder;
@@ -9501,20 +9567,20 @@
     .prologue
     const/4 v0, 0x0
 
-    .line 1471
+    .line 1474
     iget-object v1, p0, Lcom/isaigu/gymapp/ai/AutoSession$Row;->block:Ljava/lang/String;
 
     if-eqz v1, :cond_6
 
-    .line 1482
+    .line 1487
     :goto_5
     return v0
 
-    .line 1474
+    .line 1477
     :cond_6
     if-eqz p2, :cond_15
 
-    .line 1475
+    .line 1478
     const/16 v1, 0x64
 
     iget v2, p0, Lcom/isaigu/gymapp/ai/AutoSession$Row;->lastStrength:I
@@ -9529,17 +9595,17 @@
 
     goto :goto_5
 
-    .line 1477
+    .line 1480
     :cond_15
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AutoSession$Row;->plan:Lcom/isaigu/gymapp/ai/AutoModel$Plan;
 
-    if-eqz v0, :cond_3f
+    if-eqz v0, :cond_3a
 
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AutoSession$Row;->plan:Lcom/isaigu/gymapp/ai/AutoModel$Plan;
 
     move-object v1, v0
 
-    .line 1478
+    .line 1481
     :goto_1c
     iget-wide v2, v1, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->phiMax:D
 
@@ -9547,10 +9613,49 @@
 
     move-result-wide v10
 
-    .line 1479
+    .line 1483
+    iget-object v0, v1, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->program:Lcom/isaigu/gymapp/ai/AutoCatalog$Program;
+
+    invoke-static {v0}, Lcom/isaigu/gymapp/ai/AutoCatalog;->isFace(Lcom/isaigu/gymapp/ai/AutoCatalog$Program;)Z
+
+    move-result v0
+
+    if-nez v0, :cond_3e
+
+    const-wide/high16 v6, 0x4059000000000000L    # 100.0
+
+    .line 1485
+    :goto_2c
+    iget v1, p0, Lcom/isaigu/gymapp/ai/AutoSession$Row;->cal:I
+
+    iget-wide v4, p0, Lcom/isaigu/gymapp/ai/AutoSession$Row;->user:D
+
+    iget v8, p0, Lcom/isaigu/gymapp/ai/AutoSession$Row;->lastStrength:I
+
+    move-wide v2, v10
+
+    invoke-static/range {v1 .. v8}, Lcom/isaigu/gymapp/ai/AutoLimits;->rowStrength(IDDDI)I
+
+    move-result v0
+
+    .line 1486
+    iput v0, p0, Lcom/isaigu/gymapp/ai/AutoSession$Row;->lastStrength:I
+
+    goto :goto_5
+
+    .line 1480
+    :cond_3a
+    sget-object v0, Lcom/isaigu/gymapp/ai/AutoSession;->plan:Lcom/isaigu/gymapp/ai/AutoModel$Plan;
+
+    move-object v1, v0
+
+    goto :goto_1c
+
+    .line 1484
+    :cond_3e
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoSession;->engine:Lcom/isaigu/gymapp/ai/AutoEngine;
 
-    if-eqz v0, :cond_43
+    if-eqz v0, :cond_4e
 
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoSession;->engine:Lcom/isaigu/gymapp/ai/AutoEngine;
 
@@ -9564,38 +9669,12 @@
 
     move-result-wide v6
 
-    .line 1480
-    :goto_31
-    iget v1, p0, Lcom/isaigu/gymapp/ai/AutoSession$Row;->cal:I
+    goto :goto_2c
 
-    iget-wide v4, p0, Lcom/isaigu/gymapp/ai/AutoSession$Row;->user:D
-
-    iget v8, p0, Lcom/isaigu/gymapp/ai/AutoSession$Row;->lastStrength:I
-
-    move-wide v2, v10
-
-    invoke-static/range {v1 .. v8}, Lcom/isaigu/gymapp/ai/AutoLimits;->rowStrength(IDDDI)I
-
-    move-result v0
-
-    .line 1481
-    iput v0, p0, Lcom/isaigu/gymapp/ai/AutoSession$Row;->lastStrength:I
-
-    goto :goto_5
-
-    .line 1477
-    :cond_3f
-    sget-object v0, Lcom/isaigu/gymapp/ai/AutoSession;->plan:Lcom/isaigu/gymapp/ai/AutoModel$Plan;
-
-    move-object v1, v0
-
-    goto :goto_1c
-
-    :cond_43
+    :cond_4e
     move-wide v6, v10
 
-    .line 1479
-    goto :goto_31
+    goto :goto_2c
 .end method
 
 .method private static rowZones(Lcom/isaigu/gymapp/ai/AutoSession$Row;Lcom/isaigu/gymapp/ai/AutoEngine$Cmd;)[I
@@ -9604,20 +9683,20 @@
     .prologue
     const/4 v2, 0x0
 
-    .line 1512
+    .line 1517
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AutoSession$Row;->plan:Lcom/isaigu/gymapp/ai/AutoModel$Plan;
 
     if-eqz v0, :cond_28
 
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AutoSession$Row;->plan:Lcom/isaigu/gymapp/ai/AutoModel$Plan;
 
-    .line 1513
+    .line 1518
     :goto_7
     invoke-static {p0, p1}, Lcom/isaigu/gymapp/ai/AutoSession;->stepZones(Lcom/isaigu/gymapp/ai/AutoSession$Row;Lcom/isaigu/gymapp/ai/AutoEngine$Cmd;)[I
 
     move-result-object v5
 
-    .line 1515
+    .line 1520
     const/16 v1, 0xa
 
     new-array v6, v1, [I
@@ -9626,13 +9705,13 @@
 
     move v3, v2
 
-    .line 1516
+    .line 1521
     :goto_11
     array-length v4, v6
 
     if-ge v1, v4, :cond_2d
 
-    .line 1517
+    .line 1522
     aget v4, v5, v1
 
     iget-object v7, p0, Lcom/isaigu/gymapp/ai/AutoSession$Row;->zoneOffset:[I
@@ -9643,7 +9722,7 @@
 
     aput v4, v6, v1
 
-    .line 1518
+    .line 1523
     iget-object v4, p0, Lcom/isaigu/gymapp/ai/AutoSession$Row;->zoneOffset:[I
 
     aget v4, v4, v1
@@ -9655,12 +9734,12 @@
     :goto_24
     or-int/2addr v3, v4
 
-    .line 1516
+    .line 1521
     add-int/lit8 v1, v1, 0x1
 
     goto :goto_11
 
-    .line 1512
+    .line 1517
     :cond_28
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoSession;->plan:Lcom/isaigu/gymapp/ai/AutoModel$Plan;
 
@@ -9669,16 +9748,16 @@
     :cond_2b
     move v4, v2
 
-    .line 1518
+    .line 1523
     goto :goto_24
 
-    .line 1520
+    .line 1525
     :cond_2d
     if-nez v3, :cond_31
 
     move-object v0, v5
 
-    .line 1523
+    .line 1528
     :goto_30
     return-object v0
 
@@ -9851,14 +9930,14 @@
     .registers 4
 
     .prologue
-    .line 2166
+    .line 2175
     if-nez p0, :cond_3
 
-    .line 2181
+    .line 2190
     :goto_2
     return-void
 
-    .line 2170
+    .line 2179
     :cond_3
     :try_start_3
     const-string v0, "auto_session"
@@ -9879,7 +9958,7 @@
 
     iget-object v2, v2, Lcom/isaigu/gymapp/ai/AutoModel$Input;->goal:Lcom/isaigu/gymapp/ai/AutoModel$Goal;
 
-    .line 2171
+    .line 2180
     invoke-virtual {v2}, Lcom/isaigu/gymapp/ai/AutoModel$Goal;->name()Ljava/lang/String;
 
     move-result-object v2
@@ -9894,7 +9973,7 @@
 
     iget-object v2, v2, Lcom/isaigu/gymapp/ai/AutoModel$Input;->kind:Lcom/isaigu/gymapp/ai/AutoModel$Kind;
 
-    .line 2172
+    .line 2181
     invoke-virtual {v2}, Lcom/isaigu/gymapp/ai/AutoModel$Kind;->name()Ljava/lang/String;
 
     move-result-object v2
@@ -9909,7 +9988,7 @@
 
     iget-object v2, v2, Lcom/isaigu/gymapp/ai/AutoModel$Input;->programId:Ljava/lang/String;
 
-    .line 2173
+    .line 2182
     invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences$Editor;->putString(Ljava/lang/String;Ljava/lang/String;)Landroid/content/SharedPreferences$Editor;
 
     move-result-object v0
@@ -9920,7 +9999,7 @@
 
     iget-object v2, v2, Lcom/isaigu/gymapp/ai/AutoModel$Input;->operator:Lcom/isaigu/gymapp/ai/AiModel$Operator;
 
-    .line 2174
+    .line 2183
     invoke-virtual {v2}, Lcom/isaigu/gymapp/ai/AiModel$Operator;->name()Ljava/lang/String;
 
     move-result-object v2
@@ -9935,7 +10014,7 @@
 
     iget-object v2, v2, Lcom/isaigu/gymapp/ai/AutoModel$Input;->intensity:Lcom/isaigu/gymapp/ai/AutoModel$Intensity;
 
-    .line 2175
+    .line 2184
     invoke-virtual {v2}, Lcom/isaigu/gymapp/ai/AutoModel$Intensity;->name()Ljava/lang/String;
 
     move-result-object v2
@@ -9950,7 +10029,7 @@
 
     iget-boolean v2, v2, Lcom/isaigu/gymapp/ai/AutoModel$Input;->doublePulse:Z
 
-    .line 2176
+    .line 2185
     invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences$Editor;->putBoolean(Ljava/lang/String;Z)Landroid/content/SharedPreferences$Editor;
 
     move-result-object v0
@@ -9961,19 +10040,19 @@
 
     iget-boolean v2, v2, Lcom/isaigu/gymapp/ai/AutoModel$Input;->exercises:Z
 
-    .line 2177
+    .line 2186
     invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences$Editor;->putBoolean(Ljava/lang/String;Z)Landroid/content/SharedPreferences$Editor;
 
     move-result-object v0
 
-    .line 2178
+    .line 2187
     invoke-interface {v0}, Landroid/content/SharedPreferences$Editor;->apply()V
     :try_end_67
     .catch Ljava/lang/Throwable; {:try_start_3 .. :try_end_67} :catch_68
 
     goto :goto_2
 
-    .line 2179
+    .line 2188
     :catch_68
     move-exception v0
 
@@ -10130,22 +10209,22 @@
     .registers 5
 
     .prologue
-    .line 1060
+    .line 1063
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoSession;->engine:Lcom/isaigu/gymapp/ai/AutoEngine;
 
     if-eqz v0, :cond_27
 
-    .line 1061
+    .line 1064
     invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
 
     move-result-wide v0
 
-    .line 1062
+    .line 1065
     sget-object v2, Lcom/isaigu/gymapp/ai/AutoSession;->engine:Lcom/isaigu/gymapp/ai/AutoEngine;
 
     invoke-virtual {v2, p0, v0, v1}, Lcom/isaigu/gymapp/ai/AutoEngine;->setDoublePulse(ZJ)V
 
-    .line 1063
+    .line 1066
     sget-object v2, Lcom/isaigu/gymapp/ai/AutoSession;->engine:Lcom/isaigu/gymapp/ai/AutoEngine;
 
     invoke-virtual {v2}, Lcom/isaigu/gymapp/ai/AutoEngine;->getState()Lcom/isaigu/gymapp/ai/AutoEngine$State;
@@ -10160,22 +10239,22 @@
 
     if-eqz v2, :cond_27
 
-    .line 1064
+    .line 1067
     sget-object v2, Lcom/isaigu/gymapp/ai/AutoSession;->engine:Lcom/isaigu/gymapp/ai/AutoEngine;
 
     invoke-virtual {v2, v0, v1}, Lcom/isaigu/gymapp/ai/AutoEngine;->refresh(J)Lcom/isaigu/gymapp/ai/AutoEngine$Cmd;
 
     move-result-object v0
 
-    .line 1065
+    .line 1068
     sput-object v0, Lcom/isaigu/gymapp/ai/AutoSession;->lastApplied:Lcom/isaigu/gymapp/ai/AutoEngine$Cmd;
 
-    .line 1066
+    .line 1069
     const/4 v1, 0x0
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/ai/AutoSession;->writeRows(Lcom/isaigu/gymapp/ai/AutoEngine$Cmd;Z)V
 
-    .line 1069
+    .line 1072
     :cond_27
     return-void
 .end method
@@ -10184,21 +10263,21 @@
     .registers 5
 
     .prologue
-    .line 1256
+    .line 1259
     :try_start_0
     invoke-static {p0}, Lcom/isaigu/gymapp/train/utils/ChannelStrengthScale;->setFace(Z)V
     :try_end_3
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_3} :catch_4
 
-    .line 1260
+    .line 1263
     :goto_3
     return-void
 
-    .line 1257
+    .line 1260
     :catch_4
     move-exception v0
 
-    .line 1258
+    .line 1261
     const-string v1, "auto"
 
     new-instance v2, Ljava/lang/StringBuilder;
@@ -10230,7 +10309,7 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 1231
+    .line 1234
     int-to-float v0, p0
 
     const/high16 v2, 0x42480000    # 50.0f
@@ -10243,7 +10322,7 @@
 
     mul-int/lit8 v0, v0, 0x32
 
-    .line 1232
+    .line 1235
     if-gtz p0, :cond_21
 
     move v0, v1
@@ -10251,14 +10330,14 @@
     :goto_e
     sput v0, Lcom/isaigu/gymapp/ai/AutoSession;->facePwUs:I
 
-    .line 1233
+    .line 1236
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoSession;->stage:Lcom/isaigu/gymapp/ai/AutoSession$Stage;
 
     sget-object v2, Lcom/isaigu/gymapp/ai/AutoSession$Stage;->CALIB:Lcom/isaigu/gymapp/ai/AutoSession$Stage;
 
     if-ne v0, v2, :cond_33
 
-    .line 1234
+    .line 1237
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoSession;->written:Lcom/isaigu/gymapp/ai/AutoEngine$Cmd;
 
     if-eqz v0, :cond_2e
@@ -10270,12 +10349,12 @@
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/ai/AutoSession;->writeRows(Lcom/isaigu/gymapp/ai/AutoEngine$Cmd;Z)V
 
-    .line 1238
+    .line 1241
     :cond_20
     :goto_20
     return-void
 
-    .line 1232
+    .line 1235
     :cond_21
     const/16 v2, 0x32
 
@@ -10291,7 +10370,7 @@
 
     goto :goto_e
 
-    .line 1234
+    .line 1237
     :cond_2e
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoSession;->calibrationCmd()Lcom/isaigu/gymapp/ai/AutoEngine$Cmd;
 
@@ -10299,7 +10378,7 @@
 
     goto :goto_1c
 
-    .line 1235
+    .line 1238
     :cond_33
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoSession;->stage:Lcom/isaigu/gymapp/ai/AutoSession$Stage;
 
@@ -10325,7 +10404,7 @@
 
     if-eqz v0, :cond_20
 
-    .line 1236
+    .line 1239
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoSession;->written:Lcom/isaigu/gymapp/ai/AutoEngine$Cmd;
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/ai/AutoSession;->writeRows(Lcom/isaigu/gymapp/ai/AutoEngine$Cmd;Z)V
@@ -10360,7 +10439,7 @@
     .registers 3
 
     .prologue
-    .line 2111
+    .line 2120
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoSession;->items()Ljava/util/List;
 
     move-result-object v0
@@ -10382,12 +10461,12 @@
 
     check-cast v0, Lcom/isaigu/gymapp/train/model/TrainItem;
 
-    .line 2112
+    .line 2121
     iput p0, v0, Lcom/isaigu/gymapp/train/model/TrainItem;->workLength:I
 
     goto :goto_8
 
-    .line 2114
+    .line 2123
     :cond_17
     return-void
 .end method
@@ -10398,26 +10477,26 @@
     .prologue
     const/4 v11, 0x0
 
-    .line 1341
+    .line 1344
     const/4 v0, 0x0
 
     sput-object v0, Lcom/isaigu/gymapp/ai/AutoSession;->energy:Lcom/isaigu/gymapp/ai/AiEnergy;
 
-    .line 1342
+    .line 1345
     sput-boolean v11, Lcom/isaigu/gymapp/ai/AutoSession;->epocClosed:Z
 
-    .line 1343
+    .line 1346
     const-wide/16 v0, 0x0
 
     sput-wide v0, Lcom/isaigu/gymapp/ai/AiEnergy;->exerciseMet:D
 
-    .line 1345
+    .line 1348
     :try_start_a
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoSession;->leaderRow()Lcom/isaigu/gymapp/ai/AutoSession$Row;
 
     move-result-object v1
 
-    .line 1346
+    .line 1349
     if-eqz v1, :cond_57
 
     iget-object v0, v1, Lcom/isaigu/gymapp/ai/AutoSession$Row;->input:Lcom/isaigu/gymapp/ai/AutoModel$Input;
@@ -10428,7 +10507,7 @@
 
     move-object v10, v0
 
-    .line 1347
+    .line 1350
     :goto_17
     if-eqz v1, :cond_5b
 
@@ -10438,7 +10517,7 @@
 
     iget-object v0, v1, Lcom/isaigu/gymapp/ai/AutoSession$Row;->plan:Lcom/isaigu/gymapp/ai/AutoModel$Plan;
 
-    .line 1348
+    .line 1351
     :goto_1f
     iget-object v1, v10, Lcom/isaigu/gymapp/ai/AutoModel$Input;->screening:Lcom/isaigu/gymapp/ai/AiModel$Screening;
 
@@ -10452,7 +10531,7 @@
 
     const/4 v11, 0x1
 
-    .line 1349
+    .line 1352
     :cond_2a
     iget-object v1, v10, Lcom/isaigu/gymapp/ai/AutoModel$Input;->sex:Lcom/isaigu/gymapp/ai/AiModel$Sex;
 
@@ -10468,7 +10547,7 @@
 
     iget-object v10, v10, Lcom/isaigu/gymapp/ai/AutoModel$Input;->chMuscle:[D
 
-    .line 1350
+    .line 1353
     iget-boolean v12, v0, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->hrRestMeasured:Z
 
     if-eqz v12, :cond_5e
@@ -10478,14 +10557,14 @@
     :goto_3e
     iget v13, v0, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->hrMax:I
 
-    .line 1349
+    .line 1352
     invoke-static/range {v1 .. v13}, Lcom/isaigu/gymapp/ai/AiEnergy;->forPerson(Lcom/isaigu/gymapp/ai/AiModel$Sex;IDLcom/isaigu/gymapp/ai/AiModel$Fitness;DD[DZII)Lcom/isaigu/gymapp/ai/AiEnergy;
 
     move-result-object v0
 
     sput-object v0, Lcom/isaigu/gymapp/ai/AutoSession;->energy:Lcom/isaigu/gymapp/ai/AiEnergy;
 
-    .line 1351
+    .line 1354
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoSession;->calibrationCmd()Lcom/isaigu/gymapp/ai/AutoEngine$Cmd;
 
     move-result-object v0
@@ -10503,11 +10582,11 @@
     :goto_54
     sput v0, Lcom/isaigu/gymapp/ai/AutoSession;->calPw:I
 
-    .line 1355
+    .line 1358
     :goto_56
     return-void
 
-    .line 1346
+    .line 1349
     :cond_57
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoSession;->input:Lcom/isaigu/gymapp/ai/AutoModel$Input;
 
@@ -10515,7 +10594,7 @@
 
     goto :goto_17
 
-    .line 1347
+    .line 1350
     :cond_5b
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoSession;->plan:Lcom/isaigu/gymapp/ai/AutoModel$Plan;
     :try_end_5d
@@ -10523,23 +10602,23 @@
 
     goto :goto_1f
 
-    .line 1350
+    .line 1353
     :cond_5e
     const/4 v12, -0x1
 
     goto :goto_3e
 
-    .line 1351
+    .line 1354
     :cond_60
     const/16 v0, 0x15e
 
     goto :goto_54
 
-    .line 1352
+    .line 1355
     :catch_63
     move-exception v0
 
-    .line 1353
+    .line 1356
     const-string v1, "auto"
 
     new-instance v2, Ljava/lang/StringBuilder;
@@ -11253,21 +11332,21 @@
     .registers 4
 
     .prologue
-    .line 1100
+    .line 1103
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoSession;->handler:Landroid/os/Handler;
 
     sget-object v1, Lcom/isaigu/gymapp/ai/AutoSession;->ticker:Ljava/lang/Runnable;
 
     invoke-virtual {v0, v1}, Landroid/os/Handler;->removeCallbacks(Ljava/lang/Runnable;)V
 
-    .line 1101
+    .line 1104
     invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
 
     move-result-wide v0
 
     sput-wide v0, Lcom/isaigu/gymapp/ai/AutoSession;->lastTickMs:J
 
-    .line 1102
+    .line 1105
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoSession;->handler:Landroid/os/Handler;
 
     sget-object v1, Lcom/isaigu/gymapp/ai/AutoSession;->ticker:Ljava/lang/Runnable;
@@ -11276,7 +11355,7 @@
 
     invoke-virtual {v0, v1, v2, v3}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
 
-    .line 1103
+    .line 1106
     return-void
 .end method
 
@@ -11286,20 +11365,20 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 1487
+    .line 1492
     invoke-static {p0, p1}, Lcom/isaigu/gymapp/ai/AutoSession;->stepZonesRaw(Lcom/isaigu/gymapp/ai/AutoSession$Row;Lcom/isaigu/gymapp/ai/AutoEngine$Cmd;)[I
 
     move-result-object v2
 
     move v0, v1
 
-    .line 1488
+    .line 1493
     :goto_6
     array-length v3, v2
 
     if-ge v0, v3, :cond_28
 
-    .line 1489
+    .line 1494
     const/16 v3, 0x64
 
     aget v4, v2, v0
@@ -11332,12 +11411,12 @@
 
     aput v3, v2, v0
 
-    .line 1488
+    .line 1493
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_6
 
-    .line 1491
+    .line 1496
     :cond_28
     return-object v2
 .end method
@@ -11348,7 +11427,7 @@
     .prologue
     const/4 v2, 0x0
 
-    .line 1496
+    .line 1501
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AutoSession$Row;->plan:Lcom/isaigu/gymapp/ai/AutoModel$Plan;
 
     if-eqz v0, :cond_37
@@ -11357,7 +11436,7 @@
 
     move-object v3, v0
 
-    .line 1497
+    .line 1502
     :goto_8
     if-eqz p1, :cond_e
 
@@ -11377,13 +11456,13 @@
     :goto_16
     move v1, v2
 
-    .line 1498
+    .line 1503
     :goto_17
     array-length v4, v0
 
     if-ge v1, v4, :cond_44
 
-    .line 1499
+    .line 1504
     iget-object v4, v3, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->zoneLocked:[Z
 
     aget-boolean v4, v4, v1
@@ -11396,10 +11475,10 @@
 
     if-nez v4, :cond_28
 
-    .line 1500
+    .line 1505
     aput v2, v0, v1
 
-    .line 1502
+    .line 1507
     :cond_28
     aget v4, v0, v1
 
@@ -11413,12 +11492,12 @@
 
     aput v4, v0, v1
 
-    .line 1498
+    .line 1503
     add-int/lit8 v1, v1, 0x1
 
     goto :goto_17
 
-    .line 1496
+    .line 1501
     :cond_37
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoSession;->plan:Lcom/isaigu/gymapp/ai/AutoModel$Plan;
 
@@ -11426,7 +11505,7 @@
 
     goto :goto_8
 
-    .line 1497
+    .line 1502
     :cond_3b
     iget-object v0, p1, Lcom/isaigu/gymapp/ai/AutoEngine$Cmd;->zones:[I
 
@@ -11438,7 +11517,7 @@
 
     goto :goto_16
 
-    .line 1504
+    .line 1509
     :cond_44
     return-object v0
 .end method
@@ -11586,32 +11665,32 @@
     .registers 4
 
     .prologue
-    .line 2117
+    .line 2126
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiRamp;->clear()V
 
-    .line 2119
+    .line 2128
     :try_start_3
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoSession;->manager:Lcom/isaigu/gymapp/train/TrainItemManager;
 
     if-eqz v0, :cond_c
 
-    .line 2120
+    .line 2129
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoSession;->manager:Lcom/isaigu/gymapp/train/TrainItemManager;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/train/TrainItemManager;->stopAll()V
     :try_end_c
     .catch Ljava/lang/Throwable; {:try_start_3 .. :try_end_c} :catch_d
 
-    .line 2125
+    .line 2134
     :cond_c
     :goto_c
     return-void
 
-    .line 2122
+    .line 2131
     :catch_d
     move-exception v0
 
-    .line 2123
+    .line 2132
     const-string v1, "auto"
 
     new-instance v2, Ljava/lang/StringBuilder;
@@ -11641,14 +11720,14 @@
     .registers 2
 
     .prologue
-    .line 1106
+    .line 1109
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoSession;->handler:Landroid/os/Handler;
 
     sget-object v1, Lcom/isaigu/gymapp/ai/AutoSession;->ticker:Ljava/lang/Runnable;
 
     invoke-virtual {v0, v1}, Landroid/os/Handler;->removeCallbacks(Ljava/lang/Runnable;)V
 
-    .line 1107
+    .line 1110
     return-void
 .end method
 
@@ -11656,12 +11735,12 @@
     .registers 2
 
     .prologue
-    .line 2082
+    .line 2091
     invoke-static {p0}, Lcom/isaigu/gymapp/ai/AutoSession;->bean(Lcom/isaigu/gymapp/train/model/TrainItem;)Lcom/isaigu/gymapp/bean/ProgramDataBean;
 
     move-result-object v0
 
-    .line 2083
+    .line 2092
     if-eqz v0, :cond_9
 
     iget v0, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenth:I
@@ -11718,12 +11797,12 @@
 
     const-wide/high16 v10, 0x4014000000000000L    # 5.0
 
-    .line 1150
+    .line 1153
     invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
 
     move-result-wide v2
 
-    .line 1151
+    .line 1154
     const-wide/16 v0, 0x0
 
     sget-wide v4, Lcom/isaigu/gymapp/ai/AutoSession;->lastTickMs:J
@@ -11740,17 +11819,17 @@
 
     move-result-wide v4
 
-    .line 1152
+    .line 1155
     sput-wide v2, Lcom/isaigu/gymapp/ai/AutoSession;->lastTickMs:J
 
-    .line 1153
+    .line 1156
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoSession;->stage:Lcom/isaigu/gymapp/ai/AutoSession$Stage;
 
     sget-object v1, Lcom/isaigu/gymapp/ai/AutoSession$Stage;->CALIB:Lcom/isaigu/gymapp/ai/AutoSession$Stage;
 
     if-ne v0, v1, :cond_42
 
-    .line 1154
+    .line 1157
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoSession;->rows:Ljava/util/List;
 
     invoke-interface {v0}, Ljava/util/List;->iterator()Ljava/util/Iterator;
@@ -11770,7 +11849,7 @@
 
     check-cast v0, Lcom/isaigu/gymapp/ai/AutoSession$Row;
 
-    .line 1155
+    .line 1158
     iget-wide v6, v0, Lcom/isaigu/gymapp/ai/AutoSession$Row;->raiseBudget:D
 
     mul-double v8, v10, v4
@@ -11785,16 +11864,16 @@
 
     goto :goto_26
 
-    .line 1157
+    .line 1160
     :cond_3e
     invoke-static {v2, v3}, Lcom/isaigu/gymapp/ai/AutoSession;->guard(J)V
 
-    .line 1216
+    .line 1219
     :cond_41
     :goto_41
     return-void
 
-    .line 1160
+    .line 1163
     :cond_42
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoSession;->stage:Lcom/isaigu/gymapp/ai/AutoSession$Stage;
 
@@ -11806,7 +11885,7 @@
 
     if-eqz v0, :cond_41
 
-    .line 1164
+    .line 1167
     :try_start_4c
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MusicSync;->isRunning()Z
 
@@ -11824,15 +11903,15 @@
 
     if-ne v0, v1, :cond_73
 
-    .line 1165
+    .line 1168
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoSession;->engine:Lcom/isaigu/gymapp/ai/AutoEngine;
 
     invoke-virtual {v0, v2, v3}, Lcom/isaigu/gymapp/ai/AutoEngine;->userPause(J)V
 
-    .line 1166
+    .line 1169
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoSession;->zeroOutput()V
 
-    .line 1167
+    .line 1170
     const-string v0, "\u041c\u0443\u0437\u0438\u043a\u0430\u043b\u043d\u0430\u0442\u0430 \u0441\u0438\u043d\u0445\u0440\u043e\u043d\u0438\u0437\u0430\u0446\u0438\u044f \u043f\u043e\u0435 \u0441\u0438\u043b\u0430\u0442\u0430 \u2014 \u0410\u0432\u0442\u043e \u0435 \u043d\u0430 \u043f\u0430\u0443\u0437\u0430."
 
     const-string v1, "Music sync took the strength \u2014 Auto paused."
@@ -11845,47 +11924,47 @@
 
     invoke-static {v0, v2, v3, v1}, Lcom/isaigu/gymapp/ai/AutoSession;->notice(Ljava/lang/String;JZ)V
 
-    .line 1169
+    .line 1172
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoUi;->show()V
     :try_end_73
     .catch Ljava/lang/Throwable; {:try_start_4c .. :try_end_73} :catch_1af
 
-    .line 1173
+    .line 1176
     :cond_73
     :goto_73
     invoke-static {v2, v3}, Lcom/isaigu/gymapp/ai/AutoSession;->guard(J)V
 
-    .line 1174
+    .line 1177
     invoke-static {v2, v3}, Lcom/isaigu/gymapp/ai/AutoSession;->feedLive(J)V
 
-    .line 1175
+    .line 1178
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoSession;->engine:Lcom/isaigu/gymapp/ai/AutoEngine;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/ai/AutoEngine;->getState()Lcom/isaigu/gymapp/ai/AutoEngine$State;
 
     move-result-object v0
 
-    .line 1176
+    .line 1179
     sget-object v1, Lcom/isaigu/gymapp/ai/AutoSession;->engine:Lcom/isaigu/gymapp/ai/AutoEngine;
 
     invoke-virtual {v1, v2, v3}, Lcom/isaigu/gymapp/ai/AutoEngine;->tick(J)V
 
-    .line 1177
+    .line 1180
     sget-object v1, Lcom/isaigu/gymapp/ai/AutoSession;->engine:Lcom/isaigu/gymapp/ai/AutoEngine;
 
     invoke-virtual {v1, v2, v3}, Lcom/isaigu/gymapp/ai/AutoEngine;->traceTick(J)V
 
-    .line 1178
+    .line 1181
     sget-object v1, Lcom/isaigu/gymapp/ai/AutoSession;->engine:Lcom/isaigu/gymapp/ai/AutoEngine;
 
     invoke-virtual {v1}, Lcom/isaigu/gymapp/ai/AutoEngine;->getState()Lcom/isaigu/gymapp/ai/AutoEngine$State;
 
     move-result-object v1
 
-    .line 1179
+    .line 1182
     invoke-static {v2, v3}, Lcom/isaigu/gymapp/ai/AutoSession;->engineEvents(J)V
 
-    .line 1180
+    .line 1183
     sget-object v4, Lcom/isaigu/gymapp/ai/AutoEngine$State;->COUNTDOWN:Lcom/isaigu/gymapp/ai/AutoEngine$State;
 
     if-ne v0, v4, :cond_156
@@ -11894,46 +11973,46 @@
 
     if-ne v1, v4, :cond_156
 
-    .line 1181
+    .line 1184
     invoke-static {v2, v3}, Lcom/isaigu/gymapp/ai/AutoSession;->onGo(J)V
 
-    .line 1185
+    .line 1188
     :cond_9d
     :goto_9d
     if-eq v0, v1, :cond_a2
 
-    .line 1186
+    .line 1189
     invoke-static {v0, v2, v3}, Lcom/isaigu/gymapp/ai/AutoSession;->onStateChange(Lcom/isaigu/gymapp/ai/AutoEngine$State;J)V
 
-    .line 1188
+    .line 1191
     :cond_a2
     sget-object v4, Lcom/isaigu/gymapp/ai/AutoEngine$State;->RUN:Lcom/isaigu/gymapp/ai/AutoEngine$State;
 
     if-ne v1, v4, :cond_15f
 
-    .line 1189
+    .line 1192
     sget-object v4, Lcom/isaigu/gymapp/ai/AutoSession;->engine:Lcom/isaigu/gymapp/ai/AutoEngine;
 
     invoke-virtual {v4}, Lcom/isaigu/gymapp/ai/AutoEngine;->getCurrent()Lcom/isaigu/gymapp/ai/AutoEngine$Cmd;
 
     move-result-object v4
 
-    .line 1190
+    .line 1193
     if-eqz v4, :cond_b5
 
     sget-object v5, Lcom/isaigu/gymapp/ai/AutoSession;->lastApplied:Lcom/isaigu/gymapp/ai/AutoEngine$Cmd;
 
     if-eq v4, v5, :cond_b5
 
-    .line 1191
+    .line 1194
     invoke-static {v4}, Lcom/isaigu/gymapp/ai/AutoSession;->applyCycle(Lcom/isaigu/gymapp/ai/AutoEngine$Cmd;)V
 
-    .line 1196
+    .line 1199
     :cond_b5
     :goto_b5
     invoke-static {v2, v3, v1}, Lcom/isaigu/gymapp/ai/AutoSession;->tickEnergy(JLcom/isaigu/gymapp/ai/AutoEngine$State;)V
 
-    .line 1197
+    .line 1200
     sget-object v4, Lcom/isaigu/gymapp/ai/AutoEngine$State;->DONE:Lcom/isaigu/gymapp/ai/AutoEngine$State;
 
     if-eq v1, v4, :cond_c0
@@ -11949,19 +12028,19 @@
 
     if-ne v4, v5, :cond_ea
 
-    .line 1198
+    .line 1201
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoSession;->zeroOutput()V
 
-    .line 1199
+    .line 1202
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoSession;->stopDevice()V
 
-    .line 1200
+    .line 1203
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoSession;->finishToReport()V
 
-    .line 1201
+    .line 1204
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoBeep;->cancel()V
 
-    .line 1202
+    .line 1205
     const-string v4, "auto"
 
     new-instance v5, Ljava/lang/StringBuilder;
@@ -11984,11 +12063,11 @@
 
     invoke-static {v4, v5}, Lcom/isaigu/gymapp/wearable/WearableBleDiagLog;->log(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 1204
+    .line 1207
     :cond_ea
     if-eq v0, v1, :cond_41
 
-    .line 1205
+    .line 1208
     const-string v4, "auto"
 
     new-instance v5, Ljava/lang/StringBuilder;
@@ -12021,12 +12100,12 @@
 
     invoke-static {v4, v5}, Lcom/isaigu/gymapp/wearable/WearableBleDiagLog;->log(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 1206
+    .line 1209
     sget-object v4, Lcom/isaigu/gymapp/ai/AutoEngine$State;->HR_PAUSE:Lcom/isaigu/gymapp/ai/AutoEngine$State;
 
     if-ne v1, v4, :cond_168
 
-    .line 1207
+    .line 1210
     new-instance v0, Ljava/lang/StringBuilder;
 
     invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
@@ -12093,29 +12172,29 @@
 
     goto/16 :goto_41
 
-    .line 1182
+    .line 1185
     :cond_156
     sget-object v4, Lcom/isaigu/gymapp/ai/AutoEngine$State;->COUNTDOWN:Lcom/isaigu/gymapp/ai/AutoEngine$State;
 
     if-ne v1, v4, :cond_9d
 
-    .line 1183
+    .line 1186
     invoke-static {v2, v3}, Lcom/isaigu/gymapp/ai/AutoSession;->onCountdown(J)V
 
     goto/16 :goto_9d
 
-    .line 1193
+    .line 1196
     :cond_15f
     sget-boolean v4, Lcom/isaigu/gymapp/ai/AutoSession;->zeroed:Z
 
     if-nez v4, :cond_b5
 
-    .line 1194
+    .line 1197
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoSession;->zeroOutput()V
 
     goto/16 :goto_b5
 
-    .line 1209
+    .line 1212
     :cond_168
     sget-object v4, Lcom/isaigu/gymapp/ai/AutoEngine$State;->HR_PAUSE:Lcom/isaigu/gymapp/ai/AutoEngine$State;
 
@@ -12125,7 +12204,7 @@
 
     if-ne v1, v0, :cond_41
 
-    .line 1210
+    .line 1213
     new-instance v0, Ljava/lang/StringBuilder;
 
     invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
@@ -12144,7 +12223,7 @@
 
     if-eqz v0, :cond_1ac
 
-    .line 1211
+    .line 1214
     const-wide/high16 v0, 0x4059000000000000L    # 100.0
 
     sget-object v5, Lcom/isaigu/gymapp/ai/AutoSession;->engine:Lcom/isaigu/gymapp/ai/AutoEngine;
@@ -12155,7 +12234,7 @@
 
     mul-double/2addr v0, v6
 
-    .line 1210
+    .line 1213
     :goto_18c
     invoke-static {v0, v1}, Ljava/lang/Math;->round(D)J
 
@@ -12183,18 +12262,18 @@
 
     invoke-static {v0, v8, v2, v3}, Lcom/isaigu/gymapp/ai/AutoSession;->notice(Ljava/lang/String;IJ)V
 
-    .line 1213
+    .line 1216
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoUi;->show()V
 
     goto/16 :goto_41
 
-    .line 1211
+    .line 1214
     :cond_1ac
     const-wide/high16 v0, 0x4054000000000000L    # 80.0
 
     goto :goto_18c
 
-    .line 1171
+    .line 1174
     :catch_1af
     move-exception v0
 
@@ -12205,7 +12284,7 @@
     .registers 13
 
     .prologue
-    .line 1363
+    .line 1366
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoSession;->energy:Lcom/isaigu/gymapp/ai/AiEnergy;
 
     if-eqz v0, :cond_8
@@ -12214,12 +12293,12 @@
 
     if-nez v0, :cond_9
 
-    .line 1415
+    .line 1418
     :cond_8
     :goto_8
     return-void
 
-    .line 1366
+    .line 1369
     :cond_9
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoEngine$State;->DONE:Lcom/isaigu/gymapp/ai/AutoEngine$State;
 
@@ -12229,30 +12308,30 @@
 
     if-ne p2, v0, :cond_22
 
-    .line 1367
+    .line 1370
     :cond_11
     const-wide/16 v0, 0x0
 
     sput-wide v0, Lcom/isaigu/gymapp/ai/AiEnergy;->exerciseMet:D
 
-    .line 1368
+    .line 1371
     sget-boolean v0, Lcom/isaigu/gymapp/ai/AutoSession;->epocClosed:Z
 
     if-nez v0, :cond_8
 
-    .line 1369
+    .line 1372
     const/4 v0, 0x1
 
     sput-boolean v0, Lcom/isaigu/gymapp/ai/AutoSession;->epocClosed:Z
 
-    .line 1370
+    .line 1373
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoSession;->energy:Lcom/isaigu/gymapp/ai/AiEnergy;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/ai/AiEnergy;->closeEpoc()V
 
     goto :goto_8
 
-    .line 1374
+    .line 1377
     :cond_22
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoSession;->engine:Lcom/isaigu/gymapp/ai/AutoEngine;
 
@@ -12262,18 +12341,18 @@
 
     int-to-double v4, v0
 
-    .line 1375
+    .line 1378
     const/4 v0, 0x0
 
-    .line 1376
+    .line 1379
     const-wide/16 v2, 0x0
 
-    .line 1377
+    .line 1380
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoSession;->leaderRow()Lcom/isaigu/gymapp/ai/AutoSession$Row;
 
     move-result-object v6
 
-    .line 1378
+    .line 1381
     sget-object v1, Lcom/isaigu/gymapp/ai/AutoEngine$State;->RUN:Lcom/isaigu/gymapp/ai/AutoEngine$State;
 
     if-ne p2, v1, :cond_10d
@@ -12294,28 +12373,28 @@
 
     if-eqz v1, :cond_10d
 
-    .line 1379
+    .line 1382
     iget-object v1, v6, Lcom/isaigu/gymapp/ai/AutoSession$Row;->item:Lcom/isaigu/gymapp/train/model/TrainItem;
 
     invoke-static {v1}, Lcom/isaigu/gymapp/ai/AutoSession;->bean(Lcom/isaigu/gymapp/train/model/TrainItem;)Lcom/isaigu/gymapp/bean/ProgramDataBean;
 
     move-result-object v2
 
-    .line 1380
+    .line 1383
     if-eqz v2, :cond_fe
 
     iget v1, v2, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenth:I
 
     if-lez v1, :cond_fe
 
-    .line 1381
+    .line 1384
     iget-object v1, v6, Lcom/isaigu/gymapp/ai/AutoSession$Row;->item:Lcom/isaigu/gymapp/train/model/TrainItem;
 
     iget-object v1, v1, Lcom/isaigu/gymapp/train/model/TrainItem;->data:Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
 
     iget-boolean v3, v1, Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;->inStart:Z
 
-    .line 1382
+    .line 1385
     if-nez v3, :cond_60
 
     iget-boolean v1, v2, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
@@ -12326,13 +12405,13 @@
 
     if-lez v1, :cond_fe
 
-    .line 1383
+    .line 1386
     :cond_60
     new-instance v1, Lcom/isaigu/gymapp/ai/AiEnergy$Stim;
 
     invoke-direct {v1}, Lcom/isaigu/gymapp/ai/AiEnergy$Stim;-><init>()V
 
-    .line 1384
+    .line 1387
     iget-object v0, v2, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenthBean:Lcom/isaigu/gymapp/bean/PartStrenthBean;
 
     if-eqz v0, :cond_7b
@@ -12343,7 +12422,7 @@
 
     if-eqz v0, :cond_7b
 
-    .line 1385
+    .line 1388
     iget-object v0, v2, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenthBean:Lcom/isaigu/gymapp/bean/PartStrenthBean;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/bean/PartStrenthBean;->buwei:[I
@@ -12356,7 +12435,7 @@
 
     iput-object v0, v1, Lcom/isaigu/gymapp/ai/AiEnergy$Stim;->channels:[I
 
-    .line 1387
+    .line 1390
     :cond_7b
     iget-object v0, v6, Lcom/isaigu/gymapp/ai/AutoSession$Row;->item:Lcom/isaigu/gymapp/train/model/TrainItem;
 
@@ -12364,7 +12443,7 @@
 
     if-eqz v0, :cond_8d
 
-    .line 1388
+    .line 1391
     iget-object v0, v6, Lcom/isaigu/gymapp/ai/AutoSession$Row;->item:Lcom/isaigu/gymapp/train/model/TrainItem;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/train/model/TrainItem;->partsDisabled:[Z
@@ -12377,33 +12456,33 @@
 
     iput-object v0, v1, Lcom/isaigu/gymapp/ai/AiEnergy$Stim;->disabled:[Z
 
-    .line 1390
+    .line 1393
     :cond_8d
     iget v0, v2, Lcom/isaigu/gymapp/bean/ProgramDataBean;->hz:I
 
     iput v0, v1, Lcom/isaigu/gymapp/ai/AiEnergy$Stim;->hz:I
 
-    .line 1391
+    .line 1394
     iget v0, v2, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pulseWidth:I
 
     iput v0, v1, Lcom/isaigu/gymapp/ai/AiEnergy$Stim;->pwUs:I
 
-    .line 1392
+    .line 1395
     if-eqz v3, :cond_e1
 
-    .line 1393
+    .line 1396
     iget v0, v2, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenth:I
 
     int-to-double v2, v0
 
     iput-wide v2, v1, Lcom/isaigu/gymapp/ai/AiEnergy$Stim;->strengthPct:D
 
-    .line 1394
+    .line 1397
     const-wide/high16 v2, 0x3ff0000000000000L    # 1.0
 
     iput-wide v2, v1, Lcom/isaigu/gymapp/ai/AiEnergy$Stim;->onShare:D
 
-    .line 1402
+    .line 1405
     :goto_a0
     sget-object v0, Lcom/isaigu/gymapp/ai/AiEnergy;->CH_MASS:[D
 
@@ -12413,7 +12492,7 @@
 
     iput-object v0, v1, Lcom/isaigu/gymapp/ai/AiEnergy$Stim;->toleratedCharge:[D
 
-    .line 1403
+    .line 1406
     const/4 v0, 0x0
 
     :goto_a8
@@ -12423,7 +12502,7 @@
 
     if-ge v0, v2, :cond_fd
 
-    .line 1404
+    .line 1407
     iget-object v2, v1, Lcom/isaigu/gymapp/ai/AiEnergy$Stim;->channels:[I
 
     if-eqz v2, :cond_f3
@@ -12440,7 +12519,7 @@
 
     int-to-double v2, v2
 
-    .line 1405
+    .line 1408
     :goto_bb
     iget-object v7, v1, Lcom/isaigu/gymapp/ai/AiEnergy$Stim;->toleratedCharge:[D
 
@@ -12448,7 +12527,7 @@
 
     div-double v8, v2, v8
 
-    .line 1406
+    .line 1409
     const/4 v2, 0x4
 
     if-ne v0, v2, :cond_f6
@@ -12484,43 +12563,43 @@
 
     aput-wide v2, v7, v0
 
-    .line 1403
+    .line 1406
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_a8
 
-    .line 1396
+    .line 1399
     :cond_e1
     const-wide/16 v8, 0x0
 
     iput-wide v8, v1, Lcom/isaigu/gymapp/ai/AiEnergy$Stim;->onShare:D
 
-    .line 1397
+    .line 1400
     iget v0, v2, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseHz:I
 
     iput v0, v1, Lcom/isaigu/gymapp/ai/AiEnergy$Stim;->pauseHz:I
 
-    .line 1398
+    .line 1401
     iget v0, v2, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseStrenthPercent:I
 
     int-to-double v2, v0
 
     iput-wide v2, v1, Lcom/isaigu/gymapp/ai/AiEnergy$Stim;->pauseStrengthPct:D
 
-    .line 1399
+    .line 1402
     const-wide/high16 v2, 0x3ff0000000000000L    # 1.0
 
     iput-wide v2, v1, Lcom/isaigu/gymapp/ai/AiEnergy$Stim;->pauseShare:D
 
     goto :goto_a0
 
-    .line 1404
+    .line 1407
     :cond_f3
     const-wide/high16 v2, 0x4059000000000000L    # 100.0
 
     goto :goto_bb
 
-    .line 1406
+    .line 1409
     :cond_f6
     sget v2, Lcom/isaigu/gymapp/ai/AutoSession;->calPw:I
 
@@ -12533,7 +12612,7 @@
     :cond_fd
     move-object v0, v1
 
-    .line 1411
+    .line 1414
     :cond_fe
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoSession;->currentMet()D
 
@@ -12541,11 +12620,11 @@
 
     move-object v6, v0
 
-    .line 1413
+    .line 1416
     :goto_103
     sput-wide v2, Lcom/isaigu/gymapp/ai/AiEnergy;->exerciseMet:D
 
-    .line 1414
+    .line 1417
     sget-object v1, Lcom/isaigu/gymapp/ai/AutoSession;->energy:Lcom/isaigu/gymapp/ai/AiEnergy;
 
     move-wide v2, p0
@@ -12909,7 +12988,7 @@
     .registers 5
 
     .prologue
-    .line 1998
+    .line 2007
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoSession;->rows:Ljava/util/List;
 
     invoke-interface {v0}, Ljava/util/List;->size()I
@@ -12920,10 +12999,10 @@
 
     if-gt v0, v1, :cond_c
 
-    .line 1999
+    .line 2008
     const-string v0, ""
 
-    .line 2001
+    .line 2010
     :goto_b
     return-object v0
 
@@ -13001,7 +13080,7 @@
     .prologue
     const/4 v8, 0x1
 
-    .line 2022
+    .line 2031
     if-eqz p0, :cond_9
 
     if-eqz p1, :cond_9
@@ -13010,32 +13089,32 @@
 
     if-nez v0, :cond_c
 
-    .line 2023
+    .line 2032
     :cond_9
     const-string v0, ""
 
-    .line 2044
+    .line 2053
     :goto_b
     return-object v0
 
-    .line 2025
+    .line 2034
     :cond_c
     iget-object v1, p0, Lcom/isaigu/gymapp/ai/AutoModel$Phase;->window:Lcom/isaigu/gymapp/ai/AutoModel$Window;
 
-    .line 2026
+    .line 2035
     iget-object v2, p1, Lcom/isaigu/gymapp/ai/AutoEngine$Cmd;->base:Lcom/isaigu/gymapp/ai/AutoModel$Step;
 
-    .line 2027
+    .line 2036
     new-instance v3, Ljava/lang/StringBuilder;
 
     invoke-direct {v3}, Ljava/lang/StringBuilder;-><init>()V
 
-    .line 2028
+    .line 2037
     iget-boolean v0, v1, Lcom/isaigu/gymapp/ai/AutoModel$Window;->hz:Z
 
     if-eqz v0, :cond_4b
 
-    .line 2029
+    .line 2038
     iget v0, v2, Lcom/isaigu/gymapp/ai/AutoModel$Step;->hz:I
 
     int-to-double v4, v0
@@ -13054,7 +13133,7 @@
 
     move-result v0
 
-    .line 2030
+    .line 2039
     iget v4, v2, Lcom/isaigu/gymapp/ai/AutoModel$Step;->hz:I
 
     sub-int/2addr v4, v0
@@ -13091,13 +13170,13 @@
 
     invoke-virtual {v0, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 2032
+    .line 2041
     :cond_4b
     iget-boolean v0, v1, Lcom/isaigu/gymapp/ai/AutoModel$Window;->on:Z
 
     if-eqz v0, :cond_8c
 
-    .line 2033
+    .line 2042
     invoke-virtual {v3}, Ljava/lang/StringBuilder;->length()I
 
     move-result v0
@@ -13145,7 +13224,7 @@
 
     sget-object v5, Lcom/isaigu/gymapp/ai/AutoSession;->plan:Lcom/isaigu/gymapp/ai/AutoModel$Plan;
 
-    .line 2034
+    .line 2043
     invoke-static {v5, p0}, Lcom/isaigu/gymapp/ai/AutoLimits;->onMax(Lcom/isaigu/gymapp/ai/AutoModel$Plan;Lcom/isaigu/gymapp/ai/AutoModel$Phase;)I
 
     move-result v5
@@ -13162,13 +13241,13 @@
 
     invoke-virtual {v0, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 2036
+    .line 2045
     :cond_8c
     iget-boolean v0, v1, Lcom/isaigu/gymapp/ai/AutoModel$Window;->off:Z
 
     if-eqz v0, :cond_c9
 
-    .line 2037
+    .line 2046
     invoke-virtual {v3}, Ljava/lang/StringBuilder;->length()I
 
     move-result v0
@@ -13210,7 +13289,7 @@
 
     const-string v4, "\u2013"
 
-    .line 2038
+    .line 2047
     invoke-virtual {v0, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     move-result-object v0
@@ -13229,13 +13308,13 @@
 
     invoke-virtual {v0, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 2040
+    .line 2049
     :cond_c9
     iget-boolean v0, v1, Lcom/isaigu/gymapp/ai/AutoModel$Window;->pw:Z
 
     if-eqz v0, :cond_100
 
-    .line 2041
+    .line 2050
     invoke-virtual {v3}, Ljava/lang/StringBuilder;->length()I
 
     move-result v0
@@ -13267,7 +13346,7 @@
 
     iget v4, p1, Lcom/isaigu/gymapp/ai/AutoEngine$Cmd;->hz:I
 
-    .line 2042
+    .line 2051
     invoke-static {v4}, Lcom/isaigu/gymapp/ai/AutoLimits;->pwMax(I)I
 
     move-result v4
@@ -13290,7 +13369,7 @@
 
     invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 2044
+    .line 2053
     :cond_100
     invoke-virtual {v3}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
@@ -13298,19 +13377,19 @@
 
     goto/16 :goto_b
 
-    .line 2033
+    .line 2042
     :cond_106
     const-string v0, ""
 
     goto/16 :goto_57
 
-    .line 2037
+    .line 2046
     :cond_10a
     const-string v0, ""
 
     goto :goto_98
 
-    .line 2041
+    .line 2050
     :cond_10d
     const-string v0, ""
 
@@ -13325,15 +13404,15 @@
 
     const/4 v2, 0x1
 
-    .line 1573
+    .line 1578
     if-nez p0, :cond_5
 
-    .line 1622
+    .line 1627
     :cond_4
     :goto_4
     return-void
 
-    .line 1576
+    .line 1581
     :cond_5
     iget v0, p0, Lcom/isaigu/gymapp/ai/AutoEngine$Cmd;->rampUpMs:I
 
@@ -13341,10 +13420,10 @@
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/ai/AiRamp;->set(II)V
 
-    .line 1577
+    .line 1582
     sput-object p0, Lcom/isaigu/gymapp/ai/AutoSession;->written:Lcom/isaigu/gymapp/ai/AutoEngine$Cmd;
 
-    .line 1578
+    .line 1583
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoSession;->rows:Ljava/util/List;
 
     invoke-interface {v0}, Ljava/util/List;->iterator()Ljava/util/Iterator;
@@ -13365,27 +13444,27 @@
 
     check-cast v0, Lcom/isaigu/gymapp/ai/AutoSession$Row;
 
-    .line 1579
+    .line 1584
     iget-object v1, v0, Lcom/isaigu/gymapp/ai/AutoSession$Row;->item:Lcom/isaigu/gymapp/train/model/TrainItem;
 
     invoke-static {v1}, Lcom/isaigu/gymapp/ai/AutoSession;->bean(Lcom/isaigu/gymapp/train/model/TrainItem;)Lcom/isaigu/gymapp/bean/ProgramDataBean;
 
     move-result-object v5
 
-    .line 1580
+    .line 1585
     if-eqz v5, :cond_14
 
-    .line 1583
+    .line 1588
     invoke-static {v0, p0, p1}, Lcom/isaigu/gymapp/ai/AutoSession;->rowStrength(Lcom/isaigu/gymapp/ai/AutoSession$Row;Lcom/isaigu/gymapp/ai/AutoEngine$Cmd;Z)I
 
     move-result v6
 
-    .line 1584
+    .line 1589
     invoke-static {v0, p0}, Lcom/isaigu/gymapp/ai/AutoSession;->rowZones(Lcom/isaigu/gymapp/ai/AutoSession$Row;Lcom/isaigu/gymapp/ai/AutoEngine$Cmd;)[I
 
     move-result-object v7
 
-    .line 1585
+    .line 1590
     sget v1, Lcom/isaigu/gymapp/ai/AutoSession;->facePwUs:I
 
     if-lez v1, :cond_46
@@ -13404,23 +13483,23 @@
 
     if-eqz v1, :cond_46
 
-    .line 1586
+    .line 1591
     sget v1, Lcom/isaigu/gymapp/ai/AutoSession;->facePwUs:I
 
     iput v1, p0, Lcom/isaigu/gymapp/ai/AutoEngine$Cmd;->pwUs:I
 
-    .line 1588
+    .line 1593
     :cond_46
     iget v1, p0, Lcom/isaigu/gymapp/ai/AutoEngine$Cmd;->hz:I
 
     iput v1, v5, Lcom/isaigu/gymapp/bean/ProgramDataBean;->hz:I
 
-    .line 1589
+    .line 1594
     iget v1, p0, Lcom/isaigu/gymapp/ai/AutoEngine$Cmd;->pwUs:I
 
     iput v1, v5, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pulseWidth:I
 
-    .line 1590
+    .line 1595
     iget v1, p0, Lcom/isaigu/gymapp/ai/AutoEngine$Cmd;->onS:I
 
     invoke-static {v2, v1}, Ljava/lang/Math;->max(II)I
@@ -13429,7 +13508,7 @@
 
     iput v1, v5, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pulseContinue:I
 
-    .line 1591
+    .line 1596
     iget v1, p0, Lcom/isaigu/gymapp/ai/AutoEngine$Cmd;->offS:I
 
     invoke-static {v2, v1}, Ljava/lang/Math;->max(II)I
@@ -13438,10 +13517,10 @@
 
     iput v1, v5, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pulsePause:I
 
-    .line 1592
+    .line 1597
     iput v6, v5, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenth:I
 
-    .line 1593
+    .line 1598
     iget v1, p0, Lcom/isaigu/gymapp/ai/AutoEngine$Cmd;->pauseHz:I
 
     if-lez v1, :cond_a8
@@ -13458,19 +13537,19 @@
 
     move v1, v2
 
-    .line 1594
+    .line 1599
     :goto_6f
     iput-boolean v1, v5, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
 
-    .line 1595
+    .line 1600
     if-eqz v1, :cond_86
 
-    .line 1596
+    .line 1601
     iget v1, p0, Lcom/isaigu/gymapp/ai/AutoEngine$Cmd;->pauseHz:I
 
     iput v1, v5, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseHz:I
 
-    .line 1597
+    .line 1602
     int-to-double v8, v6
 
     iget-wide v10, p0, Lcom/isaigu/gymapp/ai/AutoEngine$Cmd;->pauseSigma:D
@@ -13489,7 +13568,7 @@
 
     iput v1, v5, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseStrenthPercent:I
 
-    .line 1599
+    .line 1604
     :cond_86
     iget-object v1, v5, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenthBean:Lcom/isaigu/gymapp/bean/PartStrenthBean;
 
@@ -13503,7 +13582,7 @@
 
     move v1, v3
 
-    .line 1600
+    .line 1605
     :goto_91
     array-length v8, v7
 
@@ -13519,7 +13598,7 @@
 
     if-ge v1, v8, :cond_aa
 
-    .line 1601
+    .line 1606
     iget-object v8, v5, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenthBean:Lcom/isaigu/gymapp/bean/PartStrenthBean;
 
     iget-object v8, v8, Lcom/isaigu/gymapp/bean/PartStrenthBean;->buwei:[I
@@ -13528,7 +13607,7 @@
 
     aput v9, v8, v1
 
-    .line 1600
+    .line 1605
     add-int/lit8 v1, v1, 0x1
 
     goto :goto_91
@@ -13536,17 +13615,17 @@
     :cond_a8
     move v1, v3
 
-    .line 1593
+    .line 1598
     goto :goto_6f
 
-    .line 1604
+    .line 1609
     :cond_aa
     iput v6, v0, Lcom/isaigu/gymapp/ai/AutoSession$Row;->writtenStrength:I
 
-    .line 1605
+    .line 1610
     iput-object v7, v0, Lcom/isaigu/gymapp/ai/AutoSession$Row;->writtenZones:[I
 
-    .line 1606
+    .line 1611
     iget-object v1, v0, Lcom/isaigu/gymapp/ai/AutoSession$Row;->item:Lcom/isaigu/gymapp/train/model/TrainItem;
 
     iget-object v1, v1, Lcom/isaigu/gymapp/train/model/TrainItem;->data:Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
@@ -13561,7 +13640,7 @@
 
     if-eqz v1, :cond_c4
 
-    .line 1607
+    .line 1612
     iget-object v1, v0, Lcom/isaigu/gymapp/ai/AutoSession$Row;->item:Lcom/isaigu/gymapp/train/model/TrainItem;
 
     iget-object v1, v1, Lcom/isaigu/gymapp/train/model/TrainItem;->data:Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
@@ -13570,7 +13649,7 @@
 
     iput v5, v1, Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;->secondValue:I
 
-    .line 1610
+    .line 1615
     :cond_c4
     :try_start_c4
     iget-object v0, v0, Lcom/isaigu/gymapp/ai/AutoSession$Row;->item:Lcom/isaigu/gymapp/train/model/TrainItem;
@@ -13581,11 +13660,11 @@
 
     goto/16 :goto_14
 
-    .line 1611
+    .line 1616
     :catch_cb
     move-exception v0
 
-    .line 1612
+    .line 1617
     const-string v1, "auto"
 
     new-instance v5, Ljava/lang/StringBuilder;
@@ -13610,18 +13689,18 @@
 
     goto/16 :goto_14
 
-    .line 1616
+    .line 1621
     :cond_e6
     :try_start_e6
     invoke-static {}, Lcom/isaigu/gymapp/train/utils/MasterStrengthControl;->resetApplied()V
     :try_end_e9
     .catch Ljava/lang/Throwable; {:try_start_e6 .. :try_end_e9} :catch_f4
 
-    .line 1619
+    .line 1624
     :goto_e9
     if-nez p1, :cond_4
 
-    .line 1620
+    .line 1625
     invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
 
     move-result-wide v0
@@ -13630,7 +13709,7 @@
 
     goto/16 :goto_4
 
-    .line 1617
+    .line 1622
     :catch_f4
     move-exception v0
 
@@ -13643,12 +13722,12 @@
     .prologue
     const/4 v6, 0x0
 
-    .line 1625
+    .line 1630
     const/4 v0, 0x1
 
     sput-boolean v0, Lcom/isaigu/gymapp/ai/AutoSession;->zeroed:Z
 
-    .line 1626
+    .line 1631
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoSession;->written:Lcom/isaigu/gymapp/ai/AutoEngine$Cmd;
 
     if-eqz v0, :cond_4b
@@ -13657,7 +13736,7 @@
 
     move-object v1, v0
 
-    .line 1627
+    .line 1632
     :goto_b
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoSession;->rows:Ljava/util/List;
 
@@ -13679,26 +13758,26 @@
 
     check-cast v0, Lcom/isaigu/gymapp/ai/AutoSession$Row;
 
-    .line 1628
+    .line 1633
     iget-object v3, v0, Lcom/isaigu/gymapp/ai/AutoSession$Row;->item:Lcom/isaigu/gymapp/train/model/TrainItem;
 
     invoke-static {v3}, Lcom/isaigu/gymapp/ai/AutoSession;->bean(Lcom/isaigu/gymapp/train/model/TrainItem;)Lcom/isaigu/gymapp/bean/ProgramDataBean;
 
     move-result-object v3
 
-    .line 1629
+    .line 1634
     if-eqz v3, :cond_11
 
-    .line 1632
+    .line 1637
     iput v6, v3, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenth:I
 
-    .line 1633
+    .line 1638
     iput-boolean v6, v3, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
 
-    .line 1634
+    .line 1639
     iput v6, v0, Lcom/isaigu/gymapp/ai/AutoSession$Row;->writtenStrength:I
 
-    .line 1636
+    .line 1641
     :try_start_2b
     iget-object v0, v0, Lcom/isaigu/gymapp/ai/AutoSession$Row;->item:Lcom/isaigu/gymapp/train/model/TrainItem;
 
@@ -13708,11 +13787,11 @@
 
     goto :goto_11
 
-    .line 1637
+    .line 1642
     :catch_31
     move-exception v0
 
-    .line 1638
+    .line 1643
     const-string v3, "auto"
 
     new-instance v4, Ljava/lang/StringBuilder;
@@ -13737,7 +13816,7 @@
 
     goto :goto_11
 
-    .line 1626
+    .line 1631
     :cond_4b
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoSession;->calibrationCmd()Lcom/isaigu/gymapp/ai/AutoEngine$Cmd;
 
@@ -13747,11 +13826,11 @@
 
     goto :goto_b
 
-    .line 1641
+    .line 1646
     :cond_51
     sput-object v1, Lcom/isaigu/gymapp/ai/AutoSession;->written:Lcom/isaigu/gymapp/ai/AutoEngine$Cmd;
 
-    .line 1642
+    .line 1647
     return-void
 .end method
 
@@ -13759,19 +13838,19 @@
     .registers 8
 
     .prologue
-    .line 2006
+    .line 2015
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoCues;->zoneNames()[Ljava/lang/String;
 
     move-result-object v0
 
-    .line 2007
+    .line 2016
     iget-object v1, p3, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->zoneLocked:[Z
 
     aget-boolean v1, v1, p0
 
     if-eqz v1, :cond_30
 
-    .line 2008
+    .line 2017
     new-instance v1, Ljava/lang/StringBuilder;
 
     invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
@@ -13808,11 +13887,11 @@
 
     move-result-object v0
 
-    .line 2017
+    .line 2026
     :goto_2f
     return-object v0
 
-    .line 2010
+    .line 2019
     :cond_30
     iget-object v1, p3, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->zoneMax:[I
 
@@ -13820,7 +13899,7 @@
 
     if-le p1, v1, :cond_60
 
-    .line 2011
+    .line 2020
     new-instance v1, Ljava/lang/StringBuilder;
 
     invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
@@ -13863,7 +13942,7 @@
 
     goto :goto_2f
 
-    .line 2013
+    .line 2022
     :cond_60
     if-eqz p4, :cond_bd
 
@@ -13891,7 +13970,7 @@
 
     if-ne p2, v1, :cond_bd
 
-    .line 2014
+    .line 2023
     new-instance v1, Ljava/lang/StringBuilder;
 
     invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
@@ -13934,7 +14013,7 @@
 
     const-string v2, " over the program ("
 
-    .line 2015
+    .line 2024
     invoke-static {v1, v2}, Lcom/isaigu/gymapp/ai/AiText;->t(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v1
@@ -13961,7 +14040,7 @@
 
     goto/16 :goto_2f
 
-    .line 2017
+    .line 2026
     :cond_bd
     new-instance v1, Ljava/lang/StringBuilder;
 

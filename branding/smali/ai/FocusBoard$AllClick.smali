@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 247
+    .line 249
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,23 +34,23 @@
     .registers 3
 
     .prologue
-    .line 250
+    .line 252
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsUi;->haptic(Landroid/view/View;)V
 
-    .line 251
+    .line 253
     const/4 v0, 0x0
 
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/FocusBoard;->pickOnly(Lcom/isaigu/gymapp/train/model/TrainItem;)V
 
-    .line 252
+    .line 254
     const-string v0, ""
 
     # setter for: Lcom/isaigu/gymapp/ai/FocusBoard;->clientsKey:Ljava/lang/String;
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$402(Ljava/lang/String;)Ljava/lang/String;
 
-    .line 253
+    .line 255
     invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->refresh()V
 
-    .line 254
+    .line 256
     return-void
 .end method

@@ -99,6 +99,8 @@ public final class FocusBoard {
     private static final java.text.SimpleDateFormat CLOCK =
             new java.text.SimpleDateFormat("HH:mm", java.util.Locale.US);
     private static SessionBar sessionBar;
+    private static TextView timeMinus;
+    private static TextView timePlus;
     private static TextView battText;
     private static LinearLayout linkKey;
     private static XemsIcon linkIcon;
@@ -1028,9 +1030,8 @@ public final class FocusBoard {
         pane.setBackgroundDrawable(XemsUi.glass(c, XemsUi.dp(c, 18)));
         int p = XemsUi.dp(c, 8);
         pane.setPadding(p, XemsUi.dp(c, 4), p, p);
-        sessionBar = new SessionBar(c);
-        pane.addView(sessionBar, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                XemsUi.dp(c, 62)));
+        pane.addView(sessionRow(c), new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                XemsUi.dp(c, SESSION_H)));
         body = new AutoViews.BodyHeat(c);
         body.setOnTouchListener(new BodyTap());
         body.setContentDescription(AiText.t("Докосни мускул, за да го избереш", "Tap a muscle to pick it"));
@@ -1068,6 +1069,58 @@ public final class FocusBoard {
         return pane;
     }
 
+    /** Height of the training bar (dp): the state pill and the big time over the bar, the minutes under it. */
+    static final int SESSION_H = 80;
+
+    /** The training bar with − and + at its two ends, on the bar's line: a minute less / more a tap (1.1.530). */
+    private static View sessionRow(Context c) {
+        FrameLayout row = new FrameLayout(c);
+        sessionBar = new SessionBar(c);
+        row.addView(sessionBar, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT));
+        int k = 30;
+        // the bar's centre is 23 dp above the bottom (SessionBar: 10 dp bar, 18 dp under it)
+        int top = SESSION_H - 23 - k / 2;
+        timeMinus = timeKey(c, "−", -1);
+        FrameLayout.LayoutParams ml = new FrameLayout.LayoutParams(XemsUi.dp(c, k), XemsUi.dp(c, k),
+                Gravity.LEFT | Gravity.TOP);
+        ml.topMargin = XemsUi.dp(c, top);
+        row.addView(timeMinus, ml);
+        timePlus = timeKey(c, "+", +1);
+        FrameLayout.LayoutParams pl = new FrameLayout.LayoutParams(XemsUi.dp(c, k), XemsUi.dp(c, k),
+                Gravity.RIGHT | Gravity.TOP);
+        pl.topMargin = XemsUi.dp(c, top);
+        row.addView(timePlus, pl);
+        sessionBar.setEnds(XemsUi.dp(c, k + 8));
+        return row;
+    }
+
+    private static TextView timeKey(Context c, String glyph, int dir) {
+        TextView t = XemsUi.iconButton(c, glyph, XemsUi.SURFACE, XemsUi.TEXT, 30);
+        t.setContentDescription(dir < 0 ? AiText.t("Минута по-малко", "A minute less")
+                : AiText.t("Минута повече", "A minute more"));
+        XemsUi.repeatOnHold(t, new AddTime(), dir);
+        return t;
+    }
+
+    /** − / + of the training bar: the procedure's length a minute a step (hold = repeat). */
+    static final class AddTime implements XemsUi.OnStep {
+        @Override
+        public void onStep(int direction) {
+            TrainItem it = current();
+            if (!com.isaigu.gymapp.train.utils.ProgramLive.canAddTime(it)) {
+                hint(AiText.t("Времето на Авто / AI се води от плана им.", "Auto / AI keep their own plan's time."));
+                return;
+            }
+            try {
+                it.xemsAddTime(direction * 60);
+            } catch (Throwable t) {
+                XemsGuard.report("FocusBoard.addTime", t);
+            }
+            later();
+        }
+    }
+
     private static View bodyPane(Context c) {
         LinearLayout pane = XemsUi.horizontal(c);
         pane.setGravity(Gravity.FILL_VERTICAL);
@@ -1077,9 +1130,8 @@ public final class FocusBoard {
         pane.addView(chipColumn(c, LEFT), new LinearLayout.LayoutParams(XemsUi.dp(c, 168),
                 ViewGroup.LayoutParams.MATCH_PARENT));
         LinearLayout mid = XemsUi.vertical(c);
-        sessionBar = new SessionBar(c);
-        mid.addView(sessionBar, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                XemsUi.dp(c, 62)));
+        mid.addView(sessionRow(c), new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                XemsUi.dp(c, SESSION_H)));
         body = new AutoViews.BodyHeat(c);
         body.setOnTouchListener(new BodyTap());
         body.setContentDescription(AiText.t("Докосни мускул, за да го избереш", "Tap a muscle to pick it"));
@@ -1639,7 +1691,17 @@ public final class FocusBoard {
             }
             if (sessionBar != null) {
                 int done = com.isaigu.gymapp.train.utils.ProgramLive.shownTime(it);
-                sessionBar.set(run, done, Math.max(0, it.workLength), modeLabel(mode));
+                // the procedure's own length: fixed (only ⚙ or another mode changes it), never done + left —
+                // that sum wobbled by a second (14:59 / 15:00) as the two clocks round apart (owner, 1.1.525)
+                int left = Math.max(0, it.workLength);
+                int full = Math.max(b.workLength, left);
+                sessionBar.set(run, done, left, full, modeLabel(mode));
+                // − / + only where the time is the trainer's (a manual training); AI / Auto keep their plan's
+                float ka = com.isaigu.gymapp.train.utils.ProgramLive.canAddTime(it) ? 1f : 0.3f;
+                if (timeMinus != null && timeMinus.getAlpha() != ka) {
+                    timeMinus.setAlpha(ka);
+                    timePlus.setAlpha(ka);
+                }
             }
 
             int[] main = PartStrength.levels(it, b, false);
@@ -2918,8 +2980,8 @@ public final class FocusBoard {
     /**
      * The training's own timeline (owner, 1.1.521), over the figures: the whole time of the training or procedure as
      * one bar — the part done filled in the theme colour with a glowing head, a mark per minute (longer every five,
-     * numbered under the bar) — the time so far big on the right, of the whole time; the mode and the state
-     * (training / pause / ready) on the left. Done + left = the whole: a mode change or ⚙ moves the end with it.
+     * numbered under the bar) — the time so far big on the right (the only number that moves); the state on the
+     * left. The length is the procedure's set time, fixed (owner, 1.1.525): only ⚙ or another mode changes it.
      */
     static final class SessionBar extends View {
         private final Paint bar = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -2948,13 +3010,24 @@ public final class FocusBoard {
             setContentDescription(AiText.t("Времето на тренировката", "The training's time"));
         }
 
-        void set(boolean run, int done, int left, String mode) {
-            if (run == this.run && done == this.done && left == this.left && mode.equals(this.mode)) {
+        private int full;
+        /** Room for the − / + keys at the two ends of the bar (px). */
+        private int ends;
+
+        void setEnds(int px) {
+            ends = px;
+            invalidate();
+        }
+
+        void set(boolean run, int done, int left, int full, String mode) {
+            if (run == this.run && done == this.done && left == this.left && full == this.full
+                    && mode.equals(this.mode)) {
                 return;
             }
             this.run = run;
             this.done = Math.max(0, done);
             this.left = Math.max(0, left);
+            this.full = Math.max(0, full);
             this.mode = mode;
             invalidate();
         }
@@ -2976,14 +3049,14 @@ public final class FocusBoard {
             float pad = XemsUi.dp(cx, 12);
             float th = XemsUi.dp(cx, 10);
             float y = h - th - XemsUi.dp(cx, 18);
-            int total = done + left;
-            float p = total > 0 ? Math.min(1f, done / (float) total) : 0f;
-            boolean paused = !run && done > 0 && left > 0;
+            int total = full;                               // fixed: the procedure's set length
+            float p = total > 0 ? Math.max(0f, Math.min(1f, (total - left) / (float) total)) : 0f;
+            boolean paused = !run && left > 0 && left < total;
             int col = run ? XemsUi.ACCENT : paused ? XemsUi.mix(XemsUi.ACCENT, XemsUi.MUTED, 0.45f) : XemsUi.MUTED;
 
             // left: the state as a pill (● training / ❚❚ pause / ready / done) — the mode is on its key up top
             String state = run ? AiText.t("АКТИВЕН", "ACTIVE") : paused ? AiText.t("ПАУЗА", "PAUSED")
-                    : done > 0 && left == 0 ? AiText.t("КРАЙ", "DONE") : AiText.t("ГОТОВ", "READY");
+                    : total > 0 && left == 0 ? AiText.t("КРАЙ", "DONE") : AiText.t("ГОТОВ", "READY");
             int sc = run ? XemsUi.ACCENT : XemsUi.MUTED;
             small.setTextAlign(Paint.Align.LEFT);
             float sw = small.measureText(state) + XemsUi.dp(cx, 30);
@@ -3012,25 +3085,19 @@ public final class FocusBoard {
             big.setColor(run ? XemsUi.TEXT : XemsUi.mix(XemsUi.TEXT, XemsUi.MUTED, 0.4f));
             float by = y - XemsUi.dp(cx, 14);
             String t = mmss(done);
-            c.drawText(t, w - pad, by, big);
-            if (total > 0) {
-                num.setTextAlign(Paint.Align.RIGHT);
-                num.setTextSize(XemsUi.sp(cx, 13));
-                num.setColor(XemsUi.MUTED);
-                c.drawText(AiText.t("от ", "of ") + mmss(total), w - pad - big.measureText(t) - XemsUi.dp(cx, 10),
-                        by - XemsUi.dp(cx, 3), num);
-            }
+            c.drawText(t, w - pad, by, big);                 // only the time so far moves; the length is the bar
 
             // the bar: track, the part done (gradient), a mark per minute, numbered every 5 (′), 0 and the end
-            float bw = w - 2 * pad;
+            float bpad = Math.max(pad, ends);                // the bar between the − / + keys
+            float bw = w - 2 * bpad;
             float rr = th / 2f;
-            r.set(pad, y, pad + bw, y + th);
+            r.set(bpad, y, bpad + bw, y + th);
             bar.setColor(XemsUi.alpha(XemsUi.ACCENT, 0x21));
             c.drawRoundRect(r, rr, rr, bar);
-            float fx = pad + bw * p;
+            float fx = bpad + bw * p;
             if (p > 0f) {
-                r.set(pad, y, Math.max(fx, pad + th), y + th);
-                fill.setShader(new android.graphics.LinearGradient(pad, 0, Math.max(fx, pad + th), 0,
+                r.set(bpad, y, Math.max(fx, bpad + th), y + th);
+                fill.setShader(new android.graphics.LinearGradient(bpad, 0, Math.max(fx, bpad + th), 0,
                         XemsUi.alpha(col, 0x73), col, android.graphics.Shader.TileMode.CLAMP));
                 c.drawRoundRect(r, rr, rr, fill);
                 fill.setShader(null);
@@ -3042,11 +3109,11 @@ public final class FocusBoard {
                 int every = mins > 60 ? 10 : 5;
                 num.setTextAlign(Paint.Align.CENTER);
                 for (int i = 1; i < mins; i++) {
-                    float tx = pad + bw * (i * 60f) / total;
+                    float tx = bpad + bw * (i * 60f) / total;
                     boolean major = i % every == 0;
                     tick.setColor(XemsUi.alpha(XemsUi.BG, major ? 0xD8 : 0x80));
                     c.drawLine(tx, y + XemsUi.dp(cx, 2), tx, y + th - XemsUi.dp(cx, 2), tick);
-                    if (major && tx < pad + bw - XemsUi.dp(cx, 22)) {
+                    if (major && tx < bpad + bw - XemsUi.dp(cx, 22)) {
                         num.setColor(tx <= fx ? XemsUi.ACCENT : XemsUi.MUTED);
                         c.drawText(i + "′", tx, ly, num);
                     }
@@ -3055,9 +3122,9 @@ public final class FocusBoard {
             if (total > 0) {
                 num.setColor(XemsUi.MUTED);
                 num.setTextAlign(Paint.Align.LEFT);
-                c.drawText("0", pad, ly, num);
+                c.drawText("0", bpad, ly, num);
                 num.setTextAlign(Paint.Align.RIGHT);
-                c.drawText((total + 30) / 60 + "′", pad + bw, ly, num);
+                c.drawText((total + 30) / 60 + "′", bpad + bw, ly, num);
                 // the head: a soft breathing halo while running, a white knob
                 if (run) {
                     double ph2 = (android.os.SystemClock.uptimeMillis() % 1600L) / 1600.0;

@@ -171,6 +171,63 @@ public final class ProgramLive {
         }
     }
 
+    /** Shortest and longest training / procedure the − / + of the focus board set (s). */
+    public static final int ADD_MIN_S = 60;
+    public static final int ADD_MAX_S = 90 * 60;
+    /** − never takes the time left under this (s): a tap must not end the training by itself. */
+    public static final int ADD_LEFT_MIN_S = 30;
+
+    /** Whether − / + can change this row's time now (a manual training; AI / Auto time their own plan). */
+    public static boolean canAddTime(TrainItem it) {
+        try {
+            return it != null && it.data != null && manual() && it.getTrainProgram() != null
+                    && it.getTrainProgram().matchProgram() != null;
+        } catch (Throwable t) {
+            return false;
+        }
+    }
+
+    /**
+     * Hook: TrainItem.xemsAddTime (scripts/apply-mode-stages.py) — the focus board's − / + at the ends of the
+     * training bar (owner, 1.1.530): the procedure's length ± {@code seconds} (a minute a tap), kept between 1 and
+     * 90 min; the time done stays, the time left moves with it (never under 30 s by a −). The session record
+     * follows (takePlanDelta). Returns the new countdown (ms) when the row runs, else 0 (paused / not started:
+     * ▶ starts from the new time).
+     */
+    public static long addTime(TrainItem it, int seconds) {
+        try {
+            if (!canAddTime(it) || seconds == 0) {
+                return 0L;
+            }
+            ProgramDataBean b = it.getTrainProgram().matchProgram();
+            int full = Math.max(1, b.workLength);
+            int left = Math.max(0, it.workLength);
+            int want = Math.max(ADD_MIN_S, Math.min(ADD_MAX_S, full + seconds));
+            int delta = want - full;
+            boolean underWay = it.data.start || left > 0 && left < full;
+            if (underWay && left + delta < ADD_LEFT_MIN_S) {
+                delta = Math.min(0, ADD_LEFT_MIN_S - left);
+            }
+            if (delta == 0) {
+                return 0L;
+            }
+            b.workLength = full + delta;
+            it.workLength = underWay ? Math.max(1, left + delta) : b.workLength;
+            if (underWay) {
+                synchronized (PLAN_DELTA) {
+                    Integer d = PLAN_DELTA.get(it);
+                    PLAN_DELTA.put(it, (d != null ? d : 0) + delta);
+                }
+            }
+            synchronized (CLOCK) {
+                CLOCK.remove(it);                       // the countdown restarts from whole seconds
+            }
+            return it.data.start ? it.workLength * 1000L : 0L;
+        } catch (Throwable t) {
+            return 0L;
+        }
+    }
+
     /** For the session recorder: the planned time moved by this much (s) since the last call. */
     public static int takePlanDelta(TrainItem it) {
         synchronized (PLAN_DELTA) {

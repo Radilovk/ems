@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 234
+    .line 236
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,10 +34,10 @@
     .registers 4
 
     .prologue
-    .line 237
+    .line 239
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsUi;->haptic(Landroid/view/View;)V
 
-    .line 238
+    .line 240
     # invokes: Lcom/isaigu/gymapp/ai/FocusBoard;->clients()Ljava/util/List;
     invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$000()Ljava/util/List;
 
@@ -59,17 +59,17 @@
 
     if-nez v0, :cond_1a
 
-    .line 240
+    .line 242
     :cond_15
     const-string v0, "stop"
 
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/FocusBoard;->press(Ljava/lang/String;)Z
 
-    .line 242
+    .line 244
     :cond_1a
     # invokes: Lcom/isaigu/gymapp/ai/FocusBoard;->later()V
     invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$300()V
 
-    .line 243
+    .line 245
     return-void
 .end method

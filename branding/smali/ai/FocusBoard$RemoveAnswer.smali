@@ -28,16 +28,16 @@
     .registers 3
 
     .prologue
-    .line 2113
+    .line 2175
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 2114
+    .line 2176
     iput-object p1, p0, Lcom/isaigu/gymapp/ai/FocusBoard$RemoveAnswer;->q:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
 
-    .line 2115
+    .line 2177
     iput-object p2, p0, Lcom/isaigu/gymapp/ai/FocusBoard$RemoveAnswer;->item:Lcom/isaigu/gymapp/train/model/TrainItem;
 
-    .line 2116
+    .line 2178
     return-void
 .end method
 
@@ -47,10 +47,10 @@
     .registers 3
 
     .prologue
-    .line 2120
+    .line 2182
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsUi;->haptic(Landroid/view/View;)V
 
-    .line 2122
+    .line 2184
     :try_start_3
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$RemoveAnswer;->q:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
 
@@ -60,22 +60,22 @@
     :try_end_a
     .catch Ljava/lang/Throwable; {:try_start_3 .. :try_end_a} :catch_14
 
-    .line 2125
+    .line 2187
     :goto_a
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$RemoveAnswer;->item:Lcom/isaigu/gymapp/train/model/TrainItem;
 
     if-eqz v0, :cond_13
 
-    .line 2126
+    .line 2188
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$RemoveAnswer;->item:Lcom/isaigu/gymapp/train/model/TrainItem;
 
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/FocusBoard;->remove(Lcom/isaigu/gymapp/train/model/TrainItem;)V
 
-    .line 2128
+    .line 2190
     :cond_13
     return-void
 
-    .line 2123
+    .line 2185
     :catch_14
     move-exception v0
 

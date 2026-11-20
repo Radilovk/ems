@@ -4,6 +4,12 @@
 
 
 # static fields
+.field public static final ADD_LEFT_MIN_S:I = 0x1e
+
+.field public static final ADD_MAX_S:I = 0x1518
+
+.field public static final ADD_MIN_S:I = 0x3c
+
 .field private static final CLIENT:Ljava/util/Map;
     .annotation system Ldalvik/annotation/Signature;
         value = {
@@ -139,42 +145,42 @@
 
     sput-object v0, Lcom/isaigu/gymapp/train/utils/ProgramLive;->MASTER:Ljava/util/Map;
 
-    .line 185
+    .line 242
     new-instance v0, Ljava/util/WeakHashMap;
 
     invoke-direct {v0}, Ljava/util/WeakHashMap;-><init>()V
 
     sput-object v0, Lcom/isaigu/gymapp/train/utils/ProgramLive;->STAGE:Ljava/util/Map;
 
-    .line 224
+    .line 281
     new-instance v0, Ljava/util/WeakHashMap;
 
     invoke-direct {v0}, Ljava/util/WeakHashMap;-><init>()V
 
     sput-object v0, Lcom/isaigu/gymapp/train/utils/ProgramLive;->STAGE_CLOCK:Ljava/util/Map;
 
-    .line 266
+    .line 323
     new-instance v0, Ljava/util/WeakHashMap;
 
     invoke-direct {v0}, Ljava/util/WeakHashMap;-><init>()V
 
     sput-object v0, Lcom/isaigu/gymapp/train/utils/ProgramLive;->HELD:Ljava/util/Map;
 
-    .line 296
+    .line 353
     new-instance v0, Ljava/util/WeakHashMap;
 
     invoke-direct {v0}, Ljava/util/WeakHashMap;-><init>()V
 
     sput-object v0, Lcom/isaigu/gymapp/train/utils/ProgramLive;->ELAPSED:Ljava/util/Map;
 
-    .line 338
+    .line 395
     new-instance v0, Ljava/util/WeakHashMap;
 
     invoke-direct {v0}, Ljava/util/WeakHashMap;-><init>()V
 
     sput-object v0, Lcom/isaigu/gymapp/train/utils/ProgramLive;->CLOCK:Ljava/util/Map;
 
-    .line 393
+    .line 450
     new-instance v0, Ljava/util/WeakHashMap;
 
     invoke-direct {v0}, Ljava/util/WeakHashMap;-><init>()V
@@ -194,11 +200,290 @@
     return-void
 .end method
 
+.method public static addTime(Lcom/isaigu/gymapp/train/model/TrainItem;I)J
+    .registers 12
+
+    .prologue
+    const/4 v4, 0x1
+
+    const-wide/16 v2, 0x0
+
+    const/4 v1, 0x0
+
+    .line 199
+    :try_start_4
+    invoke-static {p0}, Lcom/isaigu/gymapp/train/utils/ProgramLive;->canAddTime(Lcom/isaigu/gymapp/train/model/TrainItem;)Z
+
+    move-result v0
+
+    if-eqz v0, :cond_c
+
+    if-nez p1, :cond_d
+
+    .line 227
+    :cond_c
+    :goto_c
+    return-wide v2
+
+    .line 202
+    :cond_d
+    invoke-virtual {p0}, Lcom/isaigu/gymapp/train/model/TrainItem;->getTrainProgram()Lcom/isaigu/gymapp/bean/TrainProgram;
+
+    move-result-object v0
+
+    invoke-virtual {v0}, Lcom/isaigu/gymapp/bean/TrainProgram;->matchProgram()Lcom/isaigu/gymapp/bean/ProgramDataBean;
+
+    move-result-object v6
+
+    .line 203
+    const/4 v0, 0x1
+
+    iget v5, v6, Lcom/isaigu/gymapp/bean/ProgramDataBean;->workLength:I
+
+    invoke-static {v0, v5}, Ljava/lang/Math;->max(II)I
+
+    move-result v7
+
+    .line 204
+    const/4 v0, 0x0
+
+    iget v5, p0, Lcom/isaigu/gymapp/train/model/TrainItem;->workLength:I
+
+    invoke-static {v0, v5}, Ljava/lang/Math;->max(II)I
+
+    move-result v8
+
+    .line 205
+    const/16 v0, 0x3c
+
+    const/16 v5, 0x1518
+
+    add-int v9, v7, p1
+
+    invoke-static {v5, v9}, Ljava/lang/Math;->min(II)I
+
+    move-result v5
+
+    invoke-static {v0, v5}, Ljava/lang/Math;->max(II)I
+
+    move-result v0
+
+    .line 206
+    sub-int/2addr v0, v7
+
+    .line 207
+    iget-object v5, p0, Lcom/isaigu/gymapp/train/model/TrainItem;->data:Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
+
+    iget-boolean v5, v5, Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;->start:Z
+
+    if-nez v5, :cond_3c
+
+    if-lez v8, :cond_94
+
+    if-ge v8, v7, :cond_94
+
+    :cond_3c
+    move v5, v4
+
+    .line 208
+    :goto_3d
+    if-eqz v5, :cond_a6
+
+    add-int v4, v8, v0
+
+    const/16 v9, 0x1e
+
+    if-ge v4, v9, :cond_a6
+
+    .line 209
+    const/4 v0, 0x0
+
+    rsub-int/lit8 v4, v8, 0x1e
+
+    invoke-static {v0, v4}, Ljava/lang/Math;->min(II)I
+
+    move-result v0
+
+    move v4, v0
+
+    .line 211
+    :goto_4d
+    if-eqz v4, :cond_c
+
+    .line 214
+    add-int v0, v7, v4
+
+    iput v0, v6, Lcom/isaigu/gymapp/bean/ProgramDataBean;->workLength:I
+
+    .line 215
+    if-eqz v5, :cond_96
+
+    const/4 v0, 0x1
+
+    add-int v6, v8, v4
+
+    invoke-static {v0, v6}, Ljava/lang/Math;->max(II)I
+
+    move-result v0
+
+    :goto_5c
+    iput v0, p0, Lcom/isaigu/gymapp/train/model/TrainItem;->workLength:I
+
+    .line 216
+    if-eqz v5, :cond_7c
+
+    .line 217
+    sget-object v5, Lcom/isaigu/gymapp/train/utils/ProgramLive;->PLAN_DELTA:Ljava/util/Map;
+
+    monitor-enter v5
+    :try_end_63
+    .catch Ljava/lang/Throwable; {:try_start_4 .. :try_end_63} :catch_9e
+
+    .line 218
+    :try_start_63
+    sget-object v0, Lcom/isaigu/gymapp/train/utils/ProgramLive;->PLAN_DELTA:Ljava/util/Map;
+
+    invoke-interface {v0, p0}, Ljava/util/Map;->get(Ljava/lang/Object;)Ljava/lang/Object;
+
+    move-result-object v0
+
+    check-cast v0, Ljava/lang/Integer;
+
+    .line 219
+    sget-object v6, Lcom/isaigu/gymapp/train/utils/ProgramLive;->PLAN_DELTA:Ljava/util/Map;
+
+    if-eqz v0, :cond_99
+
+    invoke-virtual {v0}, Ljava/lang/Integer;->intValue()I
+
+    move-result v0
+
+    :goto_73
+    add-int/2addr v0, v4
+
+    invoke-static {v0}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+
+    move-result-object v0
+
+    invoke-interface {v6, p0, v0}, Ljava/util/Map;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+
+    .line 220
+    monitor-exit v5
+    :try_end_7c
+    .catchall {:try_start_63 .. :try_end_7c} :catchall_9b
+
+    .line 222
+    :cond_7c
+    :try_start_7c
+    sget-object v1, Lcom/isaigu/gymapp/train/utils/ProgramLive;->CLOCK:Ljava/util/Map;
+
+    monitor-enter v1
+    :try_end_7f
+    .catch Ljava/lang/Throwable; {:try_start_7c .. :try_end_7f} :catch_9e
+
+    .line 223
+    :try_start_7f
+    sget-object v0, Lcom/isaigu/gymapp/train/utils/ProgramLive;->CLOCK:Ljava/util/Map;
+
+    invoke-interface {v0, p0}, Ljava/util/Map;->remove(Ljava/lang/Object;)Ljava/lang/Object;
+
+    .line 224
+    monitor-exit v1
+    :try_end_85
+    .catchall {:try_start_7f .. :try_end_85} :catchall_a1
+
+    .line 225
+    :try_start_85
+    iget-object v0, p0, Lcom/isaigu/gymapp/train/model/TrainItem;->data:Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
+
+    iget-boolean v0, v0, Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;->start:Z
+
+    if-eqz v0, :cond_a4
+
+    iget v0, p0, Lcom/isaigu/gymapp/train/model/TrainItem;->workLength:I
+
+    int-to-long v0, v0
+
+    const-wide/16 v2, 0x3e8
+
+    mul-long/2addr v0, v2
+
+    :goto_91
+    move-wide v2, v0
+
+    goto/16 :goto_c
+
+    :cond_94
+    move v5, v1
+
+    .line 207
+    goto :goto_3d
+
+    .line 215
+    :cond_96
+    iget v0, v6, Lcom/isaigu/gymapp/bean/ProgramDataBean;->workLength:I
+    :try_end_98
+    .catch Ljava/lang/Throwable; {:try_start_85 .. :try_end_98} :catch_9e
+
+    goto :goto_5c
+
+    :cond_99
+    move v0, v1
+
+    .line 219
+    goto :goto_73
+
+    .line 220
+    :catchall_9b
+    move-exception v0
+
+    :try_start_9c
+    monitor-exit v5
+    :try_end_9d
+    .catchall {:try_start_9c .. :try_end_9d} :catchall_9b
+
+    :try_start_9d
+    throw v0
+    :try_end_9e
+    .catch Ljava/lang/Throwable; {:try_start_9d .. :try_end_9e} :catch_9e
+
+    .line 226
+    :catch_9e
+    move-exception v0
+
+    goto/16 :goto_c
+
+    .line 224
+    :catchall_a1
+    move-exception v0
+
+    :try_start_a2
+    monitor-exit v1
+    :try_end_a3
+    .catchall {:try_start_a2 .. :try_end_a3} :catchall_a1
+
+    :try_start_a3
+    throw v0
+    :try_end_a4
+    .catch Ljava/lang/Throwable; {:try_start_a3 .. :try_end_a4} :catch_9e
+
+    :cond_a4
+    move-wide v0, v2
+
+    .line 225
+    goto :goto_91
+
+    :cond_a6
+    move v4, v0
+
+    goto :goto_4d
+.end method
+
 .method static bean(Lcom/isaigu/gymapp/bean/TrainProgram;I)Lcom/isaigu/gymapp/bean/ProgramDataBean;
     .registers 3
 
     .prologue
-    .line 431
+    .line 488
     const/4 v0, 0x1
 
     if-ne p1, v0, :cond_6
@@ -208,7 +493,7 @@
     :goto_5
     return-object v0
 
-    .line 432
+    .line 489
     :cond_6
     const/4 v0, 0x2
 
@@ -218,7 +503,7 @@
 
     goto :goto_5
 
-    .line 433
+    .line 490
     :cond_c
     const/4 v0, 0x3
 
@@ -478,6 +763,59 @@
     goto :goto_3d
 .end method
 
+.method public static canAddTime(Lcom/isaigu/gymapp/train/model/TrainItem;)Z
+    .registers 3
+
+    .prologue
+    const/4 v0, 0x0
+
+    .line 183
+    if-eqz p0, :cond_1e
+
+    :try_start_3
+    iget-object v1, p0, Lcom/isaigu/gymapp/train/model/TrainItem;->data:Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
+
+    if-eqz v1, :cond_1e
+
+    invoke-static {}, Lcom/isaigu/gymapp/train/utils/ProgramLive;->manual()Z
+
+    move-result v1
+
+    if-eqz v1, :cond_1e
+
+    invoke-virtual {p0}, Lcom/isaigu/gymapp/train/model/TrainItem;->getTrainProgram()Lcom/isaigu/gymapp/bean/TrainProgram;
+
+    move-result-object v1
+
+    if-eqz v1, :cond_1e
+
+    .line 184
+    invoke-virtual {p0}, Lcom/isaigu/gymapp/train/model/TrainItem;->getTrainProgram()Lcom/isaigu/gymapp/bean/TrainProgram;
+
+    move-result-object v1
+
+    invoke-virtual {v1}, Lcom/isaigu/gymapp/bean/TrainProgram;->matchProgram()Lcom/isaigu/gymapp/bean/ProgramDataBean;
+    :try_end_1a
+    .catch Ljava/lang/Throwable; {:try_start_3 .. :try_end_1a} :catch_1f
+
+    move-result-object v1
+
+    if-eqz v1, :cond_1e
+
+    const/4 v0, 0x1
+
+    .line 186
+    :cond_1e
+    :goto_1e
+    return v0
+
+    .line 185
+    :catch_1f
+    move-exception v1
+
+    goto :goto_1e
+.end method
+
 .method static clientChanged(Lcom/isaigu/gymapp/train/model/TrainItem;)Z
     .registers 5
 
@@ -570,17 +908,17 @@
     .prologue
     const-wide/16 v8, 0x0
 
-    .line 313
+    .line 370
     invoke-static {}, Landroid/os/SystemClock;->elapsedRealtime()J
 
     move-result-wide v2
 
-    .line 314
+    .line 371
     sget-object v1, Lcom/isaigu/gymapp/train/utils/ProgramLive;->ELAPSED:Ljava/util/Map;
 
     monitor-enter v1
 
-    .line 315
+    .line 372
     :try_start_9
     sget-object v0, Lcom/isaigu/gymapp/train/utils/ProgramLive;->ELAPSED:Ljava/util/Map;
 
@@ -590,10 +928,10 @@
 
     check-cast v0, [J
 
-    .line 316
+    .line 373
     if-nez v0, :cond_25
 
-    .line 317
+    .line 374
     sget-object v0, Lcom/isaigu/gymapp/train/utils/ProgramLive;->ELAPSED:Ljava/util/Map;
 
     const/4 v4, 0x2
@@ -612,14 +950,14 @@
 
     invoke-interface {v0, p0, v4}, Ljava/util/Map;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
 
-    .line 318
+    .line 375
     monitor-exit v1
 
-    .line 326
+    .line 383
     :goto_24
     return-void
 
-    .line 320
+    .line 377
     :cond_25
     const/4 v4, 0x1
 
@@ -627,7 +965,7 @@
 
     sub-long v4, v2, v4
 
-    .line 321
+    .line 378
     const/4 v6, 0x1
 
     aget-wide v6, v0, v6
@@ -646,7 +984,7 @@
 
     if-gtz v6, :cond_41
 
-    .line 322
+    .line 379
     const/4 v6, 0x0
 
     aget-wide v8, v0, v6
@@ -655,13 +993,13 @@
 
     aput-wide v4, v0, v6
 
-    .line 324
+    .line 381
     :cond_41
     const/4 v4, 0x1
 
     aput-wide v2, v0, v4
 
-    .line 325
+    .line 382
     monitor-exit v1
 
     goto :goto_24
@@ -680,12 +1018,12 @@
     .registers 3
 
     .prologue
-    .line 274
+    .line 331
     sget-object v1, Lcom/isaigu/gymapp/train/utils/ProgramLive;->HELD:Ljava/util/Map;
 
     monitor-enter v1
 
-    .line 275
+    .line 332
     if-eqz p0, :cond_10
 
     :try_start_5
@@ -709,7 +1047,7 @@
 
     goto :goto_e
 
-    .line 276
+    .line 333
     :catchall_12
     move-exception v0
 
@@ -970,7 +1308,7 @@
 
     const/4 v1, 0x0
 
-    .line 439
+    .line 496
     :try_start_2
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiSession;->getStage()Lcom/isaigu/gymapp/ai/AiSession$Stage;
 
@@ -982,12 +1320,12 @@
 
     move v0, v1
 
-    .line 444
+    .line 501
     :cond_b
     :goto_b
     return v0
 
-    .line 442
+    .line 499
     :cond_c
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoSession;->getStage()Lcom/isaigu/gymapp/ai/AutoSession$Stage;
 
@@ -1003,7 +1341,7 @@
 
     goto :goto_b
 
-    .line 443
+    .line 500
     :catch_16
     move-exception v1
 
@@ -1014,42 +1352,42 @@
     .registers 3
 
     .prologue
-    .line 284
+    .line 341
     if-nez p0, :cond_3
 
-    .line 293
+    .line 350
     :goto_2
     return-void
 
-    .line 287
+    .line 344
     :cond_3
     sget-object v1, Lcom/isaigu/gymapp/train/utils/ProgramLive;->HELD:Ljava/util/Map;
 
     monitor-enter v1
 
-    .line 288
+    .line 345
     :try_start_6
     sget-object v0, Lcom/isaigu/gymapp/train/utils/ProgramLive;->HELD:Ljava/util/Map;
 
     invoke-interface {v0, p0}, Ljava/util/Map;->remove(Ljava/lang/Object;)Ljava/lang/Object;
 
-    .line 289
+    .line 346
     monitor-exit v1
     :try_end_c
     .catchall {:try_start_6 .. :try_end_c} :catchall_19
 
-    .line 290
+    .line 347
     sget-object v1, Lcom/isaigu/gymapp/train/utils/ProgramLive;->ELAPSED:Ljava/util/Map;
 
     monitor-enter v1
 
-    .line 291
+    .line 348
     :try_start_f
     sget-object v0, Lcom/isaigu/gymapp/train/utils/ProgramLive;->ELAPSED:Ljava/util/Map;
 
     invoke-interface {v0, p0}, Ljava/util/Map;->remove(Ljava/lang/Object;)Ljava/lang/Object;
 
-    .line 292
+    .line 349
     monitor-exit v1
 
     goto :goto_2
@@ -1063,7 +1401,7 @@
 
     throw v0
 
-    .line 289
+    .line 346
     :catchall_19
     move-exception v0
 
@@ -1079,20 +1417,20 @@
     .registers 5
 
     .prologue
-    .line 188
+    .line 245
     if-nez p0, :cond_3
 
-    .line 194
+    .line 251
     :goto_2
     return-void
 
-    .line 191
+    .line 248
     :cond_3
     sget-object v1, Lcom/isaigu/gymapp/train/utils/ProgramLive;->STAGE:Ljava/util/Map;
 
     monitor-enter v1
 
-    .line 192
+    .line 249
     :try_start_6
     sget-object v0, Lcom/isaigu/gymapp/train/utils/ProgramLive;->STAGE:Ljava/util/Map;
 
@@ -1102,7 +1440,7 @@
 
     invoke-interface {v0, p0, v2}, Ljava/util/Map;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
 
-    .line 193
+    .line 250
     monitor-exit v1
 
     goto :goto_2
@@ -1123,7 +1461,7 @@
     .prologue
     const/4 v0, 0x0
 
-    .line 407
+    .line 464
     invoke-static {v0, p1}, Ljava/lang/Math;->max(II)I
 
     move-result v0
@@ -1134,27 +1472,27 @@
 
     mul-long/2addr v2, v0
 
-    .line 408
+    .line 465
     invoke-static {}, Landroid/os/SystemClock;->elapsedRealtime()J
 
     move-result-wide v6
 
-    .line 409
+    .line 466
     if-nez p0, :cond_11
 
     move-wide v0, v2
 
-    .line 421
+    .line 478
     :goto_10
     return-wide v0
 
-    .line 412
+    .line 469
     :cond_11
     sget-object v1, Lcom/isaigu/gymapp/train/utils/ProgramLive;->PHASE_DUE:Ljava/util/Map;
 
     monitor-enter v1
 
-    .line 413
+    .line 470
     :try_start_14
     sget-object v0, Lcom/isaigu/gymapp/train/utils/ProgramLive;->PHASE_DUE:Ljava/util/Map;
 
@@ -1164,7 +1502,7 @@
 
     check-cast v0, [J
 
-    .line 414
+    .line 471
     if-eqz v0, :cond_4b
 
     const/4 v4, 0x0
@@ -1173,7 +1511,7 @@
 
     sub-long v4, v6, v4
 
-    .line 415
+    .line 472
     :goto_23
     if-eqz v0, :cond_4e
 
@@ -1199,7 +1537,7 @@
 
     if-eqz v8, :cond_4e
 
-    .line 416
+    .line 473
     const-wide/16 v8, 0x2
 
     div-long v8, v2, v8
@@ -1210,27 +1548,27 @@
 
     move-result-wide v2
 
-    .line 417
+    .line 474
     const/4 v4, 0x0
 
     add-long/2addr v6, v2
 
     aput-wide v6, v0, v4
 
-    .line 418
+    .line 475
     monitor-exit v1
 
     move-wide v0, v2
 
     goto :goto_10
 
-    .line 414
+    .line 471
     :cond_4b
     const-wide/16 v4, -0x1
 
     goto :goto_23
 
-    .line 420
+    .line 477
     :cond_4e
     sget-object v0, Lcom/isaigu/gymapp/train/utils/ProgramLive;->PHASE_DUE:Ljava/util/Map;
 
@@ -1246,14 +1584,14 @@
 
     invoke-interface {v0, p0, v4}, Ljava/util/Map;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
 
-    .line 421
+    .line 478
     monitor-exit v1
 
     move-wide v0, v2
 
     goto :goto_10
 
-    .line 422
+    .line 479
     :catchall_5d
     move-exception v0
 
@@ -1359,12 +1697,12 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 306
+    .line 363
     sget-object v2, Lcom/isaigu/gymapp/train/utils/ProgramLive;->ELAPSED:Ljava/util/Map;
 
     monitor-enter v2
 
-    .line 307
+    .line 364
     if-eqz p0, :cond_19
 
     :try_start_6
@@ -1376,7 +1714,7 @@
 
     check-cast v0, [J
 
-    .line 308
+    .line 365
     :goto_e
     if-eqz v0, :cond_1b
 
@@ -1395,7 +1733,7 @@
 
     return v0
 
-    .line 307
+    .line 364
     :cond_19
     const/4 v0, 0x0
 
@@ -1404,10 +1742,10 @@
     :cond_1b
     move v0, v1
 
-    .line 308
+    .line 365
     goto :goto_17
 
-    .line 309
+    .line 366
     :catchall_1d
     move-exception v0
 
@@ -1424,7 +1762,7 @@
     .prologue
     const-wide/16 v2, 0x0
 
-    .line 235
+    .line 292
     if-eqz p0, :cond_e
 
     :try_start_4
@@ -1438,18 +1776,18 @@
 
     if-nez v0, :cond_f
 
-    .line 261
+    .line 318
     :cond_e
     :goto_e
     return-wide v2
 
-    .line 238
+    .line 295
     :cond_f
     invoke-virtual {p0}, Lcom/isaigu/gymapp/train/model/TrainItem;->getTrainProgram()Lcom/isaigu/gymapp/bean/TrainProgram;
 
     move-result-object v0
 
-    .line 239
+    .line 296
     if-eqz v0, :cond_7f
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/bean/TrainProgram;->matchProgram()Lcom/isaigu/gymapp/bean/ProgramDataBean;
@@ -1458,7 +1796,7 @@
 
     move-object v4, v0
 
-    .line 240
+    .line 297
     :goto_1a
     if-eqz v4, :cond_e
 
@@ -1466,7 +1804,7 @@
 
     if-lez v0, :cond_e
 
-    .line 243
+    .line 300
     const/4 v0, 0x0
 
     iget v1, p0, Lcom/isaigu/gymapp/train/model/TrainItem;->workLength:I
@@ -1475,14 +1813,14 @@
 
     move-result v1
 
-    .line 244
+    .line 301
     sget-object v5, Lcom/isaigu/gymapp/train/utils/ProgramLive;->STAGE_CLOCK:Ljava/util/Map;
 
     monitor-enter v5
     :try_end_2a
     .catch Ljava/lang/Throwable; {:try_start_4 .. :try_end_2a} :catch_87
 
-    .line 245
+    .line 302
     :try_start_2a
     sget-object v0, Lcom/isaigu/gymapp/train/utils/ProgramLive;->STAGE_CLOCK:Ljava/util/Map;
 
@@ -1492,7 +1830,7 @@
 
     check-cast v0, [I
 
-    .line 247
+    .line 304
     if-eqz v0, :cond_82
 
     const/4 v6, 0x0
@@ -1513,7 +1851,7 @@
 
     move-result v0
 
-    .line 248
+    .line 305
     :goto_42
     sget-object v1, Lcom/isaigu/gymapp/train/utils/ProgramLive;->STAGE_CLOCK:Ljava/util/Map;
 
@@ -1533,32 +1871,32 @@
 
     invoke-interface {v1, p0, v6}, Ljava/util/Map;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
 
-    .line 249
+    .line 306
     monitor-exit v5
     :try_end_53
     .catchall {:try_start_2a .. :try_end_53} :catchall_84
 
-    .line 250
+    .line 307
     :try_start_53
     iget v0, v4, Lcom/isaigu/gymapp/bean/ProgramDataBean;->workLength:I
 
     iput v0, p0, Lcom/isaigu/gymapp/train/model/TrainItem;->workLength:I
 
-    .line 251
+    .line 308
     iget-object v0, p0, Lcom/isaigu/gymapp/train/model/TrainItem;->data:Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
 
     iget-boolean v0, v0, Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;->start:Z
 
     if-nez v0, :cond_68
 
-    .line 252
+    .line 309
     sget-object v1, Lcom/isaigu/gymapp/train/utils/ProgramLive;->HELD:Ljava/util/Map;
 
     monitor-enter v1
     :try_end_60
     .catch Ljava/lang/Throwable; {:try_start_53 .. :try_end_60} :catch_87
 
-    .line 253
+    .line 310
     :try_start_60
     sget-object v0, Lcom/isaigu/gymapp/train/utils/ProgramLive;->HELD:Ljava/util/Map;
 
@@ -1566,12 +1904,12 @@
 
     invoke-interface {v0, p0, v5}, Ljava/util/Map;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
 
-    .line 254
+    .line 311
     monitor-exit v1
     :try_end_68
     .catchall {:try_start_60 .. :try_end_68} :catchall_89
 
-    .line 256
+    .line 313
     :cond_68
     :try_start_68
     sget-object v1, Lcom/isaigu/gymapp/train/utils/ProgramLive;->CLOCK:Ljava/util/Map;
@@ -1580,18 +1918,18 @@
     :try_end_6b
     .catch Ljava/lang/Throwable; {:try_start_68 .. :try_end_6b} :catch_87
 
-    .line 257
+    .line 314
     :try_start_6b
     sget-object v0, Lcom/isaigu/gymapp/train/utils/ProgramLive;->CLOCK:Ljava/util/Map;
 
     invoke-interface {v0, p0}, Ljava/util/Map;->remove(Ljava/lang/Object;)Ljava/lang/Object;
 
-    .line 258
+    .line 315
     monitor-exit v1
     :try_end_71
     .catchall {:try_start_6b .. :try_end_71} :catchall_8c
 
-    .line 259
+    .line 316
     :try_start_71
     iget-object v0, p0, Lcom/isaigu/gymapp/train/model/TrainItem;->data:Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
 
@@ -1614,7 +1952,7 @@
 
     goto :goto_e
 
-    .line 239
+    .line 296
     :cond_7f
     const/4 v0, 0x0
 
@@ -1625,10 +1963,10 @@
     :cond_82
     move v0, v1
 
-    .line 247
+    .line 304
     goto :goto_42
 
-    .line 249
+    .line 306
     :catchall_84
     move-exception v0
 
@@ -1642,13 +1980,13 @@
     :try_end_87
     .catch Ljava/lang/Throwable; {:try_start_86 .. :try_end_87} :catch_87
 
-    .line 260
+    .line 317
     :catch_87
     move-exception v0
 
     goto :goto_e
 
-    .line 254
+    .line 311
     :catchall_89
     move-exception v0
 
@@ -1662,7 +2000,7 @@
     :try_end_8c
     .catch Ljava/lang/Throwable; {:try_start_8b .. :try_end_8c} :catch_87
 
-    .line 258
+    .line 315
     :catchall_8c
     move-exception v0
 
@@ -1679,7 +2017,7 @@
     :cond_8f
     move-wide v0, v2
 
-    .line 259
+    .line 316
     goto :goto_7d
 .end method
 
@@ -1687,12 +2025,12 @@
     .registers 3
 
     .prologue
-    .line 217
+    .line 274
     sget-object v1, Lcom/isaigu/gymapp/train/utils/ProgramLive;->STAGE:Ljava/util/Map;
 
     monitor-enter v1
 
-    .line 218
+    .line 275
     :try_start_3
     sget-object v0, Lcom/isaigu/gymapp/train/utils/ProgramLive;->STAGE:Ljava/util/Map;
 
@@ -1702,12 +2040,12 @@
 
     check-cast v0, Ljava/lang/Boolean;
 
-    .line 219
+    .line 276
     monitor-exit v1
     :try_end_c
     .catchall {:try_start_3 .. :try_end_c} :catchall_16
 
-    .line 220
+    .line 277
     if-eqz v0, :cond_19
 
     invoke-virtual {v0}, Ljava/lang/Boolean;->booleanValue()Z
@@ -1721,7 +2059,7 @@
     :goto_15
     return v0
 
-    .line 219
+    .line 276
     :catchall_16
     move-exception v0
 
@@ -1732,7 +2070,7 @@
 
     throw v0
 
-    .line 220
+    .line 277
     :cond_19
     const/4 v0, 0x0
 
@@ -1781,12 +2119,12 @@
     .registers 3
 
     .prologue
-    .line 176
+    .line 233
     sget-object v1, Lcom/isaigu/gymapp/train/utils/ProgramLive;->PLAN_DELTA:Ljava/util/Map;
 
     monitor-enter v1
 
-    .line 177
+    .line 234
     :try_start_3
     sget-object v0, Lcom/isaigu/gymapp/train/utils/ProgramLive;->PLAN_DELTA:Ljava/util/Map;
 
@@ -1796,7 +2134,7 @@
 
     check-cast v0, Ljava/lang/Integer;
 
-    .line 178
+    .line 235
     if-eqz v0, :cond_13
 
     invoke-virtual {v0}, Ljava/lang/Integer;->intValue()I
@@ -1813,7 +2151,7 @@
 
     goto :goto_11
 
-    .line 179
+    .line 236
     :catchall_15
     move-exception v0
 
@@ -1828,12 +2166,12 @@
     .registers 3
 
     .prologue
-    .line 330
+    .line 387
     sget-object v1, Lcom/isaigu/gymapp/train/utils/ProgramLive;->STAGE_CLOCK:Ljava/util/Map;
 
     monitor-enter v1
 
-    .line 331
+    .line 388
     :try_start_3
     sget-object v0, Lcom/isaigu/gymapp/train/utils/ProgramLive;->STAGE_CLOCK:Ljava/util/Map;
 
@@ -1847,7 +2185,7 @@
 
     return-object v0
 
-    .line 332
+    .line 389
     :catchall_d
     move-exception v0
 
@@ -1862,14 +2200,14 @@
     .registers 12
 
     .prologue
-    .line 347
+    .line 404
     const-wide/16 v0, 0x0
 
     invoke-static {v0, v1, p1, p2}, Ljava/lang/Math;->max(JJ)J
 
     move-result-wide v0
 
-    .line 348
+    .line 405
     const-wide/16 v2, 0x3e7
 
     add-long/2addr v2, v0
@@ -1880,7 +2218,7 @@
 
     long-to-int v2, v2
 
-    .line 349
+    .line 406
     if-eqz p0, :cond_1c
 
     iget-object v3, p0, Lcom/isaigu/gymapp/train/model/TrainItem;->data:Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
@@ -1893,19 +2231,19 @@
 
     if-eqz v3, :cond_1c
 
-    .line 350
+    .line 407
     invoke-static {p0}, Lcom/isaigu/gymapp/train/utils/ProgramLive;->countTick(Lcom/isaigu/gymapp/train/model/TrainItem;)V
 
-    .line 352
+    .line 409
     :cond_1c
     if-eqz p0, :cond_31
 
-    .line 353
+    .line 410
     sget-object v3, Lcom/isaigu/gymapp/train/utils/ProgramLive;->CLOCK:Ljava/util/Map;
 
     monitor-enter v3
 
-    .line 354
+    .line 411
     :try_start_21
     sget-object v4, Lcom/isaigu/gymapp/train/utils/ProgramLive;->CLOCK:Ljava/util/Map;
 
@@ -1925,14 +2263,14 @@
 
     invoke-interface {v4, p0, v5}, Ljava/util/Map;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
 
-    .line 355
+    .line 412
     monitor-exit v3
 
-    .line 357
+    .line 414
     :cond_31
     return v2
 
-    .line 355
+    .line 412
     :catchall_32
     move-exception v0
 
@@ -1947,12 +2285,12 @@
     .registers 3
 
     .prologue
-    .line 426
+    .line 483
     invoke-static {p0, p1}, Lcom/isaigu/gymapp/train/utils/ProgramLive;->bean(Lcom/isaigu/gymapp/bean/TrainProgram;I)Lcom/isaigu/gymapp/bean/ProgramDataBean;
 
     move-result-object v0
 
-    .line 427
+    .line 484
     if-eqz v0, :cond_9
 
     iget v0, v0, Lcom/isaigu/gymapp/bean/ProgramDataBean;->workLength:I
@@ -1974,7 +2312,7 @@
 
     const/4 v1, 0x0
 
-    .line 198
+    .line 255
     if-eqz p0, :cond_8
 
     iget-object v2, p0, Lcom/isaigu/gymapp/train/model/TrainItem;->data:Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
@@ -1984,12 +2322,12 @@
     :cond_8
     move v0, v1
 
-    .line 205
+    .line 262
     :cond_9
     :goto_9
     return v0
 
-    .line 201
+    .line 258
     :cond_a
     iget-object v2, p0, Lcom/isaigu/gymapp/train/model/TrainItem;->data:Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
 
@@ -1997,10 +2335,10 @@
 
     if-nez v2, :cond_9
 
-    .line 204
+    .line 261
     iget v2, p0, Lcom/isaigu/gymapp/train/model/TrainItem;->workLength:I
 
-    .line 205
+    .line 262
     if-eqz p1, :cond_1a
 
     if-lez v2, :cond_1a
@@ -2025,39 +2363,39 @@
 
     const/4 v2, 0x0
 
-    .line 366
+    .line 423
     if-eqz p0, :cond_56
 
     iget v0, p0, Lcom/isaigu/gymapp/train/model/TrainItem;->workLength:I
 
     move v1, v0
 
-    .line 367
+    .line 424
     :goto_9
     if-eqz p0, :cond_36
 
-    .line 368
+    .line 425
     sget-object v3, Lcom/isaigu/gymapp/train/utils/ProgramLive;->HELD:Ljava/util/Map;
 
     monitor-enter v3
 
-    .line 369
+    .line 426
     :try_start_e
     sget-object v0, Lcom/isaigu/gymapp/train/utils/ProgramLive;->HELD:Ljava/util/Map;
 
     invoke-interface {v0, p0}, Ljava/util/Map;->remove(Ljava/lang/Object;)Ljava/lang/Object;
 
-    .line 370
+    .line 427
     monitor-exit v3
     :try_end_14
     .catchall {:try_start_e .. :try_end_14} :catchall_58
 
-    .line 371
+    .line 428
     sget-object v3, Lcom/isaigu/gymapp/train/utils/ProgramLive;->ELAPSED:Ljava/util/Map;
 
     monitor-enter v3
 
-    .line 372
+    .line 429
     :try_start_17
     sget-object v0, Lcom/isaigu/gymapp/train/utils/ProgramLive;->ELAPSED:Ljava/util/Map;
 
@@ -2067,10 +2405,10 @@
 
     check-cast v0, [J
 
-    .line 373
+    .line 430
     if-nez v0, :cond_5b
 
-    .line 374
+    .line 431
     sget-object v0, Lcom/isaigu/gymapp/train/utils/ProgramLive;->ELAPSED:Ljava/util/Map;
 
     const/4 v4, 0x2
@@ -2093,19 +2431,19 @@
 
     invoke-interface {v0, p0, v4}, Ljava/util/Map;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
 
-    .line 378
+    .line 435
     :goto_35
     monitor-exit v3
     :try_end_36
     .catchall {:try_start_17 .. :try_end_36} :catchall_63
 
-    .line 381
+    .line 438
     :cond_36
     sget-object v3, Lcom/isaigu/gymapp/train/utils/ProgramLive;->CLOCK:Ljava/util/Map;
 
     monitor-enter v3
 
-    .line 382
+    .line 439
     if-eqz p0, :cond_66
 
     :try_start_3b
@@ -2117,13 +2455,13 @@
 
     check-cast v0, [J
 
-    .line 383
+    .line 440
     :goto_43
     monitor-exit v3
     :try_end_44
     .catchall {:try_start_3b .. :try_end_44} :catchall_68
 
-    .line 384
+    .line 441
     if-eqz v0, :cond_6b
 
     aget-wide v4, v0, v8
@@ -2140,20 +2478,20 @@
 
     if-lez v3, :cond_6b
 
-    .line 385
+    .line 442
     aget-wide v0, v0, v2
 
-    .line 387
+    .line 444
     :goto_55
     return-wide v0
 
     :cond_56
     move v1, v2
 
-    .line 366
+    .line 423
     goto :goto_9
 
-    .line 370
+    .line 427
     :catchall_58
     move-exception v0
 
@@ -2164,7 +2502,7 @@
 
     throw v0
 
-    .line 376
+    .line 433
     :cond_5b
     const/4 v4, 0x1
 
@@ -2177,7 +2515,7 @@
 
     goto :goto_35
 
-    .line 378
+    .line 435
     :catchall_63
     move-exception v0
 
@@ -2187,13 +2525,13 @@
 
     throw v0
 
-    .line 382
+    .line 439
     :cond_66
     const/4 v0, 0x0
 
     goto :goto_43
 
-    .line 383
+    .line 440
     :catchall_68
     move-exception v0
 
@@ -2204,7 +2542,7 @@
 
     throw v0
 
-    .line 387
+    .line 444
     :cond_6b
     int-to-long v0, v1
 

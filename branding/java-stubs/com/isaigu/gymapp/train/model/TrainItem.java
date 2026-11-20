@@ -34,6 +34,9 @@ public class TrainItem {
     public void xemsRefresh() {}
     /** Added by apply-double-impulse.py: a running row's ON phase begins afresh now (true = it did). */
     public boolean xemsRestartPulse() { return false; }
+
+    /** Added by scripts/apply-mode-stages.py: the training's length ± seconds, the countdown goes on (1.1.530). */
+    public void xemsAddTime(int seconds) {}
     /** Sets data.trainProgram, applies the active-pause setting and resets the slot (stops it). */
     public void setTrainProgram(TrainProgram program) {}
 

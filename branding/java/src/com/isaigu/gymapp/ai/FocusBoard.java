@@ -1639,7 +1639,11 @@ public final class FocusBoard {
             }
             if (sessionBar != null) {
                 int done = com.isaigu.gymapp.train.utils.ProgramLive.shownTime(it);
-                sessionBar.set(run, done, Math.max(0, it.workLength), modeLabel(mode));
+                // the procedure's own length: fixed (only ⚙ or another mode changes it), never done + left —
+                // that sum wobbled by a second (14:59 / 15:00) as the two clocks round apart (owner, 1.1.525)
+                int left = Math.max(0, it.workLength);
+                int full = Math.max(b.workLength, left);
+                sessionBar.set(run, done, left, full, modeLabel(mode));
             }
 
             int[] main = PartStrength.levels(it, b, false);
@@ -2918,8 +2922,8 @@ public final class FocusBoard {
     /**
      * The training's own timeline (owner, 1.1.521), over the figures: the whole time of the training or procedure as
      * one bar — the part done filled in the theme colour with a glowing head, a mark per minute (longer every five,
-     * numbered under the bar) — the time so far big on the right, of the whole time; the mode and the state
-     * (training / pause / ready) on the left. Done + left = the whole: a mode change or ⚙ moves the end with it.
+     * numbered under the bar) — the time so far big on the right (the only number that moves); the state on the
+     * left. The length is the procedure's set time, fixed (owner, 1.1.525): only ⚙ or another mode changes it.
      */
     static final class SessionBar extends View {
         private final Paint bar = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -2948,13 +2952,17 @@ public final class FocusBoard {
             setContentDescription(AiText.t("Времето на тренировката", "The training's time"));
         }
 
-        void set(boolean run, int done, int left, String mode) {
-            if (run == this.run && done == this.done && left == this.left && mode.equals(this.mode)) {
+        private int full;
+
+        void set(boolean run, int done, int left, int full, String mode) {
+            if (run == this.run && done == this.done && left == this.left && full == this.full
+                    && mode.equals(this.mode)) {
                 return;
             }
             this.run = run;
             this.done = Math.max(0, done);
             this.left = Math.max(0, left);
+            this.full = Math.max(0, full);
             this.mode = mode;
             invalidate();
         }
@@ -2976,14 +2984,14 @@ public final class FocusBoard {
             float pad = XemsUi.dp(cx, 12);
             float th = XemsUi.dp(cx, 10);
             float y = h - th - XemsUi.dp(cx, 18);
-            int total = done + left;
-            float p = total > 0 ? Math.min(1f, done / (float) total) : 0f;
-            boolean paused = !run && done > 0 && left > 0;
+            int total = full;                               // fixed: the procedure's set length
+            float p = total > 0 ? Math.max(0f, Math.min(1f, (total - left) / (float) total)) : 0f;
+            boolean paused = !run && left > 0 && left < total;
             int col = run ? XemsUi.ACCENT : paused ? XemsUi.mix(XemsUi.ACCENT, XemsUi.MUTED, 0.45f) : XemsUi.MUTED;
 
             // left: the state as a pill (● training / ❚❚ pause / ready / done) — the mode is on its key up top
             String state = run ? AiText.t("АКТИВЕН", "ACTIVE") : paused ? AiText.t("ПАУЗА", "PAUSED")
-                    : done > 0 && left == 0 ? AiText.t("КРАЙ", "DONE") : AiText.t("ГОТОВ", "READY");
+                    : total > 0 && left == 0 ? AiText.t("КРАЙ", "DONE") : AiText.t("ГОТОВ", "READY");
             int sc = run ? XemsUi.ACCENT : XemsUi.MUTED;
             small.setTextAlign(Paint.Align.LEFT);
             float sw = small.measureText(state) + XemsUi.dp(cx, 30);
@@ -3012,14 +3020,7 @@ public final class FocusBoard {
             big.setColor(run ? XemsUi.TEXT : XemsUi.mix(XemsUi.TEXT, XemsUi.MUTED, 0.4f));
             float by = y - XemsUi.dp(cx, 14);
             String t = mmss(done);
-            c.drawText(t, w - pad, by, big);
-            if (total > 0) {
-                num.setTextAlign(Paint.Align.RIGHT);
-                num.setTextSize(XemsUi.sp(cx, 13));
-                num.setColor(XemsUi.MUTED);
-                c.drawText(AiText.t("от ", "of ") + mmss(total), w - pad - big.measureText(t) - XemsUi.dp(cx, 10),
-                        by - XemsUi.dp(cx, 3), num);
-            }
+            c.drawText(t, w - pad, by, big);                 // only the time so far moves; the length is the bar
 
             // the bar: track, the part done (gradient), a mark per minute, numbered every 5 (′), 0 and the end
             float bw = w - 2 * pad;

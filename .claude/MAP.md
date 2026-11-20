@@ -268,7 +268,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `ExerciseFigure.java` (308L, compile:music-sync*,wearable) — An exercise figure that moves with the impulse: the frames of the exercise (assets/xems/exercises.json, from branding/e…
 - `ExerciseLibrary.java` (388L, compile:music-sync*,wearable) — The exercise library on the tablet: all 302 exercises (assets/xems/library.json — names, steps, muscles, position, cost…
 - `FloatCard.java` (255L, compile:music-sync*,wearable) — A floating card (the exercise card of Auto and of a map run) the trainer moves and sizes with the fingers: one finger d…
-- `FocusBoard.java` (3193L, compile:music-sync*,wearable) — Training screen, focus layout (owner, 1.1.412 — the BodyTech mock-ups): one client fills the place of the rows.
+- `FocusBoard.java` (3194L, compile:music-sync*,wearable) — Training screen, focus layout (owner, 1.1.412 — the BodyTech mock-ups): one client fills the place of the rows.
 - `ImpulseGlyph.java` (132L, compile:music-sync*,wearable) — The impulse symbols, drawn as vector paths (no font glyphs, crisp at any size): frequency = a sharp wave, time = a cloc…
 - `ImpulseMapView.java` (579L, compile:music-sync*,wearable) — The impulse map as a line: blocks side by side, width = time, colour = frequency (blue low → cyan → green → amber → mag…
 - `MapClock.java` (128L, compile:music-sync*,wearable) — Where a map run is (pure Java, for MapRunner and scripts/ai-sim/MapSim.java): impulse blocks advance by counted impulse…
@@ -1108,7 +1108,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L319 ## 13. Open
   - L325 ## Sources
 
-`docs/xems-focus-board.md` (165L)
+`docs/xems-focus-board.md` (168L)
   - L1 # Training screen — focus layout (1.1.412)
   - L7 ## Layout
   - L24 ## Rules
@@ -1117,9 +1117,9 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L57 ## 1.1.419 — upright (button)
   - L72 ## 1.1.423 — board and rows in step, remove from the board
   - L81 ## 1.1.440 — chip slide past Интензитет 1, massage from the left mode
-  - L138 ## 1.1.444 — chip slide: both impulses in proportion, back down, yellow to 100
-  - L149 ## 1.1.445 — ring ± with muscles marked: same as the chip slide
-  - L156 ## 1.1.449 — every muscle marked from a 0 start, the suit's link on the board
+  - L141 ## 1.1.444 — chip slide: both impulses in proportion, back down, yellow to 100
+  - L152 ## 1.1.445 — ring ± with muscles marked: same as the chip slide
+  - L159 ## 1.1.449 — every muscle marked from a 0 start, the suit's link on the board
 
 `docs/xems-license-api.md` (209L)
   - L1 # XEMS — лиценз, отключване на модули и обновяване (клиент v1.1.85)

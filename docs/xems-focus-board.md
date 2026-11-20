@@ -99,6 +99,9 @@ Idea: the BodyTech mock-ups (landscape) — one client fills the place of the ro
   manual mode the clock now starts the new mode's own full time (`ProgramLive.stageClock`): Основен with 2:00 left
   → Масаж runs the massage's whole time, not the 2:00 left. The report's plan drops the old mode's unused time and
   adds the new one (`ProgramLive.takeStage` → `SessionRecorder`). AI / Auto keep one clock across their modes.
+- **1.1.525 — the length is fixed (owner):** no "от 20:00"; the bar's length is the procedure's set time
+  (`ProgramDataBean.workLength`, only ⚙ or another mode changes it) and fills by its own clock (set − left). It was
+  done + left, which wobbled 14:59 / 15:00 as the two clocks round apart. Only the big time so far moves.
 - **1.1.523 — who the keys act on; pause colour; „АКТИВЕН“ (owner):** with more clients on the board ▶ / ❚❚ / ■ act
   on the picked ones — the master panel's rule (`XemsLocalAvatar` picks, shared with the rows' photos): a client's
   chip focuses it **and** picks it alone; „Всички“ (first in the client row, lit while active) = nobody picked = all

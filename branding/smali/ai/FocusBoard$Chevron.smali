@@ -25,10 +25,10 @@
     .registers 4
 
     .prologue
-    .line 2883
+    .line 2929
     invoke-direct {p0}, Landroid/graphics/drawable/Drawable;-><init>()V
 
-    .line 2880
+    .line 2926
     new-instance v0, Landroid/graphics/Paint;
 
     const/4 v1, 0x1
@@ -37,40 +37,40 @@
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Chevron;->pen:Landroid/graphics/Paint;
 
-    .line 2881
+    .line 2927
     new-instance v0, Landroid/graphics/Path;
 
     invoke-direct {v0}, Landroid/graphics/Path;-><init>()V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Chevron;->path:Landroid/graphics/Path;
 
-    .line 2884
+    .line 2930
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Chevron;->pen:Landroid/graphics/Paint;
 
     invoke-virtual {v0, p1}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 2885
+    .line 2931
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Chevron;->pen:Landroid/graphics/Paint;
 
     sget-object v1, Landroid/graphics/Paint$Style;->STROKE:Landroid/graphics/Paint$Style;
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setStyle(Landroid/graphics/Paint$Style;)V
 
-    .line 2886
+    .line 2932
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Chevron;->pen:Landroid/graphics/Paint;
 
     sget-object v1, Landroid/graphics/Paint$Cap;->ROUND:Landroid/graphics/Paint$Cap;
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setStrokeCap(Landroid/graphics/Paint$Cap;)V
 
-    .line 2887
+    .line 2933
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Chevron;->pen:Landroid/graphics/Paint;
 
     sget-object v1, Landroid/graphics/Paint$Join;->ROUND:Landroid/graphics/Paint$Join;
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setStrokeJoin(Landroid/graphics/Paint$Join;)V
 
-    .line 2888
+    .line 2934
     return-void
 .end method
 
@@ -82,26 +82,26 @@
     .prologue
     const v7, 0x3ec28f5c    # 0.38f
 
-    .line 2892
+    .line 2938
     invoke-virtual {p0}, Lcom/isaigu/gymapp/ai/FocusBoard$Chevron;->getBounds()Landroid/graphics/Rect;
 
     move-result-object v0
 
-    .line 2893
+    .line 2939
     invoke-virtual {v0}, Landroid/graphics/Rect;->width()I
 
     move-result v1
 
     int-to-float v1, v1
 
-    .line 2894
+    .line 2940
     invoke-virtual {v0}, Landroid/graphics/Rect;->height()I
 
     move-result v2
 
     int-to-float v2, v2
 
-    .line 2895
+    .line 2941
     iget-object v3, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Chevron;->pen:Landroid/graphics/Paint;
 
     const/high16 v4, 0x40000000    # 2.0f
@@ -116,12 +116,12 @@
 
     invoke-virtual {v3, v4}, Landroid/graphics/Paint;->setStrokeWidth(F)V
 
-    .line 2896
+    .line 2942
     iget-object v3, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Chevron;->path:Landroid/graphics/Path;
 
     invoke-virtual {v3}, Landroid/graphics/Path;->reset()V
 
-    .line 2897
+    .line 2943
     iget-object v3, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Chevron;->path:Landroid/graphics/Path;
 
     iget v4, v0, Landroid/graphics/Rect;->left:I
@@ -144,7 +144,7 @@
 
     invoke-virtual {v3, v4, v5}, Landroid/graphics/Path;->moveTo(FF)V
 
-    .line 2898
+    .line 2944
     iget-object v3, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Chevron;->path:Landroid/graphics/Path;
 
     iget v4, v0, Landroid/graphics/Rect;->left:I
@@ -169,7 +169,7 @@
 
     invoke-virtual {v3, v4, v5}, Landroid/graphics/Path;->lineTo(FF)V
 
-    .line 2899
+    .line 2945
     iget-object v3, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Chevron;->path:Landroid/graphics/Path;
 
     iget v4, v0, Landroid/graphics/Rect;->left:I
@@ -192,14 +192,14 @@
 
     invoke-virtual {v3, v1, v0}, Landroid/graphics/Path;->lineTo(FF)V
 
-    .line 2900
+    .line 2946
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Chevron;->path:Landroid/graphics/Path;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Chevron;->pen:Landroid/graphics/Paint;
 
     invoke-virtual {p1, v0, v1}, Landroid/graphics/Canvas;->drawPath(Landroid/graphics/Path;Landroid/graphics/Paint;)V
 
-    .line 2901
+    .line 2947
     return-void
 .end method
 
@@ -207,7 +207,7 @@
     .registers 2
 
     .prologue
-    .line 2915
+    .line 2961
     const/4 v0, -0x3
 
     return v0
@@ -217,12 +217,12 @@
     .registers 3
 
     .prologue
-    .line 2905
+    .line 2951
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Chevron;->pen:Landroid/graphics/Paint;
 
     invoke-virtual {v0, p1}, Landroid/graphics/Paint;->setAlpha(I)V
 
-    .line 2906
+    .line 2952
     return-void
 .end method
 
@@ -230,11 +230,11 @@
     .registers 3
 
     .prologue
-    .line 2910
+    .line 2956
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Chevron;->pen:Landroid/graphics/Paint;
 
     invoke-virtual {v0, p1}, Landroid/graphics/Paint;->setColorFilter(Landroid/graphics/ColorFilter;)Landroid/graphics/ColorFilter;
 
-    .line 2911
+    .line 2957
     return-void
 .end method

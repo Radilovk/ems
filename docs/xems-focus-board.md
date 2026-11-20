@@ -99,6 +99,13 @@ Idea: the BodyTech mock-ups (landscape) — one client fills the place of the ro
   manual mode the clock now starts the new mode's own full time (`ProgramLive.stageClock`): Основен with 2:00 left
   → Масаж runs the massage's whole time, not the 2:00 left. The report's plan drops the old mode's unused time and
   adds the new one (`ProgramLive.takeStage` → `SessionRecorder`). AI / Auto keep one clock across their modes.
+- **1.1.522 — on the real screen (owner's screenshots):** the training bar fits the narrow middle column: a state
+  pill (● ТРЕНИРОВКА / ❚❚ ПАУЗА / ГОТОВ / КРАЙ) on the left — the mode is on its key up top — the time so far 28 sp
+  on the right with "от 20:00" beside it, a 10 dp bar, minutes 0′ … 20′. ❚❚ (here and on the main panel) is in the
+  theme colour: amber means impulse 2. With one client on the board the main panel's ■ and ▶ / ❚❚ hide
+  (`FocusBoard.soloShowing` → `XemsPanel.refresh`; Auto keeps them) — + / − take the height. Muscle chips: the
+  number first (22 sp, the name muted above it, 5 dp bar). Impulse cards: title centred, values 28 / 21 sp. Light
+  theme: a marked chip, the mode key and its chosen row are solid accent, so their text is on-accent (white).
 - **1.1.521 — mode menu, clock, training timeline (owner):** the four mode tabs became one key (`modeKey`: dot,
   the mode's name, ▾) that opens a non-focusable menu of the four modes (name, what it is for, its minutes, ✓ on the
   one on; `ModePick` presses the row's own mode button). The top bar shows the time of day. Over the figures the

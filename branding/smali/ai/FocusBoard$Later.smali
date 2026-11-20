@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 1460
+    .line 1476
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,9 +34,9 @@
     .registers 1
 
     .prologue
-    .line 1463
+    .line 1479
     invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->refresh()V
 
-    .line 1464
+    .line 1480
     return-void
 .end method

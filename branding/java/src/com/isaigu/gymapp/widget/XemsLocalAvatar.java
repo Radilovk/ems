@@ -446,6 +446,18 @@ public final class XemsLocalAvatar {
         return id != null && clientId(it) == id.longValue();
     }
 
+    /**
+     * The focus board (ai/FocusBoard, by name — another compile unit): only this client picked; null = nobody, so the
+     * master keys act on everyone (owner, 1.1.523).
+     */
+    public static synchronized void pickOnly(com.isaigu.gymapp.train.model.TrainItem it) {
+        PICKED.clear();
+        long id = clientId(it);
+        if (it != null && id != Long.MIN_VALUE) {
+            PICKED.put(it, id);
+        }
+    }
+
     /** Tap on a photo: pick / unpick that client. Returns the new state. */
     static synchronized boolean togglePick(com.isaigu.gymapp.train.model.TrainItem it) {
         if (picked(it)) {

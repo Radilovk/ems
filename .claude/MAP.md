@@ -268,7 +268,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `ExerciseFigure.java` (308L, compile:music-sync*,wearable) — An exercise figure that moves with the impulse: the frames of the exercise (assets/xems/exercises.json, from branding/e…
 - `ExerciseLibrary.java` (388L, compile:music-sync*,wearable) — The exercise library on the tablet: all 302 exercises (assets/xems/library.json — names, steps, muscles, position, cost…
 - `FloatCard.java` (255L, compile:music-sync*,wearable) — A floating card (the exercise card of Auto and of a map run) the trainer moves and sizes with the fingers: one finger d…
-- `FocusBoard.java` (3042L, compile:music-sync*,wearable) — Training screen, focus layout (owner, 1.1.412 — the BodyTech mock-ups): one client fills the place of the rows.
+- `FocusBoard.java` (3193L, compile:music-sync*,wearable) — Training screen, focus layout (owner, 1.1.412 — the BodyTech mock-ups): one client fills the place of the rows.
 - `ImpulseGlyph.java` (132L, compile:music-sync*,wearable) — The impulse symbols, drawn as vector paths (no font glyphs, crisp at any size): frequency = a sharp wave, time = a cloc…
 - `ImpulseMapView.java` (579L, compile:music-sync*,wearable) — The impulse map as a line: blocks side by side, width = time, colour = frequency (blue low → cyan → green → amber → mag…
 - `MapClock.java` (128L, compile:music-sync*,wearable) — Where a map run is (pure Java, for MapRunner and scripts/ai-sim/MapSim.java): impulse blocks advance by counted impulse…
@@ -510,16 +510,16 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `XemsLicenseSection.java` (391L, compile:music-sync*) — Settings → "Access & license": what is unlocked, the user key, this device's id (for support / the server) and the upda…
 - `XemsLicenseToken.java` (319L, compile:music-sync,xems-license) — License token issued by the XEMS license server (no Android classes: unit-testable).
 - `XemsLocalApi.java` (223L, compile:xems-local) — The tablet as the app's backend: ApiMgr's calls for customers, programs and training history land here; nothing goes to…
-- `XemsLocalAvatar.java` (1072L, compile:xems-local) — Client photo: picked from the gallery, cropped square, 320 px JPEG in the app's files (files/avatars).
+- `XemsLocalAvatar.java` (1084L, compile:xems-local) — Client photo: picked from the gallery, cropped square, 320 px JPEG in the app's files (files/avatars).
 - `XemsLocalGate.java` (220L, compile:xems-local) — Hidden doors of the tablet build.
 - `XemsLocalSection.java` (354L, compile:xems-local) — Settings card "Tablet and data": the mode (admin setup / user), the profile key, the suits, the arms channel (reduced /…
 - `XemsLocalStore.java` (1218L, compile:xems-local) — Local-only data layer: users, programs, training history and suits stay on the tablet.
 - `XemsLocalUserForm.java` (982L, compile:xems-local) — New / edit client form — one screen, mostly taps: name, sex, age / height / weight wheels, phone; goal, fitness and con…
 - `XemsModuleInfo.java` (488L, compile:music-sync*) — The "i" of every XEMS module: what it is, what it gives (value first), how to work with it.
 - `XemsNav.java` (1552L, compile:music-sync*) — Main navigation (v1.1.64).
-- `XemsPanel.java` (393L, compile:music-sync*) — The right control panel, redrawn: ■ Stop — square, top ▶ Start / ❚❚ — tall + — tall − — tall ⚙ Master — square, bottom …
+- `XemsPanel.java` (394L, compile:music-sync*) — The right control panel, redrawn: ■ Stop — square, top ▶ Start / ❚❚ — tall + — tall − — tall ⚙ Master — square, bottom …
 - `XemsSearch.java` (225L, compile:music-sync*,xems-local) — Client-list search (Потребители tab, the training picker).
-- `XemsUi.java` (889L, compile:music-sync*) — XEMS UI kit — one look for every module (interval timer, player, HR, AI).
+- `XemsUi.java` (892L, compile:music-sync*) — XEMS UI kit — one look for every module (interval timer, player, HR, AI).
 
 ## band-app (Xiaomi Vela quick app, Band 10)
 - `band-app/src/app.ux` (465L) — 
@@ -1108,7 +1108,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L319 ## 13. Open
   - L325 ## Sources
 
-`docs/xems-focus-board.md` (159L)
+`docs/xems-focus-board.md` (166L)
   - L1 # Training screen — focus layout (1.1.412)
   - L7 ## Layout
   - L24 ## Rules
@@ -1117,9 +1117,9 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L57 ## 1.1.419 — upright (button)
   - L72 ## 1.1.423 — board and rows in step, remove from the board
   - L81 ## 1.1.440 — chip slide past Интензитет 1, massage from the left mode
-  - L132 ## 1.1.444 — chip slide: both impulses in proportion, back down, yellow to 100
-  - L143 ## 1.1.445 — ring ± with muscles marked: same as the chip slide
-  - L150 ## 1.1.449 — every muscle marked from a 0 start, the suit's link on the board
+  - L139 ## 1.1.444 — chip slide: both impulses in proportion, back down, yellow to 100
+  - L150 ## 1.1.445 — ring ± with muscles marked: same as the chip slide
+  - L157 ## 1.1.449 — every muscle marked from a 0 start, the suit's link on the board
 
 `docs/xems-license-api.md` (209L)
   - L1 # XEMS — лиценз, отключване на модули и обновяване (клиент v1.1.85)

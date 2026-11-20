@@ -59,35 +59,35 @@
 
     const/4 v1, 0x0
 
-    .line 2245
+    .line 2396
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 2233
+    .line 2384
     const-string v0, ""
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Chip;->shown:Ljava/lang/String;
 
-    .line 2239
+    .line 2390
     iput v7, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Chip;->dragValue:I
 
-    .line 2241
+    .line 2392
     sget v0, Lcom/isaigu/gymapp/widget/XemsUi;->ACCENT:I
 
     iput v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Chip;->tint:I
 
-    .line 2243
+    .line 2394
     const/16 v0, 0x64
 
     iput v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Chip;->cap:I
 
-    .line 2246
+    .line 2397
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsUi;->horizontal(Landroid/content/Context;)Landroid/widget/LinearLayout;
 
     move-result-object v0
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Chip;->view:Landroid/widget/LinearLayout;
 
-    .line 2247
+    .line 2398
     iget-object v2, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Chip;->view:Landroid/widget/LinearLayout;
 
     if-eqz p3, :cond_14f
@@ -112,23 +112,23 @@
 
     move-result v0
 
-    .line 2248
+    .line 2399
     invoke-static {p1, v5}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
 
     move-result v5
 
-    .line 2247
+    .line 2398
     invoke-virtual {v2, v3, v4, v0, v5}, Landroid/widget/LinearLayout;->setPadding(IIII)V
 
-    .line 2249
+    .line 2400
     iput p2, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Chip;->k:I
 
-    .line 2250
+    .line 2401
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Chip;->view:Landroid/widget/LinearLayout;
 
     invoke-virtual {v0, v8}, Landroid/widget/LinearLayout;->setClickable(Z)V
 
-    .line 2251
+    .line 2402
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Chip;->view:Landroid/widget/LinearLayout;
 
     new-instance v2, Lcom/isaigu/gymapp/ai/FocusBoard$ChipTouch;
@@ -137,7 +137,7 @@
 
     invoke-virtual {v0, v2}, Landroid/widget/LinearLayout;->setOnTouchListener(Landroid/view/View$OnTouchListener;)V
 
-    .line 2252
+    .line 2403
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Chip;->view:Landroid/widget/LinearLayout;
 
     new-instance v2, Lcom/isaigu/gymapp/ai/FocusBoard$ChipClick;
@@ -146,25 +146,25 @@
 
     invoke-virtual {v0, v2}, Landroid/widget/LinearLayout;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
-    .line 2254
+    .line 2405
     new-instance v2, Landroid/widget/FrameLayout;
 
     invoke-direct {v2, p1}, Landroid/widget/FrameLayout;-><init>(Landroid/content/Context;)V
 
-    .line 2255
+    .line 2406
     new-instance v0, Landroid/graphics/drawable/GradientDrawable;
 
     invoke-direct {v0}, Landroid/graphics/drawable/GradientDrawable;-><init>()V
 
-    .line 2256
+    .line 2407
     invoke-virtual {v0, v8}, Landroid/graphics/drawable/GradientDrawable;->setShape(I)V
 
-    .line 2257
+    .line 2408
     sget v3, Lcom/isaigu/gymapp/widget/XemsUi;->SURFACE:I
 
     invoke-virtual {v0, v3}, Landroid/graphics/drawable/GradientDrawable;->setColor(I)V
 
-    .line 2258
+    .line 2409
     invoke-static {p1, v9}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
 
     move-result v3
@@ -181,53 +181,53 @@
 
     invoke-virtual {v0, v3, v4}, Landroid/graphics/drawable/GradientDrawable;->setStroke(II)V
 
-    .line 2259
+    .line 2410
     invoke-virtual {v2, v0}, Landroid/widget/FrameLayout;->setBackgroundDrawable(Landroid/graphics/drawable/Drawable;)V
 
-    .line 2260
+    .line 2411
     if-eqz p3, :cond_157
 
     move v0, v1
 
-    .line 2261
+    .line 2412
     :goto_80
     if-eqz v0, :cond_a0
 
-    .line 2262
+    .line 2413
     new-instance v3, Landroid/widget/ImageView;
 
     invoke-direct {v3, p1}, Landroid/widget/ImageView;-><init>(Landroid/content/Context;)V
 
-    .line 2263
+    .line 2414
     invoke-virtual {v3, v0}, Landroid/widget/ImageView;->setImageResource(I)V
 
-    .line 2264
+    .line 2415
     sget-object v0, Landroid/widget/ImageView$ScaleType;->FIT_CENTER:Landroid/widget/ImageView$ScaleType;
 
     invoke-virtual {v3, v0}, Landroid/widget/ImageView;->setScaleType(Landroid/widget/ImageView$ScaleType;)V
 
-    .line 2265
+    .line 2416
     const/high16 v0, 0x40c00000    # 6.0f
 
     invoke-static {p1, v0}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
 
     move-result v0
 
-    .line 2266
+    .line 2417
     invoke-virtual {v3, v0, v0, v0, v0}, Landroid/widget/ImageView;->setPadding(IIII)V
 
-    .line 2267
+    .line 2418
     new-instance v0, Landroid/widget/FrameLayout$LayoutParams;
 
     invoke-direct {v0, v7, v7}, Landroid/widget/FrameLayout$LayoutParams;-><init>(II)V
 
     invoke-virtual {v2, v3, v0}, Landroid/widget/FrameLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 2270
+    .line 2421
     :cond_a0
     if-nez p3, :cond_b8
 
-    .line 2271
+    .line 2422
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Chip;->view:Landroid/widget/LinearLayout;
 
     new-instance v3, Landroid/widget/LinearLayout$LayoutParams;
@@ -248,13 +248,13 @@
 
     invoke-virtual {v0, v2, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 2274
+    .line 2425
     :cond_b8
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsUi;->vertical(Landroid/content/Context;)Landroid/widget/LinearLayout;
 
     move-result-object v2
 
-    .line 2275
+    .line 2426
     if-eqz p3, :cond_16d
 
     const/4 v0, 0x0
@@ -266,7 +266,7 @@
 
     invoke-virtual {v2, v0, v1, v1, v1}, Landroid/widget/LinearLayout;->setPadding(IIII)V
 
-    .line 2276
+    .line 2427
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoUi;->zoneNames()[Ljava/lang/String;
 
     move-result-object v0
@@ -286,17 +286,17 @@
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Chip;->name:Landroid/widget/TextView;
 
-    .line 2277
+    .line 2428
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Chip;->name:Landroid/widget/TextView;
 
     invoke-virtual {v0, v8}, Landroid/widget/TextView;->setSingleLine(Z)V
 
-    .line 2278
+    .line 2429
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Chip;->name:Landroid/widget/TextView;
 
     invoke-virtual {v2, v0}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
-    .line 2279
+    .line 2430
     const-string v3, ""
 
     if-eqz p3, :cond_175
@@ -312,7 +312,7 @@
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Chip;->value:Landroid/widget/TextView;
 
-    .line 2280
+    .line 2431
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Chip;->value:Landroid/widget/TextView;
 
     const/high16 v3, 0x40a00000    # 5.0f
@@ -323,17 +323,17 @@
 
     invoke-virtual {v0, v1, v1, v1, v3}, Landroid/widget/TextView;->setPadding(IIII)V
 
-    .line 2281
+    .line 2432
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Chip;->value:Landroid/widget/TextView;
 
     invoke-virtual {v2, v0}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
-    .line 2282
+    .line 2433
     new-instance v0, Landroid/widget/FrameLayout;
 
     invoke-direct {v0, p1}, Landroid/widget/FrameLayout;-><init>(Landroid/content/Context;)V
 
-    .line 2283
+    .line 2434
     sget v3, Lcom/isaigu/gymapp/widget/XemsUi;->STROKE:I
 
     const/16 v4, 0xaa
@@ -356,17 +356,17 @@
 
     invoke-virtual {v0, v3}, Landroid/widget/FrameLayout;->setBackgroundDrawable(Landroid/graphics/drawable/Drawable;)V
 
-    .line 2284
+    .line 2435
     new-instance v3, Landroid/view/View;
 
     invoke-direct {v3, p1}, Landroid/view/View;-><init>(Landroid/content/Context;)V
 
     iput-object v3, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Chip;->barFill:Landroid/view/View;
 
-    .line 2285
+    .line 2436
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Chip;->bar:Landroid/view/View;
 
-    .line 2286
+    .line 2437
     iget-object v3, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Chip;->barFill:Landroid/view/View;
 
     new-instance v4, Landroid/widget/FrameLayout$LayoutParams;
@@ -375,7 +375,7 @@
 
     invoke-virtual {v0, v3, v4}, Landroid/widget/FrameLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 2287
+    .line 2438
     new-instance v3, Landroid/widget/LinearLayout$LayoutParams;
 
     const/high16 v4, 0x40a00000    # 5.0f
@@ -388,7 +388,7 @@
 
     invoke-virtual {v2, v0, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 2288
+    .line 2439
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Chip;->view:Landroid/widget/LinearLayout;
 
     new-instance v3, Landroid/widget/LinearLayout$LayoutParams;
@@ -399,17 +399,17 @@
 
     invoke-virtual {v0, v2, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 2289
+    .line 2440
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Chip;->view:Landroid/widget/LinearLayout;
 
     const/16 v1, 0x10
 
     invoke-virtual {v0, v1}, Landroid/widget/LinearLayout;->setGravity(I)V
 
-    .line 2290
+    .line 2441
     return-void
 
-    .line 2247
+    .line 2398
     :cond_14f
     const/high16 v0, 0x41000000    # 8.0f
 
@@ -420,14 +420,14 @@
 
     goto/16 :goto_30
 
-    .line 2260
+    .line 2411
     :cond_157
     invoke-virtual {p1}, Landroid/content/Context;->getResources()Landroid/content/res/Resources;
 
     move-result-object v0
 
     # getter for: Lcom/isaigu/gymapp/ai/FocusBoard;->ICONS:[Ljava/lang/String;
-    invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$3400()[Ljava/lang/String;
+    invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$3600()[Ljava/lang/String;
 
     move-result-object v3
 
@@ -445,19 +445,19 @@
 
     goto/16 :goto_80
 
-    .line 2275
+    .line 2426
     :cond_16d
     const/high16 v0, 0x41200000    # 10.0f
 
     goto/16 :goto_bf
 
-    .line 2276
+    .line 2427
     :cond_171
     const/high16 v0, 0x41580000    # 13.5f
 
     goto/16 :goto_d0
 
-    .line 2279
+    .line 2430
     :cond_175
     const/high16 v0, 0x41b00000    # 22.0f
 
@@ -478,20 +478,20 @@
 
     const/4 v4, 0x0
 
-    .line 2315
+    .line 2466
     iget v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Chip;->dragValue:I
 
     if-ltz v0, :cond_5f
 
     move v5, v3
 
-    .line 2316
+    .line 2467
     :goto_b
     if-eqz v5, :cond_61
 
     iget v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Chip;->dragValue:I
 
-    .line 2317
+    .line 2468
     :goto_f
     new-instance v1, Ljava/lang/StringBuilder;
 
@@ -563,7 +563,7 @@
 
     move-result-object v1
 
-    .line 2318
+    .line 2469
     iget-object v6, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Chip;->shown:Ljava/lang/String;
 
     invoke-virtual {v1, v6}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
@@ -572,7 +572,7 @@
 
     if-eqz v6, :cond_64
 
-    .line 2342
+    .line 2493
     :cond_5e
     :goto_5e
     return-void
@@ -580,27 +580,27 @@
     :cond_5f
     move v5, v4
 
-    .line 2315
+    .line 2466
     goto :goto_b
 
-    .line 2316
+    .line 2467
     :cond_61
     iget v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Chip;->level:I
 
     goto :goto_f
 
-    .line 2321
+    .line 2472
     :cond_64
     iput-object v1, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Chip;->shown:Ljava/lang/String;
 
-    .line 2322
+    .line 2473
     iget-object v1, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Chip;->view:Landroid/widget/LinearLayout;
 
     invoke-virtual {v1}, Landroid/widget/LinearLayout;->getContext()Landroid/content/Context;
 
     move-result-object v6
 
-    .line 2323
+    .line 2474
     const/high16 v1, 0x41600000    # 14.0f
 
     invoke-static {v6, v1}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
@@ -609,10 +609,10 @@
 
     int-to-float v7, v1
 
-    .line 2324
+    .line 2475
     iget v1, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Chip;->tint:I
 
-    .line 2325
+    .line 2476
     iget-object v8, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Chip;->view:Landroid/widget/LinearLayout;
 
     iget-boolean v9, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Chip;->sel:Z
@@ -626,18 +626,18 @@
 
     move-result-object v1
 
-    .line 2326
+    .line 2477
     :goto_81
     sget v9, Lcom/isaigu/gymapp/widget/XemsUi;->TEXT:I
 
-    .line 2325
+    .line 2476
     invoke-static {v1, v9, v7}, Lcom/isaigu/gymapp/widget/XemsUi;->ripple(Landroid/graphics/drawable/Drawable;IF)Landroid/graphics/drawable/Drawable;
 
     move-result-object v1
 
     invoke-virtual {v8, v1}, Landroid/widget/LinearLayout;->setBackgroundDrawable(Landroid/graphics/drawable/Drawable;)V
 
-    .line 2328
+    .line 2479
     iget-object v7, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Chip;->view:Landroid/widget/LinearLayout;
 
     iget-boolean v1, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Chip;->off:Z
@@ -649,7 +649,7 @@
     :goto_93
     invoke-virtual {v7, v1}, Landroid/widget/LinearLayout;->setAlpha(F)V
 
-    .line 2329
+    .line 2480
     iget-object v2, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Chip;->value:Landroid/widget/TextView;
 
     iget-boolean v1, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Chip;->off:Z
@@ -667,7 +667,7 @@
     :goto_a4
     invoke-virtual {v2, v1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 2331
+    .line 2482
     iget-boolean v1, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Chip;->sel:Z
 
     if-nez v1, :cond_ad
@@ -681,7 +681,7 @@
 
     move v1, v3
 
-    .line 2332
+    .line 2483
     :goto_b2
     iget-object v3, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Chip;->value:Landroid/widget/TextView;
 
@@ -692,7 +692,7 @@
     :goto_b8
     invoke-virtual {v3, v2}, Landroid/widget/TextView;->setTextColor(I)V
 
-    .line 2333
+    .line 2484
     iget-object v3, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Chip;->name:Landroid/widget/TextView;
 
     if-eqz v1, :cond_13d
@@ -702,7 +702,7 @@
     :goto_c1
     invoke-virtual {v3, v2}, Landroid/widget/TextView;->setTextColor(I)V
 
-    .line 2334
+    .line 2485
     iget-object v2, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Chip;->barFill:Landroid/view/View;
 
     if-eqz v1, :cond_140
@@ -724,21 +724,21 @@
 
     invoke-virtual {v2, v1}, Landroid/view/View;->setBackgroundDrawable(Landroid/graphics/drawable/Drawable;)V
 
-    .line 2335
+    .line 2486
     iget-object v1, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Chip;->bar:Landroid/view/View;
 
     invoke-virtual {v1}, Landroid/view/View;->getWidth()I
 
     move-result v1
 
-    .line 2336
+    .line 2487
     iget-object v2, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Chip;->barFill:Landroid/view/View;
 
     invoke-virtual {v2}, Landroid/view/View;->getLayoutParams()Landroid/view/ViewGroup$LayoutParams;
 
     move-result-object v2
 
-    .line 2337
+    .line 2488
     if-lez v1, :cond_f9
 
     const/16 v3, 0x64
@@ -766,22 +766,22 @@
     :cond_f9
     iput v4, v2, Landroid/view/ViewGroup$LayoutParams;->width:I
 
-    .line 2338
+    .line 2489
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Chip;->barFill:Landroid/view/View;
 
     invoke-virtual {v0, v2}, Landroid/view/View;->setLayoutParams(Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 2339
+    .line 2490
     if-gtz v1, :cond_5e
 
-    .line 2340
+    .line 2491
     const-string v0, ""
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Chip;->shown:Ljava/lang/String;
 
     goto/16 :goto_5e
 
-    .line 2326
+    .line 2477
     :cond_108
     sget v1, Lcom/isaigu/gymapp/widget/XemsUi;->SURFACE:I
 
@@ -795,12 +795,12 @@
 
     move-result v9
 
-    .line 2327
+    .line 2478
     invoke-static {v6, v2}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
 
     move-result v10
 
-    .line 2326
+    .line 2477
     invoke-static {v1, v7, v9, v10}, Lcom/isaigu/gymapp/widget/XemsUi;->rounded(IFII)Landroid/graphics/drawable/GradientDrawable;
 
     move-result-object v1
@@ -810,10 +810,10 @@
     :cond_11e
     move v1, v2
 
-    .line 2328
+    .line 2479
     goto/16 :goto_93
 
-    .line 2329
+    .line 2480
     :cond_121
     new-instance v1, Ljava/lang/StringBuilder;
 
@@ -838,22 +838,22 @@
     :cond_136
     move v1, v4
 
-    .line 2331
+    .line 2482
     goto/16 :goto_b2
 
-    .line 2332
+    .line 2483
     :cond_139
     iget v2, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Chip;->tint:I
 
     goto/16 :goto_b8
 
-    .line 2333
+    .line 2484
     :cond_13d
     sget v2, Lcom/isaigu/gymapp/widget/XemsUi;->MUTED:I
 
     goto :goto_c1
 
-    .line 2334
+    .line 2485
     :cond_140
     iget v1, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Chip;->tint:I
 
@@ -864,30 +864,30 @@
     .registers 7
 
     .prologue
-    .line 2305
+    .line 2456
     iput p1, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Chip;->level:I
 
-    .line 2306
+    .line 2457
     iput p2, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Chip;->tint:I
 
-    .line 2307
+    .line 2458
     iput-boolean p3, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Chip;->sel:Z
 
-    .line 2308
+    .line 2459
     iput-boolean p4, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Chip;->yellow:Z
 
-    .line 2309
+    .line 2460
     iput-boolean p5, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Chip;->off:Z
 
-    .line 2310
+    .line 2461
     const/16 v0, 0x64
 
     iput v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Chip;->cap:I
 
-    .line 2311
+    .line 2462
     invoke-virtual {p0}, Lcom/isaigu/gymapp/ai/FocusBoard$Chip;->repaint()V
 
-    .line 2312
+    .line 2463
     return-void
 .end method
 
@@ -895,12 +895,12 @@
     .registers 5
 
     .prologue
-    .line 2294
+    .line 2445
     if-eqz p1, :cond_28
 
     const/4 v0, 0x0
 
-    .line 2295
+    .line 2446
     :goto_3
     iget-object v1, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Chip;->view:Landroid/widget/LinearLayout;
 
@@ -910,16 +910,16 @@
 
     if-eq v1, v0, :cond_10
 
-    .line 2296
+    .line 2447
     iget-object v1, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Chip;->view:Landroid/widget/LinearLayout;
 
     invoke-virtual {v1, v0}, Landroid/widget/LinearLayout;->setVisibility(I)V
 
-    .line 2298
+    .line 2449
     :cond_10
     if-eqz p2, :cond_2b
 
-    .line 2299
+    .line 2450
     :goto_12
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Chip;->name:Landroid/widget/TextView;
 
@@ -937,22 +937,22 @@
 
     if-nez v0, :cond_27
 
-    .line 2300
+    .line 2451
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$Chip;->name:Landroid/widget/TextView;
 
     invoke-virtual {v0, p2}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 2302
+    .line 2453
     :cond_27
     return-void
 
-    .line 2294
+    .line 2445
     :cond_28
     const/16 v0, 0x8
 
     goto :goto_3
 
-    .line 2298
+    .line 2449
     :cond_2b
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoUi;->zoneNames()[Ljava/lang/String;
 

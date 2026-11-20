@@ -138,12 +138,119 @@ public final class FocusBoard {
 
     // ================================================================ attach
 
-    /** The board is up with one client: the main panel's ■ and ▶ / ❚❚ would repeat its own (XemsPanel hides them). */
-    public static boolean soloShowing() {
+    // ================================================================ who ▶ / ❚❚ / ■ act on (owner, 1.1.523)
+
+    private static java.lang.reflect.Method pickedOf;
+    private static java.lang.reflect.Method pickOnlyOf;
+
+    /** The client is picked for the master keys (widget/XemsLocalAvatar — another compile unit, by name). */
+    static boolean picked(TrainItem it) {
         try {
-            return isShowing() && clients().size() <= 1;
+            if (pickedOf == null) {
+                pickedOf = Class.forName("com.isaigu.gymapp.widget.XemsLocalAvatar").getMethod("picked", TrainItem.class);
+            }
+            return Boolean.TRUE.equals(pickedOf.invoke(null, it));
         } catch (Throwable t) {
             return false;
+        }
+    }
+
+    /** Only {@code it} picked (null = nobody: the keys act on everyone); the rows' photos follow. */
+    static void pickOnly(TrainItem it) {
+        try {
+            if (pickOnlyOf == null) {
+                pickOnlyOf = Class.forName("com.isaigu.gymapp.widget.XemsLocalAvatar")
+                        .getMethod("pickOnly", TrainItem.class);
+            }
+            pickOnlyOf.invoke(null, it);
+        } catch (Throwable t) {
+            XemsGuard.report("FocusBoard.pickOnly", t);
+        }
+        rowsChanged();
+    }
+
+    /**
+     * The clients ▶ / ❚❚ / ■ of the board act on: one client on the board → it; more → the ones picked (a client's
+     * chip picks it alone), none picked (or "Всички") → all of them — the master panel's own rule.
+     */
+    static List<TrainItem> targets() {
+        List<TrainItem> all = clients();
+        if (all.size() <= 1) {
+            return all;
+        }
+        List<TrainItem> out = new ArrayList<TrainItem>();
+        for (int i = 0; i < all.size(); i++) {
+            if (picked(all.get(i))) {
+                out.add(all.get(i));
+            }
+        }
+        return out.isEmpty() ? all : out;
+    }
+
+    /** More than one client and nobody picked: the keys act on all. */
+    static boolean allTargeted() {
+        List<TrainItem> all = clients();
+        return all.size() > 1 && targets().size() == all.size();
+    }
+
+    private static boolean anyRunning(List<TrainItem> list) {
+        for (int i = 0; i < list.size(); i++) {
+            if (running(list.get(i))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /** ▶ / ❚❚ of the board: one client → its row's key; more → the targets pause if one runs, else start. */
+    static final class StartClick implements View.OnClickListener {
+        @Override
+        public void onClick(View v) {
+            XemsUi.haptic(v);
+            List<TrainItem> all = clients();
+            if (all.size() <= 1 || com.isaigu.gymapp.ai.AutoSession.mainKeysOwned()) {
+                press("startpaulse");
+                return;
+            }
+            List<TrainItem> t = targets();
+            boolean run = anyRunning(t);
+            for (int i = 0; i < t.size(); i++) {
+                try {
+                    TrainItem it = t.get(i);
+                    if (run && running(it)) {
+                        it.stop();
+                    } else if (!run && !running(it)) {
+                        it.start();
+                    }
+                } catch (Throwable e) {
+                    XemsGuard.report("FocusBoard.start", e);
+                }
+            }
+            later();
+        }
+    }
+
+    /** ■ of the board: one client → its row's ■; more → the master ■ (the picked ones, or the end for all). */
+    static final class StopClick implements View.OnClickListener {
+        @Override
+        public void onClick(View v) {
+            XemsUi.haptic(v);
+            if (clients().size() <= 1 || !com.isaigu.gymapp.widget.XemsPanel.press(
+                    com.isaigu.gymapp.widget.XemsPanel.PRESS_STOP)) {
+                press("stop");
+            }
+            later();
+        }
+    }
+
+    /** "Всички": nobody picked — the keys act on every client on the board. */
+    static final class AllClick implements View.OnClickListener {
+        @Override
+        public void onClick(View v) {
+            XemsUi.haptic(v);
+            pickOnly(null);
+            clientsKey = "";
+            refresh();
         }
     }
 
@@ -1339,7 +1446,7 @@ public final class FocusBoard {
         startLabel.setPadding(XemsUi.dp(c, 10), 0, 0, 0);
         startKey.addView(startLabel);
         startKey.setClickable(true);
-        startKey.setOnClickListener(new PressRow("startpaulse"));
+        startKey.setOnClickListener(new StartClick());
         XemsUi.pressable(startKey);
         LinearLayout.LayoutParams slp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1.7f);
         slp.leftMargin = XemsUi.dp(c, 8);
@@ -1354,7 +1461,7 @@ public final class FocusBoard {
         si.setImageDrawable(new XemsIcon(XemsIcon.STOP, 0xFFFFFFFF));
         stop.addView(si, new FrameLayout.LayoutParams(XemsUi.dp(c, 26), XemsUi.dp(c, 26), Gravity.CENTER));
         stop.setClickable(true);
-        stop.setOnClickListener(new PressRow("stop"));
+        stop.setOnClickListener(new StopClick());
         stop.setContentDescription(AiText.t("Стоп", "Stop"));
         XemsUi.pressable(stop);
         LinearLayout.LayoutParams stl = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1f);
@@ -1624,17 +1731,31 @@ public final class FocusBoard {
                         XemsUi.TEXT, r));
                 waveKey.setAlpha(musc ? 0.35f : 1f);
             }
-            int st = run ? 1 : 0;
+            List<TrainItem> tg = targets();
+            boolean many = tg.size() > 1;
+            int st = (anyRunning(tg) ? 1 : 0) + (many ? 2 : 0);
             if (st != shownStart) {
                 shownStart = st;
-                int col = st == 1 ? XemsUi.ACCENT : XemsUi.GO;   // ❚❚ in the theme colour: amber is impulse 2 (1.1.522)
+                boolean on = (st & 1) == 1;
+                int col = on ? XemsUi.PAUSE : XemsUi.GO;   // ❚❚ its own colour: accent = impulse 1, amber = 2 (1.1.523)
                 GradientDrawable g = new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
                         new int[] {XemsUi.mix(col, 0xFFFFFFFF, 0.12f), XemsUi.mix(col, 0xFF000000, 0.22f)});
                 g.setCornerRadius(r);
                 g.setStroke(XemsUi.dp(c, 1), XemsUi.alpha(XemsUi.mix(col, 0xFFFFFFFF, 0.35f), 0xAA));
                 startKey.setBackgroundDrawable(XemsUi.ripple(g, 0xFFFFFFFF, r));
-                startIcon.setImageDrawable(new XemsIcon(st == 1 ? XemsIcon.PAUSE : XemsIcon.PLAY, 0xFFFFFFFF));
-                startLabel.setText(st == 1 ? AiText.t("Пауза", "Pause") : AiText.t("Старт", "Start"));
+                startIcon.setImageDrawable(new XemsIcon(on ? XemsIcon.PAUSE : XemsIcon.PLAY, 0xFFFFFFFF));
+                String word = on ? AiText.t("Пауза", "Pause") : AiText.t("Старт", "Start");
+                if (many) {
+                    // for everyone: a small second line says so
+                    String sub = AiText.t("за всички", "for all");
+                    android.text.SpannableString sp = new android.text.SpannableString(word + "\n" + sub);
+                    sp.setSpan(new android.text.style.RelativeSizeSpan(0.72f), word.length() + 1, sp.length(), 0);
+                    sp.setSpan(new android.text.style.ForegroundColorSpan(0xDDFFFFFF), word.length() + 1, sp.length(),
+                            0);
+                    startLabel.setText(sp);
+                } else {
+                    startLabel.setText(word);
+                }
             }
         } catch (Throwable t) {
             XemsGuard.report("FocusBoard.refresh", t);
@@ -1714,17 +1835,36 @@ public final class FocusBoard {
             TrainItem it = list.get(i);
             key.append(System.identityHashCode(it)).append(':').append(name(it)).append(':')
                     .append(it == cur).append(':').append(running(it)).append(':')
-                    .append(it.data != null && it.data.connected).append(';');
+                    .append(it.data != null && it.data.connected).append(':').append(picked(it)).append(';');
         }
+        boolean all = list.size() > 1 && allTargeted();
+        key.append(all);
         String k = key.toString();
         if (k.equals(clientsKey)) {
             return;
         }
         clientsKey = k;
         clientRow.removeAllViews();
+        if (list.size() > 1) {
+            // "Всички": the keys act on everyone (nobody picked) — lit while so
+            TextView a = XemsUi.text(c, AiText.t("Всички", "All"), 14, all ? XemsUi.dark ? XemsUi.TEXT
+                    : XemsUi.ON_ACCENT : XemsUi.MUTED, true);
+            a.setGravity(Gravity.CENTER);
+            a.setPadding(XemsUi.dp(c, 14), 0, XemsUi.dp(c, 14), 0);
+            float ar = XemsUi.dp(c, 21);
+            a.setBackgroundDrawable(XemsUi.ripple(all ? XemsUi.glow(c, XemsUi.ACCENT, ar)
+                    : XemsUi.rounded(XemsUi.SURFACE, ar, XemsUi.STROKE, XemsUi.dp(c, 1)), XemsUi.TEXT, ar));
+            a.setContentDescription(AiText.t("Бутоните за всички клиенти", "The keys for every client"));
+            a.setOnClickListener(new AllClick());
+            XemsUi.pressable(a);
+            LinearLayout.LayoutParams al = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+                    XemsUi.dp(c, 42));
+            al.rightMargin = XemsUi.dp(c, 6);
+            clientRow.addView(a, al);
+        }
         for (int i = 0; i < list.size(); i++) {
             TrainItem it = list.get(i);
-            clientRow.addView(clientChip(c, it, it == cur));
+            clientRow.addView(clientChip(c, it, it == cur, list.size() > 1 && !all && picked(it)));
         }
         TextView add = XemsUi.iconButton(c, "+", XemsUi.SURFACE, XemsUi.ACCENT, 40);
         add.setContentDescription(AiText.t("Добави клиент", "Add client"));
@@ -1734,16 +1874,23 @@ public final class FocusBoard {
         clientRow.addView(add, alp);
     }
 
-    private static View clientChip(Context c, TrainItem it, boolean sel) {
+    /**
+     * sel = on the board (its body and controls); lit = the keys act on it. One client: lit when on the board. More:
+     * lit when picked; on the board but not picked ("Всички") = an accent rim only.
+     */
+    private static View clientChip(Context c, TrainItem it, boolean sel, boolean picked) {
         LinearLayout chip = XemsUi.horizontal(c);
         chip.setPadding(XemsUi.dp(c, 5), XemsUi.dp(c, 4), XemsUi.dp(c, 14), XemsUi.dp(c, 4));
         float r = XemsUi.dp(c, 22);
-        chip.setBackgroundDrawable(XemsUi.ripple(sel ? XemsUi.glow(c, XemsUi.ACCENT, r)
-                : XemsUi.rounded(XemsUi.SURFACE, r, XemsUi.STROKE, XemsUi.dp(c, 1)), XemsUi.TEXT, r));
+        boolean lit = picked || sel && clients().size() <= 1;
+        chip.setBackgroundDrawable(XemsUi.ripple(lit ? XemsUi.glow(c, XemsUi.ACCENT, r)
+                : XemsUi.rounded(XemsUi.SURFACE, r, sel ? XemsUi.ACCENT : XemsUi.STROKE,
+                XemsUi.dp(c, sel ? 1.5f : 1)), XemsUi.TEXT, r));
         String n = name(it);
         View photo = photo(c, it, n);
         chip.addView(photo, new LinearLayout.LayoutParams(XemsUi.dp(c, 34), XemsUi.dp(c, 34)));
-        TextView t = XemsUi.text(c, n, 15, sel ? XemsUi.TEXT : XemsUi.MUTED, sel);
+        TextView t = XemsUi.text(c, n, 15, lit && !XemsUi.dark ? XemsUi.ON_ACCENT : sel || lit ? XemsUi.TEXT
+                : XemsUi.MUTED, sel || lit);
         t.setPadding(XemsUi.dp(c, 8), 0, XemsUi.dp(c, 6), 0);
         t.setSingleLine(true);
         chip.addView(t);
@@ -1868,6 +2015,10 @@ public final class FocusBoard {
             XemsUi.haptic(v);
             focus = item;
             sexOf = null;
+            if (clients().size() > 1) {
+                pickOnly(item);                             // its chip picks it: ▶ / ❚❚ / ■ act on it alone
+                clientsKey = "";
+            }
             rowAt(position(item), true);
             later();
             refresh();
@@ -2831,7 +2982,7 @@ public final class FocusBoard {
             int col = run ? XemsUi.ACCENT : paused ? XemsUi.mix(XemsUi.ACCENT, XemsUi.MUTED, 0.45f) : XemsUi.MUTED;
 
             // left: the state as a pill (● training / ❚❚ pause / ready / done) — the mode is on its key up top
-            String state = run ? AiText.t("ТРЕНИРОВКА", "TRAINING") : paused ? AiText.t("ПАУЗА", "PAUSED")
+            String state = run ? AiText.t("АКТИВЕН", "ACTIVE") : paused ? AiText.t("ПАУЗА", "PAUSED")
                     : done > 0 && left == 0 ? AiText.t("КРАЙ", "DONE") : AiText.t("ГОТОВ", "READY");
             int sc = run ? XemsUi.ACCENT : XemsUi.MUTED;
             small.setTextAlign(Paint.Align.LEFT);

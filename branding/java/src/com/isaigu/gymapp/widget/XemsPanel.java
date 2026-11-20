@@ -219,8 +219,9 @@ public final class XemsPanel {
                 nextButton.setEnabled(can);
             }
         }
-        // the focus board with one client has its own ■ and ▶ / ❚❚: not twice on the screen (owner, 1.1.522)
-        boolean solo = com.isaigu.gymapp.ai.FocusBoard.soloShowing()
+        // the focus board has its own ■ and ▶ / ❚❚, for the client(s) picked there: not twice on the screen
+        // (owner, 1.1.522 / 1.1.523)
+        boolean solo = com.isaigu.gymapp.ai.FocusBoard.isShowing()
                 && !com.isaigu.gymapp.ai.AutoSession.mainKeysOwned();
         int vis = solo ? View.GONE : View.VISIBLE;
         if (startButton.getVisibility() != vis) {
@@ -238,7 +239,7 @@ public final class XemsPanel {
         shownRunning = running;
         startIcon.setType(running ? XemsIcon.PAUSE : XemsIcon.PLAY);
         startLabel.setText(running ? XemsLang.tr("Пауза", "Pause") : XemsLang.tr("Старт", "Start"));
-        style(startButton, running ? XemsUi.ACCENT : XemsUi.GO, true);   // ❚❚ in the theme colour (1.1.522)
+        style(startButton, running ? XemsUi.PAUSE : XemsUi.GO, true);   // ❚❚ its own colour (1.1.523)
     }
 
     static boolean isTrainingRunning() {

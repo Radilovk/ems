@@ -104,8 +104,7 @@ Idea: the BodyTech mock-ups (landscape) — one client fills the place of the ro
   chip focuses it **and** picks it alone; „Всички“ (first in the client row, lit while active) = nobody picked = all
   of them; ▶ / ❚❚ then reads "за всички". One client: its own row's keys, as before. ■ with more clients presses the
   master ■ (picked ones reset; nobody picked = the end for everyone). The main panel's ■ and ▶ / ❚❚ hide whenever
-  the board is up (Auto keeps them). ❚❚ has its own colour everywhere — `XemsUi.PAUSE` violet (accent = impulse 1,
-  amber = impulse 2, green = start, red = stop). The training bar's state reads „АКТИВЕН“.
+  the board is up (Auto keeps them). ❚❚ is amber again everywhere (`XemsUi.PAUSE`, owner 1.1.524 — the violet went back). The training bar's state reads „АКТИВЕН“.
 - **1.1.522 — on the real screen (owner's screenshots):** the training bar fits the narrow middle column: a state
   pill (● ТРЕНИРОВКА / ❚❚ ПАУЗА / ГОТОВ / КРАЙ) on the left — the mode is on its key up top — the time so far 28 sp
   on the right with "от 20:00" beside it, a 10 dp bar, minutes 0′ … 20′. ❚❚ (here and on the main panel) is in the

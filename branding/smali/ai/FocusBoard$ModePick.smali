@@ -1,0 +1,91 @@
+.class final Lcom/isaigu/gymapp/ai/FocusBoard$ModePick;
+.super Ljava/lang/Object;
+.source "FocusBoard.java"
+
+# interfaces
+.implements Landroid/view/View$OnClickListener;
+
+
+# annotations
+.annotation system Ldalvik/annotation/EnclosingClass;
+    value = Lcom/isaigu/gymapp/ai/FocusBoard;
+.end annotation
+
+.annotation system Ldalvik/annotation/InnerClass;
+    accessFlags = 0x18
+    name = "ModePick"
+.end annotation
+
+
+# instance fields
+.field private final mode:I
+
+
+# direct methods
+.method constructor <init>(I)V
+    .registers 2
+
+    .prologue
+    .line 815
+    invoke-direct {p0}, Ljava/lang/Object;-><init>()V
+
+    .line 816
+    iput p1, p0, Lcom/isaigu/gymapp/ai/FocusBoard$ModePick;->mode:I
+
+    .line 817
+    return-void
+.end method
+
+
+# virtual methods
+.method public onClick(Landroid/view/View;)V
+    .registers 4
+
+    .prologue
+    .line 821
+    invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsUi;->haptic(Landroid/view/View;)V
+
+    .line 822
+    invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->closeModeMenu()V
+
+    .line 823
+    # invokes: Lcom/isaigu/gymapp/ai/FocusBoard;->current()Lcom/isaigu/gymapp/train/model/TrainItem;
+    invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$500()Lcom/isaigu/gymapp/train/model/TrainItem;
+
+    move-result-object v0
+
+    .line 824
+    if-eqz v0, :cond_15
+
+    # invokes: Lcom/isaigu/gymapp/ai/FocusBoard;->mode(Lcom/isaigu/gymapp/train/model/TrainItem;)I
+    invoke-static {v0}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$1100(Lcom/isaigu/gymapp/train/model/TrainItem;)I
+
+    move-result v0
+
+    iget v1, p0, Lcom/isaigu/gymapp/ai/FocusBoard$ModePick;->mode:I
+
+    if-ne v0, v1, :cond_15
+
+    .line 829
+    :goto_14
+    return-void
+
+    .line 827
+    :cond_15
+    # getter for: Lcom/isaigu/gymapp/ai/FocusBoard;->MODE_IDS:[Ljava/lang/String;
+    invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$1200()[Ljava/lang/String;
+
+    move-result-object v0
+
+    iget v1, p0, Lcom/isaigu/gymapp/ai/FocusBoard$ModePick;->mode:I
+
+    aget-object v0, v0, v1
+
+    invoke-static {v0}, Lcom/isaigu/gymapp/ai/FocusBoard;->press(Ljava/lang/String;)Z
+
+    .line 828
+    # invokes: Lcom/isaigu/gymapp/ai/FocusBoard;->later()V
+    invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$200()V
+
+    goto :goto_14
+.end method

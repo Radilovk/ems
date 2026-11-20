@@ -268,7 +268,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `ExerciseFigure.java` (308L, compile:music-sync*,wearable) — An exercise figure that moves with the impulse: the frames of the exercise (assets/xems/exercises.json, from branding/e…
 - `ExerciseLibrary.java` (388L, compile:music-sync*,wearable) — The exercise library on the tablet: all 302 exercises (assets/xems/library.json — names, steps, muscles, position, cost…
 - `FloatCard.java` (255L, compile:music-sync*,wearable) — A floating card (the exercise card of Auto and of a map run) the trainer moves and sizes with the fingers: one finger d…
-- `FocusBoard.java` (2668L, compile:music-sync*,wearable) — Training screen, focus layout (owner, 1.1.412 — the BodyTech mock-ups): one client fills the place of the rows.
+- `FocusBoard.java` (3042L, compile:music-sync*,wearable) — Training screen, focus layout (owner, 1.1.412 — the BodyTech mock-ups): one client fills the place of the rows.
 - `ImpulseGlyph.java` (132L, compile:music-sync*,wearable) — The impulse symbols, drawn as vector paths (no font glyphs, crisp at any size): frequency = a sharp wave, time = a cloc…
 - `ImpulseMapView.java` (579L, compile:music-sync*,wearable) — The impulse map as a line: blocks side by side, width = time, colour = frequency (blue low → cyan → green → amber → mag…
 - `MapClock.java` (128L, compile:music-sync*,wearable) — Where a map run is (pure Java, for MapRunner and scripts/ai-sim/MapSim.java): impulse blocks advance by counted impulse…
@@ -517,7 +517,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `XemsLocalUserForm.java` (982L, compile:xems-local) — New / edit client form — one screen, mostly taps: name, sex, age / height / weight wheels, phone; goal, fitness and con…
 - `XemsModuleInfo.java` (488L, compile:music-sync*) — The "i" of every XEMS module: what it is, what it gives (value first), how to work with it.
 - `XemsNav.java` (1552L, compile:music-sync*) — Main navigation (v1.1.64).
-- `XemsPanel.java` (381L, compile:music-sync*) — The right control panel, redrawn: ■ Stop — square, top ▶ Start / ❚❚ — tall + — tall − — tall ⚙ Master — square, bottom …
+- `XemsPanel.java` (393L, compile:music-sync*) — The right control panel, redrawn: ■ Stop — square, top ▶ Start / ❚❚ — tall + — tall − — tall ⚙ Master — square, bottom …
 - `XemsSearch.java` (225L, compile:music-sync*,xems-local) — Client-list search (Потребители tab, the training picker).
 - `XemsUi.java` (889L, compile:music-sync*) — XEMS UI kit — one look for every module (interval timer, player, HR, AI).
 
@@ -1108,7 +1108,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L319 ## 13. Open
   - L325 ## Sources
 
-`docs/xems-focus-board.md` (145L)
+`docs/xems-focus-board.md` (159L)
   - L1 # Training screen — focus layout (1.1.412)
   - L7 ## Layout
   - L24 ## Rules
@@ -1117,9 +1117,9 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L57 ## 1.1.419 — upright (button)
   - L72 ## 1.1.423 — board and rows in step, remove from the board
   - L81 ## 1.1.440 — chip slide past Интензитет 1, massage from the left mode
-  - L118 ## 1.1.444 — chip slide: both impulses in proportion, back down, yellow to 100
-  - L129 ## 1.1.445 — ring ± with muscles marked: same as the chip slide
-  - L136 ## 1.1.449 — every muscle marked from a 0 start, the suit's link on the board
+  - L132 ## 1.1.444 — chip slide: both impulses in proportion, back down, yellow to 100
+  - L143 ## 1.1.445 — ring ± with muscles marked: same as the chip slide
+  - L150 ## 1.1.449 — every muscle marked from a 0 start, the suit's link on the board
 
 `docs/xems-license-api.md` (209L)
   - L1 # XEMS — лиценз, отключване на модули и обновяване (клиент v1.1.85)
@@ -1378,7 +1378,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L17 ## Стоково (преди)
   - L21 ## Кукички
 
-`docs/xems-ui-kit.md` (202L)
+`docs/xems-ui-kit.md` (203L)
   - L1 # XEMS UI kit — таймер, плейър, пулс, AI, навигация (v1.1.66)
   - L5 ## Принцип
   - L24 ## Интервален таймер
@@ -1388,14 +1388,14 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L73 ## Принцип „само необходимото“ (v1.1.66)
   - L85 ## Език
   - L89 ## Главен панел (`widget/XemsPanel`)
-  - L100 ## Меню ☰
-  - L104 ## Цял екран (`widget/XemsFullscreen`)
-  - L108 ## Пулс модул по подразбиране
-  - L113 ## Навигация (v1.1.64)
-  - L134 ## Съкратено
-  - L145 ## v1.1.69
-  - L155 ## Плавно нарастване и спад (v1.1.69, `dialog/RampSetting`, `ai/AiRamp`)
-  - L187 ## Accent: cyan / magenta (1.1.424-ai)
+  - L101 ## Меню ☰
+  - L105 ## Цял екран (`widget/XemsFullscreen`)
+  - L109 ## Пулс модул по подразбиране
+  - L114 ## Навигация (v1.1.64)
+  - L135 ## Съкратено
+  - L146 ## v1.1.69
+  - L156 ## Плавно нарастване и спад (v1.1.69, `dialog/RampSetting`, `ai/AiRamp`)
+  - L188 ## Accent: cyan / magenta (1.1.424-ai)
 
 `docs/xems-ux-golden-rules.md` (73L)
   - L1 # UX golden rules — every screen, every level (tablet, band, report, card, PWA)

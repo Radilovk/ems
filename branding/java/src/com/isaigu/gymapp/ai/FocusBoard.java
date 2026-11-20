@@ -89,8 +89,16 @@ public final class FocusBoard {
 
     private static LinearLayout clientRow;
     private static String clientsKey = "";
-    private static final TextView[] modeTabs = new TextView[4];
+    /** The mode: one key ▾ in place of the four tabs (owner, 1.1.521); its menu while open. */
+    private static LinearLayout modeKey;
+    private static TextView modeName;
+    private static View modeDot;
+    private static android.widget.PopupWindow modePop;
+    /** The tablet's clock (owner, 1.1.521: the time of day up there; the training's time is on its own bar). */
     private static TextView timeText;
+    private static final java.text.SimpleDateFormat CLOCK =
+            new java.text.SimpleDateFormat("HH:mm", java.util.Locale.US);
+    private static SessionBar sessionBar;
     private static TextView battText;
     private static LinearLayout linkKey;
     private static XemsIcon linkIcon;
@@ -129,6 +137,15 @@ public final class FocusBoard {
     private FocusBoard() {}
 
     // ================================================================ attach
+
+    /** The board is up with one client: the main panel's ■ and ▶ / ❚❚ would repeat its own (XemsPanel hides them). */
+    public static boolean soloShowing() {
+        try {
+            return isShowing() && clients().size() <= 1;
+        } catch (Throwable t) {
+            return false;
+        }
+    }
 
     public static boolean isShowing() {
         return board != null && board.getVisibility() == View.VISIBLE && board.isAttachedToWindow();
@@ -185,6 +202,7 @@ public final class FocusBoard {
 
     /** The rows' column goes into a frame of the same size; the board and the pill lie over it. */
     private static void wrap(Context c, View l) {
+        closeModeMenu();
         board = null;
         clientRow = null;
         clientsKey = "";
@@ -664,33 +682,16 @@ public final class FocusBoard {
         hs.addView(clientRow);
         bar.addView(hs, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
 
-        LinearLayout tabs = XemsUi.horizontal(c);
-        tabs.setBackgroundDrawable(XemsUi.rounded(XemsUi.SURFACE, XemsUi.dp(c, 12), XemsUi.STROKE, XemsUi.dp(c, 1)));
-        tabs.setPadding(XemsUi.dp(c, 3), XemsUi.dp(c, 3), XemsUi.dp(c, 3), XemsUi.dp(c, 3));
-        String[] names = {AiText.t("ОСНОВЕН", "MAIN"), AiText.t("МУСКУЛИ", "MUSCLE"), AiText.t("КАРДИО", "CARDIO"),
-                AiText.t("МАСАЖ", "MASSAGE")};
-        for (int i = 0; i < 4; i++) {
-            TextView t = XemsUi.text(c, names[i], 13.5f, XemsUi.MUTED, true);
-            t.setGravity(Gravity.CENTER);
-            t.setLetterSpacing(0.04f);
-            t.setPadding(XemsUi.dp(c, upright ? 4 : 14), XemsUi.dp(c, 9), XemsUi.dp(c, upright ? 4 : 14), XemsUi.dp(c, 9));
-            t.setSingleLine(true);
-            t.setOnClickListener(new PressRow(MODE_IDS[i]));
-            XemsUi.pressable(t);
-            modeTabs[i] = t;
-            tabs.addView(t, upright ? new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f)
-                    : new LinearLayout.LayoutParams(XemsUi.dp(c, 104), ViewGroup.LayoutParams.WRAP_CONTENT));
-        }
-        if (!upright) {
-            LinearLayout.LayoutParams tlp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT);
-            tlp.leftMargin = XemsUi.dp(c, 8);
-            tlp.rightMargin = XemsUi.dp(c, 8);
-            bar.addView(tabs, tlp);
-        }
+        modeKey = modeKey(c);
+        LinearLayout.LayoutParams tlp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+                XemsUi.dp(c, 42));
+        tlp.leftMargin = XemsUi.dp(c, 8);
+        tlp.rightMargin = XemsUi.dp(c, 10);
+        bar.addView(modeKey, tlp);
 
-        timeText = XemsUi.text(c, "—", upright ? 22 : 24, XemsUi.TEXT, true);
+        timeText = XemsUi.text(c, CLOCK.format(new java.util.Date()), upright ? 20 : 22, XemsUi.TEXT, true);
         timeText.setPadding(XemsUi.dp(c, 6), 0, XemsUi.dp(c, 8), 0);
+        timeText.setContentDescription(AiText.t("Часът сега", "The time now"));
         bar.addView(timeText);
         battText = XemsUi.text(c, "", 13, XemsUi.GO_TEXT, true);
         battText.setPadding(0, 0, XemsUi.dp(c, 8), 0);
@@ -749,16 +750,169 @@ public final class FocusBoard {
                 ViewGroup.LayoutParams.WRAP_CONTENT);
         rlp.leftMargin = XemsUi.dp(c, 6);
         bar.addView(rows, rlp);
-        if (!upright) {
-            return bar;
+        if (upright) {
+            bar.setMinimumHeight(XemsUi.dp(c, 52));
         }
-        LinearLayout two = XemsUi.vertical(c);
-        two.addView(bar, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, XemsUi.dp(c, 52)));
-        LinearLayout.LayoutParams tlp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT);
-        tlp.topMargin = XemsUi.dp(c, 6);
-        two.addView(tabs, tlp);
-        return two;
+        return bar;
+    }
+
+    private static final String[] MODE_NAMES_BG = {"Основен", "Мускули", "Кардио", "Масаж"};
+    private static final String[] MODE_NAMES_EN = {"Main", "Muscle", "Cardio", "Massage"};
+    private static final String[] MODE_HINTS_BG = {"сила и издръжливост", "максимално натоварване", "пулс и изгаряне",
+            "възстановяване"};
+    private static final String[] MODE_HINTS_EN = {"strength and endurance", "maximal load", "heart rate and burn",
+            "recovery"};
+
+    static String modeLabel(int i) {
+        return AiText.t(MODE_NAMES_BG[i], MODE_NAMES_EN[i]);
+    }
+
+    /** The mode of the client on the board: one key — a dot, the mode's name and ▾; a tap opens the four modes. */
+    private static LinearLayout modeKey(Context c) {
+        LinearLayout k = XemsUi.horizontal(c);
+        k.setGravity(Gravity.CENTER_VERTICAL);
+        k.setPadding(XemsUi.dp(c, 14), 0, XemsUi.dp(c, 12), 0);
+        float r = XemsUi.dp(c, 12);
+        k.setBackgroundDrawable(XemsUi.ripple(XemsUi.glow(c, XemsUi.ACCENT, r), XemsUi.TEXT, r));
+        modeDot = new View(c);
+        // light theme: the key is solid accent, so its dot, name and ▾ are on-accent (white)
+        int on = XemsUi.dark ? XemsUi.TEXT : XemsUi.ON_ACCENT;
+        modeDot.setBackgroundDrawable(XemsUi.rounded(XemsUi.dark ? XemsUi.ACCENT : on, XemsUi.dp(c, 4), 0, 0));
+        k.addView(modeDot, new LinearLayout.LayoutParams(XemsUi.dp(c, 8), XemsUi.dp(c, 8)));
+        modeName = XemsUi.text(c, modeLabel(0).toUpperCase(), 14, on, true);
+        modeName.setLetterSpacing(0.06f);
+        modeName.setSingleLine(true);
+        modeName.setPadding(XemsUi.dp(c, 10), 0, XemsUi.dp(c, 10), 0);
+        modeName.setMinWidth(XemsUi.dp(c, 88));
+        k.addView(modeName);
+        ImageView chev = new ImageView(c);
+        chev.setImageDrawable(new Chevron(on));
+        k.addView(chev, new LinearLayout.LayoutParams(XemsUi.dp(c, 14), XemsUi.dp(c, 14)));
+        k.setClickable(true);
+        k.setOnClickListener(new ModeMenuClick());
+        k.setContentDescription(AiText.t("Режим — избери", "Mode — choose"));
+        XemsUi.pressable(k);
+        return k;
+    }
+
+    /** The mode key: opens (or closes) the menu of the four modes under it. */
+    static final class ModeMenuClick implements View.OnClickListener {
+        @Override
+        public void onClick(View v) {
+            XemsUi.haptic(v);
+            if (modePop != null && modePop.isShowing()) {
+                closeModeMenu();
+                return;
+            }
+            openModeMenu(v);
+        }
+    }
+
+    /** A row of the mode menu: the mode, as its tab did (the row's own mode button), then the menu closes. */
+    static final class ModePick implements View.OnClickListener {
+        private final int mode;
+
+        ModePick(int mode) {
+            this.mode = mode;
+        }
+
+        @Override
+        public void onClick(View v) {
+            XemsUi.haptic(v);
+            closeModeMenu();
+            TrainItem it = current();
+            if (it != null && mode(it) == mode) {
+                return;                                     // the mode already on: nothing to change
+            }
+            press(MODE_IDS[mode]);
+            later();
+        }
+    }
+
+    static void closeModeMenu() {
+        try {
+            if (modePop != null) {
+                modePop.dismiss();
+            }
+        } catch (Throwable ignored) {
+        }
+        modePop = null;
+    }
+
+    /**
+     * The four modes under the key: each its name, what it is for and its time; the one on now marked (accent, ✓).
+     * Not focusable (UI-PITFALLS 2.4: a focusable popup brings the navigation bar back); a tap outside closes it.
+     */
+    private static void openModeMenu(View anchor) {
+        try {
+            Context c = anchor.getContext();
+            TrainItem it = current();
+            int now = it != null ? mode(it) : 0;
+            TrainProgram p = it != null ? it.getTrainProgram() : null;
+            LinearLayout list = XemsUi.vertical(c);
+            int pad = XemsUi.dp(c, 6);
+            list.setPadding(pad, pad, pad, pad);
+            GradientDrawable bg = XemsUi.rounded(XemsUi.mix(XemsUi.BG, XemsUi.SURFACE, 0.6f), XemsUi.dp(c, 16),
+                    XemsUi.STROKE, XemsUi.dp(c, 1));
+            list.setBackgroundDrawable(bg);
+            for (int i = 0; i < 4; i++) {
+                boolean sel = i == now;
+                LinearLayout row = XemsUi.horizontal(c);
+                row.setGravity(Gravity.CENTER_VERTICAL);
+                row.setPadding(XemsUi.dp(c, 14), XemsUi.dp(c, 10), XemsUi.dp(c, 14), XemsUi.dp(c, 10));
+                float r = XemsUi.dp(c, 11);
+                row.setBackgroundDrawable(XemsUi.ripple(sel ? XemsUi.glow(c, XemsUi.ACCENT, r)
+                        : XemsUi.rounded(0x00000000, r, 0, 0), XemsUi.TEXT, r));
+                boolean solid = sel && !XemsUi.dark;            // light theme: the chosen row is solid accent
+                View dot = new View(c);
+                dot.setBackgroundDrawable(XemsUi.rounded(solid ? XemsUi.ON_ACCENT : sel ? XemsUi.ACCENT
+                        : XemsUi.alpha(XemsUi.MUTED, 0x80),
+                        XemsUi.dp(c, 4), 0, 0));
+                row.addView(dot, new LinearLayout.LayoutParams(XemsUi.dp(c, 8), XemsUi.dp(c, 8)));
+                LinearLayout words = XemsUi.vertical(c);
+                words.setPadding(XemsUi.dp(c, 12), 0, XemsUi.dp(c, 12), 0);
+                TextView name = XemsUi.text(c, modeLabel(i), 15.5f, solid ? XemsUi.ON_ACCENT : XemsUi.TEXT, true);
+                words.addView(name);
+                TextView hint = XemsUi.text(c, AiText.t(MODE_HINTS_BG[i], MODE_HINTS_EN[i]), 12,
+                        solid ? XemsUi.alpha(XemsUi.ON_ACCENT, 0xD0) : XemsUi.MUTED, false);
+                words.addView(hint);
+                row.addView(words, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+                int mins = minutes(p, i);
+                TextView len = XemsUi.text(c, mins > 0 ? mins + " " + AiText.t("мин", "min") : "", 13,
+                        solid ? XemsUi.ON_ACCENT : sel ? XemsUi.ACCENT : XemsUi.MUTED, true);
+                row.addView(len);
+                TextView tick = XemsUi.text(c, sel ? "✓" : "", 15, solid ? XemsUi.ON_ACCENT : XemsUi.ACCENT, true);
+                tick.setGravity(Gravity.CENTER);
+                row.addView(tick, new LinearLayout.LayoutParams(XemsUi.dp(c, 26), ViewGroup.LayoutParams.WRAP_CONTENT));
+                row.setClickable(true);
+                row.setOnClickListener(new ModePick(i));
+                XemsUi.pressable(row);
+                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT);
+                lp.topMargin = i == 0 ? 0 : XemsUi.dp(c, 2);
+                list.addView(row, lp);
+            }
+            android.widget.PopupWindow pw = new android.widget.PopupWindow(list, XemsUi.dp(c, 300),
+                    ViewGroup.LayoutParams.WRAP_CONTENT, false);
+            pw.setOutsideTouchable(true);
+            pw.setBackgroundDrawable(new android.graphics.drawable.ColorDrawable(0x00000000));
+            pw.setElevation(XemsUi.dp(c, 10));
+            pw.setAnimationStyle(android.R.style.Animation_Dialog);
+            modePop = pw;
+            pw.showAsDropDown(anchor, 0, XemsUi.dp(c, 6));
+        } catch (Throwable t) {
+            XemsGuard.report("FocusBoard.modeMenu", t);
+        }
+    }
+
+    /** The whole time of mode {@code i} of the program, in minutes (0 = unknown). */
+    private static int minutes(TrainProgram p, int i) {
+        if (p == null) {
+            return 0;
+        }
+        ProgramDataBean b = i == 1 ? p.muscleTrainingProgramDataBean : i == 2 ? p.aerobicTrainingProgramDataBean
+                : i == 3 ? p.massageModeProgramDataBean : p.programDataBean;
+        return b != null && b.workLength > 0 ? (b.workLength + 30) / 60 : 0;
     }
 
     /** Upright: the cycle over the figures (whole width), the ten muscles in two rows of five under them. */
@@ -767,8 +921,9 @@ public final class FocusBoard {
         pane.setBackgroundDrawable(XemsUi.glass(c, XemsUi.dp(c, 18)));
         int p = XemsUi.dp(c, 8);
         pane.setPadding(p, XemsUi.dp(c, 4), p, p);
-        timeline = new Timeline(c);
-        pane.addView(timeline, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, XemsUi.dp(c, 46)));
+        sessionBar = new SessionBar(c);
+        pane.addView(sessionBar, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                XemsUi.dp(c, 62)));
         body = new AutoViews.BodyHeat(c);
         body.setOnTouchListener(new BodyTap());
         body.setContentDescription(AiText.t("Докосни мускул, за да го избереш", "Tap a muscle to pick it"));
@@ -781,6 +936,13 @@ public final class FocusBoard {
         LinearLayout.LayoutParams flp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f);
         flp.topMargin = XemsUi.dp(c, 2);
         pane.addView(figs, flp);
+        timeline = new Timeline(c);
+        LinearLayout.LayoutParams tl = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                XemsUi.dp(c, 46));
+        tl.topMargin = XemsUi.dp(c, 4);
+        tl.leftMargin = XemsUi.dp(c, 18);
+        tl.rightMargin = XemsUi.dp(c, 18);
+        pane.addView(timeline, tl);
         for (int r = 0; r < 2; r++) {
             int[] ks = r == 0 ? LEFT : RIGHT;
             LinearLayout line = XemsUi.horizontal(c);
@@ -808,14 +970,24 @@ public final class FocusBoard {
         pane.addView(chipColumn(c, LEFT), new LinearLayout.LayoutParams(XemsUi.dp(c, 168),
                 ViewGroup.LayoutParams.MATCH_PARENT));
         LinearLayout mid = XemsUi.vertical(c);
-        timeline = new Timeline(c);
-        mid.addView(timeline, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, XemsUi.dp(c, 46)));
+        sessionBar = new SessionBar(c);
+        mid.addView(sessionBar, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                XemsUi.dp(c, 62)));
         body = new AutoViews.BodyHeat(c);
         body.setOnTouchListener(new BodyTap());
         body.setContentDescription(AiText.t("Докосни мускул, за да го избереш", "Tap a muscle to pick it"));
         LinearLayout.LayoutParams bodyLp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f);
         bodyLp.topMargin = XemsUi.dp(c, 4);
         mid.addView(body, bodyLp);
+        // the impulse cycle under the feet (owner, 1.1.521), well inside the frame
+        timeline = new Timeline(c);
+        LinearLayout.LayoutParams tl = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                XemsUi.dp(c, 46));
+        tl.topMargin = XemsUi.dp(c, 6);
+        tl.bottomMargin = XemsUi.dp(c, 8);
+        tl.leftMargin = XemsUi.dp(c, 18);
+        tl.rightMargin = XemsUi.dp(c, 18);
+        mid.addView(timeline, tl);
         LinearLayout.LayoutParams blp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1f);
         blp.leftMargin = p;
         blp.rightMargin = p;
@@ -1016,6 +1188,7 @@ public final class FocusBoard {
         public void run() {
             try {
                 if (board != null && framePortrait() != builtPortrait && frame != null) {
+                    closeModeMenu();
                     frame.removeView(board);
                     board = null;
                     clientsKey = "";
@@ -1242,31 +1415,33 @@ public final class FocusBoard {
         card.setBackgroundDrawable(XemsUi.glass(c, XemsUi.dp(c, 16)));
         card.setGravity(Gravity.CENTER);
         card.setPadding(XemsUi.dp(c, 8), XemsUi.dp(c, 7), XemsUi.dp(c, 8), XemsUi.dp(c, 8));
-        TextView t = XemsUi.text(c, title, 13, tint, true);
+        TextView t = XemsUi.text(c, title, 13.5f, tint, true);
+        t.setGravity(Gravity.CENTER);                       // centred over its values (the card's width)
+        t.setLetterSpacing(0.04f);
         card.addView(t);
 
         LinearLayout tr = XemsUi.horizontal(c);
         tr.setGravity(Gravity.CENTER);
-        TextView v = XemsUi.text(c, "—", 24, tint, true);
+        TextView v = XemsUi.text(c, "—", 28, tint, true);
         v.setGravity(Gravity.CENTER);
         tr.addView(key(c, "−", timeWhat, -1));
         tr.addView(v, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
         tr.addView(key(c, "+", timeWhat, +1));
         LinearLayout.LayoutParams tlp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT);
-        tlp.topMargin = XemsUi.dp(c, 4);
+        tlp.topMargin = XemsUi.dp(c, 10);
         card.addView(tr, tlp);
 
         LinearLayout hr = XemsUi.horizontal(c);
         hr.setGravity(Gravity.CENTER);
-        TextView hz = XemsUi.text(c, "—", 18, XemsUi.TEXT, true);
+        TextView hz = XemsUi.text(c, "—", 21, XemsUi.TEXT, true);
         hz.setGravity(Gravity.CENTER);
         hr.addView(key(c, "−", hzWhat, -1));
         hr.addView(hz, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
         hr.addView(key(c, "+", hzWhat, +1));
         LinearLayout.LayoutParams hlp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT);
-        hlp.topMargin = XemsUi.dp(c, 6);
+        hlp.topMargin = XemsUi.dp(c, 10);
         card.addView(hr, hlp);
         out[0] = t;
         out[1] = v;
@@ -1325,22 +1500,16 @@ public final class FocusBoard {
             }
             View row = rowAt(position(it), true);
             int mode = mode(it);
-            for (int i = 0; i < 4; i++) {
-                boolean sel = i == mode;
-                TextView t = modeTabs[i];
-                if (t == null) {
-                    continue;
-                }
-                Object was = t.getTag();
-                if (!(was instanceof Boolean) || ((Boolean) was) != sel) {
-                    t.setTag(sel);
-                    float r = XemsUi.dp(c, 10);
-                    t.setTextColor(sel ? XemsUi.TEXT : XemsUi.MUTED);
-                    t.setBackgroundDrawable(XemsUi.ripple(sel ? XemsUi.glow(c, XemsUi.ACCENT, r)
-                            : XemsUi.rounded(0x00000000, r, 0, 0), XemsUi.TEXT, r));
+            if (modeName != null) {
+                String mn = modeLabel(mode).toUpperCase();
+                if (!mn.contentEquals(modeName.getText())) {
+                    modeName.setText(mn);
                 }
             }
-            timeText.setText(textOf(row, "time", "—"));
+            String clock = CLOCK.format(new java.util.Date());
+            if (!clock.contentEquals(timeText.getText())) {
+                timeText.setText(clock);
+            }
             String batt = textOf(row, "batteryValueTextView", "");
             boolean linked = it.data != null && it.data.connected;
             battText.setText(linked && batt.length() > 0 ? "▮ " + batt : "");
@@ -1360,6 +1529,10 @@ public final class FocusBoard {
             shownTint = shown == 2 ? XemsUi.AMBER : shown == 1 ? XemsUi.ACCENT : XemsUi.MUTED;
             if (timeline != null) {
                 timeline.set(run, clk, b.pulseContinue, b.pulsePause, two);
+            }
+            if (sessionBar != null) {
+                int done = com.isaigu.gymapp.train.utils.ProgramLive.shownTime(it);
+                sessionBar.set(run, done, Math.max(0, it.workLength), modeLabel(mode));
             }
 
             int[] main = PartStrength.levels(it, b, false);
@@ -1454,7 +1627,7 @@ public final class FocusBoard {
             int st = run ? 1 : 0;
             if (st != shownStart) {
                 shownStart = st;
-                int col = st == 1 ? XemsUi.AMBER : XemsUi.GO;
+                int col = st == 1 ? XemsUi.ACCENT : XemsUi.GO;   // ❚❚ in the theme colour: amber is impulse 2 (1.1.522)
                 GradientDrawable g = new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
                         new int[] {XemsUi.mix(col, 0xFFFFFFFF, 0.12f), XemsUi.mix(col, 0xFF000000, 0.22f)});
                 g.setCornerRadius(r);
@@ -2095,23 +2268,23 @@ public final class FocusBoard {
                         ViewGroup.LayoutParams.MATCH_PARENT));
             }
             if (!compact) {                    // upright: two rows of five, name and value only
-                view.addView(disc, new LinearLayout.LayoutParams(XemsUi.dp(c, 40), XemsUi.dp(c, 40)));
+                view.addView(disc, new LinearLayout.LayoutParams(XemsUi.dp(c, 44), XemsUi.dp(c, 44)));
             }
 
             LinearLayout col = XemsUi.vertical(c);
-            col.setPadding(XemsUi.dp(c, compact ? 0 : 8), 0, 0, 0);
-            name = XemsUi.text(c, AutoUi.zoneNames()[k], compact ? 13 : 14, XemsUi.TEXT, true);
+            col.setPadding(XemsUi.dp(c, compact ? 0 : 10), 0, 0, 0);
+            name = XemsUi.text(c, AutoUi.zoneNames()[k], compact ? 13 : 13.5f, XemsUi.MUTED, true);
             name.setSingleLine(true);
             col.addView(name);
-            value = XemsUi.text(c, "", 15, XemsUi.ACCENT, true);
-            value.setPadding(0, XemsUi.dp(c, 2), 0, XemsUi.dp(c, 4));
+            value = XemsUi.text(c, "", compact ? 16 : 22, XemsUi.ACCENT, true);   // the number first (1.1.522)
+            value.setPadding(0, 0, 0, XemsUi.dp(c, 5));
             col.addView(value);
             FrameLayout track = new FrameLayout(c);
             track.setBackgroundDrawable(XemsUi.rounded(XemsUi.alpha(XemsUi.STROKE, 0xAA), XemsUi.dp(c, 2), 0, 0));
             barFill = new View(c);
             bar = track;
             track.addView(barFill, new FrameLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT));
-            col.addView(track, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, XemsUi.dp(c, 4)));
+            col.addView(track, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, XemsUi.dp(c, 5)));
             view.addView(col, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
             view.setGravity(Gravity.CENTER_VERTICAL);
         }
@@ -2154,8 +2327,11 @@ public final class FocusBoard {
                     XemsUi.dp(c, 1)), XemsUi.TEXT, r));
             view.setAlpha(off ? 0.4f : 1f);
             value.setText(off ? AiText.t("изкл.", "off") : lv + " %");
-            value.setTextColor(tint);
-            barFill.setBackgroundDrawable(XemsUi.rounded(tint, XemsUi.dp(c, 2), 0, 0));
+            // light theme: a marked chip is solid in its colour — its text and bar go on-accent (white) to be read
+            boolean solid = (sel || sliding) && !XemsUi.dark;
+            value.setTextColor(solid ? XemsUi.ON_ACCENT : tint);
+            name.setTextColor(solid ? XemsUi.ON_ACCENT : XemsUi.MUTED);
+            barFill.setBackgroundDrawable(XemsUi.rounded(solid ? XemsUi.ON_ACCENT : tint, XemsUi.dp(c, 2), 0, 0));
             int w = bar.getWidth();
             ViewGroup.LayoutParams lp = barFill.getLayoutParams();
             lp.width = w > 0 ? Math.round(w * Math.max(0, Math.min(100, lv)) / 100f) : 0;
@@ -2585,6 +2761,204 @@ public final class FocusBoard {
                 fill.setColor(0xFFFFFFFF);
                 c.drawCircle(fx, y + th / 2f, th * 0.75f, fill);
             }
+        }
+    }
+
+    /**
+     * The training's own timeline (owner, 1.1.521), over the figures: the whole time of the training or procedure as
+     * one bar — the part done filled in the theme colour with a glowing head, a mark per minute (longer every five,
+     * numbered under the bar) — the time so far big on the right, of the whole time; the mode and the state
+     * (training / pause / ready) on the left. Done + left = the whole: a mode change or ⚙ moves the end with it.
+     */
+    static final class SessionBar extends View {
+        private final Paint bar = new Paint(Paint.ANTI_ALIAS_FLAG);
+        private final Paint fill = new Paint(Paint.ANTI_ALIAS_FLAG);
+        private final Paint tick = new Paint(Paint.ANTI_ALIAS_FLAG);
+        private final Paint big = new Paint(Paint.ANTI_ALIAS_FLAG);
+        private final Paint small = new Paint(Paint.ANTI_ALIAS_FLAG);
+        private final Paint num = new Paint(Paint.ANTI_ALIAS_FLAG);
+        private final RectF r = new RectF();
+        private boolean run;
+        private int done;
+        private int left;
+        private String mode = "";
+
+        SessionBar(Context c) {
+            super(c);
+            tick.setStrokeWidth(XemsUi.dp(c, 1));
+            big.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD));
+            big.setTextSize(XemsUi.sp(c, 28));
+            small.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD));
+            small.setTextSize(XemsUi.sp(c, 12));
+            small.setLetterSpacing(0.08f);
+            num.setTextSize(XemsUi.sp(c, 10));
+            num.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD));
+            num.setTextAlign(Paint.Align.CENTER);
+            setContentDescription(AiText.t("Времето на тренировката", "The training's time"));
+        }
+
+        void set(boolean run, int done, int left, String mode) {
+            if (run == this.run && done == this.done && left == this.left && mode.equals(this.mode)) {
+                return;
+            }
+            this.run = run;
+            this.done = Math.max(0, done);
+            this.left = Math.max(0, left);
+            this.mode = mode;
+            invalidate();
+        }
+
+        static String mmss(int s) {
+            int m = s / 60;
+            int x = s % 60;
+            return m + ":" + (x < 10 ? "0" : "") + x;
+        }
+
+        @Override
+        protected void onDraw(Canvas c) {
+            Context cx = getContext();
+            float w = getWidth();
+            float h = getHeight();
+            if (w <= 0) {
+                return;
+            }
+            float pad = XemsUi.dp(cx, 12);
+            float th = XemsUi.dp(cx, 10);
+            float y = h - th - XemsUi.dp(cx, 18);
+            int total = done + left;
+            float p = total > 0 ? Math.min(1f, done / (float) total) : 0f;
+            boolean paused = !run && done > 0 && left > 0;
+            int col = run ? XemsUi.ACCENT : paused ? XemsUi.mix(XemsUi.ACCENT, XemsUi.MUTED, 0.45f) : XemsUi.MUTED;
+
+            // left: the state as a pill (● training / ❚❚ pause / ready / done) — the mode is on its key up top
+            String state = run ? AiText.t("ТРЕНИРОВКА", "TRAINING") : paused ? AiText.t("ПАУЗА", "PAUSED")
+                    : done > 0 && left == 0 ? AiText.t("КРАЙ", "DONE") : AiText.t("ГОТОВ", "READY");
+            int sc = run ? XemsUi.ACCENT : XemsUi.MUTED;
+            small.setTextAlign(Paint.Align.LEFT);
+            float sw = small.measureText(state) + XemsUi.dp(cx, 30);
+            float ph = XemsUi.dp(cx, 22);
+            float py = y - XemsUi.dp(cx, 38);
+            r.set(pad, py, pad + sw, py + ph);
+            bar.setColor(XemsUi.alpha(sc, 0x29));
+            c.drawRoundRect(r, ph / 2f, ph / 2f, bar);
+            fill.setShader(null);
+            fill.setColor(sc);
+            float mx = pad + XemsUi.dp(cx, 12);
+            float my = py + ph / 2f;
+            if (paused) {
+                float bw2 = XemsUi.dp(cx, 2.5f);
+                float bh = XemsUi.dp(cx, 8);
+                c.drawRect(mx - XemsUi.dp(cx, 4), my - bh / 2f, mx - XemsUi.dp(cx, 4) + bw2, my + bh / 2f, fill);
+                c.drawRect(mx + XemsUi.dp(cx, 1), my - bh / 2f, mx + XemsUi.dp(cx, 1) + bw2, my + bh / 2f, fill);
+            } else {
+                c.drawCircle(mx, my, XemsUi.dp(cx, 3.5f), fill);
+            }
+            small.setColor(sc);
+            c.drawText(state, pad + XemsUi.dp(cx, 22), my + small.getTextSize() * 0.36f, small);
+
+            // right: the time so far, big; "of 20:00" beside it
+            big.setTextAlign(Paint.Align.RIGHT);
+            big.setColor(run ? XemsUi.TEXT : XemsUi.mix(XemsUi.TEXT, XemsUi.MUTED, 0.4f));
+            float by = y - XemsUi.dp(cx, 14);
+            String t = mmss(done);
+            c.drawText(t, w - pad, by, big);
+            if (total > 0) {
+                num.setTextAlign(Paint.Align.RIGHT);
+                num.setTextSize(XemsUi.sp(cx, 13));
+                num.setColor(XemsUi.MUTED);
+                c.drawText(AiText.t("от ", "of ") + mmss(total), w - pad - big.measureText(t) - XemsUi.dp(cx, 10),
+                        by - XemsUi.dp(cx, 3), num);
+            }
+
+            // the bar: track, the part done (gradient), a mark per minute, numbered every 5 (′), 0 and the end
+            float bw = w - 2 * pad;
+            float rr = th / 2f;
+            r.set(pad, y, pad + bw, y + th);
+            bar.setColor(XemsUi.alpha(XemsUi.ACCENT, 0x21));
+            c.drawRoundRect(r, rr, rr, bar);
+            float fx = pad + bw * p;
+            if (p > 0f) {
+                r.set(pad, y, Math.max(fx, pad + th), y + th);
+                fill.setShader(new android.graphics.LinearGradient(pad, 0, Math.max(fx, pad + th), 0,
+                        XemsUi.alpha(col, 0x73), col, android.graphics.Shader.TileMode.CLAMP));
+                c.drawRoundRect(r, rr, rr, fill);
+                fill.setShader(null);
+            }
+            num.setTextSize(XemsUi.sp(cx, 10));
+            float ly = y + th + XemsUi.dp(cx, 13);
+            int mins = total / 60;
+            if (mins >= 2 && mins <= 120) {
+                int every = mins > 60 ? 10 : 5;
+                num.setTextAlign(Paint.Align.CENTER);
+                for (int i = 1; i < mins; i++) {
+                    float tx = pad + bw * (i * 60f) / total;
+                    boolean major = i % every == 0;
+                    tick.setColor(XemsUi.alpha(XemsUi.BG, major ? 0xD8 : 0x80));
+                    c.drawLine(tx, y + XemsUi.dp(cx, 2), tx, y + th - XemsUi.dp(cx, 2), tick);
+                    if (major && tx < pad + bw - XemsUi.dp(cx, 22)) {
+                        num.setColor(tx <= fx ? XemsUi.ACCENT : XemsUi.MUTED);
+                        c.drawText(i + "′", tx, ly, num);
+                    }
+                }
+            }
+            if (total > 0) {
+                num.setColor(XemsUi.MUTED);
+                num.setTextAlign(Paint.Align.LEFT);
+                c.drawText("0", pad, ly, num);
+                num.setTextAlign(Paint.Align.RIGHT);
+                c.drawText((total + 30) / 60 + "′", pad + bw, ly, num);
+                // the head: a soft breathing halo while running, a white knob
+                if (run) {
+                    double ph2 = (android.os.SystemClock.uptimeMillis() % 1600L) / 1600.0;
+                    float glow = (float) (0.5 + 0.5 * Math.sin(ph2 * 2 * Math.PI));
+                    fill.setColor(XemsUi.alpha(col, (int) (0x30 + 0x28 * glow)));
+                    c.drawCircle(fx, y + rr, th * (1.1f + 0.3f * glow), fill);
+                    postInvalidateOnAnimation();
+                }
+                fill.setColor(0xFFFFFFFF);
+                c.drawCircle(fx, y + rr, th * 0.55f, fill);
+            }
+        }
+    }
+
+    /** ▾ of the mode key. */
+    static final class Chevron extends Drawable {
+        private final Paint pen = new Paint(Paint.ANTI_ALIAS_FLAG);
+        private final android.graphics.Path path = new android.graphics.Path();
+
+        Chevron(int color) {
+            pen.setColor(color);
+            pen.setStyle(Paint.Style.STROKE);
+            pen.setStrokeCap(Paint.Cap.ROUND);
+            pen.setStrokeJoin(Paint.Join.ROUND);
+        }
+
+        @Override
+        public void draw(Canvas c) {
+            android.graphics.Rect b = getBounds();
+            float w = b.width();
+            float h = b.height();
+            pen.setStrokeWidth(Math.max(2f, w * 0.14f));
+            path.reset();
+            path.moveTo(b.left + w * 0.2f, b.top + h * 0.38f);
+            path.lineTo(b.left + w * 0.5f, b.top + h * 0.66f);
+            path.lineTo(b.left + w * 0.8f, b.top + h * 0.38f);
+            c.drawPath(path, pen);
+        }
+
+        @Override
+        public void setAlpha(int a) {
+            pen.setAlpha(a);
+        }
+
+        @Override
+        public void setColorFilter(android.graphics.ColorFilter cf) {
+            pen.setColorFilter(cf);
+        }
+
+        @Override
+        public int getOpacity() {
+            return android.graphics.PixelFormat.TRANSLUCENT;
         }
     }
 

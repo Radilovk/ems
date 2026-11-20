@@ -37,6 +37,7 @@ public final class XemsPanel {
     private static XemsIcon startIcon;
     private static TextView startLabel;
     private static View startButton;
+    private static View stopButton;
     private static View nextButton;
     /** The Auto module's colour (its tile in the module bar). */
     private static final int AUTO_TEAL = 0xFF26A69A;
@@ -127,6 +128,7 @@ public final class XemsPanel {
         stop.addView(icon(c, XemsIcon.STOP, XemsUi.ON_ACCENT, null), centered(c, 0.55f));
         style(stop, XemsUi.DANGER, true);
         stop.setOnClickListener(new Delegate(panelRoot, ID_STOP));
+        stopButton = stop;
         col.addView(stop, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT));
 
@@ -217,6 +219,16 @@ public final class XemsPanel {
                 nextButton.setEnabled(can);
             }
         }
+        // the focus board with one client has its own ■ and ▶ / ❚❚: not twice on the screen (owner, 1.1.522)
+        boolean solo = com.isaigu.gymapp.ai.FocusBoard.soloShowing()
+                && !com.isaigu.gymapp.ai.AutoSession.mainKeysOwned();
+        int vis = solo ? View.GONE : View.VISIBLE;
+        if (startButton.getVisibility() != vis) {
+            startButton.setVisibility(vis);
+        }
+        if (stopButton != null && stopButton.getVisibility() != vis) {
+            stopButton.setVisibility(vis);
+        }
         // during Auto the tile shows Auto's state (its pauses keep the device on, at 0)
         int auto = com.isaigu.gymapp.ai.AutoSession.mainKeyState();
         boolean running = auto >= 0 ? auto == 1 : isTrainingRunning();
@@ -226,7 +238,7 @@ public final class XemsPanel {
         shownRunning = running;
         startIcon.setType(running ? XemsIcon.PAUSE : XemsIcon.PLAY);
         startLabel.setText(running ? XemsLang.tr("Пауза", "Pause") : XemsLang.tr("Старт", "Start"));
-        style(startButton, running ? XemsUi.AMBER : XemsUi.GO, true);
+        style(startButton, running ? XemsUi.ACCENT : XemsUi.GO, true);   // ❚❚ in the theme colour (1.1.522)
     }
 
     static boolean isTrainingRunning() {

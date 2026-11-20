@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 680
+    .line 682
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,23 +34,23 @@
     .registers 4
 
     .prologue
-    .line 683
+    .line 685
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsUi;->haptic(Landroid/view/View;)V
 
-    .line 684
+    .line 686
     # invokes: Lcom/isaigu/gymapp/ai/FocusBoard;->current()Lcom/isaigu/gymapp/train/model/TrainItem;
     invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$900()Lcom/isaigu/gymapp/train/model/TrainItem;
 
     move-result-object v0
 
-    .line 685
+    .line 687
     if-nez v0, :cond_a
 
-    .line 697
+    .line 699
     :goto_9
     return-void
 
-    .line 688
+    .line 690
     :cond_a
     invoke-static {v0, p1}, Lcom/isaigu/gymapp/wearable/DoubleImpulse;->syncSecond(Lcom/isaigu/gymapp/train/model/TrainItem;Landroid/view/View;)Z
 
@@ -58,7 +58,7 @@
 
     if-nez v1, :cond_1c
 
-    .line 689
+    .line 691
     const-string v0, "\u0412\u043a\u043b\u044e\u0447\u0438 \u0432\u0442\u043e\u0440\u0438\u044f \u0438\u043c\u043f\u0443\u043b\u0441 \u0441 \u223f (\u043d\u0435 \u0438 \u0432 \u041c\u0443\u0441\u043a\u0443\u043b\u0438)."
 
     const-string v1, "Turn the second impulse on with \u223f (not in Muscle)."
@@ -72,7 +72,7 @@
 
     goto :goto_9
 
-    .line 693
+    .line 695
     :cond_1c
     # getter for: Lcom/isaigu/gymapp/ai/FocusBoard;->RATIO:Ljava/util/WeakHashMap;
     invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$800()Ljava/util/WeakHashMap;
@@ -81,17 +81,17 @@
 
     invoke-virtual {v1, v0}, Ljava/util/WeakHashMap;->remove(Ljava/lang/Object;)Ljava/lang/Object;
 
-    .line 694
+    .line 696
     const/4 v0, 0x2
 
     # setter for: Lcom/isaigu/gymapp/ai/FocusBoard;->pick:I
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$1202(I)I
 
-    .line 695
+    .line 697
     # invokes: Lcom/isaigu/gymapp/ai/FocusBoard;->later()V
     invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$300()V
 
-    .line 696
+    .line 698
     invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->refresh()V
 
     goto :goto_9

@@ -17,6 +17,8 @@
   times a phase from the planned end of the one before (1.1.494).
 - TrainItem.reset (■, the end of the time, a new client): ProgramLive.noteReset — the counted-up row clock goes back to
   0:00; a mode chosen while paused (ProgramLive.heldStage) no longer reads as an end to the recorder (owner, 1.1.519).
+- TrainItem.xemsAddTime (new): the focus board's − / + at the ends of the training bar — ProgramLive.addTime moves the
+  length a minute a tap; a running countdown restarts from the new time left (owner, 1.1.530).
 Runs after apply-double-impulse.py (modeCarry + xemsRestartPulse) and apply-live-settings.py.
 """
 from __future__ import annotations
@@ -114,6 +116,48 @@ STAGE = f"""    {MARK}
     :cond_xems_new_training
 """
 
+# The focus board's − / + (owner, 1.1.530): ProgramLive.addTime moves the length and returns the new countdown when the
+# row runs; the countdown is restarted here exactly as a mode change restarts it (TrainItem$1, 100 ms ticks).
+ADD_TIME = f""".method public xemsAddTime(I)V
+    .locals 8
+
+    invoke-static {{p0, p1}}, {PL}->addTime({TI}I)J
+
+    move-result-wide v0
+
+    const-wide/16 v2, 0x0
+
+    cmp-long v2, v0, v2
+
+    if-lez v2, :cond_xems_add_kept
+
+    iget-object v2, p0, {TI}->workCountDown:Landroid/os/CountDownTimer;
+
+    if-eqz v2, :cond_xems_add_nocd
+
+    invoke-virtual {{v2}}, Landroid/os/CountDownTimer;->cancel()V
+
+    :cond_xems_add_nocd
+    new-instance v2, Lcom/isaigu/gymapp/train/model/TrainItem$1;
+
+    move-object v3, p0
+
+    move-wide v4, v0
+
+    const-wide/16 v6, 0x64
+
+    invoke-direct/range {{v2 .. v7}}, Lcom/isaigu/gymapp/train/model/TrainItem$1;-><init>({TI}JJ)V
+
+    iput-object v2, p0, {TI}->workCountDown:Landroid/os/CountDownTimer;
+
+    invoke-virtual {{v2}}, Landroid/os/CountDownTimer;->start()Landroid/os/CountDownTimer;
+
+    :cond_xems_add_kept
+    invoke-direct {{p0}}, {TI}->onTrainItemChange()V
+
+    return-void
+.end method"""
+
 TICK_RE = re.compile(
     r"    const-wide/16 (v\d+), 0x3e8\n(?:\s*\.line \d+\n)?\s*"
     r"div-long \1, p1, \1\n(?:\s*\.line \d+\n)?\s*"
@@ -198,6 +242,12 @@ def main() -> None:
     text = text[:a] + body + text[b:]
     ITEM.write_text(text, encoding="utf-8")
     print("TrainItem.reset: the training clock back to 0:00, a held stage ends again")
+
+    text = ITEM.read_text(encoding="utf-8")
+    if ".method public xemsAddTime(I)V" not in text:
+        text = text.rstrip("\n") + "\n\n" + ADD_TIME + "\n"
+        ITEM.write_text(text, encoding="utf-8")
+        print("TrainItem.xemsAddTime: the focus board's - / + change the training's length, the countdown goes on")
 
     tick = TICK.read_text(encoding="utf-8")
     m = TICK_RE.search(tick)

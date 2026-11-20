@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 206
+    .line 208
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,16 +34,16 @@
     .registers 7
 
     .prologue
-    .line 209
+    .line 211
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsUi;->haptic(Landroid/view/View;)V
 
-    .line 210
+    .line 212
     # invokes: Lcom/isaigu/gymapp/ai/FocusBoard;->clients()Ljava/util/List;
     invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$000()Ljava/util/List;
 
     move-result-object v0
 
-    .line 211
+    .line 213
     invoke-interface {v0}, Ljava/util/List;->size()I
 
     move-result v0
@@ -58,29 +58,29 @@
 
     if-eqz v0, :cond_1a
 
-    .line 212
+    .line 214
     :cond_14
     const-string v0, "startpaulse"
 
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/FocusBoard;->press(Ljava/lang/String;)Z
 
-    .line 230
+    .line 232
     :goto_19
     return-void
 
-    .line 215
+    .line 217
     :cond_1a
     invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->targets()Ljava/util/List;
 
     move-result-object v2
 
-    .line 216
+    .line 218
     # invokes: Lcom/isaigu/gymapp/ai/FocusBoard;->anyRunning(Ljava/util/List;)Z
     invoke-static {v2}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$100(Ljava/util/List;)Z
 
     move-result v3
 
-    .line 217
+    .line 219
     const/4 v0, 0x0
 
     move v1, v0
@@ -92,7 +92,7 @@
 
     if-ge v1, v0, :cond_52
 
-    .line 219
+    .line 221
     :try_start_2a
     invoke-interface {v2, v1}, Ljava/util/List;->get(I)Ljava/lang/Object;
 
@@ -100,7 +100,7 @@
 
     check-cast v0, Lcom/isaigu/gymapp/train/model/TrainItem;
 
-    .line 220
+    .line 222
     if-eqz v3, :cond_3f
 
     # invokes: Lcom/isaigu/gymapp/ai/FocusBoard;->running(Lcom/isaigu/gymapp/train/model/TrainItem;)Z
@@ -110,10 +110,10 @@
 
     if-eqz v4, :cond_3f
 
-    .line 221
+    .line 223
     invoke-virtual {v0}, Lcom/isaigu/gymapp/train/model/TrainItem;->stop()V
 
-    .line 217
+    .line 219
     :cond_3b
     :goto_3b
     add-int/lit8 v0, v1, 0x1
@@ -122,7 +122,7 @@
 
     goto :goto_24
 
-    .line 222
+    .line 224
     :cond_3f
     if-nez v3, :cond_3b
 
@@ -133,25 +133,25 @@
 
     if-nez v4, :cond_3b
 
-    .line 223
+    .line 225
     invoke-virtual {v0}, Lcom/isaigu/gymapp/train/model/TrainItem;->start()V
     :try_end_4a
     .catch Ljava/lang/Throwable; {:try_start_2a .. :try_end_4a} :catch_4b
 
     goto :goto_3b
 
-    .line 225
+    .line 227
     :catch_4b
     move-exception v0
 
-    .line 226
+    .line 228
     const-string v4, "FocusBoard.start"
 
     invoke-static {v4, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V
 
     goto :goto_3b
 
-    .line 229
+    .line 231
     :cond_52
     # invokes: Lcom/isaigu/gymapp/ai/FocusBoard;->later()V
     invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$300()V

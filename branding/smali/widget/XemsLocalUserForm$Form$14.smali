@@ -26,7 +26,7 @@
     .registers 2
 
     .prologue
-    .line 568
+    .line 628
     iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$14;->this$0:Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -40,18 +40,18 @@
     .registers 3
 
     .prologue
-    .line 570
+    .line 630
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$14;->this$0:Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;
 
     const/4 v1, 0x1
 
     iput-boolean v1, v0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->medical:Z
 
-    .line 571
+    .line 631
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$14;->this$0:Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->renderMedical()V
 
-    .line 572
+    .line 632
     return-void
 .end method

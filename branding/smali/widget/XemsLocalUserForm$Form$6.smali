@@ -26,7 +26,7 @@
     .registers 2
 
     .prologue
-    .line 419
+    .line 479
     iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$6;->this$0:Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -40,23 +40,23 @@
     .registers 3
 
     .prologue
-    .line 421
+    .line 481
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$6;->this$0:Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;
 
     sget-object v1, Lcom/isaigu/gymapp/bean/Gender;->Female:Lcom/isaigu/gymapp/bean/Gender;
 
     iput-object v1, v0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->sex:Lcom/isaigu/gymapp/bean/Gender;
 
-    .line 422
+    .line 482
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$6;->this$0:Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->renderSex()V
 
-    .line 423
+    .line 483
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form$6;->this$0:Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/widget/XemsLocalUserForm$Form;->renderGoal()V
 
-    .line 424
+    .line 484
     return-void
 .end method

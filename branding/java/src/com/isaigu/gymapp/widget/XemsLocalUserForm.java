@@ -136,6 +136,11 @@ public final class XemsLocalUserForm {
         final LinearLayout[] ownRow = new LinearLayout[1];
         final LinearLayout[] sportRow = new LinearLayout[1];
         final LinearLayout[] sportRow2 = new LinearLayout[1];
+        /** The informed consent signed in this form (kept on Save — a new client has no id before it). */
+        android.graphics.Bitmap consentSig;
+        long consentAt;
+        TextView consentStatus;
+        LinearLayout consentKeys;
 
         Form(Activity a, TrainUser editing) {
             this.a = a;
@@ -289,7 +294,62 @@ public final class XemsLocalUserForm {
                 email.setText(editing.email);
             }
             c4.addView(email, match(dp(8)));
+
+            // the informed consent (owner, 1.1.530): signed once with a finger, a new text asks again
+            LinearLayout c5 = card(col, tr("Информирано съгласие", "Informed consent"));
+            consentStatus = text("", 16, TEXT, true);
+            c5.addView(consentStatus, match(dp(8)));
+            consentKeys = new LinearLayout(a);
+            consentKeys.setOrientation(LinearLayout.HORIZONTAL);
+            c5.addView(consentKeys, match(dp(10)));
+            renderConsent();
             return col;
+        }
+
+        void renderConsent() {
+            long id = editing != null ? editing.id : 0;
+            boolean signed = consentSig != null || XemsLocalConsent.valid(a, id);
+            if (consentSig != null) {
+                consentStatus.setText(tr("✓ Подписано сега — пази се при „Запази“", "✓ Signed now — kept on Save"));
+            } else {
+                consentStatus.setText(XemsLocalConsent.status(a, id));
+            }
+            consentStatus.setTextColor(signed ? ACCENT : WARN);
+            consentKeys.removeAllViews();
+            TextView sign = button(signed ? tr("Подпиши отново", "Sign again") : tr("Прочети и подпиши", "Read and sign"),
+                    !signed);
+            sign.setOnClickListener(new ConsentOpen());
+            consentKeys.addView(sign, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+            if (consentSig == null && XemsLocalConsent.signedVersion(a, id) > 0) {
+                TextView view = button(tr("Виж документа", "View the document"), false);
+                view.setOnClickListener(new ConsentView());
+                LinearLayout.LayoutParams vl = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+                vl.leftMargin = dp(10);
+                consentKeys.addView(view, vl);
+            }
+        }
+
+        final class ConsentOpen implements View.OnClickListener {
+            @Override
+            public void onClick(View v) {
+                XemsLocalConsent.open(a, name.getText().toString().trim(), new ConsentDone());
+            }
+        }
+
+        final class ConsentView implements View.OnClickListener {
+            @Override
+            public void onClick(View v) {
+                XemsLocalConsent.view(a, editing != null ? editing.id : 0);
+            }
+        }
+
+        final class ConsentDone implements XemsLocalConsent.Signed {
+            @Override
+            public void onSigned(android.graphics.Bitmap signature, long time) {
+                consentSig = signature;
+                consentAt = time;
+                renderConsent();
+            }
         }
 
         /** Round photo; tap = choose from the gallery. */
@@ -652,6 +712,10 @@ public final class XemsLocalUserForm {
             }
             u.remark = summary();
             XemsLocalStore.saveUser((BaseActivity) a, u, editing != null);
+            if (consentSig != null && !XemsLocalConsent.save(a, u.id, u.name, consentSig, consentAt)) {
+                android.widget.Toast.makeText(a, tr("Подписът не се записа — опитай отново", "The signature was not saved — try again"),
+                        android.widget.Toast.LENGTH_LONG).show();
+            }
             if (typed) {
                 a.getSharedPreferences("xems_scale", Context.MODE_PRIVATE).edit()
                         .putLong("wm" + u.id, System.currentTimeMillis()).apply();

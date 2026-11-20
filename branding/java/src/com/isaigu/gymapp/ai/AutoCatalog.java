@@ -269,8 +269,11 @@ public final class AutoCatalog {
                 Kind.ACTIVE, AutoModel.zones(50, 70, 80, 90, 80, 100, 100, 80, 60, 60)));
         p.cr10Lo = 5; p.cr10Hi = 6; p.xCap = 0.80; p.envMax = 1.15; p.asksBack = true; p.impulse = AutoDynamics.GENTLE;
 
-        p = add(new Program(SENIOR, "Здрави мускули 50+", "Strong muscles 50+",
-                "Сила за ежедневието, бавни движения", "Strength for daily life, slow movements",
+        // 50+ = gerontology (owner, 1.1.527 — spec §6.15): the conditions of age — sarcopenia (strength, power),
+        // bone density, the blood sugar, menopause, posture and falls. Not anti-ageing (that is longevity).
+        p = add(new Program(SENIOR, "50+ · Мускули, кости, захар", "50+ · Muscle, bone, blood sugar",
+                "Срещу загубата на мускули и кости с възрастта; захарта и менопаузата",
+                "Against the loss of muscle and bone with age; blood sugar and menopause",
                 Kind.ACTIVE, AutoModel.zones(80, 100, 90, 100, 70, 80, 80, 60, 60, 70)));
         p.cr10Lo = 5; p.cr10Hi = 6; p.xCap = 0.75; p.envMax = 1.0; p.impulse = AutoDynamics.GENTLE;
 
@@ -306,13 +309,15 @@ public final class AutoCatalog {
                 Kind.PASSIVE, AutoModel.zones(80, 90, 90, 90, 50, 70, 80, 80, 40, 60)));
         p.cr10Lo = 3; p.cr10Hi = 5; p.xCap = 0.45;
 
-        p = add(new Program(ANTIAGE, "Антиейджинг", "Anti-ageing",
-                "Миокини, мозък, интервали — по-малко възпаление, по-ниска захар, по-гъвкави съдове",
-                "Myokines, brain, intervals — less inflammation, lower blood sugar, suppler vessels",
+        // anti-ageing = longevity (owner, 1.1.527): keeping the body young and its functions — the pathways of ageing,
+        // at any age; not the conditions of age (that is 50+)
+        p = add(new Program(ANTIAGE, "Антиейджинг · Longevity", "Anti-ageing · Longevity",
+                "Дълголетие на всяка възраст: миокини, мозък, интервали, съдове",
+                "Longevity at any age: myokines, brain, intervals, vessels",
                 Kind.ACTIVE, AutoModel.zones(100, 100, 100, 100, 100, 100, 100, 100, 100, 100)));
         p.cr10Lo = 5; p.cr10Hi = 6; p.xCap = 0.80; p.envMax = 1.10; p.impulse = AutoDynamics.CARDIO;
 
-        p = add(new Program(ANTIAGE_PASSIVE, "Антиейджинг · процедура", "Anti-ageing · treatment",
+        p = add(new Program(ANTIAGE_PASSIVE, "Антиейджинг · Longevity процедура", "Anti-ageing · Longevity treatment",
                 "Захар, мозък, съдове — в покой, най-добре след хранене",
                 "Blood sugar, brain, vessels — at rest, best after a meal",
                 Kind.PASSIVE, AutoModel.zones(100, 100, 100, 100, 100, 100, 100, 100, 100, 100)));
@@ -350,9 +355,9 @@ public final class AutoCatalog {
                 Kind.PASSIVE, ALL_ON.clone()));
         p.cr10Lo = 6; p.cr10Hi = 6; p.xCap = 0.55; p.impulse = AutoDynamics.POWER;
 
-        p = add(new Program(SENIOR_P, "Здрави мускули 50+ · процедура", "Strong muscles 50+ · treatment",
-                "Сила на краката и стойка, седнал — без натоварване на ставите",
-                "Leg strength and posture, seated — no load on the joints",
+        p = add(new Program(SENIOR_P, "50+ · процедура", "50+ · treatment",
+                "Седнал: сила на краката, стойка, захар — без натоварване на ставите",
+                "Seated: leg strength, posture, blood sugar — no load on the joints",
                 Kind.PASSIVE, only(CALF, FRONT_THIGH, BACK_THIGH, GLUTES, ABS, LOWER_BACK, BACK, TRAPS)));
         p.cr10Lo = 4; p.cr10Hi = 5; p.xCap = 0.50; p.impulse = AutoDynamics.GENTLE;
 
@@ -846,29 +851,45 @@ public final class AutoCatalog {
                 break;
             }
             case SENIOR: {
-                // reviewed 1.1.526 (spec §6.11): WB-EMS in older adults (Kemmler — TEST-III, FORMOsA) 85 Hz · 350 µs ·
-                // 4 : 4–6 with slow functional moves; after 50 the power (speed of force) falls faster than the
-                // strength and predicts falls and daily function better (Reid & Fielding 2012) — so a short speed
-                // block: a fast rise on each impulse, a long rest (≤ 85 Hz: the 60+ limit)
+                // 50+ = gerontology (owner, 1.1.527 — spec §6.15), each block for one condition of age:
+                // sarcopenia — WB-EMS 85 Hz · 350 µs · 4 : 4–6 with slow functional moves (Kemmler: FrOST, FORMOsA —
+                //   muscle mass and strength up in sarcopenic older adults);
+                // power — after 50 it falls faster than strength and predicts falls and function (Reid & Fielding
+                //   2012; Byrne 2016): a fast rise on each impulse, a long rest;
+                // bone — the bone answers high muscle pull + impact (LIFTMOR, Watson 2018, post-menopause); WB-EMS kept
+                //   the spine's density in osteosarcopenic men (Kemmler 2018): a strong short hold with heel drops
+                //   (no impact with osteoporosis);
+                // blood sugar — the big leg muscles take glucose up with every contraction, at any rate (NMES
+                //   meta-analysis, Front Endocrinol 2023): a long sub-tetanic leg rhythm while walking;
+                // menopause — the loss of oestrogen speeds up the loss of muscle and bone: the same blocks are its answer.
+                // ≤ 85 Hz everywhere (the 60+ limit).
                 int[] oo = onOff(in, 4, 6);
                 if (in.fitness == AiModel.Fitness.HIGH) {
                     oo = new int[] {4, 4};
                 }
-                Phase w = phase(out, "WARMUP", "Загрявка", "Warm-up", 0.15, total, 0.6, 1.0);
-                w.envStart = 0.6;
-                w.envEnd = 1.0;
+                Phase w = phase(out, "WARMUP", "Загрявка", "Warm-up", 0.12, total, 1.0, 1.0);
                 w.hintBg = "Ходене на място, кръгове с раменете";
                 w.hintEn = "Marching, shoulder circles";
                 w.steps.add(twitch(WARMUP_HZ, 350, 10, 1, 1.0));          // 7 Hz twitches: warm, no fatigue
-                Phase m = phase(out, "MAIN", "Сила", "Strength", 0.55, total, 1.0, 1.0);
+                Phase m = phase(out, "MAIN", "Мускули", "Muscle", 0.38, total, 1.0, 1.0);
                 m.window = Window.main();
-                m.hintBg = "Ставане от стол, повдигане на пръсти, гребане с ластик — бавно";
-                m.hintEn = "Sit-to-stand, calf raises, band rows — slowly";
+                m.hintBg = "Ставане от стол, гребане с ластик, мост — бавно и контролирано";
+                m.hintEn = "Sit-to-stand, band rows, bridge — slow and controlled";
                 m.steps.add(tet(85, 350, oo[0], oo[1]));
-                Phase sp = phase(out, "SPEED", "Бързина", "Speed", 0.20, total, 1.0, 1.0);
+                Phase sp = phase(out, "SPEED", "Бързина", "Speed", 0.15, total, 1.0, 1.0);
                 sp.hintBg = "С импулса — бързо ставане от стол или бърза крачка, после бавно надолу";
                 sp.hintEn = "With the impulse — a quick sit-to-stand or a quick step, then slowly down";
                 sp.steps.add(tet(70, 300, 2, 6));
+                Phase bn = phase(out, "BONE", "Кости", "Bone", 0.15, total, 1.0, 1.0);
+                bn.hintBg = "С импулса — на пръсти и пусни петите на пода; при остеопороза — без удар";
+                bn.hintEn = "With the impulse — up on the toes and drop the heels; with osteoporosis — no impact";
+                bn.steps.add(tet(85, 350, 3, 5));
+                Phase sg = phase(out, "SUGAR", "Захар", "Blood sugar", 0.10, total, 1.0, 1.0);
+                sg.hintBg = "Ходене на място — краката работят непрекъснато";
+                sg.hintEn = "Marching — the legs keep working";
+                Step ss = tet(15, 300, 8, 2);
+                ss.zones = only(LOWER);
+                sg.steps.add(ss);
                 cooldown(out, total, 0.10, 5);
                 break;
             }
@@ -938,25 +959,28 @@ public final class AutoCatalog {
                 break;
             }
             case SENIOR_P: {
-                // 50+ at rest (spec §6.13): NMES of the legs in older adults — 50 Hz, wide pulse, 4 : 8 — raises the
-                // thigh strength and the chair-rise (Langeard 2017, Benavent-Caballer 2014); then the back chain for
-                // the posture, then a light leg pump for the vessels; seated, no load on the joints
-                Phase w = phase(out, "WARMUP", "Загряване", "Warm-up", 0.15, total, 1.0, 1.0);
+                // 50+ at rest = gerontology (spec §6.15): NMES of the legs in older adults — 50 Hz, wide pulse, 4 : 8 —
+                // raises the thigh strength and the chair-rise (Langeard 2017; Benavent-Caballer 2014); the back
+                // chain against the age stoop (back-extensor work lessens kyphosis — Katzman 2017); then the leg
+                // rhythm for the blood sugar (NMES lowers glycaemia at any rate; best 30–60 min after a meal)
+                Phase w = phase(out, "WARMUP", "Загряване", "Warm-up", 0.12, total, 1.0, 1.0);
                 w.steps.add(twitch(5, 250, 10, 1, 1.0));
-                Phase m = phase(out, "MAIN", "Сила на краката", "Leg strength", 0.45, total, 1.0, 1.0);
+                Phase m = phase(out, "MAIN", "Сила на краката", "Leg strength", 0.40, total, 1.0, 1.0);
                 m.window = Window.main();
                 m.hintBg = "Седни удобно, стъпалата на пода — краката работят сами";
                 m.hintEn = "Sit comfortably, feet on the floor — the legs work by themselves";
                 Step ls = tet(50, 350, 4, 8);
                 ls.zones = only(LOWER);
                 m.steps.add(ls);
-                Phase ps = phase(out, "POSTURE", "Стойка", "Posture", 0.25, total, 1.0, 1.0);
+                Phase ps = phase(out, "POSTURE", "Стойка", "Posture", 0.23, total, 1.0, 1.0);
                 ps.hintBg = "Седни изправен — гърбът и раменете работят";
                 ps.hintEn = "Sit up — the back and shoulders work";
                 Step bs = tet(50, 300, 4, 8);
                 bs.zones = only(POSTURE);
                 ps.steps.add(bs);
-                Phase f = phase(out, "FLOW", "Кръвоток", "Blood flow", 0.15, total, 1.0, 1.0);
+                Phase f = phase(out, "SUGAR", "Захар", "Blood sugar", 0.25, total, 1.0, 1.0);
+                f.hintBg = "Отпусни се — краката потрепват ритмично; най-добре 30–60 мин след хранене";
+                f.hintEn = "Relax — the legs twitch in a rhythm; best 30–60 min after a meal";
                 Step fs = twitch(5, 300, 10, 1, 1.0);
                 fs.zones = only(CALF, FRONT_THIGH, BACK_THIGH, GLUTES);
                 f.steps.add(fs);

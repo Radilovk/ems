@@ -120,6 +120,19 @@ public final class AutoCues {
                     "Massage: better blood flow, relaxation and faster recovery after training.");
         }
         // the phases of the passive versions and of the reviewed 50+ (1.1.526, spec §6.11 / §6.13)
+        // 50+ = gerontology (1.1.527, spec §6.15)
+        if ("BONE".equals(p)) {
+            return AiText.t("Кости: силното стягане и леките удари на петите натоварват костта — сигнал да пази плътността си.",
+                    "Bone: the strong hold and the light heel drops load the bone — a signal to keep its density.");
+        }
+        if ("SUGAR".equals(p)) {
+            return AiText.t("Захар: големите мускули на краката поемат захар от кръвта с всяко съкращение.",
+                    "Blood sugar: the big leg muscles take sugar from the blood with every contraction.");
+        }
+        if (AutoCatalog.SENIOR.equals(id) && "MAIN".equals(p)) {
+            return AiText.t("Мускули: стягане срещу загубата на мускулна маса с възрастта — сила за стол, стълби, покупки.",
+                    "Muscle: holds against the loss of muscle with age — strength for the chair, the stairs, the shopping.");
+        }
         if ("FLOW".equals(p)) {
             return AiText.t("Кръвоток: ритмични потрепвания помпят кръвта и отнасят умората от стягането.",
                     "Blood flow: rhythmic twitches pump the blood and carry away the fatigue of the holds.");

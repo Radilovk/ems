@@ -134,21 +134,21 @@ public final class ProgramGuide {
                         ACTIVE_OFTEN_BG, ACTIVE_OFTEN_EN,
                         "Курс от 8–12 тренировки", "A course of 8–12 sessions");
             case AutoCatalog.SENIOR:
-                return e("Сила за всеки ден: ставане от стол, стълби, носене на покупки — бавни, сигурни движения.",
-                        "Кратък блок бързина: след 50 г. тя пада първа, а пази от падане.",
-                        "Първите тренировки са по-кратки — тялото свиква постепенно.",
-                        "Strength for every day: rising from a chair, stairs, carrying shopping — slow, safe moves.",
-                        "A short speed block: after 50 speed fades first, and it prevents falls.",
-                        "The first sessions are shorter — the body gets used to it step by step.",
+                return e("Срещу загубата на мускули с възрастта: сила и бързина за стол, стълби и сигурна крачка.",
+                        "Кости: стягане с леки удари на петите — сигнал костта да пази плътността си.",
+                        "Захар и менопауза: краката поемат захар; мускулите и костите се пазят, когато хормоните спадат.",
+                        "Against the loss of muscle with age: strength and speed for the chair, the stairs, a sure step.",
+                        "Bone: holds with light heel drops — a signal for the bone to keep its density.",
+                        "Sugar and menopause: the legs take up sugar; muscle and bone are kept as the hormones fall.",
                         "1 път седмично в началото, после до 2", "Once a week at first, then up to twice",
                         "Курс от 10–12 тренировки", "A course of 10–12 sessions");
             case AutoCatalog.ANTIAGE:
-                return e("Работещите мускули пускат в кръвта вещества, които успокояват възпалението и пазят клетките.",
-                        "Ходенето с импулса натоварва целите крака — сигнал, полезен и за мозъка.",
-                        "Кратки интервали с всичка сила и веднага отдих — тялото отговаря с повече защита.",
-                        "Working muscles release substances into the blood that calm inflammation and protect the cells.",
-                        "Walking with the impulse loads the whole legs — a signal that is good for the brain too.",
-                        "Short all-out intervals and rest right away — the body answers with more protection.",
+                return e("Дълголетие на всяка възраст: пази младостта на клетките, не лекува възрастта (тя е 50+).",
+                        "Мускулите пускат вещества срещу възпалението; ходенето с импулса храни мозъка.",
+                        "Кратки интервали с всичка сила — издръжливостта е най-силният знак за дълъг живот.",
+                        "Longevity at any age: keeps the cells young, it does not treat age (that is 50+).",
+                        "The muscles release substances against inflammation; walking with the impulse feeds the brain.",
+                        "Short all-out intervals — endurance is the strongest sign of a long life.",
                         ACTIVE_OFTEN_BG, ACTIVE_OFTEN_EN,
                         "Курс от 16 тренировки за 8 седмици", "A course of 16 sessions in 8 weeks");
             case AutoCatalog.CELLULITE:
@@ -206,11 +206,11 @@ public final class ProgramGuide {
                         "След всяка тежка тренировка", "After every hard session",
                         "Колкото е нужно", "As needed");
             case AutoCatalog.ANTIAGE_PASSIVE:
-                return e("Ритмичната работа на краката поема захар от кръвта — особено полезно след хранене.",
-                        "Краката работят целите — сигнал, полезен и за мозъка.",
+                return e("Дълголетие в покой: захарта, мозъкът и съдовете — пътищата, по които тялото старее.",
+                        "Краката работят целите — поемат захар и подават сигнал, полезен за мозъка.",
                         "Леко потрепване накрая — съдовете на краката стават по-еластични.",
-                        "The rhythmic work of the legs takes sugar from the blood — most useful after a meal.",
-                        "The whole legs work — a signal that is good for the brain too.",
+                        "Longevity at rest: sugar, brain and vessels — the paths by which the body ages.",
+                        "The whole legs work — they take up sugar and send a signal good for the brain.",
                         "A light twitching at the end — the leg vessels grow more elastic.",
                         "2–3 пъти седмично", "2–3 times a week",
                         "Курс от 12 процедури за 6 седмици", "A course of 12 treatments in 6 weeks");
@@ -274,12 +274,12 @@ public final class ProgramGuide {
                         "For the experienced — after the first 4 sessions.",
                         "1 път седмично", "Once a week", "Курс от 6–8 процедури", "A course of 6–8 treatments");
             case AutoCatalog.SENIOR_P:
-                return e("Седнал, краката работят сами — по-лесно ставане от стол и ходене.",
-                        "После гърбът и раменете — за по-изправена стойка.",
-                        "Без натоварване на ставите — подходящо и когато движението е трудно.",
-                        "Seated, the legs work by themselves — easier rising from a chair and walking.",
-                        "Then the back and shoulders — for a straighter posture.",
-                        "No load on the joints — suitable when moving is hard too.",
+                return e("Седнал, краката работят сами — срещу загубата на мускули, по-лесно ставане.",
+                        "Гърбът и раменете — срещу прегърбването с възрастта.",
+                        "Накрая ритъм на краката за захарта — най-добре 30–60 мин след хранене.",
+                        "Seated, the legs work by themselves — against muscle loss, easier rising.",
+                        "The back and shoulders — against the stoop of age.",
+                        "At the end a leg rhythm for the blood sugar — best 30–60 min after a meal.",
                         PASSIVE_OFTEN_BG, PASSIVE_OFTEN_EN, "Курс от 12 процедури за 6 седмици",
                         "A course of 12 treatments in 6 weeks");
             default:

@@ -85,7 +85,7 @@ input:focus{border-color:var(--red);box-shadow:0 0 0 3px color-mix(in srgb,var(-
       <div class="btns full">
         <button type="submit" class="btn pri" id="pdf" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0-5-5m5 5 5-5M4 19h16"/></svg>Изтегли PDF за печат</button>
         <button type="button" class="btn" id="png" disabled>Изтегли изображение (PNG)</button>
-        <div class="status" id="status" aria-live="polite">A4 хоризонтално, 300 dpi — отпечатва се без полета.</div>
+        <div class="status" id="status" aria-live="polite">Поредният № се дава при изтеглянето. A4 хоризонтално, 300 dpi.</div>
       </div>
     </form>
   </div>
@@ -107,7 +107,19 @@ const hot=window.claude&&window.claude.hot;
 if(hot&&hot.data){if(hot.data.name)state.name=hot.data.name;if(FONTS[hot.data.font])state.font=hot.data.font}
 if(hot&&hot.snapshot)hot.snapshot(()=>state);
 
-function certNo(name){let h=2166136261;for(const c of (name.trim().toLowerCase()+DATE)){h^=c.codePointAt(0);h=Math.imul(h,16777619)>>>0}return `${String(now.getFullYear()).slice(2)}${pad(now.getMonth()+1)}${pad(now.getDate())}-${String(h%100000).padStart(5,'0')}`}
+// serial number: given by the server (/v1/cert) at download; the same name keeps its number
+const nameKey=n=>n.replace(/\s+/g,' ').trim().toLocaleLowerCase('bg');
+const issued={};
+const certNo=name=>issued[nameKey(name)]||'';
+function localNo(name){let h=2166136261;for(const c of nameKey(name)+DATE){h^=c.codePointAt(0);h=Math.imul(h,16777619)>>>0}return 'L'+String(h%100000).padStart(5,'0')}
+async function issueNo(name){
+  const key=nameKey(name);if(issued[key])return issued[key];
+  if(!/^https?:$/.test(location.protocol)||location.hostname.endsWith('claudeusercontent.com'))return issued[key]=localNo(name);
+  const r=await fetch('/v1/cert',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name})});
+  const j=await r.json().catch(()=>({}));
+  if(!r.ok||!j.ok)throw new Error(j.error==='busy'?'твърде много опити, след малко пак':'сървърът не отговори');
+  return issued[key]=j.no;
+}
 
 function draw(cv,preview){
   const ctx=cv.getContext('2d'),k=cv.width/W_MM,u=v=>v*k,CX=W_MM/2;
@@ -168,7 +180,8 @@ function draw(cv,preview){
     txt(l,cx,fy+6.6,2.5,'Manrope','#8a8e96',{w:'600',ls:.12});txt(v,cx,fy+12.4,3.6,'Manrope',BLACK,{w:'700'})});
   // footer: registration no. | medallion | signature
   const by=176,sw=62,lx1=44,lx2=W_MM-44;
-  txt('№ '+certNo(state.name),lx1+sw/2,by-2.4,4,'Manrope',BLACK,{w:'600',ls:.2});
+  const no=certNo(state.name);
+  txt(no?'№ '+no:'№ · · · · ·',lx1+sw/2,by-2.4,4,'Manrope',no?BLACK:'#b9bcc2',{w:'600',ls:.2});
   line(lx1,by,lx1+sw,by,.22,'#55575d');
   txt('Регистрационен номер',lx1+sw/2,by+5,2.9,'Manrope',BLACK,{w:'700'});
   line(lx2-sw,by,lx2,by,.22,'#55575d');
@@ -199,7 +212,7 @@ const nameI=$('name'),pdfB=$('pdf'),pngB=$('png'),st=$('status');
 nameI.value=state.name;
 const save=()=>{try{localStorage.setItem('xems-cert',JSON.stringify(state))}catch(e){}};
 const sync=()=>{const ok=state.name.trim().length>=3;pdfB.disabled=pngB.disabled=!ok;document.querySelectorAll('.chip').forEach(c=>c.setAttribute('aria-pressed',c.dataset.f===state.font))};
-nameI.addEventListener('input',()=>{state.name=nameI.value.replace(/\s+/g,' ');sync();save();redraw();if(state.name.trim().length>=3)setSt('A4 хоризонтално, 300 dpi — отпечатва се без полета.')});
+nameI.addEventListener('input',()=>{state.name=nameI.value.replace(/\s+/g,' ');sync();save();redraw();if(state.name.trim().length>=3)setSt('Поредният № се дава при изтеглянето. A4 хоризонтално, 300 dpi.')});
 $('chips').addEventListener('click',e=>{const b=e.target.closest('.chip');if(!b)return;state.font=b.dataset.f;sync();save();redraw()});
 sync();
 
@@ -228,10 +241,12 @@ async function deliver(blob,filename){
   if(dl){try{await dl.save({filename,data:blob});setSt('Готово — файлът е изтеглен ✓','ok')}catch(e){setSt(e&&e.code==='declined'?'Изтеглянето е отказано.':'Не стана: '+((e&&e.message)||'опитайте пак'),'err')}return}
   const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),4000);setSt('Готово — файлът е изтеглен ✓','ok');
 }
-const fileBase=()=>'Сертификат X-EMS PRO - '+state.name.trim().replace(/[\\/:*?"<>|]/g,'');
+const TR={а:'a',б:'b',в:'v',г:'g',д:'d',е:'e',ж:'zh',з:'z',и:'i',й:'y',к:'k',л:'l',м:'m',н:'n',о:'o',п:'p',р:'r',с:'s',т:'t',у:'u',ф:'f',х:'h',ц:'ts',ч:'ch',ш:'sh',щ:'sht',ъ:'a',ь:'y',ю:'yu',я:'ya'};
+const latin=t=>[...t].map(c=>{const l=c.toLowerCase(),r=TR[l];if(r===undefined)return c;return c===l?r:r.charAt(0).toUpperCase()+r.slice(1)}).join('');
+const fileBase=()=>'XEMS-Sertifikat-'+(latin(state.name.trim()).normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^A-Za-z0-9]+/g,'-').replace(/^-|-$/g,'')||'trener');
 async function run(btn,kind){
   if(btn.disabled)return;const keep=btn.innerHTML;btn.disabled=true;btn.textContent='Подготвям…';setSt('Рисувам в 300 dpi…');
-  try{await document.fonts.ready;const c=exportCanvas();
+  try{await document.fonts.ready;setSt('Взимам пореден номер…');await issueNo(state.name);redraw();setSt('Рисувам в 300 dpi…');const c=exportCanvas();
     if(kind==='pdf'){const j=new Uint8Array(await (await toBlob(c,'image/jpeg',.95)).arrayBuffer());await deliver(pdfFromJpeg(j,EXP_W,EXP_H),fileBase()+'.pdf')}
     else await deliver(await toBlob(c,'image/png'),fileBase()+'.png');
   }catch(e){setSt('Не стана: '+e.message,'err')}

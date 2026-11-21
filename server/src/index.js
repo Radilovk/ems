@@ -13,6 +13,8 @@ import { normalizePick, picksPayload, codeMatches, selectionPayload, APPS, appOf
 import { LIMITS, limitsSummary } from './limits.js';
 import { handleUnitUpdate, handleUnitPack, handleUnitLog, handleUnitLogRead, adminUnits } from './units.js';
 import { handleVrlogPut, handleVrlogGet } from './vrlog.js';
+import { handleCertIssue } from './cert.js';
+import certHtml from '../../branding/certificate/index.html';
 import { handleWiemsUpdate, handleWiemsApk, handleWiemsSeen } from './wiemsapp.js';
 import {
   sessionId, validSummary, validRec, putSession, historyJson, SESSION_MAX_BYTES,
@@ -143,6 +145,14 @@ export default {
         return handleVrlogPut(request, env, url, (k, max, sec) => rateLimit(env, k, max, sec));
       }
       if (path.startsWith('/v1/vrlog/') && request.method === 'GET') return handleVrlogGet(env, path.slice('/v1/vrlog/'.length));
+
+      // Trainer certificate: the page, and its serial number (src/cert.js).
+      if ((path === '/cert' || path === '/cert/') && request.method === 'GET') {
+        return new Response(certHtml, { headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'public, max-age=300', 'X-Robots-Tag': 'noindex' } });
+      }
+      if (path === '/v1/cert' && request.method === 'POST') {
+        return handleCertIssue(request, env, (k, max, sec) => rateLimit(env, k, max, sec));
+      }
 
       if (path.startsWith('/releases/')) {
         return serveRelease(request, env, path);

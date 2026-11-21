@@ -9,6 +9,7 @@ on:
     paths:
       - 'server/**'
       - 'branding/report/client-card.html'
+      - 'branding/certificate/index.html'
       - '.github/workflows/server-deploy.yml'
 concurrency: server-deploy
 jobs:

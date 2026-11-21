@@ -9,7 +9,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;800&family=Manrope:wght@500;600;700;800&family=Great+Vibes&family=Cormorant+Garamond:ital,wght@1,600&display=swap" rel="stylesheet">
 <style>
 /* VOICE occasion: a formal award from a sports-tech brand, calm and exact
-   IDEA a classic printed A4 diploma: white paper, fine double frame, type only
+   IDEA a security-paper diploma: guilloche border woven from EMS sine waves, a fine rosette seal
    PICTURE the certificate drawn on canvas, the same drawing exported at 300 dpi
    COLOUR paper white, graphite black, greys, one signal red #d7141f
    TYPE Manrope; small Unbounded wordmark; name in Cormorant / Great Vibes / Manrope
@@ -112,46 +112,76 @@ function certNo(name){let h=2166136261;for(const c of (name.trim().toLowerCase()
 function draw(cv,preview){
   const ctx=cv.getContext('2d'),k=cv.width/W_MM,u=v=>v*k,CX=W_MM/2;
   ctx.setTransform(1,0,0,1,0,0);ctx.clearRect(0,0,cv.width,cv.height);
-  const txt=(t,x,y,size,font,color,opt={})=>{ctx.font=`${opt.st||''}${opt.w||'500'} ${u(size)}px ${font}`;ctx.fillStyle=color;ctx.textAlign=opt.a||'center';ctx.textBaseline='alphabetic';if('letterSpacing' in ctx)ctx.letterSpacing=u(opt.ls||0)+'px';ctx.fillText(t,u(x)+(opt.a==='center'||!opt.a?u(opt.ls||0)/2:0),u(y));if('letterSpacing' in ctx)ctx.letterSpacing='0px'};
+  const LS='letterSpacing' in ctx;
+  const txt=(t,x,y,size,font,color,opt={})=>{ctx.font=`${opt.st||''}${opt.w||'500'} ${u(size)}px ${font}`;ctx.fillStyle=color;const a=opt.a||'center';ctx.textAlign=a;ctx.textBaseline='alphabetic';if(LS)ctx.letterSpacing=u(opt.ls||0)+'px';ctx.fillText(t,u(x)+(a==='center'&&LS?u(opt.ls||0)/2:0),u(y));if(LS)ctx.letterSpacing='0px'};
   const line=(x1,y1,x2,y2,w,c)=>{ctx.beginPath();ctx.moveTo(u(x1),u(y1));ctx.lineTo(u(x2),u(y2));ctx.lineWidth=u(w);ctx.strokeStyle=c;ctx.stroke()};
   ctx.fillStyle='#fff';ctx.fillRect(0,0,cv.width,cv.height);
-  // double frame: fine black outer, hairline grey inner
-  ctx.lineWidth=u(.5);ctx.strokeStyle=BLACK;ctx.strokeRect(u(12),u(12),u(W_MM-24),u(H_MM-24));
-  ctx.lineWidth=u(.2);ctx.strokeStyle=HAIR;ctx.strokeRect(u(14.5),u(14.5),u(W_MM-29),u(H_MM-29));
-  // wordmark, small, top centre
-  ctx.font=`700 ${u(3.6)}px Unbounded`;if('letterSpacing' in ctx)ctx.letterSpacing=u(.5)+'px';
-  const wX=ctx.measureText('X').width/k,wR=ctx.measureText('-EMS PRO').width/k;if('letterSpacing' in ctx)ctx.letterSpacing='0px';
+  // guilloche border woven from sine waves, between outer (10mm) and inner (16mm) frames
+  const O=10,I=16,B=I-O,mid=O+B/2;
+  ctx.save();ctx.beginPath();ctx.rect(u(O),u(O),u(W_MM-2*O),u(H_MM-2*O));ctx.rect(u(I),u(I),u(W_MM-2*I),u(H_MM-2*I));ctx.clip('evenodd');
+  ctx.lineWidth=u(.11);
+  const waves=[[0,'#c3c3c9'],[Math.PI/3,'#d2d2d7'],[2*Math.PI/3,'#c3c3c9'],[Math.PI,'#d2d2d7'],[4*Math.PI/3,'#c3c3c9'],[5*Math.PI/3,'#d2d2d7']];
+  const run=(len,pt)=>waves.forEach(([ph,c],j)=>{ctx.beginPath();ctx.strokeStyle=c;const amp=B/2*(j%2?.62:.9);for(let s=0;s<=len;s+=.25){const v=amp*Math.sin(s/9*2*Math.PI+ph);const [x,y]=pt(s,v);ctx[s?'lineTo':'moveTo'](u(x),u(y))}ctx.stroke()});
+  run(W_MM-2*O,(s,v)=>[O+s,mid+v]);run(W_MM-2*O,(s,v)=>[O+s,H_MM-mid+v]);
+  run(H_MM-2*O,(s,v)=>[mid+v,O+s]);run(H_MM-2*O,(s,v)=>[W_MM-mid+v,O+s]);
+  ctx.restore();
+  ctx.lineWidth=u(.35);ctx.strokeStyle=BLACK;ctx.strokeRect(u(O),u(O),u(W_MM-2*O),u(H_MM-2*O));
+  ctx.lineWidth=u(.18);ctx.strokeStyle='#9d9da4';ctx.strokeRect(u(I),u(I),u(W_MM-2*I),u(H_MM-2*I));
+  [[O,O],[W_MM-I,O],[O,H_MM-I],[W_MM-I,H_MM-I]].forEach(([x,y])=>{ctx.fillStyle='#fff';ctx.fillRect(u(x),u(y),u(B),u(B));ctx.lineWidth=u(.18);ctx.strokeStyle='#9d9da4';ctx.strokeRect(u(x+1.2),u(y+1.2),u(B-2.4),u(B-2.4));ctx.beginPath();ctx.arc(u(x+B/2),u(y+B/2),u(.75),0,Math.PI*2);ctx.fillStyle=RED;ctx.fill()});
+  // wordmark + number
+  ctx.font=`700 ${u(3.4)}px Unbounded`;if(LS)ctx.letterSpacing=u(.6)+'px';
+  const wX=ctx.measureText('X').width/k,wR=ctx.measureText('-EMS PRO').width/k;if(LS)ctx.letterSpacing='0px';
   const wx=CX-(wX+wR)/2;
-  txt('X',wx,32,3.6,'Unbounded',RED,{w:'700',a:'left',ls:.5});
-  txt('-EMS PRO',wx+wX,32,3.6,'Unbounded',BLACK,{w:'700',a:'left',ls:.5});
-  txt('№ '+certNo(state.name),W_MM-24,26,2.8,'Manrope','#8a8a91',{w:'600',a:'right',ls:.2});
+  txt('X',wx,33,3.4,'Unbounded',RED,{w:'700',a:'left',ls:.6});
+  txt('-EMS PRO',wx+wX,33,3.4,'Unbounded',BLACK,{w:'700',a:'left',ls:.6});
+  txt('№ '+certNo(state.name),W_MM-25,28,2.6,'Manrope','#8a8a91',{w:'600',a:'right',ls:.2});
   // title
-  txt('СЕРТИФИКАТ',CX,62,13,'Manrope',BLACK,{w:'800',ls:3.2});
-  ctx.fillStyle=RED;ctx.fillRect(u(CX-7),u(69),u(14),u(.7));
-  txt('Удостоверява се, че',CX,84,4.6,'Manrope',GREY,{w:'500'});
+  txt('СЕРТИФИКАТ',CX,58,11.5,'Manrope',BLACK,{w:'700',ls:3.6});
+  // divider: hairlines with a small biphasic impulse in the middle
+  const dy=66,pw=13;
+  const fade=(x1,x2,rev)=>{const g=ctx.createLinearGradient(u(x1),0,u(x2),0);g.addColorStop(rev?1:0,'rgba(18,18,20,0)');g.addColorStop(rev?0:1,'rgba(18,18,20,.55)');line(x1,dy,x2,dy,.18,g)};
+  fade(CX-38,CX-pw/2,false);fade(CX+pw/2,CX+38,true);
+  ctx.beginPath();let x=CX-pw/2;ctx.moveTo(u(x),u(dy));
+  [1.1,2.1,1.1].forEach(a=>{x+=1.2;ctx.lineTo(u(x),u(dy));ctx.lineTo(u(x),u(dy-a));x+=.9;ctx.lineTo(u(x),u(dy-a));ctx.lineTo(u(x),u(dy+a*.6));x+=.9;ctx.lineTo(u(x),u(dy+a*.6));ctx.lineTo(u(x),u(dy))});
+  ctx.lineTo(u(CX+pw/2),u(dy));ctx.lineWidth=u(.28);ctx.strokeStyle=RED;ctx.lineJoin='miter';ctx.stroke();
+  txt('Удостоверява се, че',CX,80,4.4,'Manrope',GREY,{w:'500'});
   // name
   const F=FONTS[state.font],nm=state.name.trim(),show=nm||'Вашето име';
   let size=F.max;ctx.font=`${F.st}${F.w} ${u(size)}px ${F.f}`;
-  while(ctx.measureText(show).width>u(185)&&size>6){size-=.25;ctx.font=`${F.st}${F.w} ${u(size)}px ${F.f}`}
-  txt(show,CX,108,size,F.f,nm?BLACK:'#c8c8cd',{w:F.w,st:F.st});
-  line(CX-80,114,CX+80,114,.25,'#b8b8be');
-  txt('име, презиме и фамилия',CX,119,2.6,'Manrope','#9a9aa1',{w:'500'});
+  while(ctx.measureText(show).width>u(180)&&size>6){size-=.25;ctx.font=`${F.st}${F.w} ${u(size)}px ${F.f}`}
+  txt(show,CX,102,size,F.f,nm?BLACK:'#c8c8cd',{w:F.w,st:F.st});
+  const gl=ctx.createLinearGradient(u(CX-82),0,u(CX+82),0);gl.addColorStop(0,'rgba(18,18,20,0)');gl.addColorStop(.18,'rgba(18,18,20,.45)');gl.addColorStop(.82,'rgba(18,18,20,.45)');gl.addColorStop(1,'rgba(18,18,20,0)');
+  line(CX-82,108,CX+82,108,.22,gl);
+  txt('име, презиме и фамилия',CX,113,2.5,'Manrope','#9a9aa1',{w:'500',ls:.15});
   // course text
-  txt('премина обучение за провеждане на тренировки',CX,133,4.8,'Manrope','#2b2b30',{w:'500'});
-  ctx.font=`500 ${u(4.8)}px Manrope`;const p1='и безопасна работа с EMS оборудване ',w1=ctx.measureText(p1).width/k;
-  ctx.font=`800 ${u(4.8)}px Manrope`;const w2=ctx.measureText('X-EMS PRO').width/k,lx=CX-(w1+w2)/2;
-  txt(p1,lx,140.5,4.8,'Manrope','#2b2b30',{w:'500',a:'left'});
-  txt('X-EMS PRO',lx+w1,140.5,4.8,'Manrope',BLACK,{w:'800',a:'left'});
-  txt('('+HOURS+')',CX,148,3.8,'Manrope',GREY,{w:'500'});
+  txt('премина обучение за провеждане на тренировки',CX,126,4.6,'Manrope','#2b2b30',{w:'500'});
+  ctx.font=`500 ${u(4.6)}px Manrope`;const p1='и безопасна работа с EMS оборудване ',w1=ctx.measureText(p1).width/k;
+  ctx.font=`800 ${u(4.6)}px Manrope`;const w2=ctx.measureText('X-EMS PRO').width/k,lx=CX-(w1+w2)/2;
+  txt(p1,lx,133.2,4.6,'Manrope','#2b2b30',{w:'500',a:'left'});
+  txt('X-EMS PRO',lx+w1,133.2,4.6,'Manrope',BLACK,{w:'800',a:'left'});
+  txt('('+HOURS+')',CX,140.5,3.6,'Manrope',GREY,{w:'500'});
+  // medallion: fine rosette of rotated ellipses, thin red ring, X in the centre
+  const mx=CX,my=170,mr=14.5;
+  ctx.save();ctx.translate(u(mx),u(my));ctx.lineWidth=u(.09);ctx.strokeStyle='#b4b4bb';
+  for(let i=0;i<48;i++){ctx.save();ctx.rotate(i*Math.PI/24);ctx.beginPath();ctx.ellipse(u(4.6),0,u(4.6),u(1.9),0,0,Math.PI*2);ctx.stroke();ctx.restore()}
+  ctx.restore();
+  ctx.beginPath();ctx.arc(u(mx),u(my),u(mr),0,Math.PI*2);ctx.lineWidth=u(.3);ctx.strokeStyle=RED;ctx.stroke();
+  ctx.beginPath();ctx.arc(u(mx),u(my),u(mr-4.2),0,Math.PI*2);ctx.lineWidth=u(.15);ctx.strokeStyle='#9d9da4';ctx.stroke();
+  ctx.beginPath();ctx.arc(u(mx),u(my),u(3.4),0,Math.PI*2);ctx.fillStyle='#fff';ctx.fill();ctx.lineWidth=u(.15);ctx.strokeStyle='#9d9da4';ctx.stroke();
+  txt('X',mx,my+1.45,4,'Unbounded',RED,{w:'700'});
+  const ring='X-EMS PRO  ·  ЕЛЕКТРОМИОСТИМУЛАЦИЯ  ·  '+now.getFullYear()+'  ·  ';
+  ctx.font=`600 ${u(1.85)}px Manrope`;ctx.fillStyle='#55555c';ctx.textAlign='center';ctx.textBaseline='middle';
+  const ch=[...ring],ws=ch.map(c=>ctx.measureText(c).width+u(.28)),tot=ws.reduce((a,b)=>a+b,0),R=u(mr-2.1),sc=2*Math.PI*R/tot;let ang=-Math.PI/2-ws.slice(0,9).reduce((a,b)=>a+b,0)*sc/R/2;
+  ch.forEach((c,i)=>{const a=ws[i]*sc/R;ctx.save();ctx.translate(u(mx)+R*Math.cos(ang+a/2),u(my)+R*Math.sin(ang+a/2));ctx.rotate(ang+a/2+Math.PI/2);ctx.fillText(c,0,0);ctx.restore();ang+=a});
   // footer
-  const fy=172,lx1=46,lx2=W_MM-46,fw=62;
+  const fy=172,lx1=40,lx2=W_MM-40,fw=64;
   txt(DATE,lx1+fw/2,fy-2.4,4.2,'Manrope',BLACK,{w:'600'});
-  line(lx1,fy,lx1+fw,fy,.3,BLACK);
-  txt('Дата',lx1+fw/2,fy+5,3.1,'Manrope',BLACK,{w:'700'});
-  txt(PLACE,lx1+fw/2,fy+9.5,2.8,'Manrope',GREY,{w:'500'});
-  line(lx2-fw,fy,lx2,fy,.3,BLACK);
-  txt(SIGNER,lx2-fw/2,fy+5,3.1,'Manrope',BLACK,{w:'700'});
-  txt(SIGNER_ROLE,lx2-fw/2,fy+9.5,2.8,'Manrope',GREY,{w:'500'});
+  line(lx1,fy,lx1+fw,fy,.25,BLACK);
+  txt('Дата',lx1+fw/2,fy+5,3,'Manrope',BLACK,{w:'700'});
+  txt(PLACE,lx1+fw/2,fy+9.3,2.7,'Manrope',GREY,{w:'500'});
+  line(lx2-fw,fy,lx2,fy,.25,BLACK);
+  txt(SIGNER,lx2-fw/2,fy+5,3,'Manrope',BLACK,{w:'700'});
+  txt(SIGNER_ROLE,lx2-fw/2,fy+9.3,2.7,'Manrope',GREY,{w:'500'});
 }
 
 const cv=$('cv'),sheet=$('sheet');

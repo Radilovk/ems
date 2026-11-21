@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Сертификат X-EMS PRO</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;800&family=Manrope:wght@500;600;700;800&family=Great+Vibes&family=Cormorant+Garamond:ital,wght@1,600&display=swap" rel="stylesheet">
+<style>
+/* VOICE occasion: a formal award from a sports-tech brand, calm and exact
+   IDEA a classic printed A4 diploma: white paper, fine double frame, type only
+   PICTURE the certificate drawn on canvas, the same drawing exported at 300 dpi
+   COLOUR paper white, graphite black, greys, one signal red #d7141f
+   TYPE Manrope; small Unbounded wordmark; name in Cormorant / Great Vibes / Manrope
+   LAYOUT laptop: sheet left, one calm panel right; phone: title, sheet, panel */
+:root{color-scheme:light dark;--bg:light-dark(#e7e7ea,#0e0e10);--ink:light-dark(#121214,#f1f1f3);--mute:light-dark(#66666d,#9a9aa2);--card:light-dark(#fff,#18181b);--line:light-dark(#d4d4d9,#2c2c31);--red:#d7141f;--redd:#b00e18}
+:root[data-theme=light]{color-scheme:light}
+:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:16px/1.5 Manrope,system-ui,sans-serif;overflow-x:clip}
+.wrap{max-width:1360px;margin:0 auto;padding:clamp(18px,3vw,40px) max(3vw,16px)}
+header{display:flex;align-items:center;gap:14px;margin-bottom:clamp(16px,2.4vw,28px)}
+header svg{width:44px;height:44px;flex:none}
+h1{font:800 clamp(24px,3vw,34px)/1.05 Unbounded,Manrope,sans-serif;letter-spacing:-.02em;margin:0}
+header p{margin:2px 0 0;color:var(--mute);font-size:15px}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:clamp(16px,2.4vw,32px);align-items:start}
+.sheet{position:relative;aspect-ratio:297/210;background:#fff;border-radius:6px;box-shadow:0 1px 2px rgba(0,0,0,.12),0 18px 40px -18px rgba(0,0,0,.35);overflow:hidden}
+.sheet canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px;display:grid;gap:18px;position:sticky;top:16px}
+label,.lbl{font-weight:700;font-size:15px;display:block;margin-bottom:8px}
+input{width:100%;font:600 18px Manrope,sans-serif;color:var(--ink);background:var(--bg);border:1.5px solid var(--line);border-radius:10px;padding:12px 14px;min-height:50px;outline:none;transition:border-color .15s,box-shadow .15s}
+input:focus{border-color:var(--red);box-shadow:0 0 0 3px color-mix(in srgb,var(--red) 22%,transparent)}
+.hint{font-size:13px;color:var(--mute);margin-top:6px}
+.chips{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.chip{min-height:56px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);border-radius:10px;cursor:pointer;display:grid;place-items:center;padding:6px 4px;transition:border-color .15s,background .15s,transform .1s}
+.chip span{font-size:13px;color:var(--mute);font-family:Manrope,sans-serif}
+.chip b{font-weight:400;font-size:22px;line-height:1.1}
+.chip[aria-pressed=true]{border-color:var(--red);background:color-mix(in srgb,var(--red) 8%,var(--card))}
+.chip:active,.btn:active{transform:scale(.97)}
+.chip:focus-visible,.btn:focus-visible{outline:3px solid color-mix(in srgb,var(--red) 45%,transparent);outline-offset:2px}
+.date{display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding:12px 14px;border-radius:10px;background:var(--bg);font-weight:700}
+.date span{font-weight:500;font-size:13px;color:var(--mute)}
+.btns{display:grid;gap:10px}
+.btn{min-height:52px;border-radius:10px;font:700 16px Manrope,sans-serif;cursor:pointer;border:1.5px solid var(--ink);background:transparent;color:var(--ink);display:flex;align-items:center;justify-content:center;gap:10px;transition:background .15s,opacity .15s,transform .1s}
+.btn.pri{background:var(--red);border-color:var(--red);color:#fff}
+.btn.pri:hover{background:var(--redd)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn svg{width:20px;height:20px}
+.status{min-height:20px;font-size:14px;color:var(--mute)}
+.status.ok{color:light-dark(#137a3a,#5fd38d)}
+.status.err{color:var(--red)}
+@media(max-width:980px){.grid{grid-template-columns:minmax(0,1fr)}.panel{position:static;grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:start}.panel .full{grid-column:1/-1}}
+@media(max-width:600px){.panel{grid-template-columns:minmax(0,1fr);padding:18px}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <svg viewBox="0 0 44 44" aria-hidden="true"><rect width="44" height="44" rx="10" fill="#121214"/><path d="M11 10h7l15 24h-7z" fill="#fff"/><path d="M26 10h7L18 34h-7z" fill="#d7141f"/></svg>
+    <div><h1>Сертификат X-EMS PRO</h1><p>Напишете името си и изтеглете готовия за печат сертификат.</p></div>
+  </header>
+  <div class="grid">
+    <div class="sheet" id="sheet"><canvas id="cv" role="img" aria-label="Преглед на сертификата"></canvas></div>
+    <form class="panel" id="form" autocomplete="off">
+      <div class="full">
+        <label for="name">Име, презиме и фамилия</label>
+        <input id="name" name="name" maxlength="60" placeholder="напр. Мария Иванова Петрова" spellcheck="false">
+        <div class="hint">Точно както да стои на сертификата.</div>
+      </div>
+      <div>
+        <span class="lbl">Шрифт на името</span>
+        <div class="chips" id="chips">
+          <button type="button" class="chip" data-f="script" aria-pressed="false"><b style="font-family:'Great Vibes',cursive">Аа</b><span>Ръкописен</span></button>
+          <button type="button" class="chip" data-f="serif" aria-pressed="true"><b style="font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:600">Аа</b><span>Класически</span></button>
+          <button type="button" class="chip" data-f="sport" aria-pressed="false"><b style="font-family:Manrope,sans-serif;font-weight:700;font-size:20px">Аа</b><span>Строг</span></button>
+        </div>
+      </div>
+      <div>
+        <span class="lbl">Дата</span>
+        <div class="date"><b id="dateTxt"></b><span>днешна, сама се попълва</span></div>
+      </div>
+      <div class="btns full">
+        <button type="submit" class="btn pri" id="pdf" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0-5-5m5 5 5-5M4 19h16"/></svg>Изтегли PDF за печат</button>
+        <button type="button" class="btn" id="png" disabled>Изтегли изображение (PNG)</button>
+        <div class="status" id="status" aria-live="polite">A4 хоризонтално, 300 dpi — отпечатва се без полета.</div>
+      </div>
+    </form>
+  </div>
+</div>
+<script>
+{
+const W_MM=297,H_MM=210,EXP_W=3508,EXP_H=2480;
+const RED='#d7141f',BLACK='#121214',GREY='#6b6b72',HAIR='#d6d6db';
+const FONTS={script:{f:"'Great Vibes'",w:'400',st:'',max:18},serif:{f:"'Cormorant Garamond'",w:'600',st:'italic ',max:15},sport:{f:'Manrope',w:'700',st:'',max:11}};
+const SIGNER='Камен Радилов',SIGNER_ROLE='главен треньор',PLACE='София, България',HOURS='8 учебни часа';
+const $=id=>document.getElementById(id);
+const now=new Date();
+const pad=n=>String(n).padStart(2,'0');
+const DATE=`${pad(now.getDate())}.${pad(now.getMonth()+1)}.${now.getFullYear()} г.`;
+$('dateTxt').textContent=DATE;
+let state={name:'',font:'serif'};
+try{const s=JSON.parse(localStorage.getItem('xems-cert')||'{}');if(s.name)state.name=s.name;if(FONTS[s.font])state.font=s.font}catch(e){}
+const hot=window.claude&&window.claude.hot;
+if(hot&&hot.data){if(hot.data.name)state.name=hot.data.name;if(FONTS[hot.data.font])state.font=hot.data.font}
+if(hot&&hot.snapshot)hot.snapshot(()=>state);
+
+function certNo(name){let h=2166136261;for(const c of (name.trim().toLowerCase()+DATE)){h^=c.codePointAt(0);h=Math.imul(h,16777619)>>>0}return `${String(now.getFullYear()).slice(2)}${pad(now.getMonth()+1)}${pad(now.getDate())}-${String(h%100000).padStart(5,'0')}`}
+
+function draw(cv,preview){
+  const ctx=cv.getContext('2d'),k=cv.width/W_MM,u=v=>v*k,CX=W_MM/2;
+  ctx.setTransform(1,0,0,1,0,0);ctx.clearRect(0,0,cv.width,cv.height);
+  const txt=(t,x,y,size,font,color,opt={})=>{ctx.font=`${opt.st||''}${opt.w||'500'} ${u(size)}px ${font}`;ctx.fillStyle=color;ctx.textAlign=opt.a||'center';ctx.textBaseline='alphabetic';if('letterSpacing' in ctx)ctx.letterSpacing=u(opt.ls||0)+'px';ctx.fillText(t,u(x)+(opt.a==='center'||!opt.a?u(opt.ls||0)/2:0),u(y));if('letterSpacing' in ctx)ctx.letterSpacing='0px'};
+  const line=(x1,y1,x2,y2,w,c)=>{ctx.beginPath();ctx.moveTo(u(x1),u(y1));ctx.lineTo(u(x2),u(y2));ctx.lineWidth=u(w);ctx.strokeStyle=c;ctx.stroke()};
+  ctx.fillStyle='#fff';ctx.fillRect(0,0,cv.width,cv.height);
+  // double frame: fine black outer, hairline grey inner
+  ctx.lineWidth=u(.5);ctx.strokeStyle=BLACK;ctx.strokeRect(u(12),u(12),u(W_MM-24),u(H_MM-24));
+  ctx.lineWidth=u(.2);ctx.strokeStyle=HAIR;ctx.strokeRect(u(14.5),u(14.5),u(W_MM-29),u(H_MM-29));
+  // wordmark, small, top centre
+  ctx.font=`700 ${u(3.6)}px Unbounded`;if('letterSpacing' in ctx)ctx.letterSpacing=u(.5)+'px';
+  const wX=ctx.measureText('X').width/k,wR=ctx.measureText('-EMS PRO').width/k;if('letterSpacing' in ctx)ctx.letterSpacing='0px';
+  const wx=CX-(wX+wR)/2;
+  txt('X',wx,32,3.6,'Unbounded',RED,{w:'700',a:'left',ls:.5});
+  txt('-EMS PRO',wx+wX,32,3.6,'Unbounded',BLACK,{w:'700',a:'left',ls:.5});
+  txt('№ '+certNo(state.name),W_MM-24,26,2.8,'Manrope','#8a8a91',{w:'600',a:'right',ls:.2});
+  // title
+  txt('СЕРТИФИКАТ',CX,62,13,'Manrope',BLACK,{w:'800',ls:3.2});
+  ctx.fillStyle=RED;ctx.fillRect(u(CX-7),u(69),u(14),u(.7));
+  txt('Удостоверява се, че',CX,84,4.6,'Manrope',GREY,{w:'500'});
+  // name
+  const F=FONTS[state.font],nm=state.name.trim(),show=nm||'Вашето име';
+  let size=F.max;ctx.font=`${F.st}${F.w} ${u(size)}px ${F.f}`;
+  while(ctx.measureText(show).width>u(185)&&size>6){size-=.25;ctx.font=`${F.st}${F.w} ${u(size)}px ${F.f}`}
+  txt(show,CX,108,size,F.f,nm?BLACK:'#c8c8cd',{w:F.w,st:F.st});
+  line(CX-80,114,CX+80,114,.25,'#b8b8be');
+  txt('име, презиме и фамилия',CX,119,2.6,'Manrope','#9a9aa1',{w:'500'});
+  // course text
+  txt('премина обучение за провеждане на тренировки',CX,133,4.8,'Manrope','#2b2b30',{w:'500'});
+  ctx.font=`500 ${u(4.8)}px Manrope`;const p1='и безопасна работа с EMS оборудване ',w1=ctx.measureText(p1).width/k;
+  ctx.font=`800 ${u(4.8)}px Manrope`;const w2=ctx.measureText('X-EMS PRO').width/k,lx=CX-(w1+w2)/2;
+  txt(p1,lx,140.5,4.8,'Manrope','#2b2b30',{w:'500',a:'left'});
+  txt('X-EMS PRO',lx+w1,140.5,4.8,'Manrope',BLACK,{w:'800',a:'left'});
+  txt('('+HOURS+')',CX,148,3.8,'Manrope',GREY,{w:'500'});
+  // footer
+  const fy=172,lx1=46,lx2=W_MM-46,fw=62;
+  txt(DATE,lx1+fw/2,fy-2.4,4.2,'Manrope',BLACK,{w:'600'});
+  line(lx1,fy,lx1+fw,fy,.3,BLACK);
+  txt('Дата',lx1+fw/2,fy+5,3.1,'Manrope',BLACK,{w:'700'});
+  txt(PLACE,lx1+fw/2,fy+9.5,2.8,'Manrope',GREY,{w:'500'});
+  line(lx2-fw,fy,lx2,fy,.3,BLACK);
+  txt(SIGNER,lx2-fw/2,fy+5,3.1,'Manrope',BLACK,{w:'700'});
+  txt(SIGNER_ROLE,lx2-fw/2,fy+9.5,2.8,'Manrope',GREY,{w:'500'});
+}
+
+const cv=$('cv'),sheet=$('sheet');
+function redraw(){const b=sheet.getBoundingClientRect(),d=Math.min(window.devicePixelRatio||1,3);cv.width=Math.round(b.width*d);cv.height=Math.round(b.height*d);draw(cv,true)}
+const ro=new ResizeObserver(redraw);ro.observe(sheet);
+const specs=["400 40px 'Great Vibes'","italic 600 40px 'Cormorant Garamond'","700 40px Unbounded","800 40px Unbounded","500 40px Manrope","600 40px Manrope","700 40px Manrope","800 40px Manrope"];
+Promise.all(specs.map(s=>document.fonts.load(s,'АаБбЯя Aa 0123')).map(p=>p.catch(()=>null))).then(redraw);
+document.fonts.ready.then(redraw);
+
+const nameI=$('name'),pdfB=$('pdf'),pngB=$('png'),st=$('status');
+nameI.value=state.name;
+const save=()=>{try{localStorage.setItem('xems-cert',JSON.stringify(state))}catch(e){}};
+const sync=()=>{const ok=state.name.trim().length>=3;pdfB.disabled=pngB.disabled=!ok;document.querySelectorAll('.chip').forEach(c=>c.setAttribute('aria-pressed',c.dataset.f===state.font))};
+nameI.addEventListener('input',()=>{state.name=nameI.value.replace(/\s+/g,' ');sync();save();redraw();if(state.name.trim().length>=3)setSt('A4 хоризонтално, 300 dpi — отпечатва се без полета.')});
+$('chips').addEventListener('click',e=>{const b=e.target.closest('.chip');if(!b)return;state.font=b.dataset.f;sync();save();redraw()});
+sync();
+
+function setSt(t,c){st.textContent=t;st.className='status'+(c?' '+c:'')}
+function exportCanvas(){const c=document.createElement('canvas');c.width=EXP_W;c.height=EXP_H;draw(c,false);return c}
+const toBlob=(c,type,q)=>new Promise(r=>c.toBlob(r,type,q));
+function pdfFromJpeg(jpg,w,h){
+  const enc=new TextEncoder(),parts=[],offs=[];let len=0;
+  const push=x=>{const b=typeof x==='string'?enc.encode(x):x;parts.push(b);len+=b.length};
+  const obj=(n,s)=>{offs[n]=len;push(`${n} 0 obj\n${s}\nendobj\n`)};
+  push('%PDF-1.4\n%\xE2\xE3\xCF\xD3\n');
+  const pw=841.89,ph=595.28,content=`q ${pw} 0 0 ${ph} 0 0 cm /Im0 Do Q`;
+  obj(1,'<< /Type /Catalog /Pages 2 0 R >>');
+  obj(2,'<< /Type /Pages /Kids [3 0 R] /Count 1 >>');
+  obj(3,`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${pw} ${ph}] /Resources << /XObject << /Im0 5 0 R >> >> /Contents 4 0 R >>`);
+  obj(4,`<< /Length ${content.length} >>\nstream\n${content}\nendstream`);
+  offs[5]=len;push(`5 0 obj\n<< /Type /XObject /Subtype /Image /Width ${w} /Height ${h} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${jpg.length} >>\nstream\n`);push(jpg);push('\nendstream\nendobj\n');
+  obj(6,'<< /Title (X-EMS PRO Certificate) /Producer (X-EMS PRO) >>');
+  const xref=len;let x='xref\n0 7\n0000000000 65535 f \n';for(let i=1;i<=6;i++)x+=String(offs[i]).padStart(10,'0')+' 00000 n \n';
+  push(x+`trailer\n<< /Size 7 /Root 1 0 R /Info 6 0 R >>\nstartxref\n${xref}\n%%EOF`);
+  return new Blob(parts,{type:'application/pdf'});
+}
+const dlP=(window.claude&&window.claude.use)?Promise.resolve(window.claude.use('downloads')).catch(()=>null):Promise.resolve(null);
+async function deliver(blob,filename){
+  const dl=await dlP;
+  if(dl){try{await dl.save({filename,data:blob});setSt('Готово — файлът е изтеглен ✓','ok')}catch(e){setSt(e&&e.code==='declined'?'Изтеглянето е отказано.':'Не стана: '+((e&&e.message)||'опитайте пак'),'err')}return}
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),4000);setSt('Готово — файлът е изтеглен ✓','ok');
+}
+const fileBase=()=>'Сертификат X-EMS PRO - '+state.name.trim().replace(/[\\/:*?"<>|]/g,'');
+async function run(btn,kind){
+  if(btn.disabled)return;const keep=btn.innerHTML;btn.disabled=true;btn.textContent='Подготвям…';setSt('Рисувам в 300 dpi…');
+  try{await document.fonts.ready;const c=exportCanvas();
+    if(kind==='pdf'){const j=new Uint8Array(await (await toBlob(c,'image/jpeg',.95)).arrayBuffer());await deliver(pdfFromJpeg(j,EXP_W,EXP_H),fileBase()+'.pdf')}
+    else await deliver(await toBlob(c,'image/png'),fileBase()+'.png');
+  }catch(e){setSt('Не стана: '+e.message,'err')}
+  btn.innerHTML=keep;sync();
+}
+$('form').addEventListener('submit',e=>{e.preventDefault();run(pdfB,'pdf')});
+pngB.addEventListener('click',()=>run(pngB,'png'));
+}
+</script>
+</body>
+</html>

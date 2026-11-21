@@ -187,7 +187,7 @@ function draw(cv,preview){
   txt('Регистрационен номер',lx1+sw/2,by+5,2.9,'Manrope',BLACK,{w:'700'});
   line(lx2-sw,by,lx2,by,.22,'#55575d');
   // the head trainer's own signature (scan, transparent), over the line like a real one
-  if(SIG.complete&&SIG.naturalWidth){const h=23,w=h*SIG.naturalWidth/SIG.naturalHeight;ctx.drawImage(SIG,u(lx2-sw/2-w*.5),u(by-20.6),u(w),u(h))}
+  if(SIG.complete&&SIG.naturalWidth){const h=25,w=h*SIG.naturalWidth/SIG.naturalHeight;ctx.drawImage(SIG,u(lx2-sw/2-w*.47),u(by-15.8),u(w),u(h))}
   txt(SIGNER,lx2-sw/2,by+5,2.9,'Manrope',BLACK,{w:'700'});
   txt(SIGNER_ROLE,lx2-sw/2,by+9.3,2.6,'Manrope',GREY,{w:'500'});
   const mx=CX,my=175,mr=13;

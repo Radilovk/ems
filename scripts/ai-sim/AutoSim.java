@@ -50,6 +50,7 @@ public final class AutoSim {
             }
         }
         System.out.println("full runs: " + runs);
+        tuneFuzz();
         // the Smart Session: every goal, any minutes asked — never over 25 min with its rests (owner, 1.1.531)
         for (com.isaigu.gymapp.ai.AiModel.Goal g : com.isaigu.gymapp.ai.AiModel.Goal.values()) {
             check(com.isaigu.gymapp.ai.AiPlanner.defaultSeconds(g) <= 1500
@@ -242,6 +243,70 @@ public final class AutoSim {
                     + " cap=" + plan.hrCap + " cycles=" + cycles + " dose=" + Math.round(100 * e.getDoseRatio()) + "%");
         }
         return e;
+    }
+
+    /** The AI coach's live moves (1.1.537): random ON / OFF / Hz / rest tunes and an early end — every cycle in limits. */
+    static void tuneFuzz() {
+        java.util.Random rnd = new java.util.Random(537);
+        int n = 0;
+        for (AutoModel.Goal g : AutoModel.Goal.values()) {
+            for (AutoModel.Kind k : AutoModel.Kind.values()) {
+                for (AutoCatalog.Program p : AutoCatalog.menu(g, k)) {
+                    if (AutoCatalog.isFace(p)) {
+                        continue;
+                    }
+                    AutoModel.Input in = input(rnd.nextBoolean() ? AiModel.Sex.MALE : AiModel.Sex.FEMALE, 25 + rnd.nextInt(50),
+                            60 + rnd.nextInt(40), 160 + rnd.nextInt(30), AiModel.Fitness.MID, rnd.nextInt(10), -1);
+                    in.goal = g;
+                    in.kind = k;
+                    in.programId = p.id;
+                    if (p.femaleOnly) {
+                        in.sex = AiModel.Sex.FEMALE;
+                    }
+                    if (AutoCatalog.blockReason(p, g, in) != null) {
+                        continue;
+                    }
+                    AutoModel.Plan plan = AutoPlanner.build(in, 66);
+                    AutoEngine e = new AutoEngine(plan);
+                    long t = 1000000L;
+                    e.startAt(t, t);
+                    t = e.getGoMs();
+                    e.tick(t);
+                    int cycles = 0;
+                    boolean ended = false;
+                    while ((e.getState() == AutoEngine.State.RUN || e.getState() == AutoEngine.State.REST) && cycles < 4000) {
+                        if (cycles % 7 == 0) {
+                            e.setTune(rnd.nextInt(5) - 2, rnd.nextInt(6) - 2, rnd.nextInt(31) - 15, 0.5 + rnd.nextDouble() * 1.4);
+                        }
+                        if (!ended && cycles == 40 && rnd.nextBoolean()) {
+                            e.endActiveIn(rnd.nextInt(4), t);
+                            ended = true;
+                        }
+                        if (e.getState() == AutoEngine.State.REST) {
+                            t += Math.max(0, e.getRestMinS()) * 1000L;
+                            if (!e.requestGo(t, t)) {
+                                t += 30000L;
+                                e.tick(t);
+                                e.requestGo(t, t);
+                            }
+                            t = Math.max(t, e.getGoMs());
+                            e.tick(t);
+                            continue;
+                        }
+                        AutoEngine.Cmd c = e.getCurrent();
+                        cycleChecks("tune " + p.id, plan, e, c);
+                        check(c.hz <= SafeLimits.hzMax(in.age), "tune " + p.id + ": Hz ≤ age limit (" + c.hz + ")");
+                        t += c.durationMs();
+                        e.tick(t - 1);
+                        e.onCycle(t);
+                        cycles++;
+                    }
+                    check(e.getElapsedS() <= plan.totalS + 60, "tune " + p.id + ": plan time kept");
+                    n++;
+                }
+            }
+        }
+        System.out.println("tune fuzz: " + n + " programs");
     }
 
     static void cycleChecks(String tag, AutoModel.Plan plan, AutoEngine e, AutoEngine.Cmd c) {

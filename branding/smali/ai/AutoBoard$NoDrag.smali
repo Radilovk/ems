@@ -23,7 +23,7 @@
     .registers 1
 
     .prologue
-    .line 79
+    .line 81
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -35,7 +35,7 @@
     .registers 4
 
     .prologue
-    .line 82
+    .line 84
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoBoard;->isAttached()Z
 
     move-result v0
@@ -48,12 +48,12 @@
 
     if-nez v0, :cond_10
 
-    .line 83
+    .line 85
     const/4 v0, 0x1
 
     invoke-virtual {p1, v0}, Landroid/support/v7/widget/RecyclerView;->requestDisallowInterceptTouchEvent(Z)V
 
-    .line 85
+    .line 87
     :cond_10
     const/4 v0, 0x0
 
@@ -64,7 +64,7 @@
     .registers 2
 
     .prologue
-    .line 92
+    .line 94
     return-void
 .end method
 
@@ -72,7 +72,7 @@
     .registers 5
 
     .prologue
-    .line 96
+    .line 98
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoBoard;->isAttached()Z
 
     move-result v0
@@ -102,6 +102,6 @@
     .registers 3
 
     .prologue
-    .line 89
+    .line 91
     return-void
 .end method

@@ -57,6 +57,7 @@ public final class AutoUi {
     private static final int A_SETUP_GO = 43;
     private static final int A_SETUP_BACK = 44;
     private static final int A_SETUP_LAST = 46;
+    private static final int A_AI_LIVE = 48;
     private static final int A_HOW = 40;
     private static final int A_SEX = 28;
     private static final int A_EDIT_PROFILE = 29;
@@ -429,9 +430,9 @@ public final class AutoUi {
                         com.isaigu.gymapp.wearable.face.FaceStudio.openAuto(h, in.programId);
                         return;
                     }
-                    // The strength is set on the training screen itself (owner, 1.1.336): the sheet steps aside,
-                    // the impulses run at the calibration, the board waits for ▶ Старт.
-                    AutoSession.beginCalibration();
+                    // No strength set before the start (owner, 1.1.537): the program begins at once, every row at 0,
+                    // the person raises the strength with + during the session.
+                    AutoSession.startDirect(host);
                     dismiss();
                     AutoBoard.sync(AutoSession.getPanelRoot() != null ? AutoSession.getPanelRoot()
                             : host.getWindow().getDecorView());
@@ -486,6 +487,8 @@ public final class AutoUi {
         if (why != null) {
             toast(a, why);
             open(a);
+        } else {
+            MapRunner.go();                           // no strength set before (1.1.537): it starts at 0, + raises it
         }
     }
 
@@ -679,7 +682,7 @@ public final class AutoUi {
         for (Workout w : withEx ? pickList : new ArrayList<Workout>()) {
             ownMap |= w.id.equals(workoutId) && presetProgram(w) == null;
         }
-        footer(c, ownMap ? AiText.t("Към настройване  ›", "To setup  ›") : AiText.t("Напред", "Next"), false);
+        footer(c, ownMap ? AiText.t("▶  Старт", "▶  Start") : AiText.t("Напред", "Next"), false);
         enable(withEx ? workoutId != null : in.programId != null || modId != null);
     }
 
@@ -1003,7 +1006,7 @@ public final class AutoUi {
 
         boolean ready = pb == null;
         footer(c, p != null && p.asksFace ? AiText.t("Към лицето  ›", "To the face  ›")
-                : AiText.t("Към настройване  ›", "To setup  ›"), true);
+                : AiText.t("▶  Старт", "▶  Start"), true);
         enable(ready);
     }
 
@@ -1259,6 +1262,15 @@ public final class AutoUi {
         LinearLayout headLeft = XemsUi.horizontal(c);
         headLeft.setGravity(Gravity.CENTER_VERTICAL);
         headLeft.addView(goal);
+        if (AutoSession.aiMode) {
+            // the AI training: its chat in the same place, words or 🎤 change the session now (1.1.537)
+            TextView ai = XemsUi.chip(c, "✦  AI", false, XemsUi.ACCENT);
+            ai.setOnClickListener(new Act(A_AI_LIVE, 0));
+            LinearLayout.LayoutParams alp2 = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+                    XemsUi.dp(c, 48));
+            alp2.leftMargin = XemsUi.dp(c, 10);
+            headLeft.addView(ai, alp2);
+        }
         headBar.addView(headLeft, new android.widget.FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.START | Gravity.CENTER_VERTICAL));
         LinearLayout clock = XemsUi.horizontal(c);
@@ -2099,6 +2111,9 @@ public final class AutoUi {
                 return;
             case A_SETUP_BACK:
                 setupBack();
+                return;
+            case A_AI_LIVE:
+                AiTrain.openLive();
                 return;
             case A_SETUP_LAST:
                 AutoSession.riseToLast(arg);

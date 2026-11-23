@@ -1,5 +1,27 @@
 # AI coach — the Smart Session with a dialogue (owner, 1.1.535)
 
+> **1.1.537 — the AI training is the automatic mode + the coach (`ai/AiTrain`).** Owner: "same templates and principle
+> as Auto, the AI model on top; not a full window — in the place of the rows 2–3, from the client's card down to the
+> dock; no strength set before the start (in Auto neither); a 🎤 like the keyboard's, Bulgarian; before ▶ everything the
+> AI set, summed up". The Smart Session sheet below stays only for the workouts' "with AI".
+> - **AI tile → `AiTrain.open`:** `AutoSession` with `aiMode`; `AutoBoard` shows `AiTrain.build` (KIND_AI) in the board's
+>   place. **Intake** (client · training · health · one line / 🎤 → ✦ Нагласи с AI) → **summary** (program, level,
+>   times, impulse Hz · ON / OFF · µs, double impulse, target feel, "strength from 0"; the advice; the chat with its
+>   question as buttons; ▶ Старт; ✓ Запази в профила for a client). Server: `kind:"coach", domain:"auto"` (Auto goals,
+>   the program menu, intensity, Auto windows ON −1…+1, OFF −1…+2, Hz ±10 %).
+> - **▶ Старт = `AutoSession.startDirect`:** every row at 0, the first + becomes its base (+5 / impulse). Auto's own
+>   client step starts the same way (no setting-up board any more); own maps start at once (`MapRunner.go` without the
+>   "strength first" stop). The face keeps its calibration (face studio).
+> - **Run:** the Auto board + **✦ AI** in its head → `AiTrain.buildLive` (KIND_AI_LIVE) in the same place: quick
+>   commands, the chat, 🎤. Live moves: `AutoEngine.setTune` (clamped, then `AutoLimits.clampStep`), `endActiveIn`,
+>   the session's own −10 % / +5 % / ❚❚ / ▶ / ⏭ / ■ / double impulse.
+> - **🎤 = `VoiceInput`:** Android's speech input (`RecognizerIntent`, the same Google voice typing as the keyboard's
+>   mic), bg-BG when the app is Bulgarian, through a headless fragment; the recognizer app asks for the mic itself (no
+>   RECORD_AUDIO in this app). The words go to the chat as a message (on the intake: into the line).
+> - **2nd-impulse blink fixed (Auto and Smart):** the row's `activePause` stays the session's setting; a cycle / rest
+>   without it gives it 0 % (before, it flipped every cycle and the stock index buttons blinked).
+> - Tests: `AutoSim.tuneFuzz` (random tunes + early end over every program, every cycle in limits).
+
 Owner: "an AI training like a trainer who asks the right questions, programs the whole session and stays there to
 re-tune it live: a wizard of questions → the algorithm → a free-text dialogue where the AI asks what is unclear
 (1–3 questions, made in the dialogue). No warnings, no disclaimers; the strength is the person's."

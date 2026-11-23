@@ -21,8 +21,10 @@ public final class AutoBoard {
     private static ViewGroup.LayoutParams listParams;
     private static View board;
     private static int heightPx = -1;
-    /** The attached board is the setting-up one (before ▶ Старт), not the run's. */
-    private static boolean setupKind;
+    /** What the attached board is: KIND_RUN, KIND_SETUP (before ▶, the face), KIND_AI (the AI training before ▶),
+     *  KIND_AI_LIVE (the AI chat over the run). */
+    private static int kind;
+    static final int KIND_RUN = 1, KIND_SETUP = 2, KIND_AI = 3, KIND_AI_LIVE = 4;
     /** Reference width of the board (dp); its height follows the real space (never below DESIGN_H). */
     static final int DESIGN_W = 1160;
     static final int DESIGN_H = 290;
@@ -122,7 +124,9 @@ public final class AutoBoard {
     static void sync(View any) {
         boolean run = AutoSession.getStage() == AutoSession.Stage.RUNNING && AutoSession.getEngine() != null;
         boolean setup = AutoSession.getStage() == AutoSession.Stage.CALIB && AutoSession.getPlan() != null;
-        boolean want = (run || setup) && !com.isaigu.gymapp.wearable.face.FaceStudio.ownsAuto();
+        boolean ai = AutoSession.aiMode && AutoSession.getStage() == AutoSession.Stage.SETUP;
+        boolean want = (run || setup || ai) && !com.isaigu.gymapp.wearable.face.FaceStudio.ownsAuto();
+        int k = run ? (AutoSession.aiMode && AiTrain.liveChatOpen() ? KIND_AI_LIVE : KIND_RUN) : ai ? KIND_AI : KIND_SETUP;
         try {
             if (!want) {
                 detach();
@@ -138,12 +142,12 @@ public final class AutoBoard {
             if (rv == null || !(rv.getParent() instanceof LinearLayout)) {
                 return;
             }
-            if (isAttached() && rv == list && setupKind == setup) {
+            if (isAttached() && rv == list && kind == k) {
                 keepFirstRow(rv);
                 return;
             }
             detach();
-            setupKind = setup;
+            kind = k;
             attach(c, rv);
         } catch (Throwable t) {
             com.isaigu.gymapp.widget.XemsGuard.report("AutoBoard.sync", t);
@@ -171,7 +175,11 @@ public final class AutoBoard {
         // evenly to the real width; its height is whatever is left (Fit), so it fills the space on every tablet —
         // no scrolling, nothing cut, no empty band above or below.
         LinearLayout content = XemsUi.vertical(c);
-        if (setupKind) {
+        if (kind == KIND_AI) {
+            AiTrain.build(c, content);
+        } else if (kind == KIND_AI_LIVE) {
+            AiTrain.buildLive(c, content);
+        } else if (kind == KIND_SETUP) {
             AutoUi.buildSetupBoard(c, content);
         } else {
             AutoUi.buildBoard(c, content);
@@ -205,6 +213,13 @@ public final class AutoBoard {
             rv.getClass().getMethod("scrollToPosition", int.class).invoke(rv, 0);
         } catch (Throwable ignored) {
         }
+    }
+
+    /** The same board built again (the AI training changed what it shows). */
+    static void rebuild() {
+        View any = list;
+        kind = 0;
+        sync(any != null ? any : AutoSession.getPanelRoot());
     }
 
     static void detach() {

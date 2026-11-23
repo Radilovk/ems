@@ -80,6 +80,8 @@
 
 .field public hzPct:Ljava/lang/Integer;
 
+.field public intensity:Ljava/lang/String;
+
 .field public minutes:Ljava/lang/Integer;
 
 .field public mode:Ljava/lang/String;
@@ -98,6 +100,8 @@
         }
     .end annotation
 .end field
+
+.field public program:Ljava/lang/String;
 
 .field public question:Ljava/lang/String;
 
@@ -137,42 +141,42 @@
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/AiCoach$Reply;->options:Ljava/util/List;
 
-    .line 77
+    .line 80
     new-instance v0, Ljava/util/ArrayList;
 
     invoke-direct {v0}, Ljava/util/ArrayList;-><init>()V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/AiCoach$Reply;->condAdd:Ljava/util/List;
 
-    .line 78
+    .line 81
     new-instance v0, Ljava/util/ArrayList;
 
     invoke-direct {v0}, Ljava/util/ArrayList;-><init>()V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/AiCoach$Reply;->condRemove:Ljava/util/List;
 
-    .line 79
+    .line 82
     new-instance v0, Ljava/util/ArrayList;
 
     invoke-direct {v0}, Ljava/util/ArrayList;-><init>()V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/AiCoach$Reply;->focusAdd:Ljava/util/List;
 
-    .line 80
+    .line 83
     new-instance v0, Ljava/util/ArrayList;
 
     invoke-direct {v0}, Ljava/util/ArrayList;-><init>()V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/AiCoach$Reply;->todayAdd:Ljava/util/List;
 
-    .line 81
+    .line 84
     new-instance v0, Ljava/util/ArrayList;
 
     invoke-direct {v0}, Ljava/util/ArrayList;-><init>()V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/AiCoach$Reply;->contraAdd:Ljava/util/List;
 
-    .line 82
+    .line 85
     new-instance v0, Ljava/util/ArrayList;
 
     invoke-direct {v0}, Ljava/util/ArrayList;-><init>()V
@@ -188,7 +192,7 @@
     .registers 2
 
     .prologue
-    .line 96
+    .line 99
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiCoach$Reply;->actions:Ljava/util/List;
 
     invoke-interface {v0}, Ljava/util/List;->isEmpty()Z
@@ -233,7 +237,7 @@
     .registers 3
 
     .prologue
-    .line 92
+    .line 95
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiCoach$Reply;->question:Ljava/lang/String;
 
     if-eqz v0, :cond_17

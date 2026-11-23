@@ -15,6 +15,14 @@ export const TODAY = ['t_sleep', 't_food', 't_active', 't_stress', 't_sore', 't_
 export const ACTIONS = ['softer', 'stronger', 'pause', 'resume', 'continue', 'to_cooldown', 'double_on', 'double_off'];
 const ADVICE = ['exercise', 'load', 'rest', 'equipment', 'before', 'during', 'after'];
 
+// The automatic mode's vocabulary (owner, 1.1.537: the AI training runs the Auto programs with the coach on top)
+export const AUTO = {
+  goals: ['TONE', 'SLIM', 'HEALTH'],
+  actions: ['softer', 'stronger', 'pause', 'resume', 'skip', 'to_recovery', 'double_on', 'double_off'],
+  on: [-1, 1], off: [-1, 2], hz: [-10, 10],
+};
+export const INTENSITY = ['SOFT', 'STANDARD', 'INTENSE'];
+
 const MAX_TURNS = 12;
 const QUESTIONS_MAX = 3;
 
@@ -22,7 +30,7 @@ const QUESTIONS_MAX = 3;
 const str = () => ({ type: 'STRING' });
 const list = (e) => ({ type: 'ARRAY', items: { type: 'STRING', enum: e } });
 
-export function coachSchema() {
+export function coachSchema(domain = null, programs = []) {
   const advice = { type: 'OBJECT', nullable: true, properties: {} };
   for (const k of ADVICE) advice.properties[k] = str(170);
   return {
@@ -34,8 +42,10 @@ export function coachSchema() {
         properties: { text: str(140), options: { type: 'ARRAY', items: str(40) } },
         required: ['text', 'options'],
       },
-      goal: { type: 'STRING', enum: GOALS, nullable: true },
+      goal: { type: 'STRING', enum: domain === 'auto' ? AUTO.goals : GOALS, nullable: true },
       mode: { type: 'STRING', enum: MODES, nullable: true },
+      ...(domain === 'auto' && programs.length ? { program: { type: 'STRING', enum: programs, nullable: true } } : {}),
+      ...(domain === 'auto' ? { intensity: { type: 'STRING', enum: INTENSITY, nullable: true } } : {}),
       minutes: { type: 'INTEGER', nullable: true },
       double_impulse: { type: 'BOOLEAN', nullable: true },
       cond_add: list(COND),
@@ -43,7 +53,7 @@ export function coachSchema() {
       focus_add: list(FOCUS),
       today_add: list(TODAY),
       contra_add: list(CONTRA),
-      actions: list(ACTIONS),
+      actions: list(domain === 'auto' ? AUTO.actions : ACTIONS),
       on_delta: { type: 'INTEGER', nullable: true },
       off_delta: { type: 'INTEGER', nullable: true },
       hz_pct: { type: 'INTEGER', nullable: true },
@@ -117,12 +127,15 @@ function text(v, max) {
   return typeof v === 'string' ? v.replace(/[\u0000-\u001f\u007f]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, max) : '';
 }
 
-export function validateCoach(raw, askedSoFar = 0) {
+export function validateCoach(raw, askedSoFar = 0, domain = null, programs = []) {
   const r = raw && typeof raw === 'object' ? raw : {};
+  const auto = domain === 'auto';
   const out = {
     reply: text(r.reply, 260),
     question: null,
-    goal: pick(r.goal, GOALS),
+    goal: pick(r.goal, auto ? AUTO.goals : GOALS),
+    program: auto ? pick(r.program, programs) : null,
+    intensity: auto ? pick(r.intensity, INTENSITY) : null,
     mode: pick(r.mode, MODES),
     minutes: r.minutes == null ? null : int(r.minutes, 10, 25),
     double_impulse: typeof r.double_impulse === 'boolean' ? r.double_impulse : null,
@@ -131,10 +144,10 @@ export function validateCoach(raw, askedSoFar = 0) {
     focus_add: picks(r.focus_add, FOCUS),
     today_add: picks(r.today_add, TODAY),
     contra_add: picks(r.contra_add, CONTRA),
-    actions: picks(r.actions, ACTIONS, 3),
-    on_delta: r.on_delta == null ? null : int(r.on_delta, -2, 2),
-    off_delta: r.off_delta == null ? null : int(r.off_delta, -2, 3),
-    hz_pct: r.hz_pct == null ? null : int(r.hz_pct, -15, 15),
+    actions: picks(r.actions, auto ? AUTO.actions : ACTIONS, 3),
+    on_delta: r.on_delta == null ? null : auto ? int(r.on_delta, ...AUTO.on) : int(r.on_delta, -2, 2),
+    off_delta: r.off_delta == null ? null : auto ? int(r.off_delta, ...AUTO.off) : int(r.off_delta, -2, 3),
+    hz_pct: r.hz_pct == null ? null : auto ? int(r.hz_pct, ...AUTO.hz) : int(r.hz_pct, -15, 15),
     rest_pct: r.rest_pct == null ? null : int(r.rest_pct, -30, 60),
     end_in_min: r.end_in_min == null ? null : int(r.end_in_min, 0, 25),
     advice: null,
@@ -158,8 +171,27 @@ export function validateCoach(raw, askedSoFar = 0) {
   return out;
 }
 
+const AUTO_NOTE = `
+This session runs a READY PROGRAM of the automatic mode (MENU below; CONTEXT.program is the current one).
+- program: switch only when the client clearly fits another one better; goal TONE (firming), SLIM (weight loss),
+  HEALTH (back, joints, recovery, 50+). mode ACTIVE = with exercises, PASSIVE = lying procedure.
+- intensity SOFT for beginners, tired, older or fragile clients; INTENSE only on an explicit wish of a trained one.
+- Live: actions softer/stronger/pause/resume/skip (next exercise)/to_recovery/double_on/double_off;
+  on_delta −1..1, off_delta −1..2, hz_pct −10..10, rest_pct −30..60, end_in_min.
+- minutes: the program's time stays unless a time is named (it is capped at 20 min active + 10 min recovery).`;
+
 export async function coach(env, body, fetchImpl = fetch, ts = Date.now()) {
   const asked = Array.isArray(body.chat) ? body.chat.filter((t) => t && t.role === 'ai' && t.q).length : 0;
-  const r = await generateJson(env, COACH_SYSTEM, coachPrompt(body), coachSchema(), 900, fetchImpl, ts);
-  return { model: r.model, coach: validateCoach(r.raw, asked) };
+  const auto = body.domain === 'auto';
+  const programs = auto && Array.isArray(body.menu)
+    ? body.menu.map((m) => String(m?.id || '')).filter((id) => /^[a-z0-9_]{1,40}$/.test(id)).slice(0, 60)
+    : [];
+  let prompt = coachPrompt(body);
+  if (auto && body.menu) {
+    prompt = 'MENU: ' + body.menu.slice(0, 60).map((m) => `${m.id}=${String(m.name || '').slice(0, 40)} (${m.goal}/${m.kind})`)
+      .join('; ') + '\n' + prompt;
+  }
+  const system = auto ? COACH_SYSTEM + AUTO_NOTE : COACH_SYSTEM;
+  const r = await generateJson(env, system, prompt, coachSchema(auto ? 'auto' : null, programs), 900, fetchImpl, ts);
+  return { model: r.model, coach: validateCoach(r.raw, asked, auto ? 'auto' : null, programs) };
 }

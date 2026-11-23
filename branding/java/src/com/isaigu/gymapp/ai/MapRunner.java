@@ -272,14 +272,11 @@ public final class MapRunner {
         if (!isWaiting()) {
             return;
         }
-        boolean any = false;
+        // no strength set before the start (owner, 1.1.537): a row may begin at 0 — its + during the first block is
+        // read back as its 100 % at the next block (apply)
         for (TrainItem it : rows()) {
             ProgramDataBean b = bean(it);
             base.put(it, b != null ? b.strenth : 0);
-            any |= b != null && b.strenth > 0;
-        }
-        if (!any) {
-            return;                                            // nothing set yet: the card says so
         }
         waiting = false;
         lastIndex = -1;

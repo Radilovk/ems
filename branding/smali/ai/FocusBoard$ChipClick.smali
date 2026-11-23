@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 2251
+    .line 2260
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 2252
+    .line 2261
     iput p1, p0, Lcom/isaigu/gymapp/ai/FocusBoard$ChipClick;->k:I
 
-    .line 2253
+    .line 2262
     return-void
 .end method
 
@@ -42,14 +42,14 @@
     .registers 3
 
     .prologue
-    .line 2257
+    .line 2266
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsUi;->haptic(Landroid/view/View;)V
 
-    .line 2258
+    .line 2267
     iget v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$ChipClick;->k:I
 
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/FocusBoard;->chipClick(I)V
 
-    .line 2259
+    .line 2268
     return-void
 .end method

@@ -75,7 +75,9 @@ public class CoachSim {
             p.doubleImpulse = rnd.nextInt(3) == 0 ? rnd.nextBoolean() : null;
             AiCoach.apply(p, in);
             check(AiModel.isAllowed(in.goal, in.mode), "goal × mode allowed");
-            Profile prof = AiPlanner.derive(in, 66, 1.5, 3000);
+            boolean band = n % 3 != 0;                      // every third: without a band (owner, 1.1.536)
+            Profile prof = AiPlanner.derive(in, band ? 66 : 0, band ? 1.5 : 0, band ? 3000 : 0);
+            check(band || (prof.safetyOnly && !prof.hrAvailable), "no band → fatigue model only");
             Plan plan = AiPlanner.build(in, prof);
             check(plan.totalS <= 1500, "≤ 25 min: " + plan.totalS);
             if (in.sessions == 0) check(plan.totalS <= 900, "first session ≤ 15 min");
@@ -90,8 +92,9 @@ public class CoachSim {
                     e.setTune(rnd.nextInt(9) - 4, rnd.nextInt(9) - 4, 0.7 + rnd.nextDouble() * 0.6, 0.5 + rnd.nextDouble());
                 }
                 if (step == 2400 && rnd.nextInt(4) == 0) e.endActiveIn(rnd.nextInt(5), t);
-                if (step % 12 == 0) e.onHr(t, 90 + rnd.nextInt(40));
+                if (band && step % 12 == 0) e.onHr(t, 90 + rnd.nextInt(40));
                 if (e.getState() == AiEngine.State.REST && e.isManualContinue() && e.isRestReady()) e.continueBlock(t);
+                if (e.getState() == AiEngine.State.CHECKPOINT) e.answerCheckpoint(5 + rnd.nextInt(3), t);   // the CR-10 question (no band)
                 if (t >= next) {
                     AiEngine.CycleCmd c = e.onCycle(t);
                     next = t + Math.max(1, c.onS + c.offS) * 1000L;
@@ -107,6 +110,7 @@ public class CoachSim {
                 }
                 e.tick(t);
             }
+            check(e.getState() == AiEngine.State.DONE || e.getState() == AiEngine.State.RECOVERY || band, "no band: the session runs to its end (" + e.getState() + ")");
             check(e.getElapsedPlanS() <= plan.totalS + 60, "plan time kept: " + e.getElapsedPlanS() + " / " + plan.totalS);
         }
     }

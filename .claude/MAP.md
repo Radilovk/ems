@@ -12,7 +12,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/ai-sim/AiSim.java` (459L) — Offline scenarios for the Smart Session engine.
 - `scripts/ai-sim/AutoSim.java` (2151L) — Offline checks of the automatic mode (docs/xems-auto-mode-spec.md): every program × goal × client profile is planned an…
 - `scripts/ai-sim/BriefSim.java` (142L) — The AI brief (ai/AiBrief, docs/xems-ai-brief.md) on the JVM: the local reader, the server answer's parsing, and 20 000 …
-- `scripts/ai-sim/CoachSim.java` (114L) — The AI coach (ai/AiCoach, docs/xems-ai-coach.md) on the JVM: the answer's parsing, the input patch, and random replies …
+- `scripts/ai-sim/CoachSim.java` (118L) — The AI coach (ai/AiCoach, docs/xems-ai-coach.md) on the JVM: the answer's parsing, the input patch, and random replies …
 - `scripts/ai-sim/MapSim.java` (364L) — MapClock (the "By the map" runner's clock) over every ready map and a drawn one: exact cycles per block, rest seconds, …
 - `scripts/ai-sim/PathNormSim.java` (68L) — PathNorm (Java, on the tablet) must give exactly what scripts/exercise-paths.py gives: dir/*.svg vs dir/*.norm.
 - `scripts/ai-sim/TemplateSim.java` (250L) — Offline test of the exercise templates (AutoTemplates) over every active program × profile × history.
@@ -251,7 +251,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `AiScreening.java` (86L, compile:music-sync*,wearable) — §1.1, §1.2, G11 — input validation and pre-session questionnaire.
 - `AiSession.java` (1335L, compile:music-sync*,wearable) — Android side of the Smart Session: owns the engine, feeds it band HR and device cycles, and writes its commands to ever…
 - `AiText.java` (181L, compile:music-sync*,wearable) — Bulgarian-first UI text for the Smart Session (English when the system language is not bg).
-- `AiUi.java` (2092L, compile:music-sync*,wearable) — Smart Session UI: sidebar "AI" button → full-screen card with a 3-step setup (goal and client · plan · calibration; the…
+- `AiUi.java` (2115L, compile:music-sync*,wearable) — Smart Session UI: sidebar "AI" button → full-screen card with a 3-step setup (goal and client · plan · calibration; the…
 - `AiViews.java` (318L, compile:music-sync*,wearable) — Canvas-drawn widgets for the Smart Session UI (no resources needed).
 - `AutoBeep.java` (149L, compile:music-sync*,wearable) — The start signal of an automatic session (owner, 1.1.270): every start waits 3 s — three short beeps, one per second, a…
 - `AutoBoard.java` (223L, compile:music-sync*,wearable) — The Auto live board built into the training screen (owner, 1.1.278): while an automatic session runs, the training list…
@@ -937,13 +937,13 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L36 ## Server
   - L45 ## Tests
 
-`docs/xems-ai-coach.md` (57L)
+`docs/xems-ai-coach.md` (61L)
   - L1 # AI coach — the Smart Session with a dialogue (owner, 1.1.535)
   - L7 ## Flow (Smart Session tile)
-  - L24 ## Who decides what
-  - L34 ## Server
-  - L44 ## The client's card
-  - L49 ## Tests
+  - L28 ## Who decides what
+  - L38 ## Server
+  - L48 ## The client's card
+  - L53 ## Tests
 
 `docs/xems-ai-session-implementation.md` (230L)
   - L1 # XEMS AI (Smart Session) — реализация v1.1.58-ai

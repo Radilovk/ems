@@ -49,7 +49,11 @@ final class AiUi {
     static final int STEP_RUN = 3;
     static final int STEP_REPORT = 4;
     private static final int SETUP_STEPS = 3;
-    /** "Without band" chosen on the resting-HR wait (trainer only). */
+    /**
+     * Without a band (owner, 1.1.536): no band paired → straight to the plan; paired but no pulse → "Без гривна ›".
+     * The plan then runs on the fatigue model alone (AiPlanner: NO_BAND, safety only, no HR control).
+     */
+    static boolean noBand;
 
     private static Dialog dialog;
     private static int step;
@@ -156,6 +160,7 @@ final class AiUi {
             }
             AiSession.beginSetup(activity);
             AiCoachUi.reset();
+            noBand = !AiSession.isBandConfigured(activity);
             profileOpen = false;
             healthOk = false;
             healthOpen = false;                        // contraindications belong to the registration, not here
@@ -426,7 +431,7 @@ final class AiUi {
             case STEP_PLAN:
                 // AI never starts without the band's pulse (the resting HR is in the profile)
                 if (AiSession.getPlan() != null && AiSession.getStage() == AiSession.Stage.PLAN
-                        && AiSession.getProfile() != null && AiSession.getProfile().hrAvailable) {
+                        && AiSession.getProfile() != null && (AiSession.getProfile().hrAvailable || noBand)) {
                     AiSession.beginCalibration();
                     go(STEP_CALIB);
                 }
@@ -647,6 +652,10 @@ final class AiUi {
      */
     private static boolean ensurePlan(Context a) {
         AiModel.SessionInput in = AiSession.getInput();
+        if (noBand) {
+            AiSession.buildPlan(0, 0, 0);               // no resting HR: the fatigue model alone
+            return true;
+        }
         boolean self = in.operator == Operator.SELF;
         AiRestHr r = AiSession.getRestHr();
         if (r != null && r.getStatus() == AiRestHr.Status.DONE && !(self && r.getHrRest() >= 100)) {
@@ -659,8 +668,8 @@ final class AiUi {
 
     private static void screenRest(final Context a) {
         titleView.setText(AiText.t("Пулсът в покой още не е измерен", "Resting HR not measured yet"));
-        subtitleView.setText(AiText.t("AI тръгва само с пулса от гривната · седни или легни спокойно, без стимулация",
-                "AI starts only with the band's pulse · sit or lie still, no stimulation"));
+        subtitleView.setText(AiText.t("Седни или легни спокойно, без стимулация · или продължи без гривна",
+                "Sit or lie still, no stimulation · or go on without a band"));
         final boolean self = AiSession.getInput().operator == Operator.SELF;
         LinearLayout row = horizontal(a);
         row.setGravity(Gravity.CENTER_VERTICAL);
@@ -691,6 +700,11 @@ final class AiUi {
         final LinearLayout actions = horizontal(a);
         actions.setPadding(0, dp(a, 18), 0, 0);
         side.addView(actions);
+        TextView skip = ghostButton(a, AiText.t("Без гривна  ›", "Without a band  ›"));
+        skip.setOnClickListener(new WithoutBand());
+        LinearLayout.LayoutParams sk = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, dp(a, 52));
+        sk.topMargin = dp(a, 18);
+        side.addView(skip, sk);
         row.addView(side, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
         body.addView(scroll(a, row));
         setupFooter(a, AiText.t("Към плана", "To the plan"), true);
@@ -747,14 +761,14 @@ final class AiUi {
                     ring.setValue(0);
                     if (!configured) {
                         status.setText(AiText.t("Гривната не е сдвоена", "Band not paired"));
-                        detail.setText(AiText.t("AI не тръгва без пулс. Въведи MAC и ключа веднъж в Настройки → Гривна.",
-                                "AI does not start without a pulse. Enter the MAC and key once in Settings → Band."));
+                        detail.setText(AiText.t("Без гривна AI следи умората, не пулса. Гривната: Настройки → Гривна.",
+                                "Without a band the AI follows the fatigue, not the pulse. The band: Settings → Band."));
                     } else {
                         status.setText(AiSession.isBandLinkUp()
                                 ? AiText.t("Свързване с гривната…", "Connecting to the band…")
                                 : AiText.t("Чакам пулс от гривната", "Waiting for band HR"));
-                        detail.setText(AiText.t("Сложи гривната на ръката. Без пулс AI не тръгва.",
-                                "Put the band on the wrist. AI does not start without a pulse."));
+                        detail.setText(AiText.t("Сложи гривната на ръката — или продължи без нея.",
+                                "Put the band on the wrist — or go on without it."));
                     }
                     timeLeft.setText("");
                 } else {
@@ -814,9 +828,18 @@ final class AiUi {
         }
     }
 
+    static final class WithoutBand implements View.OnClickListener {
+        @Override
+        public void onClick(View v) {
+            noBand = true;
+            go(STEP_PLAN);
+        }
+    }
+
     static final class MeasureAgain implements View.OnClickListener {
         @Override
         public void onClick(View v) {
+            noBand = false;
             AiSession.restartRestHr();
             go(STEP_PLAN);
         }

@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 1272
+    .line 1281
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,7 +34,7 @@
     .registers 8
 
     .prologue
-    .line 1276
+    .line 1285
     :try_start_0
     # getter for: Lcom/isaigu/gymapp/ai/FocusBoard;->root:Landroid/view/View;
     invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$1800()Landroid/view/View;
@@ -55,7 +55,7 @@
 
     move-result-object v0
 
-    .line 1277
+    .line 1286
     :goto_10
     if-eqz v0, :cond_18
 
@@ -66,24 +66,24 @@
 
     if-eqz v1, :cond_1b
 
-    .line 1292
+    .line 1301
     :cond_18
     :goto_18
     return-void
 
-    .line 1276
+    .line 1285
     :cond_19
     const/4 v0, 0x0
 
     goto :goto_10
 
-    .line 1280
+    .line 1289
     :cond_1b
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/FocusBoard;->rowsAdapter(Landroid/view/View;)Ljava/lang/Object;
 
     move-result-object v1
 
-    .line 1281
+    .line 1290
     invoke-virtual {v0}, Ljava/lang/Object;->getClass()Ljava/lang/Class;
 
     move-result-object v2
@@ -106,10 +106,10 @@
 
     move-result-object v2
 
-    .line 1282
+    .line 1291
     if-eqz v2, :cond_48
 
-    .line 1283
+    .line 1292
     invoke-virtual {v2}, Ljava/lang/Object;->getClass()Ljava/lang/Class;
 
     move-result-object v3
@@ -130,18 +130,18 @@
 
     invoke-virtual {v3, v2, v4}, Ljava/lang/reflect/Method;->invoke(Ljava/lang/Object;[Ljava/lang/Object;)Ljava/lang/Object;
 
-    .line 1285
+    .line 1294
     :cond_48
     if-eqz v1, :cond_18
 
-    .line 1286
+    .line 1295
     const-string v2, "android.support.v7.widget.RecyclerView$Adapter"
 
     invoke-static {v2}, Ljava/lang/Class;->forName(Ljava/lang/String;)Ljava/lang/Class;
 
     move-result-object v2
 
-    .line 1287
+    .line 1296
     invoke-virtual {v0}, Ljava/lang/Object;->getClass()Ljava/lang/Class;
 
     move-result-object v3
@@ -174,11 +174,11 @@
 
     goto :goto_18
 
-    .line 1289
+    .line 1298
     :catch_6a
     move-exception v0
 
-    .line 1290
+    .line 1299
     const-string v1, "FocusBoard.rowsAfresh"
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V

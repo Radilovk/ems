@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 1107
+    .line 1116
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,20 +34,20 @@
     .registers 4
 
     .prologue
-    .line 1110
+    .line 1119
     # invokes: Lcom/isaigu/gymapp/ai/FocusBoard;->current()Lcom/isaigu/gymapp/train/model/TrainItem;
     invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$900()Lcom/isaigu/gymapp/train/model/TrainItem;
 
     move-result-object v0
 
-    .line 1111
+    .line 1120
     invoke-static {v0}, Lcom/isaigu/gymapp/train/utils/ProgramLive;->canAddTime(Lcom/isaigu/gymapp/train/model/TrainItem;)Z
 
     move-result v1
 
     if-nez v1, :cond_16
 
-    .line 1112
+    .line 1121
     const-string v0, "\u0412\u0440\u0435\u043c\u0435\u0442\u043e \u043d\u0430 \u0410\u0432\u0442\u043e / AI \u0441\u0435 \u0432\u043e\u0434\u0438 \u043e\u0442 \u043f\u043b\u0430\u043d\u0430 \u0438\u043c."
 
     const-string v1, "Auto / AI keep their own plan\'s time."
@@ -59,11 +59,11 @@
     # invokes: Lcom/isaigu/gymapp/ai/FocusBoard;->hint(Ljava/lang/String;)V
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$600(Ljava/lang/String;)V
 
-    .line 1121
+    .line 1130
     :goto_15
     return-void
 
-    .line 1116
+    .line 1125
     :cond_16
     mul-int/lit8 v1, p1, 0x3c
 
@@ -72,18 +72,18 @@
     :try_end_1b
     .catch Ljava/lang/Throwable; {:try_start_18 .. :try_end_1b} :catch_1f
 
-    .line 1120
+    .line 1129
     :goto_1b
     # invokes: Lcom/isaigu/gymapp/ai/FocusBoard;->later()V
     invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$300()V
 
     goto :goto_15
 
-    .line 1117
+    .line 1126
     :catch_1f
     move-exception v0
 
-    .line 1118
+    .line 1127
     const-string v1, "FocusBoard.addTime"
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V

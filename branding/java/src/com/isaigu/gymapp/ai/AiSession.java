@@ -322,7 +322,7 @@ public final class AiSession {
 
     public static void beginCalibration() {
         stage = Stage.CALIB;
-        calibPercent = Math.max(0, Math.min(15, currentStrength()));
+        calibPercent = 0;                    // safety (owner, 1.1.531): never start on a raised strength
         calibStimOn = false;
         soloAutoRamp = false;
         startTicker();

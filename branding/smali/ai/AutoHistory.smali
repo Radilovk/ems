@@ -38,7 +38,7 @@
 
     const/4 v1, 0x1
 
-    .line 100
+    .line 137
     if-eqz p0, :cond_14
 
     :try_start_4
@@ -68,11 +68,11 @@
     :cond_15
     move v1, v0
 
-    .line 102
+    .line 139
     :goto_16
     return v1
 
-    .line 101
+    .line 138
     :catch_17
     move-exception v0
 
@@ -109,6 +109,136 @@
     const-wide/high16 v0, -0x4010000000000000L    # -1.0
 
     goto :goto_13
+.end method
+
+.method public static lastStrength(Landroid/content/Context;JLjava/lang/String;)I
+    .registers 11
+
+    .prologue
+    const/4 v0, 0x0
+
+    .line 101
+    if-eqz p0, :cond_9
+
+    const-wide/16 v2, 0x0
+
+    cmp-long v1, p1, v2
+
+    if-nez v1, :cond_a
+
+    .line 109
+    :cond_9
+    :goto_9
+    return v0
+
+    .line 105
+    :cond_a
+    :try_start_a
+    const-string v1, "xems_auto_history"
+
+    const/4 v2, 0x0
+
+    invoke-virtual {p0, v1, v2}, Landroid/content/Context;->getSharedPreferences(Ljava/lang/String;I)Landroid/content/SharedPreferences;
+
+    move-result-object v2
+
+    .line 106
+    if-eqz p3, :cond_43
+
+    new-instance v1, Ljava/lang/StringBuilder;
+
+    invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v3, "s"
+
+    invoke-virtual {v1, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v1
+
+    invoke-virtual {v1, p1, p2}, Ljava/lang/StringBuilder;->append(J)Ljava/lang/StringBuilder;
+
+    move-result-object v1
+
+    const-string v3, "|"
+
+    invoke-virtual {v1, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v1
+
+    invoke-virtual {v1, p3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v1
+
+    invoke-virtual {v1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v1
+
+    const/4 v3, 0x0
+
+    invoke-interface {v2, v1, v3}, Landroid/content/SharedPreferences;->getInt(Ljava/lang/String;I)I
+
+    move-result v1
+
+    .line 107
+    :goto_35
+    const/4 v3, 0x0
+
+    const/16 v4, 0x64
+
+    if-lez v1, :cond_45
+
+    :goto_3a
+    invoke-static {v4, v1}, Ljava/lang/Math;->min(II)I
+
+    move-result v1
+
+    invoke-static {v3, v1}, Ljava/lang/Math;->max(II)I
+
+    move-result v0
+
+    goto :goto_9
+
+    :cond_43
+    move v1, v0
+
+    .line 106
+    goto :goto_35
+
+    .line 107
+    :cond_45
+    new-instance v1, Ljava/lang/StringBuilder;
+
+    invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v5, "s"
+
+    invoke-virtual {v1, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v1
+
+    invoke-virtual {v1, p1, p2}, Ljava/lang/StringBuilder;->append(J)Ljava/lang/StringBuilder;
+
+    move-result-object v1
+
+    invoke-virtual {v1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v1
+
+    const/4 v5, 0x0
+
+    invoke-interface {v2, v1, v5}, Landroid/content/SharedPreferences;->getInt(Ljava/lang/String;I)I
+    :try_end_5c
+    .catch Ljava/lang/Throwable; {:try_start_a .. :try_end_5c} :catch_5e
+
+    move-result v1
+
+    goto :goto_3a
+
+    .line 108
+    :catch_5e
+    move-exception v1
+
+    goto :goto_9
 .end method
 
 .method public static of(Landroid/content/Context;J)Lcom/isaigu/gymapp/ai/AutoHistory$Info;
@@ -389,12 +519,12 @@
     .end annotation
 
     .prologue
-    .line 116
+    .line 153
     new-instance v9, Ljava/util/ArrayList;
 
     invoke-direct {v9}, Ljava/util/ArrayList;-><init>()V
 
-    .line 117
+    .line 154
     if-eqz p0, :cond_9
 
     if-nez p3, :cond_b
@@ -402,11 +532,11 @@
     :cond_9
     move-object v2, v9
 
-    .line 132
+    .line 169
     :goto_a
     return-object v2
 
-    .line 121
+    .line 158
     :cond_b
     :try_start_b
     const-string v2, "xems_auto_templates"
@@ -451,12 +581,12 @@
 
     const-string v4, ""
 
-    .line 122
+    .line 159
     invoke-interface {v2, v3, v4}, Landroid/content/SharedPreferences;->getString(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v2
 
-    .line 123
+    .line 160
     const-string v3, ";"
 
     invoke-virtual {v2, v3}, Ljava/lang/String;->split(Ljava/lang/String;)[Ljava/lang/String;
@@ -474,21 +604,21 @@
 
     aget-object v2, v11, v10
 
-    .line 124
+    .line 161
     const-string v3, ":"
 
     invoke-virtual {v2, v3}, Ljava/lang/String;->split(Ljava/lang/String;)[Ljava/lang/String;
 
     move-result-object v8
 
-    .line 125
+    .line 162
     array-length v2, v8
 
     const/4 v3, 0x4
 
     if-ne v2, v3, :cond_76
 
-    .line 126
+    .line 163
     new-instance v2, Lcom/isaigu/gymapp/ai/AutoTemplates$Outcome;
 
     const/4 v3, 0x0
@@ -511,7 +641,7 @@
 
     aget-object v6, v8, v6
 
-    .line 127
+    .line 164
     invoke-static {v6}, Ljava/lang/Double;->parseDouble(Ljava/lang/String;)D
 
     move-result-wide v6
@@ -528,12 +658,12 @@
 
     invoke-direct/range {v2 .. v8}, Lcom/isaigu/gymapp/ai/AutoTemplates$Outcome;-><init>(IDDZ)V
 
-    .line 126
+    .line 163
     invoke-interface {v9, v2}, Ljava/util/List;->add(Ljava/lang/Object;)Z
     :try_end_76
     .catch Ljava/lang/Throwable; {:try_start_b .. :try_end_76} :catch_7a
 
-    .line 123
+    .line 160
     :cond_76
     add-int/lit8 v2, v10, 0x1
 
@@ -541,14 +671,14 @@
 
     goto :goto_42
 
-    .line 130
+    .line 167
     :catch_7a
     move-exception v2
 
     :cond_7b
     move-object v2, v9
 
-    .line 132
+    .line 169
     goto :goto_a
 .end method
 
@@ -687,29 +817,29 @@
     .registers 16
 
     .prologue
-    .line 137
+    .line 174
     if-eqz p0, :cond_6
 
     if-eqz p3, :cond_6
 
     if-nez p4, :cond_7
 
-    .line 158
+    .line 195
     :cond_6
     :goto_6
     return-void
 
-    .line 141
+    .line 178
     :cond_7
     :try_start_7
     invoke-static {p0, p1, p2, p3}, Lcom/isaigu/gymapp/ai/AutoHistory;->outcomes(Landroid/content/Context;JLjava/lang/String;)Ljava/util/List;
 
     move-result-object v0
 
-    .line 142
+    .line 179
     invoke-interface {v0, p4}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    .line 143
+    .line 180
     :goto_e
     invoke-interface {v0}, Ljava/util/List;->size()I
 
@@ -719,26 +849,26 @@
 
     if-le v1, v2, :cond_1c
 
-    .line 144
+    .line 181
     const/4 v1, 0x0
 
     invoke-interface {v0, v1}, Ljava/util/List;->remove(I)Ljava/lang/Object;
 
     goto :goto_e
 
-    .line 156
+    .line 193
     :catch_1a
     move-exception v0
 
     goto :goto_6
 
-    .line 146
+    .line 183
     :cond_1c
     new-instance v1, Ljava/lang/StringBuilder;
 
     invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
 
-    .line 147
+    .line 184
     invoke-interface {v0}, Ljava/util/List;->iterator()Ljava/util/Iterator;
 
     move-result-object v2
@@ -756,19 +886,19 @@
 
     check-cast v0, Lcom/isaigu/gymapp/ai/AutoTemplates$Outcome;
 
-    .line 148
+    .line 185
     invoke-virtual {v1}, Ljava/lang/StringBuilder;->length()I
 
     move-result v3
 
     if-lez v3, :cond_3c
 
-    .line 149
+    .line 186
     const/16 v3, 0x3b
 
     invoke-virtual {v1, v3}, Ljava/lang/StringBuilder;->append(C)Ljava/lang/StringBuilder;
 
-    .line 151
+    .line 188
     :cond_3c
     iget v3, v0, Lcom/isaigu/gymapp/ai/AutoTemplates$Outcome;->level:I
 
@@ -826,7 +956,7 @@
 
     iget-wide v8, v0, Lcom/isaigu/gymapp/ai/AutoTemplates$Outcome;->cut:D
 
-    .line 152
+    .line 189
     invoke-static {v8, v9}, Ljava/lang/Double;->valueOf(D)Ljava/lang/Double;
 
     move-result-object v8
@@ -863,7 +993,7 @@
 
     goto :goto_89
 
-    .line 154
+    .line 191
     :cond_8f
     const-string v0, "xems_auto_templates"
 
@@ -905,7 +1035,7 @@
 
     move-result-object v2
 
-    .line 155
+    .line 192
     invoke-virtual {v1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
     move-result-object v1
@@ -921,13 +1051,125 @@
     goto/16 :goto_6
 .end method
 
+.method public static rememberStrength(Landroid/content/Context;JLjava/lang/String;I)V
+    .registers 10
+
+    .prologue
+    .line 115
+    if-eqz p0, :cond_a
+
+    const-wide/16 v0, 0x0
+
+    cmp-long v0, p1, v0
+
+    if-eqz v0, :cond_a
+
+    if-gtz p4, :cond_b
+
+    .line 128
+    :cond_a
+    :goto_a
+    return-void
+
+    .line 119
+    :cond_b
+    const/16 v0, 0x64
+
+    :try_start_d
+    invoke-static {v0, p4}, Ljava/lang/Math;->min(II)I
+
+    move-result v0
+
+    .line 120
+    const-string v1, "xems_auto_history"
+
+    const/4 v2, 0x0
+
+    invoke-virtual {p0, v1, v2}, Landroid/content/Context;->getSharedPreferences(Ljava/lang/String;I)Landroid/content/SharedPreferences;
+
+    move-result-object v1
+
+    invoke-interface {v1}, Landroid/content/SharedPreferences;->edit()Landroid/content/SharedPreferences$Editor;
+
+    move-result-object v1
+
+    .line 121
+    new-instance v2, Ljava/lang/StringBuilder;
+
+    invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v3, "s"
+
+    invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v2
+
+    invoke-virtual {v2, p1, p2}, Ljava/lang/StringBuilder;->append(J)Ljava/lang/StringBuilder;
+
+    move-result-object v2
+
+    invoke-virtual {v2}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v2
+
+    invoke-interface {v1, v2, v0}, Landroid/content/SharedPreferences$Editor;->putInt(Ljava/lang/String;I)Landroid/content/SharedPreferences$Editor;
+
+    .line 122
+    if-eqz p3, :cond_54
+
+    .line 123
+    new-instance v2, Ljava/lang/StringBuilder;
+
+    invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v3, "s"
+
+    invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v2
+
+    invoke-virtual {v2, p1, p2}, Ljava/lang/StringBuilder;->append(J)Ljava/lang/StringBuilder;
+
+    move-result-object v2
+
+    const-string v3, "|"
+
+    invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v2
+
+    invoke-virtual {v2, p3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v2
+
+    invoke-virtual {v2}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v2
+
+    invoke-interface {v1, v2, v0}, Landroid/content/SharedPreferences$Editor;->putInt(Ljava/lang/String;I)Landroid/content/SharedPreferences$Editor;
+
+    .line 125
+    :cond_54
+    invoke-interface {v1}, Landroid/content/SharedPreferences$Editor;->apply()V
+    :try_end_57
+    .catch Ljava/lang/Throwable; {:try_start_d .. :try_end_57} :catch_58
+
+    goto :goto_a
+
+    .line 126
+    :catch_58
+    move-exception v0
+
+    goto :goto_a
+.end method
+
 .method public static setCardioMachine(Landroid/content/Context;Z)V
     .registers 5
 
     .prologue
     const/4 v0, 0x0
 
-    .line 108
+    .line 145
     :try_start_1
     const-string v1, "xems_auto_templates"
 
@@ -951,7 +1193,7 @@
     :try_end_15
     .catch Ljava/lang/Throwable; {:try_start_1 .. :try_end_15} :catch_1b
 
-    .line 111
+    .line 148
     :goto_15
     if-nez p1, :cond_18
 
@@ -960,10 +1202,10 @@
     :cond_18
     sput-boolean v0, Lcom/isaigu/gymapp/ai/AutoTemplates;->noCardioMachine:Z
 
-    .line 112
+    .line 149
     return-void
 
-    .line 109
+    .line 146
     :catch_1b
     move-exception v1
 

@@ -56,6 +56,7 @@ public final class AutoUi {
     private static final int A_WORKOUT = 42;
     private static final int A_SETUP_GO = 43;
     private static final int A_SETUP_BACK = 44;
+    private static final int A_SETUP_LAST = 46;
     private static final int A_HOW = 40;
     private static final int A_SEX = 28;
     private static final int A_EDIT_PROFILE = 29;
@@ -1408,6 +1409,14 @@ public final class AutoUi {
             setupLabels.add(lbl);
             line.addView(lbl);
             right.addView(line, XemsUi.matchWrap(c, i == 0 ? 0 : 4));
+            if (r.block == null && r.prev > 0) {
+                // safety (owner, 1.1.531): the row starts at 0; the client's last level is one tap that rises to it
+                TextView last = XemsUi.chip(c, AiText.t("↗ " + r.prev + " · като миналия път",
+                        "↗ " + r.prev + " · like last time"), false, XemsUi.GO);
+                last.setTextSize(13);
+                last.setOnClickListener(new Act(A_SETUP_LAST, i));
+                right.addView(last, XemsUi.matchWrap(c, 4));
+            }
             if (r.block != null) {
                 right.addView(XemsUi.text(c, "⊘ " + r.block, 12, XemsUi.DANGER, true));
             }
@@ -1442,8 +1451,8 @@ public final class AutoUi {
         if (setupNote != null) {
             String n = AutoSession.getLastNotice();
             setupNote.setText(n != null && n.length() > 0 ? n
-                    : ok ? "" : AiText.t("Качи силата от главния екран — Старт се отключва.",
-                    "Raise the strength on the main screen — Start unlocks."));
+                    : ok ? "" : AiText.t("Силата е на 0. Качи я от реда (или „↗ като миналия път“) — Старт се отключва.",
+                    "The strength is at 0. Raise it on the row (or “↗ like last time”) — Start unlocks."));
         }
     }
 
@@ -2048,6 +2057,10 @@ public final class AutoUi {
                 return;
             case A_SETUP_BACK:
                 setupBack();
+                return;
+            case A_SETUP_LAST:
+                AutoSession.riseToLast(arg);
+                refreshSetup();
                 return;
             case A_WORKOUT:
                 stripX = programStrip != null ? programStrip.getScrollX() : 0;

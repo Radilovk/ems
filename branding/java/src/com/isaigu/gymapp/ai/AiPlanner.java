@@ -117,8 +117,14 @@ public final class AiPlanner {
 
     // ------------------------------------------------------------------ PLAN (§4)
 
+    /**
+     * Owner (1.1.531): no session — its active part with every rest between the sets — runs over 25 min
+     * (a manual ❚❚ pause is extra). The clock counts the rests (docs/xems-auto-mode-spec.md §18).
+     */
+    public static final int SESSION_MAX_S = 1500;
+
     public static int defaultSeconds(Goal goal) {
-        return goal == Goal.FAT ? 1800 : 1200;
+        return goal == Goal.FAT ? SESSION_MAX_S : 1200;
     }
 
     public static int clampSeconds(Goal goal, int seconds) {
@@ -126,9 +132,9 @@ public final class AiPlanner {
             return Math.max(600, Math.min(1200, seconds));   // R1: ≤ 20 min
         }
         if (goal == Goal.FAT) {
-            return Math.max(1800, Math.min(2400, seconds));  // R1: 30–40 min
+            return Math.max(1200, Math.min(SESSION_MAX_S, seconds)); // was R1 30–40 min; owner: ≤ 25 min
         }
-        return Math.max(600, Math.min(1800, seconds));       // [D]
+        return Math.max(600, Math.min(SESSION_MAX_S, seconds)); // [D]
     }
 
     public static Plan build(SessionInput in, Profile profile) {

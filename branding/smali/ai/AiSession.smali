@@ -633,10 +633,10 @@
 .end method
 
 .method public static beginCalibration()V
-    .registers 3
+    .registers 2
 
     .prologue
-    const/4 v2, 0x0
+    const/4 v1, 0x0
 
     .line 324
     sget-object v0, Lcom/isaigu/gymapp/ai/AiSession$Stage;->CALIB:Lcom/isaigu/gymapp/ai/AiSession$Stage;
@@ -644,27 +644,13 @@
     sput-object v0, Lcom/isaigu/gymapp/ai/AiSession;->stage:Lcom/isaigu/gymapp/ai/AiSession$Stage;
 
     .line 325
-    const/16 v0, 0xf
-
-    invoke-static {}, Lcom/isaigu/gymapp/ai/AiSession;->currentStrength()I
-
-    move-result v1
-
-    invoke-static {v0, v1}, Ljava/lang/Math;->min(II)I
-
-    move-result v0
-
-    invoke-static {v2, v0}, Ljava/lang/Math;->max(II)I
-
-    move-result v0
-
-    sput v0, Lcom/isaigu/gymapp/ai/AiSession;->calibPercent:I
+    sput v1, Lcom/isaigu/gymapp/ai/AiSession;->calibPercent:I
 
     .line 326
-    sput-boolean v2, Lcom/isaigu/gymapp/ai/AiSession;->calibStimOn:Z
+    sput-boolean v1, Lcom/isaigu/gymapp/ai/AiSession;->calibStimOn:Z
 
     .line 327
-    sput-boolean v2, Lcom/isaigu/gymapp/ai/AiSession;->soloAutoRamp:Z
+    sput-boolean v1, Lcom/isaigu/gymapp/ai/AiSession;->soloAutoRamp:Z
 
     .line 328
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiSession;->startTicker()V

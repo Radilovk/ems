@@ -539,6 +539,12 @@ public final class MapRunner {
             stop();
             return;
         }
+        if (clock.getElapsedS() >= AiPlanner.SESSION_MAX_S) {
+            // owner (1.1.531): no program runs over 25 min with its rests (a studio map drawn longer ends here)
+            WearableBleDiagLog.log("map", "25 min — closed");
+            stop();
+            return;
+        }
         AiEnergy.exerciseMet = AutoTemplates.met(currentExercise());   // the movement's cost in the live kcal
         updateCard(now);
     }

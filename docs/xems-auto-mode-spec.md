@@ -841,3 +841,27 @@ pause and the wait for ▶ held it. A 30 min active program ran 45–47 min and 
   procedures: impulse blocks advance by counted repetitions), the Smart Session (`AiEngine.onCycle`, its exercise
   sets) counted it as a whole cycle: every counted block ended after about half its time. Now `AiSession.onPulseCycle`
   passes only the call that enters an ON phase (`data.inStart`).
+
+## 19. Safe start and the 25 min ceiling (owner, 1.1.531)
+
+Owner: "no ready program or template may start on raised values — the person raises the strength; the program's
+channels marked / preselected, the current at 0 or at the client's level from the last training; never a hard start;
+no program's active part, with its rests, over 25 min".
+
+- **Strength starts at 0, everywhere.** `AutoSession.beginCalibration` (every Auto program, template, procedure, the
+  face through `FaceAuto`), `AiSession.beginCalibration` (Smart Session) and `MapRunner.arm` (maps — already 0) put
+  every row's strength at 0. Before, Auto took the row's current strength up to 10, the Smart Session up to 15.
+  The impulses run at the program's main cycle; ▶ Старт stays pale until a row has strength.
+- **Channels:** the program's channels are on (100), the others at 0 — the row's channel sliders switch any of them
+  on (unchanged, §16). The strength is the only thing at 0.
+- **The client's last level — one tap, never automatic.** `AutoHistory.rememberStrength` keeps each client's working
+  strength at the session's end (calibration × every ± of the session), per program and overall. The setting-up board
+  shows under the row **"↗ 34 · като миналия път"**; a tap rises the row to it at the calibration's pace (+5 / s,
+  `AutoSession.riseToLast` / `riseTick`). Any hand step down stops the rise. Nothing is offered for a client without
+  history or an unregistered row.
+- **After ▶ Старт:** the run starts on the strength just set and felt; up is +5 per impulse, down free (§8).
+- **25 min:** the plan clock is the real clock (§18), so the active part *with* the rests is `activeS` ≤ 20 min
+  (`AutoPlanner.ACTIVE_MAX_S`); the passive recovery (10 min, waits for ▶) and a manual ❚❚ are extra. The Smart
+  Session: `AiPlanner.SESSION_MAX_S` = 1500 — "Отслабване" was 30–40 min, now 20–25 (default 25), the other goals
+  ≤ 25. Maps: ready ones are 6–22 min; a studio map drawn longer ends at 25 min of its clock (`MapRunner`).
+

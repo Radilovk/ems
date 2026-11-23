@@ -21,8 +21,6 @@
 
 .field private done:I
 
-.field private ends:I
-
 .field private final fill:Landroid/graphics/Paint;
 
 .field private full:I
@@ -49,64 +47,64 @@
     .prologue
     const/4 v2, 0x1
 
-    .line 3000
+    .line 3009
     invoke-direct {p0, p1}, Landroid/view/View;-><init>(Landroid/content/Context;)V
 
-    .line 2987
+    .line 2996
     new-instance v0, Landroid/graphics/Paint;
 
     invoke-direct {v0, v2}, Landroid/graphics/Paint;-><init>(I)V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$SessionBar;->bar:Landroid/graphics/Paint;
 
-    .line 2988
+    .line 2997
     new-instance v0, Landroid/graphics/Paint;
 
     invoke-direct {v0, v2}, Landroid/graphics/Paint;-><init>(I)V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$SessionBar;->fill:Landroid/graphics/Paint;
 
-    .line 2989
+    .line 2998
     new-instance v0, Landroid/graphics/Paint;
 
     invoke-direct {v0, v2}, Landroid/graphics/Paint;-><init>(I)V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$SessionBar;->tick:Landroid/graphics/Paint;
 
-    .line 2990
+    .line 2999
     new-instance v0, Landroid/graphics/Paint;
 
     invoke-direct {v0, v2}, Landroid/graphics/Paint;-><init>(I)V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$SessionBar;->big:Landroid/graphics/Paint;
 
-    .line 2991
+    .line 3000
     new-instance v0, Landroid/graphics/Paint;
 
     invoke-direct {v0, v2}, Landroid/graphics/Paint;-><init>(I)V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$SessionBar;->small:Landroid/graphics/Paint;
 
-    .line 2992
+    .line 3001
     new-instance v0, Landroid/graphics/Paint;
 
     invoke-direct {v0, v2}, Landroid/graphics/Paint;-><init>(I)V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$SessionBar;->num:Landroid/graphics/Paint;
 
-    .line 2993
+    .line 3002
     new-instance v0, Landroid/graphics/RectF;
 
     invoke-direct {v0}, Landroid/graphics/RectF;-><init>()V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$SessionBar;->r:Landroid/graphics/RectF;
 
-    .line 2997
+    .line 3006
     const-string v0, ""
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$SessionBar;->mode:Ljava/lang/String;
 
-    .line 3001
+    .line 3010
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$SessionBar;->tick:Landroid/graphics/Paint;
 
     const/high16 v1, 0x3f800000    # 1.0f
@@ -119,7 +117,7 @@
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setStrokeWidth(F)V
 
-    .line 3002
+    .line 3011
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$SessionBar;->big:Landroid/graphics/Paint;
 
     sget-object v1, Landroid/graphics/Typeface;->DEFAULT:Landroid/graphics/Typeface;
@@ -130,7 +128,7 @@
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setTypeface(Landroid/graphics/Typeface;)Landroid/graphics/Typeface;
 
-    .line 3003
+    .line 3012
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$SessionBar;->big:Landroid/graphics/Paint;
 
     const/high16 v1, 0x41e00000    # 28.0f
@@ -141,7 +139,7 @@
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setTextSize(F)V
 
-    .line 3004
+    .line 3013
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$SessionBar;->small:Landroid/graphics/Paint;
 
     sget-object v1, Landroid/graphics/Typeface;->DEFAULT:Landroid/graphics/Typeface;
@@ -152,7 +150,7 @@
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setTypeface(Landroid/graphics/Typeface;)Landroid/graphics/Typeface;
 
-    .line 3005
+    .line 3014
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$SessionBar;->small:Landroid/graphics/Paint;
 
     const/high16 v1, 0x41400000    # 12.0f
@@ -163,14 +161,14 @@
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setTextSize(F)V
 
-    .line 3006
+    .line 3015
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$SessionBar;->small:Landroid/graphics/Paint;
 
     const v1, 0x3da3d70a    # 0.08f
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setLetterSpacing(F)V
 
-    .line 3007
+    .line 3016
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$SessionBar;->num:Landroid/graphics/Paint;
 
     const/high16 v1, 0x41200000    # 10.0f
@@ -181,7 +179,7 @@
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setTextSize(F)V
 
-    .line 3008
+    .line 3017
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$SessionBar;->num:Landroid/graphics/Paint;
 
     sget-object v1, Landroid/graphics/Typeface;->DEFAULT:Landroid/graphics/Typeface;
@@ -192,14 +190,14 @@
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setTypeface(Landroid/graphics/Typeface;)Landroid/graphics/Typeface;
 
-    .line 3009
+    .line 3018
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$SessionBar;->num:Landroid/graphics/Paint;
 
     sget-object v1, Landroid/graphics/Paint$Align;->CENTER:Landroid/graphics/Paint$Align;
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setTextAlign(Landroid/graphics/Paint$Align;)V
 
-    .line 3010
+    .line 3019
     const-string v0, "\u0412\u0440\u0435\u043c\u0435\u0442\u043e \u043d\u0430 \u0442\u0440\u0435\u043d\u0438\u0440\u043e\u0432\u043a\u0430\u0442\u0430"
 
     const-string v1, "The training\'s time"
@@ -210,7 +208,7 @@
 
     invoke-virtual {p0, v0}, Lcom/isaigu/gymapp/ai/FocusBoard$SessionBar;->setContentDescription(Ljava/lang/CharSequence;)V
 
-    .line 3011
+    .line 3020
     return-void
 .end method
 
@@ -218,13 +216,13 @@
     .registers 4
 
     .prologue
-    .line 3036
+    .line 3037
     div-int/lit8 v0, p0, 0x3c
 
-    .line 3037
+    .line 3038
     rem-int/lit8 v1, p0, 0x3c
 
-    .line 3038
+    .line 3039
     new-instance v2, Ljava/lang/StringBuilder;
 
     invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
@@ -266,92 +264,129 @@
     goto :goto_19
 .end method
 
+.method static timeHalfWidth(Landroid/content/Context;)F
+    .registers 4
+
+    .prologue
+    const/4 v2, 0x1
+
+    .line 3044
+    new-instance v0, Landroid/graphics/Paint;
+
+    invoke-direct {v0, v2}, Landroid/graphics/Paint;-><init>(I)V
+
+    .line 3045
+    sget-object v1, Landroid/graphics/Typeface;->DEFAULT:Landroid/graphics/Typeface;
+
+    invoke-static {v1, v2}, Landroid/graphics/Typeface;->create(Landroid/graphics/Typeface;I)Landroid/graphics/Typeface;
+
+    move-result-object v1
+
+    invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setTypeface(Landroid/graphics/Typeface;)Landroid/graphics/Typeface;
+
+    .line 3046
+    const/high16 v1, 0x41e00000    # 28.0f
+
+    invoke-static {p0, v1}, Lcom/isaigu/gymapp/widget/XemsUi;->sp(Landroid/content/Context;F)F
+
+    move-result v1
+
+    invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setTextSize(F)V
+
+    .line 3047
+    const-string v1, "00:00"
+
+    invoke-virtual {v0, v1}, Landroid/graphics/Paint;->measureText(Ljava/lang/String;)F
+
+    move-result v0
+
+    const/high16 v1, 0x40000000    # 2.0f
+
+    div-float/2addr v0, v1
+
+    return v0
+.end method
+
 
 # virtual methods
 .method protected onDraw(Landroid/graphics/Canvas;)V
-    .registers 27
+    .registers 28
 
     .prologue
-    .line 3043
+    .line 3052
     invoke-virtual/range {p0 .. p0}, Lcom/isaigu/gymapp/ai/FocusBoard$SessionBar;->getContext()Landroid/content/Context;
 
-    move-result-object v17
+    move-result-object v14
 
-    .line 3044
+    .line 3053
     invoke-virtual/range {p0 .. p0}, Lcom/isaigu/gymapp/ai/FocusBoard$SessionBar;->getWidth()I
 
     move-result v4
 
-    int-to-float v14, v4
+    int-to-float v15, v4
 
-    .line 3045
+    .line 3054
     invoke-virtual/range {p0 .. p0}, Lcom/isaigu/gymapp/ai/FocusBoard$SessionBar;->getHeight()I
 
     move-result v4
 
     int-to-float v4, v4
 
-    .line 3046
-    const/4 v5, 0x0
+    .line 3055
+    const/4 v4, 0x0
 
-    cmpg-float v5, v14, v5
+    cmpg-float v4, v15, v4
 
-    if-gtz v5, :cond_14
+    if-gtz v4, :cond_14
 
-    .line 3139
+    .line 3152
     :cond_13
     :goto_13
     return-void
 
-    .line 3049
+    .line 3058
     :cond_14
-    const/high16 v5, 0x41400000    # 12.0f
+    const/high16 v4, 0x41400000    # 12.0f
 
-    move-object/from16 v0, v17
+    invoke-static {v14, v4}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
 
-    invoke-static {v0, v5}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
+    move-result v4
 
-    move-result v5
+    int-to-float v0, v4
 
-    int-to-float v15, v5
+    move/from16 v16, v0
 
-    .line 3050
-    const/high16 v5, 0x41200000    # 10.0f
+    .line 3059
+    const/high16 v4, 0x41200000    # 10.0f
 
-    move-object/from16 v0, v17
+    invoke-static {v14, v4}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
 
-    invoke-static {v0, v5}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
+    move-result v4
 
-    move-result v5
+    int-to-float v0, v4
 
-    int-to-float v0, v5
+    move/from16 v17, v0
+
+    .line 3060
+    const/high16 v4, 0x42280000    # 42.0f
+
+    invoke-static {v14, v4}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
+
+    move-result v4
+
+    int-to-float v0, v4
 
     move/from16 v18, v0
 
-    .line 3051
-    sub-float v4, v4, v18
-
-    const/high16 v5, 0x41900000    # 18.0f
-
-    move-object/from16 v0, v17
-
-    invoke-static {v0, v5}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
-
-    move-result v5
-
-    int-to-float v5, v5
-
-    sub-float v19, v4, v5
-
-    .line 3052
+    .line 3061
     move-object/from16 v0, p0
 
     iget v0, v0, Lcom/isaigu/gymapp/ai/FocusBoard$SessionBar;->full:I
 
-    move/from16 v20, v0
+    move/from16 v19, v0
 
-    .line 3053
-    if-lez v20, :cond_330
+    .line 3062
+    if-lez v19, :cond_33e
 
     const/4 v4, 0x0
 
@@ -361,11 +396,11 @@
 
     iget v6, v0, Lcom/isaigu/gymapp/ai/FocusBoard$SessionBar;->left:I
 
-    sub-int v6, v20, v6
+    sub-int v6, v19, v6
 
     int-to-float v6, v6
 
-    move/from16 v0, v20
+    move/from16 v0, v19
 
     int-to-float v7, v0
 
@@ -381,81 +416,158 @@
 
     move v11, v4
 
-    .line 3054
-    :goto_54
+    .line 3063
+    :goto_4e
     move-object/from16 v0, p0
 
     iget-boolean v4, v0, Lcom/isaigu/gymapp/ai/FocusBoard$SessionBar;->run:Z
 
-    if-nez v4, :cond_334
+    if-nez v4, :cond_342
 
     move-object/from16 v0, p0
 
     iget v4, v0, Lcom/isaigu/gymapp/ai/FocusBoard$SessionBar;->left:I
 
-    if-lez v4, :cond_334
+    if-lez v4, :cond_342
 
     move-object/from16 v0, p0
 
     iget v4, v0, Lcom/isaigu/gymapp/ai/FocusBoard$SessionBar;->left:I
 
-    move/from16 v0, v20
+    move/from16 v0, v19
 
-    if-ge v4, v0, :cond_334
+    if-ge v4, v0, :cond_342
 
     const/4 v4, 0x1
 
-    .line 3055
-    :goto_69
+    .line 3064
+    :goto_63
     move-object/from16 v0, p0
 
     iget-boolean v5, v0, Lcom/isaigu/gymapp/ai/FocusBoard$SessionBar;->run:Z
 
-    if-eqz v5, :cond_337
+    if-eqz v5, :cond_345
 
     sget v10, Lcom/isaigu/gymapp/widget/XemsUi;->ACCENT:I
 
-    .line 3058
-    :goto_71
+    .line 3065
+    :goto_6b
+    const/high16 v5, 0x40000000    # 2.0f
+
+    div-float v6, v15, v5
+
+    .line 3068
+    move-object/from16 v0, p0
+
+    iget-object v5, v0, Lcom/isaigu/gymapp/ai/FocusBoard$SessionBar;->big:Landroid/graphics/Paint;
+
+    sget-object v7, Landroid/graphics/Paint$Align;->CENTER:Landroid/graphics/Paint$Align;
+
+    invoke-virtual {v5, v7}, Landroid/graphics/Paint;->setTextAlign(Landroid/graphics/Paint$Align;)V
+
+    .line 3069
+    move-object/from16 v0, p0
+
+    iget-object v7, v0, Lcom/isaigu/gymapp/ai/FocusBoard$SessionBar;->big:Landroid/graphics/Paint;
+
     move-object/from16 v0, p0
 
     iget-boolean v5, v0, Lcom/isaigu/gymapp/ai/FocusBoard$SessionBar;->run:Z
 
-    if-eqz v5, :cond_34a
+    if-eqz v5, :cond_358
+
+    sget v5, Lcom/isaigu/gymapp/widget/XemsUi;->TEXT:I
+
+    :goto_84
+    invoke-virtual {v7, v5}, Landroid/graphics/Paint;->setColor(I)V
+
+    .line 3070
+    const/high16 v5, 0x41980000    # 19.0f
+
+    invoke-static {v14, v5}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
+
+    move-result v5
+
+    int-to-float v5, v5
+
+    .line 3071
+    move-object/from16 v0, p0
+
+    iget-object v7, v0, Lcom/isaigu/gymapp/ai/FocusBoard$SessionBar;->big:Landroid/graphics/Paint;
+
+    invoke-virtual {v7}, Landroid/graphics/Paint;->getFontMetrics()Landroid/graphics/Paint$FontMetrics;
+
+    move-result-object v7
+
+    .line 3072
+    move-object/from16 v0, p0
+
+    iget v8, v0, Lcom/isaigu/gymapp/ai/FocusBoard$SessionBar;->done:I
+
+    invoke-static {v8}, Lcom/isaigu/gymapp/ai/FocusBoard$SessionBar;->mmss(I)Ljava/lang/String;
+
+    move-result-object v8
+
+    iget v9, v7, Landroid/graphics/Paint$FontMetrics;->ascent:F
+
+    iget v7, v7, Landroid/graphics/Paint$FontMetrics;->descent:F
+
+    add-float/2addr v7, v9
+
+    const/high16 v9, 0x40000000    # 2.0f
+
+    div-float/2addr v7, v9
+
+    sub-float/2addr v5, v7
+
+    move-object/from16 v0, p0
+
+    iget-object v7, v0, Lcom/isaigu/gymapp/ai/FocusBoard$SessionBar;->big:Landroid/graphics/Paint;
+
+    move-object/from16 v0, p1
+
+    invoke-virtual {v0, v8, v6, v5, v7}, Landroid/graphics/Canvas;->drawText(Ljava/lang/String;FFLandroid/graphics/Paint;)V
+
+    .line 3075
+    move-object/from16 v0, p0
+
+    iget-boolean v5, v0, Lcom/isaigu/gymapp/ai/FocusBoard$SessionBar;->run:Z
+
+    if-eqz v5, :cond_365
 
     const-string v5, "\u0410\u041a\u0422\u0418\u0412\u0415\u041d"
 
-    const-string v6, "ACTIVE"
+    const-string v7, "ACTIVE"
 
-    invoke-static {v5, v6}, Lcom/isaigu/gymapp/ai/AiText;->t(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+    invoke-static {v5, v7}, Lcom/isaigu/gymapp/ai/AiText;->t(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v5
 
     move-object v12, v5
 
-    .line 3060
-    :goto_80
+    .line 3077
+    :goto_bf
     move-object/from16 v0, p0
 
     iget-boolean v5, v0, Lcom/isaigu/gymapp/ai/FocusBoard$SessionBar;->run:Z
 
-    if-eqz v5, :cond_375
+    if-eqz v5, :cond_390
 
     sget v5, Lcom/isaigu/gymapp/widget/XemsUi;->ACCENT:I
 
     move v13, v5
 
-    .line 3061
-    :goto_89
+    .line 3078
+    :goto_c8
     move-object/from16 v0, p0
 
     iget-object v5, v0, Lcom/isaigu/gymapp/ai/FocusBoard$SessionBar;->small:Landroid/graphics/Paint;
 
-    sget-object v6, Landroid/graphics/Paint$Align;->LEFT:Landroid/graphics/Paint$Align;
+    sget-object v7, Landroid/graphics/Paint$Align;->LEFT:Landroid/graphics/Paint$Align;
 
-    invoke-virtual {v5, v6}, Landroid/graphics/Paint;->setTextAlign(Landroid/graphics/Paint$Align;)V
+    invoke-virtual {v5, v7}, Landroid/graphics/Paint;->setTextAlign(Landroid/graphics/Paint$Align;)V
 
-    .line 3062
+    .line 3079
     move-object/from16 v0, p0
 
     iget-object v5, v0, Lcom/isaigu/gymapp/ai/FocusBoard$SessionBar;->small:Landroid/graphics/Paint;
@@ -464,57 +576,62 @@
 
     move-result v5
 
-    const/high16 v6, 0x41f00000    # 30.0f
+    const/high16 v7, 0x41f00000    # 30.0f
 
-    move-object/from16 v0, v17
-
-    invoke-static {v0, v6}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
-
-    move-result v6
-
-    int-to-float v6, v6
-
-    add-float/2addr v5, v6
-
-    .line 3063
-    const/high16 v6, 0x41b00000    # 22.0f
-
-    move-object/from16 v0, v17
-
-    invoke-static {v0, v6}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
-
-    move-result v6
-
-    int-to-float v6, v6
-
-    .line 3064
-    const/high16 v7, 0x42180000    # 38.0f
-
-    move-object/from16 v0, v17
-
-    invoke-static {v0, v7}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
+    invoke-static {v14, v7}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
 
     move-result v7
 
     int-to-float v7, v7
 
-    sub-float v7, v19, v7
+    add-float v20, v5, v7
 
-    .line 3065
+    .line 3080
+    const/high16 v5, 0x41b00000    # 22.0f
+
+    invoke-static {v14, v5}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
+
+    move-result v5
+
+    int-to-float v5, v5
+
+    .line 3081
+    add-float v7, v18, v17
+
+    const/high16 v8, 0x41000000    # 8.0f
+
+    invoke-static {v14, v8}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
+
+    move-result v8
+
+    int-to-float v8, v8
+
+    add-float/2addr v7, v8
+
+    .line 3082
+    const/high16 v8, 0x40000000    # 2.0f
+
+    div-float v8, v20, v8
+
+    sub-float v21, v6, v8
+
+    .line 3083
     move-object/from16 v0, p0
 
-    iget-object v8, v0, Lcom/isaigu/gymapp/ai/FocusBoard$SessionBar;->r:Landroid/graphics/RectF;
+    iget-object v6, v0, Lcom/isaigu/gymapp/ai/FocusBoard$SessionBar;->r:Landroid/graphics/RectF;
 
-    add-float/2addr v5, v15
+    add-float v8, v21, v20
 
-    add-float v9, v7, v6
+    add-float v9, v7, v5
 
-    invoke-virtual {v8, v15, v7, v5, v9}, Landroid/graphics/RectF;->set(FFFF)V
+    move/from16 v0, v21
 
-    .line 3066
+    invoke-virtual {v6, v0, v7, v8, v9}, Landroid/graphics/RectF;->set(FFFF)V
+
+    .line 3084
     move-object/from16 v0, p0
 
-    iget-object v5, v0, Lcom/isaigu/gymapp/ai/FocusBoard$SessionBar;->bar:Landroid/graphics/Paint;
+    iget-object v6, v0, Lcom/isaigu/gymapp/ai/FocusBoard$SessionBar;->bar:Landroid/graphics/Paint;
 
     const/16 v8, 0x29
 
@@ -522,136 +639,126 @@
 
     move-result v8
 
-    invoke-virtual {v5, v8}, Landroid/graphics/Paint;->setColor(I)V
+    invoke-virtual {v6, v8}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 3067
+    .line 3085
     move-object/from16 v0, p0
 
-    iget-object v5, v0, Lcom/isaigu/gymapp/ai/FocusBoard$SessionBar;->r:Landroid/graphics/RectF;
+    iget-object v6, v0, Lcom/isaigu/gymapp/ai/FocusBoard$SessionBar;->r:Landroid/graphics/RectF;
 
     const/high16 v8, 0x40000000    # 2.0f
 
-    div-float v8, v6, v8
+    div-float v8, v5, v8
 
     const/high16 v9, 0x40000000    # 2.0f
 
-    div-float v9, v6, v9
+    div-float v9, v5, v9
 
     move-object/from16 v0, p0
 
     iget-object v0, v0, Lcom/isaigu/gymapp/ai/FocusBoard$SessionBar;->bar:Landroid/graphics/Paint;
 
-    move-object/from16 v16, v0
+    move-object/from16 v22, v0
 
     move-object/from16 v0, p1
 
-    move-object/from16 v1, v16
+    move-object/from16 v1, v22
 
-    invoke-virtual {v0, v5, v8, v9, v1}, Landroid/graphics/Canvas;->drawRoundRect(Landroid/graphics/RectF;FFLandroid/graphics/Paint;)V
+    invoke-virtual {v0, v6, v8, v9, v1}, Landroid/graphics/Canvas;->drawRoundRect(Landroid/graphics/RectF;FFLandroid/graphics/Paint;)V
 
-    .line 3068
+    .line 3086
     move-object/from16 v0, p0
 
-    iget-object v5, v0, Lcom/isaigu/gymapp/ai/FocusBoard$SessionBar;->fill:Landroid/graphics/Paint;
+    iget-object v6, v0, Lcom/isaigu/gymapp/ai/FocusBoard$SessionBar;->fill:Landroid/graphics/Paint;
 
     const/4 v8, 0x0
 
-    invoke-virtual {v5, v8}, Landroid/graphics/Paint;->setShader(Landroid/graphics/Shader;)Landroid/graphics/Shader;
+    invoke-virtual {v6, v8}, Landroid/graphics/Paint;->setShader(Landroid/graphics/Shader;)Landroid/graphics/Shader;
 
-    .line 3069
+    .line 3087
     move-object/from16 v0, p0
 
-    iget-object v5, v0, Lcom/isaigu/gymapp/ai/FocusBoard$SessionBar;->fill:Landroid/graphics/Paint;
+    iget-object v6, v0, Lcom/isaigu/gymapp/ai/FocusBoard$SessionBar;->fill:Landroid/graphics/Paint;
 
-    invoke-virtual {v5, v13}, Landroid/graphics/Paint;->setColor(I)V
+    invoke-virtual {v6, v13}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 3070
-    const/high16 v5, 0x41400000    # 12.0f
+    .line 3088
+    const/high16 v6, 0x41400000    # 12.0f
 
-    move-object/from16 v0, v17
+    invoke-static {v14, v6}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
 
-    invoke-static {v0, v5}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
+    move-result v6
 
-    move-result v5
+    int-to-float v6, v6
 
-    int-to-float v5, v5
+    add-float v22, v21, v6
 
-    add-float v16, v15, v5
+    .line 3089
+    const/high16 v6, 0x40000000    # 2.0f
 
-    .line 3071
-    const/high16 v5, 0x40000000    # 2.0f
+    div-float/2addr v5, v6
 
-    div-float v5, v6, v5
+    add-float v23, v7, v5
 
-    add-float v21, v7, v5
+    .line 3090
+    if-eqz v4, :cond_395
 
-    .line 3072
-    if-eqz v4, :cond_37a
-
-    .line 3073
+    .line 3091
     const/high16 v4, 0x40200000    # 2.5f
 
-    move-object/from16 v0, v17
-
-    invoke-static {v0, v4}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
+    invoke-static {v14, v4}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
 
     move-result v4
 
     int-to-float v0, v4
 
-    move/from16 v22, v0
+    move/from16 v24, v0
 
-    .line 3074
+    .line 3092
     const/high16 v4, 0x41000000    # 8.0f
 
-    move-object/from16 v0, v17
-
-    invoke-static {v0, v4}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
+    invoke-static {v14, v4}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
 
     move-result v4
 
     int-to-float v0, v4
 
-    move/from16 v23, v0
+    move/from16 v25, v0
 
-    .line 3075
+    .line 3093
     const/high16 v4, 0x40800000    # 4.0f
 
-    move-object/from16 v0, v17
-
-    invoke-static {v0, v4}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
+    invoke-static {v14, v4}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
 
     move-result v4
 
     int-to-float v4, v4
 
-    sub-float v5, v16, v4
+    sub-float v5, v22, v4
 
     const/high16 v4, 0x40000000    # 2.0f
 
-    div-float v4, v23, v4
+    div-float v4, v25, v4
 
-    sub-float v6, v21, v4
+    sub-float v6, v23, v4
 
     const/high16 v4, 0x40800000    # 4.0f
 
-    move-object/from16 v0, v17
-
-    invoke-static {v0, v4}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
+    invoke-static {v14, v4}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
 
     move-result v4
 
     int-to-float v4, v4
 
-    sub-float v4, v16, v4
+    sub-float v4, v22, v4
 
-    add-float v7, v4, v22
+    add-float v7, v4, v24
 
     const/high16 v4, 0x40000000    # 2.0f
 
-    div-float v4, v23, v4
+    div-float v4, v25, v4
 
-    add-float v8, v21, v4
+    add-float v8, v23, v4
 
     move-object/from16 v0, p0
 
@@ -661,44 +768,40 @@
 
     invoke-virtual/range {v4 .. v9}, Landroid/graphics/Canvas;->drawRect(FFFFLandroid/graphics/Paint;)V
 
-    .line 3076
+    .line 3094
     const/high16 v4, 0x3f800000    # 1.0f
 
-    move-object/from16 v0, v17
-
-    invoke-static {v0, v4}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
+    invoke-static {v14, v4}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
 
     move-result v4
 
     int-to-float v4, v4
 
-    add-float v5, v16, v4
+    add-float v5, v22, v4
 
     const/high16 v4, 0x40000000    # 2.0f
 
-    div-float v4, v23, v4
+    div-float v4, v25, v4
 
-    sub-float v6, v21, v4
+    sub-float v6, v23, v4
 
     const/high16 v4, 0x3f800000    # 1.0f
 
-    move-object/from16 v0, v17
-
-    invoke-static {v0, v4}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
+    invoke-static {v14, v4}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
 
     move-result v4
 
     int-to-float v4, v4
 
-    add-float v4, v4, v16
+    add-float v4, v4, v22
 
-    add-float v7, v4, v22
+    add-float v7, v4, v24
 
     const/high16 v4, 0x40000000    # 2.0f
 
-    div-float v4, v23, v4
+    div-float v4, v25, v4
 
-    add-float v8, v21, v4
+    add-float v8, v23, v4
 
     move-object/from16 v0, p0
 
@@ -708,26 +811,24 @@
 
     invoke-virtual/range {v4 .. v9}, Landroid/graphics/Canvas;->drawRect(FFFFLandroid/graphics/Paint;)V
 
-    .line 3080
-    :goto_17a
+    .line 3098
+    :goto_1af
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/isaigu/gymapp/ai/FocusBoard$SessionBar;->small:Landroid/graphics/Paint;
 
     invoke-virtual {v4, v13}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 3081
+    .line 3099
     const/high16 v4, 0x41b00000    # 22.0f
 
-    move-object/from16 v0, v17
-
-    invoke-static {v0, v4}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
+    invoke-static {v14, v4}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
 
     move-result v4
 
     int-to-float v4, v4
 
-    add-float/2addr v4, v15
+    add-float v4, v4, v21
 
     move-object/from16 v0, p0
 
@@ -741,7 +842,7 @@
 
     mul-float/2addr v5, v6
 
-    add-float v5, v5, v21
+    add-float v5, v5, v23
 
     move-object/from16 v0, p0
 
@@ -751,164 +852,123 @@
 
     invoke-virtual {v0, v12, v4, v5, v6}, Landroid/graphics/Canvas;->drawText(Ljava/lang/String;FFLandroid/graphics/Paint;)V
 
-    .line 3084
-    move-object/from16 v0, p0
+    .line 3100
+    const/high16 v4, 0x41200000    # 10.0f
 
-    iget-object v4, v0, Lcom/isaigu/gymapp/ai/FocusBoard$SessionBar;->big:Landroid/graphics/Paint;
-
-    sget-object v5, Landroid/graphics/Paint$Align;->RIGHT:Landroid/graphics/Paint$Align;
-
-    invoke-virtual {v4, v5}, Landroid/graphics/Paint;->setTextAlign(Landroid/graphics/Paint$Align;)V
-
-    .line 3085
-    move-object/from16 v0, p0
-
-    iget-object v5, v0, Lcom/isaigu/gymapp/ai/FocusBoard$SessionBar;->big:Landroid/graphics/Paint;
-
-    move-object/from16 v0, p0
-
-    iget-boolean v4, v0, Lcom/isaigu/gymapp/ai/FocusBoard$SessionBar;->run:Z
-
-    if-eqz v4, :cond_392
-
-    sget v4, Lcom/isaigu/gymapp/widget/XemsUi;->TEXT:I
-
-    :goto_1b7
-    invoke-virtual {v5, v4}, Landroid/graphics/Paint;->setColor(I)V
-
-    .line 3086
-    const/high16 v4, 0x41600000    # 14.0f
-
-    move-object/from16 v0, v17
-
-    invoke-static {v0, v4}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
+    invoke-static {v14, v4}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
 
     move-result v4
 
     int-to-float v4, v4
 
-    sub-float v4, v19, v4
+    sub-float v22, v21, v4
 
-    .line 3087
-    move-object/from16 v0, p0
+    .line 3101
+    add-float v4, v21, v20
 
-    iget v5, v0, Lcom/isaigu/gymapp/ai/FocusBoard$SessionBar;->done:I
+    const/high16 v5, 0x41200000    # 10.0f
 
-    invoke-static {v5}, Lcom/isaigu/gymapp/ai/FocusBoard$SessionBar;->mmss(I)Ljava/lang/String;
-
-    move-result-object v5
-
-    .line 3088
-    sub-float v6, v14, v15
-
-    move-object/from16 v0, p0
-
-    iget-object v7, v0, Lcom/isaigu/gymapp/ai/FocusBoard$SessionBar;->big:Landroid/graphics/Paint;
-
-    move-object/from16 v0, p1
-
-    invoke-virtual {v0, v5, v6, v4, v7}, Landroid/graphics/Canvas;->drawText(Ljava/lang/String;FFLandroid/graphics/Paint;)V
-
-    .line 3091
-    move-object/from16 v0, p0
-
-    iget v4, v0, Lcom/isaigu/gymapp/ai/FocusBoard$SessionBar;->ends:I
-
-    int-to-float v4, v4
-
-    invoke-static {v15, v4}, Ljava/lang/Math;->max(FF)F
+    invoke-static {v14, v5}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
 
     move-result v5
 
-    .line 3092
+    int-to-float v5, v5
+
+    add-float v20, v4, v5
+
+    .line 3105
     const/high16 v4, 0x40000000    # 2.0f
 
-    mul-float/2addr v4, v5
+    mul-float v4, v4, v16
 
-    sub-float v21, v14, v4
+    sub-float/2addr v15, v4
 
-    .line 3093
+    .line 3106
     const/high16 v4, 0x40000000    # 2.0f
 
-    div-float v22, v18, v4
+    div-float v21, v17, v4
 
-    .line 3094
+    .line 3107
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/isaigu/gymapp/ai/FocusBoard$SessionBar;->r:Landroid/graphics/RectF;
 
-    add-float v6, v5, v21
+    add-float v5, v16, v15
 
-    add-float v7, v19, v18
+    add-float v6, v18, v17
 
-    move/from16 v0, v19
+    move/from16 v0, v16
 
-    invoke-virtual {v4, v5, v0, v6, v7}, Landroid/graphics/RectF;->set(FFFF)V
+    move/from16 v1, v18
 
-    .line 3095
+    invoke-virtual {v4, v0, v1, v5, v6}, Landroid/graphics/RectF;->set(FFFF)V
+
+    .line 3108
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/isaigu/gymapp/ai/FocusBoard$SessionBar;->bar:Landroid/graphics/Paint;
 
-    sget v6, Lcom/isaigu/gymapp/widget/XemsUi;->ACCENT:I
+    sget v5, Lcom/isaigu/gymapp/widget/XemsUi;->ACCENT:I
 
-    const/16 v7, 0x21
+    const/16 v6, 0x21
 
-    invoke-static {v6, v7}, Lcom/isaigu/gymapp/widget/XemsUi;->alpha(II)I
+    invoke-static {v5, v6}, Lcom/isaigu/gymapp/widget/XemsUi;->alpha(II)I
 
-    move-result v6
+    move-result v5
 
-    invoke-virtual {v4, v6}, Landroid/graphics/Paint;->setColor(I)V
+    invoke-virtual {v4, v5}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 3096
+    .line 3109
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/isaigu/gymapp/ai/FocusBoard$SessionBar;->r:Landroid/graphics/RectF;
 
     move-object/from16 v0, p0
 
-    iget-object v6, v0, Lcom/isaigu/gymapp/ai/FocusBoard$SessionBar;->bar:Landroid/graphics/Paint;
+    iget-object v5, v0, Lcom/isaigu/gymapp/ai/FocusBoard$SessionBar;->bar:Landroid/graphics/Paint;
 
     move-object/from16 v0, p1
 
-    move/from16 v1, v22
+    move/from16 v1, v21
 
-    move/from16 v2, v22
+    move/from16 v2, v21
 
-    invoke-virtual {v0, v4, v1, v2, v6}, Landroid/graphics/Canvas;->drawRoundRect(Landroid/graphics/RectF;FFLandroid/graphics/Paint;)V
+    invoke-virtual {v0, v4, v1, v2, v5}, Landroid/graphics/Canvas;->drawRoundRect(Landroid/graphics/RectF;FFLandroid/graphics/Paint;)V
 
-    .line 3097
-    mul-float v4, v21, v11
+    .line 3110
+    mul-float v4, v15, v11
 
-    add-float v23, v5, v4
+    add-float v23, v16, v4
 
-    .line 3098
+    .line 3111
     const/4 v4, 0x0
 
     cmpl-float v4, v11, v4
 
-    if-lez v4, :cond_26a
+    if-lez v4, :cond_279
 
-    .line 3099
+    .line 3112
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/isaigu/gymapp/ai/FocusBoard$SessionBar;->r:Landroid/graphics/RectF;
 
-    add-float v6, v5, v18
+    add-float v5, v16, v17
 
     move/from16 v0, v23
 
-    invoke-static {v0, v6}, Ljava/lang/Math;->max(FF)F
+    invoke-static {v0, v5}, Ljava/lang/Math;->max(FF)F
 
-    move-result v6
+    move-result v5
 
-    add-float v7, v19, v18
+    add-float v6, v18, v17
 
-    move/from16 v0, v19
+    move/from16 v0, v16
 
-    invoke-virtual {v4, v5, v0, v6, v7}, Landroid/graphics/RectF;->set(FFFF)V
+    move/from16 v1, v18
 
-    .line 3100
+    invoke-virtual {v4, v0, v1, v5, v6}, Landroid/graphics/RectF;->set(FFFF)V
+
+    .line 3113
     move-object/from16 v0, p0
 
     iget-object v12, v0, Lcom/isaigu/gymapp/ai/FocusBoard$SessionBar;->fill:Landroid/graphics/Paint;
@@ -917,389 +977,36 @@
 
     const/4 v6, 0x0
 
-    add-float v7, v5, v18
+    add-float v5, v16, v17
 
     move/from16 v0, v23
 
-    invoke-static {v0, v7}, Ljava/lang/Math;->max(FF)F
+    invoke-static {v0, v5}, Ljava/lang/Math;->max(FF)F
 
     move-result v7
 
     const/4 v8, 0x0
 
-    const/16 v9, 0x73
+    const/16 v5, 0x73
 
-    .line 3101
-    invoke-static {v10, v9}, Lcom/isaigu/gymapp/widget/XemsUi;->alpha(II)I
+    .line 3114
+    invoke-static {v10, v5}, Lcom/isaigu/gymapp/widget/XemsUi;->alpha(II)I
 
     move-result v9
 
     sget-object v11, Landroid/graphics/Shader$TileMode;->CLAMP:Landroid/graphics/Shader$TileMode;
 
+    move/from16 v5, v16
+
     invoke-direct/range {v4 .. v11}, Landroid/graphics/LinearGradient;-><init>(FFFFIILandroid/graphics/Shader$TileMode;)V
 
-    .line 3100
+    .line 3113
     invoke-virtual {v12, v4}, Landroid/graphics/Paint;->setShader(Landroid/graphics/Shader;)Landroid/graphics/Shader;
 
-    .line 3102
+    .line 3115
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/isaigu/gymapp/ai/FocusBoard$SessionBar;->r:Landroid/graphics/RectF;
-
-    move-object/from16 v0, p0
-
-    iget-object v6, v0, Lcom/isaigu/gymapp/ai/FocusBoard$SessionBar;->fill:Landroid/graphics/Paint;
-
-    move-object/from16 v0, p1
-
-    move/from16 v1, v22
-
-    move/from16 v2, v22
-
-    invoke-virtual {v0, v4, v1, v2, v6}, Landroid/graphics/Canvas;->drawRoundRect(Landroid/graphics/RectF;FFLandroid/graphics/Paint;)V
-
-    .line 3103
-    move-object/from16 v0, p0
-
-    iget-object v4, v0, Lcom/isaigu/gymapp/ai/FocusBoard$SessionBar;->fill:Landroid/graphics/Paint;
-
-    const/4 v6, 0x0
-
-    invoke-virtual {v4, v6}, Landroid/graphics/Paint;->setShader(Landroid/graphics/Shader;)Landroid/graphics/Shader;
-
-    .line 3105
-    :cond_26a
-    move-object/from16 v0, p0
-
-    iget-object v4, v0, Lcom/isaigu/gymapp/ai/FocusBoard$SessionBar;->num:Landroid/graphics/Paint;
-
-    const/high16 v6, 0x41200000    # 10.0f
-
-    move-object/from16 v0, v17
-
-    invoke-static {v0, v6}, Lcom/isaigu/gymapp/widget/XemsUi;->sp(Landroid/content/Context;F)F
-
-    move-result v6
-
-    invoke-virtual {v4, v6}, Landroid/graphics/Paint;->setTextSize(F)V
-
-    .line 3106
-    add-float v4, v19, v18
-
-    const/high16 v6, 0x41500000    # 13.0f
-
-    move-object/from16 v0, v17
-
-    invoke-static {v0, v6}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
-
-    move-result v6
-
-    int-to-float v6, v6
-
-    add-float v9, v4, v6
-
-    .line 3107
-    div-int/lit8 v24, v20, 0x3c
-
-    .line 3108
-    const/4 v4, 0x2
-
-    move/from16 v0, v24
-
-    if-lt v0, v4, :cond_3ad
-
-    const/16 v4, 0x78
-
-    move/from16 v0, v24
-
-    if-gt v0, v4, :cond_3ad
-
-    .line 3109
-    const/16 v4, 0x3c
-
-    move/from16 v0, v24
-
-    if-le v0, v4, :cond_39f
-
-    const/16 v4, 0xa
-
-    .line 3110
-    :goto_29b
-    move-object/from16 v0, p0
-
-    iget-object v6, v0, Lcom/isaigu/gymapp/ai/FocusBoard$SessionBar;->num:Landroid/graphics/Paint;
-
-    sget-object v7, Landroid/graphics/Paint$Align;->CENTER:Landroid/graphics/Paint$Align;
-
-    invoke-virtual {v6, v7}, Landroid/graphics/Paint;->setTextAlign(Landroid/graphics/Paint$Align;)V
-
-    .line 3111
-    const/4 v6, 0x1
-
-    move v8, v6
-
-    :goto_2a6
-    move/from16 v0, v24
-
-    if-ge v8, v0, :cond_3ad
-
-    .line 3112
-    int-to-float v6, v8
-
-    const/high16 v7, 0x42700000    # 60.0f
-
-    mul-float/2addr v6, v7
-
-    mul-float v6, v6, v21
-
-    move/from16 v0, v20
-
-    int-to-float v7, v0
-
-    div-float/2addr v6, v7
-
-    add-float v12, v5, v6
-
-    .line 3113
-    rem-int v6, v8, v4
-
-    if-nez v6, :cond_3a2
-
-    const/4 v6, 0x1
-
-    .line 3114
-    :goto_2bb
-    move-object/from16 v0, p0
-
-    iget-object v11, v0, Lcom/isaigu/gymapp/ai/FocusBoard$SessionBar;->tick:Landroid/graphics/Paint;
-
-    sget v13, Lcom/isaigu/gymapp/widget/XemsUi;->BG:I
-
-    if-eqz v6, :cond_3a5
-
-    const/16 v7, 0xd8
-
-    :goto_2c5
-    invoke-static {v13, v7}, Lcom/isaigu/gymapp/widget/XemsUi;->alpha(II)I
-
-    move-result v7
-
-    invoke-virtual {v11, v7}, Landroid/graphics/Paint;->setColor(I)V
-
-    .line 3115
-    const/high16 v7, 0x40000000    # 2.0f
-
-    move-object/from16 v0, v17
-
-    invoke-static {v0, v7}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
-
-    move-result v7
-
-    int-to-float v7, v7
-
-    add-float v13, v19, v7
-
-    add-float v7, v19, v18
-
-    const/high16 v11, 0x40000000    # 2.0f
-
-    move-object/from16 v0, v17
-
-    invoke-static {v0, v11}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
-
-    move-result v11
-
-    int-to-float v11, v11
-
-    sub-float v15, v7, v11
-
-    move-object/from16 v0, p0
-
-    iget-object v0, v0, Lcom/isaigu/gymapp/ai/FocusBoard$SessionBar;->tick:Landroid/graphics/Paint;
-
-    move-object/from16 v16, v0
-
-    move-object/from16 v11, p1
-
-    move v14, v12
-
-    invoke-virtual/range {v11 .. v16}, Landroid/graphics/Canvas;->drawLine(FFFFLandroid/graphics/Paint;)V
-
-    .line 3116
-    if-eqz v6, :cond_32b
-
-    add-float v6, v5, v21
-
-    const/high16 v7, 0x41b00000    # 22.0f
-
-    move-object/from16 v0, v17
-
-    invoke-static {v0, v7}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
-
-    move-result v7
-
-    int-to-float v7, v7
-
-    sub-float/2addr v6, v7
-
-    cmpg-float v6, v12, v6
-
-    if-gez v6, :cond_32b
-
-    .line 3117
-    move-object/from16 v0, p0
-
-    iget-object v7, v0, Lcom/isaigu/gymapp/ai/FocusBoard$SessionBar;->num:Landroid/graphics/Paint;
-
-    cmpg-float v6, v12, v23
-
-    if-gtz v6, :cond_3a9
-
-    sget v6, Lcom/isaigu/gymapp/widget/XemsUi;->ACCENT:I
-
-    :goto_30c
-    invoke-virtual {v7, v6}, Landroid/graphics/Paint;->setColor(I)V
-
-    .line 3118
-    new-instance v6, Ljava/lang/StringBuilder;
-
-    invoke-direct {v6}, Ljava/lang/StringBuilder;-><init>()V
-
-    invoke-virtual {v6, v8}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
-
-    move-result-object v6
-
-    const-string v7, "\u2032"
-
-    invoke-virtual {v6, v7}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v6
-
-    invoke-virtual {v6}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
-
-    move-result-object v6
-
-    move-object/from16 v0, p0
-
-    iget-object v7, v0, Lcom/isaigu/gymapp/ai/FocusBoard$SessionBar;->num:Landroid/graphics/Paint;
-
-    move-object/from16 v0, p1
-
-    invoke-virtual {v0, v6, v12, v9, v7}, Landroid/graphics/Canvas;->drawText(Ljava/lang/String;FFLandroid/graphics/Paint;)V
-
-    .line 3111
-    :cond_32b
-    add-int/lit8 v6, v8, 0x1
-
-    move v8, v6
-
-    goto/16 :goto_2a6
-
-    .line 3053
-    :cond_330
-    const/4 v4, 0x0
-
-    move v11, v4
-
-    goto/16 :goto_54
-
-    .line 3054
-    :cond_334
-    const/4 v4, 0x0
-
-    goto/16 :goto_69
-
-    .line 3055
-    :cond_337
-    if-eqz v4, :cond_346
-
-    sget v5, Lcom/isaigu/gymapp/widget/XemsUi;->ACCENT:I
-
-    sget v6, Lcom/isaigu/gymapp/widget/XemsUi;->MUTED:I
-
-    const v7, 0x3ee66666    # 0.45f
-
-    invoke-static {v5, v6, v7}, Lcom/isaigu/gymapp/widget/XemsUi;->mix(IIF)I
-
-    move-result v10
-
-    goto/16 :goto_71
-
-    :cond_346
-    sget v10, Lcom/isaigu/gymapp/widget/XemsUi;->MUTED:I
-
-    goto/16 :goto_71
-
-    .line 3058
-    :cond_34a
-    if-eqz v4, :cond_357
-
-    const-string v5, "\u041f\u0410\u0423\u0417\u0410"
-
-    const-string v6, "PAUSED"
-
-    invoke-static {v5, v6}, Lcom/isaigu/gymapp/ai/AiText;->t(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object v5
-
-    move-object v12, v5
-
-    goto/16 :goto_80
-
-    .line 3059
-    :cond_357
-    if-lez v20, :cond_36a
-
-    move-object/from16 v0, p0
-
-    iget v5, v0, Lcom/isaigu/gymapp/ai/FocusBoard$SessionBar;->left:I
-
-    if-nez v5, :cond_36a
-
-    const-string v5, "\u041a\u0420\u0410\u0419"
-
-    const-string v6, "DONE"
-
-    invoke-static {v5, v6}, Lcom/isaigu/gymapp/ai/AiText;->t(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object v5
-
-    move-object v12, v5
-
-    goto/16 :goto_80
-
-    :cond_36a
-    const-string v5, "\u0413\u041e\u0422\u041e\u0412"
-
-    const-string v6, "READY"
-
-    invoke-static {v5, v6}, Lcom/isaigu/gymapp/ai/AiText;->t(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object v5
-
-    move-object v12, v5
-
-    goto/16 :goto_80
-
-    .line 3060
-    :cond_375
-    sget v5, Lcom/isaigu/gymapp/widget/XemsUi;->MUTED:I
-
-    move v13, v5
-
-    goto/16 :goto_89
-
-    .line 3078
-    :cond_37a
-    const/high16 v4, 0x40600000    # 3.5f
-
-    move-object/from16 v0, v17
-
-    invoke-static {v0, v4}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
-
-    move-result v4
-
-    int-to-float v4, v4
 
     move-object/from16 v0, p0
 
@@ -1307,104 +1014,221 @@
 
     move-object/from16 v0, p1
 
-    move/from16 v1, v16
+    move/from16 v1, v21
 
     move/from16 v2, v21
 
-    invoke-virtual {v0, v1, v2, v4, v5}, Landroid/graphics/Canvas;->drawCircle(FFFLandroid/graphics/Paint;)V
+    invoke-virtual {v0, v4, v1, v2, v5}, Landroid/graphics/Canvas;->drawRoundRect(Landroid/graphics/RectF;FFLandroid/graphics/Paint;)V
 
-    goto/16 :goto_17a
+    .line 3116
+    move-object/from16 v0, p0
 
-    .line 3085
-    :cond_392
-    sget v4, Lcom/isaigu/gymapp/widget/XemsUi;->TEXT:I
+    iget-object v4, v0, Lcom/isaigu/gymapp/ai/FocusBoard$SessionBar;->fill:Landroid/graphics/Paint;
 
-    sget v6, Lcom/isaigu/gymapp/widget/XemsUi;->MUTED:I
+    const/4 v5, 0x0
 
-    const v7, 0x3ecccccd    # 0.4f
+    invoke-virtual {v4, v5}, Landroid/graphics/Paint;->setShader(Landroid/graphics/Shader;)Landroid/graphics/Shader;
 
-    invoke-static {v4, v6, v7}, Lcom/isaigu/gymapp/widget/XemsUi;->mix(IIF)I
+    .line 3118
+    :cond_279
+    move-object/from16 v0, p0
+
+    iget-object v4, v0, Lcom/isaigu/gymapp/ai/FocusBoard$SessionBar;->num:Landroid/graphics/Paint;
+
+    const/high16 v5, 0x41200000    # 10.0f
+
+    invoke-static {v14, v5}, Lcom/isaigu/gymapp/widget/XemsUi;->sp(Landroid/content/Context;F)F
+
+    move-result v5
+
+    invoke-virtual {v4, v5}, Landroid/graphics/Paint;->setTextSize(F)V
+
+    .line 3119
+    add-float v4, v18, v17
+
+    const/high16 v5, 0x41500000    # 13.0f
+
+    invoke-static {v14, v5}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
+
+    move-result v5
+
+    int-to-float v5, v5
+
+    add-float v24, v4, v5
+
+    .line 3120
+    div-int/lit8 v25, v19, 0x3c
+
+    .line 3121
+    const/4 v4, 0x2
+
+    move/from16 v0, v25
+
+    if-lt v0, v4, :cond_3bb
+
+    const/16 v4, 0x78
+
+    move/from16 v0, v25
+
+    if-gt v0, v4, :cond_3bb
+
+    .line 3122
+    const/16 v4, 0x3c
+
+    move/from16 v0, v25
+
+    if-le v0, v4, :cond_3ab
+
+    const/16 v4, 0xa
+
+    move v11, v4
+
+    .line 3123
+    :goto_2a7
+    move-object/from16 v0, p0
+
+    iget-object v4, v0, Lcom/isaigu/gymapp/ai/FocusBoard$SessionBar;->num:Landroid/graphics/Paint;
+
+    sget-object v5, Landroid/graphics/Paint$Align;->CENTER:Landroid/graphics/Paint$Align;
+
+    invoke-virtual {v4, v5}, Landroid/graphics/Paint;->setTextAlign(Landroid/graphics/Paint$Align;)V
+
+    .line 3124
+    const/4 v4, 0x1
+
+    move v13, v4
+
+    :goto_2b2
+    move/from16 v0, v25
+
+    if-ge v13, v0, :cond_3bb
+
+    .line 3125
+    int-to-float v4, v13
+
+    const/high16 v5, 0x42700000    # 60.0f
+
+    mul-float/2addr v4, v5
+
+    mul-float/2addr v4, v15
+
+    move/from16 v0, v19
+
+    int-to-float v5, v0
+
+    div-float/2addr v4, v5
+
+    add-float v5, v16, v4
+
+    .line 3126
+    rem-int v4, v13, v11
+
+    if-nez v4, :cond_3af
+
+    const/4 v4, 0x1
+
+    move v12, v4
+
+    .line 3127
+    :goto_2c7
+    move-object/from16 v0, p0
+
+    iget-object v6, v0, Lcom/isaigu/gymapp/ai/FocusBoard$SessionBar;->tick:Landroid/graphics/Paint;
+
+    sget v7, Lcom/isaigu/gymapp/widget/XemsUi;->BG:I
+
+    if-eqz v12, :cond_3b3
+
+    const/16 v4, 0xd8
+
+    :goto_2d1
+    invoke-static {v7, v4}, Lcom/isaigu/gymapp/widget/XemsUi;->alpha(II)I
 
     move-result v4
 
-    goto/16 :goto_1b7
+    invoke-virtual {v6, v4}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 3109
-    :cond_39f
-    const/4 v4, 0x5
+    .line 3128
+    const/high16 v4, 0x40000000    # 2.0f
 
-    goto/16 :goto_29b
+    invoke-static {v14, v4}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
 
-    .line 3113
-    :cond_3a2
-    const/4 v6, 0x0
+    move-result v4
 
-    goto/16 :goto_2bb
+    int-to-float v4, v4
 
-    .line 3114
-    :cond_3a5
-    const/16 v7, 0x80
+    add-float v6, v18, v4
 
-    goto/16 :goto_2c5
+    add-float v4, v18, v17
 
-    .line 3117
-    :cond_3a9
-    sget v6, Lcom/isaigu/gymapp/widget/XemsUi;->MUTED:I
+    const/high16 v7, 0x40000000    # 2.0f
 
-    goto/16 :goto_30c
+    invoke-static {v14, v7}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
 
-    .line 3122
-    :cond_3ad
-    if-lez v20, :cond_13
+    move-result v7
 
-    .line 3123
+    int-to-float v7, v7
+
+    sub-float v8, v4, v7
+
     move-object/from16 v0, p0
 
-    iget-object v4, v0, Lcom/isaigu/gymapp/ai/FocusBoard$SessionBar;->num:Landroid/graphics/Paint;
+    iget-object v9, v0, Lcom/isaigu/gymapp/ai/FocusBoard$SessionBar;->tick:Landroid/graphics/Paint;
 
-    sget v6, Lcom/isaigu/gymapp/widget/XemsUi;->MUTED:I
+    move-object/from16 v4, p1
 
-    invoke-virtual {v4, v6}, Landroid/graphics/Paint;->setColor(I)V
+    move v7, v5
 
-    .line 3124
-    move-object/from16 v0, p0
+    invoke-virtual/range {v4 .. v9}, Landroid/graphics/Canvas;->drawLine(FFFFLandroid/graphics/Paint;)V
 
-    iget-object v4, v0, Lcom/isaigu/gymapp/ai/FocusBoard$SessionBar;->num:Landroid/graphics/Paint;
+    .line 3129
+    if-eqz v12, :cond_339
 
-    sget-object v6, Landroid/graphics/Paint$Align;->LEFT:Landroid/graphics/Paint$Align;
+    add-float v4, v16, v15
 
-    invoke-virtual {v4, v6}, Landroid/graphics/Paint;->setTextAlign(Landroid/graphics/Paint$Align;)V
+    const/high16 v6, 0x41b00000    # 22.0f
 
-    .line 3125
-    const-string v4, "0"
+    invoke-static {v14, v6}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
 
+    move-result v6
+
+    int-to-float v6, v6
+
+    sub-float/2addr v4, v6
+
+    cmpg-float v4, v5, v4
+
+    if-gez v4, :cond_339
+
+    cmpg-float v4, v5, v22
+
+    if-ltz v4, :cond_30e
+
+    cmpl-float v4, v5, v20
+
+    if-lez v4, :cond_339
+
+    .line 3130
+    :cond_30e
     move-object/from16 v0, p0
 
     iget-object v6, v0, Lcom/isaigu/gymapp/ai/FocusBoard$SessionBar;->num:Landroid/graphics/Paint;
 
-    move-object/from16 v0, p1
+    cmpg-float v4, v5, v23
 
-    invoke-virtual {v0, v4, v5, v9, v6}, Landroid/graphics/Canvas;->drawText(Ljava/lang/String;FFLandroid/graphics/Paint;)V
+    if-gtz v4, :cond_3b7
 
-    .line 3126
-    move-object/from16 v0, p0
+    sget v4, Lcom/isaigu/gymapp/widget/XemsUi;->ACCENT:I
 
-    iget-object v4, v0, Lcom/isaigu/gymapp/ai/FocusBoard$SessionBar;->num:Landroid/graphics/Paint;
+    :goto_318
+    invoke-virtual {v6, v4}, Landroid/graphics/Paint;->setColor(I)V
 
-    sget-object v6, Landroid/graphics/Paint$Align;->RIGHT:Landroid/graphics/Paint$Align;
-
-    invoke-virtual {v4, v6}, Landroid/graphics/Paint;->setTextAlign(Landroid/graphics/Paint$Align;)V
-
-    .line 3127
+    .line 3131
     new-instance v4, Ljava/lang/StringBuilder;
 
     invoke-direct {v4}, Ljava/lang/StringBuilder;-><init>()V
 
-    add-int/lit8 v6, v20, 0x1e
-
-    div-int/lit8 v6, v6, 0x3c
-
-    invoke-virtual {v4, v6}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+    invoke-virtual {v4, v13}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
 
     move-result-object v4
 
@@ -1418,7 +1242,254 @@
 
     move-result-object v4
 
-    add-float v5, v5, v21
+    move-object/from16 v0, p0
+
+    iget-object v6, v0, Lcom/isaigu/gymapp/ai/FocusBoard$SessionBar;->num:Landroid/graphics/Paint;
+
+    move-object/from16 v0, p1
+
+    move/from16 v1, v24
+
+    invoke-virtual {v0, v4, v5, v1, v6}, Landroid/graphics/Canvas;->drawText(Ljava/lang/String;FFLandroid/graphics/Paint;)V
+
+    .line 3124
+    :cond_339
+    add-int/lit8 v4, v13, 0x1
+
+    move v13, v4
+
+    goto/16 :goto_2b2
+
+    .line 3062
+    :cond_33e
+    const/4 v4, 0x0
+
+    move v11, v4
+
+    goto/16 :goto_4e
+
+    .line 3063
+    :cond_342
+    const/4 v4, 0x0
+
+    goto/16 :goto_63
+
+    .line 3064
+    :cond_345
+    if-eqz v4, :cond_354
+
+    sget v5, Lcom/isaigu/gymapp/widget/XemsUi;->ACCENT:I
+
+    sget v6, Lcom/isaigu/gymapp/widget/XemsUi;->MUTED:I
+
+    const v7, 0x3ee66666    # 0.45f
+
+    invoke-static {v5, v6, v7}, Lcom/isaigu/gymapp/widget/XemsUi;->mix(IIF)I
+
+    move-result v10
+
+    goto/16 :goto_6b
+
+    :cond_354
+    sget v10, Lcom/isaigu/gymapp/widget/XemsUi;->MUTED:I
+
+    goto/16 :goto_6b
+
+    .line 3069
+    :cond_358
+    sget v5, Lcom/isaigu/gymapp/widget/XemsUi;->TEXT:I
+
+    sget v8, Lcom/isaigu/gymapp/widget/XemsUi;->MUTED:I
+
+    const v9, 0x3ecccccd    # 0.4f
+
+    invoke-static {v5, v8, v9}, Lcom/isaigu/gymapp/widget/XemsUi;->mix(IIF)I
+
+    move-result v5
+
+    goto/16 :goto_84
+
+    .line 3075
+    :cond_365
+    if-eqz v4, :cond_372
+
+    const-string v5, "\u041f\u0410\u0423\u0417\u0410"
+
+    const-string v7, "PAUSED"
+
+    invoke-static {v5, v7}, Lcom/isaigu/gymapp/ai/AiText;->t(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v5
+
+    move-object v12, v5
+
+    goto/16 :goto_bf
+
+    .line 3076
+    :cond_372
+    if-lez v19, :cond_385
+
+    move-object/from16 v0, p0
+
+    iget v5, v0, Lcom/isaigu/gymapp/ai/FocusBoard$SessionBar;->left:I
+
+    if-nez v5, :cond_385
+
+    const-string v5, "\u041a\u0420\u0410\u0419"
+
+    const-string v7, "DONE"
+
+    invoke-static {v5, v7}, Lcom/isaigu/gymapp/ai/AiText;->t(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v5
+
+    move-object v12, v5
+
+    goto/16 :goto_bf
+
+    :cond_385
+    const-string v5, "\u0413\u041e\u0422\u041e\u0412"
+
+    const-string v7, "READY"
+
+    invoke-static {v5, v7}, Lcom/isaigu/gymapp/ai/AiText;->t(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v5
+
+    move-object v12, v5
+
+    goto/16 :goto_bf
+
+    .line 3077
+    :cond_390
+    sget v5, Lcom/isaigu/gymapp/widget/XemsUi;->MUTED:I
+
+    move v13, v5
+
+    goto/16 :goto_c8
+
+    .line 3096
+    :cond_395
+    const/high16 v4, 0x40600000    # 3.5f
+
+    invoke-static {v14, v4}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
+
+    move-result v4
+
+    int-to-float v4, v4
+
+    move-object/from16 v0, p0
+
+    iget-object v5, v0, Lcom/isaigu/gymapp/ai/FocusBoard$SessionBar;->fill:Landroid/graphics/Paint;
+
+    move-object/from16 v0, p1
+
+    move/from16 v1, v22
+
+    move/from16 v2, v23
+
+    invoke-virtual {v0, v1, v2, v4, v5}, Landroid/graphics/Canvas;->drawCircle(FFFLandroid/graphics/Paint;)V
+
+    goto/16 :goto_1af
+
+    .line 3122
+    :cond_3ab
+    const/4 v4, 0x5
+
+    move v11, v4
+
+    goto/16 :goto_2a7
+
+    .line 3126
+    :cond_3af
+    const/4 v4, 0x0
+
+    move v12, v4
+
+    goto/16 :goto_2c7
+
+    .line 3127
+    :cond_3b3
+    const/16 v4, 0x80
+
+    goto/16 :goto_2d1
+
+    .line 3130
+    :cond_3b7
+    sget v4, Lcom/isaigu/gymapp/widget/XemsUi;->MUTED:I
+
+    goto/16 :goto_318
+
+    .line 3135
+    :cond_3bb
+    if-lez v19, :cond_13
+
+    .line 3136
+    move-object/from16 v0, p0
+
+    iget-object v4, v0, Lcom/isaigu/gymapp/ai/FocusBoard$SessionBar;->num:Landroid/graphics/Paint;
+
+    sget v5, Lcom/isaigu/gymapp/widget/XemsUi;->MUTED:I
+
+    invoke-virtual {v4, v5}, Landroid/graphics/Paint;->setColor(I)V
+
+    .line 3137
+    move-object/from16 v0, p0
+
+    iget-object v4, v0, Lcom/isaigu/gymapp/ai/FocusBoard$SessionBar;->num:Landroid/graphics/Paint;
+
+    sget-object v5, Landroid/graphics/Paint$Align;->LEFT:Landroid/graphics/Paint$Align;
+
+    invoke-virtual {v4, v5}, Landroid/graphics/Paint;->setTextAlign(Landroid/graphics/Paint$Align;)V
+
+    .line 3138
+    const-string v4, "0"
+
+    move-object/from16 v0, p0
+
+    iget-object v5, v0, Lcom/isaigu/gymapp/ai/FocusBoard$SessionBar;->num:Landroid/graphics/Paint;
+
+    move-object/from16 v0, p1
+
+    move/from16 v1, v16
+
+    move/from16 v2, v24
+
+    invoke-virtual {v0, v4, v1, v2, v5}, Landroid/graphics/Canvas;->drawText(Ljava/lang/String;FFLandroid/graphics/Paint;)V
+
+    .line 3139
+    move-object/from16 v0, p0
+
+    iget-object v4, v0, Lcom/isaigu/gymapp/ai/FocusBoard$SessionBar;->num:Landroid/graphics/Paint;
+
+    sget-object v5, Landroid/graphics/Paint$Align;->RIGHT:Landroid/graphics/Paint$Align;
+
+    invoke-virtual {v4, v5}, Landroid/graphics/Paint;->setTextAlign(Landroid/graphics/Paint$Align;)V
+
+    .line 3140
+    new-instance v4, Ljava/lang/StringBuilder;
+
+    invoke-direct {v4}, Ljava/lang/StringBuilder;-><init>()V
+
+    add-int/lit8 v5, v19, 0x1e
+
+    div-int/lit8 v5, v5, 0x3c
+
+    invoke-virtual {v4, v5}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    move-result-object v4
+
+    const-string v5, "\u2032"
+
+    invoke-virtual {v4, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v4
+
+    invoke-virtual {v4}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v4
+
+    add-float v5, v16, v15
 
     move-object/from16 v0, p0
 
@@ -1426,16 +1497,18 @@
 
     move-object/from16 v0, p1
 
-    invoke-virtual {v0, v4, v5, v9, v6}, Landroid/graphics/Canvas;->drawText(Ljava/lang/String;FFLandroid/graphics/Paint;)V
+    move/from16 v1, v24
 
-    .line 3129
+    invoke-virtual {v0, v4, v5, v1, v6}, Landroid/graphics/Canvas;->drawText(Ljava/lang/String;FFLandroid/graphics/Paint;)V
+
+    .line 3142
     move-object/from16 v0, p0
 
     iget-boolean v4, v0, Lcom/isaigu/gymapp/ai/FocusBoard$SessionBar;->run:Z
 
-    if-eqz v4, :cond_448
+    if-eqz v4, :cond_45c
 
-    .line 3130
+    .line 3143
     invoke-static {}, Landroid/os/SystemClock;->uptimeMillis()J
 
     move-result-wide v4
@@ -1450,7 +1523,7 @@
 
     div-double/2addr v4, v6
 
-    .line 3131
+    .line 3144
     const-wide/high16 v6, 0x3fe0000000000000L    # 0.5
 
     const-wide/high16 v8, 0x3fe0000000000000L    # 0.5
@@ -1473,7 +1546,7 @@
 
     double-to-float v4, v4
 
-    .line 3132
+    .line 3145
     move-object/from16 v0, p0
 
     iget-object v5, v0, Lcom/isaigu/gymapp/ai/FocusBoard$SessionBar;->fill:Landroid/graphics/Paint;
@@ -1494,8 +1567,8 @@
 
     invoke-virtual {v5, v6}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 3133
-    add-float v5, v19, v22
+    .line 3146
+    add-float v5, v18, v21
 
     const v6, 0x3f8ccccd    # 1.1f
 
@@ -1505,7 +1578,7 @@
 
     add-float/2addr v4, v6
 
-    mul-float v4, v4, v18
+    mul-float v4, v4, v17
 
     move-object/from16 v0, p0
 
@@ -1517,11 +1590,11 @@
 
     invoke-virtual {v0, v1, v5, v4, v6}, Landroid/graphics/Canvas;->drawCircle(FFFLandroid/graphics/Paint;)V
 
-    .line 3134
+    .line 3147
     invoke-virtual/range {p0 .. p0}, Lcom/isaigu/gymapp/ai/FocusBoard$SessionBar;->postInvalidateOnAnimation()V
 
-    .line 3136
-    :cond_448
+    .line 3149
+    :cond_45c
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/isaigu/gymapp/ai/FocusBoard$SessionBar;->fill:Landroid/graphics/Paint;
@@ -1530,12 +1603,12 @@
 
     invoke-virtual {v4, v5}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 3137
-    add-float v4, v19, v22
+    .line 3150
+    add-float v4, v18, v21
 
     const v5, 0x3f0ccccd    # 0.55f
 
-    mul-float v5, v5, v18
+    mul-float v5, v5, v17
 
     move-object/from16 v0, p0
 
@@ -1556,7 +1629,7 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 3023
+    .line 3024
     iget-boolean v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$SessionBar;->run:Z
 
     if-ne p1, v0, :cond_1a
@@ -1575,61 +1648,47 @@
 
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$SessionBar;->mode:Ljava/lang/String;
 
-    .line 3024
+    .line 3025
     invoke-virtual {p5, v0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v0
 
     if-eqz v0, :cond_1a
 
-    .line 3033
+    .line 3034
     :goto_19
     return-void
 
-    .line 3027
+    .line 3028
     :cond_1a
     iput-boolean p1, p0, Lcom/isaigu/gymapp/ai/FocusBoard$SessionBar;->run:Z
 
-    .line 3028
+    .line 3029
     invoke-static {v1, p2}, Ljava/lang/Math;->max(II)I
 
     move-result v0
 
     iput v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$SessionBar;->done:I
 
-    .line 3029
+    .line 3030
     invoke-static {v1, p3}, Ljava/lang/Math;->max(II)I
 
     move-result v0
 
     iput v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$SessionBar;->left:I
 
-    .line 3030
+    .line 3031
     invoke-static {v1, p4}, Ljava/lang/Math;->max(II)I
 
     move-result v0
 
     iput v0, p0, Lcom/isaigu/gymapp/ai/FocusBoard$SessionBar;->full:I
 
-    .line 3031
+    .line 3032
     iput-object p5, p0, Lcom/isaigu/gymapp/ai/FocusBoard$SessionBar;->mode:Ljava/lang/String;
 
-    .line 3032
+    .line 3033
     invoke-virtual {p0}, Lcom/isaigu/gymapp/ai/FocusBoard$SessionBar;->invalidate()V
 
     goto :goto_19
-.end method
-
-.method setEnds(I)V
-    .registers 2
-
-    .prologue
-    .line 3018
-    iput p1, p0, Lcom/isaigu/gymapp/ai/FocusBoard$SessionBar;->ends:I
-
-    .line 3019
-    invoke-virtual {p0}, Lcom/isaigu/gymapp/ai/FocusBoard$SessionBar;->invalidate()V
-
-    .line 3020
-    return-void
 .end method

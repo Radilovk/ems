@@ -29,6 +29,18 @@ public final class AutoPlanner {
      */
     public static final int ACTIVE_MAX_S = 1200;
     public static final int RECOVERY_S = 600;
+    /**
+     * Owner (1.1.532): the active part is about 20 min with its recommended rests; when the body needs longer pauses
+     * (the HR holds a rest or pauses the impulses) it may stretch, but never past 25 min — the absolute ceiling with
+     * every rest. The passive recovery (10 min) comes after: at most 35 min in all.
+     */
+    public static final int ACTIVE_CEILING_S = 1500;
+    public static final int STRETCH_MAX_S = 300;
+
+    /** How far this plan's active part may stretch for HR-imposed pauses (≤ 5 min, never past 25 min). */
+    public static int stretchS(Plan plan) {
+        return plan == null ? 0 : Math.max(0, Math.min(STRETCH_MAX_S, ACTIVE_CEILING_S - plan.activeS));
+    }
 
     /** Longest active part this client may have in this program (after adaptation / recovery), ≤ 20 min. */
     public static int maxSeconds(Program p, Goal goal, Input in) {

@@ -1138,6 +1138,27 @@ public final class AutoUi {
         return row;
     }
 
+    /**
+     * Which channels the program works (owner, 1.1.532): they are on, the current of every row starts at 0; the others
+     * are off and switch on from the row's channels.
+     */
+    static String programChannels(AutoModel.Plan plan) {
+        String[] names = zoneNames();
+        StringBuilder on = new StringBuilder();
+        int n = 0;
+        for (int k = 0; k < AutoModel.DISPLAY_ORDER.length; k++) {
+            int ch = AutoModel.DISPLAY_ORDER[k];
+            if (plan.zones[ch] > 0) {
+                on.append(n++ > 0 ? " · " : "").append(names[ch]);
+            }
+        }
+        if (n >= AutoModel.CHANNELS) {
+            return AiText.t("✓ Всички канали са включени · токът е на 0", "✓ Every channel on · the current is at 0");
+        }
+        return AiText.t("✓ Канали на програмата: ", "✓ The program's channels: ") + on
+                + AiText.t(" · другите — от реда, ако трябва", " · the others — on the row, if needed");
+    }
+
     static String[] zoneNames() {
         String[] n = new String[AutoModel.CHANNELS];
         n[AutoModel.CALF] = AiText.t("Прасец", "Calf");
@@ -1387,6 +1408,7 @@ public final class AutoUi {
         mid.addView(XemsUi.text(c, AiText.t("① Обща сила — плъзгачът на реда   ② Сила на всеки канал — каналите на реда   ③ ▶ Старт",
                 "① Total strength — the row's slider   ② Each channel — the row's channels   ③ ▶ Start"),
                 14, XemsUi.TEXT, false), XemsUi.matchWrap(c, 10));
+        mid.addView(XemsUi.text(c, programChannels(plan), 13, XemsUi.GO_TEXT, true), XemsUi.matchWrap(c, 6));
         mid.addView(XemsUi.text(c, AiText.t("До усещане ", "Up to a feeling of ") + plan.cr10Lo
                 + (plan.cr10Hi > plan.cr10Lo ? "–" + plan.cr10Hi : "") + AiText.t(" от 10 · ", " of 10 · ")
                 + cr10Text(plan.cr10Hi), 13, XemsUi.MUTED, true), XemsUi.matchWrap(c, 8));
@@ -1411,8 +1433,9 @@ public final class AutoUi {
             right.addView(line, XemsUi.matchWrap(c, i == 0 ? 0 : 4));
             if (r.block == null && r.prev > 0) {
                 // safety (owner, 1.1.531): the row starts at 0; the client's last level is one tap that rises to it
-                TextView last = XemsUi.chip(c, AiText.t("↗ " + r.prev + " · като миналия път",
-                        "↗ " + r.prev + " · like last time"), false, XemsUi.GO);
+                int to = (int) Math.round(r.prev * SafeLimits.LAST_LEVEL_SHARE);
+                TextView last = XemsUi.chip(c, AiText.t("↗ " + to + " · миналия път " + r.prev + ", после ръчно",
+                        "↗ " + to + " · last time " + r.prev + ", then by hand"), false, XemsUi.GO);
                 last.setTextSize(13);
                 last.setOnClickListener(new Act(A_SETUP_LAST, i));
                 right.addView(last, XemsUi.matchWrap(c, 4));

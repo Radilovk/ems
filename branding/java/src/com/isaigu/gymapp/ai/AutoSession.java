@@ -86,6 +86,8 @@ public final class AutoSession {
     private static AutoEngine.Cmd lastApplied;
     private static boolean zeroed;
     private static long lastTickMs;
+    /** Seconds of impulses in this calibration (SafeLimits.CALIB_MAX_S). */
+    private static double calibRunS;
     private static long lastGuardToastMs;
     private static boolean recorded;
     private static String lastNotice = "";
@@ -549,6 +551,7 @@ public final class AutoSession {
             r.target = -1;
             r.prev = r.block == null ? AutoHistory.lastStrength(ctx, r.userId, plan.program.id) : 0;
         }
+        calibRunS = 0;
         setWorkLengthAll(3600);
         writeRows(c, true);
         try {
@@ -624,7 +627,10 @@ public final class AutoSession {
             if ((rowIndex >= 0 && i != rowIndex) || r.block != null || r.prev <= 0) {
                 continue;
             }
-            r.target = r.prev > r.lastStrength ? r.prev : -1;
+            // 80 % of the last level (owner, 1.1.532): the same % is not the same current today (wetting, skin) and
+            // the first minutes feel stronger than the end of the last session — the last steps are by hand
+            int to = (int) Math.round(r.prev * SafeLimits.LAST_LEVEL_SHARE);
+            r.target = to > r.lastStrength ? to : -1;
         }
     }
 
@@ -651,6 +657,27 @@ public final class AutoSession {
         if (any) {
             writeRows(written != null ? written : calibrationCmd(), true);
         }
+    }
+
+    /** The setting-up never runs on (SafeLimits.CALIB_MAX_S of impulses): the suit stops, ▶ Старт goes on. */
+    private static void calibCap(double dt, long now) {
+        if (!leaderRunning()) {
+            return;
+        }
+        calibRunS += dt;
+        if (calibRunS < SafeLimits.CALIB_MAX_S) {
+            return;
+        }
+        calibRunS = SafeLimits.CALIB_MAX_S - 60;           // a manual restart: one more minute
+        for (Row r : rows) {
+            r.target = -1;
+        }
+        stopDevice();
+        WearableBleDiagLog.log("auto", "calibration " + SafeLimits.CALIB_MAX_S + " s — suit stopped");
+        notice(AiText.t("Настройването трае над " + SafeLimits.CALIB_MAX_S / 60
+                        + " мин — импулсите спряха. „▶ Старт“ тръгва от зададената сила.",
+                "Setting up over " + SafeLimits.CALIB_MAX_S / 60 + " min — impulses stopped. ▶ Start goes on from the set strength."),
+                SAFETY, now);
     }
 
     public static boolean canStart() {
@@ -1212,6 +1239,7 @@ public final class AutoSession {
             }
             guard(now);
             riseTick();
+            calibCap(dt, now);
             return;
         }
         if (stage != Stage.RUNNING || engine == null) {

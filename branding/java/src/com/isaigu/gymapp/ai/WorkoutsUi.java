@@ -1496,6 +1496,10 @@ public final class WorkoutsUi {
             case A_ADD_CLEAN: {
                 int at = insertAt();
                 editing.blocks.add(at, a.code == A_ADD_REST ? Workout.rest() : editing.clean());
+                if (tooLong(c)) {
+                    editing.blocks.remove(at);
+                    break;
+                }
                 dirty = true;
                 go(EDIT);
                 mapView.select(at);
@@ -1526,7 +1530,12 @@ public final class WorkoutsUi {
                     break;
                 }
                 Workout.Block b = editing.blocks.get(s);
+                Workout.Block was = b.copy();
                 step(b, a.arg, v);
+                if (tooLong(c)) {
+                    editing.blocks.set(s, was);
+                    b = was;
+                }
                 a.value.setText(valueText(a.arg, valueOf(b, a.arg)));
                 dirty = true;
                 mapView.invalidate();
@@ -1598,7 +1607,12 @@ public final class WorkoutsUi {
             }
             justPicked = null;
         } else {
+            List<Workout.Block> was = new ArrayList<Workout.Block>(editing.blocks);
             addSet(c, a.ex, e);
+            if (tooLong(c)) {
+                editing.blocks.clear();
+                editing.blocks.addAll(was);
+            }
             justPicked = countIn(a.ex) == 1 ? a.ex : null;
         }
         // the top slot: the exercise just touched while it is in the program, else the one picked last
@@ -1607,6 +1621,16 @@ public final class WorkoutsUi {
         int keep = shell.scroll.getScrollY();
         go(PICK);
         shell.scroll.post(new ScrollTo(keep));
+    }
+
+    /** Over 25 min with its rests (Workout.MAX_TOTAL_S): says so; the caller takes the change back. */
+    private static boolean tooLong(Context c) {
+        if (editing == null || editing.totalSeconds() <= Workout.MAX_TOTAL_S) {
+            return false;
+        }
+        android.widget.Toast.makeText(c, AiText.t("Програмата стига 25 мин с паузите — това е таванът.",
+                "The program reaches 25 min with its rests — that is the ceiling."), android.widget.Toast.LENGTH_SHORT).show();
+        return true;
     }
 
     /** One more set of an exercise: after its last set (a rest between), so the program keeps its order. */

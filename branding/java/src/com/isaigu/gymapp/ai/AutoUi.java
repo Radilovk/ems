@@ -57,6 +57,7 @@ public final class AutoUi {
     private static final int A_SETUP_GO = 43;
     private static final int A_SETUP_BACK = 44;
     private static final int A_SETUP_LAST = 46;
+    private static final int A_BRIEF_LIVE = 47;
     private static final int A_HOW = 40;
     private static final int A_SEX = 28;
     private static final int A_EDIT_PROFILE = 29;
@@ -143,6 +144,7 @@ public final class AutoUi {
                 return;
             }
             AutoSession.beginSetup(a);
+            AiBriefUi.reset();
             modId = null;
             AutoModel.Input in = AutoSession.getInput();
             heightTouched = in.heightCm > 0;
@@ -445,6 +447,22 @@ public final class AutoUi {
     }
 
     /** "С упражнения": the chosen made program is armed on the training screen (the card has ▶ Старт). */
+    /** The AI brief changed the inputs: the current step again (same scroll of the cards from the start). */
+    static void rerender() {
+        if (shell != null && shell.dialog.isShowing() && step < STEP_RUN) {
+            go(step);
+        }
+    }
+
+    /** The AI brief picked a program: its card is the chosen one, also among the programs with exercises. */
+    static void aiPicked(String programId) {
+        stripX = 0;
+        allKinds = false;
+        if (programId != null) {
+            workoutId = "preset:" + programId;
+        }
+    }
+
     private static void setupWorkout() {
         Workout w = null;
         for (Workout x : pickList) {
@@ -523,6 +541,8 @@ public final class AutoUi {
                 sel = i;
             }
         }
+        // the AI brief (1.1.534): the guest's two taps and one line of words → the planner's inputs
+        body.addView(AiBriefUi.card(c), XemsUi.matchWrap(c, 0));
         // goal and kind side by side (landscape): one row of choices
         LinearLayout choose = XemsUi.horizontal(c);
         choose.setGravity(Gravity.CENTER_VERTICAL);
@@ -537,7 +557,7 @@ public final class AutoUi {
         } else {
             allKinds = false;
         }
-        body.addView(choose, XemsUi.matchWrap(c, 4));
+        body.addView(choose, XemsUi.matchWrap(c, 12));
         // "Шаблон" / "С упражнения" (owner, 1.1.325 / 1.1.336): the ready template alone, or the programs made in
         // Програми (with exercises) that are linked to this goal
         boolean withEx = !allKinds && in.kind == Kind.ACTIVE && in.exercises;
@@ -1240,7 +1260,17 @@ public final class AutoUi {
         LinearLayout exRow = XemsUi.horizontal(c);
         android.widget.FrameLayout headBar = new android.widget.FrameLayout(c);
         TextView goal = XemsUi.badge(c, goalName(plan.input.goal), goalColor(plan.input.goal));
-        headBar.addView(goal, new android.widget.FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+        LinearLayout headLeft = XemsUi.horizontal(c);
+        headLeft.setGravity(Gravity.CENTER_VERTICAL);
+        headLeft.addView(goal);
+        // ✦ a command in words during the session (1.1.534): "по-леко", "пауза", "кръстът го боли"
+        TextView say = XemsUi.chip(c, "✦  " + AiText.t("Кажи", "Say"), false, XemsUi.ACCENT);
+        say.setOnClickListener(new Act(A_BRIEF_LIVE, 0));
+        LinearLayout.LayoutParams sayLp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+                XemsUi.dp(c, 48));
+        sayLp.leftMargin = XemsUi.dp(c, 10);
+        headLeft.addView(say, sayLp);
+        headBar.addView(headLeft, new android.widget.FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.START | Gravity.CENTER_VERTICAL));
         LinearLayout clock = XemsUi.horizontal(c);
         clock.setGravity(Gravity.CENTER_VERTICAL);
@@ -2080,6 +2110,9 @@ public final class AutoUi {
                 return;
             case A_SETUP_BACK:
                 setupBack();
+                return;
+            case A_BRIEF_LIVE:
+                AiBriefUi.openLive(host);
                 return;
             case A_SETUP_LAST:
                 AutoSession.riseToLast(arg);

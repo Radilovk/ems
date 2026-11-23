@@ -424,6 +424,21 @@ public final class XemsLicenseClient {
         }
     }
 
+    // ================================================================ AI brief
+
+    /**
+     * The AI layer over the planner (POST /v1/ai/brief, docs/xems-ai-brief.md): {@code fieldsJson} are the request
+     * fields (text, context, menu — ai/AiBrief.requestFields). Returns the raw answer. Off the main thread.
+     */
+    public static String postBrief(Context c, String fieldsJson) throws Exception {
+        String token = XemsLicense.token();
+        if (!serverConfigured() || token == null || token.length() == 0) {
+            throw new IllegalStateException("no license server");
+        }
+        return http("POST", "/v1/ai/brief", "{" + common(c) + ",\"token\":" + XemsLicenseToken.quote(token) + ","
+                + fieldsJson + "}");
+    }
+
     // ================================================================ client card
 
     /**

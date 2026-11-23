@@ -79,6 +79,7 @@ Agent-facing files are in English on purpose (≈2–3× fewer tokens than Cyril
 | Shared UI kit `XemsUi` | `docs/xems-ui-kit.md` |
 | Band 10 app & link | `band-app/CLAUDE.md`, `docs/xiaomi-band10.md` |
 | Smart Session (AI) | `docs/xems-smart-session-spec.md`, `docs/xems-ai-session-implementation.md` |
+| AI brief: guest taps + free text → Gemini → patch of the planner inputs (`/v1/ai/brief`) | `docs/xems-ai-brief.md` |
 | Automatic mode (ready programs) | `docs/xems-auto-mode-spec.md` |
 | Exercises: Auto = example only, AI = synced (modes defined there) | `docs/xems-exercise-templates.md` |
 | Workouts = impulse maps (blocks = sets), library (302, admin picks), run by map / with AI | `docs/xems-workouts.md` |

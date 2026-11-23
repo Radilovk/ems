@@ -193,6 +193,8 @@ WEARABLE_JAVA=(
   "${JAVA_SRC}/com/isaigu/gymapp/ai/FocusBoard.java"
   "${JAVA_SRC}/com/isaigu/gymapp/ai/FloatCard.java"
   "${JAVA_SRC}/com/isaigu/gymapp/ai/AutoUi.java"
+  "${JAVA_SRC}/com/isaigu/gymapp/ai/AiBrief.java"
+  "${JAVA_SRC}/com/isaigu/gymapp/ai/AiBriefUi.java"
   "${JAVA_SRC}/com/isaigu/gymapp/ai/AutoLook.java"
   "${JAVA_SRC}/com/isaigu/gymapp/ai/AutoTemplateData.java"
   "${JAVA_SRC}/com/isaigu/gymapp/ai/AutoTemplates.java"

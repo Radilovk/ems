@@ -110,71 +110,71 @@
 
     const/16 v1, 0xa
 
-    .line 259
+    .line 266
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 263
+    .line 270
     const/4 v0, -0x1
 
     iput v0, p0, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->limitAge:I
 
-    .line 264
+    .line 271
     new-instance v0, Ljava/util/ArrayList;
 
     invoke-direct {v0}, Ljava/util/ArrayList;-><init>()V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->phases:Ljava/util/List;
 
-    .line 272
+    .line 279
     iput-wide v2, p0, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->phiMax:D
 
-    .line 274
+    .line 281
     iput-wide v2, p0, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->envMax:D
 
-    .line 275
+    .line 282
     new-array v0, v1, [I
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->zones:[I
 
-    .line 276
+    .line 283
     new-array v0, v1, [Z
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->zoneLocked:[Z
 
-    .line 278
+    .line 285
     new-array v0, v1, [I
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->zoneMax:[I
 
-    .line 279
+    .line 286
     const/16 v0, 0x14
 
     iput v0, p0, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->zoneDelta:I
 
-    .line 282
+    .line 289
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoModel$HrUse;->CAP:Lcom/isaigu/gymapp/ai/AutoModel$HrUse;
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->hrUse:Lcom/isaigu/gymapp/ai/AutoModel$HrUse;
 
-    .line 284
+    .line 291
     const/16 v0, 0x46
 
     iput v0, p0, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->hrRest:I
 
-    .line 286
+    .line 293
     iput-wide v4, p0, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->xLo:D
 
-    .line 287
+    .line 294
     iput-wide v4, p0, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->xHi:D
 
-    .line 295
+    .line 302
     new-instance v0, Ljava/util/ArrayList;
 
     invoke-direct {v0}, Ljava/util/ArrayList;-><init>()V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->notesBg:Ljava/util/List;
 
-    .line 296
+    .line 303
     new-instance v0, Ljava/util/ArrayList;
 
     invoke-direct {v0}, Ljava/util/ArrayList;-><init>()V
@@ -190,7 +190,7 @@
     .registers 3
 
     .prologue
-    .line 303
+    .line 310
     iget-wide v0, p0, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->xHi:D
 
     invoke-static {v0, v1}, Ljava/lang/Double;->isNaN(D)Z
@@ -218,7 +218,7 @@
     .registers 3
 
     .prologue
-    .line 307
+    .line 314
     iget-wide v0, p0, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->xLo:D
 
     invoke-static {v0, v1}, Ljava/lang/Double;->isNaN(D)Z
@@ -246,7 +246,7 @@
     .registers 8
 
     .prologue
-    .line 299
+    .line 306
     iget v0, p0, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->hrRest:I
 
     int-to-double v0, v0
@@ -276,16 +276,16 @@
     .registers 4
 
     .prologue
-    .line 311
+    .line 318
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->notesBg:Ljava/util/List;
 
     invoke-interface {v0, p1}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    .line 312
+    .line 319
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->notesEn:Ljava/util/List;
 
     invoke-interface {v0, p2}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    .line 313
+    .line 320
     return-void
 .end method

@@ -445,6 +445,22 @@ public final class AutoUi {
     }
 
     /** "С упражнения": the chosen made program is armed on the training screen (the card has ▶ Старт). */
+    /** The AI brief changed the inputs: the current step again (same scroll of the cards from the start). */
+    static void rerender() {
+        if (shell != null && shell.dialog.isShowing() && step < STEP_RUN) {
+            go(step);
+        }
+    }
+
+    /** The AI brief picked a program: its card is the chosen one, also among the programs with exercises. */
+    static void aiPicked(String programId) {
+        stripX = 0;
+        allKinds = false;
+        if (programId != null) {
+            workoutId = "preset:" + programId;
+        }
+    }
+
     private static void setupWorkout() {
         Workout w = null;
         for (Workout x : pickList) {
@@ -537,7 +553,7 @@ public final class AutoUi {
         } else {
             allKinds = false;
         }
-        body.addView(choose, XemsUi.matchWrap(c, 4));
+        body.addView(choose, XemsUi.matchWrap(c, 12));
         // "Шаблон" / "С упражнения" (owner, 1.1.325 / 1.1.336): the ready template alone, or the programs made in
         // Програми (with exercises) that are linked to this goal
         boolean withEx = !allKinds && in.kind == Kind.ACTIVE && in.exercises;
@@ -1240,7 +1256,10 @@ public final class AutoUi {
         LinearLayout exRow = XemsUi.horizontal(c);
         android.widget.FrameLayout headBar = new android.widget.FrameLayout(c);
         TextView goal = XemsUi.badge(c, goalName(plan.input.goal), goalColor(plan.input.goal));
-        headBar.addView(goal, new android.widget.FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+        LinearLayout headLeft = XemsUi.horizontal(c);
+        headLeft.setGravity(Gravity.CENTER_VERTICAL);
+        headLeft.addView(goal);
+        headBar.addView(headLeft, new android.widget.FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.START | Gravity.CENTER_VERTICAL));
         LinearLayout clock = XemsUi.horizontal(c);
         clock.setGravity(Gravity.CENTER_VERTICAL);

@@ -157,6 +157,43 @@ public final class AiProfile {
         return p;
     }
 
+    /** The AI coach's "✓ Запази в профила": these conditions join the client's (prefs "cond" + id). */
+    public static void addCond(Context c, long userId, Set<String> keys) {
+        if (c == null || userId == 0 || keys == null || keys.isEmpty()) {
+            return;
+        }
+        SharedPreferences prefs = c.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
+        Set<String> all = new java.util.LinkedHashSet<String>();
+        addCsv(all, prefs.getString("cond" + userId, ""));
+        all.addAll(keys);
+        StringBuilder b = new StringBuilder();
+        for (String k : all) {
+            b.append(b.length() > 0 ? "," : "").append(k);
+        }
+        prefs.edit().putString("cond" + userId, b.toString()).apply();
+    }
+
+    /** The AI coach's advice of the client's last AI training (the client card shows it): {"d":ms,"l":[lines]}. */
+    public static void saveAdvice(Context c, long userId, java.util.List<String> lines) {
+        if (c == null || userId == 0 || lines == null || lines.isEmpty()) {
+            return;
+        }
+        StringBuilder b = new StringBuilder("{\"d\":").append(System.currentTimeMillis()).append(",\"l\":[");
+        for (int i = 0; i < lines.size() && i < 8; i++) {
+            b.append(i > 0 ? "," : "").append(AiBrief.q(lines.get(i)));
+        }
+        c.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().putString("advice" + userId, b.append("]}").toString())
+                .apply();
+    }
+
+    public static String adviceJson(Context c, long userId) {
+        try {
+            return c.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getString("advice" + userId, "");
+        } catch (Throwable t) {
+            return "";
+        }
+    }
+
     static void addCsv(Set<String> into, String csv) {
         for (String k : csv.split(",")) {
             if (k.trim().length() > 0) {
@@ -200,6 +237,12 @@ public final class AiProfile {
         }
         in.focus = new HashSet<String>(focus);
         in.cond = new HashSet<String>(cond);
+        if (heightCm > 0) {
+            in.heightCm = heightCm;
+        }
+        if (in.cond.contains("beta_blocker")) {
+            in.screening.hrLoweringMedication = true;
+        }
         in.leanKg = leanKg;
         in.skeletalKg = skeletalKg;
         in.chMuscle = chMuscle;

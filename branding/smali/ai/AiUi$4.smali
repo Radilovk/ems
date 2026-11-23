@@ -3,12 +3,12 @@
 .source "AiUi.java"
 
 # interfaces
-.implements Lcom/isaigu/gymapp/ai/AiUi$ToggleCallback;
+.implements Lcom/isaigu/gymapp/ai/AiUi$SegmentCallback;
 
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/isaigu/gymapp/ai/AiUi;->screenGoal(Landroid/content/Context;)V
+    value = Lcom/isaigu/gymapp/ai/AiUi;->clientBlock(Landroid/content/Context;Landroid/widget/LinearLayout;)V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -31,7 +31,7 @@
     .end annotation
 
     .prologue
-    .line 552
+    .line 558
     iput-object p1, p0, Lcom/isaigu/gymapp/ai/AiUi$4;->val$in:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -41,26 +41,27 @@
 
 
 # virtual methods
-.method public onToggle(Z)V
+.method public onSelect(I)V
     .registers 4
 
     .prologue
-    .line 555
-    iget-object v1, p0, Lcom/isaigu/gymapp/ai/AiUi$4;->val$in:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
+    .line 561
+    iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiUi$4;->val$in:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
 
-    if-eqz p1, :cond_9
+    invoke-static {}, Lcom/isaigu/gymapp/ai/AiModel$Fitness;->values()[Lcom/isaigu/gymapp/ai/AiModel$Fitness;
 
-    sget-object v0, Lcom/isaigu/gymapp/ai/AiModel$PauseMode;->AUTO:Lcom/isaigu/gymapp/ai/AiModel$PauseMode;
+    move-result-object v1
 
-    :goto_6
-    iput-object v0, v1, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->pause:Lcom/isaigu/gymapp/ai/AiModel$PauseMode;
+    aget-object v1, v1, p1
 
-    .line 556
+    iput-object v1, v0, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->fitness:Lcom/isaigu/gymapp/ai/AiModel$Fitness;
+
+    .line 562
+    const/4 v0, 0x0
+
+    # invokes: Lcom/isaigu/gymapp/ai/AiUi;->go(I)V
+    invoke-static {v0}, Lcom/isaigu/gymapp/ai/AiUi;->access$400(I)V
+
+    .line 563
     return-void
-
-    .line 555
-    :cond_9
-    sget-object v0, Lcom/isaigu/gymapp/ai/AiModel$PauseMode;->PASSIVE:Lcom/isaigu/gymapp/ai/AiModel$PauseMode;
-
-    goto :goto_6
 .end method

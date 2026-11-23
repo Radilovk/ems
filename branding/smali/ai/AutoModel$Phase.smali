@@ -58,41 +58,41 @@
     .prologue
     const-wide/high16 v0, 0x3ff0000000000000L    # 1.0
 
-    .line 215
+    .line 222
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 221
+    .line 228
     iput-wide v0, p0, Lcom/isaigu/gymapp/ai/AutoModel$Phase;->phiStart:D
 
-    .line 222
+    .line 229
     iput-wide v0, p0, Lcom/isaigu/gymapp/ai/AutoModel$Phase;->phiEnd:D
 
-    .line 224
+    .line 231
     iput-wide v0, p0, Lcom/isaigu/gymapp/ai/AutoModel$Phase;->envStart:D
 
-    .line 225
+    .line 232
     iput-wide v0, p0, Lcom/isaigu/gymapp/ai/AutoModel$Phase;->envEnd:D
 
-    .line 227
+    .line 234
     new-instance v0, Ljava/util/ArrayList;
 
     invoke-direct {v0}, Ljava/util/ArrayList;-><init>()V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/AutoModel$Phase;->steps:Ljava/util/List;
 
-    .line 228
+    .line 235
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoModel$Window;->fixed()Lcom/isaigu/gymapp/ai/AutoModel$Window;
 
     move-result-object v0
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/AutoModel$Phase;->window:Lcom/isaigu/gymapp/ai/AutoModel$Window;
 
-    .line 230
+    .line 237
     const-string v0, ""
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/AutoModel$Phase;->hintBg:Ljava/lang/String;
 
-    .line 231
+    .line 238
     const-string v0, ""
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/AutoModel$Phase;->hintEn:Ljava/lang/String;
@@ -106,7 +106,7 @@
     .registers 12
 
     .prologue
-    .line 241
+    .line 248
     const-wide/16 v0, 0x0
 
     const-wide/high16 v2, 0x3ff0000000000000L    # 1.0
@@ -119,7 +119,7 @@
 
     move-result-wide v0
 
-    .line 242
+    .line 249
     iget-wide v2, p0, Lcom/isaigu/gymapp/ai/AutoModel$Phase;->envStart:D
 
     iget-wide v4, p0, Lcom/isaigu/gymapp/ai/AutoModel$Phase;->envEnd:D
@@ -139,7 +139,7 @@
     .registers 7
 
     .prologue
-    .line 250
+    .line 257
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AutoModel$Phase;->steps:Ljava/util/List;
 
     invoke-interface {v0}, Ljava/util/List;->iterator()Ljava/util/Iterator;
@@ -159,7 +159,7 @@
 
     check-cast v0, Lcom/isaigu/gymapp/ai/AutoModel$Step;
 
-    .line 251
+    .line 258
     invoke-virtual {v0}, Lcom/isaigu/gymapp/ai/AutoModel$Step;->isTetanic()Z
 
     move-result v2
@@ -174,10 +174,10 @@
 
     if-lez v0, :cond_6
 
-    .line 252
+    .line 259
     const/4 v0, 0x1
 
-    .line 255
+    .line 262
     :goto_21
     return v0
 
@@ -191,7 +191,7 @@
     .registers 3
 
     .prologue
-    .line 246
+    .line 253
     const-string v0, "COOLDOWN"
 
     iget-object v1, p0, Lcom/isaigu/gymapp/ai/AutoModel$Phase;->id:Ljava/lang/String;
@@ -207,7 +207,7 @@
     .registers 12
 
     .prologue
-    .line 236
+    .line 243
     const-wide/16 v0, 0x0
 
     const-wide/high16 v2, 0x3ff0000000000000L    # 1.0
@@ -220,7 +220,7 @@
 
     move-result-wide v0
 
-    .line 237
+    .line 244
     iget-wide v2, p0, Lcom/isaigu/gymapp/ai/AutoModel$Phase;->phiStart:D
 
     iget-wide v4, p0, Lcom/isaigu/gymapp/ai/AutoModel$Phase;->phiEnd:D

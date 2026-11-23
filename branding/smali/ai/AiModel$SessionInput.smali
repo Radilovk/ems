@@ -45,6 +45,8 @@
 
 .field public goal:Lcom/isaigu/gymapp/ai/AiModel$Goal;
 
+.field public heightCm:I
+
 .field public hrCapOverride:Ljava/lang/Integer;
 
 .field public leanKg:D
@@ -60,6 +62,8 @@
 .field public scaleFocus:Ljava/lang/String;
 
 .field public screening:Lcom/isaigu/gymapp/ai/AiModel$Screening;
+
+.field public sessions:I
 
 .field public sex:Lcom/isaigu/gymapp/ai/AiModel$Sex;
 
@@ -116,56 +120,61 @@
 
     iput-wide v0, p0, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->weightKg:D
 
-    .line 62
+    .line 65
+    const/4 v0, -0x1
+
+    iput v0, p0, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->sessions:I
+
+    .line 66
     sget-object v0, Lcom/isaigu/gymapp/ai/AiModel$Fitness;->MID:Lcom/isaigu/gymapp/ai/AiModel$Fitness;
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->fitness:Lcom/isaigu/gymapp/ai/AiModel$Fitness;
 
-    .line 65
+    .line 69
     sget-object v0, Lcom/isaigu/gymapp/ai/AiModel$Operator;->TRAINER:Lcom/isaigu/gymapp/ai/AiModel$Operator;
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->operator:Lcom/isaigu/gymapp/ai/AiModel$Operator;
 
-    .line 66
+    .line 70
     new-instance v0, Lcom/isaigu/gymapp/ai/AiModel$Screening;
 
     invoke-direct {v0}, Lcom/isaigu/gymapp/ai/AiModel$Screening;-><init>()V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->screening:Lcom/isaigu/gymapp/ai/AiModel$Screening;
 
-    .line 69
+    .line 73
     sget-object v0, Lcom/isaigu/gymapp/ai/AiModel$PauseMode;->AUTO:Lcom/isaigu/gymapp/ai/AiModel$PauseMode;
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->pause:Lcom/isaigu/gymapp/ai/AiModel$PauseMode;
 
-    .line 71
+    .line 75
     new-instance v0, Ljava/util/HashSet;
 
     invoke-direct {v0}, Ljava/util/HashSet;-><init>()V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->focus:Ljava/util/Set;
 
-    .line 72
+    .line 76
     new-instance v0, Ljava/util/HashSet;
 
     invoke-direct {v0}, Ljava/util/HashSet;-><init>()V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->cond:Ljava/util/Set;
 
-    .line 74
+    .line 78
     new-instance v0, Ljava/util/HashSet;
 
     invoke-direct {v0}, Ljava/util/HashSet;-><init>()V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->today:Ljava/util/Set;
 
-    .line 76
+    .line 80
     iput-wide v2, p0, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->leanKg:D
 
-    .line 77
+    .line 81
     iput-wide v2, p0, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->skeletalKg:D
 
-    .line 81
+    .line 85
     const-wide/high16 v0, 0x3ff0000000000000L    # 1.0
 
     iput-wide v0, p0, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->readiness:D
@@ -179,7 +188,7 @@
     .registers 3
 
     .prologue
-    .line 86
+    .line 90
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->mode:Lcom/isaigu/gymapp/ai/AiModel$Mode;
 
     sget-object v1, Lcom/isaigu/gymapp/ai/AiModel$Mode;->ACTIVE:Lcom/isaigu/gymapp/ai/AiModel$Mode;

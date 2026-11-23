@@ -17,6 +17,10 @@
 # instance fields
 .field public age:I
 
+.field public aiIntensity:Lcom/isaigu/gymapp/ai/AutoModel$Intensity;
+
+.field public aiSeconds:Ljava/lang/Integer;
+
 .field public chMuscle:[D
 
 .field public channelFat:[D
@@ -103,6 +107,8 @@
 .field public variant:I
 
 .field public weightKg:D
+
+.field public zoneForce:[I
 
 
 # direct methods
@@ -235,19 +241,19 @@
     .registers 5
 
     .prologue
-    .line 132
+    .line 139
     iget v0, p0, Lcom/isaigu/gymapp/ai/AutoModel$Input;->heightCm:I
 
     if-gtz v0, :cond_7
 
-    .line 133
+    .line 140
     const-wide/16 v0, 0x0
 
-    .line 136
+    .line 143
     :goto_6
     return-wide v0
 
-    .line 135
+    .line 142
     :cond_7
     iget v0, p0, Lcom/isaigu/gymapp/ai/AutoModel$Input;->heightCm:I
 
@@ -257,7 +263,7 @@
 
     div-double/2addr v0, v2
 
-    .line 136
+    .line 143
     iget-wide v2, p0, Lcom/isaigu/gymapp/ai/AutoModel$Input;->weightKg:D
 
     mul-double/2addr v0, v0
@@ -271,7 +277,7 @@
     .registers 3
 
     .prologue
-    .line 140
+    .line 147
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AutoModel$Input;->operator:Lcom/isaigu/gymapp/ai/AiModel$Operator;
 
     sget-object v1, Lcom/isaigu/gymapp/ai/AiModel$Operator;->SELF:Lcom/isaigu/gymapp/ai/AiModel$Operator;

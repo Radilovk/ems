@@ -59,6 +59,10 @@ public final class AiModel {
         public int age = 35;
         /** For the energy model only (kcal). */
         public double weightKg = 75;
+        /** Height in cm (the AI coach's intake; 0 = unknown). */
+        public int heightCm;
+        /** EMS sessions before this one (the coach's intake / the history); −1 = unknown (no adaptation rule). */
+        public int sessions = -1;
         public Fitness fitness = Fitness.MID;
         /** null → template default. */
         public Integer totalSeconds;

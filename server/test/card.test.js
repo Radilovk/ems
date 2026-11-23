@@ -28,6 +28,11 @@ describe('client key', () => {
 
 describe('validCardData', () => {
   it('accepts the report page shape', () => assert.equal(validCardData(ok()), null));
+  it('the AI coach advice: optional, ≤ 8 short lines', () => {
+    assert.equal(validCardData({ ...ok(), adv: { d: 1, l: ['Преди: банан.', 'След: белтък.'] } }), null);
+    assert.equal(validCardData({ ...ok(), adv: { d: 1, l: Array(9).fill('x') } }), 'adv');
+    assert.equal(validCardData({ ...ok(), adv: { d: 1, l: ['x'.repeat(201)] } }), 'adv');
+  });
   it('rejects a missing muscle array', () => {
     const d = ok(); d.mus = [1];
     assert.equal(validCardData(d), 'mus');

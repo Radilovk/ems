@@ -127,6 +127,13 @@ public final class AutoModel {
         public java.util.Set<String> cond = new java.util.HashSet<String>();
         /** How the client is today (AiPersonal.TODAY): never blocks, quietly softens the session. */
         public java.util.Set<String> today = new java.util.HashSet<String>();
+        /** AI brief (owner, 1.1.534): a channel forced on (100) / off (0) by the trainer's text; null or −1 = the
+         *  program's own. The row's channel sliders still move it. */
+        public int[] zoneForce;
+        /** AI brief: a softer / harder approach from the text (null = the program's standard). */
+        public Intensity aiIntensity;
+        /** AI brief: the minutes the text named (null = the program's); the planner caps it as ever. */
+        public Integer aiSeconds;
 
         public double bmi() {
             if (heightCm <= 0) {

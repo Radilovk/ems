@@ -155,6 +155,7 @@ final class AiUi {
                 return;
             }
             AiSession.beginSetup(activity);
+            AiCoachUi.reset();
             profileOpen = false;
             healthOk = false;
             healthOpen = false;                        // contraindications belong to the registration, not here
@@ -329,6 +330,13 @@ final class AiUi {
         }
     }
 
+    /** The AI coach changed the inputs: the intake / the plan again (the plan is re-computed on render). */
+    static void rerender() {
+        if (dialog != null && dialog.isShowing() && body != null && step <= STEP_PLAN) {
+            go(step);
+        }
+    }
+
     private static void go(int s) {
         step = s;
         refreshers.clear();
@@ -455,112 +463,13 @@ final class AiUi {
             finishGoal(a, col, in);
             return;
         }
-        LinearLayout row = horizontal(a);
-        final List<View> cards = new ArrayList<View>();
-        if (in.goal == Goal.CELLULITE && in.sex == AiModel.Sex.MALE) {
-            in.goal = Goal.TONE;                       // anti-cellulite is a women's goal
+        // the AI coach's intake (owner, 1.1.535): sex, age, height, weight, experience, goal, active / passive, health
+        titleView.setText(AiText.t("AI тренировка", "AI training"));
+        AiCoachUi.intake(a, col);
+        if (in.age < 18) {
+            col.addView(banner(a, AiViews.DANGER, AiText.t("AI сесията е само за пълнолетни.",
+                    "AI sessions are for adults only.")), matchWrap(a, 14));
         }
-        for (final Goal g : Goal.values()) {
-            if (g == Goal.CELLULITE && in.sex == AiModel.Sex.MALE) {
-                continue;
-            }
-            LinearLayout card = vertical(a);
-            card.setPadding(dp(a, 18), dp(a, 18), dp(a, 18), dp(a, 18));
-            View accent = new View(a);
-            GradientDrawable ag = new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT,
-                    new int[] {goalColor(g), lighten(goalColor(g))});
-            ag.setCornerRadius(dp(a, 3));
-            accent.setBackgroundDrawable(ag);
-            card.addView(accent, new LinearLayout.LayoutParams(dp(a, 40), dp(a, 5)));
-            TextView name = text(a, AiText.goal(g), 22, AiViews.TEXT, true);
-            name.setPadding(0, dp(a, 14), 0, dp(a, 6));
-            card.addView(name);
-            card.addView(text(a, AiText.goalHint(g), 13, AiViews.MUTED, false));
-            card.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    in.goal = g;
-                    if (!AiModel.isAllowed(g, in.mode)) {
-                        in.mode = Mode.PASSIVE;
-                    }
-                    if (g == Goal.TONE || g == Goal.FAT) {
-                        in.mode = Mode.ACTIVE;
-                    }
-                    in.totalSeconds = null;
-                    go(STEP_GOAL);
-                }
-            });
-            boolean sel = in.goal == g;
-            card.setBackgroundDrawable(sel
-                    ? gradientStroke(a, AiViews.CARD2, 18)
-                    : rounded(AiViews.CARD, dp(a, 18), AiViews.STROKE, 1));
-            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0,
-                    ViewGroup.LayoutParams.MATCH_PARENT, 1f);
-            if (!cards.isEmpty()) {
-                lp.leftMargin = dp(a, 12);
-            }
-            row.addView(card, lp);
-            cards.add(card);
-        }
-        // as tall as their content (no empty lower half); siblings share the tallest height
-        col.addView(row, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT));
-
-        LinearLayout opts = horizontal(a);
-        opts.setGravity(Gravity.CENTER_VERTICAL);
-        // Mode only when the goal allows both (massage, drainage, cellulite are passive only).
-        boolean modeChoice = AiModel.isAllowed(in.goal, Mode.ACTIVE) && AiModel.isAllowed(in.goal, Mode.PASSIVE);
-        if (modeChoice) {
-            opts.addView(segmented(a, new String[] {AiText.t("С движение", "With movement"),
-                            AiText.t("В покой", "At rest")},
-                    in.mode == Mode.ACTIVE ? 0 : 1, null, new SegmentCallback() {
-                        @Override
-                        public void onSelect(int i) {
-                            in.mode = i == 0 ? Mode.ACTIVE : Mode.PASSIVE;
-                            go(STEP_GOAL);
-                        }
-                    }), new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1f));
-        }
-        final int total = in.totalSeconds != null ? in.totalSeconds : AiPlanner.defaultSeconds(in.goal);
-        // the minutes: a compact control as tall as the switch beside it, "20 минути" on one line
-        LinearLayout.LayoutParams dlp = modeChoice
-                ? new LinearLayout.LayoutParams(dp(a, 280), ViewGroup.LayoutParams.MATCH_PARENT)
-                : new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1f);
-        if (modeChoice) {
-            dlp.leftMargin = dp(a, 16);
-        }
-        opts.addView(stepper(a, (total / 60) + "", AiText.t("минути", "minutes"), new StepperCallback() {
-            @Override
-            public void onDelta(int d) {
-                in.totalSeconds = AiPlanner.clampSeconds(in.goal, total + d * 60);
-                go(STEP_GOAL);
-            }
-        }), dlp);
-        LinearLayout.LayoutParams olp = new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT, dp(a, 58));
-        olp.topMargin = dp(a, 18);
-        col.addView(opts, olp);
-
-        // Double impulse (active pause): only where the AI can program it; one switch, the
-        // frequency / strength / phases are the AI's decision.
-        if (AiModel.activePauseAllowed(in.goal)) {
-            if (in.pause == AiModel.PauseMode.ACTIVE) {
-                in.pause = AiModel.PauseMode.AUTO;
-            }
-            LinearLayout pauseBox = vertical(a);
-            pauseBox.addView(toggleRow(a, AiText.t("Двоен импулс (активна пауза)", "Double impulse (active pause)"),
-                    in.pause != AiModel.PauseMode.PASSIVE, new ToggleCallback() {
-                        @Override
-                        public void onToggle(boolean on) {
-                            in.pause = on ? AiModel.PauseMode.AUTO : AiModel.PauseMode.PASSIVE;
-                        }
-                    }));
-            LinearLayout.LayoutParams plp = new LinearLayout.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-            plp.topMargin = dp(a, 14);
-            col.addView(pauseBox, plp);
-        }
-        clientBlock(a, col);
         finishGoal(a, col, in);
     }
 
@@ -1002,8 +911,9 @@ final class AiUi {
             }
             col.addView(banner(a, AiViews.OK, b.toString()), matchWrap(a, 10));
         }
-        body.addView(scroll(a, col));
-        setupFooter(a, AiText.t("Калибриране на силата", "Calibrate strength"), true);
+        // the AI coach beside the plan (owner, 1.1.535): the dialogue, the advice, its changes re-plan at once
+        body.addView(AiCoachUi.split(a, scroll(a, col)));
+        setupFooter(a, AiText.t("▶  Към старта", "▶  To the start"), true);
     }
 
     static final class MachineChoice implements SegmentCallback {
@@ -1290,8 +1200,14 @@ final class AiUi {
             lp2.leftMargin = dp(a, 12);
             footer.addView(t, lp2);
         }
+        // ✦ Чат: the coach over the running session — its answers change the session now (1.1.535)
+        TextView chatBtn = pillButton(a, "✦  " + AiText.t("Чат", "Chat"), AiViews.CYAN);
+        chatBtn.setOnClickListener(new AiCoachUi.OpenLive());
+        LinearLayout.LayoutParams clp = new LinearLayout.LayoutParams(dp(a, 150), dp(a, 58));
+        clp.leftMargin = dp(a, 12);
+        footer.addView(chatBtn, clp);
         footer.addView(new View(a), new LinearLayout.LayoutParams(0, 1, 1f));
-        footer.addView(stopBtn, new LinearLayout.LayoutParams(dp(a, 260), dp(a, 58)));
+        footer.addView(stopBtn, new LinearLayout.LayoutParams(dp(a, 220), dp(a, 58)));
 
         refreshers.add(new Runnable() {
             @Override

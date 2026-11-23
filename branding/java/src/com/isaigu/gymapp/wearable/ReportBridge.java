@@ -530,6 +530,12 @@ final class ReportBridge {
         }
     }
 
+    /** The AI coach's advice of the last AI training (the card's "Съвети от треньора"), "" = none. */
+    @JavascriptInterface
+    public String advice() {
+        return com.isaigu.gymapp.ai.AiProfile.adviceJson(a, user.id);
+    }
+
     @JavascriptInterface
     public String sessions() {
         return SessionStore.listFor(a, user.id);

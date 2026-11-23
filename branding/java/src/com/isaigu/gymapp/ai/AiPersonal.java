@@ -131,6 +131,13 @@ public final class AiPersonal {
             e.rampUpMs += 300;
             e.note("Днес: мускулна треска — −10 %, по-плавно включване", "Today: sore muscles — −10 %, softer onset");
         }
+        if (today.contains("t_gentle")) {
+            // the client asked for a lighter session today (the AI coach; no chip of its own)
+            e.phi *= 0.85;
+            e.offS += 1;
+            e.rampUpMs += 200;
+            e.note("Днес по-леко — по желание: −15 %, +1 s пауза", "Lighter today — asked: −15 %, +1 s pause");
+        }
         if (today.contains("t_period")) {
             e.add(new int[] {1}, -30);
             e.add(new int[] {7}, -10);

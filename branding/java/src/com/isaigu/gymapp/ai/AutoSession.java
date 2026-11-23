@@ -455,6 +455,9 @@ public final class AutoSession {
         to.doublePulse = from.doublePulse;
         to.exercises = from.exercises;
         to.totalSeconds = from.totalSeconds;
+        to.zoneForce = from.zoneForce;
+        to.aiIntensity = from.aiIntensity;
+        to.aiSeconds = from.aiSeconds;
     }
 
     /** The wizard edited the leader's client (height, answers): back into row 0. */
@@ -492,8 +495,9 @@ public final class AutoSession {
     public static void buildPlan() {
         syncLeaderInput();
         // time and intensity are the program's (owner, 1.1.336): the soft / intense choice and the minutes are gone
-        input.intensity = AutoModel.Intensity.STANDARD;
-        input.totalSeconds = null;
+        // … unless the AI brief read a softer / harder approach or named minutes from the trainer's text (1.1.534)
+        input.intensity = input.aiIntensity != null ? input.aiIntensity : AutoModel.Intensity.STANDARD;
+        input.totalSeconds = input.aiSeconds;
         AutoCatalog.Program p = AutoCatalog.get(input.programId);
         int cap = Integer.MAX_VALUE;
         for (Row r : rows) {
@@ -678,6 +682,11 @@ public final class AutoSession {
                         + " мин — импулсите спряха. „▶ Старт“ тръгва от зададената сила.",
                 "Setting up over " + SafeLimits.CALIB_MAX_S / 60 + " min — impulses stopped. ▶ Start goes on from the set strength."),
                 SAFETY, now);
+    }
+
+    /** No client on the lead row (an unregistered person): the AI brief's guest taps (docs/xems-ai-brief.md). */
+    public static boolean isGuest() {
+        return rows.isEmpty() || rows.get(0).userId == 0;
     }
 
     public static boolean canStart() {

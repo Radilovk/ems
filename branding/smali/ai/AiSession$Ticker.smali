@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 665
+    .line 744
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -32,7 +32,7 @@
     .registers 2
 
     .prologue
-    .line 665
+    .line 744
     invoke-direct {p0}, Lcom/isaigu/gymapp/ai/AiSession$Ticker;-><init>()V
 
     return-void
@@ -44,14 +44,14 @@
     .registers 5
 
     .prologue
-    .line 669
+    .line 748
     :try_start_0
     # invokes: Lcom/isaigu/gymapp/ai/AiSession;->tick()V
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiSession;->access$100()V
     :try_end_3
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_3} :catch_4a
 
-    .line 673
+    .line 752
     :goto_3
     # getter for: Lcom/isaigu/gymapp/ai/AiSession;->stage:Lcom/isaigu/gymapp/ai/AiSession$Stage;
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiSession;->access$200()Lcom/isaigu/gymapp/ai/AiSession$Stage;
@@ -89,7 +89,7 @@
 
     if-eq v0, v1, :cond_3d
 
-    .line 674
+    .line 753
     # getter for: Lcom/isaigu/gymapp/ai/AiSession;->stage:Lcom/isaigu/gymapp/ai/AiSession$Stage;
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiSession;->access$200()Lcom/isaigu/gymapp/ai/AiSession$Stage;
 
@@ -106,7 +106,7 @@
 
     if-eqz v0, :cond_46
 
-    .line 675
+    .line 754
     # getter for: Lcom/isaigu/gymapp/ai/AiSession;->engine:Lcom/isaigu/gymapp/ai/AiEngine;
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiSession;->access$300()Lcom/isaigu/gymapp/ai/AiEngine;
 
@@ -120,7 +120,7 @@
 
     if-ne v0, v1, :cond_46
 
-    .line 676
+    .line 755
     :cond_3d
     # getter for: Lcom/isaigu/gymapp/ai/AiSession;->handler:Landroid/os/Handler;
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiSession;->access$400()Landroid/os/Handler;
@@ -131,18 +131,18 @@
 
     invoke-virtual {v0, p0, v2, v3}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
 
-    .line 678
+    .line 757
     :cond_46
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiUi;->refresh()V
 
-    .line 679
+    .line 758
     return-void
 
-    .line 670
+    .line 749
     :catch_4a
     move-exception v0
 
-    .line 671
+    .line 750
     const-string v1, "ai"
 
     new-instance v2, Ljava/lang/StringBuilder;

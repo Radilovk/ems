@@ -14,6 +14,8 @@ import { LIMITS, limitsSummary } from './limits.js';
 import { handleUnitUpdate, handleUnitPack, handleUnitLog, handleUnitLogRead, adminUnits } from './units.js';
 import { handleVrlogPut, handleVrlogGet } from './vrlog.js';
 import { handleCertIssue } from './cert.js';
+import { brief, BRIEF_MAX_BYTES } from './aibrief.js';
+import { coach } from './aicoach.js';
 import certHtml from '../../branding/certificate/index.html';
 import { handleWiemsUpdate, handleWiemsApk, handleWiemsSeen } from './wiemsapp.js';
 import {
@@ -89,6 +91,9 @@ export default {
         return json({ ok: true, ...catalogSummary() });
       }
 
+      if (path === '/v1/ai/brief' && request.method === 'POST') {
+        return handleAiBrief(request, env);
+      }
       if (path === '/v1/card' && request.method === 'POST') {
         return handleCardPut(request, env);
       }
@@ -392,6 +397,35 @@ async function handleRefresh(request, env) {
 // ─── Client card (a phone page the studio sends to its client) ───────────────
 
 /** POST {token, device_id, client_key, data} → {ok, url}. Same client → same link, new data. */
+/** The AI layer over the planner (docs/xems-ai-brief.md): the trainer's text → a validated patch of its inputs. */
+async function handleAiBrief(request, env) {
+  const body = await readJsonBody(request, BRIEF_MAX_BYTES);
+  if (!body) return err('unknown', 'Invalid JSON body');
+  const deviceId = normDevice(body.device_id);
+  const tokenBody = parseTokenBody(body.token);
+  const licId = tokenBody?.lic;
+  if (!licId || !deviceId || normDevice(tokenBody.dev) !== deviceId) return err('unknown', 'Invalid token');
+  if (!(await verifyToken(env.LICENSE_PRIVATE_KEY, body.token))) return err('unknown', 'Invalid token');
+  if (typeof body.text !== 'string' || !body.text.trim()) return err('bad_request', 'text');
+  if (!allowHit(`brief:dev:${deviceId}`, LIMITS.briefPerMinutePerDevice, 60, now())
+      || !(await rateLimit(env, `brief:lic:${licId}`, LIMITS.briefPerDayPerLicense, 86400))) {
+    return json({ ok: false, error: 'rate_limit', message: 'Too many requests' }, 429);
+  }
+  const lic = await env.DB.prepare('SELECT status, expires_at FROM licenses WHERE id = ?').bind(licId).first();
+  if (!lic || lic.status === 'disabled' || lic.status === 'revoked') return err('revoked', 'License revoked');
+  if (lic.expires_at && lic.expires_at < now()) return err('expired', 'License expired');
+  try {
+    if (body.kind === 'coach') {
+      const r = await coach(env, body);
+      return json({ ok: true, model: r.model, coach: r.coach });
+    }
+    const r = await brief(env, body);
+    return json({ ok: true, model: r.model, patch: r.patch });
+  } catch (e) {
+    return json({ ok: false, error: 'ai_unavailable', message: String(e?.message || e).slice(0, 80) }, 503);
+  }
+}
+
 async function handleCardPut(request, env) {
   const body = await readJsonBody(request, CARD_MAX_BYTES);
   if (!body) return err('unknown', 'Invalid JSON body');

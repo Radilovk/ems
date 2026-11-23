@@ -8,7 +8,7 @@
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/isaigu/gymapp/ai/AiUi;->renderOverlay(Landroid/content/Context;Landroid/widget/FrameLayout;Lcom/isaigu/gymapp/ai/AiEngine;J)V
+    value = Lcom/isaigu/gymapp/ai/AiUi;->segmented(Landroid/content/Context;[Ljava/lang/String;I[ZLcom/isaigu/gymapp/ai/AiUi$SegmentCallback;)Landroid/view/View;
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -17,12 +17,27 @@
 .end annotation
 
 
+# instance fields
+.field final synthetic val$cb:Lcom/isaigu/gymapp/ai/AiUi$SegmentCallback;
+
+.field final synthetic val$idx:I
+
+
 # direct methods
-.method constructor <init>()V
-    .registers 1
+.method constructor <init>(Lcom/isaigu/gymapp/ai/AiUi$SegmentCallback;I)V
+    .registers 3
+    .annotation system Ldalvik/annotation/Signature;
+        value = {
+            "()V"
+        }
+    .end annotation
 
     .prologue
-    .line 1468
+    .line 1702
+    iput-object p1, p0, Lcom/isaigu/gymapp/ai/AiUi$20;->val$cb:Lcom/isaigu/gymapp/ai/AiUi$SegmentCallback;
+
+    iput p2, p0, Lcom/isaigu/gymapp/ai/AiUi$20;->val$idx:I
+
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -31,12 +46,16 @@
 
 # virtual methods
 .method public onClick(Landroid/view/View;)V
-    .registers 2
+    .registers 4
 
     .prologue
-    .line 1471
-    invoke-static {}, Lcom/isaigu/gymapp/ai/AiSession;->togglePause()V
+    .line 1705
+    iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiUi$20;->val$cb:Lcom/isaigu/gymapp/ai/AiUi$SegmentCallback;
 
-    .line 1472
+    iget v1, p0, Lcom/isaigu/gymapp/ai/AiUi$20;->val$idx:I
+
+    invoke-interface {v0, v1}, Lcom/isaigu/gymapp/ai/AiUi$SegmentCallback;->onSelect(I)V
+
+    .line 1706
     return-void
 .end method

@@ -242,6 +242,14 @@ public final class AutoPlanner {
             boolean medical = bg.startsWith("Диастаза");
             plan.note(face || medical ? bg : "Препоръка · " + bg, face || medical ? en : "Advice · " + en);
         }
+        if (!face && in.zoneForce != null) {
+            // the AI brief's channel on / off from the trainer's text (1.1.534); the medical bounds below still win
+            for (int i = 0; i < Math.min(CHANNELS, in.zoneForce.length); i++) {
+                if (in.zoneForce[i] >= 0) {
+                    plan.zones[i] = Math.min(plan.zoneMax[i], in.zoneForce[i]);
+                }
+            }
+        }
         if (in.extra.breastfeeding) {
             plan.zones[CHEST] = 0;
             plan.zoneLocked[CHEST] = true;
@@ -265,6 +273,10 @@ public final class AutoPlanner {
             if (!in.cond.contains("diastasis")) {
                 plan.note("Диастаза: коремът до 40 %", "Diastasis: abs up to 40 %");
             }
+        }
+
+        for (int i = 0; i < CHANNELS; i++) {
+            plan.zones[i] = Math.min(plan.zones[i], plan.zoneMax[i]);   // the plan shows what the output gets
         }
 
         // ---- CR10 target

@@ -1,4 +1,4 @@
-.class Lcom/isaigu/gymapp/ai/AiUi$12$3;
+.class Lcom/isaigu/gymapp/ai/AiUi$8$3;
 .super Ljava/lang/Object;
 .source "AiUi.java"
 
@@ -8,7 +8,7 @@
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/isaigu/gymapp/ai/AiUi$12;->run()V
+    value = Lcom/isaigu/gymapp/ai/AiUi$8;->run()V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -18,13 +18,13 @@
 
 
 # instance fields
-.field final synthetic this$0:Lcom/isaigu/gymapp/ai/AiUi$12;
+.field final synthetic this$0:Lcom/isaigu/gymapp/ai/AiUi$8;
 
 .field final synthetic val$d:I
 
 
 # direct methods
-.method constructor <init>(Lcom/isaigu/gymapp/ai/AiUi$12;I)V
+.method constructor <init>(Lcom/isaigu/gymapp/ai/AiUi$8;I)V
     .registers 3
     .annotation system Ldalvik/annotation/Signature;
         value = {
@@ -33,10 +33,10 @@
     .end annotation
 
     .prologue
-    .line 1103
-    iput-object p1, p0, Lcom/isaigu/gymapp/ai/AiUi$12$3;->this$0:Lcom/isaigu/gymapp/ai/AiUi$12;
+    .line 1013
+    iput-object p1, p0, Lcom/isaigu/gymapp/ai/AiUi$8$3;->this$0:Lcom/isaigu/gymapp/ai/AiUi$8;
 
-    iput p2, p0, Lcom/isaigu/gymapp/ai/AiUi$12$3;->val$d:I
+    iput p2, p0, Lcom/isaigu/gymapp/ai/AiUi$8$3;->val$d:I
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -49,11 +49,11 @@
     .registers 3
 
     .prologue
-    .line 1106
-    iget v0, p0, Lcom/isaigu/gymapp/ai/AiUi$12$3;->val$d:I
+    .line 1016
+    iget v0, p0, Lcom/isaigu/gymapp/ai/AiUi$8$3;->val$d:I
 
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/AiSession;->adjustCalibration(I)V
 
-    .line 1107
+    .line 1017
     return-void
 .end method

@@ -129,6 +129,171 @@
     return-void
 .end method
 
+.method public static addCond(Landroid/content/Context;JLjava/util/Set;)V
+    .registers 9
+    .annotation system Ldalvik/annotation/Signature;
+        value = {
+            "(",
+            "Landroid/content/Context;",
+            "J",
+            "Ljava/util/Set",
+            "<",
+            "Ljava/lang/String;",
+            ">;)V"
+        }
+    .end annotation
+
+    .prologue
+    .line 162
+    if-eqz p0, :cond_10
+
+    const-wide/16 v0, 0x0
+
+    cmp-long v0, p1, v0
+
+    if-eqz v0, :cond_10
+
+    if-eqz p3, :cond_10
+
+    invoke-interface {p3}, Ljava/util/Set;->isEmpty()Z
+
+    move-result v0
+
+    if-eqz v0, :cond_11
+
+    .line 174
+    :cond_10
+    :goto_10
+    return-void
+
+    .line 165
+    :cond_11
+    const-string v0, "xems_user_profiles"
+
+    const/4 v1, 0x0
+
+    invoke-virtual {p0, v0, v1}, Landroid/content/Context;->getSharedPreferences(Ljava/lang/String;I)Landroid/content/SharedPreferences;
+
+    move-result-object v2
+
+    .line 166
+    new-instance v0, Ljava/util/LinkedHashSet;
+
+    invoke-direct {v0}, Ljava/util/LinkedHashSet;-><init>()V
+
+    .line 167
+    new-instance v1, Ljava/lang/StringBuilder;
+
+    invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v3, "cond"
+
+    invoke-virtual {v1, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v1
+
+    invoke-virtual {v1, p1, p2}, Ljava/lang/StringBuilder;->append(J)Ljava/lang/StringBuilder;
+
+    move-result-object v1
+
+    invoke-virtual {v1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v1
+
+    const-string v3, ""
+
+    invoke-interface {v2, v1, v3}, Landroid/content/SharedPreferences;->getString(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v1
+
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/ai/AiProfile;->addCsv(Ljava/util/Set;Ljava/lang/String;)V
+
+    .line 168
+    invoke-interface {v0, p3}, Ljava/util/Set;->addAll(Ljava/util/Collection;)Z
+
+    .line 169
+    new-instance v3, Ljava/lang/StringBuilder;
+
+    invoke-direct {v3}, Ljava/lang/StringBuilder;-><init>()V
+
+    .line 170
+    invoke-interface {v0}, Ljava/util/Set;->iterator()Ljava/util/Iterator;
+
+    move-result-object v4
+
+    :goto_45
+    invoke-interface {v4}, Ljava/util/Iterator;->hasNext()Z
+
+    move-result v0
+
+    if-eqz v0, :cond_64
+
+    invoke-interface {v4}, Ljava/util/Iterator;->next()Ljava/lang/Object;
+
+    move-result-object v0
+
+    check-cast v0, Ljava/lang/String;
+
+    .line 171
+    invoke-virtual {v3}, Ljava/lang/StringBuilder;->length()I
+
+    move-result v1
+
+    if-lez v1, :cond_61
+
+    const-string v1, ","
+
+    :goto_59
+    invoke-virtual {v3, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v1
+
+    invoke-virtual {v1, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    goto :goto_45
+
+    :cond_61
+    const-string v1, ""
+
+    goto :goto_59
+
+    .line 173
+    :cond_64
+    invoke-interface {v2}, Landroid/content/SharedPreferences;->edit()Landroid/content/SharedPreferences$Editor;
+
+    move-result-object v0
+
+    new-instance v1, Ljava/lang/StringBuilder;
+
+    invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v2, "cond"
+
+    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v1
+
+    invoke-virtual {v1, p1, p2}, Ljava/lang/StringBuilder;->append(J)Ljava/lang/StringBuilder;
+
+    move-result-object v1
+
+    invoke-virtual {v1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v1
+
+    invoke-virtual {v3}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v2
+
+    invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences$Editor;->putString(Ljava/lang/String;Ljava/lang/String;)Landroid/content/SharedPreferences$Editor;
+
+    move-result-object v0
+
+    invoke-interface {v0}, Landroid/content/SharedPreferences$Editor;->apply()V
+
+    goto :goto_10
+.end method
+
 .method static addCsv(Ljava/util/Set;Ljava/lang/String;)V
     .registers 7
     .annotation system Ldalvik/annotation/Signature;
@@ -144,7 +309,7 @@
     .end annotation
 
     .prologue
-    .line 161
+    .line 198
     const-string v0, ","
 
     invoke-virtual {p1, v0}, Ljava/lang/String;->split(Ljava/lang/String;)[Ljava/lang/String;
@@ -160,7 +325,7 @@
 
     aget-object v3, v1, v0
 
-    .line 162
+    .line 199
     invoke-virtual {v3}, Ljava/lang/String;->trim()Ljava/lang/String;
 
     move-result-object v4
@@ -171,22 +336,76 @@
 
     if-lez v4, :cond_1d
 
-    .line 163
+    .line 200
     invoke-virtual {v3}, Ljava/lang/String;->trim()Ljava/lang/String;
 
     move-result-object v3
 
     invoke-interface {p0, v3}, Ljava/util/Set;->add(Ljava/lang/Object;)Z
 
-    .line 161
+    .line 198
     :cond_1d
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_8
 
-    .line 166
+    .line 203
     :cond_20
     return-void
+.end method
+
+.method public static adviceJson(Landroid/content/Context;J)Ljava/lang/String;
+    .registers 6
+
+    .prologue
+    .line 191
+    :try_start_0
+    const-string v0, "xems_user_profiles"
+
+    const/4 v1, 0x0
+
+    invoke-virtual {p0, v0, v1}, Landroid/content/Context;->getSharedPreferences(Ljava/lang/String;I)Landroid/content/SharedPreferences;
+
+    move-result-object v0
+
+    new-instance v1, Ljava/lang/StringBuilder;
+
+    invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v2, "advice"
+
+    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v1
+
+    invoke-virtual {v1, p1, p2}, Ljava/lang/StringBuilder;->append(J)Ljava/lang/StringBuilder;
+
+    move-result-object v1
+
+    invoke-virtual {v1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v1
+
+    const-string v2, ""
+
+    invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences;->getString(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+    :try_end_1f
+    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_1f} :catch_21
+
+    move-result-object v0
+
+    .line 193
+    :goto_20
+    return-object v0
+
+    .line 192
+    :catch_21
+    move-exception v0
+
+    .line 193
+    const-string v0, ""
+
+    goto :goto_20
 .end method
 
 .method private static appContext()Landroid/content/Context;
@@ -195,7 +414,7 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 253
+    .line 296
     :try_start_1
     const-string v0, "android.app.ActivityThread"
 
@@ -203,7 +422,7 @@
 
     move-result-object v0
 
-    .line 254
+    .line 297
     const-string v2, "currentApplication"
 
     const/4 v3, 0x0
@@ -228,17 +447,17 @@
     :try_end_1a
     .catch Ljava/lang/Throwable; {:try_start_1 .. :try_end_1a} :catch_1b
 
-    .line 256
+    .line 299
     :goto_1a
     return-object v0
 
-    .line 255
+    .line 298
     :catch_1b
     move-exception v0
 
     move-object v0, v1
 
-    .line 256
+    .line 299
     goto :goto_1a
 .end method
 
@@ -246,7 +465,7 @@
     .registers 2
 
     .prologue
-    .line 234
+    .line 277
     const-string v0, "low"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
@@ -257,11 +476,11 @@
 
     sget-object v0, Lcom/isaigu/gymapp/ai/AiModel$Fitness;->LOW:Lcom/isaigu/gymapp/ai/AiModel$Fitness;
 
-    .line 237
+    .line 280
     :goto_a
     return-object v0
 
-    .line 235
+    .line 278
     :cond_b
     const-string v0, "mid"
 
@@ -275,7 +494,7 @@
 
     goto :goto_a
 
-    .line 236
+    .line 279
     :cond_16
     const-string v0, "high"
 
@@ -289,7 +508,7 @@
 
     goto :goto_a
 
-    .line 237
+    .line 280
     :cond_21
     const/4 v0, 0x0
 
@@ -300,7 +519,7 @@
     .registers 2
 
     .prologue
-    .line 225
+    .line 268
     const-string v0, "tone"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
@@ -311,11 +530,11 @@
 
     sget-object v0, Lcom/isaigu/gymapp/ai/AiModel$Goal;->TONE:Lcom/isaigu/gymapp/ai/AiModel$Goal;
 
-    .line 230
+    .line 273
     :goto_a
     return-object v0
 
-    .line 226
+    .line 269
     :cond_b
     const-string v0, "fat"
 
@@ -329,7 +548,7 @@
 
     goto :goto_a
 
-    .line 227
+    .line 270
     :cond_16
     const-string v0, "massage"
 
@@ -343,7 +562,7 @@
 
     goto :goto_a
 
-    .line 228
+    .line 271
     :cond_21
     const-string v0, "drain"
 
@@ -357,7 +576,7 @@
 
     goto :goto_a
 
-    .line 229
+    .line 272
     :cond_2c
     const-string v0, "cellulite"
 
@@ -371,7 +590,7 @@
 
     goto :goto_a
 
-    .line 230
+    .line 273
     :cond_37
     const/4 v0, 0x0
 
@@ -1099,6 +1318,166 @@
     goto :goto_4
 .end method
 
+.method public static saveAdvice(Landroid/content/Context;JLjava/util/List;)V
+    .registers 11
+    .annotation system Ldalvik/annotation/Signature;
+        value = {
+            "(",
+            "Landroid/content/Context;",
+            "J",
+            "Ljava/util/List",
+            "<",
+            "Ljava/lang/String;",
+            ">;)V"
+        }
+    .end annotation
+
+    .prologue
+    const/4 v2, 0x0
+
+    .line 178
+    if-eqz p0, :cond_11
+
+    const-wide/16 v0, 0x0
+
+    cmp-long v0, p1, v0
+
+    if-eqz v0, :cond_11
+
+    if-eqz p3, :cond_11
+
+    invoke-interface {p3}, Ljava/util/List;->isEmpty()Z
+
+    move-result v0
+
+    if-eqz v0, :cond_12
+
+    .line 187
+    :cond_11
+    :goto_11
+    return-void
+
+    .line 181
+    :cond_12
+    new-instance v0, Ljava/lang/StringBuilder;
+
+    const-string v1, "{\"d\":"
+
+    invoke-direct {v0, v1}, Ljava/lang/StringBuilder;-><init>(Ljava/lang/String;)V
+
+    invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
+
+    move-result-wide v4
+
+    invoke-virtual {v0, v4, v5}, Ljava/lang/StringBuilder;->append(J)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    const-string v1, ",\"l\":["
+
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v3
+
+    move v1, v2
+
+    .line 182
+    :goto_28
+    invoke-interface {p3}, Ljava/util/List;->size()I
+
+    move-result v0
+
+    if-ge v1, v0, :cond_4e
+
+    const/16 v0, 0x8
+
+    if-ge v1, v0, :cond_4e
+
+    .line 183
+    if-lez v1, :cond_4b
+
+    const-string v0, ","
+
+    :goto_36
+    invoke-virtual {v3, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v4
+
+    invoke-interface {p3, v1}, Ljava/util/List;->get(I)Ljava/lang/Object;
+
+    move-result-object v0
+
+    check-cast v0, Ljava/lang/String;
+
+    invoke-static {v0}, Lcom/isaigu/gymapp/ai/AiBrief;->q(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
+
+    invoke-virtual {v4, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    .line 182
+    add-int/lit8 v0, v1, 0x1
+
+    move v1, v0
+
+    goto :goto_28
+
+    .line 183
+    :cond_4b
+    const-string v0, ""
+
+    goto :goto_36
+
+    .line 185
+    :cond_4e
+    const-string v0, "xems_user_profiles"
+
+    invoke-virtual {p0, v0, v2}, Landroid/content/Context;->getSharedPreferences(Ljava/lang/String;I)Landroid/content/SharedPreferences;
+
+    move-result-object v0
+
+    invoke-interface {v0}, Landroid/content/SharedPreferences;->edit()Landroid/content/SharedPreferences$Editor;
+
+    move-result-object v0
+
+    new-instance v1, Ljava/lang/StringBuilder;
+
+    invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v2, "advice"
+
+    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v1
+
+    invoke-virtual {v1, p1, p2}, Ljava/lang/StringBuilder;->append(J)Ljava/lang/StringBuilder;
+
+    move-result-object v1
+
+    invoke-virtual {v1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v1
+
+    const-string v2, "]}"
+
+    invoke-virtual {v3, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v2
+
+    invoke-virtual {v2}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v2
+
+    invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences$Editor;->putString(Ljava/lang/String;Ljava/lang/String;)Landroid/content/SharedPreferences$Editor;
+
+    move-result-object v0
+
+    .line 186
+    invoke-interface {v0}, Landroid/content/SharedPreferences$Editor;->apply()V
+
+    goto :goto_11
+.end method
+
 .method static yearsSince(Ljava/util/Date;)I
     .registers 6
 
@@ -1107,20 +1486,20 @@
 
     const/4 v3, 0x1
 
-    .line 241
+    .line 284
     invoke-static {}, Ljava/util/Calendar;->getInstance()Ljava/util/Calendar;
 
     move-result-object v1
 
-    .line 242
+    .line 285
     invoke-virtual {v1, p0}, Ljava/util/Calendar;->setTime(Ljava/util/Date;)V
 
-    .line 243
+    .line 286
     invoke-static {}, Ljava/util/Calendar;->getInstance()Ljava/util/Calendar;
 
     move-result-object v2
 
-    .line 244
+    .line 287
     invoke-virtual {v2, v3}, Ljava/util/Calendar;->get(I)I
 
     move-result v0
@@ -1131,7 +1510,7 @@
 
     sub-int/2addr v0, v3
 
-    .line 245
+    .line 288
     invoke-virtual {v2, v4}, Ljava/util/Calendar;->get(I)I
 
     move-result v2
@@ -1142,10 +1521,10 @@
 
     if-ge v2, v1, :cond_22
 
-    .line 246
+    .line 289
     add-int/lit8 v0, v0, -0x1
 
-    .line 248
+    .line 291
     :cond_22
     return v0
 .end method
@@ -1153,34 +1532,36 @@
 
 # virtual methods
 .method public applyTo(Lcom/isaigu/gymapp/ai/AiModel$SessionInput;)V
-    .registers 7
+    .registers 8
 
     .prologue
-    .line 175
-    if-nez p1, :cond_3
+    const/4 v5, 0x1
 
-    .line 215
-    :cond_2
+    .line 212
+    if-nez p1, :cond_4
+
+    .line 258
+    :cond_3
     return-void
 
-    .line 178
-    :cond_3
+    .line 215
+    :cond_4
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiProfile;->sex:Lcom/isaigu/gymapp/ai/AiModel$Sex;
 
-    if-eqz v0, :cond_b
+    if-eqz v0, :cond_c
 
-    .line 179
+    .line 216
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiProfile;->sex:Lcom/isaigu/gymapp/ai/AiModel$Sex;
 
     iput-object v0, p1, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->sex:Lcom/isaigu/gymapp/ai/AiModel$Sex;
 
-    .line 181
-    :cond_b
+    .line 218
+    :cond_c
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiProfile;->age:Ljava/lang/Integer;
 
-    if-eqz v0, :cond_17
+    if-eqz v0, :cond_18
 
-    .line 182
+    .line 219
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiProfile;->age:Ljava/lang/Integer;
 
     invoke-virtual {v0}, Ljava/lang/Integer;->intValue()I
@@ -1189,13 +1570,13 @@
 
     iput v0, p1, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->age:I
 
-    .line 184
-    :cond_17
+    .line 221
+    :cond_18
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiProfile;->weightKg:Ljava/lang/Double;
 
-    if-eqz v0, :cond_23
+    if-eqz v0, :cond_24
 
-    .line 185
+    .line 222
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiProfile;->weightKg:Ljava/lang/Double;
 
     invoke-virtual {v0}, Ljava/lang/Double;->doubleValue()D
@@ -1204,29 +1585,29 @@
 
     iput-wide v0, p1, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->weightKg:D
 
-    .line 187
-    :cond_23
+    .line 224
+    :cond_24
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiProfile;->fitness:Lcom/isaigu/gymapp/ai/AiModel$Fitness;
 
-    if-eqz v0, :cond_2b
+    if-eqz v0, :cond_2c
 
-    .line 188
+    .line 225
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiProfile;->fitness:Lcom/isaigu/gymapp/ai/AiModel$Fitness;
 
     iput-object v0, p1, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->fitness:Lcom/isaigu/gymapp/ai/AiModel$Fitness;
 
-    .line 190
-    :cond_2b
+    .line 227
+    :cond_2c
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiProfile;->goal:Lcom/isaigu/gymapp/ai/AiModel$Goal;
 
-    if-eqz v0, :cond_51
+    if-eqz v0, :cond_52
 
-    .line 191
+    .line 228
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiProfile;->goal:Lcom/isaigu/gymapp/ai/AiModel$Goal;
 
     iput-object v0, p1, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->goal:Lcom/isaigu/gymapp/ai/AiModel$Goal;
 
-    .line 192
+    .line 229
     iget-object v0, p1, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->goal:Lcom/isaigu/gymapp/ai/AiModel$Goal;
 
     iget-object v1, p1, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->mode:Lcom/isaigu/gymapp/ai/AiModel$Mode;
@@ -1235,9 +1616,9 @@
 
     move-result v0
 
-    if-nez v0, :cond_51
+    if-nez v0, :cond_52
 
-    .line 193
+    .line 230
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiModel$Mode;->values()[Lcom/isaigu/gymapp/ai/AiModel$Mode;
 
     move-result-object v1
@@ -1246,25 +1627,25 @@
 
     const/4 v0, 0x0
 
-    :goto_43
-    if-ge v0, v2, :cond_51
+    :goto_44
+    if-ge v0, v2, :cond_52
 
     aget-object v3, v1, v0
 
-    .line 194
+    .line 231
     iget-object v4, p1, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->goal:Lcom/isaigu/gymapp/ai/AiModel$Goal;
 
     invoke-static {v4, v3}, Lcom/isaigu/gymapp/ai/AiModel;->isAllowed(Lcom/isaigu/gymapp/ai/AiModel$Goal;Lcom/isaigu/gymapp/ai/AiModel$Mode;)Z
 
     move-result v4
 
-    if-eqz v4, :cond_a4
+    if-eqz v4, :cond_ba
 
-    .line 195
+    .line 232
     iput-object v3, p1, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->mode:Lcom/isaigu/gymapp/ai/AiModel$Mode;
 
-    .line 201
-    :cond_51
+    .line 238
+    :cond_52
     new-instance v0, Ljava/util/HashSet;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/ai/AiProfile;->focus:Ljava/util/Set;
@@ -1273,7 +1654,7 @@
 
     iput-object v0, p1, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->focus:Ljava/util/Set;
 
-    .line 202
+    .line 239
     new-instance v0, Ljava/util/HashSet;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/ai/AiProfile;->cond:Ljava/util/Set;
@@ -1282,50 +1663,78 @@
 
     iput-object v0, p1, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->cond:Ljava/util/Set;
 
-    .line 203
+    .line 240
+    iget v0, p0, Lcom/isaigu/gymapp/ai/AiProfile;->heightCm:I
+
+    if-lez v0, :cond_6c
+
+    .line 241
+    iget v0, p0, Lcom/isaigu/gymapp/ai/AiProfile;->heightCm:I
+
+    iput v0, p1, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->heightCm:I
+
+    .line 243
+    :cond_6c
+    iget-object v0, p1, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->cond:Ljava/util/Set;
+
+    const-string v1, "beta_blocker"
+
+    invoke-interface {v0, v1}, Ljava/util/Set;->contains(Ljava/lang/Object;)Z
+
+    move-result v0
+
+    if-eqz v0, :cond_7a
+
+    .line 244
+    iget-object v0, p1, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->screening:Lcom/isaigu/gymapp/ai/AiModel$Screening;
+
+    iput-boolean v5, v0, Lcom/isaigu/gymapp/ai/AiModel$Screening;->hrLoweringMedication:Z
+
+    .line 246
+    :cond_7a
     iget-wide v0, p0, Lcom/isaigu/gymapp/ai/AiProfile;->leanKg:D
 
     iput-wide v0, p1, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->leanKg:D
 
-    .line 204
+    .line 247
     iget-wide v0, p0, Lcom/isaigu/gymapp/ai/AiProfile;->skeletalKg:D
 
     iput-wide v0, p1, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->skeletalKg:D
 
-    .line 205
+    .line 248
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiProfile;->chMuscle:[D
 
     iput-object v0, p1, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->chMuscle:[D
 
-    .line 206
+    .line 249
     iget-wide v0, p0, Lcom/isaigu/gymapp/ai/AiProfile;->readiness:D
 
     iput-wide v0, p1, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->readiness:D
 
-    .line 207
+    .line 250
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiProfile;->scaleFocus:Ljava/lang/String;
 
     iput-object v0, p1, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->scaleFocus:Ljava/lang/String;
 
-    .line 208
+    .line 251
     iget-object v0, p1, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->screening:Lcom/isaigu/gymapp/ai/AiModel$Screening;
 
-    if-eqz v0, :cond_2
+    if-eqz v0, :cond_3
 
-    .line 209
+    .line 252
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiProfile;->contraindications:Ljava/util/Set;
 
     invoke-interface {v0}, Ljava/util/Set;->iterator()Ljava/util/Iterator;
 
     move-result-object v1
 
-    :cond_81
-    :goto_81
+    :cond_98
+    :goto_98
     invoke-interface {v1}, Ljava/util/Iterator;->hasNext()Z
 
     move-result v0
 
-    if-eqz v0, :cond_2
+    if-eqz v0, :cond_3
 
     invoke-interface {v1}, Ljava/util/Iterator;->next()Ljava/lang/Object;
 
@@ -1333,7 +1742,7 @@
 
     check-cast v0, Ljava/lang/String;
 
-    .line 210
+    .line 253
     iget-object v2, p1, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->screening:Lcom/isaigu/gymapp/ai/AiModel$Screening;
 
     iget-object v2, v2, Lcom/isaigu/gymapp/ai/AiModel$Screening;->contraindications:Ljava/util/Map;
@@ -1342,35 +1751,33 @@
 
     move-result v2
 
-    if-eqz v2, :cond_81
+    if-eqz v2, :cond_98
 
-    .line 211
+    .line 254
     iget-object v2, p1, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->screening:Lcom/isaigu/gymapp/ai/AiModel$Screening;
 
     iget-object v2, v2, Lcom/isaigu/gymapp/ai/AiModel$Screening;->contraindications:Ljava/util/Map;
 
-    const/4 v3, 0x1
-
-    invoke-static {v3}, Ljava/lang/Boolean;->valueOf(Z)Ljava/lang/Boolean;
+    invoke-static {v5}, Ljava/lang/Boolean;->valueOf(Z)Ljava/lang/Boolean;
 
     move-result-object v3
 
     invoke-interface {v2, v0, v3}, Ljava/util/Map;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
 
-    goto :goto_81
+    goto :goto_98
 
-    .line 193
-    :cond_a4
+    .line 230
+    :cond_ba
     add-int/lit8 v0, v0, 0x1
 
-    goto :goto_43
+    goto :goto_44
 .end method
 
 .method public personal()Lcom/isaigu/gymapp/ai/AiPersonal$Effect;
     .registers 3
 
     .prologue
-    .line 170
+    .line 207
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiProfile;->focus:Ljava/util/Set;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/ai/AiProfile;->cond:Ljava/util/Set;
@@ -1386,14 +1793,14 @@
     .registers 2
 
     .prologue
-    .line 219
+    .line 262
     new-instance v0, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
 
     invoke-direct {v0}, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;-><init>()V
 
-    .line 220
+    .line 263
     invoke-virtual {p0, v0}, Lcom/isaigu/gymapp/ai/AiProfile;->applyTo(Lcom/isaigu/gymapp/ai/AiModel$SessionInput;)V
 
-    .line 221
+    .line 264
     return-object v0
 .end method

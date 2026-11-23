@@ -35,15 +35,15 @@
     .registers 3
 
     .prologue
-    .line 141
+    .line 145
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 135
+    .line 139
     const-wide/high16 v0, 0x3ff0000000000000L    # 1.0
 
     iput-wide v0, p0, Lcom/isaigu/gymapp/ai/AiModel$CycleSpec;->sigma:D
 
-    .line 141
+    .line 145
     return-void
 .end method
 
@@ -51,30 +51,30 @@
     .registers 10
 
     .prologue
-    .line 143
+    .line 147
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 135
+    .line 139
     const-wide/high16 v0, 0x3ff0000000000000L    # 1.0
 
     iput-wide v0, p0, Lcom/isaigu/gymapp/ai/AiModel$CycleSpec;->sigma:D
 
-    .line 144
+    .line 148
     iput p1, p0, Lcom/isaigu/gymapp/ai/AiModel$CycleSpec;->hz:I
 
-    .line 145
+    .line 149
     iput p2, p0, Lcom/isaigu/gymapp/ai/AiModel$CycleSpec;->pwUs:I
 
-    .line 146
+    .line 150
     iput p3, p0, Lcom/isaigu/gymapp/ai/AiModel$CycleSpec;->onS:I
 
-    .line 147
+    .line 151
     iput p4, p0, Lcom/isaigu/gymapp/ai/AiModel$CycleSpec;->offS:I
 
-    .line 148
+    .line 152
     iput-wide p5, p0, Lcom/isaigu/gymapp/ai/AiModel$CycleSpec;->sigma:D
 
-    .line 149
+    .line 153
     return-void
 .end method
 
@@ -84,7 +84,7 @@
     .registers 9
 
     .prologue
-    .line 152
+    .line 156
     new-instance v1, Lcom/isaigu/gymapp/ai/AiModel$CycleSpec;
 
     iget v2, p0, Lcom/isaigu/gymapp/ai/AiModel$CycleSpec;->hz:I
@@ -99,17 +99,17 @@
 
     invoke-direct/range {v1 .. v7}, Lcom/isaigu/gymapp/ai/AiModel$CycleSpec;-><init>(IIIID)V
 
-    .line 153
+    .line 157
     iget v0, p0, Lcom/isaigu/gymapp/ai/AiModel$CycleSpec;->pauseHz:I
 
     iput v0, v1, Lcom/isaigu/gymapp/ai/AiModel$CycleSpec;->pauseHz:I
 
-    .line 154
+    .line 158
     iget-wide v2, p0, Lcom/isaigu/gymapp/ai/AiModel$CycleSpec;->pauseSigma:D
 
     iput-wide v2, v1, Lcom/isaigu/gymapp/ai/AiModel$CycleSpec;->pauseSigma:D
 
-    .line 155
+    .line 159
     return-object v1
 .end method
 
@@ -117,7 +117,7 @@
     .registers 5
 
     .prologue
-    .line 159
+    .line 163
     iget v0, p0, Lcom/isaigu/gymapp/ai/AiModel$CycleSpec;->pauseHz:I
 
     if-lez v0, :cond_12
@@ -149,7 +149,7 @@
     .registers 3
 
     .prologue
-    .line 163
+    .line 167
     iget v0, p0, Lcom/isaigu/gymapp/ai/AiModel$CycleSpec;->hz:I
 
     const/16 v1, 0x14

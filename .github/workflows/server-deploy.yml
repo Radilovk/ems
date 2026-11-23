@@ -1,6 +1,7 @@
 # License / client-card server (Cloudflare Worker + D1): test, apply new D1 migrations, deploy.
 # Runs on a push to main that touches the server or the card page, or by hand (Actions → Run).
-# Repository secrets: CLOUDFLARE_API_TOKEN (Workers Scripts:Edit + D1:Edit), CLOUDFLARE_ACCOUNT_ID.
+# Repository secrets: CLOUDFLARE_API_TOKEN (Workers Scripts:Edit + D1:Edit), CLOUDFLARE_ACCOUNT_ID;
+# GEMINI_API_KEY (the AI coach, /v1/ai/brief) is copied into the Worker's secret of the same name on every deploy.
 name: server-deploy
 on:
   workflow_dispatch:
@@ -35,5 +36,18 @@ jobs:
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      - name: Gemini key → the Worker's secret (the AI coach)
+        run: |
+          if [ -n "$GEMINI_API_KEY" ]; then printf '%s' "$GEMINI_API_KEY" | npx wrangler secret put GEMINI_API_KEY
+          else echo "no GEMINI_API_KEY secret in GitHub — the AI coach answers offline"; fi
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
       - name: Check
         run: curl -fsS https://license.biocode-bg.com/health
+      - name: Check — the AI coach answers (a bad token is refused before the model; 400/401 = the route is up)
+        run: |
+          code=$(curl -s -o /dev/null -w '%{http_code}' -X POST https://license.biocode-bg.com/v1/ai/brief \
+            -H 'Content-Type: application/json' -d '{"text":"x"}')
+          echo "ai/brief → $code"; test "$code" != 404

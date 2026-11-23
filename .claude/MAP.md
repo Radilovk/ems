@@ -561,6 +561,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 
 ## server (Cloudflare Worker license server)
 - `server/src/admin.js` (717L) — admin panel HTML/JS (licenses, suits/MAC, APK releases)
+- `server/src/aibrief.js` (264L) — The AI layer over the training algorithm (docs/xems-ai-brief.md): the trainer's free text (or speech) about a client
 - `server/src/card.js` (96L) — Shareable client card: validation of what the tablet sends, the link id, and the page itself.
 - `server/src/catalog.js` (39L) — Каталог на модули и функции — източник на истина за абонаменти.
 - `server/src/cert.js` (37L) — Trainer certificates (branding/certificate/index.html, served at /cert): the trainer types the name and downloads a
@@ -569,8 +570,8 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `server/src/ems.js` (136L) — MAC адреси, които влизат в жетона (активни + чакащи дистанционно сдвояване).
 - `server/src/exercises.js` (89L) — The picker groups the admin may give an exercise ('' = the library's own).
 - `server/src/history.js` (77L) — A training id is its start time in ms: digits only, else null.
-- `server/src/index.js` (1405L) — Worker entry: routes /v1/license/activate|refresh, /v1/app/update, releases, admin API, rate limits
-- `server/src/limits.js` (31L) — Caps and rate-limit settings — stay safe on Workers free tier.
+- `server/src/index.js` (1434L) — Worker entry: routes /v1/license/activate|refresh, /v1/app/update, releases, admin API, rate limits
+- `server/src/limits.js` (34L) — Caps and rate-limit settings — stay safe on Workers free tier.
 - `server/src/measures.js` (110L) — The client's scale measurements: the tablet sends each weigh-in's compact result (no impedances, no name);
 - `server/src/plans.js` (28L) — Plan presets → mods / feat arrays (applied at license creation).
 - `server/src/profile.js` (118L) — Client profiles from the booking PWA → the studio's tablets (validation, studio code, cheap limiter).
@@ -580,6 +581,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `server/src/utils.js` (130L) — Shared helpers for license server (testable, no Worker bindings).
 - `server/src/vrlog.js` (69L) — The VR game's leg recordings (owner 2026-11-10: "the legs in the game are bad — record, find the cause"): the game
 - `server/src/wiemsapp.js` (80L) — "1.21 22" → {name, code}; null when it is not that.
+- `server/test/aibrief.test.js` (89L) — 
 - `server/test/card.test.js` (104L) — 
 - `server/test/catalog.test.js` (29L) — 
 - `server/test/cert.test.js` (45L) — 

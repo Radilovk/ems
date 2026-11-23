@@ -9,6 +9,9 @@ export const LIMITS = {
   activatePerDayPerDevice: 20,
   refreshPerMinutePerDevice: 30,
   cardPerMinutePerDevice: 10,
+  // AI brief (Gemini): a trainer types / speaks a few lines per client
+  briefPerMinutePerDevice: 12,
+  briefPerDayPerLicense: 600,
   cardFindPerMinutePerIp: 20,
   profilePerMinutePerIp: 10,
   inboxPerMinutePerDevice: 6,

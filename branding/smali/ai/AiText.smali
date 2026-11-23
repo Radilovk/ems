@@ -1326,9 +1326,9 @@
 
     .line 34
     :pswitch_1d
-    const-string v0, "\u041c\u0435\u0442\u0430\u0431\u043e\u043b\u0438\u0442\u043d\u0430 \u00b7 30\u201340 \u043c\u0438\u043d"
+    const-string v0, "\u041c\u0435\u0442\u0430\u0431\u043e\u043b\u0438\u0442\u043d\u0430 \u00b7 20\u201325 \u043c\u0438\u043d"
 
-    const-string v1, "Metabolic \u00b7 30\u201340 min"
+    const-string v1, "Metabolic \u00b7 20\u201325 min"
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/ai/AiText;->t(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 

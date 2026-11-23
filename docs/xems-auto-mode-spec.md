@@ -841,3 +841,50 @@ pause and the wait for ▶ held it. A 30 min active program ran 45–47 min and 
   procedures: impulse blocks advance by counted repetitions), the Smart Session (`AiEngine.onCycle`, its exercise
   sets) counted it as a whole cycle: every counted block ended after about half its time. Now `AiSession.onPulseCycle`
   passes only the call that enters an ON phase (`data.inStart`).
+
+## 19. Safe start and the 25 min ceiling (owner, 1.1.531)
+
+Owner: "no ready program or template may start on raised values — the person raises the strength; the program's
+channels marked / preselected, the current at 0 or at the client's level from the last training; never a hard start;
+no program's active part, with its rests, over 25 min".
+
+- **Strength starts at 0, everywhere.** `AutoSession.beginCalibration` (every Auto program, template, procedure, the
+  face through `FaceAuto`), `AiSession.beginCalibration` (Smart Session) and `MapRunner.arm` (maps — already 0) put
+  every row's strength at 0. Before, Auto took the row's current strength up to 10, the Smart Session up to 15.
+  The impulses run at the program's main cycle; ▶ Старт stays pale until a row has strength.
+- **Channels:** the program's channels are on (100), the others at 0 — the row's channel sliders switch any of them
+  on (unchanged, §16). The strength is the only thing at 0.
+- **The client's last level — one tap, never automatic.** `AutoHistory.rememberStrength` keeps each client's working
+  strength at the session's end (calibration × every ± of the session), per program and overall. The setting-up board
+  shows under the row **"↗ 27 · миналия път 34, после ръчно"**; a tap rises the row to **80 %** of it at the
+  calibration's pace (+5 / s,
+  `AutoSession.riseToLast` / `riseTick`). Any hand step down stops the rise. Nothing is offered for a client without
+  history or an unregistered row.
+- **After ▶ Старт:** the run starts on the strength just set and felt; up is +5 per impulse, down free (§8).
+- **25 min:** the plan clock is the real clock (§18), so the active part *with* the rests is `activeS` ≤ 20 min
+  (`AutoPlanner.ACTIVE_MAX_S`); the passive recovery (10 min, waits for ▶) and a manual ❚❚ are extra. The Smart
+  Session: `AiPlanner.SESSION_MAX_S` = 1500 — "Отслабване" was 30–40 min, now 20–25 (default 25), the other goals
+  ≤ 25. Maps: ready ones are 6–22 min; a studio map drawn longer ends at 25 min of its clock (`MapRunner`).
+
+### 19.1 Where 50 min came from, and what stops it (owner, 1.1.532)
+
+Feedback: an "active metabolism" ran ~50 min. Possible paths, all closed now:
+1. **Before 1.1.494** (2026-11-04) the plan clock counted only impulses: a 20 min active part + its rests ran 35–37 min,
+   + 10 min recovery = 45–47 min. A tablet on an older APK still does this.
+2. **Smart Session "Метаболитна · 30–40 мин"** (AI goal FAT): 40 min + setting-up + ❚❚ ≈ 50. Now 20–25 min, label too.
+3. **The setting-up** ran the main cycle with no time limit and off the session clock. Now
+   `SafeLimits.CALIB_MAX_S` = 5 min of impulses in Auto, the Smart Session and maps: the suit stops (Auto says why),
+   ▶ Старт goes on from the set strength, a manual restart gives one more minute.
+4. **Studio maps** had no length limit: the editor now refuses a change past 25 min (`Workout.MAX_TOTAL_S`, toast),
+   and a run ends at 25 min of its clock.
+
+**Time frame:** active part ≈ 20 min *with* its recommended rests (`ACTIVE_MAX_S`). When the body asks for longer
+pauses — the HR pause, or a rest whose minimum is over but the HR is still high — that time does not eat the work: the
+active part stretches by at most 5 min and never past 25 min (`AutoPlanner.ACTIVE_CEILING_S`, `stretchS`,
+`AutoEngine.hrImposed`). Then 10 min passive recovery: ≤ 35 min in all. A manual ❚❚ stays outside (no impulses).
+**Guard:** `run-auto.sh` fails if any program × profile plans active + stretch > 25 min or the whole > 35, if any AI goal
+can exceed 25 min, or a ready map exceeds 25 min.
+
+**Channels:** the setting-up board names the program's channels ("✓ Канали на програмата: …") — they are on, the
+current is 0; the others switch on from the row.
+

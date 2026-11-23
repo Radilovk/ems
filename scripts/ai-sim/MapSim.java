@@ -43,6 +43,10 @@ public final class MapSim {
             }
         }
         check(anyDouble, "a passive program's active pause becomes a double impulse");
+        for (Workout w : Workout.presets()) {
+            check(w.totalSeconds() <= 1500, "ready map ≤ 25 min with its rests (owner, 1.1.531): " + w.id + " "
+                    + w.totalSeconds() + " s");
+        }
     }
 
     static AutoModel.Step stepOf(Workout.Block b) {

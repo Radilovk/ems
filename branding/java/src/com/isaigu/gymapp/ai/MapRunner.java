@@ -64,6 +64,8 @@ public final class MapRunner {
      * sets the total strength and each channel on the main screen, then starts. The clock and the output are still.
      */
     private static boolean waiting;
+    /** Seconds of impulses while waiting for ▶ Старт (SafeLimits.CALIB_MAX_S). */
+    private static double calibRunS;
     /** Calibration (as the automatic mode's, AutoSession CALIB): each row's strength may rise ≤ 5 per second. */
     static final double CALIB_RISE_PER_S = 5.0;
     /** Each row's strength before the map (put back when the setting-up is cancelled) and its calibration so far. */
@@ -143,6 +145,7 @@ public final class MapRunner {
         own.clear();
         wrote.clear();
         waiting = arm;
+        calibRunS = 0;
         for (TrainItem it : rows) {
             ProgramDataBean b = bean(it);
             if (!arm) {
@@ -514,6 +517,22 @@ public final class MapRunner {
         }
         if (waiting) {
             calibTick(dt);
+            if (lead.data != null && lead.data.start) {
+                calibRunS += dt;
+                if (calibRunS >= SafeLimits.CALIB_MAX_S) {
+                    // the setting-up is not on the map clock: it never runs on (owner, 1.1.532)
+                    calibRunS = SafeLimits.CALIB_MAX_S - 60;
+                    try {
+                        TrainItemManager m = AiSession.manager();
+                        if (m != null) {
+                            m.stopAll();
+                        }
+                    } catch (Throwable t) {
+                        WearableBleDiagLog.log("map", "calib stopAll: " + t);
+                    }
+                    WearableBleDiagLog.log("map", "calibration " + SafeLimits.CALIB_MAX_S + " s — suit stopped");
+                }
+            }
             updateCard(now);
             return;
         }
@@ -536,6 +555,12 @@ public final class MapRunner {
             return;
         }
         if (clock.isDone()) {
+            stop();
+            return;
+        }
+        if (clock.getElapsedS() >= Workout.MAX_TOTAL_S) {
+            // owner (1.1.531): no program runs over 25 min with its rests (a studio map drawn longer ends here)
+            WearableBleDiagLog.log("map", "25 min — closed");
             stop();
             return;
         }

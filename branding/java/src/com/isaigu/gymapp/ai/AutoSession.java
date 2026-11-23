@@ -54,6 +54,10 @@ public final class AutoSession {
         int writtenStrength = -1;
         int[] writtenZones;
         double raiseBudget = AutoLimits.RAISE_PER_CYCLE;
+        /** The strength this client last trained at (AutoHistory), 0 = none — offered, never started on. */
+        int prev;
+        /** "↗ как миналия път": the calibration rises to this at the calibration's pace; −1 = none. */
+        int target = -1;
     }
 
     private static int[] full(int n, int v) {
@@ -82,6 +86,8 @@ public final class AutoSession {
     private static AutoEngine.Cmd lastApplied;
     private static boolean zeroed;
     private static long lastTickMs;
+    /** Seconds of impulses in this calibration (SafeLimits.CALIB_MAX_S). */
+    private static double calibRunS;
     private static long lastGuardToastMs;
     private static boolean recorded;
     private static String lastNotice = "";
@@ -531,15 +537,21 @@ public final class AutoSession {
         faceMode();
         stage = Stage.CALIB;
         AutoEngine.Cmd c = calibrationCmd();
+        Context ctx = panelRoot != null ? panelRoot.getContext() : null;
         for (Row r : rows) {
             r.cal = 0;
             r.user = 1.0;
             Arrays.fill(r.zoneOffset, 0);
             Arrays.fill(r.zoneRatio, 100);
             r.raiseBudget = CALIB_RISE_PER_S;
-            int now = strengthOf(r.item);
-            r.lastStrength = r.block == null ? Math.min(now, 10) : 0;
+            // Safety (owner, 1.1.531): no program ever starts on a raised strength — every row's current is 0 and the
+            // trainer raises it (or taps "↗ как миналия път", which rises to the client's last level gradually).
+            // The program's channels are on, the others at 0 and free to switch on.
+            r.lastStrength = 0;
+            r.target = -1;
+            r.prev = r.block == null ? AutoHistory.lastStrength(ctx, r.userId, plan.program.id) : 0;
         }
+        calibRunS = 0;
         setWorkLengthAll(3600);
         writeRows(c, true);
         try {
@@ -598,8 +610,74 @@ public final class AutoSession {
             }
             int v = Math.max(0, Math.min(100, r.lastStrength + delta));
             r.lastStrength = v;
+            if (delta < 0) {
+                r.target = -1;
+            }
         }
         writeRows(written != null ? written : calibrationCmd(), true);
+    }
+
+    /** "↗ как миналия път" on one row (−1 = every row): rises to the client's last level at the calibration's pace. */
+    public static void riseToLast(int rowIndex) {
+        if (stage != Stage.CALIB) {
+            return;
+        }
+        for (int i = 0; i < rows.size(); i++) {
+            Row r = rows.get(i);
+            if ((rowIndex >= 0 && i != rowIndex) || r.block != null || r.prev <= 0) {
+                continue;
+            }
+            // 80 % of the last level (owner, 1.1.532): the same % is not the same current today (wetting, skin) and
+            // the first minutes feel stronger than the end of the last session — the last steps are by hand
+            int to = (int) Math.round(r.prev * SafeLimits.LAST_LEVEL_SHARE);
+            r.target = to > r.lastStrength ? to : -1;
+        }
+    }
+
+    /** One calibration tick of a "↗ как миналия път" rise: at most the calibration's +5 / s. */
+    private static void riseTick() {
+        boolean any = false;
+        for (Row r : rows) {
+            if (r.target < 0 || r.block != null) {
+                continue;
+            }
+            int step = (int) Math.floor(r.raiseBudget);
+            if (r.lastStrength >= r.target) {
+                r.target = -1;
+                continue;
+            }
+            if (step <= 0) {
+                continue;
+            }
+            int v = Math.min(r.target, r.lastStrength + step);
+            r.raiseBudget = Math.max(0, r.raiseBudget - (v - r.lastStrength));
+            r.lastStrength = v;
+            any = true;
+        }
+        if (any) {
+            writeRows(written != null ? written : calibrationCmd(), true);
+        }
+    }
+
+    /** The setting-up never runs on (SafeLimits.CALIB_MAX_S of impulses): the suit stops, ▶ Старт goes on. */
+    private static void calibCap(double dt, long now) {
+        if (!leaderRunning()) {
+            return;
+        }
+        calibRunS += dt;
+        if (calibRunS < SafeLimits.CALIB_MAX_S) {
+            return;
+        }
+        calibRunS = SafeLimits.CALIB_MAX_S - 60;           // a manual restart: one more minute
+        for (Row r : rows) {
+            r.target = -1;
+        }
+        stopDevice();
+        WearableBleDiagLog.log("auto", "calibration " + SafeLimits.CALIB_MAX_S + " s — suit stopped");
+        notice(AiText.t("Настройването трае над " + SafeLimits.CALIB_MAX_S / 60
+                        + " мин — импулсите спряха. „▶ Старт“ тръгва от зададената сила.",
+                "Setting up over " + SafeLimits.CALIB_MAX_S / 60 + " min — impulses stopped. ▶ Start goes on from the set strength."),
+                SAFETY, now);
     }
 
     public static boolean canStart() {
@@ -1092,6 +1170,8 @@ public final class AutoSession {
             for (Row r : rows) {
                 if (r.block == null && r.cal > 0) {
                     AutoHistory.record(c, r.userId, plan.program.isActive(), engine.getImpulseS(), now);
+                    AutoHistory.rememberStrength(c, r.userId, plan.program.id,
+                            (int) Math.round(r.cal * r.user));
                 }
             }
         }
@@ -1158,6 +1238,8 @@ public final class AutoSession {
                 r.raiseBudget = Math.min(CALIB_RISE_PER_S, r.raiseBudget + CALIB_RISE_PER_S * dt);
             }
             guard(now);
+            riseTick();
+            calibCap(dt, now);
             return;
         }
         if (stage != Stage.RUNNING || engine == null) {
@@ -1832,6 +1914,7 @@ public final class AutoSession {
                 continue;
             }
             if (s < r.writtenStrength) {
+                r.target = -1;                                 // a hand down stops a "↗ как миналия път" rise
                 acceptStrength(r, s, calib);
                 if (msgKind == INFO) {
                     msgKey = "strength_down";

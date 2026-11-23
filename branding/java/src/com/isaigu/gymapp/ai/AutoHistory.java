@@ -90,6 +90,43 @@ public final class AutoHistory {
         }
     }
 
+    // ------------------------------------------------------------------ the client's last working strength
+
+    /**
+     * The strength this client last trained at (owner, 1.1.531): a program never starts on it — the calibration starts
+     * at 0 — but the setting-up board offers it as one tap that rises to it gradually. This program first, else the
+     * client's last automatic session; 0 = none known.
+     */
+    public static int lastStrength(Context c, long userId, String programId) {
+        if (c == null || userId == 0) {
+            return 0;
+        }
+        try {
+            SharedPreferences p = c.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
+            int v = programId != null ? p.getInt("s" + userId + "|" + programId, 0) : 0;
+            return Math.max(0, Math.min(100, v > 0 ? v : p.getInt("s" + userId, 0)));
+        } catch (Throwable t) {
+            return 0;
+        }
+    }
+
+    /** The working strength a session ended on (the start strength with every ± of the session). */
+    public static void rememberStrength(Context c, long userId, String programId, int strength) {
+        if (c == null || userId == 0 || strength <= 0) {
+            return;
+        }
+        try {
+            int v = Math.min(100, strength);
+            SharedPreferences.Editor e = c.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit();
+            e.putInt("s" + userId, v);
+            if (programId != null) {
+                e.putInt("s" + userId + "|" + programId, v);
+            }
+            e.apply();
+        } catch (Throwable ignored) {
+        }
+    }
+
     // ------------------------------------------------------------------ how the template sessions went
 
     static final String TEMPLATE_PREFS = "xems_auto_templates";

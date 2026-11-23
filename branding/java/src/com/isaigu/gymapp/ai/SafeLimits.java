@@ -17,6 +17,14 @@ package com.isaigu.gymapp.ai;
  */
 public final class SafeLimits {
     public static final int HZ_MAX = 120;
+    /**
+     * Owner (1.1.532): the setting-up (calibration) runs the program's main cycle but is not on the session clock —
+     * left running it was a hidden extra session (one way an "active metabolism" ran ~50 min). After this many seconds
+     * of impulses the suit stops; ▶ Старт goes on from the strength set, a manual restart gives one more minute.
+     */
+    public static final int CALIB_MAX_S = 300;
+    /** "↗ като миналия път" rises to this share of the last level; the rest is the trainer's, by today's feeling. */
+    public static final double LAST_LEVEL_SHARE = 0.8;
     public static final int HZ_MAX_60 = 85;
     public static final int PW_MIN = 50;
     public static final int PW_MAX = 400;

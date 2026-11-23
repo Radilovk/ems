@@ -1588,10 +1588,32 @@ public final class AutoEngine {
         if (!clockRuns() || dt <= 0) {
             return;
         }
+        if (stretchUsedS < AutoPlanner.stretchS(plan) && hrImposed(now)) {
+            // the heart asks for a longer pause: it does not eat the work — the active part stretches (≤ 25 min)
+            double s = Math.min(dt, AutoPlanner.stretchS(plan) - stretchUsedS);
+            stretchUsedS += s;
+            imposedS += s;
+            dt -= s;
+        }
         elapsedS += dt;
         if (state == State.RUN) {
             runS += dt;
         }
+    }
+
+    /** Seconds the active part has stretched for HR pauses (owner, 1.1.532; ≤ AutoPlanner.stretchS). */
+    private double stretchUsedS;
+
+    public double getStretchS() {
+        return stretchUsedS;
+    }
+
+    /** A pause the body asks for, past the planned rest: the HR pause, or a rest whose minimum is over but HR is high. */
+    private boolean hrImposed(long now) {
+        if (state == State.HR_PAUSE) {
+            return true;
+        }
+        return state == State.REST && !restBeforeCooldown && getRestLeftS(now) == 0 && isRestHrHigh(now);
     }
 
     /**

@@ -39,11 +39,22 @@ public final class AutoSim {
                         }
                         runPlan(in, false);
                         runs++;
+                        // owner (1.1.531): the active part with its rests ≤ 25 min — the plan clock is the real clock
+                        AutoModel.Plan cp = AutoPlanner.build(in, 68);
+                        check(cp.activeS + AutoPlanner.stretchS(cp) <= 1500 && cp.totalS - cp.recoveryS <= 1500
+                                        && cp.activeS + AutoPlanner.stretchS(cp) + cp.recoveryS <= 2100,
+                                p.id + ": active with rests (+ HR stretch) ≤ 25 min, with the recovery ≤ 35 ("
+                                        + cp.activeS + " s)");
                     }
                 }
             }
         }
         System.out.println("full runs: " + runs);
+        // the Smart Session: every goal, any minutes asked — never over 25 min with its rests (owner, 1.1.531)
+        for (com.isaigu.gymapp.ai.AiModel.Goal g : com.isaigu.gymapp.ai.AiModel.Goal.values()) {
+            check(com.isaigu.gymapp.ai.AiPlanner.defaultSeconds(g) <= 1500
+                    && com.isaigu.gymapp.ai.AiPlanner.clampSeconds(g, 99999) <= 1500, "AI " + g + " ≤ 25 min");
+        }
         bySex();
         classifiers();
         todayStates();
@@ -456,13 +467,25 @@ public final class AutoSim {
             }
             check(e.getState() == AutoEngine.State.HR_PAUSE, op + ": HR ≥ cap → pause");
             double el = e.getElapsedS();
+            double st0 = e.getStretchS();
             for (int i = 0; i < 15; i++) {
                 t += 1000;
                 e.onHr(t, plan.hrCap - 25);
                 e.tick(t);
             }
-            check(Math.abs(e.getElapsedS() - el - 15) < 1e-6 && e.getState() == AutoEngine.State.HR_PAUSE,
-                    op + ": plan clock runs on in the HR pause (real clock, 1.1.494)");
+            // owner (1.1.532): a pause the heart asks for stretches the active part (≤ 5 min, never past 25 min)
+            check(Math.abs(e.getElapsedS() - el - (15 - (e.getStretchS() - st0))) < 1e-6
+                    && e.getStretchS() > 0 && e.getState() == AutoEngine.State.HR_PAUSE,
+                    op + ": the HR pause stretches the active part (" + e.getStretchS() + " s)");
+            for (int i = 0; i < 900; i++) {                   // the heart stays high 15 min
+                t += 1000;
+                e.onHr(t, plan.hrCap + 2);
+                e.tick(t);
+            }
+            int room = AutoPlanner.stretchS(plan);
+            check(Math.abs(e.getStretchS() - room) < 1e-6 && room <= AutoPlanner.STRETCH_MAX_S
+                    && plan.activeS + room <= AutoPlanner.ACTIVE_CEILING_S,
+                    op + ": the stretch stops at its room (" + e.getStretchS() + " / " + room + "), active ≤ 25 min");
             for (int i = 0; i < 25; i++) {
                 t += 1000;
                 e.onHr(t, plan.hrCap - 25);

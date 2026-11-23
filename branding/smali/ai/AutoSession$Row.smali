@@ -29,7 +29,11 @@
 
 .field plan:Lcom/isaigu/gymapp/ai/AutoModel$Plan;
 
+.field prev:I
+
 .field raiseBudget:D
+
+.field target:I
 
 .field user:D
 
@@ -91,6 +95,9 @@
     const-wide/high16 v0, 0x4014000000000000L    # 5.0
 
     iput-wide v0, p0, Lcom/isaigu/gymapp/ai/AutoSession$Row;->raiseBudget:D
+
+    .line 60
+    iput v2, p0, Lcom/isaigu/gymapp/ai/AutoSession$Row;->target:I
 
     return-void
 .end method

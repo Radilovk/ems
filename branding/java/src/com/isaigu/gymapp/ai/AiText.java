@@ -31,7 +31,7 @@ final class AiText {
     static String goalHint(AiModel.Goal g) {
         switch (g) {
             case TONE: return t("Сила и стягане · до 20 мин", "Strength · up to 20 min");
-            case FAT: return t("Метаболитна · 30–40 мин", "Metabolic · 30–40 min");
+            case FAT: return t("Метаболитна · 20–25 мин", "Metabolic · 20–25 min");
             case MASSAGE: return t("Отпускане · ниски честоти", "Relax · low frequency");
             case DRAIN: return t("Лимфен поток · 1 Hz", "Lymph flow · 1 Hz");
             default: return t("Бедра и седалище", "Thighs and glutes");

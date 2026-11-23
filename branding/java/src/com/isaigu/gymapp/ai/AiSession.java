@@ -51,6 +51,8 @@ public final class AiSession {
     private static boolean exercisesSaved;
 
     private static int calibPercent;
+    /** Seconds of calibration impulses (SafeLimits.CALIB_MAX_S). */
+    private static double calibRunS;
     private static boolean calibStimOn;
     private static boolean soloAutoRamp;
     private static double soloAccum;
@@ -322,7 +324,8 @@ public final class AiSession {
 
     public static void beginCalibration() {
         stage = Stage.CALIB;
-        calibPercent = Math.max(0, Math.min(15, currentStrength()));
+        calibPercent = 0;                    // safety (owner, 1.1.531): never start on a raised strength
+        calibRunS = 0;
         calibStimOn = false;
         soloAutoRamp = false;
         startTicker();
@@ -333,6 +336,7 @@ public final class AiSession {
             return;
         }
         calibStimOn = true;
+        calibRunS = Math.min(calibRunS, SafeLimits.CALIB_MAX_S - 60);
         setWorkLengthAll(3600);
         applyCalibration();
         try {
@@ -691,6 +695,15 @@ public final class AiSession {
         }
         if (stage == Stage.CALIB && calibStimOn) {
             guardManualChanges(now);
+            calibRunS += dtS;
+            if (calibRunS >= SafeLimits.CALIB_MAX_S) {
+                // the calibration is not on the session clock: it never runs on (owner, 1.1.532)
+                calibStimOn = false;
+                soloAutoRamp = false;
+                stopDevice();
+                WearableBleDiagLog.log("ai", "calibration " + SafeLimits.CALIB_MAX_S + " s — stim stopped");
+                return;
+            }
         }
         if (stage == Stage.CALIB && soloAutoRamp && calibStimOn) {
             soloAccum += SOLO_CALIB_STEP_PER_S * dtS;

@@ -53,26 +53,26 @@
     .prologue
     const/16 v1, 0x1f4
 
-    .line 70
+    .line 72
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 58
+    .line 60
     const/4 v0, 0x7
 
     iput v0, p0, Lcom/isaigu/gymapp/ai/Workout$Block;->hz2:I
 
-    .line 59
+    .line 61
     const/16 v0, 0x2d
 
     iput v0, p0, Lcom/isaigu/gymapp/ai/Workout$Block;->str2:I
 
-    .line 61
+    .line 63
     iput v1, p0, Lcom/isaigu/gymapp/ai/Workout$Block;->rampIn:I
 
-    .line 62
+    .line 64
     iput v1, p0, Lcom/isaigu/gymapp/ai/Workout$Block;->rampOut:I
 
-    .line 70
+    .line 72
     return-void
 .end method
 
@@ -90,29 +90,29 @@
 
     const/16 v1, 0xa
 
-    .line 72
+    .line 74
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 58
+    .line 60
     const/4 v0, 0x7
 
     iput v0, p0, Lcom/isaigu/gymapp/ai/Workout$Block;->hz2:I
 
-    .line 59
+    .line 61
     const/16 v0, 0x2d
 
     iput v0, p0, Lcom/isaigu/gymapp/ai/Workout$Block;->str2:I
 
-    .line 61
+    .line 63
     iput v5, p0, Lcom/isaigu/gymapp/ai/Workout$Block;->rampIn:I
 
-    .line 62
+    .line 64
     iput v5, p0, Lcom/isaigu/gymapp/ai/Workout$Block;->rampOut:I
 
-    .line 73
+    .line 75
     iput-object p1, p0, Lcom/isaigu/gymapp/ai/Workout$Block;->ex:Ljava/lang/String;
 
-    .line 74
+    .line 76
     const/16 v0, 0x78
 
     invoke-static {p3, v3, v0}, Lcom/isaigu/gymapp/ai/Workout;->clamp(III)I
@@ -121,7 +121,7 @@
 
     iput v0, p0, Lcom/isaigu/gymapp/ai/Workout$Block;->hz:I
 
-    .line 75
+    .line 77
     const/16 v0, 0x190
 
     invoke-static {p4, v4, v0}, Lcom/isaigu/gymapp/ai/Workout;->clamp(III)I
@@ -130,28 +130,28 @@
 
     iput v0, p0, Lcom/isaigu/gymapp/ai/Workout$Block;->pw:I
 
-    .line 76
+    .line 78
     invoke-static {p5, v3, v1}, Lcom/isaigu/gymapp/ai/Workout;->clamp(III)I
 
     move-result v0
 
     iput v0, p0, Lcom/isaigu/gymapp/ai/Workout$Block;->on:I
 
-    .line 77
+    .line 79
     invoke-static {p6, v2, v1}, Lcom/isaigu/gymapp/ai/Workout;->clamp(III)I
 
     move-result v0
 
     iput v0, p0, Lcom/isaigu/gymapp/ai/Workout$Block;->off:I
 
-    .line 78
+    .line 80
     invoke-static {p7, v2, v4}, Lcom/isaigu/gymapp/ai/Workout;->clamp(III)I
 
     move-result v0
 
     iput v0, p0, Lcom/isaigu/gymapp/ai/Workout$Block;->rel:I
 
-    .line 79
+    .line 81
     invoke-virtual {p0}, Lcom/isaigu/gymapp/ai/Workout$Block;->isRest()Z
 
     move-result v0
@@ -167,10 +167,10 @@
     :goto_46
     iput v0, p0, Lcom/isaigu/gymapp/ai/Workout$Block;->reps:I
 
-    .line 80
+    .line 82
     return-void
 
-    .line 79
+    .line 81
     :cond_49
     const/4 v0, 0x3
 
@@ -199,7 +199,7 @@
 
     const/4 v3, 0x1
 
-    .line 122
+    .line 124
     iget v0, p0, Lcom/isaigu/gymapp/ai/Workout$Block;->hz:I
 
     const/16 v1, 0x78
@@ -210,7 +210,7 @@
 
     iput v0, p0, Lcom/isaigu/gymapp/ai/Workout$Block;->hz:I
 
-    .line 123
+    .line 125
     iget v0, p0, Lcom/isaigu/gymapp/ai/Workout$Block;->pw:I
 
     const/16 v1, 0x190
@@ -221,7 +221,7 @@
 
     iput v0, p0, Lcom/isaigu/gymapp/ai/Workout$Block;->pw:I
 
-    .line 124
+    .line 126
     iget v0, p0, Lcom/isaigu/gymapp/ai/Workout$Block;->on:I
 
     invoke-static {v0, v3, v5}, Lcom/isaigu/gymapp/ai/Workout;->clamp(III)I
@@ -230,7 +230,7 @@
 
     iput v0, p0, Lcom/isaigu/gymapp/ai/Workout$Block;->on:I
 
-    .line 125
+    .line 127
     iget v0, p0, Lcom/isaigu/gymapp/ai/Workout$Block;->off:I
 
     invoke-static {v0, v4, v5}, Lcom/isaigu/gymapp/ai/Workout;->clamp(III)I
@@ -239,7 +239,7 @@
 
     iput v0, p0, Lcom/isaigu/gymapp/ai/Workout$Block;->off:I
 
-    .line 126
+    .line 128
     iget v0, p0, Lcom/isaigu/gymapp/ai/Workout$Block;->rel:I
 
     invoke-static {v0, v4, v6}, Lcom/isaigu/gymapp/ai/Workout;->clamp(III)I
@@ -248,7 +248,7 @@
 
     iput v0, p0, Lcom/isaigu/gymapp/ai/Workout$Block;->rel:I
 
-    .line 127
+    .line 129
     invoke-virtual {p0}, Lcom/isaigu/gymapp/ai/Workout$Block;->isRest()Z
 
     move-result v0
@@ -266,7 +266,7 @@
     :goto_42
     iput v0, p0, Lcom/isaigu/gymapp/ai/Workout$Block;->reps:I
 
-    .line 128
+    .line 130
     iget v0, p0, Lcom/isaigu/gymapp/ai/Workout$Block;->hz2:I
 
     invoke-static {v0, v3, v5}, Lcom/isaigu/gymapp/ai/Workout;->clamp(III)I
@@ -275,7 +275,7 @@
 
     iput v0, p0, Lcom/isaigu/gymapp/ai/Workout$Block;->hz2:I
 
-    .line 129
+    .line 131
     iget v0, p0, Lcom/isaigu/gymapp/ai/Workout$Block;->str2:I
 
     const/4 v1, 0x5
@@ -286,7 +286,7 @@
 
     iput v0, p0, Lcom/isaigu/gymapp/ai/Workout$Block;->str2:I
 
-    .line 130
+    .line 132
     iget v0, p0, Lcom/isaigu/gymapp/ai/Workout$Block;->rampIn:I
 
     int-to-float v0, v0
@@ -307,7 +307,7 @@
 
     iput v0, p0, Lcom/isaigu/gymapp/ai/Workout$Block;->rampIn:I
 
-    .line 131
+    .line 133
     iget v0, p0, Lcom/isaigu/gymapp/ai/Workout$Block;->rampOut:I
 
     int-to-float v0, v0
@@ -328,7 +328,7 @@
 
     iput v0, p0, Lcom/isaigu/gymapp/ai/Workout$Block;->rampOut:I
 
-    .line 132
+    .line 134
     iget-boolean v0, p0, Lcom/isaigu/gymapp/ai/Workout$Block;->dbl:Z
 
     if-eqz v0, :cond_83
@@ -337,14 +337,14 @@
 
     if-ge v0, v3, :cond_83
 
-    .line 133
+    .line 135
     iput v3, p0, Lcom/isaigu/gymapp/ai/Workout$Block;->off:I
 
-    .line 135
+    .line 137
     :cond_83
     return-void
 
-    .line 127
+    .line 129
     :cond_84
     iget v0, p0, Lcom/isaigu/gymapp/ai/Workout$Block;->reps:I
 
@@ -363,87 +363,87 @@
     .registers 3
 
     .prologue
-    .line 96
+    .line 98
     new-instance v0, Lcom/isaigu/gymapp/ai/Workout$Block;
 
     invoke-direct {v0}, Lcom/isaigu/gymapp/ai/Workout$Block;-><init>()V
 
-    .line 97
+    .line 99
     iget-object v1, p0, Lcom/isaigu/gymapp/ai/Workout$Block;->ex:Ljava/lang/String;
 
     iput-object v1, v0, Lcom/isaigu/gymapp/ai/Workout$Block;->ex:Ljava/lang/String;
 
-    .line 98
+    .line 100
     iget v1, p0, Lcom/isaigu/gymapp/ai/Workout$Block;->reps:I
 
     iput v1, v0, Lcom/isaigu/gymapp/ai/Workout$Block;->reps:I
 
-    .line 99
+    .line 101
     iget v1, p0, Lcom/isaigu/gymapp/ai/Workout$Block;->hz:I
 
     iput v1, v0, Lcom/isaigu/gymapp/ai/Workout$Block;->hz:I
 
-    .line 100
+    .line 102
     iget v1, p0, Lcom/isaigu/gymapp/ai/Workout$Block;->pw:I
 
     iput v1, v0, Lcom/isaigu/gymapp/ai/Workout$Block;->pw:I
 
-    .line 101
+    .line 103
     iget v1, p0, Lcom/isaigu/gymapp/ai/Workout$Block;->on:I
 
     iput v1, v0, Lcom/isaigu/gymapp/ai/Workout$Block;->on:I
 
-    .line 102
+    .line 104
     iget v1, p0, Lcom/isaigu/gymapp/ai/Workout$Block;->off:I
 
     iput v1, v0, Lcom/isaigu/gymapp/ai/Workout$Block;->off:I
 
-    .line 103
+    .line 105
     iget v1, p0, Lcom/isaigu/gymapp/ai/Workout$Block;->rel:I
 
     iput v1, v0, Lcom/isaigu/gymapp/ai/Workout$Block;->rel:I
 
-    .line 104
+    .line 106
     iget-boolean v1, p0, Lcom/isaigu/gymapp/ai/Workout$Block;->dbl:Z
 
     iput-boolean v1, v0, Lcom/isaigu/gymapp/ai/Workout$Block;->dbl:Z
 
-    .line 105
+    .line 107
     iget v1, p0, Lcom/isaigu/gymapp/ai/Workout$Block;->hz2:I
 
     iput v1, v0, Lcom/isaigu/gymapp/ai/Workout$Block;->hz2:I
 
-    .line 106
+    .line 108
     iget v1, p0, Lcom/isaigu/gymapp/ai/Workout$Block;->str2:I
 
     iput v1, v0, Lcom/isaigu/gymapp/ai/Workout$Block;->str2:I
 
-    .line 107
+    .line 109
     iget v1, p0, Lcom/isaigu/gymapp/ai/Workout$Block;->rampIn:I
 
     iput v1, v0, Lcom/isaigu/gymapp/ai/Workout$Block;->rampIn:I
 
-    .line 108
+    .line 110
     iget v1, p0, Lcom/isaigu/gymapp/ai/Workout$Block;->rampOut:I
 
     iput v1, v0, Lcom/isaigu/gymapp/ai/Workout$Block;->rampOut:I
 
-    .line 109
+    .line 111
     iget-object v1, p0, Lcom/isaigu/gymapp/ai/Workout$Block;->pat:Ljava/lang/String;
 
     iput-object v1, v0, Lcom/isaigu/gymapp/ai/Workout$Block;->pat:Ljava/lang/String;
 
-    .line 110
+    .line 112
     iget-boolean v1, p0, Lcom/isaigu/gymapp/ai/Workout$Block;->hold:Z
 
     iput-boolean v1, v0, Lcom/isaigu/gymapp/ai/Workout$Block;->hold:Z
 
-    .line 111
+    .line 113
     iget-boolean v1, p0, Lcom/isaigu/gymapp/ai/Workout$Block;->lock:Z
 
     iput-boolean v1, v0, Lcom/isaigu/gymapp/ai/Workout$Block;->lock:Z
 
-    .line 112
+    .line 114
     return-object v0
 .end method
 
@@ -451,7 +451,7 @@
     .registers 2
 
     .prologue
-    .line 87
+    .line 89
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/Workout$Block;->ex:Ljava/lang/String;
 
     if-eqz v0, :cond_c
@@ -477,7 +477,7 @@
     .registers 2
 
     .prologue
-    .line 83
+    .line 85
     iget v0, p0, Lcom/isaigu/gymapp/ai/Workout$Block;->rel:I
 
     if-gtz v0, :cond_6
@@ -497,7 +497,7 @@
     .registers 3
 
     .prologue
-    .line 117
+    .line 119
     const/4 v0, 0x1
 
     iget v1, p0, Lcom/isaigu/gymapp/ai/Workout$Block;->off:I
@@ -513,7 +513,7 @@
     .registers 5
 
     .prologue
-    .line 92
+    .line 94
     invoke-virtual {p0}, Lcom/isaigu/gymapp/ai/Workout$Block;->isRest()Z
 
     move-result v0

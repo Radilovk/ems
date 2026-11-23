@@ -225,39 +225,59 @@ async function currentModel(env, fetchImpl, ts) {
   return name;
 }
 
+/** Least thinking a model takes: none on 2.x Flash, "minimal" on 3.x — short, fast answers (owner, 1.1.535). */
+export function thinkingFor(model) {
+  if (/^gemini-2\./.test(model)) return { thinkingBudget: 0 };
+  if (/^gemini-\d/.test(model)) return { thinkingLevel: 'minimal' };
+  return null;
+}
+
+/**
+ * One structured call: system + user text → the JSON the schema asks for. A model that refuses the thinking setting
+ * (400) is asked once more without it. Throws on a model / network failure (the tablet keeps what it has).
+ */
+export async function generateJson(env, system, userText, schema, maxTokens, fetchImpl = fetch, ts = Date.now()) {
+  if (!env.GEMINI_API_KEY) throw new Error('no_key');
+  const model = await currentModel(env, fetchImpl, ts);
+  const think = thinkingFor(model);
+  for (let attempt = 0; attempt < 2; attempt++) {
+    const gen = {
+      temperature: 0,
+      responseMimeType: 'application/json',
+      responseSchema: schema,
+      maxOutputTokens: maxTokens,
+    };
+    if (think && attempt === 0) gen.thinkingConfig = think;
+    const res = await fetchImpl(`${API}/models/${encodeURIComponent(model)}:generateContent`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-goog-api-key': env.GEMINI_API_KEY },
+      body: JSON.stringify({
+        systemInstruction: { parts: [{ text: system }] },
+        contents: [{ role: 'user', parts: [{ text: userText }] }],
+        generationConfig: gen,
+      }),
+    });
+    if (res.status === 400 && think && attempt === 0) continue;
+    if (!res.ok) {
+      if (res.status === 404) resetModelCache();
+      throw new Error(`gemini ${res.status}`);
+    }
+    const j = await res.json();
+    const text = j?.candidates?.[0]?.content?.parts?.filter((p) => !p.thought).map((p) => p.text || '').join('') || '';
+    try {
+      return { model, raw: JSON.parse(text) };
+    } catch {
+      throw new Error('bad_json');
+    }
+  }
+  throw new Error('gemini 400');
+}
+
 /** One brief: text + context → validated patch. Throws on a model / network failure (the tablet keeps its plan). */
 export async function brief(env, body, fetchImpl = fetch, ts = Date.now()) {
-  if (!env.GEMINI_API_KEY) throw new Error('no_key');
   const programs = Array.isArray(body.menu)
     ? body.menu.map((m) => String(m?.id || '')).filter((id) => /^[a-z0-9_]{1,40}$/.test(id)).slice(0, 60)
     : [];
-  const model = await currentModel(env, fetchImpl, ts);
-  const req = {
-    systemInstruction: { parts: [{ text: SYSTEM }] },
-    contents: [{ role: 'user', parts: [{ text: buildPrompt(body) }] }],
-    generationConfig: {
-      temperature: 0,
-      responseMimeType: 'application/json',
-      responseSchema: responseSchema(programs),
-      maxOutputTokens: 1024,
-    },
-  };
-  const res = await fetchImpl(`${API}/models/${encodeURIComponent(model)}:generateContent`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'x-goog-api-key': env.GEMINI_API_KEY },
-    body: JSON.stringify(req),
-  });
-  if (!res.ok) {
-    if (res.status === 404) resetModelCache();
-    throw new Error(`gemini ${res.status}`);
-  }
-  const j = await res.json();
-  const text = j?.candidates?.[0]?.content?.parts?.map((p) => p.text || '').join('') || '';
-  let raw;
-  try {
-    raw = JSON.parse(text);
-  } catch {
-    throw new Error('bad_json');
-  }
-  return { model, patch: validatePatch(raw, programs) };
+  const r = await generateJson(env, SYSTEM, buildPrompt(body), responseSchema(programs), 1024, fetchImpl, ts);
+  return { model: r.model, patch: validatePatch(r.raw, programs) };
 }

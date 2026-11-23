@@ -15,6 +15,7 @@ import { handleUnitUpdate, handleUnitPack, handleUnitLog, handleUnitLogRead, adm
 import { handleVrlogPut, handleVrlogGet } from './vrlog.js';
 import { handleCertIssue } from './cert.js';
 import { brief, BRIEF_MAX_BYTES } from './aibrief.js';
+import { coach } from './aicoach.js';
 import certHtml from '../../branding/certificate/index.html';
 import { handleWiemsUpdate, handleWiemsApk, handleWiemsSeen } from './wiemsapp.js';
 import {
@@ -414,6 +415,10 @@ async function handleAiBrief(request, env) {
   if (!lic || lic.status === 'disabled' || lic.status === 'revoked') return err('revoked', 'License revoked');
   if (lic.expires_at && lic.expires_at < now()) return err('expired', 'License expired');
   try {
+    if (body.kind === 'coach') {
+      const r = await coach(env, body);
+      return json({ ok: true, model: r.model, coach: r.coach });
+    }
     const r = await brief(env, body);
     return json({ ok: true, model: r.model, patch: r.patch });
   } catch (e) {

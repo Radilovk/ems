@@ -17,6 +17,10 @@ re-tune it live: a wizard of questions → the algorithm → a free-text dialogu
    Every answer that changes an input re-plans at once. **Advice**: exercise type, load, what to do in the rests,
    own body or light weights, before / during / after (food, water, electrolytes only when they make sense).
    A client: **"✓ Запази в профила"** saves what the dialogue found (conditions, medicines) — only on that tap.
+   **Without a band (1.1.536):** no band paired → the resting-HR screen is skipped; paired but no pulse →
+   "Без гривна ›" on it. The plan then runs on the fatigue model alone (`AiPlanner`: NO_BAND, safety only, no HR
+   control) and asks "how hard, 1–10" at its checkpoints (CR-10) instead of reading the pulse. "↻ Измери пулса"
+   goes back to the band.
 3. **▶ Към старта** → the strength (from 0) → ▶.
 4. **During the session: ✦ Чат** (run screen footer) — the same dialogue over the session. "по-леко", "пауза",
    "по-дълги почивки", "по-кратки импулси", "още 5 минути и край", "кръстът го боли" → the session changes now.

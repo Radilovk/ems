@@ -48,16 +48,16 @@
     .end annotation
 
     .prologue
-    .line 627
+    .line 632
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 628
+    .line 633
     iput-object p1, p0, Lcom/isaigu/gymapp/ai/AiUi$TodayToggle;->today:Ljava/util/Set;
 
-    .line 629
+    .line 634
     iput-object p2, p0, Lcom/isaigu/gymapp/ai/AiUi$TodayToggle;->key:Ljava/lang/String;
 
-    .line 630
+    .line 635
     return-void
 .end method
 
@@ -67,7 +67,7 @@
     .registers 4
 
     .prologue
-    .line 634
+    .line 639
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiUi$TodayToggle;->today:Ljava/util/Set;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/ai/AiUi$TodayToggle;->key:Ljava/lang/String;
@@ -78,20 +78,20 @@
 
     if-nez v0, :cond_11
 
-    .line 635
+    .line 640
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiUi$TodayToggle;->today:Ljava/util/Set;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/ai/AiUi$TodayToggle;->key:Ljava/lang/String;
 
     invoke-interface {v0, v1}, Ljava/util/Set;->add(Ljava/lang/Object;)Z
 
-    .line 637
+    .line 642
     :cond_11
     const/4 v0, 0x0
 
     # invokes: Lcom/isaigu/gymapp/ai/AiUi;->go(I)V
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/AiUi;->access$400(I)V
 
-    .line 638
+    .line 643
     return-void
 .end method

@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 808
+    .line 822
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -36,7 +36,7 @@
     .prologue
     const/4 v1, 0x1
 
-    .line 811
+    .line 825
     # getter for: Lcom/isaigu/gymapp/ai/AiUi;->dialog:Landroid/app/Dialog;
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiUi;->access$900()Landroid/app/Dialog;
 
@@ -62,11 +62,11 @@
 
     if-ne v0, v1, :cond_1a
 
-    .line 812
+    .line 826
     # invokes: Lcom/isaigu/gymapp/ai/AiUi;->go(I)V
     invoke-static {v1}, Lcom/isaigu/gymapp/ai/AiUi;->access$400(I)V
 
-    .line 814
+    .line 828
     :cond_1a
     return-void
 .end method

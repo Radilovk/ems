@@ -3,12 +3,12 @@
 .source "AiUi.java"
 
 # interfaces
-.implements Lcom/isaigu/gymapp/ai/AiUi$SegmentCallback;
+.implements Landroid/view/View$OnClickListener;
 
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/isaigu/gymapp/ai/AiUi;->screenGoal(Landroid/content/Context;)V
+    value = Lcom/isaigu/gymapp/ai/AiUi;->clientBlock(Landroid/content/Context;Landroid/widget/LinearLayout;)V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -17,23 +17,12 @@
 .end annotation
 
 
-# instance fields
-.field final synthetic val$in:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
-
-
 # direct methods
-.method constructor <init>(Lcom/isaigu/gymapp/ai/AiModel$SessionInput;)V
-    .registers 2
-    .annotation system Ldalvik/annotation/Signature;
-        value = {
-            "()V"
-        }
-    .end annotation
+.method constructor <init>()V
+    .registers 1
 
     .prologue
-    .line 516
-    iput-object p1, p0, Lcom/isaigu/gymapp/ai/AiUi$2;->val$in:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
-
+    .line 538
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -41,32 +30,22 @@
 
 
 # virtual methods
-.method public onSelect(I)V
-    .registers 4
+.method public onClick(Landroid/view/View;)V
+    .registers 3
 
     .prologue
-    .line 519
-    iget-object v1, p0, Lcom/isaigu/gymapp/ai/AiUi$2;->val$in:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
+    .line 541
+    const/4 v0, 0x1
 
-    if-nez p1, :cond_d
+    # setter for: Lcom/isaigu/gymapp/ai/AiUi;->profileOpen:Z
+    invoke-static {v0}, Lcom/isaigu/gymapp/ai/AiUi;->access$502(Z)Z
 
-    sget-object v0, Lcom/isaigu/gymapp/ai/AiModel$Mode;->ACTIVE:Lcom/isaigu/gymapp/ai/AiModel$Mode;
-
-    :goto_6
-    iput-object v0, v1, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->mode:Lcom/isaigu/gymapp/ai/AiModel$Mode;
-
-    .line 520
+    .line 542
     const/4 v0, 0x0
 
     # invokes: Lcom/isaigu/gymapp/ai/AiUi;->go(I)V
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/AiUi;->access$400(I)V
 
-    .line 521
+    .line 543
     return-void
-
-    .line 519
-    :cond_d
-    sget-object v0, Lcom/isaigu/gymapp/ai/AiModel$Mode;->PASSIVE:Lcom/isaigu/gymapp/ai/AiModel$Mode;
-
-    goto :goto_6
 .end method

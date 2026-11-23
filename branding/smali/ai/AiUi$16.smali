@@ -8,7 +8,7 @@
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/isaigu/gymapp/ai/AiUi;->screenRun(Landroid/content/Context;)V
+    value = Lcom/isaigu/gymapp/ai/AiUi;->renderOverlay(Landroid/content/Context;Landroid/widget/FrameLayout;Lcom/isaigu/gymapp/ai/AiEngine;J)V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -17,23 +17,12 @@
 .end annotation
 
 
-# instance fields
-.field final synthetic val$e:Lcom/isaigu/gymapp/ai/AiEngine;
-
-
 # direct methods
-.method constructor <init>(Lcom/isaigu/gymapp/ai/AiEngine;)V
-    .registers 2
-    .annotation system Ldalvik/annotation/Signature;
-        value = {
-            "()V"
-        }
-    .end annotation
+.method constructor <init>()V
+    .registers 1
 
     .prologue
-    .line 1271
-    iput-object p1, p0, Lcom/isaigu/gymapp/ai/AiUi$16;->val$e:Lcom/isaigu/gymapp/ai/AiEngine;
-
+    .line 1384
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -42,29 +31,12 @@
 
 # virtual methods
 .method public onClick(Landroid/view/View;)V
-    .registers 3
+    .registers 2
 
     .prologue
-    .line 1274
-    iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiUi$16;->val$e:Lcom/isaigu/gymapp/ai/AiEngine;
+    .line 1387
+    invoke-static {}, Lcom/isaigu/gymapp/ai/AiSession;->togglePause()V
 
-    invoke-virtual {v0}, Lcom/isaigu/gymapp/ai/AiEngine;->isActivePauseOn()Z
-
-    move-result v0
-
-    if-nez v0, :cond_d
-
-    const/4 v0, 0x1
-
-    :goto_9
-    invoke-static {v0}, Lcom/isaigu/gymapp/ai/AiSession;->setActivePause(Z)V
-
-    .line 1275
+    .line 1388
     return-void
-
-    .line 1274
-    :cond_d
-    const/4 v0, 0x0
-
-    goto :goto_9
 .end method

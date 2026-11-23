@@ -3,7 +3,7 @@
 .source "AiUi.java"
 
 # interfaces
-.implements Landroid/view/View$OnClickListener;
+.implements Lcom/isaigu/gymapp/ai/AiUi$StepperCallback;
 
 
 # annotations
@@ -17,12 +17,23 @@
 .end annotation
 
 
+# instance fields
+.field final synthetic val$in:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
+
+
 # direct methods
-.method constructor <init>()V
-    .registers 1
+.method constructor <init>(Lcom/isaigu/gymapp/ai/AiModel$SessionInput;)V
+    .registers 2
+    .annotation system Ldalvik/annotation/Signature;
+        value = {
+            "()V"
+        }
+    .end annotation
 
     .prologue
-    .line 629
+    .line 576
+    iput-object p1, p0, Lcom/isaigu/gymapp/ai/AiUi$6;->val$in:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
+
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -30,22 +41,47 @@
 
 
 # virtual methods
-.method public onClick(Landroid/view/View;)V
-    .registers 3
+.method public onDelta(I)V
+    .registers 12
 
     .prologue
-    .line 632
-    const/4 v0, 0x1
+    .line 579
+    iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiUi$6;->val$in:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
 
-    # setter for: Lcom/isaigu/gymapp/ai/AiUi;->profileOpen:Z
-    invoke-static {v0}, Lcom/isaigu/gymapp/ai/AiUi;->access$502(Z)Z
+    const-wide/16 v2, 0x23
 
-    .line 633
+    const-wide/16 v4, 0xc8
+
+    iget-object v1, p0, Lcom/isaigu/gymapp/ai/AiUi$6;->val$in:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
+
+    iget-wide v6, v1, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->weightKg:D
+
+    invoke-static {v6, v7}, Ljava/lang/Math;->round(D)J
+
+    move-result-wide v6
+
+    int-to-long v8, p1
+
+    add-long/2addr v6, v8
+
+    invoke-static {v4, v5, v6, v7}, Ljava/lang/Math;->min(JJ)J
+
+    move-result-wide v4
+
+    invoke-static {v2, v3, v4, v5}, Ljava/lang/Math;->max(JJ)J
+
+    move-result-wide v2
+
+    long-to-double v2, v2
+
+    iput-wide v2, v0, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->weightKg:D
+
+    .line 580
     const/4 v0, 0x0
 
     # invokes: Lcom/isaigu/gymapp/ai/AiUi;->go(I)V
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/AiUi;->access$400(I)V
 
-    .line 634
+    .line 581
     return-void
 .end method

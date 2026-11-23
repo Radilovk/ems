@@ -143,8 +143,14 @@ public final class AiPlanner {
         boolean self = in.operator == Operator.SELF;
         int total = clampSeconds(in.goal,
                 in.totalSeconds != null ? in.totalSeconds : defaultSeconds(in.goal));
+        // the first EMS sessions: shorter and softer (adaptation, owner 1.1.535 — as the automatic mode)
+        if (in.sessions == 0) {
+            total = Math.min(total, 900);
+        } else if (in.sessions > 0 && in.sessions <= 2) {
+            total = Math.min(total, 1080);
+        }
         plan.totalS = total;
-        plan.phiMax = self ? 0.9 : 1.0;
+        plan.phiMax = (self ? 0.9 : 1.0) * (in.sessions == 0 ? 0.8 : in.sessions > 0 && in.sessions <= 2 ? 0.9 : 1.0);
 
         switch (in.goal) {
             case TONE:

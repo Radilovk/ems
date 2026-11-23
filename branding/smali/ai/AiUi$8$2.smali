@@ -1,4 +1,4 @@
-.class Lcom/isaigu/gymapp/ai/AiUi$12$2;
+.class Lcom/isaigu/gymapp/ai/AiUi$8$2;
 .super Ljava/lang/Object;
 .source "AiUi.java"
 
@@ -8,7 +8,7 @@
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/isaigu/gymapp/ai/AiUi$12;->run()V
+    value = Lcom/isaigu/gymapp/ai/AiUi$8;->run()V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -18,16 +18,16 @@
 
 
 # instance fields
-.field final synthetic this$0:Lcom/isaigu/gymapp/ai/AiUi$12;
+.field final synthetic this$0:Lcom/isaigu/gymapp/ai/AiUi$8;
 
 
 # direct methods
-.method constructor <init>(Lcom/isaigu/gymapp/ai/AiUi$12;)V
+.method constructor <init>(Lcom/isaigu/gymapp/ai/AiUi$8;)V
     .registers 2
 
     .prologue
-    .line 1089
-    iput-object p1, p0, Lcom/isaigu/gymapp/ai/AiUi$12$2;->this$0:Lcom/isaigu/gymapp/ai/AiUi$12;
+    .line 999
+    iput-object p1, p0, Lcom/isaigu/gymapp/ai/AiUi$8$2;->this$0:Lcom/isaigu/gymapp/ai/AiUi$8;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -40,9 +40,9 @@
     .registers 2
 
     .prologue
-    .line 1092
+    .line 1002
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiSession;->stopSoloRamp()V
 
-    .line 1093
+    .line 1003
     return-void
 .end method

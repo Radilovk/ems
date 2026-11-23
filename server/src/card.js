@@ -60,6 +60,9 @@ export function validCardData(d) {
   // the deltoid (no suit channel, the exercises only): optional, −1 = no exercise worked it, else 0…1
   const delt = (v) => v === undefined || (num(v) && v >= -1 && v <= 1);
   if (!delt(d.delt) || !delt(d.last.delt) || (d.p30 && !delt(d.p30.delt))) return 'delt';
+  // the AI coach's advice (optional): ≤ 8 short lines
+  if (d.adv !== undefined && (typeof d.adv !== 'object' || !arr(d.adv.l, 8)
+      || !d.adv.l.every((t) => typeof t === 'string' && t.length <= 200))) return 'adv';
   return null;
 }
 

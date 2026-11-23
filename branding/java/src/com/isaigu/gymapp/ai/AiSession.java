@@ -276,9 +276,18 @@ public final class AiSession {
         // The client of the slot: sex, age, weight, fitness, goal, contraindications are filled in
         // (still editable here; the changes stay in the AI answers, not in the client record).
         AiProfile client = AiProfile.of(leader());
+        coachUserId = client != null ? client.userId : 0;
         if (client != null) {
             client.applyTo(input);
+            input.sessions = AutoHistory.of(context, client.userId).sessions;
+        } else {
+            // a guest (owner, 1.1.535): nothing is kept; the intake asks, these are only the starting values
+            input.sessions = -1;
+            if (input.heightCm <= 0) {
+                input.heightCm = input.sex == AiModel.Sex.FEMALE ? 166 : 178;
+            }
         }
+        AiCoach.reset(input);
         applyWorkout();
         stage = Stage.SETUP;
         restHr = null;
@@ -620,6 +629,76 @@ public final class AiSession {
     }
 
     /** ACTIVE: next block after the rest threshold (manual start only). */
+    /** The leader row's client (0 = a guest): the coach's "✓ Запази в профила" writes there. */
+    private static long coachUserId;
+
+    public static boolean isGuest() {
+        return coachUserId == 0;
+    }
+
+    public static long coachUserId() {
+        return coachUserId;
+    }
+
+    /**
+     * The AI coach's answer while the session runs (owner, 1.1.535): its commands through the session's own controls,
+     * its small moves of the impulse through the engine (clamped there and per cycle by the limits). Returns what was
+     * done, one short Bulgarian line.
+     */
+    public static String coachLive(AiCoach.Reply r) {
+        if (engine == null || r == null) {
+            return "";
+        }
+        long now = System.currentTimeMillis();
+        StringBuilder b = new StringBuilder();
+        for (String a : r.actions) {
+            AiEngine.State st = engine.getState();
+            if ("softer".equals(a)) {
+                reduce();
+                b.append("сила −10 % · ");
+            } else if ("stronger".equals(a)) {
+                increase();
+                b.append("сила + · ");
+            } else if ("pause".equals(a) && st == AiEngine.State.RUN) {
+                togglePause();
+                b.append("пауза · ");
+            } else if ("resume".equals(a) && (st == AiEngine.State.USER_PAUSE || st == AiEngine.State.STIM_PAUSE)) {
+                togglePause();
+                b.append("продължава · ");
+            } else if ("continue".equals(a) && st == AiEngine.State.REST) {
+                continueBlock();
+                b.append("следваща серия · ");
+            } else if ("to_cooldown".equals(a)) {
+                engine.toCooldown(now);
+                b.append("към възстановяване · ");
+            } else if ("double_on".equals(a) || "double_off".equals(a)) {
+                setActivePause("double_on".equals(a));
+                b.append("double_on".equals(a) ? "двоен импулс · " : "без двоен импулс · ");
+            }
+        }
+        if (r.onDelta != null || r.offDelta != null || r.hzPct != null || r.restPct != null) {
+            int on = r.onDelta != null ? r.onDelta : engine.getTuneOn();
+            int off = r.offDelta != null ? r.offDelta : engine.getTuneOff();
+            double hz = r.hzPct != null ? 1 + r.hzPct / 100.0 : engine.getTuneHz();
+            double rest = r.restPct != null ? 1 + r.restPct / 100.0 : engine.getTuneRest();
+            engine.setTune(on, off, hz, rest);
+            if (r.onDelta != null) b.append("импулс ").append(signed(engine.getTuneOn())).append(" s · ");
+            if (r.offDelta != null) b.append("пауза ").append(signed(engine.getTuneOff())).append(" s · ");
+            if (r.hzPct != null) b.append("Hz ").append(signed((int) Math.round((engine.getTuneHz() - 1) * 100))).append(" % · ");
+            if (r.restPct != null) b.append("почивки ").append(signed((int) Math.round((engine.getTuneRest() - 1) * 100))).append(" % · ");
+        }
+        if (r.endInMin != null) {
+            engine.endActiveIn(r.endInMin, now);
+            b.append(r.endInMin == 0 ? "край на активната част · " : "още " + r.endInMin + " мин · ");
+        }
+        String s = b.toString();
+        return s.endsWith(" · ") ? s.substring(0, s.length() - 3) : s;
+    }
+
+    private static String signed(int v) {
+        return v > 0 ? "+" + v : String.valueOf(v);
+    }
+
     public static void continueBlock() {
         if (engine == null) {
             return;

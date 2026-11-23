@@ -1409,7 +1409,8 @@ function cardData(){
     eff:tail.map(s=>[s.date.getTime(),s.a.eff]),ma:tail.map(s=>s.a.maMax),rec:tail.map(s=>s.sim.recDrop!=null?s.sim.recDrop:null),
     mus:musOf(all),delt:deltOf(all),musMin:sec.map(v=>Math.round(v/60)),
     p30:{n:m30.length,sec:sum(m30,s=>s.sim.T),kcal:Math.round(sum(m30,s=>s.a.kcal)),mus:musOf(m30),delt:deltOf(m30),eff:m30.slice(-24).map(s=>[s.date.getTime(),s.a.eff])},
-    last:{d:last.date.getTime(),t:last.type,e:last.a.eff,k:last.a.kcal,a:last.a.act,h:last.a.hrAvg||0,mus:musOf([last]),delt:deltOf([last])}};
+    last:{d:last.date.getTime(),t:last.type,e:last.a.eff,k:last.a.kcal,a:last.a.act,h:last.a.hrAvg||0,mus:musOf([last]),delt:deltOf([last])},
+    adv:(()=>{try{const j=JSON.parse((BR&&BR.advice&&BR.advice())||"null");return j&&Array.isArray(j.l)&&j.l.length?{d:+j.d||0,l:j.l.slice(0,8).map(x=>String(x).slice(0,200))}:undefined;}catch(e){return undefined;}})()};
 }
 window.xemsCardDone=how=>{if(how==="fail")shareMsg(tr("Картонът не можа да се подготви.","The card could not be prepared."));else{shareMsg("");$("#sheet").hidden=true;}};
 function shareCard(){

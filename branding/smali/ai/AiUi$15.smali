@@ -3,12 +3,12 @@
 .source "AiUi.java"
 
 # interfaces
-.implements Landroid/view/View$OnClickListener;
+.implements Lcom/isaigu/gymapp/ai/AiUi$SegmentCallback;
 
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/isaigu/gymapp/ai/AiUi;->screenRun(Landroid/content/Context;)V
+    value = Lcom/isaigu/gymapp/ai/AiUi;->renderOverlay(Landroid/content/Context;Landroid/widget/FrameLayout;Lcom/isaigu/gymapp/ai/AiEngine;J)V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 1263
+    .line 1365
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -30,13 +30,13 @@
 
 
 # virtual methods
-.method public onClick(Landroid/view/View;)V
+.method public onSelect(I)V
     .registers 2
 
     .prologue
-    .line 1266
-    invoke-static {}, Lcom/isaigu/gymapp/ai/AiSession;->increase()V
+    .line 1368
+    invoke-static {p1}, Lcom/isaigu/gymapp/ai/AiSession;->answerCheckpoint(I)V
 
-    .line 1267
+    .line 1369
     return-void
 .end method

@@ -145,6 +145,8 @@ footer{text-align:center;color:var(--faint);font-size:11.5px;padding-top:6px}
 
 /* body (the studio's scale, from /v1/history → body) */
 .bodyc{padding:18px;display:grid;gap:12px;justify-items:stretch;text-align:left}
+.adv{padding:18px 20px;margin-top:14px}.adv h3{margin:0 0 8px;font:700 12px var(--f-body);letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.adv ul{margin:0;padding:0;list-style:none}.adv li{padding:6px 0;line-height:1.45;border-top:1px solid var(--edge)}.adv li:first-child{border-top:0}.adv b{font-weight:700}
 .bodyc h3{margin:0;font:700 12px var(--f-body);letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
 .bodyc .bt{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px}
 .bodyc .chip{padding:7px 14px;border-radius:999px;font:700 14px var(--f-body)}
@@ -220,6 +222,7 @@ html.nt .rings,html.nt #ana,html.nt .per,html.nt .bodyc:not(#bodyc),html.nt .sta
   </div>
 
   <div class="trend glass rise" id="trend" style="animation-delay:.32s"></div>
+  <div class="adv glass rise" id="adv" hidden style="animation-delay:.34s"></div>
   <div class="bodyc glass rise" id="bodyc" hidden style="animation-delay:.36s"></div>
   <footer id="foot"></footer>
 </div>
@@ -392,6 +395,11 @@ if(E.length>=2){$("#trend").hidden=false;const k=Math.max(1,Math.min(3,Math.floo
 else $("#trend").hidden=true;}
 trend();tiles();
 
+// the AI coach's advice of the last AI training (owner, 1.1.535): "Label: text" lines, shown as text only
+if(D.adv&&Array.isArray(D.adv.l)&&D.adv.l.length){const box=$("#adv"),h=document.createElement("h3"),ul=document.createElement("ul");
+  h.textContent=tr("Съвети от треньора","Your coach's advice");D.adv.l.slice(0,8).forEach(t=>{const li=document.createElement("li"),s=String(t),i=s.indexOf(": ");
+  if(i>0){const b=document.createElement("b");b.textContent=s.slice(0,i)+": ";li.appendChild(b);li.appendChild(document.createTextNode(s.slice(i+2)));}else li.textContent=s;ul.appendChild(li);});
+  box.appendChild(h);box.appendChild(ul);box.hidden=false;}
 const g=new Date(D.gen);$("#foot").textContent=(SAMPLE?tr("Примерни данни · ","Sample data · "):"")+tr("обновено ","updated ")+g.getDate()+" "+MON[g.getMonth()];
 
 // ---- copy the link

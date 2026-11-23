@@ -1,5 +1,9 @@
 # AI brief — words over the planner (owner, 1.1.534)
 
+> **1.1.535:** the Auto card and the board's ✦ Кажи are gone (owner: Auto is the ready programs). The AI training
+> is the Smart Session's coach — `docs/xems-ai-coach.md`. `AiBrief` (parsing, the local reader, `BriefSim`) and the
+> server's plain brief stay as the shared base.
+
 Owner: "the easiest interface, very precise logic behind it: a wizard of 2–3 questions → the algorithm → free text or
 dialogue where the AI understands the client and asks at most one thing; the trainer / client sets the strength".
 

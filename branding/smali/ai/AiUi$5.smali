@@ -3,12 +3,12 @@
 .source "AiUi.java"
 
 # interfaces
-.implements Landroid/view/View$OnClickListener;
+.implements Lcom/isaigu/gymapp/ai/AiUi$StepperCallback;
 
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/isaigu/gymapp/ai/AiUi;->finishGoal(Landroid/content/Context;Landroid/widget/LinearLayout;Lcom/isaigu/gymapp/ai/AiModel$SessionInput;)V
+    value = Lcom/isaigu/gymapp/ai/AiUi;->clientBlock(Landroid/content/Context;Landroid/widget/LinearLayout;)V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -31,7 +31,7 @@
     .end annotation
 
     .prologue
-    .line 575
+    .line 568
     iput-object p1, p0, Lcom/isaigu/gymapp/ai/AiUi$5;->val$in:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -41,38 +41,39 @@
 
 
 # virtual methods
-.method public onClick(Landroid/view/View;)V
-    .registers 5
+.method public onDelta(I)V
+    .registers 6
 
     .prologue
-    .line 578
-    iget-object v1, p0, Lcom/isaigu/gymapp/ai/AiUi$5;->val$in:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
-
+    .line 571
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiUi$5;->val$in:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
 
-    iget-object v0, v0, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->operator:Lcom/isaigu/gymapp/ai/AiModel$Operator;
+    const/16 v1, 0xe
 
-    sget-object v2, Lcom/isaigu/gymapp/ai/AiModel$Operator;->TRAINER:Lcom/isaigu/gymapp/ai/AiModel$Operator;
+    const/16 v2, 0x5a
 
-    if-ne v0, v2, :cond_13
+    iget-object v3, p0, Lcom/isaigu/gymapp/ai/AiUi$5;->val$in:Lcom/isaigu/gymapp/ai/AiModel$SessionInput;
 
-    sget-object v0, Lcom/isaigu/gymapp/ai/AiModel$Operator;->SELF:Lcom/isaigu/gymapp/ai/AiModel$Operator;
+    iget v3, v3, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->age:I
 
-    :goto_c
-    iput-object v0, v1, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->operator:Lcom/isaigu/gymapp/ai/AiModel$Operator;
+    add-int/2addr v3, p1
 
-    .line 579
+    invoke-static {v2, v3}, Ljava/lang/Math;->min(II)I
+
+    move-result v2
+
+    invoke-static {v1, v2}, Ljava/lang/Math;->max(II)I
+
+    move-result v1
+
+    iput v1, v0, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->age:I
+
+    .line 572
     const/4 v0, 0x0
 
     # invokes: Lcom/isaigu/gymapp/ai/AiUi;->go(I)V
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/AiUi;->access$400(I)V
 
-    .line 580
+    .line 573
     return-void
-
-    .line 578
-    :cond_13
-    sget-object v0, Lcom/isaigu/gymapp/ai/AiModel$Operator;->TRAINER:Lcom/isaigu/gymapp/ai/AiModel$Operator;
-
-    goto :goto_c
 .end method

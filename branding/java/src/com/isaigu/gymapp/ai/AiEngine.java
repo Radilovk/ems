@@ -95,6 +95,14 @@ public final class AiEngine {
 
     // plan position
     private int phaseIdx;
+    // ---- live tuning from the AI coach's chat (owner, 1.1.535 — docs/xems-ai-coach.md): small moves of the plan's
+    // impulse, always inside the limits below; the plan's own values stay the base
+    private int tuneOn;
+    private int tuneOff;
+    private double tuneHz = 1.0;
+    private double tuneRest = 1.0;
+    /** Plan second at which the active part ends early (the chat asked for a shorter session); ≤ 0 = the plan's. */
+    private double endAtS;
     private double phaseElapsedS;
     private boolean useB;
 
@@ -475,6 +483,15 @@ public final class AiEngine {
             // no blocks, no rests: the output itself keeps the fatigue below the block limit
             c.frac = Math.min(c.frac, AiPlanner.continuousCap(fMaxEff, plan.tauR, spec, c.offS, c.pauseHz > 0));
         }
+        if (spec.isTetanic() && (tuneOn != 0 || tuneOff != 0 || tuneHz != 1.0)) {
+            int onMax = spec.hz >= 50 ? SafeLimits.ON_MAX_50HZ : SafeLimits.ON_MAX_TETANIC;
+            c.onS = (int) clamp(spec.onS + tuneOn, 1, Math.max(spec.onS, onMax));
+            int hz = (int) Math.round(spec.hz * tuneHz);
+            c.hz = (int) clamp(hz, Math.max(SafeLimits.TETANIC_HZ, Math.round(spec.hz * 0.85)),
+                    Math.min(SafeLimits.hzMax(in.age), Math.round(spec.hz * 1.15)));
+            int minOff = (int) Math.ceil(c.onS * (in.mode == AiModel.Mode.PASSIVE ? 1.0 : 0.66));   // L3
+            c.offS = AiPlanner.deviceOffS(Math.max(minOff, c.offS + tuneOff));
+        }
         applyRamps(c, spec);
 
         // G6 dose budget: never start a cycle that would exceed it; go to cool-down instead.
@@ -514,6 +531,11 @@ public final class AiEngine {
         }
         integrate(nowMs, dtS);
         guards(nowMs, dtS);
+        if (endAtS > 0 && getElapsedPlanS() >= endAtS) {
+            endAtS = 0;
+            action("coach_end_early", nowMs);
+            jumpToCooldown(nowMs);                          // the chat asked for a shorter session
+        }
 
         boolean waiting = state == State.REST && restReady;
         if (state == State.RUN || state == State.REST || state == State.CHECKPOINT || state == State.STIM_PAUSE) {
@@ -706,7 +728,7 @@ public final class AiEngine {
             return;                                                   // ACTIVE: waits for continue
         }
         double restS = (nowMs - restStartMs) / 1000.0;
-        boolean ready = restRecovered() && restS >= tRestMinS;
+        boolean ready = restRecovered() && restS >= tRestMinS * tuneRest;
         boolean timeout = restS >= AiPlanner.T_REST_MAX_S;
         if (!ready && !timeout) {
             return;
@@ -732,7 +754,56 @@ public final class AiEngine {
     }
 
     private boolean restMinReached(long nowMs) {
-        return (nowMs - restStartMs) / 1000.0 >= tRestMinS;
+        return (nowMs - restStartMs) / 1000.0 >= tRestMinS * tuneRest;
+    }
+
+    /**
+     * The coach's live move (owner, 1.1.535): ON / OFF seconds (−2…+2 / −2…+3), frequency ×0.85…1.15, the minimum
+     * rest ×0.7…1.6. Each is clamped here and again per cycle by the limits (ON max, rest ≥ ON, Hz by age).
+     */
+    public void setTune(int onDelta, int offDelta, double hzFactor, double restFactor) {
+        tuneOn = (int) clamp(onDelta, -2, 2);
+        tuneOff = (int) clamp(offDelta, -2, 3);
+        tuneHz = clamp(hzFactor, 0.85, 1.15);
+        tuneRest = clamp(restFactor, 0.7, 1.6);
+    }
+
+    public int getTuneOn() {
+        return tuneOn;
+    }
+
+    public int getTuneOff() {
+        return tuneOff;
+    }
+
+    public double getTuneHz() {
+        return tuneHz;
+    }
+
+    public double getTuneRest() {
+        return tuneRest;
+    }
+
+    /** End the active part after {@code minutesLeft} more minutes (never later than the plan); 0 = now. */
+    public void endActiveIn(double minutesLeft, long nowMs) {
+        double at = getElapsedPlanS() + Math.max(0, minutesLeft) * 60;
+        int cd = firstIndexOf(PhaseId.COOLDOWN);
+        double coolStart = 0;
+        for (int i = 0; i < (cd < 0 ? plan.phases.size() : cd); i++) {
+            coolStart += plan.phases.get(i).durationS;
+        }
+        if (at >= coolStart) {
+            return;
+        }
+        endAtS = at;
+        if (minutesLeft <= 0) {
+            jumpToCooldown(nowMs);
+        }
+    }
+
+    /** Straight to the cool-down (the chat: "към възстановяване"). */
+    public void toCooldown(long nowMs) {
+        jumpToCooldown(nowMs);
     }
 
     private void markRestReady(long nowMs) {

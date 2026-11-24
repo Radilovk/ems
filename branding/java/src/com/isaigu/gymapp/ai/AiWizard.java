@@ -319,8 +319,12 @@ public final class AiWizard {
     private static void summary(Context c, LinearLayout body) {
         Input in = AutoSession.getInput();
         AutoModel.Plan plan = AutoSession.getPlan();
-        // ---- the training
-        LinearLayout col1 = tile(c);
+        // ---- the training (scrolls when the board is low)
+        LinearLayout box1 = tile(c);
+        LinearLayout col1 = XemsUi.vertical(c);
+        ScrollView s1 = new ScrollView(c);
+        s1.addView(col1);
+        box1.addView(s1, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
         if (AiTrain.free) {
             freeTraining(c, col1);
         } else {
@@ -353,7 +357,7 @@ public final class AiWizard {
             col1.addView(XemsUi.text(c, AiText.t("Силата тръгва от 0 — качваш я с + по време на тренировката.",
                     "The strength starts at 0 — raise it with + during the session."), 13, XemsUi.MUTED, false), XemsUi.matchWrap(c, 8));
         }
-        body.addView(col1, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1.1f));
+        body.addView(box1, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1.1f));
         // ---- the advice
         LinearLayout col2 = tile(c);
         col2.addView(label(c, AiText.t("Препоръки", "Advice")));
@@ -408,9 +412,7 @@ public final class AiWizard {
                 list.addView(XemsUi.text(c, how, 13, XemsUi.MUTED, false), XemsUi.matchWrap(c, 1));
             }
         }
-        ScrollView sc = new ScrollView(c);
-        sc.addView(list);
-        col.addView(sc, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
+        col.addView(list, XemsUi.matchWrap(c, 0));
     }
 
     // ================================================================ kit
@@ -435,8 +437,12 @@ public final class AiWizard {
         t.setBackgroundDrawable(XemsUi.rounded(XemsUi.CARD, XemsUi.dp(c, 14), XemsUi.STROKE, XemsUi.dp(c, 1)));
         TextView v = XemsUi.text(c, value, 26, XemsUi.TEXT, true);
         v.setMaxLines(1);
-        t.addView(v);
-        t.addView(XemsUi.text(c, cap, 12, XemsUi.MUTED, true));
+        v.setGravity(Gravity.CENTER);
+        t.addView(v, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        TextView k = XemsUi.text(c, cap, 12, XemsUi.MUTED, true);
+        k.setGravity(Gravity.CENTER);
+        k.setMaxLines(1);
+        t.addView(k, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         return t;
     }
 

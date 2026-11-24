@@ -28,16 +28,16 @@
     .registers 3
 
     .prologue
-    .line 518
+    .line 524
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 519
+    .line 525
     iput-object p1, p0, Lcom/isaigu/gymapp/ai/AiWizard$Choose;->pick:Lcom/isaigu/gymapp/widget/XemsUi$OnIndex;
 
-    .line 520
+    .line 526
     iput p2, p0, Lcom/isaigu/gymapp/ai/AiWizard$Choose;->index:I
 
-    .line 521
+    .line 527
     return-void
 .end method
 
@@ -47,16 +47,16 @@
     .registers 4
 
     .prologue
-    .line 525
+    .line 531
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsUi;->haptic(Landroid/view/View;)V
 
-    .line 526
+    .line 532
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiWizard$Choose;->pick:Lcom/isaigu/gymapp/widget/XemsUi$OnIndex;
 
     iget v1, p0, Lcom/isaigu/gymapp/ai/AiWizard$Choose;->index:I
 
     invoke-interface {v0, v1}, Lcom/isaigu/gymapp/widget/XemsUi$OnIndex;->onIndex(I)V
 
-    .line 527
+    .line 533
     return-void
 .end method

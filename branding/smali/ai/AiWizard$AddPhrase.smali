@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 549
+    .line 555
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 550
+    .line 556
     iput-object p1, p0, Lcom/isaigu/gymapp/ai/AiWizard$AddPhrase;->phrase:Ljava/lang/String;
 
-    .line 551
+    .line 557
     return-void
 .end method
 
@@ -42,10 +42,10 @@
     .registers 5
 
     .prologue
-    .line 555
+    .line 561
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsUi;->haptic(Landroid/view/View;)V
 
-    .line 556
+    .line 562
     sget-object v0, Lcom/isaigu/gymapp/ai/AiTrain;->intakeField:Landroid/widget/EditText;
 
     if-eqz v0, :cond_51
@@ -58,7 +58,7 @@
 
     if-eqz v0, :cond_51
 
-    .line 557
+    .line 563
     sget-object v0, Lcom/isaigu/gymapp/ai/AiTrain;->intakeField:Landroid/widget/EditText;
 
     invoke-virtual {v0}, Landroid/widget/EditText;->getText()Landroid/text/Editable;
@@ -73,7 +73,7 @@
 
     move-result-object v0
 
-    .line 558
+    .line 564
     :goto_1d
     new-instance v1, Ljava/lang/StringBuilder;
 
@@ -122,19 +122,19 @@
 
     sput-object v0, Lcom/isaigu/gymapp/ai/AiTrain;->draft:Ljava/lang/String;
 
-    .line 559
+    .line 565
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoBoard;->rebuild()V
 
-    .line 560
+    .line 566
     return-void
 
-    .line 557
+    .line 563
     :cond_51
     sget-object v0, Lcom/isaigu/gymapp/ai/AiTrain;->draft:Ljava/lang/String;
 
     goto :goto_1d
 
-    .line 558
+    .line 564
     :cond_54
     const-string v0, ""
 

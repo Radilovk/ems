@@ -264,3 +264,11 @@ test('commands carry the named number as points of the 0–100 scale: up by / se
   const k = validateCoach({ reply: 'Вдигам с един.', commands: [{ target: 'strength', dir: 'up', amount: 1 }] });
   assert.deepEqual(k.commands, [{ target: 'strength', dir: 'up', step: 'normal', amount: 1 }]);
 });
+
+test('one change, not two: a strength command drops the softer / stronger action', () => {
+  const c = validateCoach({ reply: 'Намалявам малко.', actions: ['softer', 'pause'],
+    commands: [{ target: 'strength', dir: 'down' }] });
+  assert.deepEqual(c.actions, ['pause']);
+  assert.deepEqual(validateCoach({ reply: 'x', actions: ['softer'], commands: [{ target: 'legs', dir: 'down' }] }).actions,
+    ['softer']);
+});

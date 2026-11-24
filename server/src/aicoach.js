@@ -201,6 +201,11 @@ export function validateCoach(raw, askedSoFar = 0, domain = null, programs = [])
     commands: validateCommand({ commands: r.commands }).commands,
     advice: null,
   };
+  // one change, not two (ai-smoke 1.1.556: "прекалено силно е" → strength down AND softer = down twice): a strength
+  // command wins over the softer / stronger action
+  if (out.commands.some((c) => c.target === 'strength' || c.target === 'all_channels')) {
+    out.actions = out.actions.filter((a) => a !== 'softer' && a !== 'stronger');
+  }
   out.cond_remove = out.cond_remove.filter((k) => !out.cond_add.includes(k));
   if (auto && r.veto && typeof r.veto === 'object') {
     const v = {

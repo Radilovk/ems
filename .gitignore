@@ -10,3 +10,4 @@ band-app/preview/out/
 # signing keys never go in the repo
 *.keystore
 *.jks
+scripts/voice-sim/vosk/

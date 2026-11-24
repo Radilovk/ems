@@ -45,7 +45,10 @@ await step('brief', () => brief(env, { text: '52 г., болки в кръста
 const live = { ...context, session: 'RUNNING', program: 'general' };
 const free = ['краката ме болят малко', 'стига толкова за ръцете', 'почини ми малко', 'прекалено силно е',
   'не усещам нищо в седалището', 'много ме щипе на корема', 'хайде пак', 'смени упражнението', 'уморих се',
-  'може ли малко по-нежно', 'какво упражнение за ръцете ми препоръчваш', 'колко повторения мъртва тяга'];
+  'може ли малко по-нежно', 'какво упражнение за ръцете ми препоръчваш', 'колко повторения мъртва тяга',
+  // 1.1.556: health and physiology — the main model thinking more (route "careful"); the answers must be right
+  'замая ми се', 'защо 85 херца за сила', 'колко често мога да правя EMS', 'има пейсмейкър',
+  'пари ми под електрода на бедрото', 'защо се уморявам по-бързо отколкото във фитнеса'];
 for (const text of free) {
   const t = Date.now();
   try {
@@ -59,7 +62,7 @@ for (const text of free) {
       run: { phase: 'Сила', min_done: 6, state: 'RUN' } });
     const k = r.coach || {};
     const did = { c: k.commands, a: k.actions, on: k.on_delta, off: k.off_delta, hz: k.hz_pct, rest: k.rest_pct, end: k.end_in_min };
-    console.log(`FREE "${text}" · ${Date.now() - t} ms · coach "${k.reply}"${k.question ? ' ? ' + k.question : ''} · ${JSON.stringify(did)}`);
+    console.log(`FREE "${text}" · ${Date.now() - t} ms · ${r.model}/${r.route} · coach "${k.reply}"${k.question ? ' ? ' + k.question.text + ' ' + JSON.stringify(k.question.options) : ''} · ${JSON.stringify(did)}`);
   } catch (e) {
     console.log(`FREE "${text}" · error ${e && e.message}`);
   }

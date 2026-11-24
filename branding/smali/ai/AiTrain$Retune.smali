@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 1238
+    .line 1255
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,7 +34,7 @@
     .registers 2
 
     .prologue
-    .line 1241
+    .line 1258
     # getter for: Lcom/isaigu/gymapp/ai/AiTrain;->retuneCtx:Landroid/content/Context;
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiTrain;->access$000()Landroid/content/Context;
 
@@ -42,6 +42,6 @@
 
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/AiTrain;->retuneNow(Landroid/content/Context;)V
 
-    .line 1242
+    .line 1259
     return-void
 .end method

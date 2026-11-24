@@ -293,3 +293,72 @@ it, the warm-up runs softer by design); "s" read aloud as a letter → "секу
   `AiTrain.liveApply` through `applyCommands` — on a ready program and on the AI's own workout.
 - Proof: `server/scripts/ai-smoke.mjs` FREE lines (12 everyday phrases) and DIALOG 1/2 (vague → question → answer
   → command) with the real model.
+
+## 1.1.553 — the wake word on Huawei: a microphone that gives silence
+- **Owner:** on a Huawei tablet neither the teaching nor hands-free heard anything; only the chat's 🎤 (the system's
+  speech dialog) worked.
+- **Microphone sources in turn** (`WakeListener.Mic`): VOICE_RECOGNITION → MIC → CAMCORDER → DEFAULT. A source that
+  does not initialize, does not record, fails to read, or gives only digital silence (peak ≤ 12 for 2.5 s) is
+  skipped; the one that gave sound is kept per tablet (`xems_wake` / `src`). None gives sound → `silent`, retried
+  every few seconds.
+- **The teaching dialog shows the level live** (`WakeSetup.Meter`) and, when silent, what to do: turn off the
+  tablet's voice assistant (Huawei "Celia") and apps that hold the microphone.
+- **No background recognizer** (`SpeechRecognizer.isRecognitionAvailable` false — Huawei without Google): after
+  "тренер" the command goes through the system's speech dialog (`VoiceInput`, as the chat's 🎤); a closed or empty
+  dialog returns to the spotter (`VoiceInput.WantsEmpty`).
+
+## 1.1.554 — voice: economical with the AI, smooth on Google tablets
+- **`ai/AiVoiceGate`** decides what heard speech may cost an AI call, after the tablet's own command reader:
+  noise ("ъъ", "хм", <3 letters) never; filler ("добре", "благодаря", "да", "ок") only as the answer to the AI's
+  question; the window after the tablet's answer (no "тренер") only a question, an answer or a 3+ word sentence;
+  the same words within 15 s never; at most 8 calls a minute (a radio in the hall). Dropped phrases leave no chat
+  bubble and are logged (`ai-gate`). Test: `sh scripts/voice-sim/run-gate.sh`.
+- **Faster command window**: Google's recognizer is bound at the start (`warmRecognizer`) and kept between
+  windows (`cancelRecognizer`, not destroy) — re-binding cost ~0.3–0.5 s, the first words after "тренер" were
+  lost. The window opens at once; the beep sounds at `onReadyForSpeech` ("speak now"), not at the wake.
+- **Server (same release)**: the voice already runs on the cheapest model (Flash-Lite, no thinking: commands and
+  live coach; only planning uses Flash). Live coach prompts now carry no program menu (live never changes the
+  program) and a shorter chat (6 turns × 240 chars) — roughly half the input tokens of every live call. The command
+  reader keeps clear readings per isolate (`commandKey`, 400 entries): a repeated phrase costs no model call
+  (`model: "cache"`).
+
+## 1.1.555 — "Тренер" presses the chat's 🎤; a dialogue only with the AI; the trainer's voice decides
+- **The window = the chat's 🎤** (`WakeListener.openWindow` → `VoiceInput.listen(a, DialogCommand, prompt)`): the
+  same system speech dialog — it shows that it listens, closes by itself on a pause, and its words take the same
+  path (commands on the tablet, else the AI with a spoken answer). No dialog on the tablet → the background
+  recognizer as before (`VoiceInput.listen` returns false).
+- **Dialogue only after the AI**: `answer(text, dialogue)`. A command done on the tablet is confirmed aloud and
+  goes back to "тренер" (`SpotterAgain`); the AI's answer opens one more dialog without "тренер" ("Слушам…").
+  A pause, a quiet word or noise → the dialog closes empty → back to "тренер".
+- **Loudness gate** (`WakeWord.loudEnough`): the examples' mean peak level (dB, absolute on this microphone — a
+  noisy hall raises the floor, not the trainer's voice) is stored with them (format 3); a word more than 10 dB
+  quieter never wakes — a voice across the hall, the radio. Older recordings (no level) work as before; "Научи
+  отново" adds it. `run-wake.sh`: 34/36 wakes, 0/153 false (as before), −20 dB "тренер" 0/3, −4 dB 3/3.
+
+## 1.1.556 — the model and its thinking chosen per turn; the coach knows EMS physiology
+- **Owner:** maximum adequacy; a cheap model only for the easy small things; how strong a model and whether it
+  thinks — chosen by itself.
+- **`server/src/airoute.js` `route(kind, body)`**: command → Lite, minimal thinking (closed JSON, validated, the
+  tablet keeps its limits); every coach reply → the main Flash, thinking low; with health or physiology in the turn
+  (`careful`: pain, symptoms, heart, pressure, pregnancy, diabetes, injury, "защо", Hz, fatigue…; word-start stems)
+  or planning for a client with conditions → thinking medium; the AI's workout → medium. The thinking's room is
+  added to the answer's (`THINK_ROOM`). A careful phrase never reaches the Lite command reader (`command` returns
+  coach without a call). Before: live replies ran on Lite with no thinking, planning on the least thinking.
+- **`PHYSIOLOGY`** in the coach's system text (coach, workout): synchronous recruitment, frequency bands, impulse /
+  pause, pulse width, the absolute limits, rest between sessions and adaptation, red flags → pause, no-EMS
+  conditions, the safer choice when unclear. "No disclaimers" stays, the red flags are acted on.
+
+## 1.1.556 (tablet) — a percent is a point of the 0–100 scale
+- **Owner:** "увеличи с 1 %" at 7 → 8; "на 50 %" → the named part (or every channel together, their ratio kept) to
+  50 of its maximum. Never a percent of the value now. The tablet's reader already did so (`AutoSession.channelStep`
+  / `strengthStep`: by = points, set = level); now also:
+- Numbers in words after "с / на / до" or before "процент" (`AiVoiceCmd.numbers`: "с един процент", "на двадесет и
+  пет"); elsewhere words stay words ("три клякания").
+- The server's command reader and the coach carry the number: `commands[].amount` (points; dir `set` = the level),
+  read by `AiVoiceCmd.read`. Before, a number the tablet missed was lost (only step small / normal).
+- softer / stronger are small steps without a number: the confirmation says the level now ("сила 46"), not
+  "−10 %"; the coach says "малко по-леко", never "с десет процента" for them.
+- **1.1.557:** "увеличи 1" = "увеличи с 1" = "увеличи с 1 %" — a number after a verb of direction (`UP_WORDS` /
+  `DOWN_WORDS`, with synonyms: вдигни, качи, повиши, добави, плюс / свали, смъкни, понижи, махни N, минус) is a step of
+  that many points; only "на / до N" is a level. Before, "намали 5" SET the strength to 5. Numbers in words after
+  these verbs too ("увеличи едно", "смъкни пет").

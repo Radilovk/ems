@@ -4,7 +4,8 @@
 // session's advice (exercise type and load, drink before / during, food after). Numbers of the impulse stay the
 // planner's; the model only nudges them inside fixed windows.
 
-import { generateJson, FOCUS, CONTRA } from './aibrief.js';
+import { generateJson, FOCUS, CONTRA, THINK_ROOM } from './aibrief.js';
+import { route, careful } from './airoute.js';
 
 export const GOALS = ['TONE', 'FAT', 'MASSAGE', 'DRAIN', 'CELLULITE'];
 export const MODES = ['ACTIVE', 'PASSIVE'];
@@ -66,7 +67,8 @@ export function coachSchema(domain = null, programs = []) {
       rest_pct: { type: 'INTEGER', nullable: true },
       end_in_min: { type: 'INTEGER', nullable: true },
       commands: { type: 'ARRAY', items: { type: 'OBJECT', properties: {
-        target: { type: 'STRING' }, dir: { type: 'STRING' }, step: { type: 'STRING' } }, required: ['target', 'dir'] } },
+        target: { type: 'STRING' }, dir: { type: 'STRING' }, step: { type: 'STRING' },
+        amount: { type: 'INTEGER', nullable: true } }, required: ['target', 'dir'] } },
       advice,
     },
     required: ['reply'],
@@ -77,7 +79,8 @@ export function coachSchema(domain = null, programs = []) {
 export const COACH_SYSTEM = `You are the EMS coach inside XEMS (whole-body EMS suit, 20–25 min sessions).
 You talk with a trainer about one client, in short natural Bulgarian. A deterministic planner sets the impulse
 (Hz, pulse width, ON/OFF, phases, rests, time); the person sets the current strength. You adjust the planner's
-inputs and, while a session runs, nudge the impulse. No warnings, no disclaimers, no "consult a doctor".
+inputs and, while a session runs, nudge the impulse. No generic warnings or disclaimers, no "consult a doctor" —
+except the red flags below, which you act on.
 
 Each turn return JSON:
 - reply: 1–2 sentences, what you did or recommend. Plain words, no jargon.
@@ -86,7 +89,8 @@ Each turn return JSON:
 - goal / mode / minutes / double_impulse / cond_add / cond_remove / focus_add / today_add / contra_add: only what the
   latest message implies. "по-леко днес" → today_add t_gentle. Not eaten → t_food. Slept badly → t_sleep.
   Insulin or sugar pills → cond insulin (+diabetes). Beta-blockers → beta_blocker. Blood thinners → anticoag.
-- While SESSION=RUNNING, a command for now: actions (softer=−10% strength, stronger=+5%, pause, resume, continue
+- While SESSION=RUNNING, a command for now: actions (softer = a little less strength, stronger = a little more —
+  no number; a named number goes in commands with amount, as points of the 0–100 scale), pause, resume, continue
   after a rest, to_cooldown, double_on/off), on_delta −2..2 s, off_delta −2..3 s, hz_pct −15..15, rest_pct −30..60
   (longer/shorter rests), end_in_min (finish the active part in N min). Null when not asked.
 - advice (fill on the first turn and whenever it changes, else null), each ≤ 1 short sentence:
@@ -101,15 +105,50 @@ Each turn return JSON:
   during: water in small sips; electrolytes only for heavy sweat, heat, dizziness or low blood pressure.
   after: within 1–2 h a meal with protein and some carbs; slimming → protein + vegetables, fewer carbs; water.`;
 
+/**
+ * What the coach must know about EMS itself (owner, 1.1.556: "a clear picture of what we do and of the principles of
+ * EMS training and physiology") — docs/xems-ems-physiology.md and docs/xems-safety-limits.md in short.
+ */
+export const PHYSIOLOGY = `
+EMS PRINCIPLES (use them in every decision and answer; be correct and concrete, never invent — unsure → say so):
+- WB-EMS fires the same motor units together on every impulse (no rotation as in voluntary work), so it tires the
+  muscle faster than the same force done voluntarily. The person sets the strength by feel: work at CR-10 6–8,
+  strong but never pain; the same current can be raised slowly as the body gets used to it in the first minutes.
+- Frequency: 1–10 Hz single twitches, little fatigue (warm-up 7 Hz, drainage 1 Hz, massage 2–8 Hz, cool-down
+  4–5 Hz); 20–30 Hz the contraction fuses (endurance); 50–100 Hz fused, near full force (strength 85 Hz, power
+  100 Hz), the most fatigue. Half of the full force at ~15 Hz.
+- Impulse and pause: a fused impulse lasts ≤ 6 s from 50 Hz (4–6 s usual); the pause must let the muscle relax —
+  the higher the Hz and the longer the impulse, the longer the pause. A second impulse in the pause stays ≤ 10 Hz.
+- Pulse width ~350 µs (300–400) reaches deeper fibres at a bearable current; from 100 Hz ≤ 300 µs (else burn).
+- Absolute limits the tablet keeps, never suggest past them: 1–120 Hz; clients 60+ at most 85 Hz.
+- Dose between sessions: the muscle damage marker peaks 2–4 days after a hard session → ≥ 4 days between sessions;
+  the first ~4 sessions are adaptation: clearly lighter, ~20 min. Strong soreness for days or dark urine after a
+  session = too much (risk of muscle breakdown): rest, water, next one much lighter.
+- Isometric EMS work raises the pulse more than the effort suggests (pressor reflex); water before and after.
+- RED FLAGS during a session — chest pain or pressure, dizziness, nausea, shortness of breath, palpitations, cold
+  sweat, sudden sharp or joint pain, a cramp that does not let go, numbness: actions pause (to_cooldown if it does not
+  pass), never stronger; reply: stop, sit or lie down, sip water, and what to watch. A burning or sharp spot under one
+  pad → that body part down or off, and check that the pad is wet and lies flat.
+- No EMS at all: pacemaker or other implanted electronics, pregnancy, epilepsy, fever or acute illness, fresh
+  thrombosis, cancer under treatment, serious heart disease, fresh surgery or injury in the area — say it plainly
+  (contra_add when it is in the list) and plan nothing for it.
+- When something about the body is unclear: the safer choice (less strength, shorter impulse, longer pause, slower
+  exercise) and one sentence why.`;
+
 /** CONTEXT (the session's inputs and plan as the tablet has them) + the chat + the latest message. */
+/** The running session's chat: fewer, shorter turns — each live call pays for its whole prompt (owner, 1.1.554). */
+const LIVE_TURNS = 6;
+const LIVE_TURN_CHARS = 240;
+
 export function coachPrompt(body) {
   const ctx = body.context && typeof body.context === 'object' ? body.context : {};
-  const turns = Array.isArray(body.chat) ? body.chat.slice(-MAX_TURNS) : [];
+  const live = ctx.session === 'RUNNING';
+  const turns = Array.isArray(body.chat) ? body.chat.slice(live ? -LIVE_TURNS : -MAX_TURNS) : [];
   const asked = turns.filter((t) => t && t.role === 'ai' && t.q).length;
   const lines = [`CONTEXT: ${JSON.stringify(ctx).slice(0, 3000)}`, `asked: ${asked}/${QUESTIONS_MAX}`, 'CHAT:'];
   for (const t of turns) {
     if (!t || typeof t.text !== 'string') continue;
-    lines.push(`${t.role === 'ai' ? 'coach' : 'trainer'}: ${t.text.slice(0, 400)}`);
+    lines.push(`${t.role === 'ai' ? 'coach' : 'trainer'}: ${t.text.slice(0, live ? LIVE_TURN_CHARS : 400)}`);
   }
   lines.push(`trainer: ${String(body.text || '').slice(0, 800)}`);
   return lines.join('\n');
@@ -162,6 +201,11 @@ export function validateCoach(raw, askedSoFar = 0, domain = null, programs = [])
     commands: validateCommand({ commands: r.commands }).commands,
     advice: null,
   };
+  // one change, not two (ai-smoke 1.1.556: "прекалено силно е" → strength down AND softer = down twice): a strength
+  // command wins over the softer / stronger action
+  if (out.commands.some((c) => c.target === 'strength' || c.target === 'all_channels')) {
+    out.actions = out.actions.filter((a) => a !== 'softer' && a !== 'stronger');
+  }
   out.cond_remove = out.cond_remove.filter((k) => !out.cond_add.includes(k));
   if (auto && r.veto && typeof r.veto === 'object') {
     const v = {
@@ -212,8 +256,16 @@ client's health, e.g. knees → no jumps or deep squats). Unclear what to change
 weaker, pain where, a vague place like "долната част") → do NOT guess: ask one short question with 2–4 options and
 change nothing yet. commands (live only): one body part or setting up/down/off/on, as the trainer means it —
 targets strength, legs, thighs, calves, glutes, abs, arms, chest, back, lower_back, traps, all_channels, impulse,
-pause, frequency, rest; dir up/down/off/on; step small/normal. The trainer's next words are the answer (CHAT has your question): act on it at once. Never ask
-twice in a row — if the answer is still unclear, take the safer choice (less, not more) and say what you did. reply: ≤ 2 short spoken sentences in natural Bulgarian, as a person talks — no
+pause, frequency, rest; dir up/down/off/on/set; step small/normal; amount = a number the trainer named (below).
+PERCENT = POINTS of the absolute 0–100 scale (owner, 1.1.556): "увеличи 1" = "с 1" = "с 1 %" at 7 → 8 (dir up,
+amount 1; any verb of up / down and its synonyms); "с 10 %"
+→ amount 10; "на 50 %" → dir set, amount 50: target strength = every channel together, their ratio kept; a body part
+→ that part's own level to 50. Never a percent of the value now. actions softer / stronger are small steps without a
+number — say "малко по-леко / по-силно", never "с десет процента" for them. The trainer's next words are the answer (CHAT has your question): act on it at once. Never ask
+twice in a row — if the answer is still unclear, take the safer choice (less, not more) and say what you did. The reply says only what your
+commands / actions / deltas really do: "вдигам седалището" needs commands [{glutes, up}], "удължавам паузата"
+needs pause up (rest_pct is the rest between sets, not the pause between impulses); never announce a change you do
+not send. reply: ≤ 2 short spoken sentences in natural Bulgarian, as a person talks — no
 colons, dashes, quotes, brackets, slashes, emoji, % or + signs, no abbreviations (say "процента", "секунди", "минути");
 numbers as digits.`;
 
@@ -221,21 +273,23 @@ export async function coach(env, body, fetchImpl = fetch, ts = Date.now()) {
   const live = body.context && body.context.session === 'RUNNING';
   const asked = live ? 0 : Array.isArray(body.chat) ? body.chat.filter((t) => t && t.role === 'ai' && t.q).length : 0;
   const auto = body.domain === 'auto';
-  const programs = auto && Array.isArray(body.menu)
+  // the running session never changes the program (liveTune reads the levels, not a program): no menu — about a
+  // thousand input tokens less on every live call
+  const programs = auto && !live && Array.isArray(body.menu)
     ? body.menu.map((m) => String(m?.id || '')).filter((id) => /^[a-z0-9_]{1,40}$/.test(id)).slice(0, 60)
     : [];
   let prompt = coachPrompt(body);
-  if (auto && body.menu) {
+  if (auto && !live && body.menu) {
     prompt = 'MENU: ' + body.menu.slice(0, 60).map((m) => `${m.id}=${String(m.name || '').slice(0, 40)} (${m.goal}/${m.kind})`)
       .join('; ') + '\n' + prompt;
   }
-  const system = (auto ? COACH_SYSTEM + AUTO_NOTE : COACH_SYSTEM) + (live ? LIVE_NOTE : '');
-  // the running session: the fast Lite model, no thinking, a short answer — a reply in ~1–2 s, not 7–10 (1.1.547);
-  // the planning keeps the main model (it may take its time)
-  const r = live
-    ? await generateJson(env, system, prompt, coachSchema(auto ? 'auto' : null, programs), 1200, fetchImpl, ts, true)
-    : await generateJson(env, system, prompt, coachSchema(auto ? 'auto' : null, programs), 3000, fetchImpl, ts);
-  return { model: r.model, coach: validateCoach(r.raw, asked, auto ? 'auto' : null, programs) };
+  const system = (auto ? COACH_SYSTEM + AUTO_NOTE : COACH_SYSTEM) + PHYSIOLOGY + (live ? LIVE_NOTE : '');
+  // owner, 1.1.556: every reply of the coach is the main model (it decides about the body); it thinks a little, and
+  // more when health or physiology is in the turn (airoute.js) — the cheap model only reads plain commands
+  const rt = route('coach', body);
+  const r = await generateJson(env, system, prompt, coachSchema(auto ? 'auto' : null, programs),
+    rt.max + THINK_ROOM[rt.think], fetchImpl, ts, rt);
+  return { model: r.model, route: rt.why, coach: validateCoach(r.raw, asked, auto ? 'auto' : null, programs) };
 }
 
 // ================================================================ the AI's own workout (owner, 1.1.538)
@@ -306,7 +360,9 @@ export function validateWorkout(raw, askedSoFar = 0) {
 
 export async function workout(env, body, fetchImpl = fetch, ts = Date.now()) {
   const asked = Array.isArray(body.chat) ? body.chat.filter((t) => t && t.role === 'ai' && t.q).length : 0;
-  const r = await generateJson(env, COACH_SYSTEM + WORKOUT_NOTE, coachPrompt(body), workoutSchema(), 6000, fetchImpl, ts);
+  const rt = route('workout', body);
+  const r = await generateJson(env, COACH_SYSTEM + PHYSIOLOGY + WORKOUT_NOTE, coachPrompt(body), workoutSchema(),
+    rt.max + THINK_ROOM[rt.think], fetchImpl, ts, rt);
   return { model: r.model, coach: validateWorkout(r.raw, asked) };
 }
 
@@ -316,13 +372,18 @@ export async function workout(env, body, fetchImpl = fetch, ts = Date.now()) {
 // Not a command (a complaint, a question) → coach:true and the tablet asks the full coach.
 export const CMD_TARGETS = ['strength', 'legs', 'thighs', 'calves', 'glutes', 'abs', 'arms', 'chest', 'back',
   'lower_back', 'traps', 'impulse', 'pause', 'frequency', 'rest', 'all_channels'];
-export const CMD_DIRS = ['up', 'down', 'off', 'on'];
+export const CMD_DIRS = ['up', 'down', 'off', 'on', 'set'];
 export const CMD_ACTIONS = ['pause', 'resume', 'skip', 'to_recovery', 'double_on', 'double_off', 'stop'];
 
 export const COMMAND_SYSTEM = `Turn a spoken Bulgarian EMS-training command into JSON. targets: strength (overall
 current), legs, thighs, calves, glutes, abs, arms, chest, back, lower_back, traps, all_channels (muscle channels),
 impulse (its seconds), pause (its seconds), frequency (Hz), rest (between sets). dir: up / down / off / on.
-step: small ("малко", "леко") or normal. actions: pause, resume, skip, to_recovery, double_on, double_off, stop.
+step: small ("малко", "леко") or normal. amount: the number named, in POINTS of the absolute 0–100 scale (a percent
+is a point, never a percent of the value now; "%" or not, "с" or not — the same): "увеличи 1" = "увеличи с 1" =
+"увеличи с 1 %" → up, amount 1; "краката с 10" → up 10; synonyms of up: вдигни, качи, усили, засили, повиши, добави,
+плюс; of down: намали, свали, смъкни, отслаби, понижи, махни N, минус; "на 50 %" /
+"до 30" → dir set, amount 50 / 30 (no target named → strength). Numbers in words too ("с пет", "на петдесет").
+No number → no amount. actions: pause, resume, skip, to_recovery, double_on, double_off, stop.
 Several commands may come in one sentence. Anything that is not a command (pain, a question, a wish about the plan)
 → coach true, no commands. Unsure which target is meant (a vague place, "долната част", "отзад", one side) → coach
 true, no commands: the coach asks back instead of guessing.`;
@@ -333,6 +394,7 @@ export function commandSchema() {
     properties: {
       commands: { type: 'ARRAY', items: { type: 'OBJECT', properties: {
         target: { type: 'STRING', enum: CMD_TARGETS }, dir: { type: 'STRING', enum: CMD_DIRS },
+        amount: { type: 'INTEGER', nullable: true },
         step: { type: 'STRING', enum: ['small', 'normal'] } }, required: ['target', 'dir'] } },
       actions: { type: 'ARRAY', items: { type: 'STRING', enum: CMD_ACTIONS } },
       coach: { type: 'BOOLEAN' },
@@ -347,14 +409,50 @@ export function validateCommand(raw) {
   for (const c of Array.isArray(r.commands) ? r.commands : []) {
     const target = pick(c?.target, CMD_TARGETS);
     const dir = pick(c?.dir, CMD_DIRS);
-    if (target && dir && commands.length < 6) commands.push({ target, dir, step: c.step === 'small' ? 'small' : 'normal' });
+    // amount: points of the 0–100 scale — the step's size (up / down) or the level (set); set needs one
+    const amount = int(c?.amount, dir === 'set' ? 0 : 1, 100);
+    if (!target || !dir || commands.length >= 6 || (dir === 'set' && amount === null)) continue;
+    const out = { target, dir, step: c.step === 'small' ? 'small' : 'normal' };
+    if (amount !== null && dir !== 'off' && dir !== 'on') out.amount = amount;
+    commands.push(out);
   }
   const actions = picks(r.actions, CMD_ACTIONS, 3);
   return { commands, actions, coach: !commands.length && !actions.length ? true : r.coach === true };
 }
 
+/**
+ * The same spoken words read the same way: kept per isolate (owner, 1.1.554 — the hall repeats "по-силно краката"
+ * all day; a repeat costs no model call). Only clear readings are kept; "coach" ones depend on the chat.
+ */
+const COMMAND_CACHE_MAX = 400;
+const commandCache = new Map();
+
+export function commandKey(text) {
+  return String(text || '').toLowerCase().replace(/ѝ/g, 'и').replace(/[^\p{L}\p{N}]+/gu, ' ').trim().slice(0, 300);
+}
+
+export function clearCommandCache() {
+  commandCache.clear();
+}
+
 export async function command(env, body, fetchImpl = fetch, ts = Date.now()) {
-  const r = await generateJson(env, COMMAND_SYSTEM, String(body.text || '').slice(0, 300), commandSchema(), 800,
-    fetchImpl, ts, true);
+  // pain, symptoms, "why": not a command at all — straight to the coach, the cheap model never reads it
+  if (careful(body.text)) return { model: 'route', command: { commands: [], actions: [], coach: true } };
+  const key = commandKey(body.text);
+  const hit = key && commandCache.get(key);
+  if (hit) return { model: 'cache', command: hit };
+  const out = await commandCall(env, body, fetchImpl, ts);
+  const c = out.command;
+  if (key && !c.coach && (c.commands.length || c.actions.length)) {
+    if (commandCache.size >= COMMAND_CACHE_MAX) commandCache.delete(commandCache.keys().next().value);
+    commandCache.set(key, c);
+  }
+  return out;
+}
+
+async function commandCall(env, body, fetchImpl, ts) {
+  const rt = route('command', body);
+  const r = await generateJson(env, COMMAND_SYSTEM, String(body.text || '').slice(0, 300), commandSchema(), rt.max,
+    fetchImpl, ts, rt);
   return { model: r.model, command: validateCommand(r.raw) };
 }

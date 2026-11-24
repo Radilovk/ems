@@ -233,9 +233,15 @@ if [[ -f "${DECOMPILED}/apktool.yml" ]]; then
   VERSION_NAME="$(grep '^  versionName:' "${DECOMPILED}/apktool.yml" | sed 's/^  versionName: //')"
   VERSION_CODE="$(grep '^  versionCode:' "${DECOMPILED}/apktool.yml" | sed 's/^  versionCode: //')"
   release_version="${ROOT}/RELEASE_VERSION"
+  # keep the release's own flags (mandatory=0: offered with "По-късно") — rewriting the file dropped them (1.1.554)
+  release_extra=""
+  if [[ -f "${release_version}" ]]; then
+    release_extra="$(grep -E '^mandatory=' "${release_version}" || true)"
+  fi
   release_text="versionName=${VERSION_NAME}
 versionCode=${VERSION_CODE}
-"
+${release_extra:+${release_extra}
+}"
   if [[ ! -f "${release_version}" ]] || [[ "$(cat "${release_version}")" != "${release_text}" ]]; then
     printf '%s' "${release_text}" > "${release_version}"
   fi

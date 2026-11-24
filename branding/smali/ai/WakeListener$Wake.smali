@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 307
+    .line 463
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,7 +34,7 @@
     .registers 4
 
     .prologue
-    .line 310
+    .line 466
     const-string v0, "wake"
 
     new-instance v1, Ljava/lang/StringBuilder;
@@ -77,14 +77,14 @@
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/WearableBleDiagLog;->log(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 311
-    const/16 v0, 0x18
+    .line 467
+    const/4 v0, 0x0
 
-    invoke-static {v0}, Lcom/isaigu/gymapp/ai/WakeListener;->tone(I)V
+    sput-boolean v0, Lcom/isaigu/gymapp/ai/WakeListener;->followUp:Z
 
-    .line 312
+    .line 468
     invoke-static {}, Lcom/isaigu/gymapp/ai/WakeListener;->openWindow()V
 
-    .line 313
+    .line 469
     return-void
 .end method

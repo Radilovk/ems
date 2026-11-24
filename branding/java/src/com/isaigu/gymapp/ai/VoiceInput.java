@@ -24,13 +24,22 @@ public final class VoiceInput {
         void onText(String text);
     }
 
+    /** A Result that also wants "" when nothing was said or the dialog was closed (the wake word's window). */
+    public interface WantsEmpty {
+    }
+
     private static final String TAG = "xems_voice";
     static final int REQ = 0x5A1;
     private static Result pending;
 
     public static void listen(Activity a, Result cb) {
+        listen(a, cb, AiText.t("Кажи за клиента или какво да сменя…", "Say something about the client or what to change…"));
+    }
+
+    /** false: no speech dialog on this tablet (the caller falls back). */
+    public static boolean listen(Activity a, Result cb, String prompt) {
         if (a == null || cb == null) {
-            return;
+            return false;
         }
         pending = cb;
         try {
@@ -47,10 +56,10 @@ public final class VoiceInput {
             i.putExtra(RecognizerIntent.EXTRA_LANGUAGE, lang);
             i.putExtra(RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE, lang);
             i.putExtra(RecognizerIntent.EXTRA_ONLY_RETURN_LANGUAGE_PREFERENCE, lang);
-            i.putExtra(RecognizerIntent.EXTRA_PROMPT, AiText.t("Кажи за клиента или какво да сменя…",
-                    "Say something about the client or what to change…"));
+            i.putExtra(RecognizerIntent.EXTRA_PROMPT, prompt);
             i.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1);
             f.startActivityForResult(i, REQ);
+            return true;
         } catch (Throwable t) {
             pending = null;
             WearableBleDiagLog.log("voice", "listen: " + t);
@@ -59,6 +68,7 @@ public final class VoiceInput {
                         "No speech input on this tablet (Google)."), Toast.LENGTH_LONG).show();
             } catch (Throwable ignored) {
             }
+            return false;
         }
     }
 
@@ -73,7 +83,13 @@ public final class VoiceInput {
             }
             Result cb = pending;
             pending = null;
-            if (cb == null || resultCode != Activity.RESULT_OK || data == null) {
+            if (cb == null) {
+                return;
+            }
+            if (resultCode != Activity.RESULT_OK || data == null) {
+                if (cb instanceof WantsEmpty) {
+                    cb.onText("");
+                }
                 return;
             }
             ArrayList<String> r = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
@@ -83,6 +99,8 @@ public final class VoiceInput {
                 } catch (Throwable t) {
                     WearableBleDiagLog.log("voice", "result: " + t);
                 }
+            } else if (cb instanceof WantsEmpty) {
+                cb.onText("");
             }
         }
     }

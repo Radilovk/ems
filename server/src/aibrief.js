@@ -22,6 +22,7 @@ export const EXTRA = ['diastasis', 'breastfeeding', 'cesarean', 'backAcute', 'ba
 export const LIVE = ['softer', 'stronger', 'pause', 'resume', 'skip', 'to_recovery'];
 
 export const BRIEF_MAX_BYTES = 16 * 1024;
+import { route } from './airoute.js';
 const TEXT_MAX = 1200;
 const MODEL_CACHE_MS = 6 * 3600 * 1000;
 
@@ -282,7 +283,27 @@ export function thinkingFor(model) {
 /** Models that refused the 'minimal' thinking level once: not asked with it again (one wasted call each time). */
 const noMinimal = new Set();
 
-export function thinkingLadder(model) {
+const LEVELS = ['minimal', 'low', 'medium', 'high'];
+/** 2.x models take a token budget instead of a level. */
+const BUDGET = { minimal: 0, low: 1024, medium: 4096, high: 8192 };
+/** Room the thinking takes from maxOutputTokens (it shares the budget), by level. */
+export const THINK_ROOM = { minimal: 0, low: 1500, medium: 4000, high: 8000 };
+
+/**
+ * The settings to try for a wanted thinking level (owner, 1.1.556: "how strong a model and whether it thinks — chosen
+ * by itself"): that level first, then the ones below it down to the least the model takes, then none.
+ */
+export function thinkingLadder(model, level = null) {
+  if (level && level !== 'minimal') {
+    if (/^gemini-2\./.test(model)) return [{ thinkingBudget: BUDGET[level] || 1024 }, null];
+    if (/^gemini-\d/.test(model)) {
+      const out = [];
+      for (let i = LEVELS.indexOf(level); i >= 1; i--) out.push({ thinkingLevel: LEVELS[i] });
+      out.push(null);
+      return out;
+    }
+    return [null];
+  }
   const t = thinkingFor(model);
   if (!t) return [null];
   if (t.thinkingLevel === 'minimal') {
@@ -298,8 +319,10 @@ export function thinkingLadder(model) {
 export async function generateJson(env, system, userText, schema, maxTokens, fetchImpl = fetch, ts = Date.now(),
   lite = false, temperature = 0, forceModel = null, busyTries = 0) {
   if (!env.GEMINI_API_KEY) throw new Error('no_key');
-  const model = forceModel || await currentModel(env, fetchImpl, ts, lite);
-  const ladder = thinkingLadder(model);
+  // lite: true/false, or a route ({ lite, think } from airoute.js): the model tier and the thinking level
+  const route = lite && typeof lite === 'object' ? lite : { lite: !!lite, think: null };
+  const model = forceModel || await currentModel(env, fetchImpl, ts, route.lite);
+  const ladder = thinkingLadder(model, route.think);
   // some models (the Flash-Lite one) take no system instruction ("Developer instruction is not enabled"): then it
   // goes in front of the user text
   let merged = false;
@@ -355,8 +378,8 @@ export async function generateJson(env, system, userText, schema, maxTokens, fet
         }
       }
       // the cheap model cannot do this (2026-11-24: "JSON mode is not enabled for this model"): the main one does
-      if (lite && res.status === 400) {
-        return generateJson(env, system, userText, schema, maxTokens, fetchImpl, ts, false, temperature);
+      if (route.lite && res.status === 400) {
+        return generateJson(env, system, userText, schema, maxTokens, fetchImpl, ts, { ...route, lite: false }, temperature);
       }
       throw new Error(lastError);
     }
@@ -387,6 +410,8 @@ export async function brief(env, body, fetchImpl = fetch, ts = Date.now()) {
   const programs = Array.isArray(body.menu)
     ? body.menu.map((m) => String(m?.id || '')).filter((id) => /^[a-z0-9_]{1,40}$/.test(id)).slice(0, 60)
     : [];
-  const r = await generateJson(env, SYSTEM, buildPrompt(body), responseSchema(programs), 3000, fetchImpl, ts);
+  const rt = route('brief', body);
+  const r = await generateJson(env, SYSTEM, buildPrompt(body), responseSchema(programs), rt.max + THINK_ROOM[rt.think],
+    fetchImpl, ts, rt);
   return { model: r.model, patch: validatePatch(r.raw, programs) };
 }

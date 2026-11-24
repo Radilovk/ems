@@ -28,16 +28,16 @@
     .registers 3
 
     .prologue
-    .line 1325
+    .line 1342
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 1326
+    .line 1343
     iput-object p1, p0, Lcom/isaigu/gymapp/ai/AiTrain$Quick;->text:Ljava/lang/String;
 
-    .line 1327
+    .line 1344
     iput-boolean p2, p0, Lcom/isaigu/gymapp/ai/AiTrain$Quick;->live:Z
 
-    .line 1328
+    .line 1345
     return-void
 .end method
 
@@ -47,10 +47,10 @@
     .registers 6
 
     .prologue
-    .line 1332
+    .line 1349
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsUi;->haptic(Landroid/view/View;)V
 
-    .line 1333
+    .line 1350
     invoke-virtual {p1}, Landroid/view/View;->getContext()Landroid/content/Context;
 
     move-result-object v0
@@ -63,6 +63,6 @@
 
     invoke-static {v0, v1, v2, v3}, Lcom/isaigu/gymapp/ai/AiTrain;->send(Landroid/content/Context;Ljava/lang/String;ZZ)V
 
-    .line 1334
+    .line 1351
     return-void
 .end method

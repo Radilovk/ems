@@ -11,7 +11,8 @@
         Lcom/isaigu/gymapp/ai/WakeSetup$Dismissed;,
         Lcom/isaigu/gymapp/ai/WakeSetup$Events;,
         Lcom/isaigu/gymapp/ai/WakeSetup$Sink;,
-        Lcom/isaigu/gymapp/ai/WakeSetup$Wait;
+        Lcom/isaigu/gymapp/ai/WakeSetup$Wait;,
+        Lcom/isaigu/gymapp/ai/WakeSetup$Meter;
     }
 .end annotation
 
@@ -19,9 +20,13 @@
 # static fields
 .field private static final MAIN:Landroid/os/Handler;
 
+.field private static final METER:Ljava/lang/Runnable;
+
 .field static final STEPS:I = 0x4
 
 .field private static asked:Z
+
+.field private static bar:Landroid/view/View;
 
 .field private static dialog:Landroid/app/Dialog;
 
@@ -30,6 +35,10 @@
 .field private static head:Landroid/widget/TextView;
 
 .field private static host:Landroid/app/Activity;
+
+.field private static meterRest:Landroid/view/View;
+
+.field private static micNote:Landroid/widget/TextView;
 
 .field private static step:I
 
@@ -41,7 +50,14 @@
     .registers 2
 
     .prologue
-    .line 106
+    .line 122
+    new-instance v0, Lcom/isaigu/gymapp/ai/WakeSetup$Meter;
+
+    invoke-direct {v0}, Lcom/isaigu/gymapp/ai/WakeSetup$Meter;-><init>()V
+
+    sput-object v0, Lcom/isaigu/gymapp/ai/WakeSetup;->METER:Ljava/lang/Runnable;
+
+    .line 155
     new-instance v0, Landroid/os/Handler;
 
     invoke-static {}, Landroid/os/Looper;->getMainLooper()Landroid/os/Looper;
@@ -85,7 +101,57 @@
     return-object p0
 .end method
 
-.method static synthetic access$100()I
+.method static synthetic access$100()Landroid/view/View;
+    .registers 1
+
+    .prologue
+    .line 21
+    sget-object v0, Lcom/isaigu/gymapp/ai/WakeSetup;->bar:Landroid/view/View;
+
+    return-object v0
+.end method
+
+.method static synthetic access$102(Landroid/view/View;)Landroid/view/View;
+    .registers 1
+
+    .prologue
+    .line 21
+    sput-object p0, Lcom/isaigu/gymapp/ai/WakeSetup;->bar:Landroid/view/View;
+
+    return-object p0
+.end method
+
+.method static synthetic access$200()Landroid/view/View;
+    .registers 1
+
+    .prologue
+    .line 21
+    sget-object v0, Lcom/isaigu/gymapp/ai/WakeSetup;->meterRest:Landroid/view/View;
+
+    return-object v0
+.end method
+
+.method static synthetic access$300()Landroid/widget/TextView;
+    .registers 1
+
+    .prologue
+    .line 21
+    sget-object v0, Lcom/isaigu/gymapp/ai/WakeSetup;->micNote:Landroid/widget/TextView;
+
+    return-object v0
+.end method
+
+.method static synthetic access$400()Landroid/os/Handler;
+    .registers 1
+
+    .prologue
+    .line 21
+    sget-object v0, Lcom/isaigu/gymapp/ai/WakeSetup;->MAIN:Landroid/os/Handler;
+
+    return-object v0
+.end method
+
+.method static synthetic access$500()I
     .registers 1
 
     .prologue
@@ -95,7 +161,7 @@
     return v0
 .end method
 
-.method static synthetic access$108()I
+.method static synthetic access$508()I
     .registers 2
 
     .prologue
@@ -109,7 +175,7 @@
     return v0
 .end method
 
-.method static synthetic access$200()V
+.method static synthetic access$600()V
     .registers 0
 
     .prologue
@@ -119,7 +185,7 @@
     return-void
 .end method
 
-.method static synthetic access$300()Landroid/widget/TextView;
+.method static synthetic access$700()Landroid/widget/TextView;
     .registers 1
 
     .prologue
@@ -129,7 +195,17 @@
     return-object v0
 .end method
 
-.method static synthetic access$400()Landroid/app/Activity;
+.method static synthetic access$800()Ljava/lang/Runnable;
+    .registers 1
+
+    .prologue
+    .line 21
+    sget-object v0, Lcom/isaigu/gymapp/ai/WakeSetup;->METER:Ljava/lang/Runnable;
+
+    return-object v0
+.end method
+
+.method static synthetic access$900()Landroid/app/Activity;
     .registers 1
 
     .prologue
@@ -151,17 +227,17 @@
 
     const/4 v1, 0x0
 
-    .line 142
+    .line 191
     sget v0, Lcom/isaigu/gymapp/ai/WakeSetup;->step:I
 
     if-ge v0, v2, :cond_ad
 
-    .line 143
+    .line 192
     sget-object v0, Lcom/isaigu/gymapp/ai/WakeListener;->SPOTTER:Lcom/isaigu/gymapp/ai/WakeWord;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/ai/WakeWord;->record()V
 
-    .line 144
+    .line 193
     sget-object v0, Lcom/isaigu/gymapp/ai/WakeSetup;->head:Landroid/widget/TextView;
 
     const-string v2, "\u041a\u0430\u0436\u0438 \u201e\u0422\u0440\u0435\u043d\u0435\u0440\u201c"
@@ -174,7 +250,7 @@
 
     invoke-virtual {v0, v2}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 145
+    .line 194
     sget-object v0, Lcom/isaigu/gymapp/ai/WakeSetup;->sub:Landroid/widget/TextView;
 
     new-instance v2, Ljava/lang/StringBuilder;
@@ -239,7 +315,7 @@
 
     invoke-virtual {v0, v2}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 160
+    .line 209
     :goto_5f
     sget-object v0, Lcom/isaigu/gymapp/ai/WakeSetup;->dots:Landroid/widget/LinearLayout;
 
@@ -247,20 +323,20 @@
 
     move v3, v1
 
-    .line 161
+    .line 210
     :goto_65
     const/4 v0, 0x4
 
     if-ge v3, v0, :cond_134
 
-    .line 162
+    .line 211
     new-instance v4, Landroid/view/View;
 
     sget-object v0, Lcom/isaigu/gymapp/ai/WakeSetup;->host:Landroid/app/Activity;
 
     invoke-direct {v4, v0}, Landroid/view/View;-><init>(Landroid/content/Context;)V
 
-    .line 163
+    .line 212
     sget v0, Lcom/isaigu/gymapp/ai/WakeSetup;->step:I
 
     if-ge v3, v0, :cond_12c
@@ -276,7 +352,7 @@
 
     int-to-float v5, v2
 
-    .line 164
+    .line 213
     sget v2, Lcom/isaigu/gymapp/ai/WakeSetup;->step:I
 
     if-ne v3, v2, :cond_130
@@ -290,14 +366,14 @@
 
     move-result v6
 
-    .line 163
+    .line 212
     invoke-static {v0, v5, v2, v6}, Lcom/isaigu/gymapp/widget/XemsUi;->rounded(IFII)Landroid/graphics/drawable/GradientDrawable;
 
     move-result-object v0
 
     invoke-virtual {v4, v0}, Landroid/view/View;->setBackgroundDrawable(Landroid/graphics/drawable/Drawable;)V
 
-    .line 165
+    .line 214
     new-instance v0, Landroid/widget/LinearLayout$LayoutParams;
 
     sget-object v2, Lcom/isaigu/gymapp/ai/WakeSetup;->host:Landroid/app/Activity;
@@ -310,7 +386,7 @@
 
     invoke-direct {v0, v1, v2, v7}, Landroid/widget/LinearLayout$LayoutParams;-><init>(IIF)V
 
-    .line 166
+    .line 215
     sget-object v2, Lcom/isaigu/gymapp/ai/WakeSetup;->host:Landroid/app/Activity;
 
     invoke-static {v2, v8}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
@@ -319,30 +395,30 @@
 
     iput v2, v0, Landroid/widget/LinearLayout$LayoutParams;->rightMargin:I
 
-    .line 167
+    .line 216
     sget-object v2, Lcom/isaigu/gymapp/ai/WakeSetup;->dots:Landroid/widget/LinearLayout;
 
     invoke-virtual {v2, v4, v0}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 161
+    .line 210
     add-int/lit8 v0, v3, 0x1
 
     move v3, v0
 
     goto :goto_65
 
-    .line 147
+    .line 196
     :cond_ad
     sget v0, Lcom/isaigu/gymapp/ai/WakeSetup;->step:I
 
     if-ne v0, v2, :cond_d1
 
-    .line 148
+    .line 197
     sget-object v0, Lcom/isaigu/gymapp/ai/WakeListener;->SPOTTER:Lcom/isaigu/gymapp/ai/WakeWord;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/ai/WakeWord;->recordContrast()V
 
-    .line 149
+    .line 198
     sget-object v0, Lcom/isaigu/gymapp/ai/WakeSetup;->head:Landroid/widget/TextView;
 
     const-string v2, "\u0421\u0435\u0433\u0430 \u043a\u0430\u0436\u0438 \u201e\u0422\u0440\u0435\u043d\u0438\u0440\u043e\u0432\u043a\u0430\u201c"
@@ -355,7 +431,7 @@
 
     invoke-virtual {v0, v2}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 150
+    .line 199
     sget-object v0, Lcom/isaigu/gymapp/ai/WakeSetup;->sub:Landroid/widget/TextView;
 
     const-string v2, "\u0414\u0440\u0443\u0433\u0430 \u0434\u0443\u043c\u0430 \u2014 \u0437\u0430 \u0434\u0430 \u043d\u0435 \u044f \u0431\u044a\u0440\u043a\u0430 \u0441 \u201e\u0422\u0440\u0435\u043d\u0435\u0440\u201c"
@@ -370,20 +446,20 @@
 
     goto :goto_5f
 
-    .line 152
+    .line 201
     :cond_d1
     sget-object v0, Lcom/isaigu/gymapp/ai/WakeSetup;->host:Landroid/app/Activity;
 
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/WakeListener;->saveExamples(Landroid/content/Context;)V
 
-    .line 153
+    .line 202
     sget-object v0, Lcom/isaigu/gymapp/ai/WakeListener;->SPOTTER:Lcom/isaigu/gymapp/ai/WakeWord;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/ai/WakeWord;->spreadOfExamples()I
 
     move-result v0
 
-    .line 154
+    .line 203
     sget-object v2, Lcom/isaigu/gymapp/ai/WakeListener;->SPOTTER:Lcom/isaigu/gymapp/ai/WakeWord;
 
     invoke-virtual {v2}, Lcom/isaigu/gymapp/ai/WakeWord;->threshold()I
@@ -394,7 +470,7 @@
 
     const/4 v0, 0x1
 
-    .line 155
+    .line 204
     :goto_e5
     sget-object v3, Lcom/isaigu/gymapp/ai/WakeSetup;->head:Landroid/widget/TextView;
 
@@ -411,7 +487,7 @@
     :goto_f1
     invoke-virtual {v3, v2}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 156
+    .line 205
     sget-object v2, Lcom/isaigu/gymapp/ai/WakeSetup;->sub:Landroid/widget/TextView;
 
     if-eqz v0, :cond_123
@@ -432,10 +508,10 @@
     :cond_105
     move v0, v1
 
-    .line 154
+    .line 203
     goto :goto_e5
 
-    .line 155
+    .line 204
     :cond_107
     new-instance v2, Ljava/lang/StringBuilder;
 
@@ -465,7 +541,7 @@
 
     goto :goto_f1
 
-    .line 157
+    .line 206
     :cond_123
     const-string v0, "\u041a\u0430\u0437\u0432\u0430\u0439 \u201e\u0422\u0440\u0435\u043d\u0435\u0440, \u2026\u201c \u2014 \u043d\u0430\u043f\u0440. \u201e\u0422\u0440\u0435\u043d\u0435\u0440, \u0443\u0432\u0435\u043b\u0438\u0447\u0438 \u043a\u0440\u0430\u043a\u0430\u0442\u0430\u201c, \u201e\u0422\u0440\u0435\u043d\u0435\u0440, \u043f\u0430\u0443\u0437\u0430\u201c."
 
@@ -477,19 +553,19 @@
 
     goto :goto_100
 
-    .line 163
+    .line 212
     :cond_12c
     sget v0, Lcom/isaigu/gymapp/widget/XemsUi;->SURFACE:I
 
     goto/16 :goto_75
 
-    .line 164
+    .line 213
     :cond_130
     sget v2, Lcom/isaigu/gymapp/widget/XemsUi;->STROKE:I
 
     goto/16 :goto_82
 
-    .line 169
+    .line 218
     :cond_134
     return-void
 .end method
@@ -498,32 +574,32 @@
     .registers 1
 
     .prologue
-    .line 136
+    .line 185
     sget-object v0, Lcom/isaigu/gymapp/ai/WakeListener;->SPOTTER:Lcom/isaigu/gymapp/ai/WakeWord;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/ai/WakeWord;->clear()V
 
-    .line 137
+    .line 186
     const/4 v0, 0x0
 
     sput v0, Lcom/isaigu/gymapp/ai/WakeSetup;->step:I
 
-    .line 138
+    .line 187
     invoke-static {}, Lcom/isaigu/gymapp/ai/WakeSetup;->ask()V
 
-    .line 139
+    .line 188
     return-void
 .end method
 
 .method public static open(Landroid/app/Activity;)V
-    .registers 11
+    .registers 13
 
     .prologue
-    const/high16 v9, 0x42500000    # 52.0f
+    const/16 v11, 0x11
 
-    const/high16 v6, 0x41e00000    # 28.0f
+    const/high16 v10, 0x41200000    # 10.0f
 
-    const/high16 v8, 0x3f800000    # 1.0f
+    const/high16 v9, 0x3f800000    # 1.0f
 
     const/4 v1, 0x1
 
@@ -532,7 +608,7 @@
     .line 38
     if-nez p0, :cond_b
 
-    .line 103
+    .line 118
     :goto_a
     return-void
 
@@ -705,7 +781,9 @@
     move-result-object v3
 
     .line 68
-    invoke-static {p0, v6}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
+    const/high16 v4, 0x41e00000    # 28.0f
+
+    invoke-static {p0, v4}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
 
     move-result v4
 
@@ -714,6 +792,8 @@
     invoke-static {p0, v5}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
 
     move-result v5
+
+    const/high16 v6, 0x41e00000    # 28.0f
 
     invoke-static {p0, v6}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
 
@@ -818,50 +898,182 @@
 
     invoke-static {p0, v4, v5, v6, v1}, Lcom/isaigu/gymapp/widget/XemsUi;->text(Landroid/content/Context;Ljava/lang/String;FIZ)Landroid/widget/TextView;
 
-    move-result-object v1
+    move-result-object v4
 
-    sput-object v1, Lcom/isaigu/gymapp/ai/WakeSetup;->head:Landroid/widget/TextView;
+    sput-object v4, Lcom/isaigu/gymapp/ai/WakeSetup;->head:Landroid/widget/TextView;
 
     .line 77
-    sget-object v1, Lcom/isaigu/gymapp/ai/WakeSetup;->head:Landroid/widget/TextView;
+    sget-object v4, Lcom/isaigu/gymapp/ai/WakeSetup;->head:Landroid/widget/TextView;
 
-    const/16 v4, 0x11
-
-    invoke-virtual {v1, v4}, Landroid/widget/TextView;->setGravity(I)V
+    invoke-virtual {v4, v11}, Landroid/widget/TextView;->setGravity(I)V
 
     .line 78
-    sget-object v1, Lcom/isaigu/gymapp/ai/WakeSetup;->head:Landroid/widget/TextView;
+    sget-object v4, Lcom/isaigu/gymapp/ai/WakeSetup;->head:Landroid/widget/TextView;
 
-    const/16 v4, 0xe
+    const/16 v5, 0xe
 
-    invoke-static {p0, v4}, Lcom/isaigu/gymapp/widget/XemsUi;->matchWrap(Landroid/content/Context;I)Landroid/widget/LinearLayout$LayoutParams;
+    invoke-static {p0, v5}, Lcom/isaigu/gymapp/widget/XemsUi;->matchWrap(Landroid/content/Context;I)Landroid/widget/LinearLayout$LayoutParams;
+
+    move-result-object v5
+
+    invoke-virtual {v3, v4, v5}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
+
+    .line 79
+    const-string v4, ""
+
+    const/high16 v5, 0x41600000    # 14.0f
+
+    sget v6, Lcom/isaigu/gymapp/widget/XemsUi;->MUTED:I
+
+    invoke-static {p0, v4, v5, v6, v2}, Lcom/isaigu/gymapp/widget/XemsUi;->text(Landroid/content/Context;Ljava/lang/String;FIZ)Landroid/widget/TextView;
 
     move-result-object v4
 
-    invoke-virtual {v3, v1, v4}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
+    sput-object v4, Lcom/isaigu/gymapp/ai/WakeSetup;->sub:Landroid/widget/TextView;
 
-    .line 79
-    const-string v1, ""
+    .line 80
+    sget-object v4, Lcom/isaigu/gymapp/ai/WakeSetup;->sub:Landroid/widget/TextView;
 
-    const/high16 v4, 0x41600000    # 14.0f
+    invoke-virtual {v4, v11}, Landroid/widget/TextView;->setGravity(I)V
 
-    sget v5, Lcom/isaigu/gymapp/widget/XemsUi;->MUTED:I
+    .line 81
+    sget-object v4, Lcom/isaigu/gymapp/ai/WakeSetup;->sub:Landroid/widget/TextView;
 
-    invoke-static {p0, v1, v4, v5, v2}, Lcom/isaigu/gymapp/widget/XemsUi;->text(Landroid/content/Context;Ljava/lang/String;FIZ)Landroid/widget/TextView;
+    const/4 v5, 0x6
+
+    invoke-static {p0, v5}, Lcom/isaigu/gymapp/widget/XemsUi;->matchWrap(Landroid/content/Context;I)Landroid/widget/LinearLayout$LayoutParams;
+
+    move-result-object v5
+
+    invoke-virtual {v3, v4, v5}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
+
+    .line 83
+    invoke-static {p0}, Lcom/isaigu/gymapp/widget/XemsUi;->horizontal(Landroid/content/Context;)Landroid/widget/LinearLayout;
+
+    move-result-object v4
+
+    .line 84
+    sget v5, Lcom/isaigu/gymapp/widget/XemsUi;->SURFACE:I
+
+    const/high16 v6, 0x40a00000    # 5.0f
+
+    invoke-static {p0, v6}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
+
+    move-result v6
+
+    int-to-float v6, v6
+
+    sget v7, Lcom/isaigu/gymapp/widget/XemsUi;->STROKE:I
+
+    invoke-static {p0, v9}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
+
+    move-result v8
+
+    invoke-static {v5, v6, v7, v8}, Lcom/isaigu/gymapp/widget/XemsUi;->rounded(IFII)Landroid/graphics/drawable/GradientDrawable;
+
+    move-result-object v5
+
+    invoke-virtual {v4, v5}, Landroid/widget/LinearLayout;->setBackgroundDrawable(Landroid/graphics/drawable/Drawable;)V
+
+    .line 85
+    new-instance v5, Landroid/view/View;
+
+    invoke-direct {v5, p0}, Landroid/view/View;-><init>(Landroid/content/Context;)V
+
+    sput-object v5, Lcom/isaigu/gymapp/ai/WakeSetup;->bar:Landroid/view/View;
+
+    .line 86
+    sget-object v5, Lcom/isaigu/gymapp/ai/WakeSetup;->bar:Landroid/view/View;
+
+    sget v6, Lcom/isaigu/gymapp/widget/XemsUi;->GO:I
+
+    const/high16 v7, 0x40a00000    # 5.0f
+
+    invoke-static {p0, v7}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
+
+    move-result v7
+
+    int-to-float v7, v7
+
+    sget v8, Lcom/isaigu/gymapp/widget/XemsUi;->GO:I
+
+    invoke-static {v6, v7, v8, v2}, Lcom/isaigu/gymapp/widget/XemsUi;->rounded(IFII)Landroid/graphics/drawable/GradientDrawable;
+
+    move-result-object v6
+
+    invoke-virtual {v5, v6}, Landroid/view/View;->setBackgroundDrawable(Landroid/graphics/drawable/Drawable;)V
+
+    .line 87
+    sget-object v5, Lcom/isaigu/gymapp/ai/WakeSetup;->bar:Landroid/view/View;
+
+    new-instance v6, Landroid/widget/LinearLayout$LayoutParams;
+
+    invoke-static {p0, v10}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
+
+    move-result v7
+
+    const/4 v8, 0x0
+
+    invoke-direct {v6, v2, v7, v8}, Landroid/widget/LinearLayout$LayoutParams;-><init>(IIF)V
+
+    invoke-virtual {v4, v5, v6}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
+
+    .line 88
+    new-instance v5, Landroid/view/View;
+
+    invoke-direct {v5, p0}, Landroid/view/View;-><init>(Landroid/content/Context;)V
+
+    sput-object v5, Lcom/isaigu/gymapp/ai/WakeSetup;->meterRest:Landroid/view/View;
+
+    .line 89
+    sget-object v5, Lcom/isaigu/gymapp/ai/WakeSetup;->meterRest:Landroid/view/View;
+
+    new-instance v6, Landroid/widget/LinearLayout$LayoutParams;
+
+    invoke-static {p0, v10}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
+
+    move-result v7
+
+    invoke-direct {v6, v2, v7, v9}, Landroid/widget/LinearLayout$LayoutParams;-><init>(IIF)V
+
+    invoke-virtual {v4, v5, v6}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
+
+    .line 90
+    const/16 v5, 0xe
+
+    invoke-static {p0, v5}, Lcom/isaigu/gymapp/widget/XemsUi;->matchWrap(Landroid/content/Context;I)Landroid/widget/LinearLayout$LayoutParams;
+
+    move-result-object v5
+
+    invoke-virtual {v3, v4, v5}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
+
+    .line 91
+    const-string v4, ""
+
+    const/high16 v5, 0x41500000    # 13.0f
+
+    sget v6, Lcom/isaigu/gymapp/widget/XemsUi;->AMBER:I
+
+    invoke-static {p0, v4, v5, v6, v1}, Lcom/isaigu/gymapp/widget/XemsUi;->text(Landroid/content/Context;Ljava/lang/String;FIZ)Landroid/widget/TextView;
 
     move-result-object v1
 
-    sput-object v1, Lcom/isaigu/gymapp/ai/WakeSetup;->sub:Landroid/widget/TextView;
+    sput-object v1, Lcom/isaigu/gymapp/ai/WakeSetup;->micNote:Landroid/widget/TextView;
 
-    .line 80
-    sget-object v1, Lcom/isaigu/gymapp/ai/WakeSetup;->sub:Landroid/widget/TextView;
+    .line 92
+    sget-object v1, Lcom/isaigu/gymapp/ai/WakeSetup;->micNote:Landroid/widget/TextView;
 
-    const/16 v4, 0x11
+    invoke-virtual {v1, v11}, Landroid/widget/TextView;->setGravity(I)V
 
-    invoke-virtual {v1, v4}, Landroid/widget/TextView;->setGravity(I)V
+    .line 93
+    sget-object v1, Lcom/isaigu/gymapp/ai/WakeSetup;->micNote:Landroid/widget/TextView;
 
-    .line 81
-    sget-object v1, Lcom/isaigu/gymapp/ai/WakeSetup;->sub:Landroid/widget/TextView;
+    const/16 v4, 0x8
+
+    invoke-virtual {v1, v4}, Landroid/widget/TextView;->setVisibility(I)V
+
+    .line 94
+    sget-object v1, Lcom/isaigu/gymapp/ai/WakeSetup;->micNote:Landroid/widget/TextView;
 
     const/4 v4, 0x6
 
@@ -871,12 +1083,12 @@
 
     invoke-virtual {v3, v1, v4}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 82
+    .line 95
     invoke-static {p0}, Lcom/isaigu/gymapp/widget/XemsUi;->horizontal(Landroid/content/Context;)Landroid/widget/LinearLayout;
 
     move-result-object v1
 
-    .line 83
+    .line 96
     const-string v4, "\u041e\u0442\u043d\u0430\u0447\u0430\u043b\u043e"
 
     const-string v5, "Start over"
@@ -891,25 +1103,27 @@
 
     move-result-object v4
 
-    .line 84
+    .line 97
     new-instance v5, Lcom/isaigu/gymapp/ai/WakeSetup$Again;
 
     invoke-direct {v5}, Lcom/isaigu/gymapp/ai/WakeSetup$Again;-><init>()V
 
     invoke-virtual {v4, v5}, Landroid/widget/TextView;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
-    .line 85
+    .line 98
     new-instance v5, Landroid/widget/LinearLayout$LayoutParams;
 
-    invoke-static {p0, v9}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
+    const/high16 v6, 0x42500000    # 52.0f
+
+    invoke-static {p0, v6}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
 
     move-result v6
 
-    invoke-direct {v5, v2, v6, v8}, Landroid/widget/LinearLayout$LayoutParams;-><init>(IIF)V
+    invoke-direct {v5, v2, v6, v9}, Landroid/widget/LinearLayout$LayoutParams;-><init>(IIF)V
 
     invoke-virtual {v1, v4, v5}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 86
+    .line 99
     const-string v4, "\u0417\u0430\u0442\u0432\u043e\u0440\u0438"
 
     const-string v5, "Close"
@@ -924,35 +1138,35 @@
 
     move-result-object v4
 
-    .line 87
+    .line 100
     new-instance v5, Lcom/isaigu/gymapp/ai/WakeSetup$Close;
 
     invoke-direct {v5}, Lcom/isaigu/gymapp/ai/WakeSetup$Close;-><init>()V
 
     invoke-virtual {v4, v5}, Landroid/widget/TextView;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
-    .line 88
+    .line 101
     new-instance v5, Landroid/widget/LinearLayout$LayoutParams;
 
-    invoke-static {p0, v9}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
+    const/high16 v6, 0x42500000    # 52.0f
+
+    invoke-static {p0, v6}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
 
     move-result v6
 
-    invoke-direct {v5, v2, v6, v8}, Landroid/widget/LinearLayout$LayoutParams;-><init>(IIF)V
+    invoke-direct {v5, v2, v6, v9}, Landroid/widget/LinearLayout$LayoutParams;-><init>(IIF)V
 
-    .line 89
-    const/high16 v2, 0x41200000    # 10.0f
-
-    invoke-static {p0, v2}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
+    .line 102
+    invoke-static {p0, v10}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
 
     move-result v2
 
     iput v2, v5, Landroid/widget/LinearLayout$LayoutParams;->leftMargin:I
 
-    .line 90
+    .line 103
     invoke-virtual {v1, v4, v5}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 91
+    .line 104
     const/16 v2, 0x14
 
     invoke-static {p0, v2}, Lcom/isaigu/gymapp/widget/XemsUi;->matchWrap(Landroid/content/Context;I)Landroid/widget/LinearLayout$LayoutParams;
@@ -961,11 +1175,11 @@
 
     invoke-virtual {v3, v1, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 92
+    .line 105
     invoke-virtual {v0, v3}, Landroid/app/Dialog;->setContentView(Landroid/view/View;)V
 
-    .line 94
-    :try_start_195
+    .line 107
+    :try_start_21b
     invoke-virtual {v0}, Landroid/app/Dialog;->getWindow()Landroid/view/Window;
 
     move-result-object v1
@@ -978,7 +1192,7 @@
 
     invoke-virtual {v1, v2}, Landroid/view/Window;->setBackgroundDrawable(Landroid/graphics/drawable/Drawable;)V
 
-    .line 95
+    .line 108
     invoke-virtual {v0}, Landroid/app/Dialog;->getWindow()Landroid/view/Window;
 
     move-result-object v1
@@ -992,47 +1206,63 @@
     const/4 v3, -0x2
 
     invoke-virtual {v1, v2, v3}, Landroid/view/Window;->setLayout(II)V
-    :try_end_1b1
-    .catch Ljava/lang/Throwable; {:try_start_195 .. :try_end_1b1} :catch_1cb
+    :try_end_237
+    .catch Ljava/lang/Throwable; {:try_start_21b .. :try_end_237} :catch_261
 
-    .line 98
-    :goto_1b1
+    .line 111
+    :goto_237
     new-instance v1, Lcom/isaigu/gymapp/ai/WakeSetup$Dismissed;
 
     invoke-direct {v1}, Lcom/isaigu/gymapp/ai/WakeSetup$Dismissed;-><init>()V
 
     invoke-virtual {v0, v1}, Landroid/app/Dialog;->setOnDismissListener(Landroid/content/DialogInterface$OnDismissListener;)V
 
-    .line 99
+    .line 112
     sput-object v0, Lcom/isaigu/gymapp/ai/WakeSetup;->dialog:Landroid/app/Dialog;
 
-    .line 100
+    .line 113
     invoke-virtual {v0}, Landroid/app/Dialog;->show()V
 
-    .line 101
+    .line 114
     new-instance v0, Lcom/isaigu/gymapp/ai/WakeSetup$Events;
 
     invoke-direct {v0}, Lcom/isaigu/gymapp/ai/WakeSetup$Events;-><init>()V
 
     invoke-static {p0, v0}, Lcom/isaigu/gymapp/ai/WakeListener;->beginSetup(Landroid/app/Activity;Lcom/isaigu/gymapp/ai/WakeSetup$Sink;)V
 
-    .line 102
+    .line 115
     invoke-static {}, Lcom/isaigu/gymapp/ai/WakeSetup;->begin()V
+
+    .line 116
+    sget-object v0, Lcom/isaigu/gymapp/ai/WakeSetup;->MAIN:Landroid/os/Handler;
+
+    sget-object v1, Lcom/isaigu/gymapp/ai/WakeSetup;->METER:Ljava/lang/Runnable;
+
+    invoke-virtual {v0, v1}, Landroid/os/Handler;->removeCallbacks(Ljava/lang/Runnable;)V
+
+    .line 117
+    sget-object v0, Lcom/isaigu/gymapp/ai/WakeSetup;->MAIN:Landroid/os/Handler;
+
+    sget-object v1, Lcom/isaigu/gymapp/ai/WakeSetup;->METER:Ljava/lang/Runnable;
+
+    const-wide/16 v2, 0x64
+
+    invoke-virtual {v0, v1, v2, v3}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
 
     goto/16 :goto_a
 
-    .line 96
-    :catch_1cb
+    .line 109
+    :catch_261
     move-exception v1
 
-    goto :goto_1b1
+    goto :goto_237
 .end method
 
 .method static waitFor(Landroid/app/Activity;I)V
     .registers 6
 
     .prologue
-    .line 110
+    .line 159
     sget-object v0, Lcom/isaigu/gymapp/ai/WakeSetup;->MAIN:Landroid/os/Handler;
 
     new-instance v1, Lcom/isaigu/gymapp/ai/WakeSetup$Wait;
@@ -1043,6 +1273,6 @@
 
     invoke-virtual {v0, v1, v2, v3}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
 
-    .line 111
+    .line 160
     return-void
 .end method

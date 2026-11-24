@@ -146,9 +146,20 @@ public final class AiTrain {
     }
 
     static String voice(Context c, String cmd) {
-        String r = voiceAct(c, cmd);
-        return r;
+        return voice(c, cmd, false);
     }
+
+    /** followUp: heard in the window after the tablet's answer, without "тренер" — stricter before the AI. */
+    static String voice(Context c, String cmd, boolean followUp) {
+        voiceFollowUp = followUp;
+        try {
+            return voiceAct(c, cmd);
+        } finally {
+            voiceFollowUp = false;
+        }
+    }
+
+    private static boolean voiceFollowUp;
 
     /** null = not taken / not understood; "" = taken (the AI answers in the chat); else what to say back. */
     private static String voiceAct(Context c, String cmd) {
@@ -171,11 +182,17 @@ public final class AiTrain {
                 close();
                 return AiText.t("Затворено", "Closed");
             }
+            if (!AiVoiceGate.pass(cmd, voiceFollowUp, false, AiVoiceCmd.isQuestion(cmd))) {
+                return "";                             // noise / filler / a repeat: no AI call
+            }
             voiceAsk = true;                           // its answer is spoken (WakeListener.answer)
             say(c, cmd, true);                         // before the start: the words go to the AI's plan
             return "";
         }
         boolean answer = AiCoach.awaitingAnswer();        // read before the bubble below is added
+        if ((vc.isEmpty() || (answer && !safety(vc))) && !AiVoiceGate.pass(cmd, voiceFollowUp, answer, AiVoiceCmd.isQuestion(cmd))) {
+            return "";                                    // noise / filler / a repeat: no AI call, no bubble
+        }
         AiCoach.userSpoke(cmd);                          // a 🎙 bubble in the chat, what was done under it
         if (answer && !safety(vc)) {
             voiceAsk = true;                              // the answer to the AI's own question: the coach, with the chat
@@ -955,12 +972,12 @@ public final class AiTrain {
             return "";
         }
         if ("softer".equals(a)) {
-            AutoSession.reduceAll();
-            return AiText.t("сила −10 % · ", "strength −10 % · ");
+            AutoSession.reduceAll();                       // a small step down; what is said is the level it is now
+            return AiText.t("сила ", "strength ") + AutoSession.leaderLevel() + " · ";
         }
         if ("stronger".equals(a)) {
             AutoSession.raiseAll();
-            return AiText.t("сила +5 % · ", "strength +5 % · ");
+            return AiText.t("сила ", "strength ") + AutoSession.leaderLevel() + " · ";
         }
         // words, not symbols: the answer is spoken aloud (tools/app-sim: "▶" was read out, 1.1.546)
         if ("pause".equals(a)) {

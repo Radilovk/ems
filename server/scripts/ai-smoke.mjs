@@ -10,6 +10,14 @@ const menu = [{ id: 'general', name: 'Общо стягане', goal: 'TONE', ki
 const context = { session: 'PLANNING', sex: 'MALE', age: 45, height_cm: 185, weight_kg: 98, bmi: 28.6,
   bmi_class: 'наднормено', fitness: 'MID', ems_sessions: 3, goal: 'SLIM', mode: 'ACTIVE', program: 'general',
   cond: ['knees', 'diabetes'], today: [], focus: [], contra: [] };
+// what Google says about the key (its error message only — the key itself is never printed)
+{
+  const r = await fetch('https://generativelanguage.googleapis.com/v1beta/models?pageSize=5',
+    { headers: { 'x-goog-api-key': env.GEMINI_API_KEY.trim() } });
+  let msg = '';
+  try { const j = await r.json(); msg = j?.error ? `${j.error.status}: ${j.error.message}` : `${(j.models || []).length} models`; } catch { msg = 'no JSON'; }
+  console.log(`models: HTTP ${r.status} ${msg.slice(0, 300)} · trimmed key differs: ${env.GEMINI_API_KEY.trim() !== env.GEMINI_API_KEY}`);
+}
 let failed = 0;
 async function step(name, fn) {
   const t = Date.now();

@@ -635,6 +635,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `server/migrations/0016_vr_logs.sql` (12L) — 
 - `server/migrations/0017_wiems_seen.sql` (15L) — 
 - `server/migrations/0018_certificates.sql` (11L) — 
+- `server/scripts/ai-smoke.mjs` (32L) — A real call to Gemini with the server's own prompts and schemas (CI, the GEMINI_API_KEY secret): proves the key,
 - `server/scripts/seed-release.sh` (25L) — Register current APK as a release on the license server.
 
 ## Branding YAML maps (top-level keys)

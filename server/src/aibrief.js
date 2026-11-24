@@ -232,7 +232,7 @@ async function currentModel(env, fetchImpl, ts, lite = false) {
   if (lite && env.GEMINI_LITE_MODEL) return env.GEMINI_LITE_MODEL;
   if (!lite && env.GEMINI_MODEL) return env.GEMINI_MODEL;
   if (modelCache.name && ts - modelCache.at < MODEL_CACHE_MS) return lite ? modelCache.lite : modelCache.name;
-  const res = await fetchImpl(`${API}/models?pageSize=200`, { headers: { 'x-goog-api-key': env.GEMINI_API_KEY } });
+  const res = await fetchImpl(`${API}/models?pageSize=200`, { headers: { 'x-goog-api-key': String(env.GEMINI_API_KEY).trim() } });
   if (!res.ok) throw new Error(`models ${res.status}`);
   const j = await res.json();
   const name = pickModel(j.models) || 'gemini-2.5-flash';
@@ -266,7 +266,7 @@ export async function generateJson(env, system, userText, schema, maxTokens, fet
     if (think && attempt === 0) gen.thinkingConfig = think;
     const res = await fetchImpl(`${API}/models/${encodeURIComponent(model)}:generateContent`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-goog-api-key': env.GEMINI_API_KEY },
+      headers: { 'Content-Type': 'application/json', 'x-goog-api-key': String(env.GEMINI_API_KEY).trim() },
       body: JSON.stringify({
         systemInstruction: { parts: [{ text: system }] },
         contents: [{ role: 'user', parts: [{ text: userText }] }],

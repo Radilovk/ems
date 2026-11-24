@@ -19,10 +19,10 @@
     .registers 2
 
     .prologue
-    .line 309
+    .line 306
     invoke-direct {p0, p1}, Landroid/widget/LinearLayout;-><init>(Landroid/content/Context;)V
 
-    .line 310
+    .line 307
     return-void
 .end method
 
@@ -32,10 +32,10 @@
     .registers 3
 
     .prologue
-    .line 314
+    .line 311
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiChatDrawer;->touched()V
 
-    .line 315
+    .line 312
     invoke-super {p0, p1}, Landroid/widget/LinearLayout;->dispatchTouchEvent(Landroid/view/MotionEvent;)Z
 
     move-result v0

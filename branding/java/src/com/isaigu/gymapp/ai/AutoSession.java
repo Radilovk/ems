@@ -51,6 +51,9 @@ public final class AutoSession {
         /** Each channel's share set at the calibration (owner, 1.1.315), % of what the program asks; 100 = as is. */
         final int[] zoneRatio = full(AutoModel.CHANNELS, 100);
         int lastStrength = -1;
+        /** The strength of its last working impulse (not the 0 of a rest) and that cycle's share of the program. */
+        int working;
+        double workFrac;
         int writtenStrength = -1;
         int[] writtenZones;
         double raiseBudget = AutoLimits.RAISE_PER_CYCLE;
@@ -1411,16 +1414,9 @@ public final class AutoSession {
             if (r.block != null) {
                 continue;
             }
-            int now = Math.max(0, r.writtenStrength >= 0 ? r.writtenStrength : r.lastStrength);
-            int to = Math.max(0, Math.min(100, now + dir * AiVoiceCmd.step(now, small)));
-            AutoModel.Plan rp = r.plan != null ? r.plan : plan;
-            double f = written != null && rp != null ? AutoEngine.rowFrac(written, rp.phiMax) : 1.0;
-            if (r.cal <= 0) {
-                r.cal = to;                                   // not raised yet: this becomes its base
-                r.user = 1.0;
-            } else if (f > 0) {
-                r.user = Math.max(0.05, to / (r.cal * f));
-            }
+            int now = level(r);
+            int to = Math.max(0, Math.min(100, now + dir * AiVoiceCmd.step(Math.max(now, 1), small)));
+            setRowStrength(r, to);
             if (lead < 0) {
                 lead = to;
             }
@@ -1434,32 +1430,100 @@ public final class AutoSession {
      * arms at 4 → ±1; off = 0, on = back to the program's share. Returns the leader's new value (−1 = none).
      */
     public static int channelStep(int ch, String dir, boolean small) {
-        if (ch < 0 || ch >= AutoModel.CHANNELS) {
+        return channelStep(new int[] {ch}, dir, small);
+    }
+
+    /** A muscle group (legs = front thigh, back thigh, calf) moved together; the level of the first is returned. */
+    public static int channelStep(int[] chs, String dir, boolean small) {
+        if (chs == null || chs.length == 0) {
             return -1;
         }
+        for (int c : chs) {
+            if (c < 0 || c >= AutoModel.CHANNELS) {
+                return -1;
+            }
+        }
+        int ch = chs[0];
         int lead = -1;
         for (Row r : rows) {
             if (r.block != null) {
                 continue;
             }
             int[] base = stepZones(r, written);
-            int now = r.writtenZones != null && ch < r.writtenZones.length ? r.writtenZones[ch] : base[ch];
+            int[] share = new int[AutoModel.CHANNELS];
+            for (int i = 0; i < share.length; i++) {
+                share[i] = Math.max(0, Math.min(100, base[i] + r.zoneOffset[i]));   // what the next impulse writes
+            }
+            int s = level(r);
+            // the channel's REAL level (what its bar shows): strength × its share — a share already at 100 % made
+            // "увеличи краката" do nothing and say "100 %" (owner, 1.1.546)
+            int now = (int) Math.round(s * share[ch] / 100.0);
             int to;
             if ("off".equals(dir)) {
                 to = 0;
             } else if ("on".equals(dir)) {
-                to = now > 0 ? now : base[ch] > 0 ? base[ch] : 50;
+                to = now > 0 ? now : Math.max(1, (int) Math.round(s * Math.max(50, base[ch]) / 100.0));
             } else {
-                to = now + ("up".equals(dir) ? 1 : -1) * AiVoiceCmd.step(now, small);
+                to = now + ("up".equals(dir) ? 1 : -1) * AiVoiceCmd.step(Math.max(now, 1), small);
             }
             to = Math.max(0, Math.min(100, to));
-            r.zoneOffset[ch] = to - base[ch];
+            if (to > s && s >= 0) {
+                // above the row's strength: the strength goes up to it, every other channel keeps its own level
+                int s2 = to;
+                for (int i = 0; i < share.length; i++) {
+                    boolean mine = false;
+                    for (int c : chs) {
+                        mine |= c == i;
+                    }
+                    int keep = mine ? (int) Math.round(Math.min(100, (s * share[i] / 100.0 + (to - now)) * 100.0 / s2))
+                            : s2 > 0 ? (int) Math.round(s * share[i] / (double) s2) : share[i];
+                    r.zoneOffset[i] = Math.max(0, Math.min(100, keep)) - base[i];
+                }
+                setRowStrength(r, s2);
+            } else {
+                for (int c : chs) {
+                    int lv = (int) Math.round(s * share[c] / 100.0) + (to - now);
+                    if ("off".equals(dir)) {
+                        lv = 0;
+                    }
+                    int sh = s > 0 ? (int) Math.round(Math.max(0, lv) * 100.0 / s) : 0;
+                    r.zoneOffset[c] = Math.max(0, Math.min(100, sh)) - base[c];
+                }
+            }
             if (lead < 0) {
                 lead = to;
             }
         }
         refreshOutput();
         return lead;
+    }
+
+    /**
+     * The row's strength as the person feels it: the impulse now, else (a rest, a pause: the output is 0) its last
+     * working impulse — a spoken step counted from that 0 collapsed the strength to 1 and zeroed every other
+     * channel (owner, 1.1.546, tools/app-sim).
+     */
+    static int level(Row r) {
+        if (r.writtenStrength > 0) {
+            return r.writtenStrength;
+        }
+        if (r.cal > 0 && r.workFrac > 0) {
+            return Math.max(0, Math.min(100, (int) Math.round(r.cal * r.user * r.workFrac)));   // with steps said in it
+        }
+        return r.working > 0 ? r.working : Math.max(0, r.lastStrength);
+    }
+
+    /** The row's strength to this value now (as strengthStep does). */
+    private static void setRowStrength(Row r, int to) {
+        AutoModel.Plan rp = r.plan != null ? r.plan : plan;
+        double f = r.writtenStrength > 0 && written != null && rp != null ? AutoEngine.rowFrac(written, rp.phiMax)
+                : r.workFrac > 0 ? r.workFrac : 1.0;
+        if (r.cal <= 0) {
+            r.cal = to;
+            r.user = 1.0;
+        } else if (f > 0) {
+            r.user = Math.max(0.05, to / (r.cal * f));
+        }
     }
 
     private static void refreshOutput() {
@@ -1821,6 +1885,11 @@ public final class AutoSession {
             }
             r.writtenStrength = strength;
             r.writtenZones = zones;
+            if (strength > 0 && !calib) {
+                AutoModel.Plan wp = r.plan != null ? r.plan : plan;
+                r.working = strength;
+                r.workFrac = wp != null ? AutoEngine.rowFrac(c, wp.phiMax) : 1.0;
+            }
             if (r.item.data != null && r.item.data.inStart) {
                 r.item.data.secondValue = b.pulseContinue;
             }

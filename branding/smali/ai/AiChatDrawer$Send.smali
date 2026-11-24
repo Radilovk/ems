@@ -27,7 +27,7 @@
     .registers 1
 
     .prologue
-    .line 346
+    .line 343
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -39,17 +39,17 @@
     .registers 4
 
     .prologue
-    .line 351
+    .line 348
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsUi;->haptic(Landroid/view/View;)V
 
-    .line 352
+    .line 349
     invoke-virtual {p1}, Landroid/view/View;->getContext()Landroid/content/Context;
 
     move-result-object v0
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/AiChatDrawer$Send;->c:Landroid/content/Context;
 
-    .line 353
+    .line 350
     # getter for: Lcom/isaigu/gymapp/ai/AiChatDrawer;->field:Landroid/widget/EditText;
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiChatDrawer;->access$000()Landroid/widget/EditText;
 
@@ -81,7 +81,7 @@
 
     move-result-object v0
 
-    .line 354
+    .line 351
     :goto_25
     invoke-virtual {v0}, Ljava/lang/String;->trim()Ljava/lang/String;
 
@@ -93,25 +93,25 @@
 
     if-lez v1, :cond_38
 
-    .line 355
+    .line 352
     iget-object v1, p0, Lcom/isaigu/gymapp/ai/AiChatDrawer$Send;->c:Landroid/content/Context;
 
     # invokes: Lcom/isaigu/gymapp/ai/AiChatDrawer;->fire(Landroid/content/Context;Ljava/lang/String;)V
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/ai/AiChatDrawer;->access$300(Landroid/content/Context;Ljava/lang/String;)V
 
-    .line 359
+    .line 356
     :goto_34
     return-void
 
-    .line 353
+    .line 350
     :cond_35
     const-string v0, ""
 
     goto :goto_25
 
-    .line 357
+    .line 354
     :cond_38
-    invoke-static {p1}, Lcom/isaigu/gymapp/ai/AiSession;->activityOf(Landroid/view/View;)Landroid/app/Activity;
+    invoke-static {p1}, Lcom/isaigu/gymapp/ai/AiTrain;->activity(Landroid/view/View;)Landroid/app/Activity;
 
     move-result-object v0
 
@@ -126,7 +126,7 @@
     .prologue
     const/4 v1, 0x1
 
-    .line 363
+    .line 360
     if-eqz p1, :cond_d
 
     invoke-virtual {p1}, Ljava/lang/String;->trim()Ljava/lang/String;
@@ -139,12 +139,12 @@
 
     if-nez v0, :cond_e
 
-    .line 370
+    .line 367
     :cond_d
     :goto_d
     return-void
 
-    .line 366
+    .line 363
     :cond_e
     invoke-virtual {p1}, Ljava/lang/String;->trim()Ljava/lang/String;
 
@@ -152,15 +152,15 @@
 
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/AiCoach;->userSpoke(Ljava/lang/String;)V
 
-    .line 367
+    .line 364
     sput-boolean v1, Lcom/isaigu/gymapp/ai/AiTrain;->voiceAsk:Z
 
-    .line 368
+    .line 365
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiChatDrawer$Send;->c:Landroid/content/Context;
 
     invoke-static {v0, p1, v1, v1}, Lcom/isaigu/gymapp/ai/AiTrain;->send(Landroid/content/Context;Ljava/lang/String;ZZ)V
 
-    .line 369
+    .line 366
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiChatDrawer;->refresh()V
 
     goto :goto_d

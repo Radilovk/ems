@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 335
+    .line 332
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 336
+    .line 333
     iput-object p1, p0, Lcom/isaigu/gymapp/ai/AiChatDrawer$Quick;->text:Ljava/lang/String;
 
-    .line 337
+    .line 334
     return-void
 .end method
 
@@ -42,10 +42,10 @@
     .registers 4
 
     .prologue
-    .line 341
+    .line 338
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsUi;->haptic(Landroid/view/View;)V
 
-    .line 342
+    .line 339
     invoke-virtual {p1}, Landroid/view/View;->getContext()Landroid/content/Context;
 
     move-result-object v0
@@ -55,6 +55,6 @@
     # invokes: Lcom/isaigu/gymapp/ai/AiChatDrawer;->fire(Landroid/content/Context;Ljava/lang/String;)V
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/ai/AiChatDrawer;->access$300(Landroid/content/Context;Ljava/lang/String;)V
 
-    .line 343
+    .line 340
     return-void
 .end method

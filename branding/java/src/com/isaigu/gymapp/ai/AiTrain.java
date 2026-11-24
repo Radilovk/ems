@@ -60,11 +60,24 @@ public final class AiTrain {
 
     // ================================================================ open / close
 
+    /** The training screen's activity (the board's views have another context: activityOf(view) found none). */
+    private static java.lang.ref.WeakReference<Activity> host;
+
+    /** The activity for a view of the AI's bar / chat / sheet: its own, else the training screen's. */
+    static Activity activity(View v) {
+        Activity a = AiSession.activityOf(v);
+        if (a == null && host != null) {
+            a = host.get();
+        }
+        return a;
+    }
+
     /** The AI tile: an AI training on the training screen. */
     public static void open(Activity a) {
         if (a == null || a.isFinishing()) {
             return;
         }
+        host = new java.lang.ref.WeakReference<Activity>(a);
         AutoSession.Stage st = AutoSession.getStage();
         if (st != AutoSession.Stage.IDLE) {
             if (AutoSession.aiMode) {
@@ -615,11 +628,7 @@ public final class AiTrain {
         for (AiVoiceCmd.Cmd c : vc.commands) {
             int sign = "up".equals(c.dir) || "on".equals(c.dir) ? 1 : -1;
             if (c.isMuscle()) {
-                int v = -1;
-                for (int ch : c.channels()) {
-                    int x = AutoSession.channelStep(ch, c.dir, c.small);
-                    v = v < 0 ? x : v;
-                }
+                int v = AutoSession.channelStep(c.channels(), c.dir, c.small);   // the group together
                 if (v >= 0) {
                     b.append(AiVoiceCmd.name(c.target)).append(' ').append("off".equals(c.dir) ? AiText.t("изкл.", "off") : v + " %")
                             .append(" · ");
@@ -753,16 +762,23 @@ public final class AiTrain {
             AutoSession.raiseAll();
             return AiText.t("сила +5 % · ", "strength +5 % · ");
         }
-        if ("pause".equals(a) && e.getState() == AutoEngine.State.RUN) {
-            AutoSession.togglePause();
-            return AiText.t("пауза · ", "pause · ");
+        // words, not symbols: the answer is spoken aloud (tools/app-sim: "▶" was read out, 1.1.546)
+        if ("pause".equals(a)) {
+            AutoEngine.State st = e.getState();
+            if (st == AutoEngine.State.RUN || st == AutoEngine.State.COUNTDOWN) {
+                AutoSession.togglePause();
+                return AiText.t("пауза · ", "pause · ");
+            }
+            return st == AutoEngine.State.REST ? AiText.t("почивка е — кажи „продължи“ · ", "it is a rest — say “go on” · ")
+                    : AiText.t("на пауза е · ", "it is paused · ");
         }
         if ("resume".equals(a) || "continue".equals(a)) {
-            return AutoSession.startNext() ? "▶ · " : "";
+            return AutoSession.startNext() ? AiText.t("продължаваме · ", "going on · ")
+                    : AiText.t("тече · ", "it is running · ");
         }
         if ("skip".equals(a) && AutoSession.canNext()) {
             AutoSession.nextFromPanel();
-            return "⏭ · ";
+            return AiText.t("следващото упражнение · ", "the next exercise · ");
         }
         if ("to_recovery".equals(a) || "to_cooldown".equals(a)) {
             AutoSession.stop();
@@ -935,10 +951,10 @@ public final class AiTrain {
                     rebuild();
                     break;
                 case A_START:
-                    start(c, AiSession.activityOf(v));
+                    start(c, AiTrain.activity(v));
                     break;
                 case A_TEACH:
-                    WakeSetup.open(AiSession.activityOf(v));
+                    WakeSetup.open(AiTrain.activity(v));
                     break;
                 case A_MAKE:
                     send(c, AiText.t("Състави нова тренировка за този клиент.", "Write a new workout for this client."),
@@ -1175,7 +1191,7 @@ public final class AiTrain {
         public void onClick(View v) {
             XemsUi.haptic(v);
             c = v.getContext();
-            VoiceInput.listen(AiSession.activityOf(v), this);
+            VoiceInput.listen(AiTrain.activity(v), this);
         }
 
         @Override

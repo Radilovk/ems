@@ -683,7 +683,7 @@ public final class AiWizard {
         @Override
         public void onClick(View v) {
             XemsUi.haptic(v);
-            openHealth(AiSession.activityOf(v));
+            openHealth(AiTrain.activity(v));
         }
     }
 
@@ -720,7 +720,7 @@ public final class AiWizard {
         @Override
         public void onClick(View v) {
             XemsUi.haptic(v);
-            openPad(AiSession.activityOf(v), which);
+            openPad(AiTrain.activity(v), which);
         }
     }
 

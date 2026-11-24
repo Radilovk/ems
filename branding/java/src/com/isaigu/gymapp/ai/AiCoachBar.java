@@ -118,7 +118,7 @@ public final class AiCoachBar {
             if (WakeListener.isOn()) {
                 WakeListener.stop();
             } else {
-                WakeListener.start(AiSession.activityOf(v));
+                WakeListener.start(AiTrain.activity(v));
             }
             refresh();
         }
@@ -128,7 +128,7 @@ public final class AiCoachBar {
         @Override
         public void onClick(View v) {
             XemsUi.haptic(v);
-            AiChatDrawer.open(AiSession.activityOf(v));
+            AiChatDrawer.open(AiTrain.activity(v));
         }
     }
 }

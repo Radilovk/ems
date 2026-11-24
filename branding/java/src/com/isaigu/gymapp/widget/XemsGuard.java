@@ -21,7 +21,16 @@ public final class XemsGuard {
 
     private XemsGuard() {}
 
+    /** Running in the off-device copy of the app (tools/app-sim, -Dxems.sim=true). */
+    public static final boolean SIM = Boolean.getBoolean("xems.sim");
+
     public static void report(final String where, final Throwable t) {
+        if (SIM) {
+            System.out.println("SIM guard " + where + ": " + t);
+            if (t != null) {
+                t.printStackTrace(System.out);
+            }
+        }
         try {
             MusicDiagLog.logError("xems_guard:" + where, t);
         } catch (Throwable ignored) {
@@ -43,8 +52,8 @@ public final class XemsGuard {
      * the app's own crash handler, left a black screen. Called once from CrashApplication.onCreate.
      */
     public static void installLoopGuard() {
-        if (loopGuard) {
-            return;
+        if (loopGuard || SIM) {
+            return;                               // the off-device copy (tools/app-sim) wants every exception raw
         }
         loopGuard = true;
         handler.post(new LoopGuard());

@@ -39,6 +39,8 @@ Agent-facing files are in English on purpose (≈2–3× fewer tokens than Cyril
 - Tests without device: `bash scripts/ble-sim/run*.sh`, `bash scripts/ai-sim/run.sh`, `bash scripts/ai-sim/run-auto.sh`, `bash scripts/music-sim/run.sh`, `bash scripts/bluetens/run.sh`, `bash scripts/mastogo/run.sh`, `bash wiems/xems/run.sh`, `sh wiems/app/test/run.sh`, `bash scripts/fit-sim/run.sh`, `bash scripts/part-sim/run.sh`, `python3 scripts/voice-sim/run.py`, `sh scripts/voice-sim/run-dfu.sh`, `sh scripts/motion-sim/run.sh`, `sh scripts/motion-sim/run-dfu.sh`,
   `cd band-app && bash scripts/test-band.sh`, `cd server && npm test`, `python3 scripts/ui-map.py --check`,
   `sh scripts/xbody/test.sh`, `sh scripts/xbody/test-panel.sh`, `bash scripts/face-sim/run.sh`.
+- **The whole app off-device: `sh tools/app-sim/run.sh`** (real APK on Robolectric, simulated suit, voice, app clock;
+  screenshots + view trees + blink detector) — run it before shipping UI / AI / voice changes (`docs/xems-app-sim.md`).
 
 ## Invariants (breaking one = broken release)
 - Never edit `build/decompiled/`; change `scripts/apply-*.py`, `branding/`, or Java.

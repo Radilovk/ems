@@ -28,16 +28,16 @@
     .registers 3
 
     .prologue
-    .line 1132
+    .line 1148
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 1133
+    .line 1149
     iput-object p1, p0, Lcom/isaigu/gymapp/ai/AiTrain$SendKey;->f:Landroid/widget/EditText;
 
-    .line 1134
+    .line 1150
     iput-boolean p2, p0, Lcom/isaigu/gymapp/ai/AiTrain$SendKey;->live:Z
 
-    .line 1135
+    .line 1151
     return-void
 .end method
 
@@ -47,7 +47,7 @@
     .registers 6
 
     .prologue
-    .line 1139
+    .line 1155
     const/4 v0, 0x4
 
     if-eq p2, v0, :cond_16
@@ -58,7 +58,7 @@
 
     if-eqz p3, :cond_1f
 
-    .line 1140
+    .line 1156
     invoke-virtual {p3}, Landroid/view/KeyEvent;->getKeyCode()I
 
     move-result v0
@@ -73,7 +73,7 @@
 
     if-nez v0, :cond_1f
 
-    .line 1141
+    .line 1157
     :cond_16
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiTrain$SendKey;->f:Landroid/widget/EditText;
 
@@ -82,10 +82,10 @@
     # invokes: Lcom/isaigu/gymapp/ai/AiTrain;->fire(Landroid/widget/EditText;Z)V
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/ai/AiTrain;->access$100(Landroid/widget/EditText;Z)V
 
-    .line 1142
+    .line 1158
     const/4 v0, 0x1
 
-    .line 1144
+    .line 1160
     :goto_1e
     return v0
 

@@ -246,6 +246,11 @@ async function currentModel(env, fetchImpl, ts, lite = false) {
 /** The last refusal from Gemini (diagnostics: ai-smoke prints it). */
 export let lastError = '';
 
+/** The smoke test, before each step. */
+export function clearLastError() {
+  lastError = '';
+}
+
 /** Least thinking a model takes: none on 2.x Flash, "minimal" on 3.x — short, fast answers (owner, 1.1.535). */
 export function thinkingFor(model) {
   if (/^gemini-2\./.test(model)) return { thinkingBudget: 0 };
@@ -269,7 +274,7 @@ export function thinkingLadder(model) {
  * (400) is asked once more without it. Throws on a model / network failure (the tablet keeps what it has).
  */
 export async function generateJson(env, system, userText, schema, maxTokens, fetchImpl = fetch, ts = Date.now(),
-  lite = false) {
+  lite = false, temperature = 0) {
   if (!env.GEMINI_API_KEY) throw new Error('no_key');
   const model = await currentModel(env, fetchImpl, ts, lite);
   const ladder = thinkingLadder(model);
@@ -279,7 +284,7 @@ export async function generateJson(env, system, userText, schema, maxTokens, fet
   for (let attempt = 0; attempt < ladder.length + 1; attempt++) {
     const think = ladder[Math.min(attempt, ladder.length - 1)];
     const gen = {
-      temperature: 0,
+      temperature,
       responseMimeType: 'application/json',
       responseSchema: schema,
       // the thinking shares this budget (2026-11-24: 630 thought tokens cut a 900-token answer)
@@ -326,8 +331,11 @@ export async function generateJson(env, system, userText, schema, maxTokens, fet
     } catch {
       // cut off at the budget (2026-11-24, 1.1.548 smoke: the planning answer ran to 2985 tokens and stopped
       // mid-JSON): once more with twice the room — the tablet waits up to 30 s
-      if (cand?.finishReason === 'MAX_TOKENS' && maxTokens < 6000) {
-        return generateJson(env, system, userText, schema, Math.min(8192, maxTokens * 2), fetchImpl, ts, lite);
+      // not a lack of room but a loop (the 2nd run cut at 5985 too): at temperature 0 the model can repeat itself
+      // to the end of the budget — once more, a little warmer
+      if (cand?.finishReason === 'MAX_TOKENS' && temperature === 0) {
+        lastError = `cut at ${j?.usageMetadata?.candidatesTokenCount} tokens, tail=${JSON.stringify(text.slice(-160))}`;
+        return generateJson(env, system, userText, schema, maxTokens, fetchImpl, ts, lite, 0.4);
       }
       const u = j?.usageMetadata || {};
       throw new Error(`bad_json finish=${cand?.finishReason} out=${u.candidatesTokenCount} thoughts=${u.thoughtsTokenCount}`

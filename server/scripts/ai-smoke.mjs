@@ -58,7 +58,7 @@ for (const text of free) {
     const r = await coach(env, { kind: 'coach', domain: 'auto', menu, context: live, text, chat: [],
       run: { phase: 'Сила', min_done: 6, state: 'RUN' } });
     const k = r.coach || {};
-    const did = { a: k.actions, on: k.on_delta, off: k.off_delta, hz: k.hz_pct, rest: k.rest_pct, end: k.end_in_min };
+    const did = { c: k.commands, a: k.actions, on: k.on_delta, off: k.off_delta, hz: k.hz_pct, rest: k.rest_pct, end: k.end_in_min };
     console.log(`FREE "${text}" · ${Date.now() - t} ms · coach "${k.reply}"${k.question ? ' ? ' + k.question : ''} · ${JSON.stringify(did)}`);
   } catch (e) {
     console.log(`FREE "${text}" · error ${e && e.message}`);
@@ -69,12 +69,12 @@ for (const text of free) {
   const ctx = { kind: 'coach', domain: 'auto', menu, context: live, run: { phase: 'Сила', min_done: 6, state: 'RUN' } };
   const t = Date.now();
   try {
-    const a = (await coach(env, { ...ctx, text: 'дай малко повече на долната част на тялото', chat: [] })).coach;
+    const a = (await coach(env, { ...ctx, text: 'не ми е приятно така', chat: [] })).coach;
     console.log(`DIALOG 1 · ${Date.now() - t} ms · "${a.reply}"${a.question ? ' ? ' + a.question.text + ' ' + JSON.stringify(a.question.options) : ''} · ${JSON.stringify(a.commands)}`);
     const said = (a.reply || '') + (a.question ? ' ' + a.question.text : '');
     const t2 = Date.now();
-    const b = (await coach(env, { ...ctx, text: 'седалището', chat: [
-      { role: 'user', text: 'дай малко повече на долната част на тялото' }, { role: 'ai', text: said, q: !!a.question }] })).coach;
+    const b = (await coach(env, { ...ctx, text: (a.question && a.question.options[0]) || 'корема щипе', chat: [
+      { role: 'user', text: 'не ми е приятно така' }, { role: 'ai', text: said, q: !!a.question }] })).coach;
     console.log(`DIALOG 2 · ${Date.now() - t2} ms · "${b.reply}" · ${JSON.stringify(b.commands)}`);
   } catch (e) {
     console.log(`DIALOG · error ${e && e.message}`);

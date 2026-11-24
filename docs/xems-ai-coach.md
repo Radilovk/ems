@@ -316,3 +316,8 @@ it, the warm-up runs softer by design); "s" read aloud as a letter → "секу
 - **Faster command window**: Google's recognizer is bound at the start (`warmRecognizer`) and kept between
   windows (`cancelRecognizer`, not destroy) — re-binding cost ~0.3–0.5 s, the first words after "тренер" were
   lost. The window opens at once; the beep sounds at `onReadyForSpeech` ("speak now"), not at the wake.
+- **Server (same release)**: the voice already runs on the cheapest model (Flash-Lite, no thinking: commands and
+  live coach; only planning uses Flash). Live coach prompts now carry no program menu (live never changes the
+  program) and a shorter chat (6 turns × 240 chars) — roughly half the input tokens of every live call. The command
+  reader keeps clear readings per isolate (`commandKey`, 400 entries): a repeated phrase costs no model call
+  (`model: "cache"`).

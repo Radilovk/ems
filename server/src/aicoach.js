@@ -102,14 +102,19 @@ Each turn return JSON:
   after: within 1–2 h a meal with protein and some carbs; slimming → protein + vegetables, fewer carbs; water.`;
 
 /** CONTEXT (the session's inputs and plan as the tablet has them) + the chat + the latest message. */
+/** The running session's chat: fewer, shorter turns — each live call pays for its whole prompt (owner, 1.1.554). */
+const LIVE_TURNS = 6;
+const LIVE_TURN_CHARS = 240;
+
 export function coachPrompt(body) {
   const ctx = body.context && typeof body.context === 'object' ? body.context : {};
-  const turns = Array.isArray(body.chat) ? body.chat.slice(-MAX_TURNS) : [];
+  const live = ctx.session === 'RUNNING';
+  const turns = Array.isArray(body.chat) ? body.chat.slice(live ? -LIVE_TURNS : -MAX_TURNS) : [];
   const asked = turns.filter((t) => t && t.role === 'ai' && t.q).length;
   const lines = [`CONTEXT: ${JSON.stringify(ctx).slice(0, 3000)}`, `asked: ${asked}/${QUESTIONS_MAX}`, 'CHAT:'];
   for (const t of turns) {
     if (!t || typeof t.text !== 'string') continue;
-    lines.push(`${t.role === 'ai' ? 'coach' : 'trainer'}: ${t.text.slice(0, 400)}`);
+    lines.push(`${t.role === 'ai' ? 'coach' : 'trainer'}: ${t.text.slice(0, live ? LIVE_TURN_CHARS : 400)}`);
   }
   lines.push(`trainer: ${String(body.text || '').slice(0, 800)}`);
   return lines.join('\n');
@@ -221,11 +226,13 @@ export async function coach(env, body, fetchImpl = fetch, ts = Date.now()) {
   const live = body.context && body.context.session === 'RUNNING';
   const asked = live ? 0 : Array.isArray(body.chat) ? body.chat.filter((t) => t && t.role === 'ai' && t.q).length : 0;
   const auto = body.domain === 'auto';
-  const programs = auto && Array.isArray(body.menu)
+  // the running session never changes the program (liveTune reads the levels, not a program): no menu — about a
+  // thousand input tokens less on every live call
+  const programs = auto && !live && Array.isArray(body.menu)
     ? body.menu.map((m) => String(m?.id || '')).filter((id) => /^[a-z0-9_]{1,40}$/.test(id)).slice(0, 60)
     : [];
   let prompt = coachPrompt(body);
-  if (auto && body.menu) {
+  if (auto && !live && body.menu) {
     prompt = 'MENU: ' + body.menu.slice(0, 60).map((m) => `${m.id}=${String(m.name || '').slice(0, 40)} (${m.goal}/${m.kind})`)
       .join('; ') + '\n' + prompt;
   }
@@ -353,7 +360,35 @@ export function validateCommand(raw) {
   return { commands, actions, coach: !commands.length && !actions.length ? true : r.coach === true };
 }
 
+/**
+ * The same spoken words read the same way: kept per isolate (owner, 1.1.554 — the hall repeats "по-силно краката"
+ * all day; a repeat costs no model call). Only clear readings are kept; "coach" ones depend on the chat.
+ */
+const COMMAND_CACHE_MAX = 400;
+const commandCache = new Map();
+
+export function commandKey(text) {
+  return String(text || '').toLowerCase().replace(/ѝ/g, 'и').replace(/[^\p{L}\p{N}]+/gu, ' ').trim().slice(0, 300);
+}
+
+export function clearCommandCache() {
+  commandCache.clear();
+}
+
 export async function command(env, body, fetchImpl = fetch, ts = Date.now()) {
+  const key = commandKey(body.text);
+  const hit = key && commandCache.get(key);
+  if (hit) return { model: 'cache', command: hit };
+  const out = await commandCall(env, body, fetchImpl, ts);
+  const c = out.command;
+  if (key && !c.coach && (c.commands.length || c.actions.length)) {
+    if (commandCache.size >= COMMAND_CACHE_MAX) commandCache.delete(commandCache.keys().next().value);
+    commandCache.set(key, c);
+  }
+  return out;
+}
+
+async function commandCall(env, body, fetchImpl, ts) {
   const r = await generateJson(env, COMMAND_SYSTEM, String(body.text || '').slice(0, 300), commandSchema(), 800,
     fetchImpl, ts, true);
   return { model: r.model, command: validateCommand(r.raw) };

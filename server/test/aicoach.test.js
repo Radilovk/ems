@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { validateCoach, coachPrompt, coach, coachSchema, validateWorkout, workoutSchema } from '../src/aicoach.js';
 import { resetModelCache, thinkingFor, pickLiteModel } from '../src/aibrief.js';
-import { validateCommand, command } from '../src/aicoach.js';
+import { validateCommand, command, clearCommandCache, commandKey } from '../src/aicoach.js';
 
 test('validateCoach: known values only, windows clamped, questions capped at 3', () => {
   const c = validateCoach({
@@ -124,6 +124,7 @@ test('spoken commands: closed lists, the cheapest model', async () => {
   assert.equal(pickLiteModel([m('gemini-3-flash-lite-preview'), m('gemini-3-flash')]), 'gemini-3-flash-lite-preview');
   assert.equal(pickLiteModel([m('gemini-3-flash')]), null);
   resetModelCache();
+  clearCommandCache();
   const urls = [];
   const fake = async (url) => {
     urls.push(url);
@@ -139,6 +140,7 @@ test('spoken commands: closed lists, the cheapest model', async () => {
 
 test('a model without system instructions gets them in front of the user text', async () => {
   resetModelCache();
+  clearCommandCache();
   const bodies = [];
   const fake = async (url, init) => {
     const req = JSON.parse(init.body);
@@ -161,4 +163,47 @@ test('live coach commands: the answer to its question acts on one channel, unkno
     { target: 'legs', dir: 'up', step: 'small' }, { target: 'nose', dir: 'up' }, { target: 'abs', dir: 'sideways' }] });
   assert.deepEqual(c.commands, [{ target: 'legs', dir: 'up', step: 'small' }]);
   assert.deepEqual(validateCoach({ reply: 'x' }).commands, []);
+});
+
+test('command cache: the same words cost one model call; unclear readings are not kept', async () => {
+  resetModelCache();
+  clearCommandCache();
+  let calls = 0;
+  let answer = { commands: [{ target: 'legs', dir: 'up' }], coach: false };
+  const fake = async () => {
+    calls++;
+    return new Response(JSON.stringify({ candidates: [{ content: { parts: [{ text: JSON.stringify(answer) }] } }] }));
+  };
+  const env = { GEMINI_API_KEY: 'k', GEMINI_LITE_MODEL: 'gemini-2.5-flash-lite' };
+  const a = await command(env, { text: 'По-силно краката!' }, fake);
+  const b = await command(env, { text: 'по-силно   краката' }, fake);
+  assert.equal(calls, 1);
+  assert.equal(b.model, 'cache');
+  assert.deepEqual(b.command, a.command);
+  assert.equal(commandKey('По-силно, краката!'), commandKey('по силно краката'));
+  answer = { coach: true };
+  await command(env, { text: 'как е пулсът' }, fake);
+  await command(env, { text: 'как е пулсът' }, fake);
+  assert.equal(calls, 3);
+});
+
+test('live coach prompt: no program menu, a short chat — fewer input tokens on every live call', async () => {
+  resetModelCache();
+  const chat = [];
+  for (let i = 0; i < 12; i++) chat.push({ role: i % 2 ? 'ai' : 'user', text: 'дума '.repeat(100) });
+  const menu = [];
+  for (let i = 0; i < 40; i++) menu.push({ id: 'prog_' + i, name: 'Програма ' + i, goal: 'tone', kind: 'active' });
+  const prompts = [];
+  const fake = async (url, init) => {
+    const req = JSON.parse(init.body);
+    prompts.push(req.contents[0].parts[0].text);
+    return new Response(JSON.stringify({ candidates: [{ content: { parts: [{ text: JSON.stringify({ reply: 'Добре.' }) }] } }] }));
+  };
+  const env = { GEMINI_API_KEY: 'k', GEMINI_MODEL: 'gemini-3-flash', GEMINI_LITE_MODEL: 'gemini-2.5-flash-lite' };
+  await coach(env, { domain: 'auto', menu, chat, text: 'как е', context: { session: 'RUNNING' } }, fake);
+  await coach(env, { domain: 'auto', menu, chat, text: 'как е', context: { session: 'PREP' } }, fake);
+  const [live, prep] = prompts;
+  assert.ok(!live.includes('MENU:'));
+  assert.ok(prep.includes('MENU:'));
+  assert.ok(live.length < prep.length / 2, `live ${live.length} vs prep ${prep.length}`);
 });

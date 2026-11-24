@@ -240,6 +240,9 @@ async function currentModel(env, fetchImpl, ts, lite = false) {
   return lite ? modelCache.lite : name;
 }
 
+/** The last refusal from Gemini (diagnostics: ai-smoke prints it). */
+export let lastError = '';
+
 /** Least thinking a model takes: none on 2.x Flash, "minimal" on 3.x — short, fast answers (owner, 1.1.535). */
 export function thinkingFor(model) {
   if (/^gemini-2\./.test(model)) return { thinkingBudget: 0 };
@@ -273,17 +276,29 @@ export async function generateJson(env, system, userText, schema, maxTokens, fet
         generationConfig: gen,
       }),
     });
-    if (res.status === 400 && think && attempt === 0) continue;
     if (!res.ok) {
+      // Google's own message (never the key): what was refused — the thinking setting, the schema, the model
+      let why = '';
+      try {
+        const e = await res.json();
+        why = String(e?.error?.message || '').replace(/\s+/g, ' ').slice(0, 240);
+      } catch {
+        why = '';
+      }
+      lastError = `gemini ${res.status} (${think && attempt === 0 ? 'with' : 'without'} thinking setting): ${why}`;
+      if (res.status === 400 && think && attempt === 0) continue;
       if (res.status === 404) resetModelCache();
-      throw new Error(`gemini ${res.status}`);
+      throw new Error(lastError);
     }
     const j = await res.json();
-    const text = j?.candidates?.[0]?.content?.parts?.filter((p) => !p.thought).map((p) => p.text || '').join('') || '';
+    const cand = j?.candidates?.[0];
+    const text = cand?.content?.parts?.filter((p) => !p.thought).map((p) => p.text || '').join('') || '';
     try {
       return { model, raw: JSON.parse(text) };
     } catch {
-      throw new Error('bad_json');
+      const u = j?.usageMetadata || {};
+      throw new Error(`bad_json finish=${cand?.finishReason} out=${u.candidatesTokenCount} thoughts=${u.thoughtsTokenCount}`
+        + ` text=${JSON.stringify(text.slice(0, 120))}`);
     }
   }
   throw new Error('gemini 400');

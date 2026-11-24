@@ -2,6 +2,7 @@
 // the model the server picks, that Gemini accepts our response schemas, and how long a turn takes. No deploy, no D1.
 import { coach, workout, command } from '../src/aicoach.js';
 import { brief } from '../src/aibrief.js';
+import * as ab from '../src/aibrief.js';
 
 const env = { GEMINI_API_KEY: process.env.GEMINI_API_KEY };
 if (!env.GEMINI_API_KEY) { console.log('no GEMINI_API_KEY secret'); process.exit(1); }
@@ -28,6 +29,7 @@ async function step(name, fn) {
   } catch (e) {
     failed++;
     console.log(`FAIL ${name} · ${Date.now() - t} ms · ${e && e.message}`);
+    if (ab.lastError) console.log(`   last refusal: ${ab.lastError}`);
   }
 }
 await step('coach (auto)', () => coach(env, { kind: 'coach', domain: 'auto', menu, context,

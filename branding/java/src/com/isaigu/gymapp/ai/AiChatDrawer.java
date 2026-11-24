@@ -30,7 +30,7 @@ import java.util.List;
  * The AI's chat during the session (owner, 1.1.543 — docs/xems-ai-coach.md): a panel on the right side, like a
  * messenger — the trainer's words right, the AI's left, spoken words as 🎙 bubbles, what was changed as ✓ entries,
  * one-tap answers under the last question, and one line at the bottom whose button is 🎤 while empty and ➤ with text.
- * The training screen stays live beside it (not modal); with no touch for 10 s it slides away by itself.
+ * The training screen stays live beside it (not modal); it closes with ✕ only.
  */
 public final class AiChatDrawer {
     private AiChatDrawer() {}
@@ -267,12 +267,9 @@ public final class AiChatDrawer {
         return v;
     }
 
-    /** Any touch or key: the panel stays another 10 s; it never slides away while the AI writes or text waits. */
+    /** The chat stays until ✕ (owner, 1.1.546: "it hides by itself" — the 10 s auto-hide is gone). */
     static void touched() {
         MAIN.removeCallbacks(HIDE);
-        if (isOpen()) {
-            MAIN.postDelayed(HIDE, HIDE_MS);
-        }
     }
 
     private static void fire(Context c, String text) {
@@ -354,7 +351,7 @@ public final class AiChatDrawer {
             if (t.trim().length() > 0) {
                 fire(c, t);
             } else {
-                VoiceInput.listen(AiSession.activityOf(v), this);
+                VoiceInput.listen(AiTrain.activity(v), this);
             }
         }
 

@@ -39,6 +39,10 @@
 
 .field userId:J
 
+.field workFrac:D
+
+.field working:I
+
 .field writtenStrength:I
 
 .field writtenZones:[I
@@ -88,15 +92,15 @@
     .line 53
     iput v2, p0, Lcom/isaigu/gymapp/ai/AutoSession$Row;->lastStrength:I
 
-    .line 54
+    .line 57
     iput v2, p0, Lcom/isaigu/gymapp/ai/AutoSession$Row;->writtenStrength:I
 
-    .line 56
+    .line 59
     const-wide/high16 v0, 0x4014000000000000L    # 5.0
 
     iput-wide v0, p0, Lcom/isaigu/gymapp/ai/AutoSession$Row;->raiseBudget:D
 
-    .line 60
+    .line 63
     iput v2, p0, Lcom/isaigu/gymapp/ai/AutoSession$Row;->target:I
 
     return-void

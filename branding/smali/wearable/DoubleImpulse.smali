@@ -1091,7 +1091,7 @@
 
     if-nez v0, :cond_15
 
-    .line 721
+    .line 726
     :cond_14
     :goto_14
     return-void
@@ -1115,7 +1115,7 @@
     move-result-object v6
 
     .line 699
-    if-eqz v6, :cond_87
+    if-eqz v6, :cond_8d
 
     invoke-virtual {v6}, Ljava/lang/Boolean;->booleanValue()Z
 
@@ -1129,7 +1129,7 @@
 
     move-result v9
 
-    if-eqz v9, :cond_91
+    if-eqz v9, :cond_97
 
     :cond_31
     move v4, v1
@@ -1139,7 +1139,7 @@
     :goto_32
     const/4 v1, 0x2
 
-    if-ne v4, v1, :cond_ab
+    if-ne v4, v1, :cond_b1
 
     .line 705
     sget-object v6, Lcom/isaigu/gymapp/wearable/DoubleImpulse;->SETUP:Ljava/util/Map;
@@ -1159,10 +1159,10 @@
     .line 707
     monitor-exit v6
     :try_end_41
-    .catchall {:try_start_38 .. :try_end_41} :catchall_a6
+    .catchall {:try_start_38 .. :try_end_41} :catchall_ac
 
     .line 708
-    if-eqz v1, :cond_ab
+    if-eqz v1, :cond_b1
 
     .line 709
     invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
@@ -1219,19 +1219,26 @@
     :cond_6e
     if-eq v4, v5, :cond_78
 
-    if-eqz v8, :cond_a9
+    if-eqz v8, :cond_af
 
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/DoubleImpulse;->blocked(Lcom/isaigu/gymapp/train/model/TrainItem;)Ljava/lang/String;
 
     move-result-object v0
 
-    if-eqz v0, :cond_a9
+    if-eqz v0, :cond_af
 
     :cond_78
     const v0, 0x3ecccccd    # 0.4f
 
     .line 718
     :goto_7b
+    invoke-static {}, Lcom/isaigu/gymapp/ai/AutoLook;->isOn()Z
+
+    move-result v1
+
+    if-nez v1, :cond_14
+
+    .line 723
     invoke-virtual {v7}, Landroid/view/View;->getAlpha()F
 
     move-result v1
@@ -1240,49 +1247,49 @@
 
     if-eqz v1, :cond_14
 
-    .line 719
+    .line 724
     invoke-virtual {v7, v0}, Landroid/view/View;->setAlpha(F)V
 
     goto :goto_14
 
     .line 699
-    :cond_87
-    if-eqz v8, :cond_8f
+    :cond_8d
+    if-eqz v8, :cond_95
 
     iget-boolean v6, v8, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
 
-    if-eqz v6, :cond_8f
+    if-eqz v6, :cond_95
 
     move v6, v4
 
     goto :goto_29
 
-    :cond_8f
+    :cond_95
     move v6, v1
 
     goto :goto_29
 
     .line 700
-    :cond_91
+    :cond_97
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/DoubleImpulse;->muscle(Lcom/isaigu/gymapp/train/model/TrainItem;)Z
 
     move-result v9
 
-    if-eqz v9, :cond_99
+    if-eqz v9, :cond_9f
 
     move v4, v5
 
     goto :goto_32
 
-    :cond_99
-    if-nez v6, :cond_9d
+    :cond_9f
+    if-nez v6, :cond_a3
 
     move v4, v1
 
     goto :goto_32
 
     .line 701
-    :cond_9d
+    :cond_a3
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/DoubleImpulse;->active(Lcom/isaigu/gymapp/train/model/TrainItem;)Z
 
     move-result v1
@@ -1296,23 +1303,23 @@
     goto :goto_32
 
     .line 707
-    :catchall_a6
+    :catchall_ac
     move-exception v0
 
-    :try_start_a7
+    :try_start_ad
     monitor-exit v6
-    :try_end_a8
-    .catchall {:try_start_a7 .. :try_end_a8} :catchall_a6
+    :try_end_ae
+    .catchall {:try_start_ad .. :try_end_ae} :catchall_ac
 
     throw v0
 
-    :cond_a9
+    :cond_af
     move v0, v3
 
     .line 717
     goto :goto_7b
 
-    :cond_ab
+    :cond_b1
     move v1, v2
 
     goto :goto_55
@@ -2082,7 +2089,7 @@
 
     .line 639
     :cond_a2
-    if-eqz v5, :cond_e2
+    if-eqz v5, :cond_e8
 
     sget-object v0, Lcom/isaigu/gymapp/wearable/DoubleImpulse;->BLINK:Ljava/util/Map;
 
@@ -2090,7 +2097,13 @@
 
     move-result-object v0
 
-    if-eqz v0, :cond_e2
+    if-eqz v0, :cond_e8
+
+    invoke-static {}, Lcom/isaigu/gymapp/ai/AutoLook;->isOn()Z
+
+    move-result v0
+
+    if-nez v0, :cond_e8
 
     .line 642
     new-instance v0, Ljava/util/ArrayList;
@@ -2118,13 +2131,13 @@
     invoke-direct {v1}, Ljava/util/ArrayList;-><init>()V
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Blink;->start(Ljava/util/List;Ljava/util/List;)V
-    :try_end_c5
-    .catch Ljava/lang/Throwable; {:try_start_7 .. :try_end_c5} :catch_c7
+    :try_end_cb
+    .catch Ljava/lang/Throwable; {:try_start_7 .. :try_end_cb} :catch_cd
 
     goto/16 :goto_6
 
     .line 648
-    :catch_c7
+    :catch_cd
     move-exception v0
 
     .line 649
@@ -2153,16 +2166,16 @@
     goto/16 :goto_6
 
     .line 645
-    :cond_e2
+    :cond_e8
     if-nez v5, :cond_6
 
     .line 646
-    :try_start_e4
+    :try_start_ea
     sget-object v0, Lcom/isaigu/gymapp/wearable/DoubleImpulse;->BLINK:Ljava/util/Map;
 
     invoke-interface {v0, p0}, Ljava/util/Map;->remove(Ljava/lang/Object;)Ljava/lang/Object;
-    :try_end_e9
-    .catch Ljava/lang/Throwable; {:try_start_e4 .. :try_end_e9} :catch_c7
+    :try_end_ef
+    .catch Ljava/lang/Throwable; {:try_start_ea .. :try_end_ef} :catch_cd
 
     goto/16 :goto_6
 .end method

@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 290
+    .line 287
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,18 +34,18 @@
     .registers 5
 
     .prologue
-    .line 293
+    .line 290
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiChatDrawer;->isOpen()Z
 
     move-result v0
 
     if-nez v0, :cond_7
 
-    .line 303
+    .line 300
     :goto_6
     return-void
 
-    .line 296
+    .line 293
     :cond_7
     sget-boolean v0, Lcom/isaigu/gymapp/ai/AiTrain;->busy:Z
 
@@ -55,7 +55,7 @@
 
     if-nez v0, :cond_2d
 
-    .line 297
+    .line 294
     # getter for: Lcom/isaigu/gymapp/ai/AiChatDrawer;->field:Landroid/widget/EditText;
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiChatDrawer;->access$000()Landroid/widget/EditText;
 
@@ -92,11 +92,11 @@
     :cond_2d
     const/4 v0, 0x1
 
-    .line 298
+    .line 295
     :goto_2e
     if-eqz v0, :cond_40
 
-    .line 299
+    .line 296
     # getter for: Lcom/isaigu/gymapp/ai/AiChatDrawer;->MAIN:Landroid/os/Handler;
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiChatDrawer;->access$200()Landroid/os/Handler;
 
@@ -113,13 +113,13 @@
 
     goto :goto_6
 
-    .line 297
+    .line 294
     :cond_3e
     const/4 v0, 0x0
 
     goto :goto_2e
 
-    .line 302
+    .line 299
     :cond_40
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiChatDrawer;->close()V
 

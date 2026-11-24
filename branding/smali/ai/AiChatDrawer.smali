@@ -1687,7 +1687,7 @@
     .registers 4
 
     .prologue
-    .line 279
+    .line 276
     if-eqz p1, :cond_c
 
     invoke-virtual {p1}, Ljava/lang/String;->trim()Ljava/lang/String;
@@ -1700,30 +1700,30 @@
 
     if-nez v0, :cond_d
 
-    .line 288
+    .line 285
     :cond_c
     :goto_c
     return-void
 
-    .line 282
+    .line 279
     :cond_d
     const-string v0, ""
 
     sput-object v0, Lcom/isaigu/gymapp/ai/AiChatDrawer;->typed:Ljava/lang/String;
 
-    .line 283
+    .line 280
     sget-object v0, Lcom/isaigu/gymapp/ai/AiChatDrawer;->field:Landroid/widget/EditText;
 
     if-eqz v0, :cond_1c
 
-    .line 284
+    .line 281
     sget-object v0, Lcom/isaigu/gymapp/ai/AiChatDrawer;->field:Landroid/widget/EditText;
 
     const-string v1, ""
 
     invoke-virtual {v0, v1}, Landroid/widget/EditText;->setText(Ljava/lang/CharSequence;)V
 
-    .line 286
+    .line 283
     :cond_1c
     const/4 v0, 0x1
 
@@ -1731,7 +1731,7 @@
 
     invoke-static {p0, p1, v0, v1}, Lcom/isaigu/gymapp/ai/AiTrain;->send(Landroid/content/Context;Ljava/lang/String;ZZ)V
 
-    .line 287
+    .line 284
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiChatDrawer;->refresh()V
 
     goto :goto_c
@@ -2025,7 +2025,7 @@
 .end method
 
 .method static touched()V
-    .registers 4
+    .registers 2
 
     .prologue
     .line 272
@@ -2036,22 +2036,5 @@
     invoke-virtual {v0, v1}, Landroid/os/Handler;->removeCallbacks(Ljava/lang/Runnable;)V
 
     .line 273
-    invoke-static {}, Lcom/isaigu/gymapp/ai/AiChatDrawer;->isOpen()Z
-
-    move-result v0
-
-    if-eqz v0, :cond_16
-
-    .line 274
-    sget-object v0, Lcom/isaigu/gymapp/ai/AiChatDrawer;->MAIN:Landroid/os/Handler;
-
-    sget-object v1, Lcom/isaigu/gymapp/ai/AiChatDrawer;->HIDE:Ljava/lang/Runnable;
-
-    const-wide/16 v2, 0x2710
-
-    invoke-virtual {v0, v1, v2, v3}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
-
-    .line 276
-    :cond_16
     return-void
 .end method

@@ -77,7 +77,7 @@ public final class VoiceSettings {
         @Override
         public void onClick(View v) {
             XemsUi.haptic(v);
-            WakeSetup.open(AiSession.activityOf(v));
+            WakeSetup.open(AiTrain.activity(v));
         }
     }
 }

@@ -636,7 +636,7 @@ public final class DoubleImpulse {
                     }
                 }
             }
-            if (on && BLINK.remove(it) != null) {
+            if (on && BLINK.remove(it) != null && !com.isaigu.gymapp.ai.AutoLook.isOn()) {
                 // Only what the double impulse has just brought on the screen glows — the two new index buttons around
                 // the avatar (owner, 1.1.406); the rest of the row stays calm.
                 List<View> glow = new ArrayList<View>();
@@ -715,6 +715,11 @@ public final class DoubleImpulse {
             f.invalidateSelf();
         }
         float a = mode == Face.NONE || (b != null && blocked(it) != null) ? 0.4f : 1f;
+        if (com.isaigu.gymapp.ai.AutoLook.isOn()) {
+            // Auto / AI veil this button (AutoLook); setting it back here on every row refresh (the suit's status,
+            // ~1/s) and the veil on the next tick made it blink (owner, 1.1.546 — reproduced in tools/app-sim)
+            return;
+        }
         if (btn.getAlpha() != a) {
             btn.setAlpha(a);
         }

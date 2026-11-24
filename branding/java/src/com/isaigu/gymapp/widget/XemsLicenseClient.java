@@ -435,9 +435,18 @@ public final class XemsLicenseClient {
         if (!serverConfigured() || token == null || token.length() == 0) {
             throw new IllegalStateException("no license server");
         }
-        return http("POST", "/v1/ai/brief", "{" + common(c) + ",\"token\":" + XemsLicenseToken.quote(token) + ","
-                + fieldsJson + "}");
+        String body = "{" + common(c) + ",\"token\":" + XemsLicenseToken.quote(token) + "," + fieldsJson + "}";
+        // the model needs 5–15 s (a retry inside the server more): the licence's 10 s cut it off now and then —
+        // "no AI connection" one time, an answer the next (owner, 1.1.546). 30 s, and once more on a failure.
+        try {
+            return http("POST", "/v1/ai/brief", body, AI_TIMEOUT_MS);
+        } catch (Exception first) {
+            android.util.Log.w("xems_ai", "brief retry after " + first);
+            return http("POST", "/v1/ai/brief", body, AI_TIMEOUT_MS);
+        }
     }
+
+    static final int AI_TIMEOUT_MS = 30000;
 
     // ================================================================ client card
 
@@ -558,14 +567,18 @@ public final class XemsLicenseClient {
     }
 
     static String http(String method, String path, String body) throws Exception {
+        return http(method, path, body, TIMEOUT_MS);
+    }
+
+    static String http(String method, String path, String body, int timeoutMs) throws Exception {
         String base = XemsLicense.server();
         while (base.endsWith("/")) {
             base = base.substring(0, base.length() - 1);
         }
         HttpURLConnection con = (HttpURLConnection) new URL(base + path).openConnection();
         con.setRequestMethod(method);
-        con.setConnectTimeout(TIMEOUT_MS);
-        con.setReadTimeout(TIMEOUT_MS);
+        con.setConnectTimeout(Math.min(TIMEOUT_MS, timeoutMs));
+        con.setReadTimeout(timeoutMs);
         con.setRequestProperty("Accept", "application/json");
         con.setRequestProperty("User-Agent", "XEMS-Android");
         if (body != null) {

@@ -249,3 +249,18 @@ test('the coach asks Google with the route: the main model, thinking medium for 
   assert.match(bodies[0].systemInstruction.parts[0].text, /RED FLAGS/);
   assert.equal(r.route, 'careful');
 });
+
+test('commands carry the named number as points of the 0–100 scale: up by / set to', () => {
+  const c = validateCommand({ commands: [
+    { target: 'strength', dir: 'up', amount: 1 }, { target: 'legs', dir: 'set', amount: 50 },
+    { target: 'arms', dir: 'set' }, { target: 'abs', dir: 'down', amount: 250 }, { target: 'glutes', dir: 'off', amount: 5 },
+    { target: 'chest', dir: 'up' }] });
+  assert.deepEqual(c.commands, [
+    { target: 'strength', dir: 'up', step: 'normal', amount: 1 },
+    { target: 'legs', dir: 'set', step: 'normal', amount: 50 },
+    { target: 'abs', dir: 'down', step: 'normal', amount: 100 },
+    { target: 'glutes', dir: 'off', step: 'normal' },
+    { target: 'chest', dir: 'up', step: 'normal' }]);
+  const k = validateCoach({ reply: 'Вдигам с един.', commands: [{ target: 'strength', dir: 'up', amount: 1 }] });
+  assert.deepEqual(k.commands, [{ target: 'strength', dir: 'up', step: 'normal', amount: 1 }]);
+});

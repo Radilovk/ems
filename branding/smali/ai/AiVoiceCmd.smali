@@ -19,6 +19,10 @@
 
 .field public static final TARGETS_BG:[Ljava/lang/String;
 
+.field private static final TEENS_TENS:[[Ljava/lang/String;
+
+.field private static final UNITS:[[Ljava/lang/String;
+
 .field static final WAKE:[Ljava/lang/String;
 
 .field private static final WORDS:[[Ljava/lang/String;
@@ -155,13 +159,13 @@
 
     new-array v1, v8, [I
 
-    fill-array-data v1, :array_2b2
+    fill-array-data v1, :array_4fe
 
     aput-object v1, v0, v6
 
     new-array v1, v7, [I
 
-    fill-array-data v1, :array_2bc
+    fill-array-data v1, :array_508
 
     aput-object v1, v0, v7
 
@@ -263,7 +267,7 @@
 
     new-array v2, v2, [I
 
-    fill-array-data v2, :array_2c4
+    fill-array-data v2, :array_510
 
     aput-object v2, v0, v1
 
@@ -750,25 +754,621 @@
 
     sput-object v0, Lcom/isaigu/gymapp/ai/AiVoiceCmd;->WORDS:[[Ljava/lang/String;
 
+    .line 148
+    const/16 v0, 0xc
+
+    new-array v0, v0, [[Ljava/lang/String;
+
+    new-array v1, v7, [Ljava/lang/String;
+
+    const-string v2, "\u0435\u0434\u0438\u043d"
+
+    aput-object v2, v1, v5
+
+    const-string v2, "1"
+
+    aput-object v2, v1, v6
+
+    aput-object v1, v0, v5
+
+    new-array v1, v7, [Ljava/lang/String;
+
+    const-string v2, "\u0435\u0434\u043d\u0430"
+
+    aput-object v2, v1, v5
+
+    const-string v2, "1"
+
+    aput-object v2, v1, v6
+
+    aput-object v1, v0, v6
+
+    new-array v1, v7, [Ljava/lang/String;
+
+    const-string v2, "\u0435\u0434\u043d\u043e"
+
+    aput-object v2, v1, v5
+
+    const-string v2, "1"
+
+    aput-object v2, v1, v6
+
+    aput-object v1, v0, v7
+
+    new-array v1, v7, [Ljava/lang/String;
+
+    const-string v2, "\u0434\u0432\u0430"
+
+    aput-object v2, v1, v5
+
+    const-string v2, "2"
+
+    aput-object v2, v1, v6
+
+    aput-object v1, v0, v8
+
+    new-array v1, v7, [Ljava/lang/String;
+
+    const-string v2, "\u0434\u0432\u0435"
+
+    aput-object v2, v1, v5
+
+    const-string v2, "2"
+
+    aput-object v2, v1, v6
+
+    aput-object v1, v0, v9
+
+    const/4 v1, 0x5
+
+    new-array v2, v7, [Ljava/lang/String;
+
+    const-string v3, "\u0442\u0440\u0438"
+
+    aput-object v3, v2, v5
+
+    const-string v3, "3"
+
+    aput-object v3, v2, v6
+
+    aput-object v2, v0, v1
+
+    const/4 v1, 0x6
+
+    new-array v2, v7, [Ljava/lang/String;
+
+    const-string v3, "\u0447\u0435\u0442\u0438\u0440\u0438"
+
+    aput-object v3, v2, v5
+
+    const-string v3, "4"
+
+    aput-object v3, v2, v6
+
+    aput-object v2, v0, v1
+
+    const/4 v1, 0x7
+
+    new-array v2, v7, [Ljava/lang/String;
+
+    const-string v3, "\u043f\u0435\u0442"
+
+    aput-object v3, v2, v5
+
+    const-string v3, "5"
+
+    aput-object v3, v2, v6
+
+    aput-object v2, v0, v1
+
+    const/16 v1, 0x8
+
+    new-array v2, v7, [Ljava/lang/String;
+
+    const-string v3, "\u0448\u0435\u0441\u0442"
+
+    aput-object v3, v2, v5
+
+    const-string v3, "6"
+
+    aput-object v3, v2, v6
+
+    aput-object v2, v0, v1
+
+    const/16 v1, 0x9
+
+    new-array v2, v7, [Ljava/lang/String;
+
+    const-string v3, "\u0441\u0435\u0434\u0435\u043c"
+
+    aput-object v3, v2, v5
+
+    const-string v3, "7"
+
+    aput-object v3, v2, v6
+
+    aput-object v2, v0, v1
+
+    const/16 v1, 0xa
+
+    new-array v2, v7, [Ljava/lang/String;
+
+    const-string v3, "\u043e\u0441\u0435\u043c"
+
+    aput-object v3, v2, v5
+
+    const-string v3, "8"
+
+    aput-object v3, v2, v6
+
+    aput-object v2, v0, v1
+
+    const/16 v1, 0xb
+
+    new-array v2, v7, [Ljava/lang/String;
+
+    const-string v3, "\u0434\u0435\u0432\u0435\u0442"
+
+    aput-object v3, v2, v5
+
+    const-string v3, "9"
+
+    aput-object v3, v2, v6
+
+    aput-object v2, v0, v1
+
+    sput-object v0, Lcom/isaigu/gymapp/ai/AiVoiceCmd;->UNITS:[[Ljava/lang/String;
+
+    .line 150
+    const/16 v0, 0x1f
+
+    new-array v0, v0, [[Ljava/lang/String;
+
+    new-array v1, v7, [Ljava/lang/String;
+
+    const-string v2, "\u0434\u0435\u0441\u0435\u0442"
+
+    aput-object v2, v1, v5
+
+    const-string v2, "10"
+
+    aput-object v2, v1, v6
+
+    aput-object v1, v0, v5
+
+    new-array v1, v7, [Ljava/lang/String;
+
+    const-string v2, "\u0435\u0434\u0438\u043d\u0430\u0434\u0435\u0441\u0435\u0442"
+
+    aput-object v2, v1, v5
+
+    const-string v2, "11"
+
+    aput-object v2, v1, v6
+
+    aput-object v1, v0, v6
+
+    new-array v1, v7, [Ljava/lang/String;
+
+    const-string v2, "\u0435\u0434\u0438\u043d\u0430\u0439\u0441\u0435\u0442"
+
+    aput-object v2, v1, v5
+
+    const-string v2, "11"
+
+    aput-object v2, v1, v6
+
+    aput-object v1, v0, v7
+
+    new-array v1, v7, [Ljava/lang/String;
+
+    const-string v2, "\u0434\u0432\u0430\u043d\u0430\u0434\u0435\u0441\u0435\u0442"
+
+    aput-object v2, v1, v5
+
+    const-string v2, "12"
+
+    aput-object v2, v1, v6
+
+    aput-object v1, v0, v8
+
+    new-array v1, v7, [Ljava/lang/String;
+
+    const-string v2, "\u0434\u0432\u0430\u043d\u0430\u0439\u0441\u0435\u0442"
+
+    aput-object v2, v1, v5
+
+    const-string v2, "12"
+
+    aput-object v2, v1, v6
+
+    aput-object v1, v0, v9
+
+    const/4 v1, 0x5
+
+    new-array v2, v7, [Ljava/lang/String;
+
+    const-string v3, "\u0442\u0440\u0438\u043d\u0430\u0434\u0435\u0441\u0435\u0442"
+
+    aput-object v3, v2, v5
+
+    const-string v3, "13"
+
+    aput-object v3, v2, v6
+
+    aput-object v2, v0, v1
+
+    const/4 v1, 0x6
+
+    new-array v2, v7, [Ljava/lang/String;
+
+    const-string v3, "\u0442\u0440\u0438\u043d\u0430\u0439\u0441\u0435\u0442"
+
+    aput-object v3, v2, v5
+
+    const-string v3, "13"
+
+    aput-object v3, v2, v6
+
+    aput-object v2, v0, v1
+
+    const/4 v1, 0x7
+
+    new-array v2, v7, [Ljava/lang/String;
+
+    const-string v3, "\u0447\u0435\u0442\u0438\u0440\u0438\u043d\u0430\u0434\u0435\u0441\u0435\u0442"
+
+    aput-object v3, v2, v5
+
+    const-string v3, "14"
+
+    aput-object v3, v2, v6
+
+    aput-object v2, v0, v1
+
+    const/16 v1, 0x8
+
+    new-array v2, v7, [Ljava/lang/String;
+
+    const-string v3, "\u0447\u0435\u0442\u0438\u0440\u0438\u043d\u0430\u0439\u0441\u0435\u0442"
+
+    aput-object v3, v2, v5
+
+    const-string v3, "14"
+
+    aput-object v3, v2, v6
+
+    aput-object v2, v0, v1
+
+    const/16 v1, 0x9
+
+    new-array v2, v7, [Ljava/lang/String;
+
+    const-string v3, "\u043f\u0435\u0442\u043d\u0430\u0434\u0435\u0441\u0435\u0442"
+
+    aput-object v3, v2, v5
+
+    const-string v3, "15"
+
+    aput-object v3, v2, v6
+
+    aput-object v2, v0, v1
+
+    const/16 v1, 0xa
+
+    new-array v2, v7, [Ljava/lang/String;
+
+    const-string v3, "\u043f\u0435\u0442\u043d\u0430\u0439\u0441\u0435\u0442"
+
+    aput-object v3, v2, v5
+
+    const-string v3, "15"
+
+    aput-object v3, v2, v6
+
+    aput-object v2, v0, v1
+
+    const/16 v1, 0xb
+
+    new-array v2, v7, [Ljava/lang/String;
+
+    const-string v3, "\u0448\u0435\u0441\u0442\u043d\u0430\u0434\u0435\u0441\u0435\u0442"
+
+    aput-object v3, v2, v5
+
+    const-string v3, "16"
+
+    aput-object v3, v2, v6
+
+    aput-object v2, v0, v1
+
+    const/16 v1, 0xc
+
+    new-array v2, v7, [Ljava/lang/String;
+
+    const-string v3, "\u0448\u0435\u0441\u0442\u043d\u0430\u0439\u0441\u0435\u0442"
+
+    aput-object v3, v2, v5
+
+    const-string v3, "16"
+
+    aput-object v3, v2, v6
+
+    aput-object v2, v0, v1
+
+    const/16 v1, 0xd
+
+    new-array v2, v7, [Ljava/lang/String;
+
+    const-string v3, "\u0441\u0435\u0434\u0435\u043c\u043d\u0430\u0434\u0435\u0441\u0435\u0442"
+
+    aput-object v3, v2, v5
+
+    const-string v3, "17"
+
+    aput-object v3, v2, v6
+
+    aput-object v2, v0, v1
+
+    const/16 v1, 0xe
+
+    new-array v2, v7, [Ljava/lang/String;
+
+    const-string v3, "\u0441\u0435\u0434\u0435\u043c\u043d\u0430\u0439\u0441\u0435\u0442"
+
+    aput-object v3, v2, v5
+
+    const-string v3, "17"
+
+    aput-object v3, v2, v6
+
+    aput-object v2, v0, v1
+
+    const/16 v1, 0xf
+
+    new-array v2, v7, [Ljava/lang/String;
+
+    const-string v3, "\u043e\u0441\u0435\u043c\u043d\u0430\u0434\u0435\u0441\u0435\u0442"
+
+    aput-object v3, v2, v5
+
+    const-string v3, "18"
+
+    aput-object v3, v2, v6
+
+    aput-object v2, v0, v1
+
+    const/16 v1, 0x10
+
+    new-array v2, v7, [Ljava/lang/String;
+
+    const-string v3, "\u043e\u0441\u0435\u043c\u043d\u0430\u0439\u0441\u0435\u0442"
+
+    aput-object v3, v2, v5
+
+    const-string v3, "18"
+
+    aput-object v3, v2, v6
+
+    aput-object v2, v0, v1
+
+    const/16 v1, 0x11
+
+    new-array v2, v7, [Ljava/lang/String;
+
+    const-string v3, "\u0434\u0435\u0432\u0435\u0442\u043d\u0430\u0434\u0435\u0441\u0435\u0442"
+
+    aput-object v3, v2, v5
+
+    const-string v3, "19"
+
+    aput-object v3, v2, v6
+
+    aput-object v2, v0, v1
+
+    const/16 v1, 0x12
+
+    new-array v2, v7, [Ljava/lang/String;
+
+    const-string v3, "\u0434\u0435\u0432\u0435\u0442\u043d\u0430\u0439\u0441\u0435\u0442"
+
+    aput-object v3, v2, v5
+
+    const-string v3, "19"
+
+    aput-object v3, v2, v6
+
+    aput-object v2, v0, v1
+
+    const/16 v1, 0x13
+
+    new-array v2, v7, [Ljava/lang/String;
+
+    const-string v3, "\u0434\u0432\u0430\u0434\u0435\u0441\u0435\u0442"
+
+    aput-object v3, v2, v5
+
+    const-string v3, "20"
+
+    aput-object v3, v2, v6
+
+    aput-object v2, v0, v1
+
+    const/16 v1, 0x14
+
+    new-array v2, v7, [Ljava/lang/String;
+
+    const-string v3, "\u0434\u0432\u0430\u0439\u0441\u0435\u0442"
+
+    aput-object v3, v2, v5
+
+    const-string v3, "20"
+
+    aput-object v3, v2, v6
+
+    aput-object v2, v0, v1
+
+    const/16 v1, 0x15
+
+    new-array v2, v7, [Ljava/lang/String;
+
+    const-string v3, "\u0442\u0440\u0438\u0434\u0435\u0441\u0435\u0442"
+
+    aput-object v3, v2, v5
+
+    const-string v3, "30"
+
+    aput-object v3, v2, v6
+
+    aput-object v2, v0, v1
+
+    const/16 v1, 0x16
+
+    new-array v2, v7, [Ljava/lang/String;
+
+    const-string v3, "\u0442\u0440\u0438\u0439\u0441\u0435\u0442"
+
+    aput-object v3, v2, v5
+
+    const-string v3, "30"
+
+    aput-object v3, v2, v6
+
+    aput-object v2, v0, v1
+
+    const/16 v1, 0x17
+
+    new-array v2, v7, [Ljava/lang/String;
+
+    const-string v3, "\u0447\u0435\u0442\u0438\u0440\u0438\u0434\u0435\u0441\u0435\u0442"
+
+    aput-object v3, v2, v5
+
+    const-string v3, "40"
+
+    aput-object v3, v2, v6
+
+    aput-object v2, v0, v1
+
+    const/16 v1, 0x18
+
+    new-array v2, v7, [Ljava/lang/String;
+
+    const-string v3, "\u0447\u0435\u0442\u0438\u0440\u0438\u0439\u0441\u0435\u0442"
+
+    aput-object v3, v2, v5
+
+    const-string v3, "40"
+
+    aput-object v3, v2, v6
+
+    aput-object v2, v0, v1
+
+    const/16 v1, 0x19
+
+    new-array v2, v7, [Ljava/lang/String;
+
+    const-string v3, "\u043f\u0435\u0442\u0434\u0435\u0441\u0435\u0442"
+
+    aput-object v3, v2, v5
+
+    const-string v3, "50"
+
+    aput-object v3, v2, v6
+
+    aput-object v2, v0, v1
+
+    const/16 v1, 0x1a
+
+    new-array v2, v7, [Ljava/lang/String;
+
+    const-string v3, "\u0448\u0435\u0441\u0442\u0434\u0435\u0441\u0435\u0442"
+
+    aput-object v3, v2, v5
+
+    const-string v3, "60"
+
+    aput-object v3, v2, v6
+
+    aput-object v2, v0, v1
+
+    const/16 v1, 0x1b
+
+    new-array v2, v7, [Ljava/lang/String;
+
+    const-string v3, "\u0441\u0435\u0434\u0435\u043c\u0434\u0435\u0441\u0435\u0442"
+
+    aput-object v3, v2, v5
+
+    const-string v3, "70"
+
+    aput-object v3, v2, v6
+
+    aput-object v2, v0, v1
+
+    const/16 v1, 0x1c
+
+    new-array v2, v7, [Ljava/lang/String;
+
+    const-string v3, "\u043e\u0441\u0435\u043c\u0434\u0435\u0441\u0435\u0442"
+
+    aput-object v3, v2, v5
+
+    const-string v3, "80"
+
+    aput-object v3, v2, v6
+
+    aput-object v2, v0, v1
+
+    const/16 v1, 0x1d
+
+    new-array v2, v7, [Ljava/lang/String;
+
+    const-string v3, "\u0434\u0435\u0432\u0435\u0442\u0434\u0435\u0441\u0435\u0442"
+
+    aput-object v3, v2, v5
+
+    const-string v3, "90"
+
+    aput-object v3, v2, v6
+
+    aput-object v2, v0, v1
+
+    const/16 v1, 0x1e
+
+    new-array v2, v7, [Ljava/lang/String;
+
+    const-string v3, "\u0441\u0442\u043e"
+
+    aput-object v3, v2, v5
+
+    const-string v3, "100"
+
+    aput-object v3, v2, v6
+
+    aput-object v2, v0, v1
+
+    sput-object v0, Lcom/isaigu/gymapp/ai/AiVoiceCmd;->TEENS_TENS:[[Ljava/lang/String;
+
     return-void
 
     .line 23
     nop
 
-    :array_2b2
+    :array_4fe
     .array-data 4
         0x2
         0x9
         0x3
     .end array-data
 
-    :array_2bc
+    :array_508
     .array-data 4
         0x2
         0x9
     .end array-data
 
-    :array_2c4
+    :array_510
     .array-data 4
         0x0
         0x1
@@ -924,7 +1524,7 @@
     .registers 4
 
     .prologue
-    .line 410
+    .line 485
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiVoiceCmd$Result;->commands:Ljava/util/List;
 
     invoke-interface {v0}, Ljava/util/List;->iterator()Ljava/util/Iterator;
@@ -944,7 +1544,7 @@
 
     check-cast v0, Lcom/isaigu/gymapp/ai/AiVoiceCmd$Cmd;
 
-    .line 411
+    .line 486
     iget-object v0, v0, Lcom/isaigu/gymapp/ai/AiVoiceCmd$Cmd;->target:Ljava/lang/String;
 
     invoke-virtual {v0, p1}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
@@ -953,10 +1553,10 @@
 
     if-eqz v0, :cond_6
 
-    .line 412
+    .line 487
     const/4 v0, 0x1
 
-    .line 415
+    .line 490
     :goto_1b
     return v0
 
@@ -978,35 +1578,35 @@
     .end annotation
 
     .prologue
-    .line 366
+    .line 433
     new-instance v0, Lcom/isaigu/gymapp/ai/AiVoiceCmd$Result;
 
     invoke-direct {v0}, Lcom/isaigu/gymapp/ai/AiVoiceCmd$Result;-><init>()V
 
-    .line 368
+    .line 435
     if-eqz p0, :cond_a
 
-    .line 369
+    .line 436
     :try_start_7
     invoke-static {p0, v0}, Lcom/isaigu/gymapp/ai/AiVoiceCmd;->read(Ljava/util/Map;Lcom/isaigu/gymapp/ai/AiVoiceCmd$Result;)V
     :try_end_a
     .catch Ljava/lang/RuntimeException; {:try_start_7 .. :try_end_a} :catch_10
 
-    .line 374
+    .line 441
     :cond_a
     :goto_a
     iget-object v1, v0, Lcom/isaigu/gymapp/ai/AiVoiceCmd$Result;->actions:Ljava/util/List;
 
     invoke-interface {v1}, Ljava/util/List;->clear()V
 
-    .line 375
+    .line 442
     return-object v0
 
-    .line 371
+    .line 438
     :catch_10
     move-exception v1
 
-    .line 372
+    .line 439
     iget-object v1, v0, Lcom/isaigu/gymapp/ai/AiVoiceCmd$Result;->commands:Ljava/util/List;
 
     invoke-interface {v1}, Ljava/util/List;->clear()V
@@ -1020,7 +1620,7 @@
     .prologue
     const/4 v0, 0x0
 
-    .line 419
+    .line 494
     array-length v2, p1
 
     move v1, v0
@@ -1030,21 +1630,21 @@
 
     aget-object v3, p1, v1
 
-    .line 420
+    .line 495
     invoke-virtual {p0, v3}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
 
     move-result v3
 
     if-eqz v3, :cond_f
 
-    .line 421
+    .line 496
     const/4 v0, 0x1
 
-    .line 424
+    .line 499
     :cond_e
     return v0
 
-    .line 419
+    .line 494
     :cond_f
     add-int/lit8 v1, v1, 0x1
 
@@ -1057,7 +1657,7 @@
     .prologue
     const/4 v1, 0x1
 
-    .line 335
+    .line 402
     move v0, v1
 
     :goto_2
@@ -1069,7 +1669,7 @@
 
     move v2, v1
 
-    .line 336
+    .line 403
     :goto_8
     sget-object v3, Lcom/isaigu/gymapp/ai/AiVoiceCmd;->WORDS:[[Ljava/lang/String;
 
@@ -1079,7 +1679,7 @@
 
     if-ge v2, v3, :cond_1f
 
-    .line 337
+    .line 404
     sget-object v3, Lcom/isaigu/gymapp/ai/AiVoiceCmd;->WORDS:[[Ljava/lang/String;
 
     aget-object v3, v3, v0
@@ -1092,23 +1692,23 @@
 
     if-eqz v3, :cond_1c
 
-    .line 342
+    .line 409
     :goto_1b
     return v1
 
-    .line 336
+    .line 403
     :cond_1c
     add-int/lit8 v2, v2, 0x1
 
     goto :goto_8
 
-    .line 335
+    .line 402
     :cond_1f
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_2
 
-    .line 342
+    .line 409
     :cond_22
     const/4 v1, 0x0
 
@@ -1328,14 +1928,14 @@
     .registers 3
 
     .prologue
-    .line 405
+    .line 480
     sget-object v0, Lcom/isaigu/gymapp/ai/AiVoiceCmd;->TARGETS:[Ljava/lang/String;
 
     invoke-static {p0, v0}, Lcom/isaigu/gymapp/ai/AiCoach;->indexOf(Ljava/lang/String;[Ljava/lang/String;)I
 
     move-result v0
 
-    .line 406
+    .line 481
     if-ltz v0, :cond_c
 
     sget-object v1, Lcom/isaigu/gymapp/ai/AiVoiceCmd;->TARGETS_BG:[Ljava/lang/String;
@@ -1346,27 +1946,360 @@
     return-object p0
 .end method
 
+.method private static num(Ljava/lang/String;)Ljava/lang/String;
+    .registers 7
+
+    .prologue
+    const/4 v1, 0x0
+
+    .line 203
+    invoke-static {p0}, Lcom/isaigu/gymapp/ai/AiVoiceCmd;->unit(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
+
+    .line 204
+    if-eqz v0, :cond_8
+
+    .line 212
+    :goto_7
+    return-object v0
+
+    .line 207
+    :cond_8
+    sget-object v2, Lcom/isaigu/gymapp/ai/AiVoiceCmd;->TEENS_TENS:[[Ljava/lang/String;
+
+    array-length v3, v2
+
+    move v0, v1
+
+    :goto_c
+    if-ge v0, v3, :cond_1f
+
+    aget-object v4, v2, v0
+
+    .line 208
+    aget-object v5, v4, v1
+
+    invoke-virtual {v5, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v5
+
+    if-eqz v5, :cond_1c
+
+    .line 209
+    const/4 v0, 0x1
+
+    aget-object v0, v4, v0
+
+    goto :goto_7
+
+    .line 207
+    :cond_1c
+    add-int/lit8 v0, v0, 0x1
+
+    goto :goto_c
+
+    .line 212
+    :cond_1f
+    const/4 v0, 0x0
+
+    goto :goto_7
+.end method
+
+.method public static numbers(Ljava/lang/String;)Ljava/lang/String;
+    .registers 8
+
+    .prologue
+    const/4 v1, 0x0
+
+    .line 164
+    const-string v0, " "
+
+    const/4 v2, -0x1
+
+    invoke-virtual {p0, v0, v2}, Ljava/lang/String;->split(Ljava/lang/String;I)[Ljava/lang/String;
+
+    move-result-object v3
+
+    .line 165
+    new-instance v4, Ljava/util/ArrayList;
+
+    invoke-direct {v4}, Ljava/util/ArrayList;-><init>()V
+
+    move v0, v1
+
+    .line 166
+    :goto_e
+    array-length v2, v3
+
+    if-ge v0, v2, :cond_bc
+
+    .line 167
+    aget-object v2, v3, v0
+
+    invoke-static {v2}, Lcom/isaigu/gymapp/ai/AiVoiceCmd;->num(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v5
+
+    .line 168
+    if-eqz v5, :cond_78
+
+    if-lez v0, :cond_3f
+
+    const-string v2, "\u0441"
+
+    add-int/lit8 v6, v0, -0x1
+
+    aget-object v6, v3, v6
+
+    invoke-virtual {v2, v6}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v2
+
+    if-nez v2, :cond_6d
+
+    const-string v2, "\u043d\u0430"
+
+    add-int/lit8 v6, v0, -0x1
+
+    aget-object v6, v3, v6
+
+    invoke-virtual {v2, v6}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v2
+
+    if-nez v2, :cond_6d
+
+    const-string v2, "\u0434\u043e"
+
+    add-int/lit8 v6, v0, -0x1
+
+    aget-object v6, v3, v6
+
+    invoke-virtual {v2, v6}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v2
+
+    if-nez v2, :cond_6d
+
+    :cond_3f
+    add-int/lit8 v2, v0, 0x1
+
+    array-length v6, v3
+
+    if-ge v2, v6, :cond_50
+
+    add-int/lit8 v2, v0, 0x1
+
+    aget-object v2, v3, v2
+
+    const-string v6, "\u043f\u0440\u043e\u0446\u0435\u043d\u0442"
+
+    .line 169
+    invoke-virtual {v2, v6}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
+
+    move-result v2
+
+    if-nez v2, :cond_6d
+
+    :cond_50
+    add-int/lit8 v2, v0, 0x3
+
+    array-length v6, v3
+
+    if-ge v2, v6, :cond_78
+
+    const-string v2, "\u0438"
+
+    add-int/lit8 v6, v0, 0x1
+
+    aget-object v6, v3, v6
+
+    .line 170
+    invoke-virtual {v2, v6}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v2
+
+    if-eqz v2, :cond_78
+
+    add-int/lit8 v2, v0, 0x3
+
+    aget-object v2, v3, v2
+
+    const-string v6, "\u043f\u0440\u043e\u0446\u0435\u043d\u0442"
+
+    invoke-virtual {v2, v6}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
+
+    move-result v2
+
+    if-eqz v2, :cond_78
+
+    :cond_6d
+    const/4 v2, 0x1
+
+    .line 171
+    :goto_6e
+    if-nez v2, :cond_7a
+
+    .line 172
+    aget-object v2, v3, v0
+
+    invoke-interface {v4, v2}, Ljava/util/List;->add(Ljava/lang/Object;)Z
+
+    .line 166
+    :goto_75
+    add-int/lit8 v0, v0, 0x1
+
+    goto :goto_e
+
+    :cond_78
+    move v2, v1
+
+    .line 170
+    goto :goto_6e
+
+    .line 175
+    :cond_7a
+    invoke-static {v5}, Ljava/lang/Integer;->parseInt(Ljava/lang/String;)I
+
+    move-result v2
+
+    .line 177
+    const/16 v5, 0x14
+
+    if-lt v2, v5, :cond_b4
+
+    rem-int/lit8 v5, v2, 0xa
+
+    if-nez v5, :cond_b4
+
+    const/16 v5, 0x64
+
+    if-ge v2, v5, :cond_b4
+
+    add-int/lit8 v5, v0, 0x2
+
+    array-length v6, v3
+
+    if-ge v5, v6, :cond_b4
+
+    const-string v5, "\u0438"
+
+    add-int/lit8 v6, v0, 0x1
+
+    aget-object v6, v3, v6
+
+    invoke-virtual {v5, v6}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v5
+
+    if-eqz v5, :cond_b4
+
+    add-int/lit8 v5, v0, 0x2
+
+    aget-object v5, v3, v5
+
+    invoke-static {v5}, Lcom/isaigu/gymapp/ai/AiVoiceCmd;->unit(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v5
+
+    if-eqz v5, :cond_b4
+
+    .line 178
+    add-int/lit8 v5, v0, 0x2
+
+    aget-object v5, v3, v5
+
+    invoke-static {v5}, Lcom/isaigu/gymapp/ai/AiVoiceCmd;->unit(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v5
+
+    invoke-static {v5}, Ljava/lang/Integer;->parseInt(Ljava/lang/String;)I
+
+    move-result v5
+
+    add-int/2addr v2, v5
+
+    .line 179
+    add-int/lit8 v0, v0, 0x2
+
+    .line 181
+    :cond_b4
+    invoke-static {v2}, Ljava/lang/String;->valueOf(I)Ljava/lang/String;
+
+    move-result-object v2
+
+    invoke-interface {v4, v2}, Ljava/util/List;->add(Ljava/lang/Object;)Z
+
+    goto :goto_75
+
+    .line 183
+    :cond_bc
+    new-instance v2, Ljava/lang/StringBuilder;
+
+    invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
+
+    .line 184
+    :goto_c1
+    invoke-interface {v4}, Ljava/util/List;->size()I
+
+    move-result v0
+
+    if-ge v1, v0, :cond_da
+
+    .line 185
+    if-lez v1, :cond_ce
+
+    .line 186
+    const/16 v0, 0x20
+
+    invoke-virtual {v2, v0}, Ljava/lang/StringBuilder;->append(C)Ljava/lang/StringBuilder;
+
+    .line 188
+    :cond_ce
+    invoke-interface {v4, v1}, Ljava/util/List;->get(I)Ljava/lang/Object;
+
+    move-result-object v0
+
+    check-cast v0, Ljava/lang/String;
+
+    invoke-virtual {v2, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    .line 184
+    add-int/lit8 v1, v1, 0x1
+
+    goto :goto_c1
+
+    .line 190
+    :cond_da
+    invoke-virtual {v2}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v0
+
+    return-object v0
+.end method
+
 .method public static parse(Ljava/lang/String;)Lcom/isaigu/gymapp/ai/AiVoiceCmd$Result;
     .registers 11
 
     .prologue
     const/4 v1, 0x0
 
-    .line 149
+    .line 216
     new-instance v3, Lcom/isaigu/gymapp/ai/AiVoiceCmd$Result;
 
     invoke-direct {v3}, Lcom/isaigu/gymapp/ai/AiVoiceCmd$Result;-><init>()V
 
-    .line 150
+    .line 217
     if-nez p0, :cond_a
 
     move-object v0, v3
 
-    .line 185
+    .line 252
     :goto_9
     return-object v0
 
-    .line 155
+    .line 222
     :cond_a
     new-instance v0, Ljava/lang/StringBuilder;
 
@@ -1392,6 +2325,10 @@
 
     move-result-object v2
 
+    invoke-static {v2}, Lcom/isaigu/gymapp/ai/AiVoiceCmd;->numbers(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v2
+
     invoke-virtual {v0, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     move-result-object v0
@@ -1408,27 +2345,27 @@
 
     const-string v2, "\\s+\u0438\\s+|\\s+\u0430\\s+|,|;|\\s+\u043f\u043e\u0441\u043b\u0435\\s+|\\s+\u0441\u044a\u0449\u043e\\s+"
 
-    .line 156
+    .line 223
     invoke-virtual {v0, v2}, Ljava/lang/String;->split(Ljava/lang/String;)[Ljava/lang/String;
 
     move-result-object v5
 
-    .line 157
+    .line 224
     const/4 v2, 0x0
 
-    .line 159
+    .line 226
     array-length v6, v5
 
     move v4, v1
 
     move v0, v1
 
-    :goto_3b
-    if-ge v4, v6, :cond_ae
+    :goto_3f
+    if-ge v4, v6, :cond_b2
 
     aget-object v1, v5, v4
 
-    .line 160
+    .line 227
     invoke-virtual {v1}, Ljava/lang/String;->trim()Ljava/lang/String;
 
     move-result-object v7
@@ -1437,29 +2374,29 @@
 
     move-result v7
 
-    if-nez v7, :cond_4e
+    if-nez v7, :cond_52
 
     move v1, v0
 
-    .line 159
-    :cond_4a
-    :goto_4a
+    .line 226
+    :cond_4e
+    :goto_4e
     add-int/lit8 v4, v4, 0x1
 
     move v0, v1
 
-    goto :goto_3b
+    goto :goto_3f
 
-    .line 163
-    :cond_4e
+    .line 230
+    :cond_52
     invoke-static {v1, v2, v0}, Lcom/isaigu/gymapp/ai/AiVoiceCmd;->parseOne(Ljava/lang/String;Ljava/lang/String;Z)Lcom/isaigu/gymapp/ai/AiVoiceCmd$Result;
 
     move-result-object v7
 
-    .line 164
+    .line 231
     iget-object v1, v7, Lcom/isaigu/gymapp/ai/AiVoiceCmd$Result;->dir:Ljava/lang/String;
 
-    if-eqz v1, :cond_ca
+    if-eqz v1, :cond_ce
 
     const-string v1, "set"
 
@@ -1469,31 +2406,31 @@
 
     move-result v1
 
-    if-nez v1, :cond_ca
+    if-nez v1, :cond_ce
 
-    .line 165
+    .line 232
     iget-object v2, v7, Lcom/isaigu/gymapp/ai/AiVoiceCmd$Result;->dir:Ljava/lang/String;
 
-    .line 166
+    .line 233
     iget-boolean v0, v7, Lcom/isaigu/gymapp/ai/AiVoiceCmd$Result;->small:Z
 
     move v1, v0
 
-    .line 168
-    :goto_65
+    .line 235
+    :goto_69
     iget-object v0, v7, Lcom/isaigu/gymapp/ai/AiVoiceCmd$Result;->commands:Ljava/util/List;
 
     invoke-interface {v0}, Ljava/util/List;->iterator()Ljava/util/Iterator;
 
     move-result-object v8
 
-    :cond_6b
-    :goto_6b
+    :cond_6f
+    :goto_6f
     invoke-interface {v8}, Ljava/util/Iterator;->hasNext()Z
 
     move-result v0
 
-    if-eqz v0, :cond_85
+    if-eqz v0, :cond_89
 
     invoke-interface {v8}, Ljava/util/Iterator;->next()Ljava/lang/Object;
 
@@ -1501,37 +2438,37 @@
 
     check-cast v0, Lcom/isaigu/gymapp/ai/AiVoiceCmd$Cmd;
 
-    .line 169
+    .line 236
     iget-object v9, v0, Lcom/isaigu/gymapp/ai/AiVoiceCmd$Cmd;->target:Ljava/lang/String;
 
     invoke-static {v3, v9}, Lcom/isaigu/gymapp/ai/AiVoiceCmd;->contains(Lcom/isaigu/gymapp/ai/AiVoiceCmd$Result;Ljava/lang/String;)Z
 
     move-result v9
 
-    if-nez v9, :cond_6b
+    if-nez v9, :cond_6f
 
-    .line 170
+    .line 237
     iget-object v9, v3, Lcom/isaigu/gymapp/ai/AiVoiceCmd$Result;->commands:Ljava/util/List;
 
     invoke-interface {v9, v0}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    goto :goto_6b
+    goto :goto_6f
 
-    .line 173
-    :cond_85
+    .line 240
+    :cond_89
     iget-object v0, v7, Lcom/isaigu/gymapp/ai/AiVoiceCmd$Result;->actions:Ljava/util/List;
 
     invoke-interface {v0}, Ljava/util/List;->iterator()Ljava/util/Iterator;
 
     move-result-object v8
 
-    :cond_8b
-    :goto_8b
+    :cond_8f
+    :goto_8f
     invoke-interface {v8}, Ljava/util/Iterator;->hasNext()Z
 
     move-result v0
 
-    if-eqz v0, :cond_a5
+    if-eqz v0, :cond_a9
 
     invoke-interface {v8}, Ljava/util/Iterator;->next()Ljava/lang/Object;
 
@@ -1539,37 +2476,37 @@
 
     check-cast v0, Ljava/lang/String;
 
-    .line 174
+    .line 241
     iget-object v9, v3, Lcom/isaigu/gymapp/ai/AiVoiceCmd$Result;->actions:Ljava/util/List;
 
     invoke-interface {v9, v0}, Ljava/util/List;->contains(Ljava/lang/Object;)Z
 
     move-result v9
 
-    if-nez v9, :cond_8b
+    if-nez v9, :cond_8f
 
-    .line 175
+    .line 242
     iget-object v9, v3, Lcom/isaigu/gymapp/ai/AiVoiceCmd$Result;->actions:Ljava/util/List;
 
     invoke-interface {v9, v0}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    goto :goto_8b
+    goto :goto_8f
 
-    .line 178
-    :cond_a5
+    .line 245
+    :cond_a9
     iget v0, v7, Lcom/isaigu/gymapp/ai/AiVoiceCmd$Result;->minutes:I
 
-    if-ltz v0, :cond_4a
+    if-ltz v0, :cond_4e
 
-    .line 179
+    .line 246
     iget v0, v7, Lcom/isaigu/gymapp/ai/AiVoiceCmd$Result;->minutes:I
 
     iput v0, v3, Lcom/isaigu/gymapp/ai/AiVoiceCmd$Result;->minutes:I
 
-    goto :goto_4a
+    goto :goto_4e
 
-    .line 182
-    :cond_ae
+    .line 249
+    :cond_b2
     iget-object v0, v3, Lcom/isaigu/gymapp/ai/AiVoiceCmd$Result;->actions:Ljava/util/List;
 
     const-string v1, "double_on"
@@ -1578,7 +2515,7 @@
 
     move-result v0
 
-    if-nez v0, :cond_c2
+    if-nez v0, :cond_c6
 
     iget-object v0, v3, Lcom/isaigu/gymapp/ai/AiVoiceCmd$Result;->actions:Ljava/util/List;
 
@@ -1588,36 +2525,36 @@
 
     move-result v0
 
-    if-eqz v0, :cond_c7
+    if-eqz v0, :cond_cb
 
-    .line 183
-    :cond_c2
+    .line 250
+    :cond_c6
     iget-object v0, v3, Lcom/isaigu/gymapp/ai/AiVoiceCmd$Result;->commands:Ljava/util/List;
 
     invoke-interface {v0}, Ljava/util/List;->clear()V
 
-    :cond_c7
+    :cond_cb
     move-object v0, v3
 
-    .line 185
+    .line 252
     goto/16 :goto_9
 
-    :cond_ca
+    :cond_ce
     move v1, v0
 
-    goto :goto_65
+    goto :goto_69
 .end method
 
 .method private static parseOne(Ljava/lang/String;Ljava/lang/String;Z)Lcom/isaigu/gymapp/ai/AiVoiceCmd$Result;
     .registers 15
 
     .prologue
-    .line 189
+    .line 256
     new-instance v5, Lcom/isaigu/gymapp/ai/AiVoiceCmd$Result;
 
     invoke-direct {v5}, Lcom/isaigu/gymapp/ai/AiVoiceCmd$Result;-><init>()V
 
-    .line 190
+    .line 257
     new-instance v0, Ljava/lang/StringBuilder;
 
     invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
@@ -1664,7 +2601,7 @@
 
     move-result-object v6
 
-    .line 192
+    .line 259
     const/4 v0, 0x5
 
     new-array v0, v0, [Ljava/lang/String;
@@ -1705,7 +2642,7 @@
 
     if-eqz v0, :cond_5f
 
-    .line 193
+    .line 260
     iget-object v0, v5, Lcom/isaigu/gymapp/ai/AiVoiceCmd$Result;->actions:Ljava/util/List;
 
     const-string v1, "ask_time"
@@ -1714,11 +2651,11 @@
 
     move-object v0, v5
 
-    .line 331
+    .line 398
     :goto_5e
     return-object v0
 
-    .line 196
+    .line 263
     :cond_5f
     const/4 v0, 0x1
 
@@ -1736,7 +2673,7 @@
 
     if-eqz v0, :cond_76
 
-    .line 197
+    .line 264
     iget-object v0, v5, Lcom/isaigu/gymapp/ai/AiVoiceCmd$Result;->actions:Ljava/util/List;
 
     const-string v1, "ask_hr"
@@ -1745,10 +2682,10 @@
 
     move-object v0, v5
 
-    .line 198
+    .line 265
     goto :goto_5e
 
-    .line 200
+    .line 267
     :cond_76
     const/4 v0, 0x4
 
@@ -1784,7 +2721,7 @@
 
     if-eqz v0, :cond_9c
 
-    .line 201
+    .line 268
     iget-object v0, v5, Lcom/isaigu/gymapp/ai/AiVoiceCmd$Result;->actions:Ljava/util/List;
 
     const-string v1, "ask_strength"
@@ -1793,10 +2730,10 @@
 
     move-object v0, v5
 
-    .line 202
+    .line 269
     goto :goto_5e
 
-    .line 205
+    .line 272
     :cond_9c
     const/4 v0, 0x4
 
@@ -1832,7 +2769,7 @@
 
     if-eqz v0, :cond_10d
 
-    .line 206
+    .line 273
     const/4 v0, 0x5
 
     new-array v0, v0, [Ljava/lang/String;
@@ -1873,7 +2810,7 @@
 
     if-eqz v0, :cond_e5
 
-    .line 207
+    .line 274
     iget-object v0, v5, Lcom/isaigu/gymapp/ai/AiVoiceCmd$Result;->actions:Ljava/util/List;
 
     const-string v1, "music_next"
@@ -1883,10 +2820,10 @@
     :goto_e2
     move-object v0, v5
 
-    .line 213
+    .line 280
     goto/16 :goto_5e
 
-    .line 208
+    .line 275
     :cond_e5
     const/4 v0, 0x3
 
@@ -1916,7 +2853,7 @@
 
     if-eqz v0, :cond_105
 
-    .line 209
+    .line 276
     iget-object v0, v5, Lcom/isaigu/gymapp/ai/AiVoiceCmd$Result;->actions:Ljava/util/List;
 
     const-string v1, "music_prev"
@@ -1925,7 +2862,7 @@
 
     goto :goto_e2
 
-    .line 211
+    .line 278
     :cond_105
     iget-object v0, v5, Lcom/isaigu/gymapp/ai/AiVoiceCmd$Result;->actions:Ljava/util/List;
 
@@ -1935,11 +2872,11 @@
 
     goto :goto_e2
 
-    .line 216
+    .line 283
     :cond_10d
     const-string v0, "(?:\u0441\u043b\u0435\u0434|\u043e\u0449\u0435|\u0434\u043e|\u0437\u0430)\\s*(\\d{1,2})\\s*(?:\u043c\u0438\u043d|\u043c\u0438\u043d\u0443\u0442\u0438|\u043c\u0438\u043d\u0443\u0442\u0430)?"
 
-    .line 217
+    .line 284
     invoke-static {v0}, Ljava/util/regex/Pattern;->compile(Ljava/lang/String;)Ljava/util/regex/Pattern;
 
     move-result-object v0
@@ -1948,7 +2885,7 @@
 
     move-result-object v0
 
-    .line 218
+    .line 285
     invoke-virtual {v0}, Ljava/util/regex/Matcher;->find()Z
 
     move-result v1
@@ -1995,7 +2932,7 @@
 
     if-eqz v1, :cond_15f
 
-    .line 219
+    .line 286
     const/4 v1, 0x0
 
     const/16 v2, 0x19
@@ -2020,7 +2957,7 @@
 
     iput v0, v5, Lcom/isaigu/gymapp/ai/AiVoiceCmd$Result;->minutes:I
 
-    .line 220
+    .line 287
     iget-object v0, v5, Lcom/isaigu/gymapp/ai/AiVoiceCmd$Result;->actions:Ljava/util/List;
 
     const-string v1, "end_in"
@@ -2029,10 +2966,10 @@
 
     move-object v0, v5
 
-    .line 221
+    .line 288
     goto/16 :goto_5e
 
-    .line 225
+    .line 292
     :cond_15f
     const/4 v0, 0x7
 
@@ -2086,7 +3023,7 @@
 
     if-eqz v0, :cond_245
 
-    .line 226
+    .line 293
     const/16 v0, 0x8
 
     new-array v0, v0, [Ljava/lang/String;
@@ -2143,7 +3080,7 @@
 
     move-result v0
 
-    .line 227
+    .line 294
     const/4 v1, 0x7
 
     new-array v1, v1, [Ljava/lang/String;
@@ -2194,12 +3131,12 @@
 
     move-result v1
 
-    .line 228
+    .line 295
     if-nez v0, :cond_1e9
 
     if-eqz v1, :cond_20e
 
-    .line 229
+    .line 296
     :cond_1e9
     iget-object v1, v5, Lcom/isaigu/gymapp/ai/AiVoiceCmd$Result;->commands:Ljava/util/List;
 
@@ -2230,23 +3167,23 @@
 
     invoke-interface {v1, v2}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    .line 230
+    .line 297
     const/4 v0, 0x0
 
     iput-object v0, v5, Lcom/isaigu/gymapp/ai/AiVoiceCmd$Result;->dir:Ljava/lang/String;
 
     move-object v0, v5
 
-    .line 231
+    .line 298
     goto/16 :goto_5e
 
-    .line 229
+    .line 296
     :cond_20b
     const-string v0, "down"
 
     goto :goto_1f3
 
-    .line 233
+    .line 300
     :cond_20e
     const/4 v0, 0x6
 
@@ -2292,7 +3229,7 @@
 
     move-result v0
 
-    .line 234
+    .line 301
     iget-object v1, v5, Lcom/isaigu/gymapp/ai/AiVoiceCmd$Result;->actions:Ljava/util/List;
 
     if-eqz v0, :cond_242
@@ -2302,23 +3239,23 @@
     :goto_239
     invoke-interface {v1, v0}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    .line 235
+    .line 302
     const/4 v0, 0x0
 
     iput-object v0, v5, Lcom/isaigu/gymapp/ai/AiVoiceCmd$Result;->dir:Ljava/lang/String;
 
     move-object v0, v5
 
-    .line 236
+    .line 303
     goto/16 :goto_5e
 
-    .line 234
+    .line 301
     :cond_242
     const-string v0, "double_on"
 
     goto :goto_239
 
-    .line 239
+    .line 306
     :cond_245
     const/16 v0, 0x9
 
@@ -2384,7 +3321,7 @@
 
     if-eqz v0, :cond_2ee
 
-    .line 240
+    .line 307
     const/4 v0, 0x7
 
     new-array v0, v0, [Ljava/lang/String;
@@ -2465,7 +3402,7 @@
 
     aput-object v2, v0, v1
 
-    .line 241
+    .line 308
     invoke-static {v6, v0}, Lcom/isaigu/gymapp/ai/AiVoiceCmd;->has(Ljava/lang/String;[Ljava/lang/String;)Z
 
     move-result v0
@@ -2474,7 +3411,7 @@
 
     const/4 v0, 0x1
 
-    .line 242
+    .line 309
     :goto_2c7
     iget-object v1, v5, Lcom/isaigu/gymapp/ai/AiVoiceCmd$Result;->commands:Ljava/util/List;
 
@@ -2505,29 +3442,29 @@
 
     invoke-interface {v1, v2}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    .line 243
+    .line 310
     const/4 v0, 0x0
 
     iput-object v0, v5, Lcom/isaigu/gymapp/ai/AiVoiceCmd$Result;->dir:Ljava/lang/String;
 
     move-object v0, v5
 
-    .line 244
+    .line 311
     goto/16 :goto_5e
 
-    .line 241
+    .line 308
     :cond_2e9
     const/4 v0, 0x0
 
     goto :goto_2c7
 
-    .line 242
+    .line 309
     :cond_2eb
     const-string v0, "down"
 
     goto :goto_2d1
 
-    .line 248
+    .line 315
     :cond_2ee
     const-string v0, "\\s\u0441\\s*(\\d{1,3})(?=\\s|%)"
 
@@ -2539,7 +3476,7 @@
 
     move-result-object v0
 
-    .line 249
+    .line 316
     invoke-virtual {v0}, Ljava/util/regex/Matcher;->find()Z
 
     move-result v1
@@ -2562,7 +3499,7 @@
 
     move-object v1, v0
 
-    .line 250
+    .line 317
     :goto_30c
     const-string v0, "(?:^|\\s)(?:\u043d\u0430|\u0434\u043e)?\\s*(\\d{1,3})\\s*(?:%|\u043f\u0440\u043e\u0446\u0435\u043d\u0442\u0430|\u043f\u0440\u043e\u0446\u0435\u043d\u0442)?(?=\\s|$)"
 
@@ -2570,12 +3507,12 @@
 
     move-result-object v0
 
-    .line 251
+    .line 318
     invoke-virtual {v0, v6}, Ljava/util/regex/Pattern;->matcher(Ljava/lang/CharSequence;)Ljava/util/regex/Matcher;
 
     move-result-object v0
 
-    .line 252
+    .line 319
     if-nez v1, :cond_3f1
 
     invoke-virtual {v0}, Ljava/util/regex/Matcher;->find()Z
@@ -2584,7 +3521,7 @@
 
     if-eqz v2, :cond_3f1
 
-    .line 253
+    .line 320
     const/4 v2, 0x0
 
     const/16 v3, 0x64
@@ -2607,10 +3544,10 @@
 
     move-result v4
 
-    .line 254
+    .line 321
     const/4 v2, 0x0
 
-    .line 255
+    .line 322
     const/4 v0, 0x1
 
     :goto_334
@@ -2620,7 +3557,7 @@
 
     if-ge v0, v3, :cond_390
 
-    .line 256
+    .line 323
     const/4 v3, 0x1
 
     :goto_33a
@@ -2632,7 +3569,7 @@
 
     if-ge v3, v7, :cond_387
 
-    .line 257
+    .line 324
     sget-object v7, Lcom/isaigu/gymapp/ai/AiVoiceCmd;->WORDS:[[Ljava/lang/String;
 
     aget-object v7, v7, v0
@@ -2641,7 +3578,7 @@
 
     aget-object v7, v7, v8
 
-    .line 258
+    .line 325
     sget-object v8, Lcom/isaigu/gymapp/ai/AiVoiceCmd;->WORDS:[[Ljava/lang/String;
 
     aget-object v8, v8, v0
@@ -2672,7 +3609,7 @@
 
     const-string v8, "legs"
 
-    .line 259
+    .line 326
     invoke-virtual {v8, v7}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v8
@@ -2695,7 +3632,7 @@
 
     if-nez v8, :cond_38d
 
-    .line 260
+    .line 327
     :cond_37c
     iget-object v2, v5, Lcom/isaigu/gymapp/ai/AiVoiceCmd$Result;->commands:Ljava/util/List;
 
@@ -2705,16 +3642,16 @@
 
     invoke-interface {v2, v3}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    .line 261
+    .line 328
     const/4 v2, 0x1
 
-    .line 255
+    .line 322
     :cond_387
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_334
 
-    .line 249
+    .line 316
     :cond_38a
     const/4 v0, 0x0
 
@@ -2722,13 +3659,13 @@
 
     goto :goto_30c
 
-    .line 256
+    .line 323
     :cond_38d
     add-int/lit8 v3, v3, 0x1
 
     goto :goto_33a
 
-    .line 266
+    .line 333
     :cond_390
     if-nez v2, :cond_3e2
 
@@ -2812,7 +3749,7 @@
 
     if-eqz v0, :cond_3e2
 
-    .line 267
+    .line 334
     :cond_3d6
     iget-object v0, v5, Lcom/isaigu/gymapp/ai/AiVoiceCmd$Result;->commands:Ljava/util/List;
 
@@ -2824,7 +3761,7 @@
 
     invoke-interface {v0, v2}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    .line 269
+    .line 336
     :cond_3e2
     iget-object v0, v5, Lcom/isaigu/gymapp/ai/AiVoiceCmd$Result;->commands:Ljava/util/List;
 
@@ -2834,17 +3771,17 @@
 
     if-nez v0, :cond_3f1
 
-    .line 270
+    .line 337
     const-string v0, "set"
 
     iput-object v0, v5, Lcom/isaigu/gymapp/ai/AiVoiceCmd$Result;->dir:Ljava/lang/String;
 
     move-object v0, v5
 
-    .line 271
+    .line 338
     goto/16 :goto_5e
 
-    .line 274
+    .line 341
     :cond_3f1
     const/4 v0, 0x4
 
@@ -2878,7 +3815,7 @@
 
     move-result v2
 
-    .line 275
+    .line 342
     const/16 v0, 0x9
 
     new-array v0, v0, [Ljava/lang/String;
@@ -2943,17 +3880,17 @@
 
     if-eqz v0, :cond_562
 
-    .line 276
+    .line 343
     const-string v0, "down"
 
-    .line 278
+    .line 345
     :goto_446
     iput-object v0, v5, Lcom/isaigu/gymapp/ai/AiVoiceCmd$Result;->dir:Ljava/lang/String;
 
-    .line 279
+    .line 346
     iput-boolean v2, v5, Lcom/isaigu/gymapp/ai/AiVoiceCmd$Result;->small:Z
 
-    .line 280
+    .line 347
     if-nez v0, :cond_73d
 
     if-eqz p1, :cond_73d
@@ -2964,7 +3901,7 @@
 
     if-eqz v3, :cond_73d
 
-    .line 282
+    .line 349
     if-nez v2, :cond_458
 
     if-eqz p2, :cond_5ce
@@ -2975,7 +3912,7 @@
     :goto_459
     move v2, v0
 
-    .line 286
+    .line 353
     :goto_45a
     const/4 v0, 0x5
 
@@ -3015,7 +3952,7 @@
 
     move-result v7
 
-    .line 287
+    .line 354
     const/4 v0, 0x5
 
     new-array v0, v0, [Ljava/lang/String;
@@ -3054,7 +3991,7 @@
 
     move-result v8
 
-    .line 288
+    .line 355
     if-nez v7, :cond_49e
 
     if-eqz v8, :cond_4bc
@@ -3076,7 +4013,7 @@
 
     if-eqz v0, :cond_4bc
 
-    .line 289
+    .line 356
     iget-object v3, v5, Lcom/isaigu/gymapp/ai/AiVoiceCmd$Result;->commands:Ljava/util/List;
 
     new-instance v4, Lcom/isaigu/gymapp/ai/AiVoiceCmd$Cmd;
@@ -3092,7 +4029,7 @@
 
     invoke-interface {v3, v4}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    .line 291
+    .line 358
     :cond_4bc
     if-nez v7, :cond_4c0
 
@@ -3131,7 +4068,7 @@
 
     if-nez v0, :cond_4ec
 
-    .line 292
+    .line 359
     iget-object v3, v5, Lcom/isaigu/gymapp/ai/AiVoiceCmd$Result;->commands:Ljava/util/List;
 
     new-instance v4, Lcom/isaigu/gymapp/ai/AiVoiceCmd$Cmd;
@@ -3147,7 +4084,7 @@
 
     invoke-interface {v3, v4}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    .line 294
+    .line 361
     :cond_4ec
     if-nez v7, :cond_4f0
 
@@ -3170,7 +4107,7 @@
 
     if-eqz v0, :cond_50e
 
-    .line 295
+    .line 362
     iget-object v3, v5, Lcom/isaigu/gymapp/ai/AiVoiceCmd$Result;->commands:Ljava/util/List;
 
     new-instance v4, Lcom/isaigu/gymapp/ai/AiVoiceCmd$Cmd;
@@ -3186,7 +4123,7 @@
 
     invoke-interface {v3, v4}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    .line 297
+    .line 364
     :cond_50e
     if-eqz p1, :cond_669
 
@@ -3198,10 +4135,10 @@
 
     if-eqz v0, :cond_669
 
-    .line 298
+    .line 365
     const/4 v3, 0x0
 
-    .line 299
+    .line 366
     const/4 v0, 0x1
 
     :goto_51a
@@ -3211,7 +4148,7 @@
 
     if-ge v0, v4, :cond_607
 
-    .line 300
+    .line 367
     const/4 v4, 0x1
 
     :goto_520
@@ -3223,7 +4160,7 @@
 
     if-ge v4, v9, :cond_601
 
-    .line 301
+    .line 368
     sget-object v9, Lcom/isaigu/gymapp/ai/AiVoiceCmd;->WORDS:[[Ljava/lang/String;
 
     aget-object v9, v9, v0
@@ -3250,7 +4187,7 @@
 
     if-nez v9, :cond_55f
 
-    .line 302
+    .line 369
     const-string v9, "legs"
 
     sget-object v10, Lcom/isaigu/gymapp/ai/AiVoiceCmd;->WORDS:[[Ljava/lang/String;
@@ -3283,13 +4220,13 @@
 
     if-eqz v9, :cond_5dd
 
-    .line 300
+    .line 367
     :cond_55f
     add-int/lit8 v4, v4, 0x1
 
     goto :goto_520
 
-    .line 276
+    .line 343
     :cond_562
     const/16 v0, 0x8
 
@@ -3349,7 +4286,7 @@
 
     if-eqz v0, :cond_598
 
-    .line 277
+    .line 344
     const-string v0, "up"
 
     goto/16 :goto_446
@@ -3419,31 +4356,31 @@
 
     goto/16 :goto_446
 
-    .line 282
+    .line 349
     :cond_5ce
     const/4 v0, 0x0
 
     goto/16 :goto_459
 
-    .line 289
+    .line 356
     :cond_5d1
     const-string v0, "down"
 
     goto/16 :goto_4b6
 
-    .line 292
+    .line 359
     :cond_5d5
     const-string v0, "down"
 
     goto/16 :goto_4e6
 
-    .line 295
+    .line 362
     :cond_5d9
     const-string v0, "down"
 
     goto/16 :goto_508
 
-    .line 305
+    .line 372
     :cond_5dd
     iget-object v4, v5, Lcom/isaigu/gymapp/ai/AiVoiceCmd$Result;->commands:Ljava/util/List;
 
@@ -3461,7 +4398,7 @@
 
     invoke-interface {v4, v9}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    .line 306
+    .line 373
     sget-object v4, Lcom/isaigu/gymapp/ai/AiVoiceCmd;->WORDS:[[Ljava/lang/String;
 
     aget-object v4, v4, v0
@@ -3485,19 +4422,19 @@
     :goto_600
     or-int/2addr v3, v4
 
-    .line 299
+    .line 366
     :cond_601
     add-int/lit8 v0, v0, 0x1
 
     goto/16 :goto_51a
 
-    .line 306
+    .line 373
     :cond_605
     const/4 v4, 0x0
 
     goto :goto_600
 
-    .line 314
+    .line 381
     :cond_607
     iget-object v0, v5, Lcom/isaigu/gymapp/ai/AiVoiceCmd$Result;->commands:Ljava/util/List;
 
@@ -3588,14 +4525,14 @@
 
     aput-object v4, v0, v3
 
-    .line 315
+    .line 382
     invoke-static {v6, v0}, Lcom/isaigu/gymapp/ai/AiVoiceCmd;->has(Ljava/lang/String;[Ljava/lang/String;)Z
 
     move-result v0
 
     if-nez v0, :cond_669
 
-    .line 316
+    .line 383
     iget-object v0, v5, Lcom/isaigu/gymapp/ai/AiVoiceCmd$Result;->commands:Ljava/util/List;
 
     new-instance v3, Lcom/isaigu/gymapp/ai/AiVoiceCmd$Cmd;
@@ -3606,7 +4543,7 @@
 
     invoke-interface {v0, v3}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    .line 319
+    .line 386
     :cond_669
     if-nez p1, :cond_6db
 
@@ -3614,7 +4551,7 @@
 
     if-nez v8, :cond_6db
 
-    .line 320
+    .line 387
     const/4 v0, 0x3
 
     new-array v0, v0, [Ljava/lang/String;
@@ -3649,7 +4586,7 @@
 
     invoke-interface {v0, v2}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    .line 321
+    .line 388
     :cond_68e
     const/4 v0, 0x6
 
@@ -3703,7 +4640,7 @@
 
     invoke-interface {v0, v2}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    .line 322
+    .line 389
     :cond_6bc
     const/4 v0, 0x3
 
@@ -3739,7 +4676,7 @@
 
     invoke-interface {v0, v2}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    .line 324
+    .line 391
     :cond_6db
     const/4 v0, 0x3
 
@@ -3775,7 +4712,7 @@
 
     invoke-interface {v0, v2}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    .line 325
+    .line 392
     :cond_6fa
     const/4 v0, 0x2
 
@@ -3805,11 +4742,11 @@
 
     invoke-interface {v0, v2}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    .line 326
+    .line 393
     :cond_714
     if-eqz v1, :cond_73a
 
-    .line 327
+    .line 394
     iget-object v0, v5, Lcom/isaigu/gymapp/ai/AiVoiceCmd$Result;->commands:Ljava/util/List;
 
     invoke-interface {v0}, Ljava/util/List;->iterator()Ljava/util/Iterator;
@@ -3829,7 +4766,7 @@
 
     check-cast v0, Lcom/isaigu/gymapp/ai/AiVoiceCmd$Cmd;
 
-    .line 328
+    .line 395
     const/4 v3, 0x1
 
     const/16 v4, 0x64
@@ -3853,7 +4790,7 @@
     :cond_73a
     move-object v0, v5
 
-    .line 331
+    .line 398
     goto/16 :goto_5e
 
     :cond_73d
@@ -3868,12 +4805,12 @@
     .prologue
     const/4 v4, 0x1
 
-    .line 347
+    .line 414
     new-instance v3, Lcom/isaigu/gymapp/ai/AiVoiceCmd$Result;
 
     invoke-direct {v3}, Lcom/isaigu/gymapp/ai/AiVoiceCmd$Result;-><init>()V
 
-    .line 349
+    .line 416
     :try_start_6
     new-instance v1, Lcom/isaigu/gymapp/ai/AiBrief$Json;
 
@@ -3883,7 +4820,7 @@
 
     move-result-object v2
 
-    .line 350
+    .line 417
     instance-of v1, v2, Ljava/util/Map;
 
     if-eqz v1, :cond_32
@@ -3904,7 +4841,7 @@
 
     if-eqz v1, :cond_32
 
-    .line 351
+    .line 418
     check-cast v2, Ljava/util/Map;
 
     const-string v1, "command"
@@ -3915,32 +4852,32 @@
 
     check-cast v1, Ljava/util/Map;
 
-    .line 352
+    .line 419
     :goto_2b
     if-nez v1, :cond_34
 
-    .line 353
+    .line 420
     const/4 v1, 0x1
 
     iput-boolean v1, v3, Lcom/isaigu/gymapp/ai/AiVoiceCmd$Result;->coach:Z
 
     move-object v1, v3
 
-    .line 361
+    .line 428
     :goto_31
     return-object v1
 
-    .line 351
+    .line 418
     :cond_32
     const/4 v1, 0x0
 
     goto :goto_2b
 
-    .line 356
+    .line 423
     :cond_34
     invoke-static {v1, v3}, Lcom/isaigu/gymapp/ai/AiVoiceCmd;->read(Ljava/util/Map;Lcom/isaigu/gymapp/ai/AiVoiceCmd$Result;)V
 
-    .line 357
+    .line 424
     invoke-virtual {v3}, Lcom/isaigu/gymapp/ai/AiVoiceCmd$Result;->isEmpty()Z
 
     move-result v2
@@ -3972,27 +4909,27 @@
     :goto_4e
     move-object v1, v3
 
-    .line 361
+    .line 428
     goto :goto_31
 
-    .line 357
+    .line 424
     :cond_50
     const/4 v1, 0x0
 
     goto :goto_4c
 
-    .line 358
+    .line 425
     :catch_52
     move-exception v1
 
-    .line 359
+    .line 426
     iput-boolean v4, v3, Lcom/isaigu/gymapp/ai/AiVoiceCmd$Result;->coach:Z
 
     goto :goto_4e
 .end method
 
 .method private static read(Ljava/util/Map;Lcom/isaigu/gymapp/ai/AiVoiceCmd$Result;)V
-    .registers 15
+    .registers 16
     .annotation system Ldalvik/annotation/Signature;
         value = {
             "(",
@@ -4004,17 +4941,17 @@
     .end annotation
 
     .prologue
-    const/4 v12, 0x4
+    const/4 v13, 0x4
 
-    const/4 v11, 0x2
+    const/4 v12, 0x2
 
-    const/4 v10, 0x1
+    const/4 v11, 0x1
+
+    const/4 v10, 0x3
 
     const/4 v9, 0x0
 
-    const/4 v8, 0x3
-
-    .line 380
+    .line 447
     const-string v0, "commands"
 
     invoke-interface {p0, v0}, Ljava/util/Map;->get(Ljava/lang/Object;)Ljava/lang/Object;
@@ -4023,9 +4960,9 @@
 
     instance-of v0, v0, Ljava/util/List;
 
-    if-eqz v0, :cond_8f
+    if-eqz v0, :cond_ee
 
-    .line 381
+    .line 448
     const-string v0, "commands"
 
     invoke-interface {p0, v0}, Ljava/util/Map;->get(Ljava/lang/Object;)Ljava/lang/Object;
@@ -4036,28 +4973,28 @@
 
     invoke-interface {v0}, Ljava/util/List;->iterator()Ljava/util/Iterator;
 
-    move-result-object v4
+    move-result-object v6
 
     :cond_1b
     :goto_1b
-    invoke-interface {v4}, Ljava/util/Iterator;->hasNext()Z
+    invoke-interface {v6}, Ljava/util/Iterator;->hasNext()Z
 
     move-result v0
 
-    if-eqz v0, :cond_8f
+    if-eqz v0, :cond_ee
 
-    invoke-interface {v4}, Ljava/util/Iterator;->next()Ljava/lang/Object;
+    invoke-interface {v6}, Ljava/util/Iterator;->next()Ljava/lang/Object;
 
     move-result-object v1
 
-    .line 382
+    .line 449
     instance-of v0, v1, Ljava/util/Map;
 
     if-eqz v0, :cond_1b
 
     move-object v0, v1
 
-    .line 383
+    .line 450
     check-cast v0, Ljava/util/Map;
 
     const-string v2, "target"
@@ -4068,7 +5005,7 @@
 
     move-object v0, v1
 
-    .line 384
+    .line 451
     check-cast v0, Ljava/util/Map;
 
     const-string v3, "dir"
@@ -4077,7 +5014,42 @@
 
     move-result-object v3
 
-    .line 385
+    move-object v0, v1
+
+    .line 452
+    check-cast v0, Ljava/util/Map;
+
+    const-string v4, "amount"
+
+    invoke-interface {v0, v4}, Ljava/util/Map;->get(Ljava/lang/Object;)Ljava/lang/Object;
+
+    move-result-object v0
+
+    .line 453
+    instance-of v4, v0, Ljava/lang/Number;
+
+    if-eqz v4, :cond_d1
+
+    const/16 v4, 0x64
+
+    check-cast v0, Ljava/lang/Number;
+
+    invoke-virtual {v0}, Ljava/lang/Number;->intValue()I
+
+    move-result v0
+
+    invoke-static {v4, v0}, Ljava/lang/Math;->min(II)I
+
+    move-result v0
+
+    invoke-static {v9, v0}, Ljava/lang/Math;->max(II)I
+
+    move-result v0
+
+    move v4, v0
+
+    .line 454
+    :goto_59
     instance-of v0, v2, Ljava/lang/String;
 
     if-eqz v0, :cond_1b
@@ -4102,25 +5074,31 @@
 
     check-cast v0, Ljava/lang/String;
 
-    new-array v5, v12, [Ljava/lang/String;
+    const/4 v5, 0x5
 
-    const-string v6, "up"
+    new-array v5, v5, [Ljava/lang/String;
 
-    aput-object v6, v5, v9
+    const-string v7, "up"
 
-    const-string v6, "down"
+    aput-object v7, v5, v9
 
-    aput-object v6, v5, v10
+    const-string v7, "down"
 
-    const-string v6, "off"
+    aput-object v7, v5, v11
 
-    aput-object v6, v5, v11
+    const-string v7, "off"
 
-    const-string v6, "on"
+    aput-object v7, v5, v12
 
-    aput-object v6, v5, v8
+    const-string v7, "on"
 
-    .line 386
+    aput-object v7, v5, v10
+
+    const-string v7, "set"
+
+    aput-object v7, v5, v13
+
+    .line 455
     invoke-static {v0, v5}, Lcom/isaigu/gymapp/ai/AiCoach;->indexOf(Ljava/lang/String;[Ljava/lang/String;)I
 
     move-result v0
@@ -4129,7 +5107,7 @@
 
     iget-object v0, p1, Lcom/isaigu/gymapp/ai/AiVoiceCmd$Result;->commands:Ljava/util/List;
 
-    .line 387
+    .line 456
     invoke-interface {v0}, Ljava/util/List;->size()I
 
     move-result v0
@@ -4138,37 +5116,112 @@
 
     if-ge v0, v5, :cond_1b
 
-    .line 388
-    iget-object v0, p1, Lcom/isaigu/gymapp/ai/AiVoiceCmd$Result;->commands:Ljava/util/List;
+    const-string v0, "set"
 
+    invoke-virtual {v0, v3}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v0
+
+    if-eqz v0, :cond_9f
+
+    if-ltz v4, :cond_1b
+
+    .line 458
+    :cond_9f
+    const-string v0, "set"
+
+    invoke-virtual {v0, v3}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v0
+
+    if-eqz v0, :cond_d4
+
+    new-instance v0, Lcom/isaigu/gymapp/ai/AiVoiceCmd$Cmd;
+
+    check-cast v2, Ljava/lang/String;
+
+    invoke-direct {v0, v2, v4}, Lcom/isaigu/gymapp/ai/AiVoiceCmd$Cmd;-><init>(Ljava/lang/String;I)V
+
+    .line 460
+    :goto_ae
+    const-string v1, "set"
+
+    invoke-virtual {v1, v3}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v1
+
+    if-nez v1, :cond_ca
+
+    if-lez v4, :cond_ca
+
+    const-string v1, "up"
+
+    invoke-virtual {v1, v3}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v1
+
+    if-nez v1, :cond_c8
+
+    const-string v1, "down"
+
+    invoke-virtual {v1, v3}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v1
+
+    if-eqz v1, :cond_ca
+
+    .line 461
+    :cond_c8
+    iput v4, v0, Lcom/isaigu/gymapp/ai/AiVoiceCmd$Cmd;->value:I
+
+    .line 463
+    :cond_ca
+    iget-object v1, p1, Lcom/isaigu/gymapp/ai/AiVoiceCmd$Result;->commands:Ljava/util/List;
+
+    invoke-interface {v1, v0}, Ljava/util/List;->add(Ljava/lang/Object;)Z
+
+    goto/16 :goto_1b
+
+    .line 453
+    :cond_d1
+    const/4 v0, -0x1
+
+    move v4, v0
+
+    goto :goto_59
+
+    .line 459
+    :cond_d4
     new-instance v5, Lcom/isaigu/gymapp/ai/AiVoiceCmd$Cmd;
 
     check-cast v2, Ljava/lang/String;
 
-    check-cast v3, Ljava/lang/String;
+    move-object v0, v3
 
-    const-string v6, "small"
+    check-cast v0, Ljava/lang/String;
+
+    const-string v7, "small"
 
     check-cast v1, Ljava/util/Map;
 
-    const-string v7, "step"
+    const-string v8, "step"
 
-    invoke-interface {v1, v7}, Ljava/util/Map;->get(Ljava/lang/Object;)Ljava/lang/Object;
+    invoke-interface {v1, v8}, Ljava/util/Map;->get(Ljava/lang/Object;)Ljava/lang/Object;
 
     move-result-object v1
 
-    invoke-virtual {v6, v1}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+    invoke-virtual {v7, v1}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v1
 
-    invoke-direct {v5, v2, v3, v1}, Lcom/isaigu/gymapp/ai/AiVoiceCmd$Cmd;-><init>(Ljava/lang/String;Ljava/lang/String;Z)V
+    invoke-direct {v5, v2, v0, v1}, Lcom/isaigu/gymapp/ai/AiVoiceCmd$Cmd;-><init>(Ljava/lang/String;Ljava/lang/String;Z)V
 
-    invoke-interface {v0, v5}, Ljava/util/List;->add(Ljava/lang/Object;)Z
+    move-object v0, v5
 
-    goto :goto_1b
+    goto :goto_ae
 
-    .line 393
-    :cond_8f
+    .line 468
+    :cond_ee
     const-string v0, "actions"
 
     invoke-interface {p0, v0}, Ljava/util/Map;->get(Ljava/lang/Object;)Ljava/lang/Object;
@@ -4177,9 +5230,9 @@
 
     instance-of v0, v0, Ljava/util/List;
 
-    if-eqz v0, :cond_ed
+    if-eqz v0, :cond_14c
 
-    .line 394
+    .line 469
     const-string v0, "actions"
 
     invoke-interface {p0, v0}, Ljava/util/Map;->get(Ljava/lang/Object;)Ljava/lang/Object;
@@ -4192,22 +5245,22 @@
 
     move-result-object v2
 
-    :cond_a5
-    :goto_a5
+    :cond_104
+    :goto_104
     invoke-interface {v2}, Ljava/util/Iterator;->hasNext()Z
 
     move-result v0
 
-    if-eqz v0, :cond_ed
+    if-eqz v0, :cond_14c
 
     invoke-interface {v2}, Ljava/util/Iterator;->next()Ljava/lang/Object;
 
     move-result-object v1
 
-    .line 395
+    .line 470
     instance-of v0, v1, Ljava/lang/String;
 
-    if-eqz v0, :cond_a5
+    if-eqz v0, :cond_104
 
     move-object v0, v1
 
@@ -4223,19 +5276,19 @@
 
     const-string v4, "resume"
 
-    aput-object v4, v3, v10
+    aput-object v4, v3, v11
 
     const-string v4, "skip"
 
-    aput-object v4, v3, v11
+    aput-object v4, v3, v12
 
     const-string v4, "to_recovery"
 
-    aput-object v4, v3, v8
+    aput-object v4, v3, v10
 
     const-string v4, "double_on"
 
-    aput-object v4, v3, v12
+    aput-object v4, v3, v13
 
     const/4 v4, 0x5
 
@@ -4253,28 +5306,28 @@
 
     move-result v0
 
-    if-ltz v0, :cond_a5
+    if-ltz v0, :cond_104
 
     iget-object v0, p1, Lcom/isaigu/gymapp/ai/AiVoiceCmd$Result;->actions:Ljava/util/List;
 
-    .line 396
+    .line 471
     invoke-interface {v0}, Ljava/util/List;->size()I
 
     move-result v0
 
-    if-ge v0, v8, :cond_a5
+    if-ge v0, v10, :cond_104
 
-    .line 397
+    .line 472
     iget-object v0, p1, Lcom/isaigu/gymapp/ai/AiVoiceCmd$Result;->actions:Ljava/util/List;
 
     check-cast v1, Ljava/lang/String;
 
     invoke-interface {v0, v1}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    goto :goto_a5
+    goto :goto_104
 
-    .line 402
-    :cond_ed
+    .line 477
+    :cond_14c
     return-void
 .end method
 
@@ -4314,4 +5367,53 @@
     const-wide v0, 0x3fb999999999999aL    # 0.1
 
     goto :goto_d
+.end method
+
+.method private static unit(Ljava/lang/String;)Ljava/lang/String;
+    .registers 7
+
+    .prologue
+    const/4 v1, 0x0
+
+    .line 194
+    sget-object v2, Lcom/isaigu/gymapp/ai/AiVoiceCmd;->UNITS:[[Ljava/lang/String;
+
+    array-length v3, v2
+
+    move v0, v1
+
+    :goto_5
+    if-ge v0, v3, :cond_18
+
+    aget-object v4, v2, v0
+
+    .line 195
+    aget-object v5, v4, v1
+
+    invoke-virtual {v5, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v5
+
+    if-eqz v5, :cond_15
+
+    .line 196
+    const/4 v0, 0x1
+
+    aget-object v0, v4, v0
+
+    .line 199
+    :goto_14
+    return-object v0
+
+    .line 194
+    :cond_15
+    add-int/lit8 v0, v0, 0x1
+
+    goto :goto_5
+
+    .line 199
+    :cond_18
+    const/4 v0, 0x0
+
+    goto :goto_14
 .end method

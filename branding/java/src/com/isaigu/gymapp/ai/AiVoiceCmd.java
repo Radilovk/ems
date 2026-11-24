@@ -145,6 +145,73 @@ public final class AiVoiceCmd {
         return false;
     }
 
+    private static final String[][] UNITS = {{"един", "1"}, {"една", "1"}, {"едно", "1"}, {"два", "2"}, {"две", "2"},
+            {"три", "3"}, {"четири", "4"}, {"пет", "5"}, {"шест", "6"}, {"седем", "7"}, {"осем", "8"}, {"девет", "9"}};
+    private static final String[][] TEENS_TENS = {{"десет", "10"}, {"единадесет", "11"}, {"единайсет", "11"},
+            {"дванадесет", "12"}, {"дванайсет", "12"}, {"тринадесет", "13"}, {"тринайсет", "13"},
+            {"четиринадесет", "14"}, {"четиринайсет", "14"}, {"петнадесет", "15"}, {"петнайсет", "15"},
+            {"шестнадесет", "16"}, {"шестнайсет", "16"}, {"седемнадесет", "17"}, {"седемнайсет", "17"},
+            {"осемнадесет", "18"}, {"осемнайсет", "18"}, {"деветнадесет", "19"}, {"деветнайсет", "19"},
+            {"двадесет", "20"}, {"двайсет", "20"}, {"тридесет", "30"}, {"трийсет", "30"}, {"четиридесет", "40"},
+            {"четирийсет", "40"}, {"петдесет", "50"}, {"шестдесет", "60"}, {"седемдесет", "70"}, {"осемдесет", "80"},
+            {"деветдесет", "90"}, {"сто", "100"}};
+
+    /**
+     * Numbers said in words become digits where a level or a step is meant (owner, 1.1.556: "увеличи с един процент"):
+     * after "с / на / до" or before "процент"; "двадесет и пет" → 25. Elsewhere words stay words ("три клякания").
+     */
+    public static String numbers(String t) {
+        String[] w = t.split(" ", -1);
+        List<String> out = new ArrayList<String>();
+        for (int i = 0; i < w.length; i++) {
+            String n = num(w[i]);
+            boolean ctx = n != null && ((i > 0 && ("с".equals(w[i - 1]) || "на".equals(w[i - 1]) || "до".equals(w[i - 1])))
+                    || (i + 1 < w.length && w[i + 1].startsWith("процент"))
+                    || (i + 3 < w.length && "и".equals(w[i + 1]) && w[i + 3].startsWith("процент")));
+            if (!ctx) {
+                out.add(w[i]);
+                continue;
+            }
+            int v = Integer.parseInt(n);
+            // "двадесет и пет": tens + "и" + a unit
+            if (v >= 20 && v % 10 == 0 && v < 100 && i + 2 < w.length && "и".equals(w[i + 1]) && unit(w[i + 2]) != null) {
+                v += Integer.parseInt(unit(w[i + 2]));
+                i += 2;
+            }
+            out.add(String.valueOf(v));
+        }
+        StringBuilder b = new StringBuilder();
+        for (int i = 0; i < out.size(); i++) {
+            if (i > 0) {
+                b.append(' ');
+            }
+            b.append(out.get(i));
+        }
+        return b.toString();
+    }
+
+    private static String unit(String x) {
+        for (String[] u : UNITS) {
+            if (u[0].equals(x)) {
+                return u[1];
+            }
+        }
+        return null;
+    }
+
+    private static String num(String x) {
+        String u = unit(x);
+        if (u != null) {
+            return u;
+        }
+        for (String[] u2 : TEENS_TENS) {
+            if (u2[0].equals(x)) {
+                return u2[1];
+            }
+        }
+        return null;
+    }
+
     public static Result parse(String text) {
         Result all = new Result();
         if (text == null) {
@@ -152,7 +219,7 @@ public final class AiVoiceCmd {
         }
         // "увеличи ръцете и намали дупето": each part with its own verb; a part with none takes the one before
         // ("увеличи ръцете и краката")
-        String[] parts = (" " + text.toLowerCase(Locale.ROOT).replace('ѝ', 'и') + " ")
+        String[] parts = (" " + numbers(text.toLowerCase(Locale.ROOT).replace('ѝ', 'и')) + " ")
                 .split("\\s+и\\s+|\\s+а\\s+|,|;|\\s+после\\s+|\\s+също\\s+");
         String lastDir = null;
         boolean lastSmall = false;
@@ -382,10 +449,18 @@ public final class AiVoiceCmd {
                     if (o instanceof Map) {
                         Object tg = ((Map<?, ?>) o).get("target");
                         Object d = ((Map<?, ?>) o).get("dir");
+                        Object am = ((Map<?, ?>) o).get("amount");
+                        int amount = am instanceof Number ? Math.max(0, Math.min(100, ((Number) am).intValue())) : -1;
                         if (tg instanceof String && AiCoach.indexOf((String) tg, TARGETS) >= 0 && d instanceof String
-                                && AiCoach.indexOf((String) d, new String[] {"up", "down", "off", "on"}) >= 0
-                                && r.commands.size() < 6) {
-                            r.commands.add(new Cmd((String) tg, (String) d, "small".equals(((Map<?, ?>) o).get("step"))));
+                                && AiCoach.indexOf((String) d, new String[] {"up", "down", "off", "on", "set"}) >= 0
+                                && r.commands.size() < 6 && (!"set".equals(d) || amount >= 0)) {
+                            // amount (1.1.556): points of the 0–100 scale — the step's size, or the level for "set"
+                            Cmd c = "set".equals(d) ? new Cmd((String) tg, amount)
+                                    : new Cmd((String) tg, (String) d, "small".equals(((Map<?, ?>) o).get("step")));
+                            if (!"set".equals(d) && amount > 0 && ("up".equals(d) || "down".equals(d))) {
+                                c.value = amount;
+                            }
+                            r.commands.add(c);
                         }
                     }
                 }

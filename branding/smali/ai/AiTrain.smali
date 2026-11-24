@@ -200,7 +200,7 @@
 .end method
 
 .method private static action(Lcom/isaigu/gymapp/ai/AutoEngine;Ljava/lang/String;)Ljava/lang/String;
-    .registers 4
+    .registers 5
 
     .prologue
     .line 968
@@ -236,55 +236,107 @@
 
     move-result v0
 
-    if-eqz v0, :cond_24
+    if-eqz v0, :cond_3f
 
     .line 975
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoSession;->reduceAll()V
 
     .line 976
-    const-string v0, "\u0441\u0438\u043b\u0430 \u221210 % \u00b7 "
+    new-instance v0, Ljava/lang/StringBuilder;
 
-    const-string v1, "strength \u221210 % \u00b7 "
+    invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
 
-    invoke-static {v0, v1}, Lcom/isaigu/gymapp/ai/AiText;->t(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+    const-string v1, "\u0441\u0438\u043b\u0430 "
+
+    const-string v2, "strength "
+
+    invoke-static {v1, v2}, Lcom/isaigu/gymapp/ai/AiText;->t(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v1
+
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    invoke-static {}, Lcom/isaigu/gymapp/ai/AutoSession;->leaderLevel()I
+
+    move-result v1
+
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    const-string v1, " \u00b7 "
+
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
     move-result-object v0
 
     goto :goto_a
 
     .line 978
-    :cond_24
+    :cond_3f
     const-string v0, "stronger"
 
     invoke-virtual {v0, p1}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v0
 
-    if-eqz v0, :cond_38
+    if-eqz v0, :cond_6e
 
     .line 979
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoSession;->raiseAll()V
 
     .line 980
-    const-string v0, "\u0441\u0438\u043b\u0430 +5 % \u00b7 "
+    new-instance v0, Ljava/lang/StringBuilder;
 
-    const-string v1, "strength +5 % \u00b7 "
+    invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
 
-    invoke-static {v0, v1}, Lcom/isaigu/gymapp/ai/AiText;->t(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+    const-string v1, "\u0441\u0438\u043b\u0430 "
+
+    const-string v2, "strength "
+
+    invoke-static {v1, v2}, Lcom/isaigu/gymapp/ai/AiText;->t(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v1
+
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    invoke-static {}, Lcom/isaigu/gymapp/ai/AutoSession;->leaderLevel()I
+
+    move-result v1
+
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    const-string v1, " \u00b7 "
+
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
     move-result-object v0
 
     goto :goto_a
 
     .line 983
-    :cond_38
+    :cond_6e
     const-string v0, "pause"
 
     invoke-virtual {v0, p1}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v0
 
-    if-eqz v0, :cond_6e
+    if-eqz v0, :cond_a7
 
     .line 984
     invoke-virtual {p0}, Lcom/isaigu/gymapp/ai/AutoEngine;->getState()Lcom/isaigu/gymapp/ai/AutoEngine$State;
@@ -294,14 +346,14 @@
     .line 985
     sget-object v1, Lcom/isaigu/gymapp/ai/AutoEngine$State;->RUN:Lcom/isaigu/gymapp/ai/AutoEngine$State;
 
-    if-eq v0, v1, :cond_4c
+    if-eq v0, v1, :cond_82
 
     sget-object v1, Lcom/isaigu/gymapp/ai/AutoEngine$State;->COUNTDOWN:Lcom/isaigu/gymapp/ai/AutoEngine$State;
 
-    if-ne v0, v1, :cond_58
+    if-ne v0, v1, :cond_8f
 
     .line 986
-    :cond_4c
+    :cond_82
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoSession;->togglePause()V
 
     .line 987
@@ -313,13 +365,13 @@
 
     move-result-object v0
 
-    goto :goto_a
+    goto/16 :goto_a
 
     .line 989
-    :cond_58
+    :cond_8f
     sget-object v1, Lcom/isaigu/gymapp/ai/AutoEngine$State;->REST:Lcom/isaigu/gymapp/ai/AutoEngine$State;
 
-    if-ne v0, v1, :cond_65
+    if-ne v0, v1, :cond_9d
 
     const-string v0, "\u043f\u043e\u0447\u0438\u0432\u043a\u0430 \u0435 \u2014 \u043a\u0430\u0436\u0438 \u201e\u043f\u0440\u043e\u0434\u044a\u043b\u0436\u0438\u201c \u00b7 "
 
@@ -329,10 +381,10 @@
 
     move-result-object v0
 
-    goto :goto_a
+    goto/16 :goto_a
 
     .line 990
-    :cond_65
+    :cond_9d
     const-string v0, "\u043d\u0430 \u043f\u0430\u0443\u0437\u0430 \u0435 \u00b7 "
 
     const-string v1, "it is paused \u00b7 "
@@ -341,17 +393,17 @@
 
     move-result-object v0
 
-    goto :goto_a
+    goto/16 :goto_a
 
     .line 992
-    :cond_6e
+    :cond_a7
     const-string v0, "resume"
 
     invoke-virtual {v0, p1}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v0
 
-    if-nez v0, :cond_7e
+    if-nez v0, :cond_b7
 
     const-string v0, "continue"
 
@@ -359,15 +411,15 @@
 
     move-result v0
 
-    if-eqz v0, :cond_98
+    if-eqz v0, :cond_d1
 
     .line 993
-    :cond_7e
+    :cond_b7
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoSession;->startNext()Z
 
     move-result v0
 
-    if-eqz v0, :cond_8e
+    if-eqz v0, :cond_c7
 
     const-string v0, "\u043f\u0440\u043e\u0434\u044a\u043b\u0436\u0430\u0432\u0430\u043c\u0435 \u00b7 "
 
@@ -380,7 +432,7 @@
     goto/16 :goto_a
 
     .line 994
-    :cond_8e
+    :cond_c7
     const-string v0, "\u0442\u0435\u0447\u0435 \u00b7 "
 
     const-string v1, "it is running \u00b7 "
@@ -392,20 +444,20 @@
     goto/16 :goto_a
 
     .line 996
-    :cond_98
+    :cond_d1
     const-string v0, "skip"
 
     invoke-virtual {v0, p1}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v0
 
-    if-eqz v0, :cond_b3
+    if-eqz v0, :cond_ec
 
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoSession;->canNext()Z
 
     move-result v0
 
-    if-eqz v0, :cond_b3
+    if-eqz v0, :cond_ec
 
     .line 997
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoSession;->nextFromPanel()V
@@ -422,14 +474,14 @@
     goto/16 :goto_a
 
     .line 1000
-    :cond_b3
+    :cond_ec
     const-string v0, "to_recovery"
 
     invoke-virtual {v0, p1}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v0
 
-    if-nez v0, :cond_c3
+    if-nez v0, :cond_fc
 
     const-string v0, "to_cooldown"
 
@@ -437,10 +489,10 @@
 
     move-result v0
 
-    if-eqz v0, :cond_d0
+    if-eqz v0, :cond_109
 
     .line 1001
-    :cond_c3
+    :cond_fc
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoSession;->stop()V
 
     .line 1002
@@ -455,14 +507,14 @@
     goto/16 :goto_a
 
     .line 1004
-    :cond_d0
+    :cond_109
     const-string v0, "double_on"
 
     invoke-virtual {v0, p1}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v0
 
-    if-nez v0, :cond_e0
+    if-nez v0, :cond_119
 
     const-string v0, "double_off"
 
@@ -470,10 +522,10 @@
 
     move-result v0
 
-    if-eqz v0, :cond_105
+    if-eqz v0, :cond_13e
 
     .line 1005
-    :cond_e0
+    :cond_119
     const-string v0, "double_on"
 
     invoke-virtual {v0, p1}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
@@ -489,7 +541,7 @@
 
     move-result v0
 
-    if-eqz v0, :cond_fb
+    if-eqz v0, :cond_134
 
     const-string v0, "\u0434\u0432\u043e\u0435\u043d \u0438\u043c\u043f\u0443\u043b\u0441 \u00b7 "
 
@@ -502,7 +554,7 @@
     goto/16 :goto_a
 
     .line 1007
-    :cond_fb
+    :cond_134
     const-string v0, "\u0431\u0435\u0437 \u0434\u0432\u043e\u0435\u043d \u0438\u043c\u043f\u0443\u043b\u0441 \u00b7 "
 
     const-string v1, "no double impulse \u00b7 "
@@ -514,7 +566,7 @@
     goto/16 :goto_a
 
     .line 1009
-    :cond_105
+    :cond_13e
     const-string v0, ""
 
     goto/16 :goto_a

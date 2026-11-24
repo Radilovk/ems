@@ -347,3 +347,14 @@ it, the warm-up runs softer by design); "s" read aloud as a letter → "секу
 - **`PHYSIOLOGY`** in the coach's system text (coach, workout): synchronous recruitment, frequency bands, impulse /
   pause, pulse width, the absolute limits, rest between sessions and adaptation, red flags → pause, no-EMS
   conditions, the safer choice when unclear. "No disclaimers" stays, the red flags are acted on.
+
+## 1.1.556 (tablet) — a percent is a point of the 0–100 scale
+- **Owner:** "увеличи с 1 %" at 7 → 8; "на 50 %" → the named part (or every channel together, their ratio kept) to
+  50 of its maximum. Never a percent of the value now. The tablet's reader already did so (`AutoSession.channelStep`
+  / `strengthStep`: by = points, set = level); now also:
+- Numbers in words after "с / на / до" or before "процент" (`AiVoiceCmd.numbers`: "с един процент", "на двадесет и
+  пет"); elsewhere words stay words ("три клякания").
+- The server's command reader and the coach carry the number: `commands[].amount` (points; dir `set` = the level),
+  read by `AiVoiceCmd.read`. Before, a number the tablet missed was lost (only step small / normal).
+- softer / stronger are small steps without a number: the confirmation says the level now ("сила 46"), not
+  "−10 %"; the coach says "малко по-леко", never "с десет процента" for them.

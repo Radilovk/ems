@@ -90,6 +90,27 @@ public class WorkoutSim {
         check(v.commands.size() == 1 && v.commands.get(0).target.equals("legs") && v.commands.get(0).value == 30, "legs set 30");
         v = AiVoiceCmd.parse("увеличи с 10");
         check(v.commands.size() == 1 && v.commands.get(0).dir.equals("up") && v.commands.get(0).value == 10, "up by 10");
+        // owner, 1.1.556: a percent = a point of the 0–100 scale; numbers in words too
+        v = AiVoiceCmd.parse("увеличи с 1%");
+        check(v.commands.size() == 1 && v.commands.get(0).target.equals("strength") && v.commands.get(0).dir.equals("up")
+                && v.commands.get(0).value == 1, "увеличи с 1% = strength +1 point");
+        v = AiVoiceCmd.parse("увеличи с един процент");
+        check(v.commands.size() == 1 && v.commands.get(0).dir.equals("up") && v.commands.get(0).value == 1,
+                "увеличи с един процент = +1");
+        v = AiVoiceCmd.parse("краката на петдесет процента");
+        check(v.commands.size() == 1 && v.commands.get(0).target.equals("legs") && v.commands.get(0).dir.equals("set")
+                && v.commands.get(0).value == 50, "краката на петдесет процента = legs 50");
+        v = AiVoiceCmd.parse("силата на двадесет и пет");
+        check(v.commands.size() == 1 && v.commands.get(0).dir.equals("set") && v.commands.get(0).value == 25,
+                "силата на двадесет и пет = 25");
+        v = AiVoiceCmd.parse("намали ръцете с десет");
+        check(v.commands.size() == 1 && v.commands.get(0).target.equals("arms") && v.commands.get(0).dir.equals("down")
+                && v.commands.get(0).value == 10, "намали ръцете с десет = arms −10");
+        check(AiVoiceCmd.numbers("направи три клякания").equals("направи три клякания"), "words stay words elsewhere");
+        v = AiVoiceCmd.parseServer("{\"ok\":true,\"command\":{\"commands\":[{\"target\":\"strength\",\"dir\":\"up\",\"amount\":1},"
+                + "{\"target\":\"legs\",\"dir\":\"set\",\"amount\":50}],\"actions\":[]}}");
+        check(v.commands.size() == 2 && v.commands.get(0).value == 1 && v.commands.get(1).dir.equals("set")
+                && v.commands.get(1).value == 50, "the server's amount: up by 1, legs set 50");
         v = AiVoiceCmd.parse("увеличи ръцете с 5 и намали дупето");
         check(v.commands.size() == 2 && v.commands.get(0).value == 5 && v.commands.get(1).dir.equals("down")
                 && v.commands.get(1).value == -1, "arms +5, glutes a step down");

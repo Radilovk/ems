@@ -972,12 +972,12 @@ public final class AiTrain {
             return "";
         }
         if ("softer".equals(a)) {
-            AutoSession.reduceAll();
-            return AiText.t("сила −10 % · ", "strength −10 % · ");
+            AutoSession.reduceAll();                       // a small step down; what is said is the level it is now
+            return AiText.t("сила ", "strength ") + AutoSession.leaderLevel() + " · ";
         }
         if ("stronger".equals(a)) {
             AutoSession.raiseAll();
-            return AiText.t("сила +5 % · ", "strength +5 % · ");
+            return AiText.t("сила ", "strength ") + AutoSession.leaderLevel() + " · ";
         }
         // words, not symbols: the answer is spoken aloud (tools/app-sim: "▶" was read out, 1.1.546)
         if ("pause".equals(a)) {

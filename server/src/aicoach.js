@@ -67,7 +67,8 @@ export function coachSchema(domain = null, programs = []) {
       rest_pct: { type: 'INTEGER', nullable: true },
       end_in_min: { type: 'INTEGER', nullable: true },
       commands: { type: 'ARRAY', items: { type: 'OBJECT', properties: {
-        target: { type: 'STRING' }, dir: { type: 'STRING' }, step: { type: 'STRING' } }, required: ['target', 'dir'] } },
+        target: { type: 'STRING' }, dir: { type: 'STRING' }, step: { type: 'STRING' },
+        amount: { type: 'INTEGER', nullable: true } }, required: ['target', 'dir'] } },
       advice,
     },
     required: ['reply'],
@@ -88,7 +89,8 @@ Each turn return JSON:
 - goal / mode / minutes / double_impulse / cond_add / cond_remove / focus_add / today_add / contra_add: only what the
   latest message implies. "по-леко днес" → today_add t_gentle. Not eaten → t_food. Slept badly → t_sleep.
   Insulin or sugar pills → cond insulin (+diabetes). Beta-blockers → beta_blocker. Blood thinners → anticoag.
-- While SESSION=RUNNING, a command for now: actions (softer=−10% strength, stronger=+5%, pause, resume, continue
+- While SESSION=RUNNING, a command for now: actions (softer = a little less strength, stronger = a little more —
+  no number; a named number goes in commands with amount, as points of the 0–100 scale), pause, resume, continue
   after a rest, to_cooldown, double_on/off), on_delta −2..2 s, off_delta −2..3 s, hz_pct −15..15, rest_pct −30..60
   (longer/shorter rests), end_in_min (finish the active part in N min). Null when not asked.
 - advice (fill on the first turn and whenever it changes, else null), each ≤ 1 short sentence:
@@ -249,7 +251,11 @@ client's health, e.g. knees → no jumps or deep squats). Unclear what to change
 weaker, pain where, a vague place like "долната част") → do NOT guess: ask one short question with 2–4 options and
 change nothing yet. commands (live only): one body part or setting up/down/off/on, as the trainer means it —
 targets strength, legs, thighs, calves, glutes, abs, arms, chest, back, lower_back, traps, all_channels, impulse,
-pause, frequency, rest; dir up/down/off/on; step small/normal. The trainer's next words are the answer (CHAT has your question): act on it at once. Never ask
+pause, frequency, rest; dir up/down/off/on/set; step small/normal; amount = a number the trainer named (below).
+PERCENT = POINTS of the absolute 0–100 scale (owner, 1.1.556): "увеличи с 1 %" at 7 → 8 (dir up, amount 1); "с 10 %"
+→ amount 10; "на 50 %" → dir set, amount 50: target strength = every channel together, their ratio kept; a body part
+→ that part's own level to 50. Never a percent of the value now. actions softer / stronger are small steps without a
+number — say "малко по-леко / по-силно", never "с десет процента" for them. The trainer's next words are the answer (CHAT has your question): act on it at once. Never ask
 twice in a row — if the answer is still unclear, take the safer choice (less, not more) and say what you did. The reply says only what your
 commands / actions / deltas really do: "вдигам седалището" needs commands [{glutes, up}], "удължавам паузата"
 needs pause up (rest_pct is the rest between sets, not the pause between impulses); never announce a change you do
@@ -360,13 +366,16 @@ export async function workout(env, body, fetchImpl = fetch, ts = Date.now()) {
 // Not a command (a complaint, a question) → coach:true and the tablet asks the full coach.
 export const CMD_TARGETS = ['strength', 'legs', 'thighs', 'calves', 'glutes', 'abs', 'arms', 'chest', 'back',
   'lower_back', 'traps', 'impulse', 'pause', 'frequency', 'rest', 'all_channels'];
-export const CMD_DIRS = ['up', 'down', 'off', 'on'];
+export const CMD_DIRS = ['up', 'down', 'off', 'on', 'set'];
 export const CMD_ACTIONS = ['pause', 'resume', 'skip', 'to_recovery', 'double_on', 'double_off', 'stop'];
 
 export const COMMAND_SYSTEM = `Turn a spoken Bulgarian EMS-training command into JSON. targets: strength (overall
 current), legs, thighs, calves, glutes, abs, arms, chest, back, lower_back, traps, all_channels (muscle channels),
 impulse (its seconds), pause (its seconds), frequency (Hz), rest (between sets). dir: up / down / off / on.
-step: small ("малко", "леко") or normal. actions: pause, resume, skip, to_recovery, double_on, double_off, stop.
+step: small ("малко", "леко") or normal. amount: the number named, in POINTS of the absolute 0–100 scale (a percent
+is a point, never a percent of the value now): "увеличи с 1 %" → up, amount 1; "краката с 10" → up 10; "на 50 %" /
+"до 30" → dir set, amount 50 / 30 (no target named → strength). Numbers in words too ("с пет", "на петдесет").
+No number → no amount. actions: pause, resume, skip, to_recovery, double_on, double_off, stop.
 Several commands may come in one sentence. Anything that is not a command (pain, a question, a wish about the plan)
 → coach true, no commands. Unsure which target is meant (a vague place, "долната част", "отзад", one side) → coach
 true, no commands: the coach asks back instead of guessing.`;
@@ -377,6 +386,7 @@ export function commandSchema() {
     properties: {
       commands: { type: 'ARRAY', items: { type: 'OBJECT', properties: {
         target: { type: 'STRING', enum: CMD_TARGETS }, dir: { type: 'STRING', enum: CMD_DIRS },
+        amount: { type: 'INTEGER', nullable: true },
         step: { type: 'STRING', enum: ['small', 'normal'] } }, required: ['target', 'dir'] } },
       actions: { type: 'ARRAY', items: { type: 'STRING', enum: CMD_ACTIONS } },
       coach: { type: 'BOOLEAN' },
@@ -391,7 +401,12 @@ export function validateCommand(raw) {
   for (const c of Array.isArray(r.commands) ? r.commands : []) {
     const target = pick(c?.target, CMD_TARGETS);
     const dir = pick(c?.dir, CMD_DIRS);
-    if (target && dir && commands.length < 6) commands.push({ target, dir, step: c.step === 'small' ? 'small' : 'normal' });
+    // amount: points of the 0–100 scale — the step's size (up / down) or the level (set); set needs one
+    const amount = int(c?.amount, dir === 'set' ? 0 : 1, 100);
+    if (!target || !dir || commands.length >= 6 || (dir === 'set' && amount === null)) continue;
+    const out = { target, dir, step: c.step === 'small' ? 'small' : 'normal' };
+    if (amount !== null && dir !== 'off' && dir !== 'on') out.amount = amount;
+    commands.push(out);
   }
   const actions = picks(r.actions, CMD_ACTIONS, 3);
   return { commands, actions, coach: !commands.length && !actions.length ? true : r.coach === true };

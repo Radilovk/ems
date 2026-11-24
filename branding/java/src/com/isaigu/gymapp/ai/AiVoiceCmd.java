@@ -145,7 +145,7 @@ public final class AiVoiceCmd {
         return false;
     }
 
-    private static final String[][] UNITS = {{"един", "1"}, {"една", "1"}, {"едно", "1"}, {"два", "2"}, {"две", "2"},
+    private static final String[][] UNITS = {{"едно", "1"}, {"единица", "1"}, {"един", "1"}, {"една", "1"}, {"едно", "1"}, {"два", "2"}, {"две", "2"},
             {"три", "3"}, {"четири", "4"}, {"пет", "5"}, {"шест", "6"}, {"седем", "7"}, {"осем", "8"}, {"девет", "9"}};
     private static final String[][] TEENS_TENS = {{"десет", "10"}, {"единадесет", "11"}, {"единайсет", "11"},
             {"дванадесет", "12"}, {"дванайсет", "12"}, {"тринадесет", "13"}, {"тринайсет", "13"},
@@ -165,7 +165,8 @@ public final class AiVoiceCmd {
         List<String> out = new ArrayList<String>();
         for (int i = 0; i < w.length; i++) {
             String n = num(w[i]);
-            boolean ctx = n != null && ((i > 0 && ("с".equals(w[i - 1]) || "на".equals(w[i - 1]) || "до".equals(w[i - 1])))
+            boolean ctx = n != null && ((i > 0 && ("с".equals(w[i - 1]) || "на".equals(w[i - 1]) || "до".equals(w[i - 1])
+                    || in(w[i - 1], UP_WORDS) || in(w[i - 1], DOWN_WORDS)))
                     || (i + 1 < w.length && w[i + 1].startsWith("процент"))
                     || (i + 3 < w.length && "и".equals(w[i + 1]) && w[i + 3].startsWith("процент")));
             if (!ctx) {
@@ -190,6 +191,15 @@ public final class AiVoiceCmd {
         return b.toString();
     }
 
+    private static boolean in(String x, String[] set) {
+        for (String s : set) {
+            if (s.equals(x)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private static String unit(String x) {
         for (String[] u : UNITS) {
             if (u[0].equals(x)) {
@@ -211,6 +221,12 @@ public final class AiVoiceCmd {
         }
         return null;
     }
+
+    /** Verbs of direction (and their synonyms) a number after which is a step: "увеличи 1", "свали 5". */
+    static final String[] UP_WORDS = {"увеличи", "усили", "засили", "качи", "вдигни", "повиши", "повече", "по-силно",
+            "по силно", "добави", "плюс"};
+    static final String[] DOWN_WORDS = {"намали", "свали", "отслаби", "смъкни", "понижи", "снижи", "по-слабо", "по слабо",
+            "по-малко", "по малко", "по-леко", "по леко", "махни", "минус"};
 
     public static Result parse(String text) {
         Result all = new Result();
@@ -314,6 +330,17 @@ public final class AiVoiceCmd {
         // "увеличи с 10": a step of 10 (up / down), not the level 10
         java.util.regex.Matcher by = java.util.regex.Pattern.compile("\\sс\\s*(\\d{1,3})(?=\\s|%)").matcher(t);
         Integer stepBy = by.find() ? Integer.valueOf(Integer.parseInt(by.group(1))) : null;
+        // owner, 1.1.556: "увеличи 1" = "увеличи с 1" = "увеличи с 1 %" — a number after a verb of direction is a step
+        // of that many points; only "на / до N" is a level ("намали 5" set the strength to 5 before)
+        boolean upW = has(t, UP_WORDS);
+        boolean downW = has(t, DOWN_WORDS);
+        if (stepBy == null && (upW || downW)
+                && !java.util.regex.Pattern.compile("(?:^|\\s)(?:на|до)\\s*\\d{1,3}").matcher(t).find()) {
+            java.util.regex.Matcher bare = java.util.regex.Pattern.compile("(?:^|\\s)(\\d{1,3})(?=\\s|%|$)").matcher(t);
+            if (bare.find()) {
+                stepBy = Integer.valueOf(Integer.parseInt(bare.group(1)));
+            }
+        }
         java.util.regex.Matcher num = java.util.regex.Pattern.compile("(?:^|\\s)(?:на|до)?\\s*(\\d{1,3})\\s*(?:%|процента|процент)?(?=\\s|$)")
                 .matcher(t);
         if (stepBy == null && num.find()) {
@@ -339,9 +366,13 @@ public final class AiVoiceCmd {
             }
         }
         boolean small = has(t, "малко", "леко ", "мъничко", "съвсем малко");
-        String dir = has(t, "намали", "по-слабо", "по слабо", "по-малко", "по малко", "свали", "отслаби", "по-леко", "по леко")
-                ? "down" : has(t, "увеличи", "по-силно", "по силно", "повече", "качи", "вдигни", "засили", "усили")
+        String dir = has(t, "намали", "по-слабо", "по слабо", "по-малко", "по малко", "свали", "отслаби", "по-леко", "по леко",
+                "смъкни", "понижи", "снижи", "минус")
+                ? "down" : has(t, "увеличи", "по-силно", "по силно", "повече", "качи", "вдигни", "засили", "усили", "повиши", "плюс")
                 ? "up" : has(t, "изключи", "махни", "без ") ? "off" : has(t, "включи", "добави") ? "on" : null;
+        if (stepBy != null && upW != downW) {
+            dir = upW ? "up" : "down";                         // "добави 5" / "махни 5": a step, not on / off
+        }
         r.dir = dir;
         r.small = small;
         if (dir == null && inherited != null && hasMuscle(t)) {

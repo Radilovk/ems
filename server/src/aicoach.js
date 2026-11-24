@@ -252,7 +252,8 @@ weaker, pain where, a vague place like "долната част") → do NOT gue
 change nothing yet. commands (live only): one body part or setting up/down/off/on, as the trainer means it —
 targets strength, legs, thighs, calves, glutes, abs, arms, chest, back, lower_back, traps, all_channels, impulse,
 pause, frequency, rest; dir up/down/off/on/set; step small/normal; amount = a number the trainer named (below).
-PERCENT = POINTS of the absolute 0–100 scale (owner, 1.1.556): "увеличи с 1 %" at 7 → 8 (dir up, amount 1); "с 10 %"
+PERCENT = POINTS of the absolute 0–100 scale (owner, 1.1.556): "увеличи 1" = "с 1" = "с 1 %" at 7 → 8 (dir up,
+amount 1; any verb of up / down and its synonyms); "с 10 %"
 → amount 10; "на 50 %" → dir set, amount 50: target strength = every channel together, their ratio kept; a body part
 → that part's own level to 50. Never a percent of the value now. actions softer / stronger are small steps without a
 number — say "малко по-леко / по-силно", never "с десет процента" for them. The trainer's next words are the answer (CHAT has your question): act on it at once. Never ask
@@ -373,7 +374,9 @@ export const COMMAND_SYSTEM = `Turn a spoken Bulgarian EMS-training command into
 current), legs, thighs, calves, glutes, abs, arms, chest, back, lower_back, traps, all_channels (muscle channels),
 impulse (its seconds), pause (its seconds), frequency (Hz), rest (between sets). dir: up / down / off / on.
 step: small ("малко", "леко") or normal. amount: the number named, in POINTS of the absolute 0–100 scale (a percent
-is a point, never a percent of the value now): "увеличи с 1 %" → up, amount 1; "краката с 10" → up 10; "на 50 %" /
+is a point, never a percent of the value now; "%" or not, "с" or not — the same): "увеличи 1" = "увеличи с 1" =
+"увеличи с 1 %" → up, amount 1; "краката с 10" → up 10; synonyms of up: вдигни, качи, усили, засили, повиши, добави,
+плюс; of down: намали, свали, смъкни, отслаби, понижи, махни N, минус; "на 50 %" /
 "до 30" → dir set, amount 50 / 30 (no target named → strength). Numbers in words too ("с пет", "на петдесет").
 No number → no amount. actions: pause, resume, skip, to_recovery, double_on, double_off, stop.
 Several commands may come in one sentence. Anything that is not a command (pain, a question, a wish about the plan)

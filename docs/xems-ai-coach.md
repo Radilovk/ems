@@ -358,3 +358,7 @@ it, the warm-up runs softer by design); "s" read aloud as a letter → "секу
   read by `AiVoiceCmd.read`. Before, a number the tablet missed was lost (only step small / normal).
 - softer / stronger are small steps without a number: the confirmation says the level now ("сила 46"), not
   "−10 %"; the coach says "малко по-леко", never "с десет процента" for them.
+- **1.1.557:** "увеличи 1" = "увеличи с 1" = "увеличи с 1 %" — a number after a verb of direction (`UP_WORDS` /
+  `DOWN_WORDS`, with synonyms: вдигни, качи, повиши, добави, плюс / свали, смъкни, понижи, махни N, минус) is a step of
+  that many points; only "на / до N" is a level. Before, "намали 5" SET the strength to 5. Numbers in words after
+  these verbs too ("увеличи едно", "смъкни пет").

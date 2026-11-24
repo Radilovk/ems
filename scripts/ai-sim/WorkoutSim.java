@@ -107,6 +107,21 @@ public class WorkoutSim {
         check(v.commands.size() == 1 && v.commands.get(0).target.equals("arms") && v.commands.get(0).dir.equals("down")
                 && v.commands.get(0).value == 10, "намали ръцете с десет = arms −10");
         check(AiVoiceCmd.numbers("направи три клякания").equals("направи три клякания"), "words stay words elsewhere");
+        // owner: "увеличи 1" = "увеличи с 1" = "увеличи с 1 %"; only "на / до N" is a level; synonyms
+        String[][] steps = {{"увеличи 1", "strength", "up", "1"}, {"намали 5", "strength", "down", "5"},
+                {"вдигни 10%", "strength", "up", "10"}, {"свали 3 процента", "strength", "down", "3"},
+                {"увеличи едно", "strength", "up", "1"}, {"смъкни пет", "strength", "down", "5"},
+                {"повиши краката 4", "legs", "up", "4"}, {"махни 2 от ръцете", "arms", "down", "2"},
+                {"добави 5 на корема", "abs", "up", "5"}, {"намали краката на 30", "legs", "set", "30"},
+                {"качи до 40", "strength", "set", "40"}, {"усили с два", "strength", "up", "2"}};
+        for (String[] st : steps) {
+            v = AiVoiceCmd.parse(st[0]);
+            boolean ok = v.commands.size() == 1 && v.commands.get(0).target.equals(st[1])
+                    && v.commands.get(0).dir.equals(st[2]) && v.commands.get(0).value == Integer.parseInt(st[3]);
+            check(ok, "\"" + st[0] + "\" = " + st[1] + " " + st[2] + " " + st[3]
+                    + (ok ? "" : " (got " + (v.commands.isEmpty() ? "none" : v.commands.get(0).target + " "
+                    + v.commands.get(0).dir + " " + v.commands.get(0).value) + ")"));
+        }
         v = AiVoiceCmd.parseServer("{\"ok\":true,\"command\":{\"commands\":[{\"target\":\"strength\",\"dir\":\"up\",\"amount\":1},"
                 + "{\"target\":\"legs\",\"dir\":\"set\",\"amount\":50}],\"actions\":[]}}");
         check(v.commands.size() == 2 && v.commands.get(0).value == 1 && v.commands.get(1).dir.equals("set")

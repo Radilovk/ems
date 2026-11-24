@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 875
+    .line 868
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 876
+    .line 869
     iput-object p1, p0, Lcom/isaigu/gymapp/ai/AiTrain$Health;->key:Ljava/lang/String;
 
-    .line 877
+    .line 870
     return-void
 .end method
 
@@ -42,10 +42,10 @@
     .registers 4
 
     .prologue
-    .line 881
+    .line 874
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsUi;->haptic(Landroid/view/View;)V
 
-    .line 882
+    .line 875
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoSession;->getInput()Lcom/isaigu/gymapp/ai/AutoModel$Input;
 
     move-result-object v0
@@ -54,12 +54,9 @@
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/ai/AiCoach;->toggleHealth(Lcom/isaigu/gymapp/ai/AutoModel$Input;Ljava/lang/String;)V
 
-    .line 883
-    invoke-static {}, Lcom/isaigu/gymapp/ai/AutoSession;->syncLeaderInput()V
+    .line 876
+    invoke-static {}, Lcom/isaigu/gymapp/ai/AiTrain;->changed()V
 
-    .line 884
-    invoke-static {}, Lcom/isaigu/gymapp/ai/AiTrain;->rebuild()V
-
-    .line 885
+    .line 877
     return-void
 .end method

@@ -26,7 +26,7 @@
 
 .field private static final MAIN:Landroid/os/Handler;
 
-.field static final W_DP:I = 0x1f4
+.field static final W_DP:I = 0x17c
 
 .field private static content:Landroid/widget/LinearLayout;
 
@@ -491,7 +491,7 @@
     move-result-object v2
 
     .line 243
-    const/high16 v0, 0x43c30000    # 390.0f
+    const/high16 v0, 0x439b0000    # 310.0f
 
     invoke-static {p0, v0}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
 
@@ -1888,7 +1888,7 @@
     invoke-virtual {v1, v2}, Landroid/view/Window;->setGravity(I)V
 
     .line 71
-    const/high16 v2, 0x43fa0000    # 500.0f
+    const/high16 v2, 0x43be0000    # 380.0f
 
     invoke-static {p0, v2}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
 

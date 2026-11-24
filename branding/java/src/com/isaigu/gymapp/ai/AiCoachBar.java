@@ -44,6 +44,13 @@ public final class AiCoachBar {
         fill(b.getContext(), b);
     }
 
+    /** The chat's length at ▶ Старт: the bar shows only what was said during the session. */
+    static int runTurns = -1;
+
+    static void started() {
+        runTurns = AiCoach.chat().size();
+    }
+
     static void forget() {
         bar = null;
     }
@@ -86,18 +93,12 @@ public final class AiCoachBar {
         if (AiTrain.busy) {
             return "✦ " + AiText.t("мисля…", "thinking…");
         }
+        // the AI's last word (a change done reads "✓ крака 46 %"); the trainer's own words are in the chat
         List<AiCoach.Turn> turns = AiCoach.chat();
-        int lastUser = -1;
-        for (int i = turns.size() - 1; i >= 0; i--) {
-            if (!turns.get(i).ai) {
-                lastUser = i;
-                break;
-            }
-        }
-        if (lastUser >= 0 && lastUser >= turns.size() - 2) {
-            String you = AiText.t("Ти: ", "You: ") + turns.get(lastUser).text;
-            String ans = lastUser + 1 < turns.size() ? turns.get(lastUser + 1).text : "";
-            return ans.length() > 0 ? you + "   →   " + ans : you;
+        if (!turns.isEmpty() && turns.get(turns.size() - 1).ai && AutoSession.getStage() == AutoSession.Stage.RUNNING
+                && runTurns >= 0 && turns.size() > runTurns) {
+            String t = turns.get(turns.size() - 1).text;
+            return t.startsWith("✓") ? t : "✦ " + t;
         }
         String[] adv = AiCoach.advice();
         if (adv != null && adv.length > 5 && adv[5] != null && adv[5].trim().length() > 0) {

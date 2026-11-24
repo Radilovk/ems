@@ -35,7 +35,7 @@ import java.util.List;
 public final class AiChatDrawer {
     private AiChatDrawer() {}
 
-    static final int W_DP = 500;
+    static final int W_DP = 380;
     static final long HIDE_MS = 10000;
     private static final Handler MAIN = new Handler(Looper.getMainLooper());
     private static final Runnable HIDE = new Hide();
@@ -240,7 +240,7 @@ public final class AiChatDrawer {
 
     private static TextView bubbleText(Context c, String s, boolean ai) {
         TextView m = XemsUi.text(c, s, 15, XemsUi.TEXT, false);
-        m.setMaxWidth(XemsUi.dp(c, W_DP - 110));
+        m.setMaxWidth(XemsUi.dp(c, W_DP - 70));
         m.setPadding(XemsUi.dp(c, 14), XemsUi.dp(c, 9), XemsUi.dp(c, 14), XemsUi.dp(c, 9));
         // messenger shape: the corner next to the speaker is sharp
         float r = XemsUi.dp(c, 18), s4 = XemsUi.dp(c, 4);

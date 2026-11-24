@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 1154
+    .line 1234
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 1155
+    .line 1235
     iput-object p1, p0, Lcom/isaigu/gymapp/ai/AiTrain$NewPlan;->p:Lcom/isaigu/gymapp/ai/AiWorkout$Plan;
 
-    .line 1156
+    .line 1236
     return-void
 .end method
 
@@ -42,11 +42,11 @@
     .registers 2
 
     .prologue
-    .line 1160
+    .line 1240
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiTrain$NewPlan;->p:Lcom/isaigu/gymapp/ai/AiWorkout$Plan;
 
     sput-object v0, Lcom/isaigu/gymapp/ai/AiTrain;->freePlan:Lcom/isaigu/gymapp/ai/AiWorkout$Plan;
 
-    .line 1161
+    .line 1241
     return-void
 .end method

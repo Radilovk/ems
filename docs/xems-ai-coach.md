@@ -170,3 +170,18 @@ Owner: the setup must not stay on the operational screen; the chat must look lik
   or text is typed). The AI tile during the run opens it.
 - **Teaching "Тренер"** moved to Settings (`VoiceSettings` card, AI licence only) — once per tablet.
 - Shots: `sh tools/ui-shot/run.sh` → `ai-1..5`, `ai-bar`, `ai-chat`, `ai-voice-settings` (docs/xems-ui-shots.md).
+
+## 1.1.544 — the preparation is ONE screen
+Owner: 5 steps were badly sized, slow and not thought through. What it is for: the client is in the suit, the
+trainer wants a session fitted to this person in seconds; the AI must never stand in the way of ▶ Старт.
+- `AiWizard` = one screen in `AiSetupSheet`. Left, one line each (caption + control): Клиент (a known client = one
+  line from the card + ✎; a guest = Мъж/Жена + age / height / weight as numbers that open a keypad + BMI) · Цел ·
+  Вид · Опит с EMS (guests only — a client's comes from the card) · Програма (Готова / ✦ AI я съставя) · Здраве
+  (✓ Здрав/а, or the chosen ones; the full list opens in a popup) · Днес (one line + 🎤/➤, usual phrases one tap).
+  Right: the plan as it is now — status line (AI tuning… / ✓ Tuned by the AI · what changed / no link), program,
+  active · cool-down · feel, impulse, the AI's word, its answer chips, "before the start"; ▶ Старт always there.
+- Logic (`AiTrain`): every change → `changed()` = plan by the algorithm at once + `retuneLater` (2.5 s debounce,
+  a newer question drops the older answer via seq). A known client is tuned on open; a guest after the first
+  change. Words / phrases / 🎤 → `say()` straight to the AI. ▶ Старт drops an answer still on its way.
+- Coach bar shows only what the AI said during the session (`AiCoachBar.started`); the chat is 380 dp wide.
+- Shots: `ai-guest`, `ai-guest-busy`, `ai-client`, `ai-pad`, `ai-health`, `ai-bar`, `ai-chat`.

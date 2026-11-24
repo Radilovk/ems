@@ -27,28 +27,34 @@ public class ShotsAi {
         in.heightCm = 185;
         in.weightKg = 98;
         in.programId = AutoCatalog.recommended(in.goal, in.kind, in).id;
-        for (int st = 0; st <= 3; st++) {
-            AiWizard.step = st;
-            if (st == 1) {
-                AiTrain.free = false;
-            }
-            if (st == 2) {
-                AiTrain.healthOpen = true;
-                in.cond.add("knees");
-                in.cond.add("diabetes");
-            }
-            draw(a, "ai-" + (st + 1));
-        }
-        // the summary with an answer
         AutoSession.buildPlan();
-        AiTrain.view = AiTrain.SUMMARY;
-        AiCoach.Reply r = AiCoach.parse("{\"ok\":true,\"coach\":{\"reply\":\"Намалявам натоварването и съобразявам липсата на храна.\","
-                + "\"advice\":{\"exercise\":\"Бавни, контролирани движения без подскоци и без дълбоки клякания заради коленете.\","
-                + "\"load\":\"Усещане около 5-6 от 10.\",\"rest\":\"Спокойно дишане на място.\",\"equipment\":\"Само собствено тегло.\","
-                + "\"before\":\"Половин банан 10-15 минути преди.\",\"during\":\"Вода на малки глътки.\",\"after\":\"Белтък и зеленчуци до 2 часа.\"}}}");
-        AiCoach.userSaid("днес искам по-леко, не съм закусил");
-        AiCoach.aiSaid(r);
-        draw(a, "ai-5");
+        draw(a, "ai-guest");                                   // a guest, nothing from the AI yet
+        AiTrain.busy = true;
+        draw(a, "ai-guest-busy");
+        AiTrain.busy = false;
+        // a known client from the card, the AI's answer in
+        java.lang.reflect.Field f = AutoSession.class.getDeclaredField("rows");
+        f.setAccessible(true);
+        AutoSession.Row r = new AutoSession.Row();
+        r.userId = 7;
+        r.name = "Иван Петров";
+        r.input = in;
+        ((java.util.List<AutoSession.Row>) f.get(null)).add(r);
+        in.cond.add("knees");
+        AiCoach.Reply rep = AiCoach.parse("{\"ok\":true,\"coach\":{\"reply\":\"Заради коленете — без подскоци и дълбоки клякания; "
+                + "натоварване около 5–6 от 10.\",\"advice\":{\"before\":\"Половин банан и чаша вода 15 минути преди.\","
+                + "\"during\":\"Вода на малки глътки.\",\"after\":\"Белтък и зеленчуци до 2 часа.\"}}}");
+        AiCoach.aiSaid(rep);
+        AiTrain.lastChanges = "Hz −10 % · почивки +15 %";
+        draw(a, "ai-client");
+        Shots.shot(wrap(a, AiWizard.padView(a, AiTrain.S_AGE)), 340, 420, "ai-pad");
+        Shots.shot(wrap(a, AiWizard.healthView(a)), 860, 330, "ai-health");
+    }
+
+    static LinearLayout wrap(Activity a, android.view.View v) {
+        LinearLayout l = com.isaigu.gymapp.widget.XemsUi.vertical(a);
+        l.addView(v);
+        return l;
     }
 
     /** During the session: the coach bar and the side chat (a messenger). */

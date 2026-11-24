@@ -32,22 +32,22 @@
     .registers 5
 
     .prologue
-    .line 1170
+    .line 1250
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 1171
+    .line 1251
     iput-object p1, p0, Lcom/isaigu/gymapp/ai/AiTrain$Answered;->r:Lcom/isaigu/gymapp/ai/AiCoach$Reply;
 
-    .line 1172
+    .line 1252
     iput p2, p0, Lcom/isaigu/gymapp/ai/AiTrain$Answered;->my:I
 
-    .line 1173
+    .line 1253
     iput-boolean p3, p0, Lcom/isaigu/gymapp/ai/AiTrain$Answered;->live:Z
 
-    .line 1174
+    .line 1254
     iput-object p4, p0, Lcom/isaigu/gymapp/ai/AiTrain$Answered;->text:Ljava/lang/String;
 
-    .line 1175
+    .line 1255
     return-void
 .end method
 
@@ -57,7 +57,7 @@
     .registers 5
 
     .prologue
-    .line 1180
+    .line 1260
     :try_start_0
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiTrain$Answered;->r:Lcom/isaigu/gymapp/ai/AiCoach$Reply;
 
@@ -71,15 +71,15 @@
     :try_end_b
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_b} :catch_c
 
-    .line 1184
+    .line 1264
     :goto_b
     return-void
 
-    .line 1181
+    .line 1261
     :catch_c
     move-exception v0
 
-    .line 1182
+    .line 1262
     const-string v1, "ai-train"
 
     new-instance v2, Ljava/lang/StringBuilder;

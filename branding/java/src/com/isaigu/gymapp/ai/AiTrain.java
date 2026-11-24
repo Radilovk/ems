@@ -107,7 +107,11 @@ public final class AiTrain {
         lastChanges = "";
         pending = null;
         seq++;
-        AiSetupSheet.open(a);                          // the preparation: a window of its own, gone at ▶ Старт
+        AutoSession.buildPlan();                       // the plan is there at once (the algorithm)
+        AiSetupSheet.open(a);                          // the preparation: one screen of its own, gone at ▶ Старт
+        if (!AutoSession.isGuest()) {
+            retuneNow(a);                              // a known client: the AI tunes it while the trainer looks
+        }
     }
 
     /**
@@ -139,10 +143,6 @@ public final class AiTrain {
         AiVoiceCmd.Result vc = AiVoiceCmd.parse(cmd);
         if (!running) {
             if (vc.actions.contains("resume") && vc.commands.isEmpty()) {
-                if (view == INTAKE) {
-                    tune(c);
-                    return AiText.t("Нагласям", "Tuning");
-                }
                 start(c, AiSession.activityOf(AutoSession.getPanelRoot()));
                 return AiText.t("Старт", "Start");
             }
@@ -150,13 +150,7 @@ public final class AiTrain {
                 close();
                 return AiText.t("Затворено", "Closed");
             }
-            if (view == INTAKE) {
-                draft = (draft != null && draft.trim().length() > 0 ? draft.trim() + ", " : "") + cmd;
-                rebuild();
-                return AiText.t("Записах", "Noted");
-            }
-            AiCoach.userSpoke(cmd);
-            send(c, cmd, false, true);
+            say(c, cmd, true);                         // before the start: the words go to the AI's plan
             return "";
         }
         AiCoach.userSpoke(cmd);                          // a 🎙 bubble in the chat, what was done under it
@@ -170,6 +164,7 @@ public final class AiTrain {
 
     /** ✕ before the start: the AI training goes, the screen is as before. */
     static void close() {
+        MAIN.removeCallbacks(RETUNE);
         AiSetupSheet.close();
         AiChatDrawer.close();
         AutoSession.close();
@@ -842,8 +837,7 @@ public final class AiTrain {
                     }
                     break;
             }
-            AutoSession.syncLeaderInput();
-            rebuild();
+            changed();
         }
     }
 
@@ -864,8 +858,7 @@ public final class AiTrain {
             } else {
                 in.weightKg = Math.max(35, Math.min(200, Math.round(in.weightKg) + d));
             }
-            AutoSession.syncLeaderInput();
-            rebuild();
+            changed();
         }
     }
 
@@ -880,8 +873,7 @@ public final class AiTrain {
         public void onClick(View v) {
             XemsUi.haptic(v);
             AiCoach.toggleHealth(AutoSession.getInput(), key);
-            AutoSession.syncLeaderInput();
-            rebuild();
+            changed();
         }
     }
 
@@ -930,6 +922,90 @@ public final class AiTrain {
         }
     }
 
+    // ================================================================ one screen: the plan now, the AI after it
+
+    /** The delay after the last change before the AI is asked (a few taps in a row = one question). */
+    static final long RETUNE_MS = 2500;
+    private static Context retuneCtx;
+    private static final Runnable RETUNE = new Retune();
+
+    /** A number set on the keypad (age / height / weight), within the limits. */
+    static void setNum(int which, int v) {
+        Input in = AutoSession.getInput();
+        if (which == S_AGE) {
+            in.age = Math.max(14, Math.min(90, v));
+        } else if (which == S_HEIGHT) {
+            in.heightCm = Math.max(130, Math.min(220, v));
+        } else {
+            in.weightKg = Math.max(35, Math.min(200, v));
+        }
+        changed();
+    }
+
+    /** Any choice changed: the plan follows at once (the algorithm), the AI re-tunes it a moment later. */
+    static void changed() {
+        Input in = AutoSession.getInput();
+        if (!free && (in.programId == null || AutoCatalog.get(in.programId) == null)) {
+            in.programId = AutoCatalog.recommended(in.goal, in.kind, in).id;
+        }
+        AutoSession.syncLeaderInput();
+        if (!free) {
+            AutoSession.buildPlan();
+        } else {
+            freePlan = null;
+        }
+        rebuild();
+        View r = AutoSession.getPanelRoot();
+        retuneLater(r != null ? r.getContext() : retuneCtx);
+    }
+
+    static void retuneLater(Context c) {
+        if (c == null) {
+            return;
+        }
+        retuneCtx = c.getApplicationContext();
+        MAIN.removeCallbacks(RETUNE);
+        MAIN.postDelayed(RETUNE, RETUNE_MS);
+    }
+
+    /** Ask the AI now for the current choices (a newer question drops the older answer: seq). */
+    static void retuneNow(Context c) {
+        MAIN.removeCallbacks(RETUNE);
+        if (c == null || !AiSetupSheet.isOpen()) {
+            return;
+        }
+        retuneCtx = c.getApplicationContext();
+        busy = false;
+        AutoSession.syncLeaderInput();
+        if (!free) {
+            AutoSession.buildPlan();
+        }
+        send(c, AiText.t("Нагласи тренировката за този клиент и дай препоръките.",
+                "Tune the session for this client and give the advice."), false, true);
+    }
+
+    static final class Retune implements Runnable {
+        @Override
+        public void run() {
+            retuneNow(retuneCtx);
+        }
+    }
+
+    /** The trainer's own words (typed or 🎤) before the start: a message to the AI now. */
+    static void say(Context c, String text, boolean spoken) {
+        if (text == null || text.trim().length() == 0) {
+            return;
+        }
+        MAIN.removeCallbacks(RETUNE);
+        busy = false;
+        if (spoken) {
+            AiCoach.userSpoke(text.trim());
+        } else {
+            AiCoach.userSaid(text.trim());
+        }
+        send(c, text.trim(), false, true);
+    }
+
     /** ✦ Нагласи: the plan from the intake, the first word to the AI (the line's text, else "tune it"). */
     static void tune(Context c) {
         Input in = AutoSession.getInput();
@@ -954,7 +1030,7 @@ public final class AiTrain {
     /** ▶ Старт: the ready program (startDirect, strength from 0) or the AI's own workout as a map. */
     static void start(Context c, Activity a) {
         if (free) {
-            if (freePlan == null) {
+            if (freePlan == null || busy) {
                 toast(c, AiText.t("Първо ✦ Състави тренировката.", "First ✦ write the workout."));
                 return;
             }
@@ -970,10 +1046,14 @@ public final class AiTrain {
             }
             return;
         }
+        MAIN.removeCallbacks(RETUNE);
+        seq++;                                         // an answer still on its way no longer rewrites the plan
+        busy = false;
         if (AutoSession.getPlan() == null) {
             AutoSession.buildPlan();
         }
         AiSetupSheet.close();                          // nothing of the preparation stays on the screen
+        AiCoachBar.started();
         AutoSession.startDirect(a != null ? a : c);
         rebuild();
     }
@@ -1039,8 +1119,9 @@ public final class AiTrain {
             }
         } catch (Throwable ignored) {
         }
-        if (!live && view == INTAKE) {
-            draft = t;                                        // the intake keeps it for ✦ Нагласи
+        if (!live) {
+            f.setText("");
+            say(f.getContext(), t, false);                  // before the start: straight to the AI's plan
             return;
         }
         send(f.getContext(), t, live, false);
@@ -1064,9 +1145,8 @@ public final class AiTrain {
 
         @Override
         public void onText(String text) {
-            if (!live && view == INTAKE) {
-                draft = (draft != null && draft.trim().length() > 0 ? draft.trim() + ", " : "") + text;
-                rebuild();
+            if (!live) {
+                say(c, text, true);
                 return;
             }
             AiCoach.userSpoke(text);

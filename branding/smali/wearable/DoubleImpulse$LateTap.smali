@@ -37,20 +37,20 @@
     .registers 4
 
     .prologue
-    .line 909
+    .line 923
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 910
+    .line 924
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$LateTap;->it:Lcom/isaigu/gymapp/train/model/TrainItem;
 
-    .line 911
+    .line 925
     new-instance v0, Ljava/lang/ref/WeakReference;
 
     invoke-direct {v0, p2}, Ljava/lang/ref/WeakReference;-><init>(Ljava/lang/Object;)V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$LateTap;->key:Ljava/lang/ref/WeakReference;
 
-    .line 912
+    .line 926
     return-void
 .end method
 
@@ -60,14 +60,14 @@
     .registers 3
 
     .prologue
-    .line 915
+    .line 929
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$LateTap;->it:Lcom/isaigu/gymapp/train/model/TrainItem;
 
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/DoubleImpulse;->button(Lcom/isaigu/gymapp/train/model/TrainItem;)Landroid/view/View;
 
     move-result-object v0
 
-    .line 916
+    .line 930
     if-eqz v0, :cond_e
 
     invoke-virtual {v0}, Landroid/view/View;->isAttachedToWindow()Z
@@ -76,7 +76,7 @@
 
     if-nez v1, :cond_16
 
-    .line 917
+    .line 931
     :cond_e
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$LateTap;->key:Ljava/lang/ref/WeakReference;
 
@@ -86,16 +86,16 @@
 
     check-cast v0, Landroid/view/View;
 
-    .line 919
+    .line 933
     :cond_16
     if-eqz v0, :cond_1d
 
-    .line 920
+    .line 934
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$LateTap;->it:Lcom/isaigu/gymapp/train/model/TrainItem;
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/wearable/DoubleImpulse;->click(Lcom/isaigu/gymapp/train/model/TrainItem;Landroid/view/View;)V
 
-    .line 922
+    .line 936
     :cond_1d
     return-void
 .end method

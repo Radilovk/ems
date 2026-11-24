@@ -1059,7 +1059,7 @@ public final class AiSession {
                     || b.pulseContinue != Math.max(1, written.onS)
                     || b.pulsePause != Math.max(1, written.offS)
                     || b.activePause != ((written.pauseHz > 0 && writtenPercent > 0 && pauseAllowed(item))
-                            || (engine != null && engine.isActivePauseOn() && pauseAllowed(item)))
+                            || (engine != null && engine.isActivePauseOn() && pauseAllowed(item) && written.hz >= 2))
                     || (written.pauseHz > 0 && writtenPercent > 0 && b.pauseHz != Math.max(1, Math.min(120, written.pauseHz)))) {
                 params = true;
             }
@@ -1217,7 +1217,7 @@ public final class AiSession {
             // The row's 2nd-impulse switch stays as the session's setting (owner, 1.1.537: it followed every cycle and
             // the stock index buttons blinked); a cycle without it gives it 0 strength.
             boolean pulseNow = c.pauseHz > 0 && percent > 0 && pauseAllowed(item);
-            boolean steady = engine != null && engine.isActivePauseOn() && pauseAllowed(item);
+            boolean steady = engine != null && engine.isActivePauseOn() && pauseAllowed(item) && c.hz >= 2;
             bean.activePause = pulseNow || steady;
             if (pulseNow) {
                 bean.pauseHz = Math.max(1, Math.min(120, c.pauseHz));

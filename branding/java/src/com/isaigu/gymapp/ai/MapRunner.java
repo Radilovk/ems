@@ -95,6 +95,20 @@ public final class MapRunner {
         return map != null && clock != null && !clock.isDone();
     }
 
+    /** The row's 2nd-impulse look while a map runs: on when any block has it (steady, never block by block). */
+    public static Boolean ledDouble() {
+        Workout m = map;
+        if (m == null || !isRunning()) {
+            return null;
+        }
+        for (Workout.Block x : m.blocks) {
+            if (x.dbl) {
+                return Boolean.TRUE;
+            }
+        }
+        return Boolean.FALSE;
+    }
+
     /** Why a map cannot start now, or null (and it starts). */
     public static String start(Activity a, Workout w) {
         return begin(a, w, false);
@@ -667,11 +681,20 @@ public final class MapRunner {
             bean.pulseWidth = s.pwUs;
             bean.pulseContinue = Math.max(1, s.onS);
             bean.pulsePause = Math.max(1, s.offS);
+            // the row's 2nd-impulse switch steady through a block (owner, 1.1.542: it followed every repetition's
+            // approach and the stock index buttons blinked); a repetition without it gives it 0 %; ≤ 1 Hz never (the
+            // limits switch it off there, SafeLimits AP)
             boolean dbl = s.pauseHz > 0 && s.pauseSigma > 0 && AiSession.pauseAllowed(it);
-            bean.activePause = dbl;
-            if (dbl) {
+            boolean steady = (b.dbl || dbl) && AiSession.pauseAllowed(it) && s.hz >= 2;
+            bean.activePause = steady;
+            if (dbl && steady) {
                 bean.pauseHz = s.pauseHz;
                 bean.pauseStrenthPercent = Math.max(1, (int) Math.round(bean.strenth * s.pauseSigma));
+            } else if (steady) {
+                bean.pauseStrenthPercent = 0;
+                if (bean.pauseHz <= 0) {
+                    bean.pauseHz = b.hz2 > 0 ? b.hz2 : 7;
+                }
             }
             bean.inputRamp = s.rampUpMs;
             bean.outputRamp = s.rampDownMs;

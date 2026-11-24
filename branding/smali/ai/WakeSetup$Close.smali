@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 154
+    .line 201
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,7 +34,7 @@
     .registers 3
 
     .prologue
-    .line 157
+    .line 204
     # getter for: Lcom/isaigu/gymapp/ai/WakeSetup;->dialog:Landroid/app/Dialog;
     invoke-static {}, Lcom/isaigu/gymapp/ai/WakeSetup;->access$000()Landroid/app/Dialog;
 
@@ -42,7 +42,7 @@
 
     if-eqz v0, :cond_d
 
-    .line 158
+    .line 205
     # getter for: Lcom/isaigu/gymapp/ai/WakeSetup;->dialog:Landroid/app/Dialog;
     invoke-static {}, Lcom/isaigu/gymapp/ai/WakeSetup;->access$000()Landroid/app/Dialog;
 
@@ -50,7 +50,7 @@
 
     invoke-virtual {v0}, Landroid/app/Dialog;->dismiss()V
 
-    .line 160
+    .line 207
     :cond_d
     return-void
 .end method

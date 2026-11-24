@@ -85,30 +85,30 @@
     .end annotation
 
     .prologue
-    .line 1086
+    .line 1100
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
-
-    .line 1082
-    new-instance v0, Ljava/util/ArrayList;
-
-    invoke-direct {v0}, Ljava/util/ArrayList;-><init>()V
-
-    iput-object v0, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Blink;->halos:Ljava/util/List;
 
     .line 1096
     new-instance v0, Ljava/util/ArrayList;
 
     invoke-direct {v0}, Ljava/util/ArrayList;-><init>()V
 
+    iput-object v0, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Blink;->halos:Ljava/util/List;
+
+    .line 1110
+    new-instance v0, Ljava/util/ArrayList;
+
+    invoke-direct {v0}, Ljava/util/ArrayList;-><init>()V
+
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Blink;->unclipped:Ljava/util/List;
 
-    .line 1087
+    .line 1101
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Blink;->views:Ljava/util/List;
 
-    .line 1088
+    .line 1102
     iput-object p2, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Blink;->fade:Ljava/util/List;
 
-    .line 1089
+    .line 1103
     return-void
 .end method
 
@@ -129,7 +129,7 @@
     .end annotation
 
     .prologue
-    .line 1092
+    .line 1106
     # getter for: Lcom/isaigu/gymapp/wearable/DoubleImpulse;->MAIN:Landroid/os/Handler;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/DoubleImpulse;->access$000()Landroid/os/Handler;
 
@@ -143,7 +143,7 @@
 
     invoke-virtual {v0, v1, v2, v3}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
 
-    .line 1093
+    .line 1107
     return-void
 .end method
 
@@ -155,12 +155,12 @@
     .prologue
     const/4 v2, 0x0
 
-    .line 1099
+    .line 1113
     const/4 v0, 0x1
 
     iput-boolean v0, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Blink;->built:Z
 
-    .line 1100
+    .line 1114
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Blink;->views:Ljava/util/List;
 
     invoke-interface {v0}, Ljava/util/List;->iterator()Ljava/util/Iterator;
@@ -180,29 +180,29 @@
 
     check-cast v0, Landroid/view/View;
 
-    .line 1101
+    .line 1115
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Halo;->of(Landroid/view/View;)Lcom/isaigu/gymapp/wearable/DoubleImpulse$Halo;
 
     move-result-object v1
 
-    .line 1102
+    .line 1116
     if-eqz v1, :cond_a
 
-    .line 1103
+    .line 1117
     invoke-virtual {v0}, Landroid/view/View;->getOverlay()Landroid/view/ViewOverlay;
 
     move-result-object v4
 
     invoke-virtual {v4, v1}, Landroid/view/ViewOverlay;->add(Landroid/graphics/drawable/Drawable;)V
 
-    .line 1104
+    .line 1118
     iget-object v4, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Blink;->halos:Ljava/util/List;
 
     invoke-interface {v4, v1}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
     move v1, v2
 
-    .line 1109
+    .line 1123
     :goto_29
     const/16 v4, 0x18
 
@@ -216,14 +216,14 @@
 
     if-eqz v4, :cond_a
 
-    .line 1110
+    .line 1124
     invoke-virtual {v0}, Landroid/view/View;->getParent()Landroid/view/ViewParent;
 
     move-result-object v0
 
     check-cast v0, Landroid/view/ViewGroup;
 
-    .line 1111
+    .line 1125
     invoke-virtual {v0}, Ljava/lang/Object;->getClass()Ljava/lang/Class;
 
     move-result-object v4
@@ -232,7 +232,7 @@
 
     move-result-object v4
 
-    .line 1112
+    .line 1126
     const-string v5, "SwipeMenu"
 
     invoke-virtual {v4, v5}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
@@ -249,7 +249,7 @@
 
     if-nez v4, :cond_a
 
-    .line 1115
+    .line 1129
     invoke-virtual {v0}, Landroid/view/ViewGroup;->getClipChildren()Z
 
     move-result v4
@@ -264,21 +264,21 @@
 
     if-nez v4, :cond_69
 
-    .line 1116
+    .line 1130
     invoke-virtual {v0, v2}, Landroid/view/ViewGroup;->setClipChildren(Z)V
 
-    .line 1117
+    .line 1131
     iget-object v4, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Blink;->unclipped:Ljava/util/List;
 
     invoke-interface {v4, v0}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    .line 1109
+    .line 1123
     :cond_69
     add-int/lit8 v1, v1, 0x1
 
     goto :goto_29
 
-    .line 1123
+    .line 1137
     :cond_6c
     invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
 
@@ -286,7 +286,7 @@
 
     iput-wide v0, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Blink;->start:J
 
-    .line 1124
+    .line 1138
     return-void
 .end method
 
@@ -294,7 +294,7 @@
     .registers 5
 
     .prologue
-    .line 1127
+    .line 1141
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Blink;->halos:Ljava/util/List;
 
     invoke-interface {v0}, Ljava/util/List;->iterator()Ljava/util/Iterator;
@@ -314,7 +314,7 @@
 
     check-cast v0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Halo;
 
-    .line 1128
+    .line 1142
     iget-object v1, v0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Halo;->view:Ljava/lang/ref/WeakReference;
 
     if-eqz v1, :cond_2e
@@ -327,39 +327,39 @@
 
     check-cast v1, Landroid/view/View;
 
-    .line 1129
+    .line 1143
     :goto_1e
     if-eqz v1, :cond_2a
 
-    .line 1130
+    .line 1144
     invoke-virtual {v1}, Landroid/view/View;->getOverlay()Landroid/view/ViewOverlay;
 
     move-result-object v3
 
     invoke-virtual {v3, v0}, Landroid/view/ViewOverlay;->remove(Landroid/graphics/drawable/Drawable;)V
 
-    .line 1131
+    .line 1145
     invoke-virtual {v1}, Landroid/view/View;->invalidate()V
 
-    .line 1133
+    .line 1147
     :cond_2a
     invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Halo;->recycle()V
 
     goto :goto_6
 
-    .line 1128
+    .line 1142
     :cond_2e
     const/4 v1, 0x0
 
     goto :goto_1e
 
-    .line 1135
+    .line 1149
     :cond_30
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Blink;->halos:Ljava/util/List;
 
     invoke-interface {v0}, Ljava/util/List;->clear()V
 
-    .line 1136
+    .line 1150
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Blink;->unclipped:Ljava/util/List;
 
     invoke-interface {v0}, Ljava/util/List;->iterator()Ljava/util/Iterator;
@@ -379,23 +379,23 @@
 
     check-cast v0, Landroid/view/ViewGroup;
 
-    .line 1137
+    .line 1151
     const/4 v2, 0x1
 
     invoke-virtual {v0, v2}, Landroid/view/ViewGroup;->setClipChildren(Z)V
 
-    .line 1138
+    .line 1152
     invoke-virtual {v0}, Landroid/view/ViewGroup;->invalidate()V
 
     goto :goto_3b
 
-    .line 1140
+    .line 1154
     :cond_4f
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Blink;->unclipped:Ljava/util/List;
 
     invoke-interface {v0}, Ljava/util/List;->clear()V
 
-    .line 1141
+    .line 1155
     return-void
 .end method
 
@@ -405,16 +405,16 @@
     .prologue
     const/high16 v2, 0x3f800000    # 1.0f
 
-    .line 1145
+    .line 1159
     :try_start_2
     iget-boolean v0, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Blink;->built:Z
 
     if-nez v0, :cond_9
 
-    .line 1146
+    .line 1160
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Blink;->build()V
 
-    .line 1148
+    .line 1162
     :cond_9
     invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
 
@@ -424,7 +424,7 @@
 
     sub-long v6, v0, v4
 
-    .line 1149
+    .line 1163
     const-wide/16 v0, 0x4ec
 
     cmp-long v0, v6, v0
@@ -444,14 +444,14 @@
 
     move v4, v0
 
-    .line 1150
+    .line 1164
     :goto_21
     const/4 v0, 0x0
 
-    .line 1151
+    .line 1165
     if-nez v4, :cond_c3
 
-    .line 1152
+    .line 1166
     const-wide/16 v0, 0x1a4
 
     rem-long v0, v6, v0
@@ -462,7 +462,7 @@
 
     div-float/2addr v0, v1
 
-    .line 1153
+    .line 1167
     const-wide v6, 0x400921fb54442d18L    # Math.PI
 
     float-to-double v0, v0
@@ -475,7 +475,7 @@
 
     double-to-float v0, v0
 
-    .line 1154
+    .line 1168
     mul-float v1, v0, v0
 
     const/high16 v3, 0x40400000    # 3.0f
@@ -490,14 +490,14 @@
 
     move v3, v0
 
-    .line 1156
+    .line 1170
     :goto_43
     if-eqz v4, :cond_96
 
-    .line 1157
+    .line 1171
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Blink;->clear()V
 
-    .line 1164
+    .line 1178
     :cond_48
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Blink;->fade:Ljava/util/List;
 
@@ -518,7 +518,7 @@
 
     check-cast v0, Landroid/view/View;
 
-    .line 1165
+    .line 1179
     if-eqz v4, :cond_ae
 
     move v1, v2
@@ -530,11 +530,11 @@
 
     goto :goto_4e
 
-    .line 1170
+    .line 1184
     :catch_61
     move-exception v0
 
-    .line 1171
+    .line 1185
     const-string v1, "index"
 
     new-instance v3, Ljava/lang/StringBuilder;
@@ -557,13 +557,13 @@
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/wearable/WearableBleDiagLog;->log(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 1173
+    .line 1187
     :try_start_7a
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Blink;->clear()V
     :try_end_7d
     .catch Ljava/lang/Throwable; {:try_start_7a .. :try_end_7d} :catch_c1
 
-    .line 1177
+    .line 1191
     :goto_7d
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Blink;->fade:Ljava/util/List;
 
@@ -584,12 +584,12 @@
 
     check-cast v0, Landroid/view/View;
 
-    .line 1178
+    .line 1192
     invoke-virtual {v0, v2}, Landroid/view/View;->setAlpha(F)V
 
     goto :goto_83
 
-    .line 1149
+    .line 1163
     :cond_93
     const/4 v0, 0x0
 
@@ -597,7 +597,7 @@
 
     goto :goto_21
 
-    .line 1159
+    .line 1173
     :cond_96
     :try_start_96
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Blink;->halos:Ljava/util/List;
@@ -619,15 +619,15 @@
 
     check-cast v0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Halo;
 
-    .line 1160
+    .line 1174
     iput v3, v0, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Halo;->level:F
 
-    .line 1161
+    .line 1175
     invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/DoubleImpulse$Halo;->invalidateSelf()V
 
     goto :goto_9c
 
-    .line 1165
+    .line 1179
     :cond_ae
     const v1, 0x3e4ccccd    # 0.2f
 
@@ -637,11 +637,11 @@
 
     goto :goto_5d
 
-    .line 1167
+    .line 1181
     :cond_b5
     if-nez v4, :cond_c0
 
-    .line 1168
+    .line 1182
     # getter for: Lcom/isaigu/gymapp/wearable/DoubleImpulse;->MAIN:Landroid/os/Handler;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/DoubleImpulse;->access$000()Landroid/os/Handler;
 
@@ -653,11 +653,11 @@
     :try_end_c0
     .catch Ljava/lang/Throwable; {:try_start_96 .. :try_end_c0} :catch_61
 
-    .line 1181
+    .line 1195
     :cond_c0
     return-void
 
-    .line 1174
+    .line 1188
     :catch_c1
     move-exception v0
 

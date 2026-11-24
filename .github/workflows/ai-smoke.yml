@@ -1,0 +1,25 @@
+# A real Gemini call with the server's prompts and schemas (no deploy): the key, the picked model, schema acceptance,
+# the time per turn. Runs when the AI code or this file changes on any branch, or by hand.
+name: ai-smoke
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'server/src/aicoach.js'
+      - 'server/src/aibrief.js'
+      - 'server/scripts/ai-smoke.mjs'
+      - '.github/workflows/ai-smoke.yml'
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: server
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node scripts/ai-smoke.mjs
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}

@@ -199,6 +199,10 @@ public final class DoubleImpulse {
             if (ae != null) {
                 return ae.isDoublePulseOn();
             }
+            Boolean m = com.isaigu.gymapp.ai.MapRunner.ledDouble();
+            if (m != null) {
+                return m;
+            }
             com.isaigu.gymapp.ai.AiEngine e = com.isaigu.gymapp.ai.AiSession.getStage()
                     != com.isaigu.gymapp.ai.AiSession.Stage.IDLE ? com.isaigu.gymapp.ai.AiSession.getEngine() : null;
             if (e != null) {
@@ -210,6 +214,16 @@ public final class DoubleImpulse {
         } catch (Throwable ignored) {
         }
         return null;
+    }
+
+    /**
+     * What the row's two 2nd-impulse index buttons show (TrainViewHolder.updatePauseMa/HzDisplay, scripts/
+     * apply-double-impulse.py): the session's steady setting while Smart / Auto / a map leads — their colour followed
+     * the bean cycle by cycle, yellow ↔ black (owner, 1.1.545: "the 2nd-impulse button still blinks") — else the bean.
+     */
+    public static boolean shown(ProgramDataBean b) {
+        Boolean led = ledDouble();
+        return led != null ? led : b != null && b.activePause;
     }
 
     static boolean muscle(TrainItem it) {

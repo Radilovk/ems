@@ -52,6 +52,9 @@ public final class AiVoiceCmd {
         public final List<String> actions = new ArrayList<String>();
         /** The server said: not a command — ask the coach. */
         public boolean coach;
+        /** The verb read in this part and its "малко" (parse's own use). */
+        String dir;
+        boolean small;
 
         public boolean isEmpty() {
             return commands.isEmpty() && actions.isEmpty();
@@ -101,9 +104,9 @@ public final class AiVoiceCmd {
             {"legs", "крака", "краката", "крачет"},
             {"thighs", "бедра", "бедрата", "бедро"},
             {"calves", "прасец", "прасци", "прасеца", "прасците"},
-            {"glutes", "седалищ", "дупе", "глутеус"},
+            {"glutes", "седалищ", "дупе", "задник", "задни части", "глутеус"},
             {"abs", "корем", "корема"},
-            {"arms", "ръце", "ръцете", "ръка", "бицепс", "трицепс"},
+            {"arms", "ръце", "ръцете", "ръка", "ръката", "бицепс", "трицепс"},
             {"chest", "гърди", "гърдите", "гръден"},
             {"back", "гръб", "гърба", "гърбът"},
             {"lower_back", "кръст", "кръста"},
@@ -113,16 +116,75 @@ public final class AiVoiceCmd {
             {"all_channels", "всички канали"},
     };
 
-    public static Result parse(String text) {
-        Result r = new Result();
+    /** "колко повторения…", "какво упражнение…", "…?" — a question for the coach, not a command. */
+    public static boolean isQuestion(String text) {
         if (text == null) {
-            return r;
+            return false;
         }
+        String t = " " + text.toLowerCase(java.util.Locale.ROOT).trim() + " ";
+        if (t.trim().endsWith("?")) {
+            return true;
+        }
+        String[] q = {" колко ", " какво ", " кое ", " кои ", " коя ", " кой ", " как ", " защо ", " кога ", " може ли ",
+                " препоръч", " предложи", " дай ми ", " какви ", " what ", " how ", " which ", " why "};
+        for (String w : q) {
+            if (t.contains(w)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static Result parse(String text) {
+        Result all = new Result();
+        if (text == null) {
+            return all;
+        }
+        // "увеличи ръцете и намали дупето": each part with its own verb; a part with none takes the one before
+        // ("увеличи ръцете и краката")
+        String[] parts = (" " + text.toLowerCase(Locale.ROOT).replace('ѝ', 'и') + " ")
+                .split("\\s+и\\s+|\\s+а\\s+|,|;|\\s+после\\s+|\\s+също\\s+");
+        String lastDir = null;
+        boolean lastSmall = false;
+        for (String part : parts) {
+            if (part.trim().length() == 0) {
+                continue;
+            }
+            Result r = parseOne(part, lastDir, lastSmall);
+            if (r.dir != null) {
+                lastDir = r.dir;
+                lastSmall = r.small;
+            }
+            for (Cmd c : r.commands) {
+                if (!contains(all, c.target)) {
+                    all.commands.add(c);
+                }
+            }
+            for (String a : r.actions) {
+                if (!all.actions.contains(a)) {
+                    all.actions.add(a);
+                }
+            }
+        }
+        if (all.actions.contains("double_on") || all.actions.contains("double_off")) {
+            all.commands.clear();
+        }
+        return all;
+    }
+
+    private static Result parseOne(String text, String inherited, boolean inheritedSmall) {
+        Result r = new Result();
         String t = " " + text.toLowerCase(Locale.ROOT).replace('ѝ', 'и').replaceAll("[,.!?;]", " ") + " ";
         boolean small = has(t, "малко", "леко ", "мъничко", "съвсем малко");
         String dir = has(t, "намали", "по-слабо", "по слабо", "по-малко", "по малко", "свали", "отслаби", "по-леко", "по леко")
                 ? "down" : has(t, "увеличи", "по-силно", "по силно", "повече", "качи", "вдигни", "засили", "усили")
                 ? "up" : has(t, "изключи", "махни", "без ") ? "off" : has(t, "включи", "добави") ? "on" : null;
+        r.dir = dir;
+        r.small = small;
+        if (dir == null && inherited != null && hasMuscle(t)) {
+            dir = inherited;                                   // "… и краката": the verb before (and its "малко")
+            small = small || inheritedSmall;
+        }
         // the impulse's / the pause's length
         boolean longer = has(t, "по-дълг", "по дълг", "удължи");
         boolean shorter = has(t, "по-къс", "по къс", "по-кратк", "по кратк", "скъси");
@@ -166,6 +228,17 @@ public final class AiVoiceCmd {
             r.commands.clear();
         }
         return r;
+    }
+
+    private static boolean hasMuscle(String t) {
+        for (int i = 1; i < WORDS.length; i++) {
+            for (int j = 1; j < WORDS[i].length; j++) {
+                if (t.contains(WORDS[i][j])) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     /** The server's {@code {"ok":true,"command":{commands,actions,coach}}}. */

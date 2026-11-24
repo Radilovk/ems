@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 862
+    .line 860
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 863
+    .line 861
     iput-object p1, p0, Lcom/isaigu/gymapp/ai/AutoUi$InfoOpen;->p:Lcom/isaigu/gymapp/ai/AutoCatalog$Program;
 
-    .line 864
+    .line 862
     return-void
 .end method
 
@@ -42,12 +42,12 @@
     .registers 9
 
     .prologue
-    .line 868
+    .line 866
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoSession;->getInput()Lcom/isaigu/gymapp/ai/AutoModel$Input;
 
     move-result-object v2
 
-    .line 869
+    .line 867
     invoke-static {p1}, Lcom/isaigu/gymapp/ai/AiSession;->activityOf(Landroid/view/View;)Landroid/app/Activity;
 
     move-result-object v0
@@ -70,7 +70,7 @@
 
     iget v5, v5, Lcom/isaigu/gymapp/ai/AutoCatalog$Program;->level:I
 
-    .line 870
+    .line 868
     invoke-static {v5}, Lcom/isaigu/gymapp/ai/AutoUi;->levelName(I)Ljava/lang/String;
 
     move-result-object v5
@@ -83,9 +83,9 @@
 
     move-result v6
 
-    .line 869
+    .line 867
     invoke-static/range {v0 .. v6}, Lcom/isaigu/gymapp/ai/ProgramInfo;->open(Landroid/app/Activity;Lcom/isaigu/gymapp/ai/AutoCatalog$Program;Lcom/isaigu/gymapp/ai/AutoModel$Input;Ljava/lang/String;ILjava/lang/String;I)V
 
-    .line 871
+    .line 869
     return-void
 .end method

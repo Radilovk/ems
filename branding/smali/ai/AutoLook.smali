@@ -253,6 +253,20 @@
 
     .prologue
     .line 53
+    sget-boolean v0, Lcom/isaigu/gymapp/ai/AutoSession;->aiMode:Z
+
+    if-eqz v0, :cond_a
+
+    const-string v0, "\u2726 AI"
+
+    :goto_6
+    invoke-static {p0, v0, p1}, Lcom/isaigu/gymapp/ai/AutoLook;->apply(Landroid/view/View;Ljava/lang/String;Ljava/lang/String;)V
+
+    .line 54
+    return-void
+
+    .line 53
+    :cond_a
     const-string v0, "\u0410\u0412\u0422\u041e"
 
     const-string v1, "AUTO"
@@ -261,10 +275,7 @@
 
     move-result-object v0
 
-    invoke-static {p0, v0, p1}, Lcom/isaigu/gymapp/ai/AutoLook;->apply(Landroid/view/View;Ljava/lang/String;Ljava/lang/String;)V
-
-    .line 54
-    return-void
+    goto :goto_6
 .end method
 
 .method static apply(Landroid/view/View;Ljava/lang/String;Ljava/lang/String;)V

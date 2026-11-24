@@ -137,3 +137,72 @@ text only). The server accepts it (`validCardData`: ≤ 8 lines × 200 chars).
 - `server`: `npm test` → `aicoach.test.js` (validation, prompt, no-thinking retry), `card.test.js` (adv).
 
 The Auto mode has no AI card any more (1.1.535): Auto is the ready programs; the AI training is this.
+
+## 1.1.542 — the wizard, the AI link fixed, AI not "Auto"
+- **AI link (ai-smoke, a real Gemini call in CI):** gemini-3.8-flash refused `thinkingLevel: minimal`, the retry
+  thought 630 tokens inside a 900-token budget and every answer was cut (`bad_json`) — the tablet said "no AI". Now:
+  `low` when `minimal` is refused, budgets 3000 / 6000, Google's message in every error. The cheap model refused
+  system instructions and JSON → system text merged, then the main model. Measured: coach 6.9 s, workout 9.9 s,
+  brief 4.8 s. `.github/workflows/ai-smoke.yml` runs on every change of the AI code.
+- **The wizard (`ai/AiWizard`)**, one step per screen in the board's place, checked on `tools/ui-shot` pictures:
+  1 Клиент · 2 Тренировка · 3 Здраве · 4 Кажи на AI (field, 🎤, ready phrases, "Научи „Тренер“") · 5 Готово
+  (program, times, impulse, advice, chat, Готова | Нова от AI, ▶ Старт). The old one-screen layout stays as
+  `AiTrain.buildOld` until the wizard has been on the tablets.
+- **AI, not Auto:** the row's sign says "✦ AI"; the AI tile lights and shows the session, the Auto tile stays off.
+- **"Научи „Тренер“":** without the microphone permission it asks and opens the recording by itself once allowed;
+  refused for good → the app's settings page.
+- **2nd-impulse blink:** ≤ 1 Hz the limits switch the 2nd impulse off at every phase while Auto switched it back on —
+  steady "on" now only ≥ 2 Hz; maps keep the switch steady through a block (a repetition without it gets 0 %).
+
+
+## 1.1.543 — preparation window, coach bar, side chat
+Owner: the setup must not stay on the operational screen; the chat must look like a chat.
+- **Preparation** = `AiSetupSheet`: a temporary window (1200 × 640 dp, dimmed screen behind) holding the 5-step
+  wizard (`AiWizard`: client → training (+ "Готова / ✦ AI да състави") → health → tell the AI → plan). It closes at
+  ▶ Старт; nothing of it stays. No AI board before the start (`AutoBoard` shows only Auto's own boards).
+- **During the session** the normal run board stays the main thing. `AiCoachBar` (50 dp, under the run board):
+  🎙 state (tap = on/off, amber while listening) · the last exchange "Ти: … → ✓ …" or the "during" advice · ✦ Чат.
+  The old "✦ AI" / "🎙" head chips and the full-board live chat are gone.
+- **Chat** = `AiChatDrawer`: a right-side panel (500 dp, full height, not modal — the training screen beside it
+  stays usable), messenger look: trainer right, AI left, spoken words as 🎙 bubbles (`AiCoach.userSpoke`), changes
+  as green "✓ …" entries, one-tap answers under the AI's question (else the usual moves), one line whose button is
+  🎤 while empty and ➤ with text. Slides away after 10 s without a touch (not while the AI writes, a question waits
+  or text is typed). The AI tile during the run opens it.
+- **Teaching "Тренер"** moved to Settings (`VoiceSettings` card, AI licence only) — once per tablet.
+- Shots: `sh tools/ui-shot/run.sh` → `ai-1..5`, `ai-bar`, `ai-chat`, `ai-voice-settings` (docs/xems-ui-shots.md).
+
+## 1.1.544 — the preparation is ONE screen
+Owner: 5 steps were badly sized, slow and not thought through. What it is for: the client is in the suit, the
+trainer wants a session fitted to this person in seconds; the AI must never stand in the way of ▶ Старт.
+- `AiWizard` = one screen in `AiSetupSheet`. Left, one line each (caption + control): Клиент (a known client = one
+  line from the card + ✎; a guest = Мъж/Жена + age / height / weight as numbers that open a keypad + BMI) · Цел ·
+  Вид · Опит с EMS (guests only — a client's comes from the card) · Програма (Готова / ✦ AI я съставя) · Здраве
+  (✓ Здрав/а, or the chosen ones; the full list opens in a popup) · Днес (one line + 🎤/➤, usual phrases one tap).
+  Right: the plan as it is now — status line (AI tuning… / ✓ Tuned by the AI · what changed / no link), program,
+  active · cool-down · feel, impulse, the AI's word, its answer chips, "before the start"; ▶ Старт always there.
+- Logic (`AiTrain`): every change → `changed()` = plan by the algorithm at once + `retuneLater` (2.5 s debounce,
+  a newer question drops the older answer via seq). A known client is tuned on open; a guest after the first
+  change. Words / phrases / 🎤 → `say()` straight to the AI. ▶ Старт drops an answer still on its way.
+- Coach bar shows only what the AI said during the session (`AiCoachBar.started`); the chat is 380 dp wide.
+- Shots: `ai-guest`, `ai-guest-busy`, `ai-client`, `ai-pad`, `ai-health`, `ai-bar`, `ai-chat`.
+
+## 1.1.545 — a spoken dialogue during the session; the 2nd-impulse blink
+- **The AI changes the running session** (it always could: `liveApply`, commands); ▶ Старт only drops an answer to
+  a *preparation* question still on its way.
+- **Spoken dialogue** (the tablet's own TTS, no paid voice): whatever went to the AI by voice ("Тренер, …" or the
+  chat's 🎤) is answered aloud (`AiTrain.voiceAsk` → `spoken()` = reply + question + its options →
+  `WakeListener.answer`), then one listening window opens without "тренер" (after the TTS "done", `Follow`); silence
+  ends the dialogue (back to the spotter). Commands done on the tablet are said back the same way. The spotter is off
+  while the tablet speaks.
+- **Questions** ("колко повторения…", "какво упражнение още…", "…?") skip the command model and go straight to the
+  coach (`AiVoiceCmd.isQuestion`). Server `LIVE_NOTE` (SESSION=RUNNING): concrete numbers (reps, seconds, sets), the
+  next exercise for the named body part, asks which part when none is named; live questions don't count toward 3.
+- **Several commands in one phrase**: `AiVoiceCmd.parse` splits on "и / а / , / после / също"; each part has its own
+  verb, a part without one takes the verb (and "малко") before: "увеличи ръцете и намали дупето" → arms up, glutes
+  down. "задник" = glutes.
+- **Operational screen**: the coach bar shows only the voice state (🎙 / 🔊 / listening) and what the AI said during
+  the session — no preparation advice.
+- **2nd-impulse blink**: the row's two 2nd-impulse index buttons coloured themselves from the bean (yellow / black),
+  which Auto / Smart / a map change cycle by cycle. `scripts/apply-double-impulse.py` `patch_shown` makes
+  `updatePauseMa/HzDisplay` read `DoubleImpulse.shown(b)` (the session's steady setting; `MapRunner.ledDouble` for
+  maps); FocusBoard's ∿ reads it too.

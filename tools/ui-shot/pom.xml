@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Off-device screenshots of XEMS's own Java screens (Robolectric, native graphics): docs/xems-ui-shots.md -->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>xems</groupId>
+  <artifactId>ui-shot</artifactId>
+  <version>1</version>
+  <properties>
+    <maven.compiler.release>17</maven.compiler.release>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
+  <repositories>
+    <repository><id>google</id><url>https://dl.google.com/dl/android/maven2/</url></repository>
+  </repositories>
+  <dependencies>
+    <dependency><groupId>org.robolectric</groupId><artifactId>robolectric</artifactId><version>4.14.1</version><scope>test</scope></dependency>
+    <dependency><groupId>android</groupId><artifactId>android</artifactId><version>30</version><scope>system</scope>
+      <systemPath>${project.basedir}/../../android-sdk/platforms/android-30/android.jar</systemPath></dependency>
+    <dependency><groupId>xems</groupId><artifactId>app</artifactId><version>1</version><scope>system</scope>
+      <systemPath>${project.basedir}/out/app.jar</systemPath></dependency>
+    <!-- the .aar's classes (Maven puts no .aar on the classpath): run.sh unpacks them -->
+    <dependency><groupId>androidx.test</groupId><artifactId>monitor-classes</artifactId><version>1.7.2</version>
+      <scope>system</scope><systemPath>${project.basedir}/out/aar/monitor-1.7.2.jar</systemPath></dependency>
+    <dependency><groupId>junit</groupId><artifactId>junit</artifactId><version>4.13.2</version><scope>test</scope></dependency>
+  </dependencies>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>3.2.5</version>
+        <configuration>
+          <systemPropertyVariables>
+            <shot.out>${shot.out}</shot.out>
+            <shot.res>${shot.res}</shot.res>
+          </systemPropertyVariables>
+          <trimStackTrace>false</trimStackTrace>
+          <includes><include>**/Shots*.java</include></includes>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>

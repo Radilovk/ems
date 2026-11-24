@@ -232,7 +232,7 @@ async function currentModel(env, fetchImpl, ts, lite = false) {
   if (lite && env.GEMINI_LITE_MODEL) return env.GEMINI_LITE_MODEL;
   if (!lite && env.GEMINI_MODEL) return env.GEMINI_MODEL;
   if (modelCache.name && ts - modelCache.at < MODEL_CACHE_MS) return lite ? modelCache.lite : modelCache.name;
-  const res = await fetchImpl(`${API}/models?pageSize=200`, { headers: { 'x-goog-api-key': env.GEMINI_API_KEY } });
+  const res = await fetchImpl(`${API}/models?pageSize=200`, { headers: { 'x-goog-api-key': String(env.GEMINI_API_KEY).trim() } });
   if (!res.ok) throw new Error(`models ${res.status}`);
   const j = await res.json();
   const name = pickModel(j.models) || 'gemini-2.5-flash';
@@ -240,11 +240,25 @@ async function currentModel(env, fetchImpl, ts, lite = false) {
   return lite ? modelCache.lite : name;
 }
 
+/** The last refusal from Gemini (diagnostics: ai-smoke prints it). */
+export let lastError = '';
+
 /** Least thinking a model takes: none on 2.x Flash, "minimal" on 3.x — short, fast answers (owner, 1.1.535). */
 export function thinkingFor(model) {
   if (/^gemini-2\./.test(model)) return { thinkingBudget: 0 };
   if (/^gemini-\d/.test(model)) return { thinkingLevel: 'minimal' };
   return null;
+}
+
+/**
+ * The settings to try, least thinking first (ai-smoke, 2026-11-24: gemini-3.8-flash refuses "minimal" — "low" is
+ * its least; a model that refuses every level is asked with none).
+ */
+export function thinkingLadder(model) {
+  const t = thinkingFor(model);
+  if (!t) return [null];
+  if (t.thinkingLevel === 'minimal') return [t, { thinkingLevel: 'low' }, null];
+  return [t, null];
 }
 
 /**
@@ -255,35 +269,61 @@ export async function generateJson(env, system, userText, schema, maxTokens, fet
   lite = false) {
   if (!env.GEMINI_API_KEY) throw new Error('no_key');
   const model = await currentModel(env, fetchImpl, ts, lite);
-  const think = thinkingFor(model);
-  for (let attempt = 0; attempt < 2; attempt++) {
+  const ladder = thinkingLadder(model);
+  // some models (the Flash-Lite one) take no system instruction ("Developer instruction is not enabled"): then it
+  // goes in front of the user text
+  let merged = false;
+  for (let attempt = 0; attempt < ladder.length + 1; attempt++) {
+    const think = ladder[Math.min(attempt, ladder.length - 1)];
     const gen = {
       temperature: 0,
       responseMimeType: 'application/json',
       responseSchema: schema,
+      // the thinking shares this budget (2026-11-24: 630 thought tokens cut a 900-token answer)
       maxOutputTokens: maxTokens,
     };
-    if (think && attempt === 0) gen.thinkingConfig = think;
+    if (think) gen.thinkingConfig = think;
+    const body = merged
+      ? { contents: [{ role: 'user', parts: [{ text: system + '\n\n' + userText }] }], generationConfig: gen }
+      : { systemInstruction: { parts: [{ text: system }] }, contents: [{ role: 'user', parts: [{ text: userText }] }],
+        generationConfig: gen };
     const res = await fetchImpl(`${API}/models/${encodeURIComponent(model)}:generateContent`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-goog-api-key': env.GEMINI_API_KEY },
-      body: JSON.stringify({
-        systemInstruction: { parts: [{ text: system }] },
-        contents: [{ role: 'user', parts: [{ text: userText }] }],
-        generationConfig: gen,
-      }),
+      headers: { 'Content-Type': 'application/json', 'x-goog-api-key': String(env.GEMINI_API_KEY).trim() },
+      body: JSON.stringify(body),
     });
-    if (res.status === 400 && think && attempt === 0) continue;
     if (!res.ok) {
+      // Google's own message (never the key): what was refused — the thinking setting, the schema, the model
+      let why = '';
+      try {
+        const e = await res.json();
+        why = String(e?.error?.message || '').replace(/\s+/g, ' ').slice(0, 240);
+      } catch {
+        why = '';
+      }
+      lastError = `gemini ${res.status} (thinking ${think ? JSON.stringify(think) : 'none'}${merged ? ', merged' : ''}): ${why}`;
+      if (res.status === 400 && /developer instruction|system instruction/i.test(why) && !merged) {
+        merged = true;
+        attempt--;
+        continue;
+      }
+      if (res.status === 400 && /think/i.test(why) && attempt < ladder.length - 1) continue;
       if (res.status === 404) resetModelCache();
-      throw new Error(`gemini ${res.status}`);
+      // the cheap model cannot do this (2026-11-24: "JSON mode is not enabled for this model"): the main one does
+      if (lite && res.status === 400) {
+        return generateJson(env, system, userText, schema, maxTokens, fetchImpl, ts, false);
+      }
+      throw new Error(lastError);
     }
     const j = await res.json();
-    const text = j?.candidates?.[0]?.content?.parts?.filter((p) => !p.thought).map((p) => p.text || '').join('') || '';
+    const cand = j?.candidates?.[0];
+    const text = cand?.content?.parts?.filter((p) => !p.thought).map((p) => p.text || '').join('') || '';
     try {
       return { model, raw: JSON.parse(text) };
     } catch {
-      throw new Error('bad_json');
+      const u = j?.usageMetadata || {};
+      throw new Error(`bad_json finish=${cand?.finishReason} out=${u.candidatesTokenCount} thoughts=${u.thoughtsTokenCount}`
+        + ` text=${JSON.stringify(text.slice(0, 120))}`);
     }
   }
   throw new Error('gemini 400');
@@ -294,6 +334,6 @@ export async function brief(env, body, fetchImpl = fetch, ts = Date.now()) {
   const programs = Array.isArray(body.menu)
     ? body.menu.map((m) => String(m?.id || '')).filter((id) => /^[a-z0-9_]{1,40}$/.test(id)).slice(0, 60)
     : [];
-  const r = await generateJson(env, SYSTEM, buildPrompt(body), responseSchema(programs), 1024, fetchImpl, ts);
+  const r = await generateJson(env, SYSTEM, buildPrompt(body), responseSchema(programs), 3000, fetchImpl, ts);
   return { model: r.model, patch: validatePatch(r.raw, programs) };
 }

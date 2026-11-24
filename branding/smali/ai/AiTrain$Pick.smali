@@ -26,106 +26,99 @@
     .registers 2
 
     .prologue
-    .line 835
+    .line 837
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 836
+    .line 838
     iput p1, p0, Lcom/isaigu/gymapp/ai/AiTrain$Pick;->which:I
 
-    .line 837
+    .line 839
     return-void
 .end method
 
 
 # virtual methods
 .method public onIndex(I)V
-    .registers 7
+    .registers 6
 
     .prologue
-    const/4 v1, 0x1
+    const/4 v0, 0x1
 
-    const/4 v2, 0x0
+    const/4 v1, 0x0
 
-    .line 841
+    .line 843
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoSession;->getInput()Lcom/isaigu/gymapp/ai/AutoModel$Input;
 
-    move-result-object v3
-
-    .line 842
-    iget v0, p0, Lcom/isaigu/gymapp/ai/AiTrain$Pick;->which:I
-
-    packed-switch v0, :pswitch_data_ba
-
-    .line 872
-    :pswitch_b
-    if-nez p1, :cond_b4
-
-    .line 873
-    invoke-static {v3}, Lcom/isaigu/gymapp/ai/AiCoach;->clearHealth(Lcom/isaigu/gymapp/ai/AutoModel$Input;)V
-
-    .line 874
-    # setter for: Lcom/isaigu/gymapp/ai/AiTrain;->healthOpen:Z
-    invoke-static {v2}, Lcom/isaigu/gymapp/ai/AiTrain;->access$402(Z)Z
-
-    .line 880
-    :cond_13
-    :goto_13
-    invoke-static {}, Lcom/isaigu/gymapp/ai/AutoSession;->syncLeaderInput()V
-
-    .line 881
-    # invokes: Lcom/isaigu/gymapp/ai/AiTrain;->rebuild()V
-    invoke-static {}, Lcom/isaigu/gymapp/ai/AiTrain;->access$300()V
-
-    .line 882
-    :goto_19
-    return-void
+    move-result-object v2
 
     .line 844
-    :pswitch_1a
-    if-nez p1, :cond_21
+    iget v3, p0, Lcom/isaigu/gymapp/ai/AiTrain$Pick;->which:I
+
+    packed-switch v3, :pswitch_data_80
+
+    .line 867
+    :pswitch_b
+    if-nez p1, :cond_7d
+
+    .line 868
+    invoke-static {v2}, Lcom/isaigu/gymapp/ai/AiCoach;->clearHealth(Lcom/isaigu/gymapp/ai/AutoModel$Input;)V
+
+    .line 869
+    sput-boolean v1, Lcom/isaigu/gymapp/ai/AiTrain;->healthOpen:Z
+
+    .line 875
+    :goto_12
+    invoke-static {}, Lcom/isaigu/gymapp/ai/AiTrain;->changed()V
+
+    .line 876
+    return-void
+
+    .line 846
+    :pswitch_16
+    if-nez p1, :cond_1d
 
     sget-object v0, Lcom/isaigu/gymapp/ai/AiModel$Sex;->MALE:Lcom/isaigu/gymapp/ai/AiModel$Sex;
 
-    :goto_1e
-    iput-object v0, v3, Lcom/isaigu/gymapp/ai/AutoModel$Input;->sex:Lcom/isaigu/gymapp/ai/AiModel$Sex;
+    :goto_1a
+    iput-object v0, v2, Lcom/isaigu/gymapp/ai/AutoModel$Input;->sex:Lcom/isaigu/gymapp/ai/AiModel$Sex;
 
-    goto :goto_13
+    goto :goto_12
 
-    :cond_21
+    :cond_1d
     sget-object v0, Lcom/isaigu/gymapp/ai/AiModel$Sex;->FEMALE:Lcom/isaigu/gymapp/ai/AiModel$Sex;
 
-    goto :goto_1e
+    goto :goto_1a
 
-    .line 847
+    .line 849
+    :pswitch_20
+    invoke-static {v2, p1}, Lcom/isaigu/gymapp/ai/AiCoach;->experience(Lcom/isaigu/gymapp/ai/AutoModel$Input;I)V
+
+    goto :goto_12
+
+    .line 852
     :pswitch_24
-    invoke-static {v3, p1}, Lcom/isaigu/gymapp/ai/AiCoach;->experience(Lcom/isaigu/gymapp/ai/AutoModel$Input;I)V
-
-    goto :goto_13
-
-    .line 850
-    :pswitch_28
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoModel$Goal;->values()[Lcom/isaigu/gymapp/ai/AutoModel$Goal;
 
     move-result-object v0
 
-    const/4 v1, 0x2
+    const/4 v3, 0x2
 
-    invoke-static {v1, p1}, Ljava/lang/Math;->min(II)I
+    invoke-static {v3, p1}, Ljava/lang/Math;->min(II)I
 
-    move-result v1
+    move-result v3
 
-    invoke-static {v2, v1}, Ljava/lang/Math;->max(II)I
+    invoke-static {v1, v3}, Ljava/lang/Math;->max(II)I
 
     move-result v1
 
     aget-object v0, v0, v1
 
-    iput-object v0, v3, Lcom/isaigu/gymapp/ai/AutoModel$Input;->goal:Lcom/isaigu/gymapp/ai/AutoModel$Goal;
+    iput-object v0, v2, Lcom/isaigu/gymapp/ai/AutoModel$Input;->goal:Lcom/isaigu/gymapp/ai/AutoModel$Goal;
 
-    .line 851
-    iget-object v0, v3, Lcom/isaigu/gymapp/ai/AutoModel$Input;->goal:Lcom/isaigu/gymapp/ai/AutoModel$Goal;
+    .line 853
+    iget-object v0, v2, Lcom/isaigu/gymapp/ai/AutoModel$Input;->goal:Lcom/isaigu/gymapp/ai/AutoModel$Goal;
 
-    iget-object v1, v3, Lcom/isaigu/gymapp/ai/AutoModel$Input;->kind:Lcom/isaigu/gymapp/ai/AutoModel$Kind;
+    iget-object v1, v2, Lcom/isaigu/gymapp/ai/AutoModel$Input;->kind:Lcom/isaigu/gymapp/ai/AutoModel$Kind;
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/ai/AutoCatalog;->menu(Lcom/isaigu/gymapp/ai/AutoModel$Goal;Lcom/isaigu/gymapp/ai/AutoModel$Kind;)Ljava/util/List;
 
@@ -135,170 +128,106 @@
 
     move-result v0
 
-    if-eqz v0, :cond_51
+    if-eqz v0, :cond_4d
 
-    .line 852
-    iget-object v0, v3, Lcom/isaigu/gymapp/ai/AutoModel$Input;->kind:Lcom/isaigu/gymapp/ai/AutoModel$Kind;
+    .line 854
+    iget-object v0, v2, Lcom/isaigu/gymapp/ai/AutoModel$Input;->kind:Lcom/isaigu/gymapp/ai/AutoModel$Kind;
 
     sget-object v1, Lcom/isaigu/gymapp/ai/AutoModel$Kind;->ACTIVE:Lcom/isaigu/gymapp/ai/AutoModel$Kind;
 
-    if-ne v0, v1, :cond_5e
+    if-ne v0, v1, :cond_5a
 
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoModel$Kind;->PASSIVE:Lcom/isaigu/gymapp/ai/AutoModel$Kind;
 
-    :goto_4f
-    iput-object v0, v3, Lcom/isaigu/gymapp/ai/AutoModel$Input;->kind:Lcom/isaigu/gymapp/ai/AutoModel$Kind;
+    :goto_4b
+    iput-object v0, v2, Lcom/isaigu/gymapp/ai/AutoModel$Input;->kind:Lcom/isaigu/gymapp/ai/AutoModel$Kind;
+
+    .line 856
+    :cond_4d
+    iget-object v0, v2, Lcom/isaigu/gymapp/ai/AutoModel$Input;->goal:Lcom/isaigu/gymapp/ai/AutoModel$Goal;
+
+    iget-object v1, v2, Lcom/isaigu/gymapp/ai/AutoModel$Input;->kind:Lcom/isaigu/gymapp/ai/AutoModel$Kind;
+
+    invoke-static {v0, v1, v2}, Lcom/isaigu/gymapp/ai/AutoCatalog;->recommended(Lcom/isaigu/gymapp/ai/AutoModel$Goal;Lcom/isaigu/gymapp/ai/AutoModel$Kind;Lcom/isaigu/gymapp/ai/AutoModel$Input;)Lcom/isaigu/gymapp/ai/AutoCatalog$Program;
+
+    move-result-object v0
+
+    iget-object v0, v0, Lcom/isaigu/gymapp/ai/AutoCatalog$Program;->id:Ljava/lang/String;
+
+    iput-object v0, v2, Lcom/isaigu/gymapp/ai/AutoModel$Input;->programId:Ljava/lang/String;
+
+    goto :goto_12
 
     .line 854
-    :cond_51
-    iget-object v0, v3, Lcom/isaigu/gymapp/ai/AutoModel$Input;->goal:Lcom/isaigu/gymapp/ai/AutoModel$Goal;
-
-    iget-object v1, v3, Lcom/isaigu/gymapp/ai/AutoModel$Input;->kind:Lcom/isaigu/gymapp/ai/AutoModel$Kind;
-
-    invoke-static {v0, v1, v3}, Lcom/isaigu/gymapp/ai/AutoCatalog;->recommended(Lcom/isaigu/gymapp/ai/AutoModel$Goal;Lcom/isaigu/gymapp/ai/AutoModel$Kind;Lcom/isaigu/gymapp/ai/AutoModel$Input;)Lcom/isaigu/gymapp/ai/AutoCatalog$Program;
-
-    move-result-object v0
-
-    iget-object v0, v0, Lcom/isaigu/gymapp/ai/AutoCatalog$Program;->id:Ljava/lang/String;
-
-    iput-object v0, v3, Lcom/isaigu/gymapp/ai/AutoModel$Input;->programId:Ljava/lang/String;
-
-    goto :goto_13
-
-    .line 852
-    :cond_5e
+    :cond_5a
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoModel$Kind;->ACTIVE:Lcom/isaigu/gymapp/ai/AutoModel$Kind;
 
-    goto :goto_4f
-
-    .line 857
-    :pswitch_61
-    if-ne p1, v1, :cond_99
-
-    move v0, v1
-
-    :goto_64
-    # setter for: Lcom/isaigu/gymapp/ai/AiTrain;->free:Z
-    invoke-static {v0}, Lcom/isaigu/gymapp/ai/AiTrain;->access$002(Z)Z
-
-    .line 858
-    # getter for: Lcom/isaigu/gymapp/ai/AiTrain;->free:Z
-    invoke-static {}, Lcom/isaigu/gymapp/ai/AiTrain;->access$000()Z
-
-    move-result v0
-
-    if-eqz v0, :cond_13
-
-    # getter for: Lcom/isaigu/gymapp/ai/AiTrain;->freePlan:Lcom/isaigu/gymapp/ai/AiWorkout$Plan;
-    invoke-static {}, Lcom/isaigu/gymapp/ai/AiTrain;->access$100()Lcom/isaigu/gymapp/ai/AiWorkout$Plan;
-
-    move-result-object v0
-
-    if-nez v0, :cond_13
-
-    # getter for: Lcom/isaigu/gymapp/ai/AiTrain;->busy:Z
-    invoke-static {}, Lcom/isaigu/gymapp/ai/AiTrain;->access$200()Z
-
-    move-result v0
-
-    if-nez v0, :cond_13
+    goto :goto_4b
 
     .line 859
-    invoke-static {}, Lcom/isaigu/gymapp/ai/AutoSession;->syncLeaderInput()V
+    :pswitch_5d
+    if-ne p1, v0, :cond_65
+
+    :goto_5f
+    sput-boolean v0, Lcom/isaigu/gymapp/ai/AiTrain;->free:Z
 
     .line 860
-    # invokes: Lcom/isaigu/gymapp/ai/AiTrain;->rebuild()V
-    invoke-static {}, Lcom/isaigu/gymapp/ai/AiTrain;->access$300()V
-
-    .line 861
-    invoke-static {}, Lcom/isaigu/gymapp/ai/AutoSession;->getPanelRoot()Landroid/view/View;
-
-    move-result-object v0
-
-    if-eqz v0, :cond_9b
-
-    invoke-static {}, Lcom/isaigu/gymapp/ai/AutoSession;->getPanelRoot()Landroid/view/View;
-
-    move-result-object v0
-
-    invoke-virtual {v0}, Landroid/view/View;->getContext()Landroid/content/Context;
-
-    move-result-object v0
-
-    :goto_8d
-    const-string v3, "\u0421\u044a\u0441\u0442\u0430\u0432\u0438 \u043d\u043e\u0432\u0430 \u0442\u0440\u0435\u043d\u0438\u0440\u043e\u0432\u043a\u0430 \u0437\u0430 \u0442\u043e\u0437\u0438 \u043a\u043b\u0438\u0435\u043d\u0442."
-
-    const-string v4, "Write a new workout for this client."
-
-    .line 862
-    invoke-static {v3, v4}, Lcom/isaigu/gymapp/ai/AiText;->t(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object v3
-
-    .line 861
-    invoke-static {v0, v3, v2, v1}, Lcom/isaigu/gymapp/ai/AiTrain;->send(Landroid/content/Context;Ljava/lang/String;ZZ)V
-
-    goto :goto_19
-
-    :cond_99
-    move v0, v2
-
-    .line 857
-    goto :goto_64
-
-    .line 861
-    :cond_9b
     const/4 v0, 0x0
 
-    goto :goto_8d
+    sput-object v0, Lcom/isaigu/gymapp/ai/AiTrain;->freePlan:Lcom/isaigu/gymapp/ai/AiWorkout$Plan;
 
-    .line 868
-    :pswitch_9d
-    if-nez p1, :cond_b1
+    goto :goto_12
+
+    :cond_65
+    move v0, v1
+
+    .line 859
+    goto :goto_5f
+
+    .line 863
+    :pswitch_67
+    if-nez p1, :cond_7a
 
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoModel$Kind;->ACTIVE:Lcom/isaigu/gymapp/ai/AutoModel$Kind;
 
-    :goto_a1
-    iput-object v0, v3, Lcom/isaigu/gymapp/ai/AutoModel$Input;->kind:Lcom/isaigu/gymapp/ai/AutoModel$Kind;
+    :goto_6b
+    iput-object v0, v2, Lcom/isaigu/gymapp/ai/AutoModel$Input;->kind:Lcom/isaigu/gymapp/ai/AutoModel$Kind;
 
-    .line 869
-    iget-object v0, v3, Lcom/isaigu/gymapp/ai/AutoModel$Input;->goal:Lcom/isaigu/gymapp/ai/AutoModel$Goal;
+    .line 864
+    iget-object v0, v2, Lcom/isaigu/gymapp/ai/AutoModel$Input;->goal:Lcom/isaigu/gymapp/ai/AutoModel$Goal;
 
-    iget-object v1, v3, Lcom/isaigu/gymapp/ai/AutoModel$Input;->kind:Lcom/isaigu/gymapp/ai/AutoModel$Kind;
+    iget-object v1, v2, Lcom/isaigu/gymapp/ai/AutoModel$Input;->kind:Lcom/isaigu/gymapp/ai/AutoModel$Kind;
 
-    invoke-static {v0, v1, v3}, Lcom/isaigu/gymapp/ai/AutoCatalog;->recommended(Lcom/isaigu/gymapp/ai/AutoModel$Goal;Lcom/isaigu/gymapp/ai/AutoModel$Kind;Lcom/isaigu/gymapp/ai/AutoModel$Input;)Lcom/isaigu/gymapp/ai/AutoCatalog$Program;
+    invoke-static {v0, v1, v2}, Lcom/isaigu/gymapp/ai/AutoCatalog;->recommended(Lcom/isaigu/gymapp/ai/AutoModel$Goal;Lcom/isaigu/gymapp/ai/AutoModel$Kind;Lcom/isaigu/gymapp/ai/AutoModel$Input;)Lcom/isaigu/gymapp/ai/AutoCatalog$Program;
 
     move-result-object v0
 
     iget-object v0, v0, Lcom/isaigu/gymapp/ai/AutoCatalog$Program;->id:Ljava/lang/String;
 
-    iput-object v0, v3, Lcom/isaigu/gymapp/ai/AutoModel$Input;->programId:Ljava/lang/String;
+    iput-object v0, v2, Lcom/isaigu/gymapp/ai/AutoModel$Input;->programId:Ljava/lang/String;
 
-    goto/16 :goto_13
+    goto :goto_12
 
-    .line 868
-    :cond_b1
+    .line 863
+    :cond_7a
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoModel$Kind;->PASSIVE:Lcom/isaigu/gymapp/ai/AutoModel$Kind;
 
-    goto :goto_a1
+    goto :goto_6b
 
-    .line 876
-    :cond_b4
-    # setter for: Lcom/isaigu/gymapp/ai/AiTrain;->healthOpen:Z
-    invoke-static {v1}, Lcom/isaigu/gymapp/ai/AiTrain;->access$402(Z)Z
+    .line 871
+    :cond_7d
+    sput-boolean v0, Lcom/isaigu/gymapp/ai/AiTrain;->healthOpen:Z
 
-    goto/16 :goto_13
+    goto :goto_12
 
-    .line 842
-    nop
-
-    :pswitch_data_ba
+    .line 844
+    :pswitch_data_80
     .packed-switch 0x0
-        :pswitch_1a
+        :pswitch_16
+        :pswitch_20
         :pswitch_24
-        :pswitch_28
-        :pswitch_9d
+        :pswitch_67
         :pswitch_b
-        :pswitch_61
+        :pswitch_5d
     .end packed-switch
 .end method

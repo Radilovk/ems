@@ -200,6 +200,19 @@ public final class MapRunner {
         return to;
     }
 
+    /** The channel slider of the AI's workout: its real level (as AutoSession.channelFromSlider). */
+    public static boolean channelFromSlider(int ch, int level) {
+        if (!isAi()) {
+            return false;
+        }
+        setChannels(new int[] {ch}, level);
+        return true;
+    }
+
+    public static int channelShown(int ch) {
+        return isAi() ? channelLevel(ch) : -1;
+    }
+
     /** Pause (the suits stop, the clock waits) / go on. */
     static boolean pause(boolean on) {
         try {

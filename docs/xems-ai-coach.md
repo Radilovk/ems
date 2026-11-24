@@ -241,3 +241,14 @@ trainer wants a session fitted to this person in seconds; the AI must never stan
   HR_PAUSE, never quiet > 15 s, adaptation in bounds, runs to DONE — seconds); `tools/app-sim` SimAi: 4 min of the
   real app, the engine looked at every second, the announcements heard. app-sim: the overlay is recompiled only
   when a source changed, tests run in 3 parallel JVMs (all 7 in ~1.5 min).
+
+## 1.1.549 — the strength from 0 in the AI training with a ready program
+- The channel sliders showed the share (100 % → full) while the text said the real level (0 %); a slider moved at
+  strength 0 changed only a share (0 × anything = 0) — "nothing moves from 0". In Auto / AI the slider now is the
+  channel's REAL level (`PartLook.ledShown` ← `AutoSession.channelShown` / `MapRunner.channelShown`) and the finger
+  sets that level (`PartStrength.bar` → `channelFromSlider` → channelStep "set": above the strength it rises, the
+  other channels keep their own level).
+- A + pressed during the start's countdown (or a pause) was zeroed and lost; it now raises the row's level for when
+  the impulses run (`AutoSession.guard`).
+- Off-device: `tools/app-sim` `SimStrength` (+ in the countdown, + every 15 s for 3 min, "силата на 30", a slider to
+  40 with the others kept) and `SimAuto`.

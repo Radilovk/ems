@@ -1535,6 +1535,30 @@ public final class AutoSession {
         return r.working > 0 ? r.working : Math.max(0, r.lastStrength);
     }
 
+    /**
+     * A channel's slider in Auto / AI shows and sets the channel's REAL level (strength × its share), not the share
+     * (owner, 1.1.549: "the sliders stand at the top and show 0, a channel does not move up from 0").
+     * PartStrength.bar hands the finger's value here.
+     */
+    public static boolean channelFromSlider(int ch, int level) {
+        if (!ownsOutput() || ch < 0 || ch >= AutoModel.CHANNELS) {
+            return false;
+        }
+        channelStep(new int[] {ch}, "set", false, Math.max(0, Math.min(100, level)));
+        return true;
+    }
+
+    /** What a channel's slider shows in Auto / AI: its real level, −1 = not ours. */
+    public static int channelShown(int ch) {
+        if (!ownsOutput() || rows.isEmpty() || ch < 0 || ch >= AutoModel.CHANNELS) {
+            return -1;
+        }
+        Row r = rows.get(0);
+        int[] base = stepZones(r, written);
+        int share = Math.max(0, Math.min(100, base[ch] + r.zoneOffset[ch]));
+        return (int) Math.round(level(r) * share / 100.0);
+    }
+
     /** The row's strength to this value now (as strengthStep does). */
     private static void setRowStrength(Row r, int to) {
         AutoModel.Plan rp = r.plan != null ? r.plan : plan;
@@ -1982,13 +2006,23 @@ public final class AutoSession {
             }
         }
         if (!calib && !running) {
-            // paused: the output stays at 0 whatever the main screen does
+            // paused / the start's countdown: the output stays at 0 — but a + pressed now is not thrown away
+            // (owner, 1.1.549: "+ at the start does nothing"): it raises the row's level for when the impulses run
+            boolean any = false;
             for (Row r : rows) {
                 ProgramDataBean b = bean(r.item);
                 if (b != null && b.strenth != 0) {
-                    zeroOutput();
-                    break;
+                    if (b.strenth > 0 && r.block == null && engine != null
+                            && (engine.getState() == AutoEngine.State.COUNTDOWN || engine.getState() == AutoEngine.State.USER_PAUSE
+                            || engine.getState() == AutoEngine.State.READY)) {
+                        setRowStrength(r, Math.min(100, level(r) + b.strenth));
+                        WearableBleDiagLog.log("auto", "+ while waiting → level " + level(r));
+                    }
+                    any = true;
                 }
+            }
+            if (any) {
+                zeroOutput();
             }
             return;
         }

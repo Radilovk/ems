@@ -279,10 +279,15 @@ export function thinkingFor(model) {
  * The settings to try, least thinking first (ai-smoke, 2026-11-24: gemini-3.8-flash refuses "minimal" — "low" is
  * its least; a model that refuses every level is asked with none).
  */
+/** Models that refused the 'minimal' thinking level once: not asked with it again (one wasted call each time). */
+const noMinimal = new Set();
+
 export function thinkingLadder(model) {
   const t = thinkingFor(model);
   if (!t) return [null];
-  if (t.thinkingLevel === 'minimal') return [t, { thinkingLevel: 'low' }, null];
+  if (t.thinkingLevel === 'minimal') {
+    return noMinimal.has(model) ? [{ thinkingLevel: 'low' }, null] : [t, { thinkingLevel: 'low' }, null];
+  }
   return [t, null];
 }
 
@@ -332,7 +337,10 @@ export async function generateJson(env, system, userText, schema, maxTokens, fet
         attempt--;
         continue;
       }
-      if (res.status === 400 && /think/i.test(why) && attempt < ladder.length - 1) continue;
+      if (res.status === 400 && /think/i.test(why) && attempt < ladder.length - 1) {
+        if (think && think.thinkingLevel === 'minimal') noMinimal.add(model);
+        continue;
+      }
       if (res.status === 404) resetModelCache();
       // overloaded (503 / 429 / 500, "high demand"): once more after a moment, then an older Flash — the trainer
       // gets an answer, not "no connection" (2026-11-24 smoke: two of four calls refused by Google)

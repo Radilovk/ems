@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 273
+    .line 279
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,12 +34,12 @@
     .registers 2
 
     .prologue
-    .line 276
+    .line 282
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsUi;->haptic(Landroid/view/View;)V
 
-    .line 277
+    .line 283
     invoke-static {}, Lcom/isaigu/gymapp/ai/MapRunner;->go()V
 
-    .line 278
+    .line 284
     return-void
 .end method

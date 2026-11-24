@@ -198,11 +198,25 @@ public final class AiWorkout {
         return b;
     }
 
+    /**
+     * Between sets: no stop (owner, 1.1.548 — the AI training never pauses by itself). An active recovery instead:
+     * a light, low-frequency impulse (6 Hz twitches, half the strength) for the same time — the muscle lets go and
+     * the blood moves, the suit never goes quiet.
+     */
     static Workout.Block rest(int s) {
-        Workout.Block r = new Workout.Block(null, clampRest(s), 7, 300, 1, 0, 0);
+        int secs = clampRest(s);
+        int reps = Math.max(Workout.REPS_MIN, Math.round(secs / 4f));
+        Workout.Block r = new Workout.Block("free", reps, 6, 250, 3, 1, 50);
+        r.ex = null;
+        r.label = REST_LABEL;
+        r.how = AiText.t("Дишай спокойно, раздвижи се леко — лек импулс за отпускане.",
+                "Breathe, move gently — a light impulse to let go.");
+        r.lock = true;
         r.clampAll();
         return r;
     }
+
+    static final String REST_LABEL = AiText.t("Активно възстановяване", "Active recovery");
 
     static int clampRest(int s) {
         return Math.max(Workout.REST_MIN_S, Math.min(Workout.REST_MAX_S, s));

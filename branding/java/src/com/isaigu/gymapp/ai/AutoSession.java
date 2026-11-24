@@ -763,6 +763,9 @@ public final class AutoSession {
         }
         faceMode();
         engine = new AutoEngine(plan);
+        // the AI training never stops by itself: no rests between sets, no HR stop — the impulse adapts (1.1.548)
+        engine.setContinuous(aiMode);
+        AiAnnounce.reset();
         if (aiMode && (vetoHz > 0 || vetoOn > 0 || vetoOff > 0)) {
             engine.setVeto(vetoHz, vetoOn, vetoOff);
         }
@@ -1321,6 +1324,9 @@ public final class AutoSession {
         engine.traceTick(now);                   // a pause / rest: the timeline falls with the load as it lasts
         AutoEngine.State after = engine.getState();
         engineEvents(now);
+        if (aiMode) {
+            AiAnnounce.auto(engine);                 // the steps aloud (owner, 1.1.548)
+        }
         if (before == AutoEngine.State.COUNTDOWN && after == AutoEngine.State.RUN) {
             onGo(now);
         } else if (after == AutoEngine.State.COUNTDOWN) {

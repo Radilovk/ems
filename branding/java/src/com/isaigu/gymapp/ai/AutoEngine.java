@@ -121,6 +121,43 @@ public final class AutoEngine {
     private int hrCount;
     private long hrOkSinceMs;
     private int corridorExt;
+
+    /**
+     * The AI training (owner, 1.1.548): no automatic stops — no rest between sets, no HR stop. What the fatigue would
+     * have rested is taken out of the impulse of the next set instead: a longer pause between impulses (+1…+3 s) and,
+     * for a high frequency, −10 / −15 % Hz — only when the model says the muscle needs it, eased as it recovers.
+     * A pause comes only from a person (voice, ⏸).
+     */
+    private boolean continuous;
+    /** The load adaptation now: extra pause seconds, Hz cut (%) — set at a set's end, eased each set after. */
+    private int adaptOff;
+    private int adaptHzPct;
+
+    public void setContinuous(boolean on) {
+        continuous = on;
+    }
+
+    public boolean isContinuous() {
+        return continuous;
+    }
+
+    public int getAdaptOff() {
+        return adaptOff;
+    }
+
+    public int getAdaptHzPct() {
+        return adaptHzPct;
+    }
+
+    /** A set ended without a rest: the rest the fatigue asked for becomes the next set's easier impulse. */
+    private void adaptFor(int restNeedS, long now) {
+        int ext = restNeedS >= 60 ? 3 : restNeedS >= 35 ? 2 : restNeedS >= 18 ? 1 : 0;
+        int cut = current != null && current.hz >= 60 ? (restNeedS >= 60 ? 15 : restNeedS >= 35 ? 10 : 0) : 0;
+        // up at once when needed, down one step a set (no jumps back to the full load)
+        adaptOff = ext >= adaptOff ? ext : Math.max(ext, adaptOff - 1);
+        adaptHzPct = cut >= adaptHzPct ? cut : Math.max(cut, adaptHzPct - 5);
+        log(now, "continuous: rest need " + restNeedS + " s → pause +" + adaptOff + " s, Hz −" + adaptHzPct + " %");
+    }
     private double inCorridorS;
     private double hrKnownS;
     private int capHits;
@@ -700,7 +737,14 @@ public final class AutoEngine {
             return;
         }
         // L11: heart rate at the ceiling → the output stops.
-        if (plan.hrUse != HrUse.NONE && fresh && hr >= plan.hrCap) {
+        if (plan.hrUse != HrUse.NONE && fresh && hr >= plan.hrCap && continuous) {
+            if (adaptOff < 3 || adaptHzPct < 15) {
+                adaptOff = 3;                          // no stop in the AI training: the easiest impulse instead
+                adaptHzPct = Math.max(adaptHzPct, 15);
+                capHits++;
+                log(now, "HR " + hr + " ≥ cap " + plan.hrCap + " → continuous: pause +3 s, Hz −15 %");
+            }
+        } else if (plan.hrUse != HrUse.NONE && fresh && hr >= plan.hrCap) {
             settle(now);
             state = State.HR_PAUSE;
             pauseStartMs = now;
@@ -782,14 +826,20 @@ public final class AutoEngine {
             if (prev >= 0 && (cutShort || toRecovery)) {
                 stationS = 0;
                 enterRest(now, ph.isCooldown());
-                return null;
+                if (state == State.REST) {
+                    return null;
+                }
+                ph = phase();
             }
             stationS = 0;
         } else if (isStationPhase(phaseIndex) && stationS >= STATION_MIN_S) {
             stationS = 0;
             stationIndex++;
             enterRest(now, false);
-            return null;
+            if (state == State.REST) {
+                return null;
+            }
+            ph = phase();
         } else if (isStationPhase(phaseIndex) && stationS >= STATION_REST_FROM_S && hrNearCap(now)) {
             // the heart nears its ceiling: end the set now and rest, rather than run into the HR stop (L11)
             log(now, "HR " + hr + " near cap " + plan.hrCap + " → set ends early");
@@ -797,7 +847,14 @@ public final class AutoEngine {
             stationIndex++;
             hrEndedSets++;
             enterRest(now, false);
-            return null;
+            if (continuous) {
+                adaptOff = 3;                          // the heart high: the easiest impulse, no stop
+                adaptHzPct = Math.max(adaptHzPct, 15);
+            }
+            if (state == State.REST) {
+                return null;
+            }
+            ph = phase();
         }
         // corridor: above → longer pause, back below → shorter again
         if (plan.hrUse == HrUse.CORRIDOR && hr > 0 && now - hrMs <= HR_STALE_MS && !ph.isCooldown()
@@ -815,7 +872,11 @@ public final class AutoEngine {
             stationS = 0;                      // one more cycle would pass 40 s: the set ends here
             stationIndex++;
             enterRest(now, false);
-            return null;
+            if (state == State.REST) {
+                return null;
+            }
+            ph = phase();
+            c = build(ph, stepIndex, now);     // the next set's first cycle, with its adapted impulse
         }
         if (isStationPhase(phaseIndex) && stationS == 0) {
             fixedNext = predictNext(c);
@@ -910,6 +971,21 @@ public final class AutoEngine {
             }
         }
         settle(now);
+        if (continuous) {
+            stationsDone++;
+            if (beforeCooldown) {
+                int cool = cooldownIndex();
+                if (cool >= 0 && phaseIndex != cool) {
+                    jumpTo(cool, now);                 // the recovery now — no wait for its clock
+                    stationPhase = cool;
+                    stationIndex = 0;
+                }
+            } else {
+                adaptFor(rest, now);
+            }
+            lastSetS = STATION_MAX_S;
+            return;
+        }
         state = State.REST;
         pauseStartMs = now;
         restStartMs = now;
@@ -2317,6 +2393,12 @@ public final class AutoEngine {
             s.pwUs = userPw;
         }
         s.offS += corridorExt + doseExt;
+        if (continuous && s.isTetanic() && !ph.isCooldown()) {
+            s.offS += adaptOff;
+            if (adaptHzPct > 0) {
+                s.hz = Math.max(20, (int) Math.round(s.hz * (1 - adaptHzPct / 100.0)));
+            }
+        }
         if (s.isTetanic() && !ph.isCooldown() && !"WARMUP".equals(ph.id) && (vetoHz > 0 || vetoOn > 0 || vetoOff > 0)) {
             if (vetoHz > 0) {
                 s.hz = Math.max(20, Math.min(SafeLimits.hzMax(plan.input != null ? plan.input.age : 40), vetoHz));

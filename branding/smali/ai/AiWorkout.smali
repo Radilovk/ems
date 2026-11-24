@@ -27,6 +27,8 @@
 
 .field public static final RECOVERY_S:I = 0x258
 
+.field static final REST_LABEL:Ljava/lang/String;
+
 
 # direct methods
 .method static constructor <clinit>()V
@@ -152,31 +154,31 @@
 
     new-array v1, v3, [I
 
-    fill-array-data v1, :array_100
+    fill-array-data v1, :array_10a
 
     aput-object v1, v0, v4
 
     new-array v1, v3, [I
 
-    fill-array-data v1, :array_10c
+    fill-array-data v1, :array_116
 
     aput-object v1, v0, v5
 
     new-array v1, v3, [I
 
-    fill-array-data v1, :array_118
+    fill-array-data v1, :array_122
 
     aput-object v1, v0, v6
 
     new-array v1, v3, [I
 
-    fill-array-data v1, :array_124
+    fill-array-data v1, :array_12e
 
     aput-object v1, v0, v7
 
     new-array v1, v3, [I
 
-    fill-array-data v1, :array_130
+    fill-array-data v1, :array_13a
 
     aput-object v1, v0, v3
 
@@ -184,7 +186,7 @@
 
     new-array v2, v3, [I
 
-    fill-array-data v2, :array_13c
+    fill-array-data v2, :array_146
 
     aput-object v2, v0, v1
 
@@ -192,7 +194,7 @@
 
     new-array v2, v3, [I
 
-    fill-array-data v2, :array_148
+    fill-array-data v2, :array_152
 
     aput-object v2, v0, v1
 
@@ -200,7 +202,7 @@
 
     new-array v2, v3, [I
 
-    fill-array-data v2, :array_154
+    fill-array-data v2, :array_15e
 
     aput-object v2, v0, v1
 
@@ -208,7 +210,7 @@
 
     new-array v2, v3, [I
 
-    fill-array-data v2, :array_160
+    fill-array-data v2, :array_16a
 
     aput-object v2, v0, v1
 
@@ -304,10 +306,21 @@
 
     sput-object v0, Lcom/isaigu/gymapp/ai/AiWorkout;->EQUIPMENT_BG:[Ljava/lang/String;
 
+    .line 219
+    const-string v0, "\u0410\u043a\u0442\u0438\u0432\u043d\u043e \u0432\u044a\u0437\u0441\u0442\u0430\u043d\u043e\u0432\u044f\u0432\u0430\u043d\u0435"
+
+    const-string v1, "Active recovery"
+
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/ai/AiText;->t(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
+
+    sput-object v0, Lcom/isaigu/gymapp/ai/AiWorkout;->REST_LABEL:Ljava/lang/String;
+
     return-void
 
     .line 23
-    :array_100
+    :array_10a
     .array-data 4
         0x7
         0x12c
@@ -315,7 +328,7 @@
         0x1
     .end array-data
 
-    :array_10c
+    :array_116
     .array-data 4
         0x55
         0x15e
@@ -323,7 +336,7 @@
         0x4
     .end array-data
 
-    :array_118
+    :array_122
     .array-data 4
         0x46
         0x15e
@@ -331,7 +344,7 @@
         0x4
     .end array-data
 
-    :array_124
+    :array_12e
     .array-data 4
         0x32
         0x12c
@@ -339,7 +352,7 @@
         0x4
     .end array-data
 
-    :array_130
+    :array_13a
     .array-data 4
         0x64
         0x12c
@@ -347,7 +360,7 @@
         0x4
     .end array-data
 
-    :array_13c
+    :array_146
     .array-data 4
         0x7
         0x12c
@@ -355,7 +368,7 @@
         0x1
     .end array-data
 
-    :array_148
+    :array_152
     .array-data 4
         0x50
         0x15e
@@ -363,7 +376,7 @@
         0x4
     .end array-data
 
-    :array_154
+    :array_15e
     .array-data 4
         0xa
         0xfa
@@ -371,7 +384,7 @@
         0x2
     .end array-data
 
-    :array_160
+    :array_16a
     .array-data 4
         0x28
         0x12c
@@ -816,7 +829,7 @@
     .registers 3
 
     .prologue
-    .line 208
+    .line 222
     const/16 v0, 0xa
 
     const/16 v1, 0xb4
@@ -847,12 +860,12 @@
     .end annotation
 
     .prologue
-    .line 213
+    .line 227
     new-instance v1, Ljava/util/ArrayList;
 
     invoke-direct {v1}, Ljava/util/ArrayList;-><init>()V
 
-    .line 214
+    .line 228
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiWorkout$Plan;->items:Ljava/util/List;
 
     invoke-interface {v0}, Ljava/util/List;->iterator()Ljava/util/Iterator;
@@ -872,7 +885,7 @@
 
     check-cast v0, Lcom/isaigu/gymapp/ai/AiWorkout$Item;
 
-    .line 215
+    .line 229
     iget-object v3, v0, Lcom/isaigu/gymapp/ai/AiWorkout$Item;->kind:Ljava/lang/String;
 
     sget-object v4, Lcom/isaigu/gymapp/ai/AiWorkout;->KINDS:[Ljava/lang/String;
@@ -881,7 +894,7 @@
 
     move-result v3
 
-    .line 216
+    .line 230
     iget-object v4, v0, Lcom/isaigu/gymapp/ai/AiWorkout$Item;->equipment:Ljava/lang/String;
 
     sget-object v5, Lcom/isaigu/gymapp/ai/AiWorkout;->EQUIPMENT:[Ljava/lang/String;
@@ -890,7 +903,7 @@
 
     move-result v4
 
-    .line 217
+    .line 231
     new-instance v5, Ljava/lang/StringBuilder;
 
     invoke-direct {v5}, Ljava/lang/StringBuilder;-><init>()V
@@ -942,7 +955,7 @@
 
     move-result-object v3
 
-    .line 218
+    .line 232
     if-lez v4, :cond_82
 
     new-instance v0, Ljava/lang/StringBuilder;
@@ -976,7 +989,7 @@
 
     move-result-object v0
 
-    .line 217
+    .line 231
     invoke-interface {v1, v0}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
     goto :goto_b
@@ -986,13 +999,13 @@
 
     goto :goto_56
 
-    .line 218
+    .line 232
     :cond_82
     const-string v0, ""
 
     goto :goto_73
 
-    .line 220
+    .line 234
     :cond_85
     return-object v1
 .end method
@@ -1001,12 +1014,12 @@
     .registers 10
 
     .prologue
-    .line 232
+    .line 246
     instance-of v0, p0, Ljava/lang/Number;
 
     if-nez v0, :cond_5
 
-    .line 235
+    .line 249
     :goto_4
     return p3
 
@@ -1400,31 +1413,71 @@
     .registers 9
 
     .prologue
-    const/4 v6, 0x0
+    const/4 v5, 0x3
 
-    .line 202
-    new-instance v0, Lcom/isaigu/gymapp/ai/Workout$Block;
+    const/4 v6, 0x1
 
-    const/4 v1, 0x0
-
+    .line 207
     invoke-static {p0}, Lcom/isaigu/gymapp/ai/AiWorkout;->clampRest(I)I
+
+    move-result v0
+
+    .line 208
+    int-to-float v0, v0
+
+    const/high16 v1, 0x40800000    # 4.0f
+
+    div-float/2addr v0, v1
+
+    invoke-static {v0}, Ljava/lang/Math;->round(F)I
+
+    move-result v0
+
+    invoke-static {v5, v0}, Ljava/lang/Math;->max(II)I
 
     move-result v2
 
-    const/4 v3, 0x7
+    .line 209
+    new-instance v0, Lcom/isaigu/gymapp/ai/Workout$Block;
 
-    const/16 v4, 0x12c
+    const-string v1, "free"
 
-    const/4 v5, 0x1
+    const/4 v3, 0x6
 
-    move v7, v6
+    const/16 v4, 0xfa
+
+    const/16 v7, 0x32
 
     invoke-direct/range {v0 .. v7}, Lcom/isaigu/gymapp/ai/Workout$Block;-><init>(Ljava/lang/String;IIIIII)V
 
-    .line 203
+    .line 210
+    const/4 v1, 0x0
+
+    iput-object v1, v0, Lcom/isaigu/gymapp/ai/Workout$Block;->ex:Ljava/lang/String;
+
+    .line 211
+    sget-object v1, Lcom/isaigu/gymapp/ai/AiWorkout;->REST_LABEL:Ljava/lang/String;
+
+    iput-object v1, v0, Lcom/isaigu/gymapp/ai/Workout$Block;->label:Ljava/lang/String;
+
+    .line 212
+    const-string v1, "\u0414\u0438\u0448\u0430\u0439 \u0441\u043f\u043e\u043a\u043e\u0439\u043d\u043e, \u0440\u0430\u0437\u0434\u0432\u0438\u0436\u0438 \u0441\u0435 \u043b\u0435\u043a\u043e \u2014 \u043b\u0435\u043a \u0438\u043c\u043f\u0443\u043b\u0441 \u0437\u0430 \u043e\u0442\u043f\u0443\u0441\u043a\u0430\u043d\u0435."
+
+    const-string v2, "Breathe, move gently \u2014 a light impulse to let go."
+
+    invoke-static {v1, v2}, Lcom/isaigu/gymapp/ai/AiText;->t(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v1
+
+    iput-object v1, v0, Lcom/isaigu/gymapp/ai/Workout$Block;->how:Ljava/lang/String;
+
+    .line 214
+    iput-boolean v6, v0, Lcom/isaigu/gymapp/ai/Workout$Block;->lock:Z
+
+    .line 215
     invoke-virtual {v0}, Lcom/isaigu/gymapp/ai/Workout$Block;->clampAll()V
 
-    .line 204
+    .line 216
     return-object v0
 .end method
 
@@ -1432,20 +1485,20 @@
     .registers 5
 
     .prologue
-    .line 224
+    .line 238
     instance-of v0, p0, Ljava/lang/String;
 
     if-nez v0, :cond_7
 
-    .line 225
+    .line 239
     const-string v0, ""
 
-    .line 228
+    .line 242
     :cond_6
     :goto_6
     return-object v0
 
-    .line 227
+    .line 241
     :cond_7
     check-cast p0, Ljava/lang/String;
 
@@ -1469,7 +1522,7 @@
 
     move-result-object v0
 
-    .line 228
+    .line 242
     invoke-virtual {v0}, Ljava/lang/String;->length()I
 
     move-result v1

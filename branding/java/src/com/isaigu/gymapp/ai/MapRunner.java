@@ -623,6 +623,7 @@ public final class MapRunner {
         AiEnergy.exerciseMet = 0;
         hideCard();
         if (ai) {
+            AiAnnounce.end();
             ai = false;
             noDouble = false;
             View any = screen != null ? screen.get() : null;
@@ -704,6 +705,9 @@ public final class MapRunner {
             boolean on = work && now - cycleStartMs < s.onS * 1000L;
             dyn.advance(dt, running && work, on, work ? s.hz : 0, work ? s.pauseHz : 0, work ? s.pauseSigma : 0,
                     work ? b.rel / 100.0 : 0);
+        }
+        if (ai) {
+            AiAnnounce.map();                         // the AI's workout says its exercises aloud (1.1.548)
         }
         if (running && clock.tick(clockS)) {
             apply(false);

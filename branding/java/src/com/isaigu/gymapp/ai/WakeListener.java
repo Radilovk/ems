@@ -502,6 +502,29 @@ public final class WakeListener {
         MAIN.postDelayed(FOLLOW, Math.min(20000, 1500 + 70L * text.length()));
     }
 
+    /**
+     * A step of the training said aloud (AiAnnounce): after anything already being said, never cutting the trainer's
+     * dialogue; the spotter is off while the tablet talks (it must not hear itself) and back after.
+     */
+    static void announce(String text) {
+        if (text == null || text.length() == 0 || ctx == null) {
+            return;
+        }
+        initTts();
+        if (!ttsOk || tts == null) {
+            return;
+        }
+        try {
+            if (on && !window) {
+                micStop();
+            }
+            String t = text.replace("%", bg() ? " процента" : " percent");
+            tts.speak(t, TextToSpeech.QUEUE_ADD, null, "xems-ann");
+        } catch (Throwable t) {
+            WearableBleDiagLog.log("wake", "announce: " + t);
+        }
+    }
+
     private static final Runnable FOLLOW = new Follow();
 
     static final class Follow implements Runnable {
@@ -526,6 +549,8 @@ public final class WakeListener {
             if (id != null && id.startsWith("xems-listen")) {
                 MAIN.removeCallbacks(FOLLOW);
                 MAIN.postDelayed(FOLLOW, 250);
+            } else if (id != null && id.startsWith("xems-ann")) {
+                MAIN.postDelayed(new MicAgain(), 300);      // the announcement said: the spotter listens again
             }
         }
 

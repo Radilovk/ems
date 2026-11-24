@@ -225,3 +225,19 @@ trainer wants a session fitted to this person in seconds; the AI must never stan
   `pickLiteModel` prefers a stable Lite (the newest preview refused the system text and JSON mode, so live answers
   fell back to the slow main model). Planning keeps Flash.
 - Off-device: `tools/app-sim` `SimFree` (the AI's workout: board, voice, chat).
+
+## 1.1.548 — no automatic stops in the AI training; the steps aloud
+- **Continuous** (`AutoEngine.setContinuous`, set by AutoSession for aiMode): no REST between sets, no HR_PAUSE. The
+  rest the fatigue model would have asked for (`restAfterSet`) becomes the next set's easier impulse
+  (`adaptFor`: rest need ≥ 18 / 35 / 60 s → pause +1 / +2 / +3 s; a ≥ 60 Hz impulse −10 / −15 % Hz), up at once,
+  down one step a set. The heart at its ceiling → the easiest impulse (+3 s, −15 %), never a stop. A pause only
+  from a person (voice, ⏸). Auto (not AI) is unchanged.
+- **The AI's own workout**: no zero-output rest blocks — an active recovery between sets (`AiWorkout.rest`: 6 Hz,
+  250 µs, 3/1 s, half strength, "Активно възстановяване").
+- **The steps aloud** (`AiAnnounce`, `WakeListener.announce`: queued after what is being said, spotter off while
+  the tablet talks): "Започваме със загрявка", "Основна част: …", each exercise ("Упражнение / Следва: …", sets for
+  the AI's workout), "Възстановяване …", "Край. Браво …". No "тренер" / "тренировка" in them.
+- **Tests**: `scripts/ai-sim/ContinuousSim` (every program, random people, the heart at its ceiling: never REST /
+  HR_PAUSE, never quiet > 15 s, adaptation in bounds, runs to DONE — seconds); `tools/app-sim` SimAi: 4 min of the
+  real app, the engine looked at every second, the announcements heard. app-sim: the overlay is recompiled only
+  when a source changed, tests run in 3 parallel JVMs (all 7 in ~1.5 min).

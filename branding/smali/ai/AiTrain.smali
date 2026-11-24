@@ -2656,7 +2656,7 @@
     .prologue
     const/4 v4, 0x0
 
-    .line 1274
+    .line 1275
     invoke-virtual {p0}, Landroid/widget/EditText;->getText()Landroid/text/Editable;
 
     move-result-object v0
@@ -2673,7 +2673,7 @@
 
     move-object v1, v0
 
-    .line 1276
+    .line 1277
     :goto_10
     :try_start_10
     invoke-virtual {p0}, Landroid/widget/EditText;->getContext()Landroid/content/Context;
@@ -2688,10 +2688,10 @@
 
     check-cast v0, Landroid/view/inputmethod/InputMethodManager;
 
-    .line 1277
+    .line 1278
     if-eqz v0, :cond_26
 
-    .line 1278
+    .line 1279
     invoke-virtual {p0}, Landroid/widget/EditText;->getWindowToken()Landroid/os/IBinder;
 
     move-result-object v2
@@ -2702,28 +2702,28 @@
     :try_end_26
     .catch Ljava/lang/Throwable; {:try_start_10 .. :try_end_26} :catch_41
 
-    .line 1282
+    .line 1283
     :cond_26
     :goto_26
     if-nez p1, :cond_39
 
-    .line 1283
+    .line 1284
     const-string v0, ""
 
     invoke-virtual {p0, v0}, Landroid/widget/EditText;->setText(Ljava/lang/CharSequence;)V
 
-    .line 1284
+    .line 1285
     invoke-virtual {p0}, Landroid/widget/EditText;->getContext()Landroid/content/Context;
 
     move-result-object v0
 
     invoke-static {v0, v1, v4}, Lcom/isaigu/gymapp/ai/AiTrain;->say(Landroid/content/Context;Ljava/lang/String;Z)V
 
-    .line 1288
+    .line 1289
     :goto_34
     return-void
 
-    .line 1274
+    .line 1275
     :cond_35
     const-string v0, ""
 
@@ -2731,7 +2731,7 @@
 
     goto :goto_10
 
-    .line 1287
+    .line 1288
     :cond_39
     invoke-virtual {p0}, Landroid/widget/EditText;->getContext()Landroid/content/Context;
 
@@ -2741,7 +2741,7 @@
 
     goto :goto_34
 
-    .line 1280
+    .line 1281
     :catch_41
     move-exception v0
 
@@ -7629,7 +7629,7 @@
     .line 1184
     sget-boolean v0, Lcom/isaigu/gymapp/ai/AiTrain;->free:Z
 
-    if-eqz v0, :cond_55
+    if-eqz v0, :cond_58
 
     .line 1185
     sget-object v0, Lcom/isaigu/gymapp/ai/AiTrain;->freePlan:Lcom/isaigu/gymapp/ai/AiWorkout$Plan;
@@ -7652,7 +7652,7 @@
 
     invoke-static {p0, v0}, Lcom/isaigu/gymapp/ai/AiTrain;->toast(Landroid/content/Context;Ljava/lang/String;)V
 
-    .line 1219
+    .line 1220
     :goto_18
     return-void
 
@@ -7680,111 +7680,114 @@
     sput-boolean v1, Lcom/isaigu/gymapp/ai/MapRunner;->ai:Z
 
     .line 1194
-    sput-boolean v2, Lcom/isaigu/gymapp/ai/MapRunner;->noDouble:Z
+    invoke-static {}, Lcom/isaigu/gymapp/ai/AiAnnounce;->reset()V
 
     .line 1195
+    sput-boolean v2, Lcom/isaigu/gymapp/ai/MapRunner;->noDouble:Z
+
+    .line 1196
     invoke-static {p1, v0}, Lcom/isaigu/gymapp/ai/MapRunner;->arm(Landroid/app/Activity;Lcom/isaigu/gymapp/ai/Workout;)Ljava/lang/String;
 
     move-result-object v0
 
-    .line 1196
-    if-eqz v0, :cond_3a
-
     .line 1197
-    sput-boolean v2, Lcom/isaigu/gymapp/ai/MapRunner;->ai:Z
+    if-eqz v0, :cond_3d
 
     .line 1198
+    sput-boolean v2, Lcom/isaigu/gymapp/ai/MapRunner;->ai:Z
+
+    .line 1199
     invoke-static {p0, v0}, Lcom/isaigu/gymapp/ai/AiTrain;->toast(Landroid/content/Context;Ljava/lang/String;)V
 
     goto :goto_18
 
-    .line 1200
-    :cond_3a
+    .line 1201
+    :cond_3d
     invoke-static {}, Lcom/isaigu/gymapp/ai/MapRunner;->go()V
 
-    .line 1201
+    .line 1202
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiCoachBar;->started()V
 
-    .line 1202
+    .line 1203
     invoke-static {}, Lcom/isaigu/gymapp/ai/WakeListener;->isOn()Z
 
     move-result v0
 
-    if-nez v0, :cond_4b
+    if-nez v0, :cond_4e
 
-    .line 1203
-    if-eqz p1, :cond_4f
+    .line 1204
+    if-eqz p1, :cond_52
 
-    :goto_48
+    :goto_4b
     invoke-static {p1}, Lcom/isaigu/gymapp/ai/WakeListener;->start(Landroid/app/Activity;)Z
 
-    .line 1205
-    :cond_4b
+    .line 1206
+    :cond_4e
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiCoachBar;->refresh()V
 
     goto :goto_18
 
-    .line 1203
-    :cond_4f
+    .line 1204
+    :cond_52
     const/4 v0, 0x0
 
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/AiTrain;->activity(Landroid/view/View;)Landroid/app/Activity;
 
     move-result-object p1
 
-    goto :goto_48
+    goto :goto_4b
 
-    .line 1209
-    :cond_55
+    .line 1210
+    :cond_58
     sget-object v0, Lcom/isaigu/gymapp/ai/AiTrain;->MAIN:Landroid/os/Handler;
 
     sget-object v1, Lcom/isaigu/gymapp/ai/AiTrain;->RETUNE:Ljava/lang/Runnable;
 
     invoke-virtual {v0, v1}, Landroid/os/Handler;->removeCallbacks(Ljava/lang/Runnable;)V
 
-    .line 1210
+    .line 1211
     sget v0, Lcom/isaigu/gymapp/ai/AiTrain;->seq:I
 
     add-int/lit8 v0, v0, 0x1
 
     sput v0, Lcom/isaigu/gymapp/ai/AiTrain;->seq:I
 
-    .line 1211
+    .line 1212
     sput-boolean v2, Lcom/isaigu/gymapp/ai/AiTrain;->busy:Z
 
-    .line 1212
+    .line 1213
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoSession;->getPlan()Lcom/isaigu/gymapp/ai/AutoModel$Plan;
 
     move-result-object v0
 
-    if-nez v0, :cond_6d
+    if-nez v0, :cond_70
 
-    .line 1213
+    .line 1214
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoSession;->buildPlan()V
 
-    .line 1215
-    :cond_6d
+    .line 1216
+    :cond_70
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiSetupSheet;->close()V
 
-    .line 1216
+    .line 1217
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiCoachBar;->started()V
 
-    .line 1217
-    if-eqz p1, :cond_7c
+    .line 1218
+    if-eqz p1, :cond_7f
 
-    :goto_75
+    :goto_78
     invoke-static {p1}, Lcom/isaigu/gymapp/ai/AutoSession;->startDirect(Landroid/content/Context;)V
 
-    .line 1218
+    .line 1219
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiTrain;->rebuild()V
 
     goto :goto_18
 
-    :cond_7c
+    :cond_7f
     move-object p1, p0
 
-    .line 1217
-    goto :goto_75
+    .line 1218
+    goto :goto_78
 .end method
 
 .method private static summary(Landroid/content/Context;Landroid/widget/LinearLayout;)V

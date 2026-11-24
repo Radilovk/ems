@@ -155,10 +155,11 @@ public final class AiMapBoard {
             setLine.setText("");
             Workout.Block f = firstExercise(w, 0);
             next.setText(f != null ? AiText.t("Първо: ", "First: ") + label(f) : "");
-        } else if (b != null && b.isRest()) {
-            name.setText(AiText.t("Почивка", "Rest"));
-            how.setText(AiText.t("Дишай спокойно, раздвижи се на място.", "Breathe, move gently on the spot."));
-            clock.setText(AiText.mmss((int) Math.max(0, k.restLength() - k.getBlockS())));
+        } else if (b != null && isBreak(b)) {
+            name.setText(AiWorkout.REST_LABEL);
+            how.setText(AiText.t("Лек импулс за отпускане — дишай спокойно, раздвижи се на място.",
+                    "A light impulse to let go — breathe, move gently on the spot."));
+            clock.setText(AiText.mmss((int) Math.max(0, (b.isRest() ? k.restLength() : b.seconds()) - k.getBlockS())));
             setLine.setText("");
             Workout.Block f = firstExercise(w, idx + 1);
             next.setText(f != null ? AiText.t("Следва: ", "Next: ") + label(f) : "");
@@ -182,8 +183,8 @@ public final class AiMapBoard {
         Context c = list.getContext();
         list.removeAllViews();
         Workout.Block cur = idx >= 0 && idx < w.blocks.size() ? w.blocks.get(idx) : null;
-        String now = cur != null && !cur.isRest() ? label(cur) : null;
-        if (cur != null && cur.isRest()) {
+        String now = cur != null && !isBreak(cur) ? label(cur) : null;
+        if (cur != null && isBreak(cur)) {
             Workout.Block f = firstExercise(w, idx + 1);
             now = f != null ? label(f) : null;
         }
@@ -191,7 +192,7 @@ public final class AiMapBoard {
         boolean passed = idx >= 0;
         for (int i = 0; i < w.blocks.size(); i++) {
             Workout.Block x = w.blocks.get(i);
-            if (x.isRest() || seen.contains(label(x))) {
+            if (isBreak(x) || seen.contains(label(x))) {
                 continue;
             }
             String n = label(x);
@@ -202,7 +203,7 @@ public final class AiMapBoard {
             }
             int sets = 0;
             for (Workout.Block y : w.blocks) {
-                if (!y.isRest() && n.equals(label(y))) {
+                if (!isBreak(y) && n.equals(label(y))) {
                     sets++;
                 }
             }
@@ -225,6 +226,11 @@ public final class AiMapBoard {
         }
     }
 
+    /** A rest, or the AI training's active recovery between sets (no stop: AiWorkout.rest). */
+    static boolean isBreak(Workout.Block b) {
+        return b.isRest() || AiWorkout.REST_LABEL.equals(b.label);
+    }
+
     static String label(Workout.Block b) {
         return b.label != null && b.label.length() > 0 ? b.label : b.hasExercise() ? AutoTemplates.name(b.ex)
                 : AiText.t("Импулс", "Impulse");
@@ -236,7 +242,7 @@ public final class AiMapBoard {
 
     private static Workout.Block firstExercise(Workout w, int from) {
         for (int i = Math.max(0, from); i < w.blocks.size(); i++) {
-            if (!w.blocks.get(i).isRest()) {
+            if (!isBreak(w.blocks.get(i))) {
                 return w.blocks.get(i);
             }
         }
@@ -246,7 +252,7 @@ public final class AiMapBoard {
     private static Workout.Block firstOther(Workout w, int from, String now) {
         for (int i = Math.max(0, from + 1); i < w.blocks.size(); i++) {
             Workout.Block x = w.blocks.get(i);
-            if (!x.isRest() && !label(x).equals(now)) {
+            if (!isBreak(x) && !label(x).equals(now)) {
                 return x;
             }
         }
@@ -260,7 +266,7 @@ public final class AiMapBoard {
         int all = 0;
         for (int i = 0; i < w.blocks.size(); i++) {
             Workout.Block x = w.blocks.get(i);
-            if (!x.isRest() && n.equals(label(x))) {
+            if (!isBreak(x) && n.equals(label(x))) {
                 all++;
                 if (i <= idx) {
                     k = all;

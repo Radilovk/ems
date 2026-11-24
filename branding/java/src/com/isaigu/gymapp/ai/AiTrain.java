@@ -1191,6 +1191,7 @@ public final class AiTrain {
             AiSetupSheet.close();
             AutoSession.close();
             MapRunner.ai = true;                       // the AI tab: its board, bar, voice and chat (1.1.547)
+            AiAnnounce.reset();
             MapRunner.noDouble = false;
             String why = MapRunner.arm(a, w);
             if (why != null) {

@@ -44,6 +44,11 @@ files with `git add -f`.
 - The chat hid itself after 10 s — removed (✕ only).
 - AI "no connection" now and then: the licence's 10 s timeout under a 5–15 s model call. 30 s + one retry.
 
+## Speed (1.1.548)
+The overlay (our Java over the APK) is recompiled only when a source is newer; the tests run in 3 JVMs at once
+(`forkCount 3`, each test its own JVM). All 7 in ~1.5 min. The engine-only checks (no UI) are in
+`scripts/ai-sim/run-auto.sh` (seconds) — `ContinuousSim` there covers every program in the AI's continuous mode.
+
 ## Limits
 No real radio (the suit's own replies are not simulated yet — only a rebind each second), no real microphone or
 wake-word audio, no network to the licence server from here (the AI answers "no connection").

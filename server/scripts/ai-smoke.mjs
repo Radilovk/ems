@@ -22,10 +22,12 @@ const context = { session: 'PLANNING', sex: 'MALE', age: 45, height_cm: 185, wei
 let failed = 0;
 async function step(name, fn) {
   const t = Date.now();
+  ab.clearLastError();
   try {
     const r = await fn();
     console.log(`OK ${name} · ${Date.now() - t} ms · model ${r.model}`);
     console.log(JSON.stringify(r.coach || r.command || r.patch).slice(0, 900));
+    if (ab.lastError) console.log(`   (on the way: ${ab.lastError})`);
   } catch (e) {
     failed++;
     console.log(`FAIL ${name} · ${Date.now() - t} ms · ${e && e.message}`);

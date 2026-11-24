@@ -45,19 +45,19 @@ public final class AiTrain {
     private static final Handler MAIN = new Handler(Looper.getMainLooper());
     static final int INTAKE = 0;
     static final int SUMMARY = 1;
-    private static int view = INTAKE;
+    static int view = INTAKE;
     private static boolean liveChat;
-    private static boolean busy;
-    private static boolean healthOpen;
-    private static String draft = "";
-    private static String lastChanges = "";
-    private static String[] pending;
+    static boolean busy;
+    static boolean healthOpen;
+    static String draft = "";
+    static String lastChanges = "";
+    static String[] pending;
     private static int seq;
     /** "Нова от AI" (owner, 1.1.538): the AI writes its own workout, no template; its exercises are described only. */
-    private static boolean free;
-    private static AiWorkout.Plan freePlan;
+    static boolean free;
+    static AiWorkout.Plan freePlan;
     /** The intake's line (its words go with ✦ Нагласи even when not sent with the keyboard). */
-    private static EditText intakeField;
+    static EditText intakeField;
 
     // ================================================================ open / close
 
@@ -93,6 +93,7 @@ public final class AiTrain {
         }
         AutoSession.syncLeaderInput();
         AiCoach.resetAuto(in);
+        AiWizard.reset();
         WakeListener.start(a);                           // "Тренер, …" — hands-free (owner, 1.1.540)
         view = INTAKE;
         free = false;
@@ -185,6 +186,11 @@ public final class AiTrain {
 
     /** AutoBoard: the AI training before the start (intake or summary). */
     static void build(Context c, LinearLayout content) {
+        AiWizard.build(c, content);                  // the wizard, one step per screen (1.1.542)
+    }
+
+    /** The first (one-screen) layout — replaced by {@link AiWizard}; kept until the wizard has been on the tablets. */
+    static void buildOld(Context c, LinearLayout content) {
         XemsUi.init(c);
         ScrollView sc = new ScrollView(c);
         sc.setFillViewport(true);
@@ -452,7 +458,7 @@ public final class AiTrain {
 
     // ================================================================ chat parts
 
-    private static void chat(Context c, LinearLayout col, boolean live) {
+    static void chat(Context c, LinearLayout col, boolean live) {
         LinearLayout msgs = XemsUi.vertical(c);
         List<AiCoach.Turn> turns = AiCoach.chat();
         for (int i = Math.max(0, turns.size() - (live ? 6 : 5)); i < turns.size(); i++) {
@@ -487,7 +493,7 @@ public final class AiTrain {
     }
 
     /** One line to write + 🎤 (the tablet's own speech input) + ➤. */
-    private static View inputRow(Context c, boolean live) {
+    static View inputRow(Context c, boolean live) {
         LinearLayout row = XemsUi.horizontal(c);
         row.setGravity(Gravity.CENTER_VERTICAL);
         EditText f = new EditText(c);
@@ -520,7 +526,7 @@ public final class AiTrain {
         return row;
     }
 
-    private static View line(Context c, String label, String value) {
+    static View line(Context c, String label, String value) {
         LinearLayout l = XemsUi.horizontal(c);
         TextView k = XemsUi.text(c, label, 13, XemsUi.MUTED, true);
         l.addView(k, new LinearLayout.LayoutParams(XemsUi.dp(c, 118), ViewGroup.LayoutParams.WRAP_CONTENT));

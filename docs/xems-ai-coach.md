@@ -137,3 +137,20 @@ text only). The server accepts it (`validCardData`: ≤ 8 lines × 200 chars).
 - `server`: `npm test` → `aicoach.test.js` (validation, prompt, no-thinking retry), `card.test.js` (adv).
 
 The Auto mode has no AI card any more (1.1.535): Auto is the ready programs; the AI training is this.
+
+## 1.1.542 — the wizard, the AI link fixed, AI not "Auto"
+- **AI link (ai-smoke, a real Gemini call in CI):** gemini-3.8-flash refused `thinkingLevel: minimal`, the retry
+  thought 630 tokens inside a 900-token budget and every answer was cut (`bad_json`) — the tablet said "no AI". Now:
+  `low` when `minimal` is refused, budgets 3000 / 6000, Google's message in every error. The cheap model refused
+  system instructions and JSON → system text merged, then the main model. Measured: coach 6.9 s, workout 9.9 s,
+  brief 4.8 s. `.github/workflows/ai-smoke.yml` runs on every change of the AI code.
+- **The wizard (`ai/AiWizard`)**, one step per screen in the board's place, checked on `tools/ui-shot` pictures:
+  1 Клиент · 2 Тренировка · 3 Здраве · 4 Кажи на AI (field, 🎤, ready phrases, "Научи „Тренер“") · 5 Готово
+  (program, times, impulse, advice, chat, Готова | Нова от AI, ▶ Старт). The old one-screen layout stays as
+  `AiTrain.buildOld` until the wizard has been on the tablets.
+- **AI, not Auto:** the row's sign says "✦ AI"; the AI tile lights and shows the session, the Auto tile stays off.
+- **"Научи „Тренер“":** without the microphone permission it asks and opens the recording by itself once allowed;
+  refused for good → the app's settings page.
+- **2nd-impulse blink:** ≤ 1 Hz the limits switch the 2nd impulse off at every phase while Auto switched it back on —
+  steady "on" now only ≥ 2 Hz; maps keep the switch steady through a block (a repetition without it gets 0 %).
+

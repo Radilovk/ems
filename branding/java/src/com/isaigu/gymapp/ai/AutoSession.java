@@ -1803,7 +1803,8 @@ public final class AutoSession {
             // the row's 2nd-impulse switch stays as the session's setting (owner, 1.1.537: it followed every cycle and
             // the stock index buttons blinked); a cycle / a rest without it gives it 0 strength
             boolean pause = c.pauseHz > 0 && strength > 0 && AiSession.pauseAllowed(r.item);
-            b.activePause = pause || steadyDouble(r);
+            // ≤ 1 Hz: the limits switch the 2nd impulse off at every phase (SafeLimits AP) — steady "on" there blinked
+            b.activePause = pause || (steadyDouble(r) && c.hz >= 2);
             if (pause) {
                 b.pauseHz = c.pauseHz;
                 b.pauseStrenthPercent = Math.max(1, (int) Math.round(strength * c.pauseSigma));
@@ -1855,7 +1856,7 @@ public final class AutoSession {
                 continue;
             }
             b.strenth = 0;
-            b.activePause = steadyDouble(r);                  // steady (1.1.537); nothing goes out: both at 0
+            b.activePause = steadyDouble(r) && (written == null || written.hz >= 2);   // steady; nothing goes out
             b.pauseStrenthPercent = 0;
             r.writtenStrength = 0;
             try {
@@ -1909,7 +1910,7 @@ public final class AutoSession {
             boolean params = b.hz != written.hz || b.pulseWidth != written.pwUs
                     || b.pulseContinue != Math.max(1, written.onS) || b.pulsePause != Math.max(1, written.offS);
             boolean pulseNow = written.pauseHz > 0 && r.writtenStrength > 0 && AiSession.pauseAllowed(r.item);
-            boolean pause = b.activePause != (pulseNow || steadyDouble(r))
+            boolean pause = b.activePause != (pulseNow || (steadyDouble(r) && written.hz >= 2))
                     || (pulseNow && b.pauseHz != written.pauseHz);
             if (!params && !pause) {
                 continue;

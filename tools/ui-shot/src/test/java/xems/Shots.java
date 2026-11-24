@@ -25,14 +25,14 @@ import java.io.FileOutputStream;
 @Config(sdk = 30, qualifiers = "w1280dp-h800dp-land-mdpi")
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 public class Shots {
-    static File out() {
+    public static File out() {
         File d = new File(System.getProperty("shot.out", "out"));
         d.mkdirs();
         return d;
     }
 
     /** The view at w × h dp (mdpi: 1 dp = 1 px here; the file is scaled 1:1), drawn to a PNG. */
-    static void shot(View v, int w, int h, String name) throws Exception {
+    public static void shot(View v, int w, int h, String name) throws Exception {
         v.measure(View.MeasureSpec.makeMeasureSpec(w, View.MeasureSpec.EXACTLY),
                 View.MeasureSpec.makeMeasureSpec(h, View.MeasureSpec.EXACTLY));
         v.layout(0, 0, w, h);

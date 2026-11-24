@@ -40,9 +40,26 @@ public final class WakeSetup {
         }
         host = a;
         XemsUi.init(a);
-        if (!WakeListener.permitted(a, true)) {
-            android.widget.Toast.makeText(a, AiText.t("Разреши микрофона и натисни пак.", "Allow the microphone and tap again."),
-                    android.widget.Toast.LENGTH_LONG).show();
+        if (!WakeListener.permitted(a, false)) {
+            // asked before and refused for good: the system shows no dialog any more — its settings page does it
+            boolean refused = android.os.Build.VERSION.SDK_INT >= 23 && asked
+                    && !a.shouldShowRequestPermissionRationale(android.Manifest.permission.RECORD_AUDIO);
+            com.isaigu.gymapp.wearable.WearableBleDiagLog.log("wake", "setup: no microphone permission, refused=" + refused);
+            if (refused) {
+                android.widget.Toast.makeText(a, AiText.t("Разреши „Микрофон“ в настройките на XEMS и се върни.",
+                        "Allow “Microphone” in XEMS's settings and come back."), android.widget.Toast.LENGTH_LONG).show();
+                try {
+                    android.content.Intent i = new android.content.Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                            android.net.Uri.fromParts("package", a.getPackageName(), null));
+                    a.startActivity(i);
+                } catch (Throwable t) {
+                    com.isaigu.gymapp.wearable.WearableBleDiagLog.log("wake", "settings: " + t);
+                }
+                return;
+            }
+            asked = true;
+            WakeListener.permitted(a, true);              // the system's "allow" dialog
+            waitFor(a, 0);                                // and the recording opens by itself once it is allowed
             return;
         }
         Dialog d = new Dialog(a);
@@ -83,6 +100,36 @@ public final class WakeSetup {
         d.show();
         WakeListener.beginSetup(a, new Events());
         begin();
+    }
+
+    private static boolean asked;
+    private static final android.os.Handler MAIN = new android.os.Handler(android.os.Looper.getMainLooper());
+
+    /** After the "allow" dialog: the recording opens by itself (checked every second, 40 s). */
+    static void waitFor(Activity a, int n) {
+        MAIN.postDelayed(new Wait(a, n), 1000);
+    }
+
+    static final class Wait implements Runnable {
+        final Activity a;
+        final int n;
+
+        Wait(Activity a, int n) {
+            this.a = a;
+            this.n = n;
+        }
+
+        @Override
+        public void run() {
+            if (a.isFinishing()) {
+                return;
+            }
+            if (WakeListener.permitted(a, false)) {
+                open(a);
+            } else if (n < 40) {
+                waitFor(a, n + 1);
+            }
+        }
     }
 
     static void begin() {

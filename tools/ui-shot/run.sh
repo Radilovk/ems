@@ -7,7 +7,7 @@ CLS="$D/out/classes"; rm -rf "$CLS"; mkdir -p "$CLS"
 find "$ROOT/branding/java/src/com/isaigu/gymapp/ai" -name 'Ai*.java' -o -name 'Auto*.java' | head -0 >/dev/null
 javac -nowarn -encoding UTF-8 --release 8 -classpath "$ROOT/android-sdk/platforms/android-30/android.jar" \
   -sourcepath "$ROOT/branding/java/src:$ROOT/branding/java-stubs" -d "$CLS" \
-  "$ROOT/branding/java/src/com/isaigu/gymapp/ai/AiTrain.java" "$ROOT/branding/java/src/com/isaigu/gymapp/widget/XemsUi.java" \
+  "$ROOT/branding/java/src/com/isaigu/gymapp/ai/AiTrain.java" "$ROOT/branding/java/src/com/isaigu/gymapp/ai/AiWizard.java" "$ROOT/branding/java/src/com/isaigu/gymapp/widget/XemsUi.java" \
   2>&1 | grep -v '^Note:\|warning' | head -20
 # the vendor stubs must not shadow the framework in the shots (android.* comes from Robolectric)
 rm -rf "$CLS/android" "$CLS/androidx"

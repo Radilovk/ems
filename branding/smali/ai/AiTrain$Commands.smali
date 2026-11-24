@@ -30,19 +30,19 @@
     .registers 4
 
     .prologue
-    .line 1165
+    .line 1171
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 1166
+    .line 1172
     iput-object p1, p0, Lcom/isaigu/gymapp/ai/AiTrain$Commands;->vc:Lcom/isaigu/gymapp/ai/AiVoiceCmd$Result;
 
-    .line 1167
+    .line 1173
     iput-object p2, p0, Lcom/isaigu/gymapp/ai/AiTrain$Commands;->text:Ljava/lang/String;
 
-    .line 1168
+    .line 1174
     iput p3, p0, Lcom/isaigu/gymapp/ai/AiTrain$Commands;->my:I
 
-    .line 1169
+    .line 1175
     return-void
 .end method
 
@@ -52,44 +52,43 @@
     .registers 5
 
     .prologue
-    .line 1173
+    .line 1179
     iget v0, p0, Lcom/isaigu/gymapp/ai/AiTrain$Commands;->my:I
 
     # getter for: Lcom/isaigu/gymapp/ai/AiTrain;->seq:I
-    invoke-static {}, Lcom/isaigu/gymapp/ai/AiTrain;->access$1100()I
+    invoke-static {}, Lcom/isaigu/gymapp/ai/AiTrain;->access$400()I
 
     move-result v1
 
     if-eq v0, v1, :cond_9
 
-    .line 1182
+    .line 1188
     :goto_8
     return-void
 
-    .line 1176
+    .line 1182
     :cond_9
     const/4 v0, 0x0
 
-    # setter for: Lcom/isaigu/gymapp/ai/AiTrain;->busy:Z
-    invoke-static {v0}, Lcom/isaigu/gymapp/ai/AiTrain;->access$202(Z)Z
+    sput-boolean v0, Lcom/isaigu/gymapp/ai/AiTrain;->busy:Z
 
-    .line 1178
-    :try_start_d
+    .line 1184
+    :try_start_c
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiTrain$Commands;->vc:Lcom/isaigu/gymapp/ai/AiVoiceCmd$Result;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/ai/AiTrain$Commands;->text:Ljava/lang/String;
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/ai/AiTrain;->commandsDone(Lcom/isaigu/gymapp/ai/AiVoiceCmd$Result;Ljava/lang/String;)V
-    :try_end_14
-    .catch Ljava/lang/Throwable; {:try_start_d .. :try_end_14} :catch_15
+    :try_end_13
+    .catch Ljava/lang/Throwable; {:try_start_c .. :try_end_13} :catch_14
 
     goto :goto_8
 
-    .line 1179
-    :catch_15
+    .line 1185
+    :catch_14
     move-exception v0
 
-    .line 1180
+    .line 1186
     const-string v1, "ai-train"
 
     new-instance v2, Ljava/lang/StringBuilder;

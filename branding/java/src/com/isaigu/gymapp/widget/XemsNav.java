@@ -1341,12 +1341,24 @@ public final class XemsNav {
                     text = com.isaigu.gymapp.ai.MapRunner.name();
                     break;
                 }
+                if (com.isaigu.gymapp.ai.AutoSession.aiMode) {
+                    state = 0;                         // the AI training runs on Auto's engine: its own tile lights
+                    text = tr("Готови програми", "Ready programs");
+                    break;
+                }
                 com.isaigu.gymapp.ai.AutoSession.Stage as = com.isaigu.gymapp.ai.AutoSession.getStage();
                 state = as == com.isaigu.gymapp.ai.AutoSession.Stage.RUNNING ? 1
                         : as == com.isaigu.gymapp.ai.AutoSession.Stage.IDLE ? 0 : 2;
                 text = com.isaigu.gymapp.ai.AutoUi.status();
                 break;
             default:
+                if (com.isaigu.gymapp.ai.AutoSession.aiMode) {
+                    com.isaigu.gymapp.ai.AutoSession.Stage ai = com.isaigu.gymapp.ai.AutoSession.getStage();
+                    state = ai == com.isaigu.gymapp.ai.AutoSession.Stage.RUNNING ? 1 : 2;
+                    text = ai == com.isaigu.gymapp.ai.AutoSession.Stage.RUNNING ? com.isaigu.gymapp.ai.AutoUi.status()
+                            : tr("Подготовка", "Setting up");
+                    break;
+                }
                 AiSession.Stage st = AiSession.getStage();
                 if (st == AiSession.Stage.RUNNING) {
                     state = 1;
@@ -1355,7 +1367,7 @@ public final class XemsNav {
                     state = 2;
                     text = tr("Подготовка", "Setting up");
                 } else {
-                    text = tr("Умна сесия", "Smart session");
+                    text = tr("AI тренировка", "AI training");
                 }
                 break;
         }

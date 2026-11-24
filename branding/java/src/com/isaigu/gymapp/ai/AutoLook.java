@@ -50,7 +50,7 @@ public final class AutoLook {
 
     /** @param any any view of the training screen; @param program the program name under the sign */
     static void apply(View any, String program) {
-        apply(any, AiText.t("АВТО", "AUTO"), program);
+        apply(any, AutoSession.aiMode ? "✦ AI" : AiText.t("АВТО", "AUTO"), program);   // the AI training says AI (1.1.542)
     }
 
     /** @param label the sign's first line (АВТО, AI) */

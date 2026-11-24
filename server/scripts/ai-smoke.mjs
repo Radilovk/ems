@@ -41,3 +41,28 @@ await step('workout', () => workout(env, { kind: 'workout', domain: 'auto', menu
 await step('command (lite)', () => command(env, { text: 'дай малко повече на долната част на тялото' }));
 await step('brief', () => brief(env, { text: '52 г., болки в кръста, иска седалище', menu, context }));
 process.exit(failed ? 1 : 0);
+
+// Free speech during a session (owner, 1.1.551: "does it understand free text?"): each phrase as the tablet sends it
+// — the cheap command reader first; what it calls "not a command" goes to the live coach. Printed, not judged.
+const live = { ...context, session: 'RUNNING', program: 'general' };
+const free = ['краката ме болят малко', 'стига толкова за ръцете', 'почини ми малко', 'прекалено силно е',
+  'не усещам нищо в седалището', 'много ме щипе на корема', 'хайде пак', 'смени упражнението', 'уморих се',
+  'може ли малко по-нежно', 'какво упражнение за ръцете ми препоръчваш', 'колко повторения мъртва тяга'];
+for (const text of free) {
+  const t = Date.now();
+  try {
+    const c = await command(env, { text });
+    const cmd = c.command || {};
+    if (!cmd.coach && ((cmd.commands || []).length || (cmd.actions || []).length)) {
+      console.log(`FREE "${text}" · ${Date.now() - t} ms · command ${JSON.stringify({ c: cmd.commands, a: cmd.actions })}`);
+      continue;
+    }
+    const r = await coach(env, { kind: 'coach', domain: 'auto', menu, context: live, text, chat: [],
+      run: { phase: 'Сила', min_done: 6, state: 'RUN' } });
+    const k = r.coach || {};
+    const did = { a: k.actions, on: k.on_delta, off: k.off_delta, hz: k.hz_pct, rest: k.rest_pct, end: k.end_in_min };
+    console.log(`FREE "${text}" · ${Date.now() - t} ms · coach "${k.reply}"${k.question ? ' ? ' + k.question : ''} · ${JSON.stringify(did)}`);
+  } catch (e) {
+    console.log(`FREE "${text}" · error ${e && e.message}`);
+  }
+}

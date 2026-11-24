@@ -86,3 +86,20 @@ test('brief: no key / model error throw (the tablet keeps its plan)', async () =
   const fail = async () => new Response('{}', { status: 500 });
   await assert.rejects(brief({ GEMINI_API_KEY: 'k', GEMINI_MODEL: 'm' }, { text: 'x' }, fail), /gemini 500/);
 });
+
+test('an answer cut at the token budget is asked once more with twice the room (1.1.548 smoke)', async () => {
+  resetModelCache();
+  const budgets = [];
+  const fake = async (url, init) => {
+    const req = JSON.parse(init.body);
+    budgets.push(req.generationConfig.maxOutputTokens);
+    if (budgets.length === 1) {
+      return new Response(JSON.stringify({ candidates: [{ finishReason: 'MAX_TOKENS',
+        content: { parts: [{ text: '{"note":"cut' }] } }], usageMetadata: { candidatesTokenCount: 2985 } }));
+    }
+    return new Response(JSON.stringify({ candidates: [{ content: { parts: [{ text: JSON.stringify({ note: 'ok' }) }] } }] }));
+  };
+  const r = await brief({ GEMINI_API_KEY: 'k', GEMINI_MODEL: 'm' }, { text: 'x' }, fake, 1000);
+  assert.equal(r.patch.note, 'ok');
+  assert.deepEqual(budgets, [3000, 6000]);
+});

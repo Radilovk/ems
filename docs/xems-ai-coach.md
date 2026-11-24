@@ -47,6 +47,17 @@
 >   coach. **The step is relative to the value now:** ~10 % ("малко" ~5 %), never below 1 — legs 50 → ±5, arms 4 → ±1
 >   (`AutoSession.channelStep` / `strengthStep`); impulse / pause ±1 s, Hz ±10 % (±5), rests ±15 % (±8).
 > - Tests: `WorkoutSim` (commands, the step, vetoed frequencies), `AutoSim.tuneFuzz` (random vetoes).
+>
+> **1.1.540 — hands-free "Тренер, …"** (`ai/WakeListener`). From the AI training's start the tablet listens all the
+> time (Android's speech recognizer, bg-BG, offline when the language pack is installed, restarted after every
+> phrase; the system / notification sounds are muted while it listens so its start beep does not ring all session;
+> the program's beeps use the music stream and stay). It acts only on what follows the wake word ("тренер",
+> "треньор" and the recognizer's spellings — `AiVoiceCmd.afterWake`); "Тренер" alone arms the next phrase for 6 s.
+> No training needed. Before the start: "старт" = ✦ Нагласи / ▶ Старт, "стоп" closes, other words → the line / the
+> chat. During the session: the tablet reads the command (`AiVoiceCmd`: muscles, strength, impulse, pause, Hz, rests,
+> пауза, старт, стоп, прескочи, двоен импулс) — no AI; only what is none goes to Flash-Lite → the coach. A short tone:
+> done / not understood. 🎙 in the board's head turns it off / on. **RECORD_AUDIO is declared again** (asked once on
+> the tablet) — `verify-beta-safety.py` now allows it only for `WakeListener`. Not in a map run ("Нова от AI") yet.
 
 Owner: "an AI training like a trainer who asks the right questions, programs the whole session and stays there to
 re-tune it live: a wizard of questions → the algorithm → a free-text dialogue where the AI asks what is unclear

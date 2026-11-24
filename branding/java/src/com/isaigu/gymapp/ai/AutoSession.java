@@ -884,6 +884,9 @@ public final class AutoSession {
         AutoLook.restore();
         AutoLook.unbindMainKeys(leaderRunning());
         AutoBoard.detach();
+        if (aiMode) {
+            WakeListener.stop();
+        }
         stage = Stage.IDLE;
         aiMode = false;
         vetoHz = vetoOn = vetoOff = 0;

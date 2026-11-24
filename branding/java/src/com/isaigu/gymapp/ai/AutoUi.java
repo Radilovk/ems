@@ -58,6 +58,7 @@ public final class AutoUi {
     private static final int A_SETUP_BACK = 44;
     private static final int A_SETUP_LAST = 46;
     private static final int A_AI_LIVE = 48;
+    private static final int A_WAKE = 49;
     private static final int A_HOW = 40;
     private static final int A_SEX = 28;
     private static final int A_EDIT_PROFILE = 29;
@@ -1270,6 +1271,15 @@ public final class AutoUi {
                     XemsUi.dp(c, 48));
             alp2.leftMargin = XemsUi.dp(c, 10);
             headLeft.addView(ai, alp2);
+            // 🎙 "Тренер, …" — the tablet listens hands-free (1.1.540); a tap turns it off / on
+            boolean wake = WakeListener.isOn();
+            TextView mic = XemsUi.chip(c, wake ? "🎙  " + AiText.t("„Тренер, …“", "“Trainer, …”") : "🎙  " + AiText.t("изкл.", "off"),
+                    wake, XemsUi.GO);
+            mic.setOnClickListener(new Act(A_WAKE, 0));
+            LinearLayout.LayoutParams mlp2 = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+                    XemsUi.dp(c, 48));
+            mlp2.leftMargin = XemsUi.dp(c, 8);
+            headLeft.addView(mic, mlp2);
         }
         headBar.addView(headLeft, new android.widget.FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.START | Gravity.CENTER_VERTICAL));
@@ -2114,6 +2124,14 @@ public final class AutoUi {
                 return;
             case A_AI_LIVE:
                 AiTrain.openLive();
+                return;
+            case A_WAKE:
+                if (WakeListener.isOn()) {
+                    WakeListener.stop();
+                } else {
+                    WakeListener.start(host);
+                }
+                AutoBoard.rebuild();
                 return;
             case A_SETUP_LAST:
                 AutoSession.riseToLast(arg);

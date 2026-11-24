@@ -58,6 +58,37 @@ public final class AiVoiceCmd {
         }
     }
 
+    /** How the recognizer may write the wake word (owner: "тренер"; the dictionary form is "треньор"). */
+    static final String[] WAKE = {"тренер", "треньор", "трениор", "трейнър", "trainer", "trener"};
+
+    /**
+     * The words after the wake word ("Тренер, увеличи краката" → "увеличи краката"), "" = the wake word alone,
+     * null = no wake word in the phrase.
+     */
+    public static String afterWake(String text) {
+        if (text == null) {
+            return null;
+        }
+        String t = text.toLowerCase(Locale.ROOT);
+        int best = -1;
+        int len = 0;
+        for (String w : WAKE) {
+            int i = t.indexOf(w);
+            if (i >= 0 && (best < 0 || i < best)) {
+                best = i;
+                len = w.length();
+            }
+        }
+        if (best < 0) {
+            return null;
+        }
+        int end = best + len;
+        while (end < t.length() && Character.isLetter(t.charAt(end))) {
+            end++;                                            // "тренера", "треньорът"
+        }
+        return text.substring(end).replaceAll("^[\\s,.:!-]+", "").trim();
+    }
+
     /** The step for a value now: ~10 % (small ~5 %), at least 1. */
     public static int step(int value, boolean small) {
         return Math.max(1, (int) Math.round(Math.abs(value) * (small ? 0.05 : 0.10)));
@@ -125,7 +156,8 @@ public final class AiVoiceCmd {
         }
         if (dir == null && !longer && !shorter) {
             if (has(t, " пауза ", " спри ", "почивка ")) r.actions.add("pause");
-            if (has(t, "продължи", "пусни", " старт")) r.actions.add("resume");
+            if (has(t, "продължи", "пусни", " старт", "започни", "започваме", "давай")) r.actions.add("resume");
+            if (has(t, " стоп ", "край ", "приключи")) r.actions.add("stop");
         }
         if (has(t, "прескочи", "следващо", "следващото")) r.actions.add("skip");
         if (has(t, "възстановяване", "приключи активната")) r.actions.add("to_recovery");

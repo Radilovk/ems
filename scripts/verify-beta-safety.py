@@ -50,10 +50,15 @@ def main() -> int:
             if needle in text:
                 errors.append(f"{path.relative_to(ROOT)}: forbidden reference '{needle}'")
 
-    # Microphone mode was removed: no permission and no references to its UI class.
+    # The old microphone (music) mode was removed: no references to its UI class. RECORD_AUDIO is back since 1.1.540
+    # for one user only — the AI training's hands-free "Тренер, …" (ai/WakeListener, Android's speech recognizer).
     manifest = DECOMPILED / "AndroidManifest.xml"
     if manifest.exists() and "RECORD_AUDIO" in manifest.read_text(encoding="utf-8"):
-        errors.append("AndroidManifest.xml: RECORD_AUDIO must not be declared (mic mode removed)")
+        users = [p for p in DECOMPILED.glob("smali*/com/isaigu/gymapp/**/*.smali")
+                 if "android.permission.RECORD_AUDIO" in p.read_text(encoding="utf-8")]
+        if any("WakeListener" not in p.name for p in users):
+            errors.append("AndroidManifest.xml: RECORD_AUDIO only for ai/WakeListener, found " +
+                          ", ".join(p.name for p in users if "WakeListener" not in p.name))
     for smali in DECOMPILED.glob("smali*/com/isaigu/gymapp/**/*.smali"):
         if "MusicSyncHelper" in smali.read_text(encoding="utf-8"):
             errors.append(f"{smali.relative_to(DECOMPILED)}: references removed MusicSyncHelper")

@@ -93,6 +93,7 @@ public final class AiTrain {
         }
         AutoSession.syncLeaderInput();
         AiCoach.resetAuto(in);
+        WakeListener.start(a);                           // "Тренер, …" — hands-free (owner, 1.1.540)
         view = INTAKE;
         free = false;
         freePlan = null;
@@ -104,6 +105,45 @@ public final class AiTrain {
         pending = null;
         seq++;
         AutoBoard.sync(root(a));
+    }
+
+    /**
+     * A spoken command after "тренер" (WakeListener): before the start "старт" starts and anything else goes to the
+     * chat; during the session the tablet reads the command itself, only what is none goes to the AI. True = taken.
+     */
+    static boolean voice(Context c, String cmd) {
+        if (!AutoSession.aiMode || c == null || cmd == null || cmd.trim().length() == 0) {
+            return false;
+        }
+        boolean running = AutoSession.getStage() == AutoSession.Stage.RUNNING && AutoSession.getEngine() != null;
+        AiVoiceCmd.Result vc = AiVoiceCmd.parse(cmd);
+        if (!running) {
+            if (vc.actions.contains("resume") && vc.commands.isEmpty()) {
+                if (view == INTAKE) {
+                    tune(c);
+                } else {
+                    start(c, AiSession.activityOf(AutoSession.getPanelRoot()));
+                }
+                return true;
+            }
+            if (vc.actions.contains("stop")) {
+                close();
+                return true;
+            }
+            if (view == INTAKE) {
+                draft = (draft != null && draft.trim().length() > 0 ? draft.trim() + ", " : "") + cmd;
+                rebuild();
+                return true;
+            }
+            send(c, cmd, false, false);
+            return true;
+        }
+        if (!vc.isEmpty()) {
+            commandsDone(vc, cmd);
+            return true;
+        }
+        send(c, cmd, true, false);
+        return true;
     }
 
     /** ✕ before the start: the AI training goes, the screen is as before. */
@@ -352,6 +392,11 @@ public final class AiTrain {
         LinearLayout row = XemsUi.horizontal(c);
         LinearLayout left = XemsUi.vertical(c);
         left.addView(XemsUi.label(c, "✦ " + AiText.t("Кажи на AI", "Tell the AI")));
+        left.addView(XemsUi.text(c, WakeListener.isOn()
+                ? AiText.t("🎙 Слушам: кажи „Тренер, увеличи краката“, „Тренер, пауза“, „Тренер, стоп“…",
+                "🎙 Listening: say “Trainer, raise the legs”, “Trainer, pause”, “Trainer, stop”…")
+                : AiText.t("🎙 Гласът е изключен — 🎙 в таблото го пуска.", "🎙 Voice is off — 🎙 on the board turns it on."),
+                13, WakeListener.isOn() ? XemsUi.GO_TEXT : XemsUi.MUTED, true), XemsUi.matchWrap(c, 4));
         AiUi.FlowRow quick = new AiUi.FlowRow(c);
         String[] q = {AiText.t("по-леко", "softer"), AiText.t("по-силно", "stronger"), AiText.t("пауза", "pause"),
                 AiText.t("продължи", "go on"), AiText.t("по-дълги почивки", "longer rests"),
@@ -863,26 +908,9 @@ public final class AiTrain {
             XemsUi.haptic(v);
             Context c = v.getContext();
             switch (code) {
-                case A_TUNE: {
-                    Input in = AutoSession.getInput();
-                    if (in.programId == null || AutoCatalog.get(in.programId) == null) {
-                        in.programId = AutoCatalog.recommended(in.goal, in.kind, in).id;
-                    }
-                    AutoSession.syncLeaderInput();
-                    AutoSession.buildPlan();
-                    view = SUMMARY;
-                    if (intakeField != null && intakeField.getText() != null) {
-                        draft = intakeField.getText().toString();
-                    }
-                    String extra = draft != null ? draft.trim() : "";
-                    if (extra.length() > 0) {
-                        send(c, extra, false, false);
-                    } else {
-                        send(c, AiText.t("Нагласи тренировката за този клиент и дай препоръките.",
-                                "Tune the session for this client and give the advice."), false, true);
-                    }
+                case A_TUNE:
+                    tune(c);
                     break;
-                }
                 case A_CLOSE:
                     close();
                     break;
@@ -890,32 +918,9 @@ public final class AiTrain {
                     view = INTAKE;
                     rebuild();
                     break;
-                case A_START: {
-                    Activity a = AiSession.activityOf(v);
-                    if (free) {
-                        if (freePlan == null) {
-                            toast(c, AiText.t("Първо ✦ Състави тренировката.", "First ✦ write the workout."));
-                            break;
-                        }
-                        // the AI's workout runs as a map: block by block, strength from 0, the card says each exercise
-                        Workout w = AiWorkout.toWorkout(freePlan, AutoSession.getInput());
-                        AutoSession.close();
-                        String why = MapRunner.arm(a, w);
-                        if (why != null) {
-                            toast(c, why);
-                        } else {
-                            MapRunner.go();
-                        }
-                        break;
-                    }
-                    if (AutoSession.getPlan() == null) {
-                        AutoSession.buildPlan();
-                    }
-                    AutoSession.startDirect(a != null ? a : c);
-                    liveChat = false;
-                    rebuild();
+                case A_START:
+                    start(c, AiSession.activityOf(v));
                     break;
-                }
                 case A_MAKE:
                     send(c, AiText.t("Състави нова тренировка за този клиент.", "Write a new workout for this client."),
                             false, true);
@@ -932,6 +937,53 @@ public final class AiTrain {
                     break;
             }
         }
+    }
+
+    /** ✦ Нагласи: the plan from the intake, the first word to the AI (the line's text, else "tune it"). */
+    static void tune(Context c) {
+        Input in = AutoSession.getInput();
+        if (in.programId == null || AutoCatalog.get(in.programId) == null) {
+            in.programId = AutoCatalog.recommended(in.goal, in.kind, in).id;
+        }
+        AutoSession.syncLeaderInput();
+        AutoSession.buildPlan();
+        view = SUMMARY;
+        if (intakeField != null && intakeField.getText() != null && intakeField.getText().length() > 0) {
+            draft = intakeField.getText().toString();
+        }
+        String extra = draft != null ? draft.trim() : "";
+        if (extra.length() > 0) {
+            send(c, extra, false, false);
+        } else {
+            send(c, AiText.t("Нагласи тренировката за този клиент и дай препоръките.",
+                    "Tune the session for this client and give the advice."), false, true);
+        }
+    }
+
+    /** ▶ Старт: the ready program (startDirect, strength from 0) or the AI's own workout as a map. */
+    static void start(Context c, Activity a) {
+        if (free) {
+            if (freePlan == null) {
+                toast(c, AiText.t("Първо ✦ Състави тренировката.", "First ✦ write the workout."));
+                return;
+            }
+            // the AI's workout runs as a map: block by block, strength from 0, the card says each exercise
+            Workout w = AiWorkout.toWorkout(freePlan, AutoSession.getInput());
+            AutoSession.close();
+            String why = MapRunner.arm(a, w);
+            if (why != null) {
+                toast(c, why);
+            } else {
+                MapRunner.go();
+            }
+            return;
+        }
+        if (AutoSession.getPlan() == null) {
+            AutoSession.buildPlan();
+        }
+        AutoSession.startDirect(a != null ? a : c);
+        liveChat = false;
+        rebuild();
     }
 
     static final class Quick implements View.OnClickListener {

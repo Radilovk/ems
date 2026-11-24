@@ -70,6 +70,11 @@ public class WorkoutSim {
         check(v.commands.size() == 1 && v.commands.get(0).dir.equals("off") && v.commands.get(0).target.equals("chest"), "chest off");
         v = AiVoiceCmd.parse("кръстът ме боли от вчера");
         check(v.isEmpty(), "a complaint is no command");
+        check("увеличи краката".equals(AiVoiceCmd.afterWake("Тренер, увеличи краката")), "wake + command");
+        check("спри на пауза".equals(AiVoiceCmd.afterWake("тренера спри на пауза")), "wake form");
+        check("".equals(AiVoiceCmd.afterWake("Треньор")) && AiVoiceCmd.afterWake("увеличи краката") == null, "wake alone / none");
+        check(AiVoiceCmd.parse("стоп").actions.contains("stop") && AiVoiceCmd.parse("старт").actions.contains("resume"), "стоп / старт");
+        check(AiVoiceCmd.parse("спри на пауза").actions.contains("pause"), "спри на пауза");
         check(AiVoiceCmd.step(50, false) == 5 && AiVoiceCmd.step(4, false) == 1 && AiVoiceCmd.step(50, true) == 3
                 && AiVoiceCmd.step(0, false) == 1, "the relative step");
         AiVoiceCmd.Result sv = AiVoiceCmd.parseServer("{\"ok\":true,\"command\":{\"commands\":[{\"target\":\"glutes\",\"dir\":\"up\",\"step\":\"small\"}],\"coach\":false}}");

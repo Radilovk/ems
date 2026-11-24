@@ -309,6 +309,10 @@ export async function generateJson(env, system, userText, schema, maxTokens, fet
       }
       if (res.status === 400 && /think/i.test(why) && attempt < ladder.length - 1) continue;
       if (res.status === 404) resetModelCache();
+      // the cheap model cannot do this (2026-11-24: "JSON mode is not enabled for this model"): the main one does
+      if (lite && res.status === 400) {
+        return generateJson(env, system, userText, schema, maxTokens, fetchImpl, ts, false);
+      }
       throw new Error(lastError);
     }
     const j = await res.json();

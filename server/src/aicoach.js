@@ -46,6 +46,12 @@ export function coachSchema(domain = null, programs = []) {
       mode: { type: 'STRING', enum: MODES, nullable: true },
       ...(domain === 'auto' && programs.length ? { program: { type: 'STRING', enum: programs, nullable: true } } : {}),
       ...(domain === 'auto' ? { intensity: { type: 'STRING', enum: INTENSITY, nullable: true } } : {}),
+      ...(domain === 'auto' ? { veto: {
+        type: 'OBJECT', nullable: true,
+        properties: { hz: { type: 'INTEGER', nullable: true }, on_s: { type: 'INTEGER', nullable: true },
+          off_s: { type: 'INTEGER', nullable: true }, reason: { type: 'STRING' } },
+        required: ['reason'],
+      } } : {}),
       minutes: { type: 'INTEGER', nullable: true },
       double_impulse: { type: 'BOOLEAN', nullable: true },
       cond_add: list(COND),
@@ -135,6 +141,7 @@ export function validateCoach(raw, askedSoFar = 0, domain = null, programs = [])
     question: null,
     goal: pick(r.goal, auto ? AUTO.goals : GOALS),
     program: auto ? pick(r.program, programs) : null,
+    veto: null,
     intensity: auto ? pick(r.intensity, INTENSITY) : null,
     mode: pick(r.mode, MODES),
     minutes: r.minutes == null ? null : int(r.minutes, 10, 25),
@@ -153,6 +160,15 @@ export function validateCoach(raw, askedSoFar = 0, domain = null, programs = [])
     advice: null,
   };
   out.cond_remove = out.cond_remove.filter((k) => !out.cond_add.includes(k));
+  if (auto && r.veto && typeof r.veto === 'object') {
+    const v = {
+      hz: r.veto.hz == null ? null : int(r.veto.hz, 1, 120),
+      on_s: r.veto.on_s == null ? null : int(r.veto.on_s, 1, 10),
+      off_s: r.veto.off_s == null ? null : int(r.veto.off_s, 1, 10),
+      reason: text(r.veto.reason, 120),
+    };
+    if (v.reason && (v.hz != null || v.on_s != null || v.off_s != null)) out.veto = v;
+  }
   const q = r.question;
   if (q && typeof q === 'object' && askedSoFar < QUESTIONS_MAX) {
     const t = text(q.text, 140);
@@ -178,7 +194,10 @@ This session runs a READY PROGRAM of the automatic mode (MENU below; CONTEXT.pro
 - intensity SOFT for beginners, tired, older or fragile clients; INTENSE only on an explicit wish of a trained one.
 - Live: actions softer/stronger/pause/resume/skip (next exercise)/to_recovery/double_on/double_off;
   on_delta −1..1, off_delta −1..2, hz_pct −10..10, rest_pct −30..60, end_in_min.
-- minutes: the program's time stays unless a time is named (it is capped at 20 min active + 10 min recovery).`;
+- minutes: the program's time stays unless a time is named (it is capped at 20 min active + 10 min recovery).
+- veto (you may overrule the planner's main impulse): only when it is wrong for THIS client (e.g. osteoporosis,
+  fresh injury, 70+, very obese beginner → lower hz / shorter on_s; trained athlete wanting strength → 85–100 hz).
+  Give hz, on_s, off_s (any of them) and a short reason in Bulgarian. The tablet keeps the absolute limits.`;
 
 export async function coach(env, body, fetchImpl = fetch, ts = Date.now()) {
   const asked = Array.isArray(body.chat) ? body.chat.filter((t) => t && t.role === 'ai' && t.q).length : 0;
@@ -200,7 +219,7 @@ export async function coach(env, body, fetchImpl = fetch, ts = Date.now()) {
 // Not a template: the model writes the exercises (dumbbells, kettlebell, free weight, mat, band, own body), described
 // in words; for each block it picks the LOAD KIND from a closed list — the tablet turns the kind into the impulse
 // (Hz, µs, ON/OFF) by its own table and limits, and caps the whole at 20 min active + 10 min recovery.
-export const LOAD_KINDS = ['warmup', 'strength', 'hypertrophy', 'endurance', 'power', 'cardio', 'core', 'mobility'];
+export const LOAD_KINDS = ['warmup', 'strength', 'hypertrophy', 'endurance', 'power', 'cardio', 'core', 'mobility', 'tone'];
 export const EQUIPMENT = ['body', 'mat', 'dumbbells', 'kettlebell', 'barbell', 'band', 'ball', 'step'];
 const MAX_BLOCKS = 12;
 
@@ -219,6 +238,7 @@ export function workoutSchema() {
         sets: { type: 'INTEGER' },
         work_s: { type: 'INTEGER' },
         rest_s: { type: 'INTEGER' },
+        hz: { type: 'INTEGER', nullable: true },
       },
       required: ['name', 'kind', 'sets', 'work_s', 'rest_s'],
     },
@@ -232,8 +252,9 @@ Now WRITE A NEW WORKOUT for this client (not a ready program): blocks = exercise
 block and ending with a mobility block. 5–10 blocks. Prefer free weights (dumbbells, kettlebell), a mat, a band or the
 body; slow controlled movement under EMS; light weights (EMS adds the load). Respect CONTEXT (knees, back, BMI,
 age, experience, today's state, active/passive). Per block: name (2–4 words, Bulgarian), how (one short sentence: the
-movement, tempo, what to watch), kind (the EMS load: strength, hypertrophy, endurance, power, cardio, core, mobility,
-warmup), equipment, sets 1–4, work_s 20–45 s per set, rest_s 15–90 s. The whole active part ≤ 20 min with rests.
+movement, tempo, what to watch), kind (the EMS load: warmup, strength 85 Hz, hypertrophy 70 Hz, endurance 50 Hz,
+power 100 Hz, tone 40 Hz, core 80 Hz, cardio = 7 Hz twitches while the client moves (jacks, marching, steps, rope),
+mobility 10 Hz), equipment, sets 1–4, work_s 20–45 s per set, rest_s 15–90 s. hz only to overrule the kind's frequency for this client (else null). The whole active part ≤ 20 min with rests.
 Fill advice too (before / during / after, load, rests, equipment). title: 2–5 words.`;
 
 export function validateWorkout(raw, askedSoFar = 0) {
@@ -254,6 +275,7 @@ export function validateWorkout(raw, askedSoFar = 0) {
       sets: int(b.sets, 1, 4) ?? 1,
       work_s: int(b.work_s, 20, 45) ?? 30,
       rest_s: int(b.rest_s, 15, 90) ?? 30,
+      hz: b.hz == null ? null : int(b.hz, 1, 120),
     });
   }
   return out;
@@ -263,4 +285,52 @@ export async function workout(env, body, fetchImpl = fetch, ts = Date.now()) {
   const asked = Array.isArray(body.chat) ? body.chat.filter((t) => t && t.role === 'ai' && t.q).length : 0;
   const r = await generateJson(env, COACH_SYSTEM + WORKOUT_NOTE, coachPrompt(body), workoutSchema(), 2200, fetchImpl, ts);
   return { model: r.model, coach: validateWorkout(r.raw, asked) };
+}
+
+// ================================================================ spoken commands (owner, 1.1.539)
+// The cheapest model, a tiny prompt: words → commands. "намали краката" → {target: legs, dir: down}. The tablet does
+// the arithmetic itself: a step is ~10 % of the value now ("малко" ~5 %), never less than 1 (arms at 4 → ±1).
+// Not a command (a complaint, a question) → coach:true and the tablet asks the full coach.
+export const CMD_TARGETS = ['strength', 'legs', 'thighs', 'calves', 'glutes', 'abs', 'arms', 'chest', 'back',
+  'lower_back', 'traps', 'impulse', 'pause', 'frequency', 'rest', 'all_channels'];
+export const CMD_DIRS = ['up', 'down', 'off', 'on'];
+export const CMD_ACTIONS = ['pause', 'resume', 'skip', 'to_recovery', 'double_on', 'double_off', 'stop'];
+
+export const COMMAND_SYSTEM = `Turn a spoken Bulgarian EMS-training command into JSON. targets: strength (overall
+current), legs, thighs, calves, glutes, abs, arms, chest, back, lower_back, traps, all_channels (muscle channels),
+impulse (its seconds), pause (its seconds), frequency (Hz), rest (between sets). dir: up / down / off / on.
+step: small ("малко", "леко") or normal. actions: pause, resume, skip, to_recovery, double_on, double_off, stop.
+Several commands may come in one sentence. Anything that is not a command (pain, a question, a wish about the plan)
+→ coach true, no commands.`;
+
+export function commandSchema() {
+  return {
+    type: 'OBJECT',
+    properties: {
+      commands: { type: 'ARRAY', items: { type: 'OBJECT', properties: {
+        target: { type: 'STRING', enum: CMD_TARGETS }, dir: { type: 'STRING', enum: CMD_DIRS },
+        step: { type: 'STRING', enum: ['small', 'normal'] } }, required: ['target', 'dir'] } },
+      actions: { type: 'ARRAY', items: { type: 'STRING', enum: CMD_ACTIONS } },
+      coach: { type: 'BOOLEAN' },
+    },
+    required: ['coach'],
+  };
+}
+
+export function validateCommand(raw) {
+  const r = raw && typeof raw === 'object' ? raw : {};
+  const commands = [];
+  for (const c of Array.isArray(r.commands) ? r.commands : []) {
+    const target = pick(c?.target, CMD_TARGETS);
+    const dir = pick(c?.dir, CMD_DIRS);
+    if (target && dir && commands.length < 6) commands.push({ target, dir, step: c.step === 'small' ? 'small' : 'normal' });
+  }
+  const actions = picks(r.actions, CMD_ACTIONS, 3);
+  return { commands, actions, coach: !commands.length && !actions.length ? true : r.coach === true };
+}
+
+export async function command(env, body, fetchImpl = fetch, ts = Date.now()) {
+  const r = await generateJson(env, COMMAND_SYSTEM, String(body.text || '').slice(0, 300), commandSchema(), 200,
+    fetchImpl, ts, true);
+  return { model: r.model, command: validateCommand(r.raw) };
 }

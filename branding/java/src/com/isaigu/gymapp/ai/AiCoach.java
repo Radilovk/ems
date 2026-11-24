@@ -75,6 +75,11 @@ public final class AiCoach {
         /** Auto domain: a program of the menu, and soft / standard / intense. */
         public String program;
         public String intensity;
+        /** Auto domain: the AI's veto on the planner's main impulse (null = none), with its reason. */
+        public Integer vetoHz;
+        public Integer vetoOn;
+        public Integer vetoOff;
+        public String vetoReason;
         public Integer minutes;
         public Boolean doubleImpulse;
         public final List<String> condAdd = new ArrayList<String>();
@@ -283,6 +288,17 @@ public final class AiCoach {
         r.program = m.get("program") instanceof String && AutoCatalog.get((String) m.get("program")) != null
                 ? (String) m.get("program") : null;
         r.intensity = one(m.get("intensity"), "SOFT", "STANDARD", "INTENSE");
+        if (m.get("veto") instanceof Map) {
+            Map<?, ?> v = (Map<?, ?>) m.get("veto");
+            r.vetoReason = str(v.get("reason"), 120);
+            r.vetoHz = num(v.get("hz"), 1, 120);
+            r.vetoOn = num(v.get("on_s"), 1, 10);
+            r.vetoOff = num(v.get("off_s"), 1, 10);
+            if (r.vetoReason.length() == 0 || (r.vetoHz == null && r.vetoOn == null && r.vetoOff == null)) {
+                r.vetoReason = null;
+                r.vetoHz = r.vetoOn = r.vetoOff = null;
+            }
+        }
         r.mode = one(m.get("mode"), "ACTIVE", "PASSIVE");
         r.minutes = num(m.get("minutes"), 10, 25);
         r.doubleImpulse = m.get("double_impulse") instanceof Boolean ? (Boolean) m.get("double_impulse") : null;

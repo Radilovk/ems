@@ -269,6 +269,9 @@ public final class AutoSim {
                     AutoModel.Plan plan = AutoPlanner.build(in, 66);
                     AutoEngine e = new AutoEngine(plan);
                     long t = 1000000L;
+                    if (rnd.nextBoolean()) {
+                        e.setVeto(1 + rnd.nextInt(120), rnd.nextInt(11), rnd.nextInt(11));   // the AI's veto (1.1.539)
+                    }
                     e.startAt(t, t);
                     t = e.getGoMs();
                     e.tick(t);

@@ -16,9 +16,9 @@ public final class AiWorkout {
     private AiWorkout() {}
 
     public static final String[] KINDS = {"warmup", "strength", "hypertrophy", "endurance", "power", "cardio", "core",
-            "mobility"};
+            "mobility", "tone"};
     public static final String[] KINDS_BG = {"загрявка", "сила", "мускулна маса", "издръжливост", "експлозивност",
-            "кардио", "кор", "мобилност"};
+            "кардио", "кор", "мобилност", "тонус"};
     /** Per kind: Hz, µs, ON s, OFF s (EMS physiology: tetanic ≥ 20 Hz with rest ≥ 2/3 ON; low Hz for warm-up / mobility). */
     static final int[][] IMPULSE = {
             {7, 300, 5, 1},      // warmup: twitches, blood flow
@@ -26,9 +26,12 @@ public final class AiWorkout {
             {70, 350, 5, 4},     // hypertrophy
             {50, 300, 6, 4},     // endurance
             {100, 300, 3, 4},    // power (≥ 100 Hz ⇒ ≤ 300 µs)
-            {40, 300, 4, 3},     // cardio / metabolic
+            // cardio / metabolic (owner, 1.1.539): low frequency — separate twitches and blood flow while the client
+            // moves; the heart works from the movement (physiology §1: 1–10 Hz). 40 Hz is fused tetanus, not cardio.
+            {7, 300, 8, 1},
             {80, 350, 5, 4},     // core
             {10, 250, 5, 2},     // mobility
+            {40, 300, 4, 3},     // tone / strength endurance: fused, moderate (fat burning only through the work)
     };
     public static final String[] EQUIPMENT = {"body", "mat", "dumbbells", "kettlebell", "barbell", "band", "ball", "step"};
     public static final String[] EQUIPMENT_BG = {"собствено тяло", "постелка", "дъмбели", "пудовка", "щанга", "ластик",
@@ -45,6 +48,8 @@ public final class AiWorkout {
         public int sets = 1;
         public int workS = 30;
         public int restS = 30;
+        /** The AI's veto on the kind's frequency (0 = the kind's). */
+        public int hz;
     }
 
     public static final class Plan {
@@ -81,6 +86,7 @@ public final class AiWorkout {
                 it.sets = num(b.get("sets"), 1, 4, 1);
                 it.workS = num(b.get("work_s"), 20, 45, 30);
                 it.restS = num(b.get("rest_s"), 15, 90, 30);
+                it.hz = b.get("hz") instanceof Number ? num(b.get("hz"), 1, 120, 0) : 0;
                 if (it.name.length() > 0 && it.kind != null) {
                     p.items.add(it);
                 }
@@ -167,10 +173,19 @@ public final class AiWorkout {
     static Workout.Block block(Item it, AutoModel.Input in) {
         int k = Math.max(0, AiCoach.indexOf(it.kind, KINDS));
         int[] im = IMPULSE[k];
-        int hz = Math.min(im[0], SafeLimits.hzMax(in.age));
-        int cyc = im[2] + Math.max(1, im[3]);
+        int hz = Math.min(it.hz > 0 ? it.hz : im[0], SafeLimits.hzMax(in.age));
+        int on = im[2];
+        int off = im[3];
+        if (hz >= 50) {
+            on = Math.min(on, SafeLimits.ON_MAX_50HZ);
+        }
+        if (hz >= SafeLimits.TETANIC_HZ) {
+            off = Math.max(off, (int) Math.ceil(on * 0.66));   // a vetoed frequency keeps the rest rule
+        }
+        int pw = hz >= 100 ? Math.min(im[1], SafeLimits.PW_MAX_100HZ) : im[1];
+        int cyc = on + Math.max(1, off);
         int reps = Math.max(Workout.REPS_MIN, Math.round(it.workS / (float) cyc));
-        Workout.Block b = new Workout.Block("free", reps, hz, im[1], im[2], im[3], 100);
+        Workout.Block b = new Workout.Block("free", reps, hz, pw, on, off, 100);
         b.ex = null;                                  // no library figure: described only
         b.label = it.name;
         String eq = AiCoach.indexOf(it.equipment, EQUIPMENT) >= 0

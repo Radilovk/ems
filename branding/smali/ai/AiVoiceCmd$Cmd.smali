@@ -1,0 +1,101 @@
+.class public final Lcom/isaigu/gymapp/ai/AiVoiceCmd$Cmd;
+.super Ljava/lang/Object;
+.source "AiVoiceCmd.java"
+
+
+# annotations
+.annotation system Ldalvik/annotation/EnclosingClass;
+    value = Lcom/isaigu/gymapp/ai/AiVoiceCmd;
+.end annotation
+
+.annotation system Ldalvik/annotation/InnerClass;
+    accessFlags = 0x19
+    name = "Cmd"
+.end annotation
+
+
+# instance fields
+.field public final dir:Ljava/lang/String;
+
+.field public final small:Z
+
+.field public final target:Ljava/lang/String;
+
+
+# direct methods
+.method constructor <init>(Ljava/lang/String;Ljava/lang/String;Z)V
+    .registers 4
+
+    .prologue
+    .line 34
+    invoke-direct {p0}, Ljava/lang/Object;-><init>()V
+
+    .line 35
+    iput-object p1, p0, Lcom/isaigu/gymapp/ai/AiVoiceCmd$Cmd;->target:Ljava/lang/String;
+
+    .line 36
+    iput-object p2, p0, Lcom/isaigu/gymapp/ai/AiVoiceCmd$Cmd;->dir:Ljava/lang/String;
+
+    .line 37
+    iput-boolean p3, p0, Lcom/isaigu/gymapp/ai/AiVoiceCmd$Cmd;->small:Z
+
+    .line 38
+    return-void
+.end method
+
+
+# virtual methods
+.method public channels()[I
+    .registers 3
+
+    .prologue
+    .line 41
+    iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiVoiceCmd$Cmd;->target:Ljava/lang/String;
+
+    sget-object v1, Lcom/isaigu/gymapp/ai/AiVoiceCmd;->TARGETS:[Ljava/lang/String;
+
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/ai/AiCoach;->indexOf(Ljava/lang/String;[Ljava/lang/String;)I
+
+    move-result v0
+
+    .line 42
+    if-ltz v0, :cond_f
+
+    sget-object v1, Lcom/isaigu/gymapp/ai/AiVoiceCmd;->CHANNELS:[[I
+
+    aget-object v0, v1, v0
+
+    :goto_e
+    return-object v0
+
+    :cond_f
+    const/4 v0, 0x0
+
+    new-array v0, v0, [I
+
+    goto :goto_e
+.end method
+
+.method public isMuscle()Z
+    .registers 2
+
+    .prologue
+    .line 46
+    invoke-virtual {p0}, Lcom/isaigu/gymapp/ai/AiVoiceCmd$Cmd;->channels()[I
+
+    move-result-object v0
+
+    array-length v0, v0
+
+    if-lez v0, :cond_9
+
+    const/4 v0, 0x1
+
+    :goto_8
+    return v0
+
+    :cond_9
+    const/4 v0, 0x0
+
+    goto :goto_8
+.end method

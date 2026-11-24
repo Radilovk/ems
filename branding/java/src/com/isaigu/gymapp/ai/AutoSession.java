@@ -687,6 +687,9 @@ public final class AutoSession {
     /** No client on the lead row (an unregistered person): the AI brief's guest taps (docs/xems-ai-brief.md). */
     /** The session is the AI training (AiTrain): the AI board on the screen, the coach on top (1.1.537). */
     public static boolean aiMode;
+    /** The AI's veto on the main impulse (1.1.539), given to the engine at ▶; 0 = the program's. */
+    public static int vetoHz, vetoOn, vetoOff;
+    public static String vetoReason;
 
     public static boolean isGuest() {
         return rows.isEmpty() || rows.get(0).userId == 0;
@@ -757,6 +760,9 @@ public final class AutoSession {
         }
         faceMode();
         engine = new AutoEngine(plan);
+        if (aiMode && (vetoHz > 0 || vetoOn > 0 || vetoOff > 0)) {
+            engine.setVeto(vetoHz, vetoOn, vetoOff);
+        }
         startEnergy();
         long now = System.currentTimeMillis();
         script = null;
@@ -880,6 +886,8 @@ public final class AutoSession {
         AutoBoard.detach();
         stage = Stage.IDLE;
         aiMode = false;
+        vetoHz = vetoOn = vetoOff = 0;
+        vetoReason = null;
         written = null;
         engine = null;
         plan = null;
@@ -1390,6 +1398,73 @@ public final class AutoSession {
     }
 
     /** One face site's share on every row, 10 % a step (100 % = as the program asks; the master strength stays). */
+    /**
+     * A spoken step of the overall strength (owner, 1.1.539): ~10 % of each row's strength now ("малко" ~5 %), at least 1;
+     * up still rises at most +5 per impulse (rowStrength). Returns the leader's new value (−1 = nothing changed).
+     */
+    public static int strengthStep(int dir, boolean small) {
+        int lead = -1;
+        for (Row r : rows) {
+            if (r.block != null) {
+                continue;
+            }
+            int now = Math.max(0, r.writtenStrength >= 0 ? r.writtenStrength : r.lastStrength);
+            int to = Math.max(0, Math.min(100, now + dir * AiVoiceCmd.step(now, small)));
+            AutoModel.Plan rp = r.plan != null ? r.plan : plan;
+            double f = written != null && rp != null ? AutoEngine.rowFrac(written, rp.phiMax) : 1.0;
+            if (r.cal <= 0) {
+                r.cal = to;                                   // not raised yet: this becomes its base
+                r.user = 1.0;
+            } else if (f > 0) {
+                r.user = Math.max(0.05, to / (r.cal * f));
+            }
+            if (lead < 0) {
+                lead = to;
+            }
+        }
+        refreshOutput();
+        return lead;
+    }
+
+    /**
+     * A spoken step of one channel (owner, 1.1.539): ~10 % of its value now ("малко" ~5 %), at least 1 — legs at 50 → ±5,
+     * arms at 4 → ±1; off = 0, on = back to the program's share. Returns the leader's new value (−1 = none).
+     */
+    public static int channelStep(int ch, String dir, boolean small) {
+        if (ch < 0 || ch >= AutoModel.CHANNELS) {
+            return -1;
+        }
+        int lead = -1;
+        for (Row r : rows) {
+            if (r.block != null) {
+                continue;
+            }
+            int[] base = stepZones(r, written);
+            int now = r.writtenZones != null && ch < r.writtenZones.length ? r.writtenZones[ch] : base[ch];
+            int to;
+            if ("off".equals(dir)) {
+                to = 0;
+            } else if ("on".equals(dir)) {
+                to = now > 0 ? now : base[ch] > 0 ? base[ch] : 50;
+            } else {
+                to = now + ("up".equals(dir) ? 1 : -1) * AiVoiceCmd.step(now, small);
+            }
+            to = Math.max(0, Math.min(100, to));
+            r.zoneOffset[ch] = to - base[ch];
+            if (lead < 0) {
+                lead = to;
+            }
+        }
+        refreshOutput();
+        return lead;
+    }
+
+    private static void refreshOutput() {
+        if (stage == Stage.RUNNING && engine != null && engine.getState() == AutoEngine.State.RUN && written != null) {
+            writeRows(written, false);
+        }
+    }
+
     public static void adjustChannel(int ch, int delta) {
         if (ch < 0 || ch >= AutoModel.CHANNELS) {
             return;

@@ -90,6 +90,11 @@ public final class AutoEngine {
     private int tuneOff;
     private int tuneHzPct;
     private double tuneRest = 1.0;
+    /** The AI's veto on the main work's impulse (owner, 1.1.539): replaces the program's Hz / ON / OFF of every
+     *  tetanic step outside the warm-up and the recovery; ≤ 0 = the program's. AutoLimits.clampStep still clamps. */
+    private int vetoHz;
+    private int vetoOn;
+    private int vetoOff;
     /** Plan second at which the active part goes to the recovery (the coach: "още 5 мин и край"); ≤ 0 = the plan's. */
     private double endAtS;
     private int userOn = -1;
@@ -610,6 +615,13 @@ public final class AutoEngine {
 
     public int getTuneOn() {
         return tuneOn;
+    }
+
+    /** The AI's veto (see {@code vetoHz}); 0 keeps the program's value. */
+    public void setVeto(int hz, int on, int off) {
+        vetoHz = Math.max(0, Math.min(120, hz));
+        vetoOn = Math.max(0, Math.min(10, on));
+        vetoOff = Math.max(0, Math.min(10, off));
     }
 
     public int getTuneOff() {
@@ -2305,6 +2317,17 @@ public final class AutoEngine {
             s.pwUs = userPw;
         }
         s.offS += corridorExt + doseExt;
+        if (s.isTetanic() && !ph.isCooldown() && !"WARMUP".equals(ph.id) && (vetoHz > 0 || vetoOn > 0 || vetoOff > 0)) {
+            if (vetoHz > 0) {
+                s.hz = Math.max(20, Math.min(SafeLimits.hzMax(plan.input != null ? plan.input.age : 40), vetoHz));
+            }
+            if (vetoOn > 0) {
+                s.onS = vetoOn;
+            }
+            if (vetoOff > 0) {
+                s.offS = vetoOff;
+            }
+        }
         if (s.isTetanic() && (tuneOn != 0 || tuneOff != 0 || tuneHzPct != 0)) {
             s.onS = Math.max(1, s.onS + tuneOn);
             s.offS = Math.max(1, s.offS + tuneOff);

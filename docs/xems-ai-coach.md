@@ -32,6 +32,21 @@
 > exercise's name and how — described, no figures. Strength from 0. Every chat message in this mode rewrites the
 > workout. Not yet: the ✦ AI chat during a map run (the map has its own card). Test: `WorkoutSim` (5 000 random
 > workouts: limits, ≤ 20 + 10 min).
+>
+> **1.1.539 (owner):**
+> - **Cardio = 7 Hz** (twitches + blood flow while the client moves; physiology §1 — 1–10 Hz). **40 Hz = tone**
+>   (fused tetanus, strength endurance), a kind of its own (`AiWorkout.IMPULSE`).
+> - **The AI's veto over the planner:** auto coach `veto:{hz, on_s, off_s, reason}` (reason required) replaces the main
+>   work's impulse (every tetanic step outside the warm-up and the recovery) — `AutoEngine.setVeto`, Hz still ≤ the age
+>   limit, then `AutoLimits.clampStep`; live from the next cycle. The summary shows the new impulse and "AI changed the
+>   program's impulse (was …): reason". The AI workout's blocks may carry `hz` (veto on the kind's frequency; the rest
+>   rule and ON ≤ 6 s at ≥ 50 Hz kept).
+> - **Spoken commands, cheap:** during the session every message goes 1) to the tablet's reader (`AiVoiceCmd`:
+>   "намали краката", "увеличи малко ръцете", "по-дълга пауза", "пауза", "прескочи"…), 2) else to the cheapest model
+>   (server `kind:"command"`, the newest Flash-Lite, a tiny prompt, ≤ 200 tokens), 3) only what is no command to the
+>   coach. **The step is relative to the value now:** ~10 % ("малко" ~5 %), never below 1 — legs 50 → ±5, arms 4 → ±1
+>   (`AutoSession.channelStep` / `strengthStep`); impulse / pause ±1 s, Hz ±10 % (±5), rests ±15 % (±8).
+> - Tests: `WorkoutSim` (commands, the step, vetoed frequencies), `AutoSim.tuneFuzz` (random vetoes).
 
 Owner: "an AI training like a trainer who asks the right questions, programs the whole session and stays there to
 re-tune it live: a wizard of questions → the algorithm → a free-text dialogue where the AI asks what is unclear

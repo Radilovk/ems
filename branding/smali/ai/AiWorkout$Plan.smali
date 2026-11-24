@@ -34,15 +34,15 @@
     .registers 2
 
     .prologue
-    .line 50
+    .line 55
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 51
+    .line 56
     const-string v0, ""
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/AiWorkout$Plan;->title:Ljava/lang/String;
 
-    .line 52
+    .line 57
     new-instance v0, Ljava/util/ArrayList;
 
     invoke-direct {v0}, Ljava/util/ArrayList;-><init>()V

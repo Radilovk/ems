@@ -1,7 +1,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { validateCoach, coachPrompt, coach, coachSchema, validateWorkout, workoutSchema } from '../src/aicoach.js';
-import { resetModelCache, thinkingFor } from '../src/aibrief.js';
+import { resetModelCache, thinkingFor, pickLiteModel } from '../src/aibrief.js';
+import { validateCommand, command } from '../src/aicoach.js';
 
 test('validateCoach: known values only, windows clamped, questions capped at 3', () => {
   const c = validateCoach({
@@ -90,9 +91,42 @@ test('the AI workout: blocks from closed lists, windows clamped, ≤ 12', () => 
   ] });
   assert.equal(w.title, 'Гири и постелка');
   assert.equal(w.blocks.length, 2);
-  assert.deepEqual(w.blocks[0], { name: 'Загрявка', how: '', kind: 'warmup', equipment: 'body', sets: 1, work_s: 45, rest_s: 15 });
+  assert.deepEqual(w.blocks[0], { name: 'Загрявка', how: '', kind: 'warmup', equipment: 'body', sets: 1, work_s: 45, rest_s: 15, hz: null });
   assert.equal(w.blocks[1].sets, 4);
   assert.equal(w.blocks[1].work_s, 20);
   assert.equal(w.blocks[1].rest_s, 90);
   assert.ok(workoutSchema().properties.blocks.items.properties.kind.enum.includes('core'));
+});
+
+test('the veto: only with a reason and a value, clamped', () => {
+  const v = validateCoach({ reply: 'x', veto: { hz: 300, on_s: 0, reason: 'Остеопороза — по-ниско.' } }, 0, 'auto', []);
+  assert.deepEqual(v.veto, { hz: 120, on_s: 1, off_s: null, reason: 'Остеопороза — по-ниско.' });
+  assert.equal(validateCoach({ veto: { hz: 50 } }, 0, 'auto', []).veto, null);
+  assert.equal(validateCoach({ veto: { reason: 'x' } }, 0, 'auto', []).veto, null);
+  assert.equal(validateCoach({ veto: { hz: 50, reason: 'x' } }, 0, null, []).veto, null);
+});
+
+test('spoken commands: closed lists, the cheapest model', async () => {
+  const v = validateCommand({ commands: [{ target: 'legs', dir: 'down' }, { target: 'nose', dir: 'up' },
+    { target: 'arms', dir: 'up', step: 'small' }], actions: ['pause', 'explode'] });
+  assert.deepEqual(v.commands, [{ target: 'legs', dir: 'down', step: 'normal' }, { target: 'arms', dir: 'up', step: 'small' }]);
+  assert.deepEqual(v.actions, ['pause']);
+  assert.equal(v.coach, false);
+  assert.equal(validateCommand({}).coach, true);
+  const m = (n) => ({ name: 'models/' + n, supportedGenerationMethods: ['generateContent'] });
+  assert.equal(pickLiteModel([m('gemini-2.5-flash-lite'), m('gemini-3-flash-lite-preview'), m('gemini-3-flash')]),
+    'gemini-3-flash-lite-preview');
+  assert.equal(pickLiteModel([m('gemini-3-flash')]), null);
+  resetModelCache();
+  const urls = [];
+  const fake = async (url) => {
+    urls.push(url);
+    if (url.includes('/models?')) return new Response(JSON.stringify({ models: [m('gemini-3-flash'), m('gemini-2.5-flash-lite')] }));
+    return new Response(JSON.stringify({ candidates: [{ content: { parts: [{ text: JSON.stringify({
+      commands: [{ target: 'legs', dir: 'down' }], coach: false }) }] } }] }));
+  };
+  const r = await command({ GEMINI_API_KEY: 'k' }, { text: 'намали краката' }, fake);
+  assert.equal(r.model, 'gemini-2.5-flash-lite');
+  assert.match(urls[1], /gemini-2.5-flash-lite:generateContent/);
+  assert.deepEqual(r.command.commands, [{ target: 'legs', dir: 'down', step: 'normal' }]);
 });

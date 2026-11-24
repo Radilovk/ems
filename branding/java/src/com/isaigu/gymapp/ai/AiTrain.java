@@ -243,8 +243,16 @@ public final class AiTrain {
                 + tm[2] / 60 + AiText.t(" мин възстановяване", " min recovery")), XemsUi.matchWrap(c, 8));
         AutoModel.Step s = mainStep(plan);
         if (s != null) {
-            col1.addView(line(c, AiText.t("Импулс", "Impulse"), s.hz + " Hz · " + s.onS + " s " + AiText.t("импулс", "on")
-                    + " / " + s.offS + " s " + AiText.t("пауза", "pause") + " · " + s.pwUs + " µs"), XemsUi.matchWrap(c, 4));
+            int hz = AutoSession.vetoHz > 0 ? Math.min(AutoSession.vetoHz, SafeLimits.hzMax(in.age)) : s.hz;
+            int on = AutoSession.vetoOn > 0 ? AutoSession.vetoOn : s.onS;
+            int off = AutoSession.vetoOff > 0 ? AutoSession.vetoOff : s.offS;
+            col1.addView(line(c, AiText.t("Импулс", "Impulse"), hz + " Hz · " + on + " s " + AiText.t("импулс", "on")
+                    + " / " + off + " s " + AiText.t("пауза", "pause") + " · " + s.pwUs + " µs"), XemsUi.matchWrap(c, 4));
+            if (AutoSession.vetoReason != null) {
+                col1.addView(XemsUi.text(c, "✦ " + AiText.t("AI промени импулса на програмата (беше ", "The AI changed the program's impulse (was ")
+                        + s.hz + " Hz · " + s.onS + "/" + s.offS + " s): " + AutoSession.vetoReason, 13, XemsUi.AMBER, true),
+                        XemsUi.matchWrap(c, 4));
+            }
         }
         col1.addView(line(c, AiText.t("Двоен импулс", "Double impulse"), plan.doublePulseAllowed && in.doublePulse
                 ? AiText.t("да, в паузите", "yes, in the pauses") : AiText.t("не", "no")), XemsUi.matchWrap(c, 4));
@@ -502,6 +510,14 @@ public final class AiTrain {
             draft = "";
         }
         pending = null;
+        if (live) {
+            // a spoken / typed command: read on the tablet first — instant, no network (owner, 1.1.539)
+            AiVoiceCmd.Result vc = AiVoiceCmd.parse(t);
+            if (!vc.isEmpty()) {
+                commandsDone(vc, t);
+                return;
+            }
+        }
         busy = true;
         rebuild();
         String fields = AiCoach.requestFieldsAuto(AutoSession.getInput(), t, planJson(), live ? runJson() : null, live);
@@ -510,6 +526,59 @@ public final class AiTrain {
             fields = fields.replaceFirst("\"kind\":\"coach\"", "\"kind\":\"workout\"");
         }
         new Thread(new Ask(c.getApplicationContext(), fields, ++seq, live, t, wantPlan), "xems-ai-train").start();
+    }
+
+    /** The commands → the session now; the chat says what was done. */
+    static void commandsDone(AiVoiceCmd.Result vc, String text) {
+        String done = applyCommands(vc);
+        AiCoach.Reply r = new AiCoach.Reply();
+        r.reply = done.length() > 0 ? "✓ " + done : AiText.t("Не можах да го направя сега.", "Could not do it now.");
+        AiCoach.aiSaid(r);
+        lastChanges = done;
+        rebuild();
+        WearableBleDiagLog.log("ai-train", "command \"" + text + "\" → " + done);
+    }
+
+    /** Each command with the relative step (AiVoiceCmd.step): muscles, strength, impulse, pause, Hz, rests, actions. */
+    static String applyCommands(AiVoiceCmd.Result vc) {
+        AutoEngine e = AutoSession.getEngine();
+        StringBuilder b = new StringBuilder();
+        for (AiVoiceCmd.Cmd c : vc.commands) {
+            int sign = "up".equals(c.dir) || "on".equals(c.dir) ? 1 : -1;
+            if (c.isMuscle()) {
+                int v = -1;
+                for (int ch : c.channels()) {
+                    int x = AutoSession.channelStep(ch, c.dir, c.small);
+                    v = v < 0 ? x : v;
+                }
+                if (v >= 0) {
+                    b.append(AiVoiceCmd.name(c.target)).append(' ').append("off".equals(c.dir) ? AiText.t("изкл.", "off") : v + " %")
+                            .append(" · ");
+                }
+            } else if ("strength".equals(c.target)) {
+                int v = AutoSession.strengthStep(sign, c.small);
+                if (v >= 0) {
+                    b.append(AiText.t("сила ", "strength ")).append(v).append(" · ");
+                }
+            } else if (e != null && "impulse".equals(c.target)) {
+                e.setTune(e.getTuneOn() + sign, e.getTuneOff(), e.getTuneHzPct(), e.getTuneRest());
+                b.append(AiText.t("импулс ", "impulse ")).append(signed(e.getTuneOn())).append(" s · ");
+            } else if (e != null && "pause".equals(c.target)) {
+                e.setTune(e.getTuneOn(), e.getTuneOff() + sign, e.getTuneHzPct(), e.getTuneRest());
+                b.append(AiText.t("пауза ", "pause ")).append(signed(e.getTuneOff())).append(" s · ");
+            } else if (e != null && "frequency".equals(c.target)) {
+                e.setTune(e.getTuneOn(), e.getTuneOff(), e.getTuneHzPct() + sign * (c.small ? 5 : 10), e.getTuneRest());
+                b.append("Hz ").append(signed(e.getTuneHzPct())).append(" % · ");
+            } else if (e != null && "rest".equals(c.target)) {
+                e.setTune(e.getTuneOn(), e.getTuneOff(), e.getTuneHzPct(), e.getTuneRest() + sign * (c.small ? 0.08 : 0.15));
+                b.append(AiText.t("почивки ", "rests ")).append(signed((int) Math.round((e.getTuneRest() - 1) * 100)))
+                        .append(" % · ");
+            }
+        }
+        for (String a : vc.actions) {
+            b.append(action(e, "stop".equals(a) ? "to_recovery" : a));
+        }
+        return trim(b);
     }
 
     static void onAnswer(AiCoach.Reply r, int my, boolean live, String text) {
@@ -536,6 +605,16 @@ public final class AiTrain {
         }
         AiCoach.aiSaid(r);
         pending = r.hasQuestion() ? r.options.toArray(new String[0]) : null;
+        if (r.vetoReason != null) {
+            AutoSession.vetoHz = r.vetoHz != null ? r.vetoHz : 0;
+            AutoSession.vetoOn = r.vetoOn != null ? r.vetoOn : 0;
+            AutoSession.vetoOff = r.vetoOff != null ? r.vetoOff : 0;
+            AutoSession.vetoReason = r.vetoReason;
+            AutoEngine ve = AutoSession.getEngine();
+            if (ve != null) {
+                ve.setVeto(AutoSession.vetoHz, AutoSession.vetoOn, AutoSession.vetoOff);   // live: from the next cycle
+            }
+        }
         Input in = AutoSession.getInput();
         List<String> ch = AiCoach.applyAuto(r, in);
         AutoSession.syncLeaderInput();
@@ -971,6 +1050,16 @@ public final class AiTrain {
         public void run() {
             AiCoach.Reply r = null;
             try {
+                if (live) {
+                    // the cheapest model reads commands; only what is none goes to the coach
+                    String cr = com.isaigu.gymapp.widget.XemsLicenseClient.postBrief(c,
+                            "\"kind\":\"command\",\"text\":" + AiBrief.q(text));
+                    AiVoiceCmd.Result vc = AiVoiceCmd.parseServer(cr);
+                    if (!vc.isEmpty() && !vc.coach) {
+                        MAIN.post(new Commands(vc, text, my));
+                        return;
+                    }
+                }
                 String resp = com.isaigu.gymapp.widget.XemsLicenseClient.postBrief(c, fields);
                 r = AiCoach.parse(resp);
                 if (r != null && wantPlan) {
@@ -986,6 +1075,31 @@ public final class AiTrain {
                 WearableBleDiagLog.log("ai-train", "offline: " + t);
             }
             MAIN.post(new Answered(r, my, live, text));
+        }
+    }
+
+    static final class Commands implements Runnable {
+        final AiVoiceCmd.Result vc;
+        final String text;
+        final int my;
+
+        Commands(AiVoiceCmd.Result vc, String text, int my) {
+            this.vc = vc;
+            this.text = text;
+            this.my = my;
+        }
+
+        @Override
+        public void run() {
+            if (my != seq) {
+                return;
+            }
+            busy = false;
+            try {
+                commandsDone(vc, text);
+            } catch (Throwable t) {
+                WearableBleDiagLog.log("ai-train", "commands: " + t);
+            }
         }
     }
 

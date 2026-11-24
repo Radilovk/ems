@@ -120,6 +120,14 @@
     .end annotation
 .end field
 
+.field public vetoHz:Ljava/lang/Integer;
+
+.field public vetoOff:Ljava/lang/Integer;
+
+.field public vetoOn:Ljava/lang/Integer;
+
+.field public vetoReason:Ljava/lang/String;
+
 
 # direct methods
 .method public constructor <init>()V
@@ -141,42 +149,42 @@
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/AiCoach$Reply;->options:Ljava/util/List;
 
-    .line 80
+    .line 85
     new-instance v0, Ljava/util/ArrayList;
 
     invoke-direct {v0}, Ljava/util/ArrayList;-><init>()V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/AiCoach$Reply;->condAdd:Ljava/util/List;
 
-    .line 81
+    .line 86
     new-instance v0, Ljava/util/ArrayList;
 
     invoke-direct {v0}, Ljava/util/ArrayList;-><init>()V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/AiCoach$Reply;->condRemove:Ljava/util/List;
 
-    .line 82
+    .line 87
     new-instance v0, Ljava/util/ArrayList;
 
     invoke-direct {v0}, Ljava/util/ArrayList;-><init>()V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/AiCoach$Reply;->focusAdd:Ljava/util/List;
 
-    .line 83
+    .line 88
     new-instance v0, Ljava/util/ArrayList;
 
     invoke-direct {v0}, Ljava/util/ArrayList;-><init>()V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/AiCoach$Reply;->todayAdd:Ljava/util/List;
 
-    .line 84
+    .line 89
     new-instance v0, Ljava/util/ArrayList;
 
     invoke-direct {v0}, Ljava/util/ArrayList;-><init>()V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/AiCoach$Reply;->contraAdd:Ljava/util/List;
 
-    .line 85
+    .line 90
     new-instance v0, Ljava/util/ArrayList;
 
     invoke-direct {v0}, Ljava/util/ArrayList;-><init>()V
@@ -192,7 +200,7 @@
     .registers 2
 
     .prologue
-    .line 99
+    .line 104
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiCoach$Reply;->actions:Ljava/util/List;
 
     invoke-interface {v0}, Ljava/util/List;->isEmpty()Z
@@ -237,7 +245,7 @@
     .registers 3
 
     .prologue
-    .line 95
+    .line 100
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiCoach$Reply;->question:Ljava/lang/String;
 
     if-eqz v0, :cond_17

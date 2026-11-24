@@ -36,6 +36,7 @@ public class WorkoutSim {
                 it.sets = 1 + rnd.nextInt(4);
                 it.workS = 20 + rnd.nextInt(26);
                 it.restS = 15 + rnd.nextInt(76);
+                it.hz = rnd.nextInt(3) == 0 ? 1 + rnd.nextInt(120) : 0;   // the AI's veto on the frequency
                 w.items.add(it);
             }
             Workout m = AiWorkout.toWorkout(w, in);
@@ -54,6 +55,26 @@ public class WorkoutSim {
             check(rec >= 540 && rec <= 660, "recovery ≈ 10 min (" + rec + ")");
             check(m.totalSeconds() <= Workout.RUN_MAX_S, "whole ≤ 35 min");
         }
+        // spoken commands, read on the tablet
+        AiVoiceCmd.Result v = AiVoiceCmd.parse("намали импулсите на краката");
+        check(v.commands.size() == 1 && v.commands.get(0).target.equals("legs") && v.commands.get(0).dir.equals("down"), "legs down");
+        v = AiVoiceCmd.parse("увеличи малко ръцете и корема");
+        check(v.commands.size() == 2 && v.commands.get(0).small, "arms + abs up, small " + v.commands.size());
+        v = AiVoiceCmd.parse("по-силно");
+        check(v.commands.size() == 1 && v.commands.get(0).target.equals("strength"), "strength up");
+        v = AiVoiceCmd.parse("по-дълга пауза");
+        check(v.commands.size() == 1 && v.commands.get(0).target.equals("pause") && v.commands.get(0).dir.equals("up"), "pause longer");
+        v = AiVoiceCmd.parse("пауза");
+        check(v.commands.isEmpty() && v.actions.contains("pause"), "pause action");
+        v = AiVoiceCmd.parse("изключи гърдите");
+        check(v.commands.size() == 1 && v.commands.get(0).dir.equals("off") && v.commands.get(0).target.equals("chest"), "chest off");
+        v = AiVoiceCmd.parse("кръстът ме боли от вчера");
+        check(v.isEmpty(), "a complaint is no command");
+        check(AiVoiceCmd.step(50, false) == 5 && AiVoiceCmd.step(4, false) == 1 && AiVoiceCmd.step(50, true) == 3
+                && AiVoiceCmd.step(0, false) == 1, "the relative step");
+        AiVoiceCmd.Result sv = AiVoiceCmd.parseServer("{\"ok\":true,\"command\":{\"commands\":[{\"target\":\"glutes\",\"dir\":\"up\",\"step\":\"small\"}],\"coach\":false}}");
+        check(sv.commands.size() == 1 && sv.commands.get(0).small && !sv.coach, "server command");
+        check(AiVoiceCmd.parseServer("{\"ok\":false}").coach, "server error → coach");
         System.out.println((fails == 0 ? "OK" : "FAIL") + " — AI workouts: " + checks + " checks, " + fails + " failures");
         if (fails > 0) System.exit(1);
     }

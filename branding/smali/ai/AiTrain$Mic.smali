@@ -29,13 +29,13 @@
     .registers 2
 
     .prologue
-    .line 931
+    .line 1010
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 932
+    .line 1011
     iput-boolean p1, p0, Lcom/isaigu/gymapp/ai/AiTrain$Mic;->live:Z
 
-    .line 933
+    .line 1012
     return-void
 .end method
 
@@ -45,24 +45,24 @@
     .registers 3
 
     .prologue
-    .line 937
+    .line 1016
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsUi;->haptic(Landroid/view/View;)V
 
-    .line 938
+    .line 1017
     invoke-virtual {p1}, Landroid/view/View;->getContext()Landroid/content/Context;
 
     move-result-object v0
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/AiTrain$Mic;->c:Landroid/content/Context;
 
-    .line 939
+    .line 1018
     invoke-static {p1}, Lcom/isaigu/gymapp/ai/AiSession;->activityOf(Landroid/view/View;)Landroid/app/Activity;
 
     move-result-object v0
 
     invoke-static {v0, p0}, Lcom/isaigu/gymapp/ai/VoiceInput;->listen(Landroid/app/Activity;Lcom/isaigu/gymapp/ai/VoiceInput$Result;)V
 
-    .line 940
+    .line 1019
     return-void
 .end method
 
@@ -70,7 +70,7 @@
     .registers 5
 
     .prologue
-    .line 944
+    .line 1023
     iget-boolean v0, p0, Lcom/isaigu/gymapp/ai/AiTrain$Mic;->live:Z
 
     if-nez v0, :cond_54
@@ -82,7 +82,7 @@
 
     if-nez v0, :cond_54
 
-    .line 945
+    .line 1024
     new-instance v1, Ljava/lang/StringBuilder;
 
     invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
@@ -152,21 +152,21 @@
     # setter for: Lcom/isaigu/gymapp/ai/AiTrain;->draft:Ljava/lang/String;
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/AiTrain;->access$702(Ljava/lang/String;)Ljava/lang/String;
 
-    .line 946
+    .line 1025
     # invokes: Lcom/isaigu/gymapp/ai/AiTrain;->rebuild()V
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiTrain;->access$300()V
 
-    .line 950
+    .line 1029
     :goto_50
     return-void
 
-    .line 945
+    .line 1024
     :cond_51
     const-string v0, ""
 
     goto :goto_3e
 
-    .line 949
+    .line 1028
     :cond_54
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiTrain$Mic;->c:Landroid/content/Context;
 

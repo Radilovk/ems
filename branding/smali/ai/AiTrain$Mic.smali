@@ -29,13 +29,13 @@
     .registers 2
 
     .prologue
-    .line 846
+    .line 931
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 847
+    .line 932
     iput-boolean p1, p0, Lcom/isaigu/gymapp/ai/AiTrain$Mic;->live:Z
 
-    .line 848
+    .line 933
     return-void
 .end method
 
@@ -45,24 +45,24 @@
     .registers 3
 
     .prologue
-    .line 852
+    .line 937
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsUi;->haptic(Landroid/view/View;)V
 
-    .line 853
+    .line 938
     invoke-virtual {p1}, Landroid/view/View;->getContext()Landroid/content/Context;
 
     move-result-object v0
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/AiTrain$Mic;->c:Landroid/content/Context;
 
-    .line 854
+    .line 939
     invoke-static {p1}, Lcom/isaigu/gymapp/ai/AiSession;->activityOf(Landroid/view/View;)Landroid/app/Activity;
 
     move-result-object v0
 
     invoke-static {v0, p0}, Lcom/isaigu/gymapp/ai/VoiceInput;->listen(Landroid/app/Activity;Lcom/isaigu/gymapp/ai/VoiceInput$Result;)V
 
-    .line 855
+    .line 940
     return-void
 .end method
 
@@ -70,32 +70,32 @@
     .registers 5
 
     .prologue
-    .line 859
+    .line 944
     iget-boolean v0, p0, Lcom/isaigu/gymapp/ai/AiTrain$Mic;->live:Z
 
     if-nez v0, :cond_54
 
     # getter for: Lcom/isaigu/gymapp/ai/AiTrain;->view:I
-    invoke-static {}, Lcom/isaigu/gymapp/ai/AiTrain;->access$200()I
+    invoke-static {}, Lcom/isaigu/gymapp/ai/AiTrain;->access$500()I
 
     move-result v0
 
     if-nez v0, :cond_54
 
-    .line 860
+    .line 945
     new-instance v1, Ljava/lang/StringBuilder;
 
     invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
 
     # getter for: Lcom/isaigu/gymapp/ai/AiTrain;->draft:Ljava/lang/String;
-    invoke-static {}, Lcom/isaigu/gymapp/ai/AiTrain;->access$400()Ljava/lang/String;
+    invoke-static {}, Lcom/isaigu/gymapp/ai/AiTrain;->access$700()Ljava/lang/String;
 
     move-result-object v0
 
     if-eqz v0, :cond_51
 
     # getter for: Lcom/isaigu/gymapp/ai/AiTrain;->draft:Ljava/lang/String;
-    invoke-static {}, Lcom/isaigu/gymapp/ai/AiTrain;->access$400()Ljava/lang/String;
+    invoke-static {}, Lcom/isaigu/gymapp/ai/AiTrain;->access$700()Ljava/lang/String;
 
     move-result-object v0
 
@@ -114,7 +114,7 @@
     invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
 
     # getter for: Lcom/isaigu/gymapp/ai/AiTrain;->draft:Ljava/lang/String;
-    invoke-static {}, Lcom/isaigu/gymapp/ai/AiTrain;->access$400()Ljava/lang/String;
+    invoke-static {}, Lcom/isaigu/gymapp/ai/AiTrain;->access$700()Ljava/lang/String;
 
     move-result-object v2
 
@@ -150,23 +150,23 @@
     move-result-object v0
 
     # setter for: Lcom/isaigu/gymapp/ai/AiTrain;->draft:Ljava/lang/String;
-    invoke-static {v0}, Lcom/isaigu/gymapp/ai/AiTrain;->access$402(Ljava/lang/String;)Ljava/lang/String;
+    invoke-static {v0}, Lcom/isaigu/gymapp/ai/AiTrain;->access$702(Ljava/lang/String;)Ljava/lang/String;
 
-    .line 861
+    .line 946
     # invokes: Lcom/isaigu/gymapp/ai/AiTrain;->rebuild()V
-    invoke-static {}, Lcom/isaigu/gymapp/ai/AiTrain;->access$100()V
+    invoke-static {}, Lcom/isaigu/gymapp/ai/AiTrain;->access$300()V
 
-    .line 865
+    .line 950
     :goto_50
     return-void
 
-    .line 860
+    .line 945
     :cond_51
     const-string v0, ""
 
     goto :goto_3e
 
-    .line 864
+    .line 949
     :cond_54
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiTrain$Mic;->c:Landroid/content/Context;
 

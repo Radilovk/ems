@@ -1,0 +1,53 @@
+.class final Lcom/isaigu/gymapp/ai/AiTrain$NewPlan;
+.super Ljava/lang/Object;
+.source "AiTrain.java"
+
+# interfaces
+.implements Ljava/lang/Runnable;
+
+
+# annotations
+.annotation system Ldalvik/annotation/EnclosingClass;
+    value = Lcom/isaigu/gymapp/ai/AiTrain;
+.end annotation
+
+.annotation system Ldalvik/annotation/InnerClass;
+    accessFlags = 0x18
+    name = "NewPlan"
+.end annotation
+
+
+# instance fields
+.field final p:Lcom/isaigu/gymapp/ai/AiWorkout$Plan;
+
+
+# direct methods
+.method constructor <init>(Lcom/isaigu/gymapp/ai/AiWorkout$Plan;)V
+    .registers 2
+
+    .prologue
+    .line 995
+    invoke-direct {p0}, Ljava/lang/Object;-><init>()V
+
+    .line 996
+    iput-object p1, p0, Lcom/isaigu/gymapp/ai/AiTrain$NewPlan;->p:Lcom/isaigu/gymapp/ai/AiWorkout$Plan;
+
+    .line 997
+    return-void
+.end method
+
+
+# virtual methods
+.method public run()V
+    .registers 2
+
+    .prologue
+    .line 1001
+    iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiTrain$NewPlan;->p:Lcom/isaigu/gymapp/ai/AiWorkout$Plan;
+
+    # setter for: Lcom/isaigu/gymapp/ai/AiTrain;->freePlan:Lcom/isaigu/gymapp/ai/AiWorkout$Plan;
+    invoke-static {v0}, Lcom/isaigu/gymapp/ai/AiTrain;->access$102(Lcom/isaigu/gymapp/ai/AiWorkout$Plan;)Lcom/isaigu/gymapp/ai/AiWorkout$Plan;
+
+    .line 1002
+    return-void
+.end method

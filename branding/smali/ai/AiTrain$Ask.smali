@@ -28,31 +28,36 @@
 
 .field final text:Ljava/lang/String;
 
+.field final wantPlan:Z
+
 
 # direct methods
-.method constructor <init>(Landroid/content/Context;Ljava/lang/String;IZLjava/lang/String;)V
-    .registers 6
+.method constructor <init>(Landroid/content/Context;Ljava/lang/String;IZLjava/lang/String;Z)V
+    .registers 7
 
     .prologue
-    .line 875
+    .line 961
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 876
+    .line 962
     iput-object p1, p0, Lcom/isaigu/gymapp/ai/AiTrain$Ask;->c:Landroid/content/Context;
 
-    .line 877
+    .line 963
     iput-object p2, p0, Lcom/isaigu/gymapp/ai/AiTrain$Ask;->fields:Ljava/lang/String;
 
-    .line 878
+    .line 964
     iput p3, p0, Lcom/isaigu/gymapp/ai/AiTrain$Ask;->my:I
 
-    .line 879
+    .line 965
     iput-boolean p4, p0, Lcom/isaigu/gymapp/ai/AiTrain$Ask;->live:Z
 
-    .line 880
+    .line 966
     iput-object p5, p0, Lcom/isaigu/gymapp/ai/AiTrain$Ask;->text:Ljava/lang/String;
 
-    .line 881
+    .line 967
+    iput-boolean p6, p0, Lcom/isaigu/gymapp/ai/AiTrain$Ask;->wantPlan:Z
+
+    .line 968
     return-void
 .end method
 
@@ -64,10 +69,10 @@
     .prologue
     const/16 v5, 0xa0
 
-    .line 885
+    .line 972
     const/4 v0, 0x0
 
-    .line 887
+    .line 974
     :try_start_3
     iget-object v1, p0, Lcom/isaigu/gymapp/ai/AiTrain$Ask;->c:Landroid/content/Context;
 
@@ -77,15 +82,43 @@
 
     move-result-object v1
 
-    .line 888
+    .line 975
     invoke-static {v1}, Lcom/isaigu/gymapp/ai/AiCoach;->parse(Ljava/lang/String;)Lcom/isaigu/gymapp/ai/AiCoach$Reply;
 
     move-result-object v0
 
-    .line 889
-    if-nez v0, :cond_36
+    .line 976
+    if-eqz v0, :cond_27
 
-    .line 890
+    iget-boolean v2, p0, Lcom/isaigu/gymapp/ai/AiTrain$Ask;->wantPlan:Z
+
+    if-eqz v2, :cond_27
+
+    .line 977
+    invoke-static {v1}, Lcom/isaigu/gymapp/ai/AiWorkout;->parse(Ljava/lang/String;)Lcom/isaigu/gymapp/ai/AiWorkout$Plan;
+
+    move-result-object v2
+
+    .line 978
+    if-eqz v2, :cond_27
+
+    .line 979
+    # getter for: Lcom/isaigu/gymapp/ai/AiTrain;->MAIN:Landroid/os/Handler;
+    invoke-static {}, Lcom/isaigu/gymapp/ai/AiTrain;->access$1200()Landroid/os/Handler;
+
+    move-result-object v3
+
+    new-instance v4, Lcom/isaigu/gymapp/ai/AiTrain$NewPlan;
+
+    invoke-direct {v4, v2}, Lcom/isaigu/gymapp/ai/AiTrain$NewPlan;-><init>(Lcom/isaigu/gymapp/ai/AiWorkout$Plan;)V
+
+    invoke-virtual {v3, v4}, Landroid/os/Handler;->post(Ljava/lang/Runnable;)Z
+
+    .line 982
+    :cond_27
+    if-nez v0, :cond_4e
+
+    .line 983
     const-string v2, "ai-train"
 
     new-instance v3, Ljava/lang/StringBuilder;
@@ -102,7 +135,7 @@
 
     move-result v4
 
-    if-le v4, v5, :cond_2b
+    if-le v4, v5, :cond_43
 
     const/4 v4, 0x0
 
@@ -112,7 +145,7 @@
 
     move-result-object v1
 
-    :cond_2b
+    :cond_43
     invoke-virtual {v3, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     move-result-object v1
@@ -122,14 +155,14 @@
     move-result-object v1
 
     invoke-static {v2, v1}, Lcom/isaigu/gymapp/wearable/WearableBleDiagLog;->log(Ljava/lang/String;Ljava/lang/String;)V
-    :try_end_36
-    .catch Ljava/lang/Throwable; {:try_start_3 .. :try_end_36} :catch_49
+    :try_end_4e
+    .catch Ljava/lang/Throwable; {:try_start_3 .. :try_end_4e} :catch_61
 
-    .line 895
-    :cond_36
-    :goto_36
+    .line 988
+    :cond_4e
+    :goto_4e
     # getter for: Lcom/isaigu/gymapp/ai/AiTrain;->MAIN:Landroid/os/Handler;
-    invoke-static {}, Lcom/isaigu/gymapp/ai/AiTrain;->access$800()Landroid/os/Handler;
+    invoke-static {}, Lcom/isaigu/gymapp/ai/AiTrain;->access$1200()Landroid/os/Handler;
 
     move-result-object v1
 
@@ -145,14 +178,14 @@
 
     invoke-virtual {v1, v2}, Landroid/os/Handler;->post(Ljava/lang/Runnable;)Z
 
-    .line 896
+    .line 989
     return-void
 
-    .line 892
-    :catch_49
+    .line 985
+    :catch_61
     move-exception v1
 
-    .line 893
+    .line 986
     const-string v2, "ai-train"
 
     new-instance v3, Ljava/lang/StringBuilder;
@@ -175,5 +208,5 @@
 
     invoke-static {v2, v1}, Lcom/isaigu/gymapp/wearable/WearableBleDiagLog;->log(Ljava/lang/String;Ljava/lang/String;)V
 
-    goto :goto_36
+    goto :goto_4e
 .end method

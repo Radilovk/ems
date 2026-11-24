@@ -53,6 +53,9 @@ public final class AiTrain {
     private static String lastChanges = "";
     private static String[] pending;
     private static int seq;
+    /** "Нова от AI" (owner, 1.1.538): the AI writes its own workout, no template; its exercises are described only. */
+    private static boolean free;
+    private static AiWorkout.Plan freePlan;
     /** The intake's line (its words go with ✦ Нагласи even when not sent with the keyboard). */
     private static EditText intakeField;
 
@@ -91,6 +94,8 @@ public final class AiTrain {
         AutoSession.syncLeaderInput();
         AiCoach.resetAuto(in);
         view = INTAKE;
+        free = false;
+        freePlan = null;
         liveChat = false;
         busy = false;
         healthOpen = false;
@@ -217,12 +222,20 @@ public final class AiTrain {
         AutoModel.Plan plan = AutoSession.getPlan();
         // ---- 1 · the training: program, times, impulse, the target feel
         LinearLayout col1 = XemsUi.vertical(c);
+        col1.addView(XemsUi.segmented(c, new String[] {AiText.t("Готова програма", "Ready program"),
+                AiText.t("✦ Нова от AI", "✦ New by the AI")}, free ? 1 : 0, new Pick(P_FREE)), XemsUi.matchWrap(c, 0));
+        if (free) {
+            freeColumn(c, col1);
+            row.addView(col1, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1.05f));
+            adviceAndChat(c, row);
+            return;
+        }
         LinearLayout head = XemsUi.horizontal(c);
         head.setGravity(Gravity.CENTER_VERTICAL);
         head.addView(XemsUi.text(c, plan.program.name(), 20, XemsUi.TEXT, true),
                 new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
         head.addView(XemsUi.badge(c, AutoUi.levelName(plan.program.level), AutoUi.levelColor(plan.program.level)));
-        col1.addView(head);
+        col1.addView(head, XemsUi.matchWrap(c, 8));
         col1.addView(XemsUi.text(c, AutoUi.goalName(in.goal) + " · " + (plan.program.isActive()
                 ? AiText.t("активна", "active") : AiText.t("пасивна", "passive")), 13, XemsUi.MUTED, true), XemsUi.matchWrap(c, 2));
         int[] tm = AutoCatalog.times(plan.program, in.goal, in);
@@ -243,7 +256,44 @@ public final class AiTrain {
             col1.addView(XemsUi.text(c, "✦ " + lastChanges, 13, XemsUi.GO_TEXT, true), XemsUi.matchWrap(c, 8));
         }
         row.addView(col1, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1.05f));
+        adviceAndChat(c, row);
+    }
 
+    /** "Нова от AI": the AI's exercises, each described, with its sets, time and load; the time of the whole. */
+    private static void freeColumn(Context c, LinearLayout col1) {
+        Input in = AutoSession.getInput();
+        if (freePlan == null) {
+            col1.addView(XemsUi.text(c, busy ? AiText.t("✦ AI съставя тренировката…", "✦ The AI is writing the workout…")
+                    : AiText.t("Натисни ✦ Състави или напиши какво искаш.", "Tap ✦ Write it or say what you want."),
+                    14, XemsUi.MUTED, false), XemsUi.matchWrap(c, 10));
+            TextView make = XemsUi.button(c, "✦  " + AiText.t("Състави", "Write it"), XemsUi.ACCENT_BTN);
+            make.setOnClickListener(new Act(A_MAKE));
+            col1.addView(make, XemsUi.matchWrap(c, 8));
+            return;
+        }
+        Workout w = AiWorkout.toWorkout(freePlan, in);
+        int act = 0;
+        for (Workout.Block b : w.blocks) {
+            act += b.seconds();
+        }
+        act -= AiWorkout.RECOVERY_S;
+        col1.addView(XemsUi.text(c, freePlan.title.length() > 0 ? freePlan.title : AiText.t("AI тренировка", "AI workout"),
+                20, XemsUi.TEXT, true), XemsUi.matchWrap(c, 8));
+        col1.addView(line(c, AiText.t("Време", "Time"), Math.round(act / 60f) + AiText.t(" мин активна · 10 мин възстановяване",
+                " min active · 10 min recovery")), XemsUi.matchWrap(c, 4));
+        col1.addView(line(c, AiText.t("Сила", "Strength"), AiText.t("от 0 — качваш я с +", "from 0 — raise it with +")),
+                XemsUi.matchWrap(c, 4));
+        List<String> ls = AiWorkout.lines(freePlan);
+        for (int i = 0; i < ls.size(); i++) {
+            AiWorkout.Item it = freePlan.items.get(i);
+            col1.addView(XemsUi.text(c, (i + 1) + ". " + ls.get(i), 14, XemsUi.TEXT, true), XemsUi.matchWrap(c, 8));
+            if (it.how.length() > 0) {
+                col1.addView(XemsUi.text(c, it.how, 13, XemsUi.MUTED, false), XemsUi.matchWrap(c, 1));
+            }
+        }
+    }
+
+    private static void adviceAndChat(Context c, LinearLayout row) {
         // ---- 2 · the advice
         LinearLayout col2 = XemsUi.vertical(c);
         col2.addView(XemsUi.label(c, AiText.t("Препоръки", "Advice")));
@@ -441,7 +491,7 @@ public final class AiTrain {
     // ================================================================ the model
 
     static void send(Context c, String text, boolean live, boolean silent) {
-        if (text == null || text.trim().length() == 0 || busy) {
+        if (c == null || text == null || text.trim().length() == 0 || busy) {
             return;
         }
         String t = text.trim();
@@ -455,7 +505,11 @@ public final class AiTrain {
         busy = true;
         rebuild();
         String fields = AiCoach.requestFieldsAuto(AutoSession.getInput(), t, planJson(), live ? runJson() : null, live);
-        new Thread(new Ask(c.getApplicationContext(), fields, ++seq, live, t), "xems-ai-train").start();
+        boolean wantPlan = free && !live;
+        if (wantPlan) {
+            fields = fields.replaceFirst("\"kind\":\"coach\"", "\"kind\":\"workout\"");
+        }
+        new Thread(new Ask(c.getApplicationContext(), fields, ++seq, live, t, wantPlan), "xems-ai-train").start();
     }
 
     static void onAnswer(AiCoach.Reply r, int my, boolean live, String text) {
@@ -623,9 +677,9 @@ public final class AiTrain {
 
     // ================================================================ listeners (named classes: dx)
 
-    static final int P_SEX = 0, P_EXP = 1, P_GOAL = 2, P_KIND = 3, P_HEALTH = 4;
+    static final int P_SEX = 0, P_EXP = 1, P_GOAL = 2, P_KIND = 3, P_HEALTH = 4, P_FREE = 5;
     static final int S_AGE = 0, S_HEIGHT = 1, S_WEIGHT = 2;
-    static final int A_TUNE = 0, A_CLOSE = 1, A_BACK = 2, A_START = 3, A_SAVE = 4, A_LIVE_CLOSE = 5;
+    static final int A_TUNE = 0, A_CLOSE = 1, A_BACK = 2, A_START = 3, A_SAVE = 4, A_LIVE_CLOSE = 5, A_MAKE = 6;
 
     static final class Pick implements XemsUi.OnIndex {
         final int which;
@@ -650,6 +704,17 @@ public final class AiTrain {
                         in.kind = in.kind == Kind.ACTIVE ? Kind.PASSIVE : Kind.ACTIVE;
                     }
                     in.programId = AutoCatalog.recommended(in.goal, in.kind, in).id;
+                    break;
+                case P_FREE:
+                    free = i == 1;
+                    if (free && freePlan == null && !busy) {
+                        AutoSession.syncLeaderInput();
+                        rebuild();
+                        send(AutoSession.getPanelRoot() != null ? AutoSession.getPanelRoot().getContext() : null,
+                                AiText.t("Състави нова тренировка за този клиент.", "Write a new workout for this client."),
+                                false, true);
+                        return;
+                    }
                     break;
                 case P_KIND:
                     in.kind = i == 0 ? Kind.ACTIVE : Kind.PASSIVE;
@@ -748,6 +813,22 @@ public final class AiTrain {
                     break;
                 case A_START: {
                     Activity a = AiSession.activityOf(v);
+                    if (free) {
+                        if (freePlan == null) {
+                            toast(c, AiText.t("Първо ✦ Състави тренировката.", "First ✦ write the workout."));
+                            break;
+                        }
+                        // the AI's workout runs as a map: block by block, strength from 0, the card says each exercise
+                        Workout w = AiWorkout.toWorkout(freePlan, AutoSession.getInput());
+                        AutoSession.close();
+                        String why = MapRunner.arm(a, w);
+                        if (why != null) {
+                            toast(c, why);
+                        } else {
+                            MapRunner.go();
+                        }
+                        break;
+                    }
                     if (AutoSession.getPlan() == null) {
                         AutoSession.buildPlan();
                     }
@@ -756,6 +837,10 @@ public final class AiTrain {
                     rebuild();
                     break;
                 }
+                case A_MAKE:
+                    send(c, AiText.t("Състави нова тренировка за този клиент.", "Write a new workout for this client."),
+                            false, true);
+                    break;
                 case A_SAVE:
                     AiProfile.addCond(c, AutoSession.leaderUserId(), AiCoach.learned());
                     AiCoach.savedLearned();
@@ -871,13 +956,15 @@ public final class AiTrain {
         final int my;
         final boolean live;
         final String text;
+        final boolean wantPlan;
 
-        Ask(Context c, String fields, int my, boolean live, String text) {
+        Ask(Context c, String fields, int my, boolean live, String text, boolean wantPlan) {
             this.c = c;
             this.fields = fields;
             this.my = my;
             this.live = live;
             this.text = text;
+            this.wantPlan = wantPlan;
         }
 
         @Override
@@ -886,6 +973,12 @@ public final class AiTrain {
             try {
                 String resp = com.isaigu.gymapp.widget.XemsLicenseClient.postBrief(c, fields);
                 r = AiCoach.parse(resp);
+                if (r != null && wantPlan) {
+                    AiWorkout.Plan p = AiWorkout.parse(resp);
+                    if (p != null) {
+                        MAIN.post(new NewPlan(p));
+                    }
+                }
                 if (r == null) {
                     WearableBleDiagLog.log("ai-train", "no reply: " + (resp.length() > 160 ? resp.substring(0, 160) : resp));
                 }
@@ -893,6 +986,19 @@ public final class AiTrain {
                 WearableBleDiagLog.log("ai-train", "offline: " + t);
             }
             MAIN.post(new Answered(r, my, live, text));
+        }
+    }
+
+    static final class NewPlan implements Runnable {
+        final AiWorkout.Plan p;
+
+        NewPlan(AiWorkout.Plan p) {
+            this.p = p;
+        }
+
+        @Override
+        public void run() {
+            freePlan = p;                                     // shown with the reply that follows it
         }
     }
 

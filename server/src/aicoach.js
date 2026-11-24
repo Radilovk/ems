@@ -195,3 +195,72 @@ export async function coach(env, body, fetchImpl = fetch, ts = Date.now()) {
   const r = await generateJson(env, system, prompt, coachSchema(auto ? 'auto' : null, programs), 900, fetchImpl, ts);
   return { model: r.model, coach: validateCoach(r.raw, asked, auto ? 'auto' : null, programs) };
 }
+
+// ================================================================ the AI's own workout (owner, 1.1.538)
+// Not a template: the model writes the exercises (dumbbells, kettlebell, free weight, mat, band, own body), described
+// in words; for each block it picks the LOAD KIND from a closed list — the tablet turns the kind into the impulse
+// (Hz, µs, ON/OFF) by its own table and limits, and caps the whole at 20 min active + 10 min recovery.
+export const LOAD_KINDS = ['warmup', 'strength', 'hypertrophy', 'endurance', 'power', 'cardio', 'core', 'mobility'];
+export const EQUIPMENT = ['body', 'mat', 'dumbbells', 'kettlebell', 'barbell', 'band', 'ball', 'step'];
+const MAX_BLOCKS = 12;
+
+export function workoutSchema() {
+  const base = coachSchema('auto', []);
+  base.properties.title = { type: 'STRING' };
+  base.properties.blocks = {
+    type: 'ARRAY',
+    items: {
+      type: 'OBJECT',
+      properties: {
+        name: { type: 'STRING' },
+        how: { type: 'STRING' },
+        kind: { type: 'STRING', enum: LOAD_KINDS },
+        equipment: { type: 'STRING', enum: EQUIPMENT },
+        sets: { type: 'INTEGER' },
+        work_s: { type: 'INTEGER' },
+        rest_s: { type: 'INTEGER' },
+      },
+      required: ['name', 'kind', 'sets', 'work_s', 'rest_s'],
+    },
+  };
+  base.required = ['reply', 'blocks'];
+  return base;
+}
+
+export const WORKOUT_NOTE = `
+Now WRITE A NEW WORKOUT for this client (not a ready program): blocks = exercises in order, starting with 1 warmup
+block and ending with a mobility block. 5–10 blocks. Prefer free weights (dumbbells, kettlebell), a mat, a band or the
+body; slow controlled movement under EMS; light weights (EMS adds the load). Respect CONTEXT (knees, back, BMI,
+age, experience, today's state, active/passive). Per block: name (2–4 words, Bulgarian), how (one short sentence: the
+movement, tempo, what to watch), kind (the EMS load: strength, hypertrophy, endurance, power, cardio, core, mobility,
+warmup), equipment, sets 1–4, work_s 20–45 s per set, rest_s 15–90 s. The whole active part ≤ 20 min with rests.
+Fill advice too (before / during / after, load, rests, equipment). title: 2–5 words.`;
+
+export function validateWorkout(raw, askedSoFar = 0) {
+  const out = validateCoach(raw, askedSoFar, 'auto', []);
+  const r = raw && typeof raw === 'object' ? raw : {};
+  out.title = text(r.title, 60);
+  out.blocks = [];
+  for (const b of Array.isArray(r.blocks) ? r.blocks : []) {
+    if (!b || typeof b !== 'object' || out.blocks.length >= MAX_BLOCKS) continue;
+    const name = text(b.name, 50);
+    const kind = pick(b.kind, LOAD_KINDS);
+    if (!name || !kind) continue;
+    out.blocks.push({
+      name,
+      how: text(b.how, 160),
+      kind,
+      equipment: pick(b.equipment, EQUIPMENT) || 'body',
+      sets: int(b.sets, 1, 4) ?? 1,
+      work_s: int(b.work_s, 20, 45) ?? 30,
+      rest_s: int(b.rest_s, 15, 90) ?? 30,
+    });
+  }
+  return out;
+}
+
+export async function workout(env, body, fetchImpl = fetch, ts = Date.now()) {
+  const asked = Array.isArray(body.chat) ? body.chat.filter((t) => t && t.role === 'ai' && t.q).length : 0;
+  const r = await generateJson(env, COACH_SYSTEM + WORKOUT_NOTE, coachPrompt(body), workoutSchema(), 2200, fetchImpl, ts);
+  return { model: r.model, coach: validateWorkout(r.raw, asked) };
+}

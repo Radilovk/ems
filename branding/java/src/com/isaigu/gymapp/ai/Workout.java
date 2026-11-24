@@ -28,6 +28,8 @@ public final class Workout {
     public static final int REST_MAX_S = 180;
     /** Owner (1.1.532): no map runs over 25 min with its rests — the editor stops there, the run ends there. */
     public static final int MAX_TOTAL_S = 1500;
+    /** A run's ceiling: ≤ 25 min active with its rests + ≤ 10 min passive recovery (the AI's own workout has both). */
+    public static final int RUN_MAX_S = 2100;
     public static final int HZ_MIN = 1;
     public static final int HZ_MAX = 120;
     public static final int PW_MIN = 100;
@@ -68,6 +70,9 @@ public final class Workout {
         public boolean hold;
         /** 🔒 exactly as drawn: the smart impulse leaves this block alone (owner, 1.1.326). */
         public boolean lock;
+        /** A described exercise (the AI's own, owner 1.1.538): its name and how, no library figure. */
+        public String label;
+        public String how;
 
         public Block() {}
 
@@ -97,6 +102,8 @@ public final class Workout {
         public Block copy() {
             Block b = new Block();
             b.ex = ex;
+            b.label = label;
+            b.how = how;
             b.reps = reps;
             b.hz = hz;
             b.pw = pw;

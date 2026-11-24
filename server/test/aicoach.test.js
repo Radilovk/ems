@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { validateCoach, coachPrompt, coach, coachSchema } from '../src/aicoach.js';
+import { validateCoach, coachPrompt, coach, coachSchema, validateWorkout, workoutSchema } from '../src/aicoach.js';
 import { resetModelCache, thinkingFor } from '../src/aibrief.js';
 
 test('validateCoach: known values only, windows clamped, questions capped at 3', () => {
@@ -79,4 +79,20 @@ test('auto domain: Auto goals, the menu program, intensity, Auto windows', async
   assert.equal(r.coach.program, 'glutes');
   assert.match(sent.contents[0].parts[0].text, /^MENU: glutes=Седалище/);
   assert.match(sent.systemInstruction.parts[0].text, /READY PROGRAM/);
+});
+
+test('the AI workout: blocks from closed lists, windows clamped, ≤ 12', () => {
+  const w = validateWorkout({ reply: 'ok', title: 'Гири и постелка', blocks: [
+    { name: 'Загрявка', kind: 'warmup', sets: 1, work_s: 60, rest_s: 5 },
+    { name: 'Румънска тяга', how: 'Бавно, гръб прав.', kind: 'strength', equipment: 'dumbbells', sets: 9, work_s: 10, rest_s: 300 },
+    { name: 'X', kind: 'nuclear', sets: 1, work_s: 30, rest_s: 30 },
+    { name: '', kind: 'core', sets: 1, work_s: 30, rest_s: 30 },
+  ] });
+  assert.equal(w.title, 'Гири и постелка');
+  assert.equal(w.blocks.length, 2);
+  assert.deepEqual(w.blocks[0], { name: 'Загрявка', how: '', kind: 'warmup', equipment: 'body', sets: 1, work_s: 45, rest_s: 15 });
+  assert.equal(w.blocks[1].sets, 4);
+  assert.equal(w.blocks[1].work_s, 20);
+  assert.equal(w.blocks[1].rest_s, 90);
+  assert.ok(workoutSchema().properties.blocks.items.properties.kind.enum.includes('core'));
 });

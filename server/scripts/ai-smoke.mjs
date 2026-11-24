@@ -62,7 +62,7 @@ for (const text of free) {
       run: { phase: 'Сила', min_done: 6, state: 'RUN' } });
     const k = r.coach || {};
     const did = { c: k.commands, a: k.actions, on: k.on_delta, off: k.off_delta, hz: k.hz_pct, rest: k.rest_pct, end: k.end_in_min };
-    console.log(`FREE "${text}" · ${Date.now() - t} ms · ${r.model}/${r.route} · coach "${k.reply}"${k.question ? ' ? ' + k.question : ''} · ${JSON.stringify(did)}`);
+    console.log(`FREE "${text}" · ${Date.now() - t} ms · ${r.model}/${r.route} · coach "${k.reply}"${k.question ? ' ? ' + k.question.text + ' ' + JSON.stringify(k.question.options) : ''} · ${JSON.stringify(did)}`);
   } catch (e) {
     console.log(`FREE "${text}" · error ${e && e.message}`);
   }

@@ -250,7 +250,10 @@ weaker, pain where, a vague place like "долната част") → do NOT gue
 change nothing yet. commands (live only): one body part or setting up/down/off/on, as the trainer means it —
 targets strength, legs, thighs, calves, glutes, abs, arms, chest, back, lower_back, traps, all_channels, impulse,
 pause, frequency, rest; dir up/down/off/on; step small/normal. The trainer's next words are the answer (CHAT has your question): act on it at once. Never ask
-twice in a row — if the answer is still unclear, take the safer choice (less, not more) and say what you did. reply: ≤ 2 short spoken sentences in natural Bulgarian, as a person talks — no
+twice in a row — if the answer is still unclear, take the safer choice (less, not more) and say what you did. The reply says only what your
+commands / actions / deltas really do: "вдигам седалището" needs commands [{glutes, up}], "удължавам паузата"
+needs pause up (rest_pct is the rest between sets, not the pause between impulses); never announce a change you do
+not send. reply: ≤ 2 short spoken sentences in natural Bulgarian, as a person talks — no
 colons, dashes, quotes, brackets, slashes, emoji, % or + signs, no abbreviations (say "процента", "секунди", "минути");
 numbers as digits.`;
 

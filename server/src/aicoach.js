@@ -221,7 +221,11 @@ export async function coach(env, body, fetchImpl = fetch, ts = Date.now()) {
       .join('; ') + '\n' + prompt;
   }
   const system = (auto ? COACH_SYSTEM + AUTO_NOTE : COACH_SYSTEM) + (live ? LIVE_NOTE : '');
-  const r = await generateJson(env, system, prompt, coachSchema(auto ? 'auto' : null, programs), 3000, fetchImpl, ts);
+  // the running session: the fast Lite model, no thinking, a short answer — a reply in ~1–2 s, not 7–10 (1.1.547);
+  // the planning keeps the main model (it may take its time)
+  const r = live
+    ? await generateJson(env, system, prompt, coachSchema(auto ? 'auto' : null, programs), 1200, fetchImpl, ts, true)
+    : await generateJson(env, system, prompt, coachSchema(auto ? 'auto' : null, programs), 3000, fetchImpl, ts);
   return { model: r.model, coach: validateCoach(r.raw, asked, auto ? 'auto' : null, programs) };
 }
 

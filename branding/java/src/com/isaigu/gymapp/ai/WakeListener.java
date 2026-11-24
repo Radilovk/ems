@@ -624,12 +624,47 @@ public final class WakeListener {
                     int r = tts.setLanguage(bg() ? new Locale("bg", "BG") : Locale.US);
                     ttsOk = r != TextToSpeech.LANG_MISSING_DATA && r != TextToSpeech.LANG_NOT_SUPPORTED;
                     tts.setSpeechRate(1.05f);
+                    bestVoice();
                     tts.setOnUtteranceProgressListener(new Spoken());
                 }
             } catch (Throwable t) {
                 ttsOk = false;
             }
             WearableBleDiagLog.log("wake", "tts " + (ttsOk ? "bg ok" : "none — tones only"));
+        }
+    }
+
+    /**
+     * The best Bulgarian voice the tablet has (owner, 1.1.547: "the device's own voice, chosen well"): the highest
+     * quality, a local one before a network one at the same quality (no wait, works offline).
+     */
+    static void bestVoice() {
+        try {
+            if (android.os.Build.VERSION.SDK_INT < 21 || tts == null || tts.getVoices() == null) {
+                return;
+            }
+            String lang = bg() ? "bg" : "en";
+            android.speech.tts.Voice best = null;
+            for (android.speech.tts.Voice v : tts.getVoices()) {
+                if (v == null || v.getLocale() == null || !lang.equals(v.getLocale().getLanguage())) {
+                    continue;
+                }
+                if (v.getFeatures() != null && v.getFeatures().contains(TextToSpeech.Engine.KEY_FEATURE_NOT_INSTALLED)) {
+                    continue;
+                }
+                if (best == null || v.getQuality() > best.getQuality()
+                        || (v.getQuality() == best.getQuality() && best.isNetworkConnectionRequired()
+                        && !v.isNetworkConnectionRequired())) {
+                    best = v;
+                }
+            }
+            if (best != null) {
+                tts.setVoice(best);
+            }
+            WearableBleDiagLog.log("wake", "tts voice " + (best != null ? best.getName() + " q=" + best.getQuality()
+                    + (best.isNetworkConnectionRequired() ? " net" : " local") : "default"));
+        } catch (Throwable t) {
+            WearableBleDiagLog.log("wake", "voice: " + t);
         }
     }
 

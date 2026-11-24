@@ -221,8 +221,11 @@ export function pickLiteModel(models) {
     if (/^gemini-\d+(\.\d+)?-flash-lite/.test(name) && methods.includes('generateContent')) names.push(name);
   }
   const ver = (n) => Number((n.match(/^gemini-(\d+(?:\.\d+)?)/) || [])[1] || 0);
-  const rank = (n) => (/^gemini-\d+(\.\d+)?-flash-lite(-\d{3})?$/.test(n) ? 3 : /preview/.test(n) ? 2 : 1);
-  names.sort((a, b) => ver(b) - ver(a) || rank(b) - rank(a) || b.localeCompare(a));
+  const rank = (n) => (/^gemini-\d+(\.\d+)?-flash-lite(-\d{3})?$/.test(n) || /-latest$/.test(n) ? 3
+    : /preview/.test(n) ? 2 : 1);
+  // a stable one first (1.1.547): the newest preview Lite refused the system text and JSON mode, so every live
+  // answer fell back to the slow main model
+  names.sort((a, b) => rank(b) - rank(a) || ver(b) - ver(a) || b.localeCompare(a));
   return names[0] || null;
 }
 

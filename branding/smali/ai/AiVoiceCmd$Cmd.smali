@@ -21,25 +21,50 @@
 
 .field public final target:Ljava/lang/String;
 
+.field public value:I
+
 
 # direct methods
-.method constructor <init>(Ljava/lang/String;Ljava/lang/String;Z)V
-    .registers 4
+.method constructor <init>(Ljava/lang/String;I)V
+    .registers 5
 
     .prologue
-    .line 34
+    .line 43
+    const-string v0, "set"
+
+    const/4 v1, 0x0
+
+    invoke-direct {p0, p1, v0, v1}, Lcom/isaigu/gymapp/ai/AiVoiceCmd$Cmd;-><init>(Ljava/lang/String;Ljava/lang/String;Z)V
+
+    .line 44
+    iput p2, p0, Lcom/isaigu/gymapp/ai/AiVoiceCmd$Cmd;->value:I
+
+    .line 45
+    return-void
+.end method
+
+.method constructor <init>(Ljava/lang/String;Ljava/lang/String;Z)V
+    .registers 5
+
+    .prologue
+    .line 36
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 35
-    iput-object p1, p0, Lcom/isaigu/gymapp/ai/AiVoiceCmd$Cmd;->target:Ljava/lang/String;
+    .line 34
+    const/4 v0, -0x1
 
-    .line 36
-    iput-object p2, p0, Lcom/isaigu/gymapp/ai/AiVoiceCmd$Cmd;->dir:Ljava/lang/String;
+    iput v0, p0, Lcom/isaigu/gymapp/ai/AiVoiceCmd$Cmd;->value:I
 
     .line 37
-    iput-boolean p3, p0, Lcom/isaigu/gymapp/ai/AiVoiceCmd$Cmd;->small:Z
+    iput-object p1, p0, Lcom/isaigu/gymapp/ai/AiVoiceCmd$Cmd;->target:Ljava/lang/String;
 
     .line 38
+    iput-object p2, p0, Lcom/isaigu/gymapp/ai/AiVoiceCmd$Cmd;->dir:Ljava/lang/String;
+
+    .line 39
+    iput-boolean p3, p0, Lcom/isaigu/gymapp/ai/AiVoiceCmd$Cmd;->small:Z
+
+    .line 40
     return-void
 .end method
 
@@ -49,7 +74,7 @@
     .registers 3
 
     .prologue
-    .line 41
+    .line 48
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiVoiceCmd$Cmd;->target:Ljava/lang/String;
 
     sget-object v1, Lcom/isaigu/gymapp/ai/AiVoiceCmd;->TARGETS:[Ljava/lang/String;
@@ -58,7 +83,7 @@
 
     move-result v0
 
-    .line 42
+    .line 49
     if-ltz v0, :cond_f
 
     sget-object v1, Lcom/isaigu/gymapp/ai/AiVoiceCmd;->CHANNELS:[[I
@@ -80,7 +105,7 @@
     .registers 2
 
     .prologue
-    .line 46
+    .line 53
     invoke-virtual {p0}, Lcom/isaigu/gymapp/ai/AiVoiceCmd$Cmd;->channels()[I
 
     move-result-object v0

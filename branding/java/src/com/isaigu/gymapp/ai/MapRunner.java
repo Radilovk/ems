@@ -95,6 +95,148 @@ public final class MapRunner {
         return map != null && clock != null && !clock.isDone();
     }
 
+    /**
+     * The AI's own workout (owner, 1.1.547): it runs in the AI tab — the board in the rows' place with the exercise
+     * now and the whole list (AiMapBoard), the AI's bar, voice and chat — not the small floating card of a map.
+     */
+    static boolean ai;
+    /** "Тренер, спри двойния импулс": no 2nd impulse from here on (the AI's workout). */
+    static boolean noDouble;
+    private static java.lang.ref.WeakReference<View> screen;
+
+    public static boolean isAi() {
+        return ai && map != null;
+    }
+
+    static Workout map() {
+        return map;
+    }
+
+    static MapClock clock() {
+        return clock;
+    }
+
+    // ---------------------------------------------------------------- the AI's hands on the running workout (voice)
+
+    /** The leader's working strength (its 100 % of the blocks). */
+    static int strength() {
+        TrainItem l = leader();
+        Integer b = l != null ? base.get(l) : null;
+        ProgramDataBean bean = bean(l);
+        int now = bean != null ? bean.strenth : 0;
+        return b != null && b > 0 ? b : now;
+    }
+
+    /** Every row's strength to this level now (and as its 100 % from here on). */
+    static int setStrength(int to) {
+        to = Math.max(0, Math.min(100, to));
+        for (TrainItem it : rows()) {
+            ProgramDataBean b = bean(it);
+            if (b == null) {
+                continue;
+            }
+            base.put(it, to);
+            Workout.Block k = clock != null && !waiting ? clock.block() : null;
+            b.strenth = k != null && k.isRest() ? 0 : k != null ? Math.max(0, Math.min(100, Math.round(to * k.rel / 100f))) : to;
+            try {
+                it.onParamsChange();
+            } catch (Throwable t) {
+                WearableBleDiagLog.log("map", "voice strength: " + t);
+            }
+        }
+        return to;
+    }
+
+    /** A channel's level (strength × its share) — what its bar shows. */
+    static int channelLevel(int ch) {
+        ProgramDataBean b = bean(leader());
+        int[] z = b != null && b.strenthBean != null ? b.strenthBean.buwei : null;
+        int share = z != null && ch < z.length ? z[ch] : 100;
+        return (int) Math.round(strength() * share / 100.0);
+    }
+
+    /** These channels to the level {@code to} (as AutoSession.channelStep: above the strength it rises, the others keep). */
+    static int setChannels(int[] chs, int to) {
+        to = Math.max(0, Math.min(100, to));
+        int s = strength();
+        int now = chs.length > 0 ? channelLevel(chs[0]) : 0;
+        if (to > s) {
+            for (TrainItem it : rows()) {
+                ProgramDataBean b = bean(it);
+                int[] z = b != null && b.strenthBean != null ? b.strenthBean.buwei : null;
+                if (z == null) {
+                    continue;
+                }
+                for (int i = 0; i < z.length; i++) {
+                    boolean mine = false;
+                    for (int c : chs) {
+                        mine |= c == i;
+                    }
+                    z[i] = mine ? Math.min(100, (int) Math.round((s * z[i] / 100.0 + (to - now)) * 100.0 / to))
+                            : (int) Math.round(s * z[i] / (double) to);
+                }
+            }
+            setStrength(to);
+            return to;
+        }
+        for (TrainItem it : rows()) {
+            ProgramDataBean b = bean(it);
+            int[] z = b != null && b.strenthBean != null ? b.strenthBean.buwei : null;
+            if (z == null) {
+                continue;
+            }
+            for (int c : chs) {
+                if (c < z.length) {
+                    int lv = (int) Math.round(s * z[c] / 100.0) + (to - now);
+                    z[c] = s > 0 ? Math.max(0, Math.min(100, (int) Math.round(Math.max(0, lv) * 100.0 / s))) : 0;
+                }
+            }
+            try {
+                it.onParamsChange();
+            } catch (Throwable t) {
+                WearableBleDiagLog.log("map", "voice channel: " + t);
+            }
+        }
+        return to;
+    }
+
+    /** Pause (the suits stop, the clock waits) / go on. */
+    static boolean pause(boolean on) {
+        try {
+            TrainItemManager m = AiSession.manager();
+            if (m == null) {
+                return false;
+            }
+            if (on) {
+                m.stopAll();
+            } else {
+                m.startAll();
+            }
+            return true;
+        } catch (Throwable t) {
+            WearableBleDiagLog.log("map", "voice pause: " + t);
+            return false;
+        }
+    }
+
+    static boolean isPaused() {
+        TrainItem l = leader();
+        return l != null && l.data != null && !l.data.start;
+    }
+
+    /** "Тренер, следващото": the block now ends, the next one begins. */
+    static boolean skip() {
+        if (clock == null || waiting || clock.isDone()) {
+            return false;
+        }
+        int from = clock.getIndex();
+        for (int i = 0; i < 400 && !clock.isDone() && clock.getIndex() == from; i++) {
+            clock.tick(1.0);
+        }
+        apply(false);
+        return true;
+    }
+
     /** The row's 2nd-impulse look while a map runs: on when any block has it (steady, never block by block). */
     public static Boolean ledDouble() {
         Workout m = map;
@@ -480,6 +622,13 @@ public final class MapRunner {
         wrote.clear();
         AiEnergy.exerciseMet = 0;
         hideCard();
+        if (ai) {
+            ai = false;
+            noDouble = false;
+            View any = screen != null ? screen.get() : null;
+            AutoBoard.sync(any);                             // the board goes with the workout
+            AiTrain.mapEnded();
+        }
     }
 
     /** AiSession.onPulseCycle: the leader's impulse started. */
@@ -633,8 +782,8 @@ public final class MapRunner {
                 bean.pulsePause = Math.max(1, b.off);
                 bean.strenth = Math.max(0, Math.min(100, Math.round(full * b.rel / 100f)));
                 // the second impulse rides the suit's active pause (its own Hz, its strength a share of the first)
-                bean.activePause = b.dbl;
-                if (b.dbl) {
+                bean.activePause = b.dbl && !noDouble;
+                if (b.dbl && !noDouble) {
                     bean.pauseHz = b.hz2;
                     bean.pauseStrenthPercent = Math.max(1, Math.round(bean.strenth * b.str2 / 100f));
                 }
@@ -685,7 +834,7 @@ public final class MapRunner {
             // approach and the stock index buttons blinked); a repetition without it gives it 0 %; ≤ 1 Hz never (the
             // limits switch it off there, SafeLimits AP)
             boolean dbl = s.pauseHz > 0 && s.pauseSigma > 0 && AiSession.pauseAllowed(it);
-            boolean steady = (b.dbl || dbl) && AiSession.pauseAllowed(it) && s.hz >= 2;
+            boolean steady = (b.dbl || dbl) && !noDouble && AiSession.pauseAllowed(it) && s.hz >= 2;
             bean.activePause = steady;
             if (dbl && steady) {
                 bean.pauseHz = s.pauseHz;
@@ -747,6 +896,12 @@ public final class MapRunner {
 
     private static void showCard(Activity a) {
         hideCard();
+        if (ai) {
+            View any = a.getWindow().getDecorView();
+            screen = new java.lang.ref.WeakReference<View>(any);
+            AutoBoard.sync(any);                             // the AI tab's board in the rows' place
+            return;
+        }
         try {
             XemsUi.init(a);
             LinearLayout card = XemsUi.vertical(a);
@@ -845,6 +1000,10 @@ public final class MapRunner {
     }
 
     private static void updateCard(long now) {
+        if (ai) {
+            AiMapBoard.update();
+            return;
+        }
         if (dialog == null || clock == null || clock.isDone()) {
             return;
         }

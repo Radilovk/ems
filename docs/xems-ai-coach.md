@@ -206,3 +206,22 @@ trainer wants a session fitted to this person in seconds; the AI must never stan
   which Auto / Smart / a map change cycle by cycle. `scripts/apply-double-impulse.py` `patch_shown` makes
   `updatePauseMa/HzDisplay` read `DoubleImpulse.shown(b)` (the session's steady setting; `MapRunner.ledDouble` for
   maps); FocusBoard's ∿ reads it too.
+
+## 1.1.547 — the AI's own workout in the AI tab; hands-free on Android 11+; every function by voice; fast live answers
+- **"✦ AI я съставя" runs in the AI tab**, not as Auto's small floating card: `MapRunner.ai` → no card;
+  `AutoBoard` KIND_MAP = `AiMapBoard` (left: the exercise now — big name, how, its clock, "серия N от M", what is
+  next, ▶ Старт while waiting, ■ Стоп, the impulse line; right: the whole workout as a list, ✓ done, ▶ now) + the
+  coach bar. The nav's AI tile lights ("✦ <title>"), not Auto. The AI tile during it opens the chat.
+- **Voice / chat on it**: `AiTrain.live()` counts the map; `applyMap` / `mapAction` → `MapRunner.setStrength`,
+  `setChannels` (a channel's level = strength × share; above the strength it rises, the others keep their level),
+  `pause`, `skip`, `noDouble`, `stop`.
+- **Hands-free on Android 11+**: the manifest had no `<queries>` (targetSdk 30) — the app could not see the speech
+  recognizer service nor the TTS engine. `apply-wearable-bridge.py` adds RecognitionService, RECOGNIZE_SPEECH,
+  TTS_SERVICE. The TTS takes the best Bulgarian voice (`WakeListener.bestVoice`: quality, local before network).
+- **Every function by voice** (`AiVoiceCmd`): absolute levels ("силата на 50", "краката на 30 %", "увеличи на
+  50%"), sized steps ("увеличи с 10"), the double impulse ("спри / пусни двойния импулс", "махни втория импулс" —
+  never a pause / resume), plus everything before. Free questions go to the coach.
+- **Fast live answers** (server): the running session's coach uses the Flash-Lite model, no thinking, 1200 tokens;
+  `pickLiteModel` prefers a stable Lite (the newest preview refused the system text and JSON mode, so live answers
+  fell back to the slow main model). Planning keeps Flash.
+- Off-device: `tools/app-sim` `SimFree` (the AI's workout: board, voice, chat).

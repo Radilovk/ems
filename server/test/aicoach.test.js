@@ -118,8 +118,10 @@ test('spoken commands: closed lists, the cheapest model', async () => {
   assert.equal(v.coach, false);
   assert.equal(validateCommand({}).coach, true);
   const m = (n) => ({ name: 'models/' + n, supportedGenerationMethods: ['generateContent'] });
+  // a stable Lite before a newer preview one (1.1.547: the preview refused the system text and JSON mode)
   assert.equal(pickLiteModel([m('gemini-2.5-flash-lite'), m('gemini-3-flash-lite-preview'), m('gemini-3-flash')]),
-    'gemini-3-flash-lite-preview');
+    'gemini-2.5-flash-lite');
+  assert.equal(pickLiteModel([m('gemini-3-flash-lite-preview'), m('gemini-3-flash')]), 'gemini-3-flash-lite-preview');
   assert.equal(pickLiteModel([m('gemini-3-flash')]), null);
   resetModelCache();
   const urls = [];

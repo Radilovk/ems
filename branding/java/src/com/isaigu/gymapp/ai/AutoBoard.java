@@ -23,7 +23,7 @@ public final class AutoBoard {
     private static int heightPx = -1;
     /** What the attached board is: KIND_RUN (with the AI's coach bar in an AI training), KIND_SETUP (before ▶). */
     private static int kind;
-    static final int KIND_RUN = 1, KIND_SETUP = 2;
+    static final int KIND_RUN = 1, KIND_SETUP = 2, KIND_MAP = 3;
     /** Reference width of the board (dp); its height follows the real space (never below DESIGN_H). */
     static final int DESIGN_W = 1160;
     static final int DESIGN_H = 290;
@@ -124,8 +124,10 @@ public final class AutoBoard {
         boolean run = AutoSession.getStage() == AutoSession.Stage.RUNNING && AutoSession.getEngine() != null;
         boolean setup = AutoSession.getStage() == AutoSession.Stage.CALIB && AutoSession.getPlan() != null;
         // the AI training's preparation is a window of its own (AiSetupSheet): no board until ▶ Старт
-        boolean want = (run || setup) && !com.isaigu.gymapp.wearable.face.FaceStudio.ownsAuto();
-        int k = run ? KIND_RUN : KIND_SETUP;
+        // the AI's own workout runs on the map engine: its board (AiMapBoard) in the same place (1.1.547)
+        boolean map = MapRunner.isAi();
+        boolean want = (run || setup || map) && !com.isaigu.gymapp.wearable.face.FaceStudio.ownsAuto();
+        int k = map ? KIND_MAP : run ? KIND_RUN : KIND_SETUP;
         try {
             if (!want) {
                 detach();
@@ -174,7 +176,13 @@ public final class AutoBoard {
         // evenly to the real width; its height is whatever is left (Fit), so it fills the space on every tablet —
         // no scrolling, nothing cut, no empty band above or below.
         LinearLayout content = XemsUi.vertical(c);
-        if (kind == KIND_SETUP) {
+        if (kind == KIND_MAP) {
+            LinearLayout mapBoard = XemsUi.vertical(c);
+            AiMapBoard.build(c, mapBoard);
+            content.addView(mapBoard, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
+            content.addView(AiCoachBar.build(c), new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                    XemsUi.dp(c, AiCoachBar.H_DP)));
+        } else if (kind == KIND_SETUP) {
             AutoUi.buildSetupBoard(c, content);
         } else {
             LinearLayout runBoard = XemsUi.vertical(c);
@@ -236,7 +244,8 @@ public final class AutoBoard {
         listParams = null;
         AutoUi.onBoardDetached();
         AiCoachBar.forget();
-        if (!(AutoSession.aiMode && AutoSession.getStage() == AutoSession.Stage.RUNNING)) {
+        AiMapBoard.forget();
+        if (!(AutoSession.aiMode && AutoSession.getStage() == AutoSession.Stage.RUNNING) && !MapRunner.isAi()) {
             AiChatDrawer.close();                        // the session is over: its chat goes with the board
         }
     }

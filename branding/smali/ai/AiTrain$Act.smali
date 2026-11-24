@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 902
+    .line 926
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 903
+    .line 927
     iput p1, p0, Lcom/isaigu/gymapp/ai/AiTrain$Act;->code:I
 
-    .line 904
+    .line 928
     return-void
 .end method
 
@@ -44,56 +44,56 @@
     .prologue
     const/4 v3, 0x0
 
-    .line 908
+    .line 932
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsUi;->haptic(Landroid/view/View;)V
 
-    .line 909
+    .line 933
     invoke-virtual {p1}, Landroid/view/View;->getContext()Landroid/content/Context;
 
     move-result-object v0
 
-    .line 910
+    .line 934
     iget v1, p0, Lcom/isaigu/gymapp/ai/AiTrain$Act;->code:I
 
-    packed-switch v1, :pswitch_data_56
+    packed-switch v1, :pswitch_data_5e
 
-    .line 935
+    .line 962
     :pswitch_d
     # setter for: Lcom/isaigu/gymapp/ai/AiTrain;->liveChat:Z
     invoke-static {v3}, Lcom/isaigu/gymapp/ai/AiTrain;->access$702(Z)Z
 
-    .line 936
+    .line 963
     # invokes: Lcom/isaigu/gymapp/ai/AiTrain;->rebuild()V
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiTrain;->access$300()V
 
-    .line 939
+    .line 966
     :goto_13
     return-void
 
-    .line 912
+    .line 936
     :pswitch_14
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/AiTrain;->tune(Landroid/content/Context;)V
 
     goto :goto_13
 
-    .line 915
+    .line 939
     :pswitch_18
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiTrain;->close()V
 
     goto :goto_13
 
-    .line 918
+    .line 942
     :pswitch_1c
     # setter for: Lcom/isaigu/gymapp/ai/AiTrain;->view:I
     invoke-static {v3}, Lcom/isaigu/gymapp/ai/AiTrain;->access$502(I)I
 
-    .line 919
+    .line 943
     # invokes: Lcom/isaigu/gymapp/ai/AiTrain;->rebuild()V
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiTrain;->access$300()V
 
     goto :goto_13
 
-    .line 922
+    .line 946
     :pswitch_23
     invoke-static {p1}, Lcom/isaigu/gymapp/ai/AiSession;->activityOf(Landroid/view/View;)Landroid/app/Activity;
 
@@ -103,8 +103,18 @@
 
     goto :goto_13
 
-    .line 925
+    .line 949
     :pswitch_2b
+    invoke-static {p1}, Lcom/isaigu/gymapp/ai/AiSession;->activityOf(Landroid/view/View;)Landroid/app/Activity;
+
+    move-result-object v0
+
+    invoke-static {v0}, Lcom/isaigu/gymapp/ai/WakeSetup;->open(Landroid/app/Activity;)V
+
+    goto :goto_13
+
+    .line 952
+    :pswitch_33
     const-string v1, "\u0421\u044a\u0441\u0442\u0430\u0432\u0438 \u043d\u043e\u0432\u0430 \u0442\u0440\u0435\u043d\u0438\u0440\u043e\u0432\u043a\u0430 \u0437\u0430 \u0442\u043e\u0437\u0438 \u043a\u043b\u0438\u0435\u043d\u0442."
 
     const-string v2, "Write a new workout for this client."
@@ -119,8 +129,8 @@
 
     goto :goto_13
 
-    .line 929
-    :pswitch_38
+    .line 956
+    :pswitch_40
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoSession;->leaderUserId()J
 
     move-result-wide v2
@@ -131,10 +141,10 @@
 
     invoke-static {v0, v2, v3, v1}, Lcom/isaigu/gymapp/ai/AiProfile;->addCond(Landroid/content/Context;JLjava/util/Set;)V
 
-    .line 930
+    .line 957
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiCoach;->savedLearned()V
 
-    .line 931
+    .line 958
     const-string v0, "\u0437\u0430\u043f\u0430\u0437\u0435\u043d\u043e \u0432 \u043f\u0440\u043e\u0444\u0438\u043b\u0430"
 
     const-string v1, "saved to the profile"
@@ -146,23 +156,24 @@
     # setter for: Lcom/isaigu/gymapp/ai/AiTrain;->lastChanges:Ljava/lang/String;
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/AiTrain;->access$602(Ljava/lang/String;)Ljava/lang/String;
 
-    .line 932
+    .line 959
     # invokes: Lcom/isaigu/gymapp/ai/AiTrain;->rebuild()V
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiTrain;->access$300()V
 
     goto :goto_13
 
-    .line 910
+    .line 934
     nop
 
-    :pswitch_data_56
+    :pswitch_data_5e
     .packed-switch 0x0
         :pswitch_14
         :pswitch_18
         :pswitch_1c
         :pswitch_23
-        :pswitch_38
+        :pswitch_40
         :pswitch_d
+        :pswitch_33
         :pswitch_2b
     .end packed-switch
 .end method

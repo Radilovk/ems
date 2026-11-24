@@ -58,6 +58,26 @@
 > пауза, старт, стоп, прескочи, двоен импулс) — no AI; only what is none goes to Flash-Lite → the coach. A short tone:
 > done / not understood. 🎙 in the board's head turns it off / on. **RECORD_AUDIO is declared again** (asked once on
 > the tablet) — `verify-beta-safety.py` now allows it only for `WakeListener`. Not in a map run ("Нова от AI") yet.
+>
+> **1.1.541 — the wake word done the way voice assistants do it** (owner: "it listens, but acts only when I say
+> „тренер“ — the speech is aimed at it"; "тренировка" is another word and must never unlock).
+> 1. **Always on, on the tablet only — `ai/WakeWord`:** a keyword spotter ported from the voice module
+>    (`voice/xems_voice/kws.h`: 16 kHz, 26 mel bands, word finder, 12 cepstra + energy, DTW). It reads the microphone
+>    itself (`AudioRecord`) and knows only how the trainer says "тренер" — **3 recordings** + **"тренировка" once**
+>    (`WakeSetup`, ~30 s, per tablet; the look-alike is a contrast: a wake needs d ≤ thr AND d ≤ 75 % of the
+>    look-alike's distance, its beginning included — "трени…"). Nothing is transcribed, kept or sent. It matches the
+>    word **while it is said** (every 50 ms once it is as long as the examples), so "Тренер, увеличи краката" in one
+>    breath fires at the end of "тренер".
+> 2. **Wake:** a short tone, "🎙 Слушам…" in the board's head.
+> 3. **The command window:** the spotter lets the microphone go; Android's recognizer (bg-BG, offline preferred)
+>    takes only the following words, closing after 1 s of silence.
+> 4. **Understanding:** `AiTrain.voice` — the tablet's reader, else Flash-Lite, else the coach.
+> 5. **Answer by voice:** a short Bulgarian confirmation (TextToSpeech: "Крака 45 процента", "Пауза"), a tone when
+>    the tablet has no Bulgarian voice. One follow-up phrase right after needs no "тренер" ("… още").
+> Not recorded yet → the 1.1.540 way (the recognizer transcribes, acts only after "тренер").
+> **Test `scripts/voice-sim/run-wake.sh`** (espeak-ng, 3 voices × quiet / 2 noises): 34 / 36 wakes heard, **0 / 153
+> false** — "тренировка", "тренирам", "тренираме", "треньорка", "днес имаме тренировка", "пауза", "стоп", "три"…
+> (without the "тренировка" recording at the same threshold: 6 false). Synthetic voices — the real room may differ.
 
 Owner: "an AI training like a trainer who asks the right questions, programs the whole session and stays there to
 re-tune it live: a wizard of questions → the algorithm → a free-text dialogue where the AI asks what is unclear

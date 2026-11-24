@@ -200,6 +200,8 @@ WEARABLE_JAVA=(
   "${JAVA_SRC}/com/isaigu/gymapp/ai/AiWorkout.java"
   "${JAVA_SRC}/com/isaigu/gymapp/ai/AiVoiceCmd.java"
   "${JAVA_SRC}/com/isaigu/gymapp/ai/WakeListener.java"
+  "${JAVA_SRC}/com/isaigu/gymapp/ai/WakeWord.java"
+  "${JAVA_SRC}/com/isaigu/gymapp/ai/WakeSetup.java"
   "${JAVA_SRC}/com/isaigu/gymapp/ai/VoiceInput.java"
   "${JAVA_SRC}/com/isaigu/gymapp/ai/AutoLook.java"
   "${JAVA_SRC}/com/isaigu/gymapp/ai/AutoTemplateData.java"

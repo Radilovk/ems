@@ -4,8 +4,12 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.media.AudioFormat;
 import android.media.AudioManager;
+import android.media.AudioRecord;
+import android.media.MediaRecorder;
 import android.media.ToneGenerator;
 import android.os.Build;
 import android.os.Bundle;
@@ -14,91 +18,322 @@ import android.os.Looper;
 import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
+import android.speech.tts.TextToSpeech;
 
 import com.isaigu.gymapp.wearable.WearableBleDiagLog;
 
 import java.util.ArrayList;
+import java.util.Locale;
 
 /**
- * Hands-free voice control of the AI training (owner, 1.1.540): the tablet listens all the time and acts only on what
- * follows the word "тренер" — "Тренер, увеличи краката", "Тренер, пауза", "Тренер стоп", "Тренер старт". Android's own
- * speech recognizer (Bulgarian, offline when the language pack is on the tablet), restarted after every phrase; no
- * training needed. The words go to {@link AiTrain#voice}: the tablet reads the commands itself
- * ({@link AiVoiceCmd}), only what is no command goes to the AI. A short tone says "done".
+ * Hands-free "Тренер, …" for the AI training (owner, 1.1.541 — docs/xems-ai-coach.md), built the way voice
+ * assistants are:
+ * <ol>
+ * <li><b>Always on, on the tablet only:</b> the keyword spotter {@link WakeWord} reads the microphone itself
+ *     (AudioRecord, 16 kHz) and knows one thing — how the trainer says "тренер" (3 recordings + "тренировка" once,
+ *     so it never wakes on it). It understands nothing, keeps nothing, sends nothing.</li>
+ * <li><b>Wake:</b> a short tone, "🎙 Слушам" on the board.</li>
+ * <li><b>The command window:</b> the spotter lets the microphone go; Android's speech recognizer (Bulgarian) takes
+ *     only the words that follow, and closes on a second of silence.</li>
+ * <li><b>Understanding:</b> {@link AiTrain#voice} — the tablet's own reader first, the cheap model, the coach.</li>
+ * <li><b>Answer by voice:</b> a short Bulgarian confirmation ("Крака 45", "Пауза"), or a tone when there is no
+ *     speech engine; then back to step 1. A follow-up phrase within a few seconds needs no "тренер".</li>
+ * </ol>
+ * Not recorded yet → the earlier way: the recognizer listens all the time and acts only after "тренер".
  * Needs RECORD_AUDIO (asked once).
  */
 public final class WakeListener {
     private WakeListener() {}
 
+    static final String PREFS = "xems_wake";
     private static final Handler MAIN = new Handler(Looper.getMainLooper());
-    private static SpeechRecognizer rec;
     private static Context ctx;
     private static boolean on;
-    private static boolean listening;
-    /** "Тренер" alone: the next phrase within ARMED_MS is the command. */
+    static final WakeWord SPOTTER = new WakeWord();
+    private static boolean loaded;
+
+    // ---- the spotter's microphone
+    private static Thread micThread;
+    private static volatile boolean micRun;
+    /** Bumped by every start: an older reader still finishing never runs beside a new one. */
+    private static volatile int micGen;
+    /** Recording the examples (WakeSetup): the events go there instead of waking. */
+    static volatile WakeSetup.Sink setup;
+
+    // ---- the command window (and the fallback: continuous recognizer)
+    private static SpeechRecognizer rec;
+    private static boolean window;
+    private static int followUps;
     private static long armedUntil;
     static final long ARMED_MS = 6000;
-    private static int volSystem = -1;
-    private static int volNotify = -1;
+    private static int volSystem = -1, volNotify = -1;
+
+    // ---- the spoken answer
+    private static TextToSpeech tts;
+    private static boolean ttsOk;
+    /** What the screen shows: "" idle, "listening", "command". */
+    private static String state = "";
 
     public static boolean isOn() {
         return on;
     }
 
-    /** Starts listening (asks for the microphone once); false when the tablet has no speech recognizer. */
+    public static String state() {
+        return state;
+    }
+
+    /** The spotter knows "тренер" (3 recordings) on this tablet. */
+    public static boolean enrolled(Context c) {
+        load(c);
+        return SPOTTER.ready();
+    }
+
+    static void load(Context c) {
+        if (loaded || c == null) {
+            return;
+        }
+        loaded = true;
+        try {
+            String hex = c.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getString("tpl", "");
+            if (hex.length() > 0) {
+                SPOTTER.load(unhex(hex));
+            }
+        } catch (Throwable t) {
+            WearableBleDiagLog.log("wake", "load: " + t);
+        }
+    }
+
+    static void saveExamples(Context c) {
+        try {
+            c.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().putString("tpl", hex(SPOTTER.save())).apply();
+        } catch (Throwable t) {
+            WearableBleDiagLog.log("wake", "save: " + t);
+        }
+    }
+
+    // ================================================================ teaching the word (WakeSetup)
+
+    /** The recordings: the spotter reads the microphone for them, nothing wakes meanwhile. */
+    static void beginSetup(Activity a, WakeSetup.Sink sink) {
+        ctx = a.getApplicationContext();
+        MAIN.removeCallbacks(RECOGNIZE);
+        destroyRecognizer();
+        window = false;
+        setup = sink;
+        micStart();
+    }
+
+    static void endSetup(Activity a) {
+        setup = null;
+        if (!on) {
+            micStop();
+            return;
+        }
+        if (SPOTTER.ready()) {
+            mute(false);
+            micStart();
+        } else {
+            micStop();
+            mute(true);
+            recognize(300);
+        }
+    }
+
+    /** The stored examples again (a setup left unfinished). */
+    static void reloadExamples(Context c) {
+        try {
+            SPOTTER.clear();
+            String hex = c.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getString("tpl", "");
+            if (hex.length() > 0) {
+                SPOTTER.load(unhex(hex));
+            }
+        } catch (Throwable t) {
+            WearableBleDiagLog.log("wake", "reload: " + t);
+        }
+    }
+
+    // ================================================================ start / stop
+
     public static boolean start(Activity a) {
         if (a == null) {
             return false;
         }
-        try {
-            if (!SpeechRecognizer.isRecognitionAvailable(a)) {
-                WearableBleDiagLog.log("wake", "no recognizer");
-                return false;
-            }
-            if (Build.VERSION.SDK_INT >= 23
-                    && a.checkSelfPermission(Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
-                a.requestPermissions(new String[] {Manifest.permission.RECORD_AUDIO}, 0x5A2);
-            }
-        } catch (Throwable t) {
-            WearableBleDiagLog.log("wake", "start: " + t);
-            return false;
-        }
         ctx = a.getApplicationContext();
+        load(ctx);
+        if (!permitted(a, true)) {
+            WearableBleDiagLog.log("wake", "asking for the microphone");
+        }
         on = true;
-        mute(true);
-        listen(300);
+        followUps = 0;
+        initTts();
+        if (SPOTTER.ready()) {
+            micStart();
+        } else {
+            mute(true);                                    // fallback: the recognizer listens all the time
+            recognize(300);
+        }
         return true;
     }
 
     public static void stop() {
         on = false;
         armedUntil = 0;
-        MAIN.removeCallbacks(RESTART);
-        try {
-            if (rec != null) {
-                rec.cancel();
-                rec.destroy();
-            }
-        } catch (Throwable ignored) {
-        }
-        rec = null;
-        listening = false;
+        state = "";
+        micStop();
+        MAIN.removeCallbacks(RECOGNIZE);
+        destroyRecognizer();
+        window = false;
         mute(false);
     }
 
-    private static final Runnable RESTART = new Restart();
+    static boolean permitted(Activity a, boolean ask) {
+        Context c = a != null ? a : ctx;
+        if (c == null || Build.VERSION.SDK_INT < 23) {
+            return c != null;
+        }
+        if (c.checkSelfPermission(Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) {
+            return true;
+        }
+        if (ask && a != null) {
+            a.requestPermissions(new String[] {Manifest.permission.RECORD_AUDIO}, 0x5A2);
+        }
+        return false;
+    }
 
-    static final class Restart implements Runnable {
+    // ================================================================ 1 · the spotter on the microphone
+
+    static void micStart() {
+        if (micRun) {
+            return;
+        }
+        micRun = true;
+        state = "";
+        micThread = new Thread(new Mic(++micGen), "xems-wake");
+        micThread.start();
+    }
+
+    static void micStop() {
+        micRun = false;
+        Thread t = micThread;
+        micThread = null;
+        if (t != null) {
+            try {
+                t.join(600);
+            } catch (InterruptedException ignored) {
+            }
+        }
+    }
+
+    static final class Mic implements Runnable {
+        final int gen;
+
+        Mic(int gen) {
+            this.gen = gen;
+        }
+
+        @Override
+        public void run() {
+            AudioRecord ar = null;
+            try {
+                while (micRun && !permitted(null, false)) {
+                    Thread.sleep(1500);                      // waiting for the "allow" tap
+                }
+                int min = AudioRecord.getMinBufferSize(16000, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT);
+                ar = new AudioRecord(MediaRecorder.AudioSource.VOICE_RECOGNITION, 16000, AudioFormat.CHANNEL_IN_MONO,
+                        AudioFormat.ENCODING_PCM_16BIT, Math.max(min, 16000));
+                ar.startRecording();
+                short[] buf = new short[800];
+                while (micRun && gen == micGen) {
+                    int n = ar.read(buf, 0, buf.length);
+                    for (int i = 0; i < n; i++) {
+                        int ev = SPOTTER.push(buf[i]);
+                        WakeSetup.Sink sink = setup;
+                        if (ev == WakeWord.NONE) {
+                            continue;
+                        }
+                        if (sink != null) {
+                            MAIN.post(new SetupEvent(sink, ev));
+                        } else if (ev == WakeWord.WAKE && on) {
+                            micRun = false;                  // the command window takes the microphone
+                            MAIN.post(new Wake());
+                            break;
+                        }
+                    }
+                }
+            } catch (Throwable t) {
+                WearableBleDiagLog.log("wake", "mic: " + t);
+                micRun = false;
+                if (on) {
+                    MAIN.postDelayed(new MicAgain(), 3000);
+                }
+            } finally {
+                if (ar != null) {
+                    try {
+                        ar.stop();
+                    } catch (Throwable ignored) {
+                    }
+                    ar.release();
+                }
+            }
+        }
+    }
+
+    static final class MicAgain implements Runnable {
+        @Override
+        public void run() {
+            if (on && SPOTTER.ready() && !window) {
+                micStart();
+            }
+        }
+    }
+
+    static final class SetupEvent implements Runnable {
+        final WakeSetup.Sink sink;
+        final int ev;
+
+        SetupEvent(WakeSetup.Sink sink, int ev) {
+            this.sink = sink;
+            this.ev = ev;
+        }
+
+        @Override
+        public void run() {
+            sink.event(ev);
+        }
+    }
+
+    // ================================================================ 2–3 · wake → the command window
+
+    static final class Wake implements Runnable {
+        @Override
+        public void run() {
+            WearableBleDiagLog.log("wake", "тренер d=" + SPOTTER.lastD + " thr=" + SPOTTER.threshold());
+            tone(ToneGenerator.TONE_PROP_BEEP);
+            openWindow();
+        }
+    }
+
+    static void openWindow() {
+        window = true;
+        state = "listening";
+        AiTrain.voiceState();
+        mute(true);
+        recognize(120);
+    }
+
+    private static final Runnable RECOGNIZE = new Recognize();
+
+    static final class Recognize implements Runnable {
         @Override
         public void run() {
             begin();
         }
     }
 
-    private static void listen(long delayMs) {
-        MAIN.removeCallbacks(RESTART);
+    private static void recognize(long delayMs) {
+        MAIN.removeCallbacks(RECOGNIZE);
         if (on) {
-            MAIN.postDelayed(RESTART, delayMs);
+            MAIN.postDelayed(RECOGNIZE, delayMs);
         }
     }
 
@@ -107,9 +342,8 @@ public final class WakeListener {
             return;
         }
         try {
-            if (Build.VERSION.SDK_INT >= 23
-                    && ctx.checkSelfPermission(Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
-                listen(3000);                                 // waiting for the "allow" tap
+            if (!permitted(null, false)) {
+                recognize(3000);
                 return;
             }
             if (rec == null) {
@@ -118,53 +352,55 @@ public final class WakeListener {
             }
             Intent i = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
             i.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-            String lang = AiText.t("bg", "en").equals("bg") ? "bg-BG" : "en-US";
+            String lang = bg() ? "bg-BG" : "en-US";
             i.putExtra(RecognizerIntent.EXTRA_LANGUAGE, lang);
             i.putExtra(RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE, lang);
             i.putExtra(RecognizerIntent.EXTRA_PREFER_OFFLINE, true);
-            i.putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, false);
             i.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 3);
             i.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE, ctx.getPackageName());
-            listening = true;
+            if (window) {
+                // the command: closes after a second of silence
+                i.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS, 1000L);
+                i.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS, 800L);
+            }
             rec.startListening(i);
         } catch (Throwable t) {
             WearableBleDiagLog.log("wake", "begin: " + t);
-            try {
-                if (rec != null) {
-                    rec.destroy();
-                }
-            } catch (Throwable ignored) {
-            }
-            rec = null;
-            listen(2000);
+            destroyRecognizer();
+            afterWindow(2000);
         }
     }
 
     static final class Listener implements RecognitionListener {
         @Override
         public void onResults(Bundle b) {
-            listening = false;
             ArrayList<String> r = b != null ? b.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION) : null;
-            heard(r);
-            listen(150);
+            if (window) {
+                commandHeard(r);
+            } else {
+                heardFallback(r);
+                recognize(150);
+            }
         }
 
         @Override
         public void onError(int error) {
-            listening = false;
-            // no speech / no match / timeout: listen again at once; busy or the engine's own trouble: a little later
+            if (error == SpeechRecognizer.ERROR_RECOGNIZER_BUSY || error == SpeechRecognizer.ERROR_CLIENT) {
+                destroyRecognizer();
+            }
+            if (window) {
+                // nothing said in the window (or a follow-up that never came): back to the spotter
+                if (followUps == 0 && error != SpeechRecognizer.ERROR_NO_MATCH
+                        && error != SpeechRecognizer.ERROR_SPEECH_TIMEOUT) {
+                    WearableBleDiagLog.log("wake", "window error " + error);
+                }
+                followUps = 0;
+                afterWindow(200);
+                return;
+            }
             long d = error == SpeechRecognizer.ERROR_NO_MATCH || error == SpeechRecognizer.ERROR_SPEECH_TIMEOUT ? 150
                     : error == SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS ? 4000 : 1200;
-            if (error == SpeechRecognizer.ERROR_RECOGNIZER_BUSY || error == SpeechRecognizer.ERROR_CLIENT) {
-                try {
-                    if (rec != null) {
-                        rec.destroy();
-                    }
-                } catch (Throwable ignored) {
-                }
-                rec = null;
-            }
-            listen(d);
+            recognize(d);
         }
 
         @Override
@@ -173,6 +409,9 @@ public final class WakeListener {
 
         @Override
         public void onBeginningOfSpeech() {
+            if (window) {
+                state = "command";
+            }
         }
 
         @Override
@@ -196,8 +435,52 @@ public final class WakeListener {
         }
     }
 
-    /** One phrase: "тренер …" → the command; "тренер" alone arms the next phrase; anything else is ignored. */
-    static void heard(ArrayList<String> results) {
+    /** 4–5 · the command → the session, the answer by voice; one follow-up without the wake word. */
+    static void commandHeard(ArrayList<String> r) {
+        String cmd = r != null && !r.isEmpty() && r.get(0) != null ? r.get(0).trim() : "";
+        // "Тренер тренер, …" or the recognizer caught the tail of the wake word: drop it
+        String after = AiVoiceCmd.afterWake(cmd);
+        if (after != null) {
+            cmd = after;
+        }
+        if (cmd.length() > 0) {
+            WearableBleDiagLog.log("wake", "command \"" + cmd + "\"");
+            String said = AiTrain.voice(ctx, cmd);
+            if (said == null) {
+                tone(ToneGenerator.TONE_PROP_NACK);
+            } else if (said.length() > 0) {
+                say(said);
+            }
+            if (followUps == 0) {
+                followUps = 1;                         // "… още" right after needs no "тренер"
+                state = "listening";
+                AiTrain.voiceState();
+                recognize(900);
+                return;
+            }
+        }
+        followUps = 0;
+        afterWindow(300);
+    }
+
+    static void afterWindow(long delayMs) {
+        window = false;
+        state = "";
+        AiTrain.voiceState();
+        destroyRecognizer();
+        if (!on) {
+            return;
+        }
+        if (SPOTTER.ready()) {
+            mute(false);
+            MAIN.postDelayed(new MicAgain(), delayMs);
+        } else {
+            recognize(delayMs);
+        }
+    }
+
+    /** The fallback (no recordings yet): every phrase is transcribed, only "тренер …" acts. */
+    static void heardFallback(ArrayList<String> results) {
         if (results == null || results.isEmpty()) {
             return;
         }
@@ -223,12 +506,76 @@ public final class WakeListener {
     }
 
     private static void act(String cmd) {
-        WearableBleDiagLog.log("wake", "\"" + cmd + "\"");
-        boolean done = AiTrain.voice(ctx, cmd);
-        tone(done ? ToneGenerator.TONE_PROP_ACK : ToneGenerator.TONE_PROP_NACK);
+        String said = AiTrain.voice(ctx, cmd);
+        if (said == null) {
+            tone(ToneGenerator.TONE_PROP_NACK);
+        } else if (said.length() > 0) {
+            say(said);
+        } else {
+            tone(ToneGenerator.TONE_PROP_ACK);
+        }
     }
 
-    private static void tone(int t) {
+    private static void destroyRecognizer() {
+        try {
+            if (rec != null) {
+                rec.cancel();
+                rec.destroy();
+            }
+        } catch (Throwable ignored) {
+        }
+        rec = null;
+    }
+
+    // ================================================================ the spoken answer
+
+    static boolean bg() {
+        return AiText.t("bg", "en").equals("bg");
+    }
+
+    private static void initTts() {
+        if (tts != null || ctx == null) {
+            return;
+        }
+        try {
+            tts = new TextToSpeech(ctx, new TtsInit());
+        } catch (Throwable t) {
+            WearableBleDiagLog.log("wake", "tts: " + t);
+        }
+    }
+
+    static final class TtsInit implements TextToSpeech.OnInitListener {
+        @Override
+        public void onInit(int status) {
+            try {
+                if (status == TextToSpeech.SUCCESS && tts != null) {
+                    int r = tts.setLanguage(bg() ? new Locale("bg", "BG") : Locale.US);
+                    ttsOk = r != TextToSpeech.LANG_MISSING_DATA && r != TextToSpeech.LANG_NOT_SUPPORTED;
+                    tts.setSpeechRate(1.1f);
+                }
+            } catch (Throwable t) {
+                ttsOk = false;
+            }
+            WearableBleDiagLog.log("wake", "tts " + (ttsOk ? "bg ok" : "none — tones only"));
+        }
+    }
+
+    /** A short confirmation: "Крака 45 %" → "Крака 45 процента"; no speech engine → the "done" tone. */
+    static void say(String text) {
+        if (!ttsOk || tts == null) {
+            tone(ToneGenerator.TONE_PROP_ACK);
+            return;
+        }
+        try {
+            String t = text.replace("✓", "").replace(" · ", ". ").replace("%", bg() ? " процента" : " percent")
+                    .replace("Hz", bg() ? "херца" : "hertz").replace("−", bg() ? "минус " : "minus ").replace("+", "плюс ");
+            tts.speak(t.length() > 160 ? t.substring(0, 160) : t, TextToSpeech.QUEUE_FLUSH, null, "xems");
+        } catch (Throwable t) {
+            tone(ToneGenerator.TONE_PROP_ACK);
+        }
+    }
+
+    static void tone(int t) {
         try {
             ToneGenerator g = new ToneGenerator(AudioManager.STREAM_MUSIC, 55);
             g.startTone(t, 180);
@@ -253,7 +600,7 @@ public final class WakeListener {
         }
     }
 
-    /** The recognizer's own start beep on every restart would ring all session: the system sounds are muted while on. */
+    /** The recognizer's own start beep rings on every start: the system sounds are muted while it listens. */
     private static void mute(boolean m) {
         try {
             AudioManager am = (AudioManager) (ctx != null ? ctx.getSystemService(Context.AUDIO_SERVICE) : null);
@@ -275,5 +622,21 @@ public final class WakeListener {
         } catch (Throwable t) {
             WearableBleDiagLog.log("wake", "mute: " + t);
         }
+    }
+
+    static String hex(byte[] b) {
+        StringBuilder s = new StringBuilder(b.length * 2);
+        for (byte x : b) {
+            s.append(Character.forDigit((x >> 4) & 15, 16)).append(Character.forDigit(x & 15, 16));
+        }
+        return s.toString();
+    }
+
+    static byte[] unhex(String s) {
+        byte[] b = new byte[s.length() / 2];
+        for (int i = 0; i < b.length; i++) {
+            b[i] = (byte) Integer.parseInt(s.substring(2 * i, 2 * i + 2), 16);
+        }
+        return b;
     }
 }

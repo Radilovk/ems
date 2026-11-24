@@ -1273,8 +1273,10 @@ public final class AutoUi {
             headLeft.addView(ai, alp2);
             // 🎙 "Тренер, …" — the tablet listens hands-free (1.1.540); a tap turns it off / on
             boolean wake = WakeListener.isOn();
-            TextView mic = XemsUi.chip(c, wake ? "🎙  " + AiText.t("„Тренер, …“", "“Trainer, …”") : "🎙  " + AiText.t("изкл.", "off"),
-                    wake, XemsUi.GO);
+            String ws = WakeListener.state();
+            TextView mic = XemsUi.chip(c, !wake ? "🎙  " + AiText.t("изкл.", "off")
+                    : ws.length() > 0 ? "🎙  " + AiText.t("Слушам…", "Listening…")
+                    : "🎙  " + AiText.t("„Тренер, …“", "“Trainer, …”"), wake, ws.length() > 0 ? XemsUi.AMBER : XemsUi.GO);
             mic.setOnClickListener(new Act(A_WAKE, 0));
             LinearLayout.LayoutParams mlp2 = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
                     XemsUi.dp(c, 48));

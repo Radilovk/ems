@@ -111,9 +111,26 @@ public final class AiTrain {
      * A spoken command after "тренер" (WakeListener): before the start "старт" starts and anything else goes to the
      * chat; during the session the tablet reads the command itself, only what is none goes to the AI. True = taken.
      */
-    static boolean voice(Context c, String cmd) {
+    /** What the last spoken command did, for the voice answer ("" = done, nothing to say; null = not understood). */
+    static String lastSpoken;
+
+    /** The voice state changed ("🎙 Слушам"): the board shows it. */
+    static void voiceState() {
+        if (AutoSession.aiMode) {
+            rebuild();
+        }
+    }
+
+    static String voice(Context c, String cmd) {
+        String r = voiceAct(c, cmd);
+        return r;
+    }
+
+    /** null = not taken / not understood; "" = taken (the AI answers in the chat); else what to say back. */
+    private static String voiceAct(Context c, String cmd) {
+        lastSpoken = null;
         if (!AutoSession.aiMode || c == null || cmd == null || cmd.trim().length() == 0) {
-            return false;
+            return null;
         }
         boolean running = AutoSession.getStage() == AutoSession.Stage.RUNNING && AutoSession.getEngine() != null;
         AiVoiceCmd.Result vc = AiVoiceCmd.parse(cmd);
@@ -121,29 +138,29 @@ public final class AiTrain {
             if (vc.actions.contains("resume") && vc.commands.isEmpty()) {
                 if (view == INTAKE) {
                     tune(c);
-                } else {
-                    start(c, AiSession.activityOf(AutoSession.getPanelRoot()));
+                    return AiText.t("Нагласям", "Tuning");
                 }
-                return true;
+                start(c, AiSession.activityOf(AutoSession.getPanelRoot()));
+                return AiText.t("Старт", "Start");
             }
             if (vc.actions.contains("stop")) {
                 close();
-                return true;
+                return AiText.t("Затворено", "Closed");
             }
             if (view == INTAKE) {
                 draft = (draft != null && draft.trim().length() > 0 ? draft.trim() + ", " : "") + cmd;
                 rebuild();
-                return true;
+                return AiText.t("Записах", "Noted");
             }
             send(c, cmd, false, false);
-            return true;
+            return "";
         }
         if (!vc.isEmpty()) {
             commandsDone(vc, cmd);
-            return true;
+            return lastSpoken != null && lastSpoken.length() > 0 ? lastSpoken : null;
         }
         send(c, cmd, true, false);
-        return true;
+        return "";
     }
 
     /** ✕ before the start: the AI training goes, the screen is as before. */
@@ -251,6 +268,12 @@ public final class AiTrain {
         TextView go = XemsUi.button(c, "✦  " + AiText.t("Нагласи с AI", "Tune with AI"), XemsUi.PRIMARY);
         go.setOnClickListener(new Act(A_TUNE));
         col3.addView(go, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, XemsUi.dp(c, 60)));
+        // 🎙 "Тренер, …": the tablet knows the trainer's word from 3 recordings (+ "тренировка" once)
+        boolean taught = WakeListener.enrolled(c);
+        TextView teach = XemsUi.button(c, taught ? "🎙  " + AiText.t("„Тренер“ ✓ · запиши пак", "“Trainer” ✓ · record again")
+                : "🎙  " + AiText.t("Научи „Тренер“ (30 s)", "Teach “Trainer” (30 s)"), taught ? XemsUi.GHOST : XemsUi.SECONDARY);
+        teach.setOnClickListener(new Act(A_TEACH));
+        col3.addView(teach, XemsUi.matchWrap(c, 6));
         TextView x = XemsUi.button(c, AiText.t("Затвори", "Close"), XemsUi.GHOST);
         x.setOnClickListener(new Act(A_CLOSE));
         col3.addView(x, XemsUi.matchWrap(c, 6));
@@ -576,6 +599,7 @@ public final class AiTrain {
     /** The commands → the session now; the chat says what was done. */
     static void commandsDone(AiVoiceCmd.Result vc, String text) {
         String done = applyCommands(vc);
+        lastSpoken = done;
         AiCoach.Reply r = new AiCoach.Reply();
         r.reply = done.length() > 0 ? "✓ " + done : AiText.t("Не можах да го направя сега.", "Could not do it now.");
         AiCoach.aiSaid(r);
@@ -803,7 +827,7 @@ public final class AiTrain {
 
     static final int P_SEX = 0, P_EXP = 1, P_GOAL = 2, P_KIND = 3, P_HEALTH = 4, P_FREE = 5;
     static final int S_AGE = 0, S_HEIGHT = 1, S_WEIGHT = 2;
-    static final int A_TUNE = 0, A_CLOSE = 1, A_BACK = 2, A_START = 3, A_SAVE = 4, A_LIVE_CLOSE = 5, A_MAKE = 6;
+    static final int A_TUNE = 0, A_CLOSE = 1, A_BACK = 2, A_START = 3, A_SAVE = 4, A_LIVE_CLOSE = 5, A_MAKE = 6, A_TEACH = 7;
 
     static final class Pick implements XemsUi.OnIndex {
         final int which;
@@ -920,6 +944,9 @@ public final class AiTrain {
                     break;
                 case A_START:
                     start(c, AiSession.activityOf(v));
+                    break;
+                case A_TEACH:
+                    WakeSetup.open(AiSession.activityOf(v));
                     break;
                 case A_MAKE:
                     send(c, AiText.t("Състави нова тренировка за този клиент.", "Write a new workout for this client."),

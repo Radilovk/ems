@@ -784,6 +784,10 @@ public final class AiTrain {
     /** The coach's commands and impulse moves on the running Auto session. */
     static String liveApply(AiCoach.Reply r) {
         // the coach's own commands first (a channel, the impulse): the same path as a spoken command
+        if ((r.cmds == null || r.cmds.commands.isEmpty()) && r.actions.isEmpty() && r.onDelta == null
+                && r.offDelta == null && r.hzPct == null && r.restPct == null && r.endInMin == null) {
+            r.cmds = AiVoiceCmd.fromReply(r.reply);        // it said "намалям краката" and sent nothing: do what it said
+        }
         String cmds = r.cmds != null && !r.cmds.commands.isEmpty() ? applyCommands(r.cmds) : "";
         String rest = liveTune(r);
         return cmds.length() == 0 ? rest : rest.length() == 0 ? cmds : cmds + " · " + rest;

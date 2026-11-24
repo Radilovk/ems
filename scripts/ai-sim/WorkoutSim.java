@@ -74,6 +74,16 @@ public class WorkoutSim {
         check(!AiVoiceCmd.isQuestion("намали ръцете"), "a command is no question");
         check(AiVoiceCmd.parse("дай малко повече на долната част на тялото").isEmpty(), "a body place without a word → AI");
         check(AiVoiceCmd.parse("по-силно").commands.size() == 1, "plain по-силно stays local");
+        v = AiVoiceCmd.fromReply("Намалям краката и минаваме на половин клек без тежест.");
+        check(v.commands.size() == 1 && v.commands.get(0).target.equals("legs") && v.commands.get(0).dir.equals("down"), "said: legs down → done " + v.commands);
+        v = AiVoiceCmd.fromReply("Намалявам импулса на корема, за да спре щипенето.");
+        check(v.commands.size() == 1 && v.commands.get(0).target.equals("abs"), "said: abs down → done " + v.commands);
+        v = AiVoiceCmd.fromReply("Усилвам седалището с 5 процента. Направи 10 клякания.");
+        check(v.commands.size() == 1 && v.commands.get(0).target.equals("glutes") && v.commands.get(0).dir.equals("up"), "said: glutes up " + v.commands);
+        check(AiVoiceCmd.fromReply("Вдигни ръцете над главата и направи 10 повторения.").commands.isEmpty(), "an exercise is no command");
+        check(AiVoiceCmd.fromReply("Направи 10 бавни повторения без тежест.").commands.isEmpty(), "advice is no command");
+        v = AiVoiceCmd.fromReply("Намалям малко силата на импулса за да е по комфортно.");
+        check(v.commands.size() == 1 && v.commands.get(0).target.equals("strength"), "said: strength down " + v.commands);
         // the double impulse and absolute levels (owner, 1.1.547)
         v = AiVoiceCmd.parse("спри двойния импулс");
         check(v.actions.contains("double_off") && !v.actions.contains("pause"), "спри двойния импулс = off, no pause");

@@ -459,6 +459,42 @@ public final class AiVoiceCmd {
         return r;
     }
 
+    /**
+     * What the coach SAID it does, when it sent nothing (the real model, 1.1.552: "Намалям краката…" with no command —
+     * the words and the suit disagreed). Only its own first-person verbs count ("намалявам", "увеличавам",
+     * "усилвам"…), sentence by sentence — "вдигни ръцете над главата" is an exercise, never a command.
+     */
+    public static Result fromReply(String reply) {
+        Result out = new Result();
+        if (reply == null) {
+            return out;
+        }
+        for (String sentence : reply.toLowerCase(Locale.ROOT).split("[.!?;]")) {
+            String v = null;
+            for (String w : sentence.split("[\\s,]+")) {
+                if (w.matches("намал(ям|явам|яваме|яме)|свал(ям|яме)|отслаб(вам|ваме)")) {
+                    v = "намали";
+                } else if (w.matches("увелич(авам|а|аваме|им)|усил(вам|ваме|я)|вдиг(ам|аме|на)|кач(вам|ваме)|засил(вам|ваме)")) {
+                    v = "увеличи";
+                }
+                if (v != null) {
+                    sentence = sentence.replace(w, v);
+                    break;
+                }
+            }
+            if (v == null) {
+                continue;
+            }
+            Result r = parse(sentence);
+            for (Cmd c : r.commands) {
+                if (!contains(out, c.target) && out.commands.size() < 6) {
+                    out.commands.add(c);
+                }
+            }
+        }
+        return out;
+    }
+
     /** The coach's own {@code commands} (a channel, the impulse…; 1.1.552): the answer to its question, done. */
     public static Result fromCoach(Map<?, ?> m) {
         Result r = new Result();

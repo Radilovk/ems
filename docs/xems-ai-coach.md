@@ -362,3 +362,11 @@ it, the warm-up runs softer by design); "s" read aloud as a letter → "секу
   `DOWN_WORDS`, with synonyms: вдигни, качи, повиши, добави, плюс / свали, смъкни, понижи, махни N, минус) is a step of
   that many points; only "на / до N" is a level. Before, "намали 5" SET the strength to 5. Numbers in words after
   these verbs too ("увеличи едно", "смъкни пет").
+
+## 1.1.558 — the coach does what it says
+- Real-model finding (ai-smoke, 1.1.552): the coach said "Намалям краката" and sent no command — the suit did not
+  change. Two guards: the prompt ("words without the change are a lie"; an example question for a vague complaint)
+  and, on the tablet, `AiVoiceCmd.fromReply`: a reply with no command but its own first-person verb
+  ("намалявам / увеличавам / усилвам / вдигам…") is read sentence by sentence and done. An exercise
+  ("вдигни ръцете") is never a command.
+- app-sim: `Voice.say` answers the system speech dialog (VoiceInput, 1.1.555+) as well as the background recognizer.

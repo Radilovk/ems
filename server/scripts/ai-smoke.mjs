@@ -40,8 +40,6 @@ await step('workout', () => workout(env, { kind: 'workout', domain: 'auto', menu
   text: 'Състави нова тренировка с дъмбели и постелка.', chat: [] }));
 await step('command (lite)', () => command(env, { text: 'дай малко повече на долната част на тялото' }));
 await step('brief', () => brief(env, { text: '52 г., болки в кръста, иска седалище', menu, context }));
-process.exit(failed ? 1 : 0);
-
 // Free speech during a session (owner, 1.1.551: "does it understand free text?"): each phrase as the tablet sends it
 // — the cheap command reader first; what it calls "not a command" goes to the live coach. Printed, not judged.
 const live = { ...context, session: 'RUNNING', program: 'general' };
@@ -66,3 +64,4 @@ for (const text of free) {
     console.log(`FREE "${text}" · error ${e && e.message}`);
   }
 }
+process.exit(failed ? 1 : 0);

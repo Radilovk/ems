@@ -476,6 +476,14 @@ public final class WakeListener {
         window = true;
         state = "listening";
         AiTrain.voiceState();
+        // owner, 1.1.555: "тренер" presses the chat's 🎤 — the same speech dialog: it shows that it listens, ends by
+        // itself on a pause, and hands the words to the same path (commands on the tablet, else the AI's dialogue)
+        Activity a = host != null ? host.get() : null;
+        if (a != null && !a.isFinishing() && VoiceInput.listen(a, new DialogCommand(),
+                followUp ? AiText.t("Слушам…", "Listening…") : AiText.t("Тренер слуша — кажи команда или въпрос",
+                        "The trainer listens — a command or a question"))) {
+            return;
+        }
         mute(true);
         recognize(0);
     }
@@ -657,9 +665,10 @@ public final class WakeListener {
             WearableBleDiagLog.log("wake", "command \"" + cmd + "\"");
             String said = AiTrain.voice(ctx, cmd, followUp);
             if (said != null && said.length() > 0) {
-                // done on the tablet: say it, then listen again without "тренер" — a dialogue, not one-shot
+                // a command done on the tablet: say it, then back to "тренер" (owner, 1.1.555: a command is not a
+                // dialogue — the room's noise must not keep it listening)
                 endWindow();
-                answer(said);
+                answer(said, false);
                 return;
             }
             if (said == null) {
@@ -683,6 +692,15 @@ public final class WakeListener {
      * listening window without "тренер" — a reply, a question back; silence ends the dialogue (back to the spotter).
      */
     static void answer(String text) {
+        answer(text, true);
+    }
+
+    /**
+     * dialogue: the AI answered (a reply, a question back) — one more listening without "тренер"; a pause, a quiet
+     * word or the room's noise ends it (the speech dialog closes, nothing heard → back to "тренер"). false: a command
+     * was done — said, then back to "тренер" at once.
+     */
+    static void answer(String text, boolean dialogue) {
         if (text == null || text.trim().length() == 0) {
             return;
         }
@@ -700,16 +718,18 @@ public final class WakeListener {
         if (window) {
             endWindow();
         }
+        Runnable next = dialogue ? FOLLOW : SPOTTER_AGAIN;
+        MAIN.removeCallbacks(SPOTTER_AGAIN);
         if (!ttsOk || tts == null) {
             tone(ToneGenerator.TONE_PROP_ACK);
-            MAIN.postDelayed(FOLLOW, 400);
+            MAIN.postDelayed(next, 400);
             return;
         }
         state = "speaking";
         AiTrain.voiceState();
-        say(text, "xems-listen");
+        say(text, dialogue ? "xems-listen" : "xems-said");
         // a lost "done" never leaves the microphone off: ~70 ms a character at most
-        MAIN.postDelayed(FOLLOW, Math.min(20000, 1500 + 70L * text.length()));
+        MAIN.postDelayed(next, Math.min(20000, 1500 + 70L * text.length()));
     }
 
     /**
@@ -736,6 +756,21 @@ public final class WakeListener {
     }
 
     private static final Runnable FOLLOW = new Follow();
+    private static final Runnable SPOTTER_AGAIN = new SpotterAgain();
+
+    /** After a command's confirmation: "тренер" again (or the recognizer, when nothing is recorded). */
+    static final class SpotterAgain implements Runnable {
+        @Override
+        public void run() {
+            MAIN.removeCallbacks(SPOTTER_AGAIN);
+            if (!on || window) {
+                return;
+            }
+            state = "";
+            AiTrain.voiceState();
+            afterWindow(0);
+        }
+    }
 
     static final class Follow implements Runnable {
         @Override
@@ -760,6 +795,9 @@ public final class WakeListener {
             if (id != null && id.startsWith("xems-listen")) {
                 MAIN.removeCallbacks(FOLLOW);
                 MAIN.postDelayed(FOLLOW, 250);
+            } else if (id != null && id.startsWith("xems-said")) {
+                MAIN.removeCallbacks(SPOTTER_AGAIN);
+                MAIN.postDelayed(SPOTTER_AGAIN, 250);
             } else if (id != null && id.startsWith("xems-ann")) {
                 MAIN.postDelayed(new MicAgain(), 300);      // the announcement said: the spotter listens again
             }

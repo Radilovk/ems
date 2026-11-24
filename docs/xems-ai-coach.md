@@ -321,3 +321,16 @@ it, the warm-up runs softer by design); "s" read aloud as a letter → "секу
   program) and a shorter chat (6 turns × 240 chars) — roughly half the input tokens of every live call. The command
   reader keeps clear readings per isolate (`commandKey`, 400 entries): a repeated phrase costs no model call
   (`model: "cache"`).
+
+## 1.1.555 — "Тренер" presses the chat's 🎤; a dialogue only with the AI; the trainer's voice decides
+- **The window = the chat's 🎤** (`WakeListener.openWindow` → `VoiceInput.listen(a, DialogCommand, prompt)`): the
+  same system speech dialog — it shows that it listens, closes by itself on a pause, and its words take the same
+  path (commands on the tablet, else the AI with a spoken answer). No dialog on the tablet → the background
+  recognizer as before (`VoiceInput.listen` returns false).
+- **Dialogue only after the AI**: `answer(text, dialogue)`. A command done on the tablet is confirmed aloud and
+  goes back to "тренер" (`SpotterAgain`); the AI's answer opens one more dialog without "тренер" ("Слушам…").
+  A pause, a quiet word or noise → the dialog closes empty → back to "тренер".
+- **Loudness gate** (`WakeWord.loudEnough`): the examples' mean peak level (dB, absolute on this microphone — a
+  noisy hall raises the floor, not the trainer's voice) is stored with them (format 3); a word more than 10 dB
+  quieter never wakes — a voice across the hall, the radio. Older recordings (no level) work as before; "Научи
+  отново" adds it. `run-wake.sh`: 34/36 wakes, 0/153 false (as before), −20 dB "тренер" 0/3, −4 dB 3/3.

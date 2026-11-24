@@ -334,3 +334,16 @@ it, the warm-up runs softer by design); "s" read aloud as a letter → "секу
   noisy hall raises the floor, not the trainer's voice) is stored with them (format 3); a word more than 10 dB
   quieter never wakes — a voice across the hall, the radio. Older recordings (no level) work as before; "Научи
   отново" adds it. `run-wake.sh`: 34/36 wakes, 0/153 false (as before), −20 dB "тренер" 0/3, −4 dB 3/3.
+
+## 1.1.556 — the model and its thinking chosen per turn; the coach knows EMS physiology
+- **Owner:** maximum adequacy; a cheap model only for the easy small things; how strong a model and whether it
+  thinks — chosen by itself.
+- **`server/src/airoute.js` `route(kind, body)`**: command → Lite, minimal thinking (closed JSON, validated, the
+  tablet keeps its limits); every coach reply → the main Flash, thinking low; with health or physiology in the turn
+  (`careful`: pain, symptoms, heart, pressure, pregnancy, diabetes, injury, "защо", Hz, fatigue…; word-start stems)
+  or planning for a client with conditions → thinking medium; the AI's workout → medium. The thinking's room is
+  added to the answer's (`THINK_ROOM`). A careful phrase never reaches the Lite command reader (`command` returns
+  coach without a call). Before: live replies ran on Lite with no thinking, planning on the least thinking.
+- **`PHYSIOLOGY`** in the coach's system text (coach, workout): synchronous recruitment, frequency bands, impulse /
+  pause, pulse width, the absolute limits, rest between sessions and adaptation, red flags → pause, no-EMS
+  conditions, the safer choice when unclear. "No disclaimers" stays, the red flags are acted on.

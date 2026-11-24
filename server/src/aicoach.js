@@ -4,7 +4,8 @@
 // session's advice (exercise type and load, drink before / during, food after). Numbers of the impulse stay the
 // planner's; the model only nudges them inside fixed windows.
 
-import { generateJson, FOCUS, CONTRA } from './aibrief.js';
+import { generateJson, FOCUS, CONTRA, THINK_ROOM } from './aibrief.js';
+import { route, careful } from './airoute.js';
 
 export const GOALS = ['TONE', 'FAT', 'MASSAGE', 'DRAIN', 'CELLULITE'];
 export const MODES = ['ACTIVE', 'PASSIVE'];
@@ -77,7 +78,8 @@ export function coachSchema(domain = null, programs = []) {
 export const COACH_SYSTEM = `You are the EMS coach inside XEMS (whole-body EMS suit, 20–25 min sessions).
 You talk with a trainer about one client, in short natural Bulgarian. A deterministic planner sets the impulse
 (Hz, pulse width, ON/OFF, phases, rests, time); the person sets the current strength. You adjust the planner's
-inputs and, while a session runs, nudge the impulse. No warnings, no disclaimers, no "consult a doctor".
+inputs and, while a session runs, nudge the impulse. No generic warnings or disclaimers, no "consult a doctor" —
+except the red flags below, which you act on.
 
 Each turn return JSON:
 - reply: 1–2 sentences, what you did or recommend. Plain words, no jargon.
@@ -100,6 +102,36 @@ Each turn return JSON:
     sugar pills + not eaten → fast carbs first and start after 10–15 min; else "nothing special".
   during: water in small sips; electrolytes only for heavy sweat, heat, dizziness or low blood pressure.
   after: within 1–2 h a meal with protein and some carbs; slimming → protein + vegetables, fewer carbs; water.`;
+
+/**
+ * What the coach must know about EMS itself (owner, 1.1.556: "a clear picture of what we do and of the principles of
+ * EMS training and physiology") — docs/xems-ems-physiology.md and docs/xems-safety-limits.md in short.
+ */
+export const PHYSIOLOGY = `
+EMS PRINCIPLES (use them in every decision and answer; be correct and concrete, never invent — unsure → say so):
+- WB-EMS fires the same motor units together on every impulse (no rotation as in voluntary work), so it tires the
+  muscle faster than the same force done voluntarily. The person sets the strength by feel: work at CR-10 6–8,
+  strong but never pain; the same current can be raised slowly as the body gets used to it in the first minutes.
+- Frequency: 1–10 Hz single twitches, little fatigue (warm-up 7 Hz, drainage 1 Hz, massage 2–8 Hz, cool-down
+  4–5 Hz); 20–30 Hz the contraction fuses (endurance); 50–100 Hz fused, near full force (strength 85 Hz, power
+  100 Hz), the most fatigue. Half of the full force at ~15 Hz.
+- Impulse and pause: a fused impulse lasts ≤ 6 s from 50 Hz (4–6 s usual); the pause must let the muscle relax —
+  the higher the Hz and the longer the impulse, the longer the pause. A second impulse in the pause stays ≤ 10 Hz.
+- Pulse width ~350 µs (300–400) reaches deeper fibres at a bearable current; from 100 Hz ≤ 300 µs (else burn).
+- Absolute limits the tablet keeps, never suggest past them: 1–120 Hz; clients 60+ at most 85 Hz.
+- Dose between sessions: the muscle damage marker peaks 2–4 days after a hard session → ≥ 4 days between sessions;
+  the first ~4 sessions are adaptation: clearly lighter, ~20 min. Strong soreness for days or dark urine after a
+  session = too much (risk of muscle breakdown): rest, water, next one much lighter.
+- Isometric EMS work raises the pulse more than the effort suggests (pressor reflex); water before and after.
+- RED FLAGS during a session — chest pain or pressure, dizziness, nausea, shortness of breath, palpitations, cold
+  sweat, sudden sharp or joint pain, a cramp that does not let go, numbness: actions pause (to_cooldown if it does not
+  pass), never stronger; reply: stop, sit or lie down, sip water, and what to watch. A burning or sharp spot under one
+  pad → that body part down or off, and check that the pad is wet and lies flat.
+- No EMS at all: pacemaker or other implanted electronics, pregnancy, epilepsy, fever or acute illness, fresh
+  thrombosis, cancer under treatment, serious heart disease, fresh surgery or injury in the area — say it plainly
+  (contra_add when it is in the list) and plan nothing for it.
+- When something about the body is unclear: the safer choice (less strength, shorter impulse, longer pause, slower
+  exercise) and one sentence why.`;
 
 /** CONTEXT (the session's inputs and plan as the tablet has them) + the chat + the latest message. */
 /** The running session's chat: fewer, shorter turns — each live call pays for its whole prompt (owner, 1.1.554). */
@@ -236,13 +268,13 @@ export async function coach(env, body, fetchImpl = fetch, ts = Date.now()) {
     prompt = 'MENU: ' + body.menu.slice(0, 60).map((m) => `${m.id}=${String(m.name || '').slice(0, 40)} (${m.goal}/${m.kind})`)
       .join('; ') + '\n' + prompt;
   }
-  const system = (auto ? COACH_SYSTEM + AUTO_NOTE : COACH_SYSTEM) + (live ? LIVE_NOTE : '');
-  // the running session: the fast Lite model, no thinking, a short answer — a reply in ~1–2 s, not 7–10 (1.1.547);
-  // the planning keeps the main model (it may take its time)
-  const r = live
-    ? await generateJson(env, system, prompt, coachSchema(auto ? 'auto' : null, programs), 1200, fetchImpl, ts, true)
-    : await generateJson(env, system, prompt, coachSchema(auto ? 'auto' : null, programs), 3000, fetchImpl, ts);
-  return { model: r.model, coach: validateCoach(r.raw, asked, auto ? 'auto' : null, programs) };
+  const system = (auto ? COACH_SYSTEM + AUTO_NOTE : COACH_SYSTEM) + PHYSIOLOGY + (live ? LIVE_NOTE : '');
+  // owner, 1.1.556: every reply of the coach is the main model (it decides about the body); it thinks a little, and
+  // more when health or physiology is in the turn (airoute.js) — the cheap model only reads plain commands
+  const rt = route('coach', body);
+  const r = await generateJson(env, system, prompt, coachSchema(auto ? 'auto' : null, programs),
+    rt.max + THINK_ROOM[rt.think], fetchImpl, ts, rt);
+  return { model: r.model, route: rt.why, coach: validateCoach(r.raw, asked, auto ? 'auto' : null, programs) };
 }
 
 // ================================================================ the AI's own workout (owner, 1.1.538)
@@ -313,7 +345,9 @@ export function validateWorkout(raw, askedSoFar = 0) {
 
 export async function workout(env, body, fetchImpl = fetch, ts = Date.now()) {
   const asked = Array.isArray(body.chat) ? body.chat.filter((t) => t && t.role === 'ai' && t.q).length : 0;
-  const r = await generateJson(env, COACH_SYSTEM + WORKOUT_NOTE, coachPrompt(body), workoutSchema(), 6000, fetchImpl, ts);
+  const rt = route('workout', body);
+  const r = await generateJson(env, COACH_SYSTEM + PHYSIOLOGY + WORKOUT_NOTE, coachPrompt(body), workoutSchema(),
+    rt.max + THINK_ROOM[rt.think], fetchImpl, ts, rt);
   return { model: r.model, coach: validateWorkout(r.raw, asked) };
 }
 
@@ -376,6 +410,8 @@ export function clearCommandCache() {
 }
 
 export async function command(env, body, fetchImpl = fetch, ts = Date.now()) {
+  // pain, symptoms, "why": not a command at all — straight to the coach, the cheap model never reads it
+  if (careful(body.text)) return { model: 'route', command: { commands: [], actions: [], coach: true } };
   const key = commandKey(body.text);
   const hit = key && commandCache.get(key);
   if (hit) return { model: 'cache', command: hit };
@@ -389,7 +425,8 @@ export async function command(env, body, fetchImpl = fetch, ts = Date.now()) {
 }
 
 async function commandCall(env, body, fetchImpl, ts) {
-  const r = await generateJson(env, COMMAND_SYSTEM, String(body.text || '').slice(0, 300), commandSchema(), 800,
-    fetchImpl, ts, true);
+  const rt = route('command', body);
+  const r = await generateJson(env, COMMAND_SYSTEM, String(body.text || '').slice(0, 300), commandSchema(), rt.max,
+    fetchImpl, ts, rt);
   return { model: r.model, command: validateCommand(r.raw) };
 }

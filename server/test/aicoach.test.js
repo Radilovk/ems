@@ -40,7 +40,7 @@ test('coachPrompt: context, asked count, chat, latest message', () => {
   assert.ok(coachSchema().properties.advice.properties.after);
 });
 
-test('thinking: none on 2.x, minimal on 3.x; a refused setting is retried without it', async () => {
+test('thinking: none on 2.x, minimal on 3.x; the coach starts at low; a refused setting is retried without it', async () => {
   assert.deepEqual(thinkingFor('gemini-2.5-flash'), { thinkingBudget: 0 });
   assert.deepEqual(thinkingFor('gemini-3-flash'), { thinkingLevel: 'minimal' });
   resetModelCache();
@@ -57,8 +57,9 @@ test('thinking: none on 2.x, minimal on 3.x; a refused setting is retried withou
       { text: JSON.stringify({ reply: 'Готово.', actions: ['pause'] }) }] } }] }));
   };
   const r = await coach({ GEMINI_API_KEY: 'k', GEMINI_MODEL: 'gemini-3-flash' }, { text: 'пауза' }, fake);
-  assert.equal(bodies.length, 3);                       // minimal → low → none (the real gemini-3.8-flash: low works)
-  assert.deepEqual(bodies[1].generationConfig.thinkingConfig, { thinkingLevel: 'low' });
+  assert.equal(bodies.length, 2);                       // the coach (1.1.556): low → none
+  assert.deepEqual(bodies[0].generationConfig.thinkingConfig, { thinkingLevel: 'low' });
+  assert.equal(bodies[1].generationConfig.thinkingConfig, undefined);
   assert.equal(r.coach.reply, 'Готово.');
   assert.deepEqual(r.coach.actions, ['pause']);
 });
@@ -182,9 +183,13 @@ test('command cache: the same words cost one model call; unclear readings are no
   assert.deepEqual(b.command, a.command);
   assert.equal(commandKey('По-силно, краката!'), commandKey('по силно краката'));
   answer = { coach: true };
-  await command(env, { text: 'как е пулсът' }, fake);
-  await command(env, { text: 'как е пулсът' }, fake);
+  await command(env, { text: 'долната част малко' }, fake);
+  await command(env, { text: 'долната част малко' }, fake);
   assert.equal(calls, 3);
+  // pain / symptoms never reach the cheap model: straight to the coach, no call
+  const p = await command(env, { text: 'боли ме коляното' }, fake);
+  assert.equal(calls, 3);
+  assert.equal(p.command.coach, true);
 });
 
 test('live coach prompt: no program menu, a short chat — fewer input tokens on every live call', async () => {
@@ -206,4 +211,41 @@ test('live coach prompt: no program menu, a short chat — fewer input tokens on
   assert.ok(!live.includes('MENU:'));
   assert.ok(prep.includes('MENU:'));
   assert.ok(live.length < prep.length / 2, `live ${live.length} vs prep ${prep.length}`);
+});
+
+test('route: Lite only for plain commands; the coach thinks, more with health or physiology in the turn', async () => {
+  const { route, careful } = await import('../src/airoute.js');
+  assert.deepEqual([route('command').lite, route('command').think], [true, 'minimal']);
+  const live = { session: 'RUNNING' };
+  assert.deepEqual([route('coach', { text: 'колко минути остават', context: live }).lite,
+    route('coach', { text: 'колко минути остават', context: live }).think], [false, 'low']);
+  assert.equal(route('coach', { text: 'замая ми се', context: live }).think, 'medium');
+  assert.equal(route('coach', { text: 'защо 85 херца', context: live }).think, 'medium');
+  assert.equal(route('coach', { text: 'нагласи я', context: { cond: ['knees'] } }).think, 'medium');
+  assert.equal(route('coach', { text: 'нагласи я', context: {} }).think, 'low');
+  assert.equal(route('workout').think, 'medium');
+  assert.equal(route('brief', { text: 'има диабет' }).think, 'medium');
+  for (const t of ['боли ме кръста', 'не ми е добре', 'имам пейсмейкър', 'бременна съм', 'how does EMS work']) {
+    assert.ok(careful(t), t);
+  }
+  for (const t of ['увеличи краката', 'характерът ѝ е силен', 'играе футбол', 'пауза']) assert.ok(!careful(t), t);
+});
+
+test('the coach asks Google with the route: the main model, thinking medium for a symptom, room for it', async () => {
+  resetModelCache();
+  const bodies = [];
+  const urls = [];
+  const fake = async (url, init) => {
+    urls.push(url);
+    bodies.push(JSON.parse(init.body));
+    return new Response(JSON.stringify({ candidates: [{ content: { parts: [{ text: JSON.stringify({ reply: 'Спри.',
+      actions: ['pause'] }) }] } }] }));
+  };
+  const env = { GEMINI_API_KEY: 'k', GEMINI_MODEL: 'gemini-3-flash', GEMINI_LITE_MODEL: 'gemini-3-flash-lite' };
+  const r = await coach(env, { text: 'замая ми се', context: { session: 'RUNNING' } }, fake);
+  assert.match(urls[0], /gemini-3-flash:generateContent/);
+  assert.deepEqual(bodies[0].generationConfig.thinkingConfig, { thinkingLevel: 'medium' });
+  assert.ok(bodies[0].generationConfig.maxOutputTokens >= 5000);
+  assert.match(bodies[0].systemInstruction.parts[0].text, /RED FLAGS/);
+  assert.equal(r.route, 'careful');
 });

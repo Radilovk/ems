@@ -293,3 +293,16 @@ it, the warm-up runs softer by design); "s" read aloud as a letter → "секу
   `AiTrain.liveApply` through `applyCommands` — on a ready program and on the AI's own workout.
 - Proof: `server/scripts/ai-smoke.mjs` FREE lines (12 everyday phrases) and DIALOG 1/2 (vague → question → answer
   → command) with the real model.
+
+## 1.1.553 — the wake word on Huawei: a microphone that gives silence
+- **Owner:** on a Huawei tablet neither the teaching nor hands-free heard anything; only the chat's 🎤 (the system's
+  speech dialog) worked.
+- **Microphone sources in turn** (`WakeListener.Mic`): VOICE_RECOGNITION → MIC → CAMCORDER → DEFAULT. A source that
+  does not initialize, does not record, fails to read, or gives only digital silence (peak ≤ 12 for 2.5 s) is
+  skipped; the one that gave sound is kept per tablet (`xems_wake` / `src`). None gives sound → `silent`, retried
+  every few seconds.
+- **The teaching dialog shows the level live** (`WakeSetup.Meter`) and, when silent, what to do: turn off the
+  tablet's voice assistant (Huawei "Celia") and apps that hold the microphone.
+- **No background recognizer** (`SpeechRecognizer.isRecognitionAvailable` false — Huawei without Google): after
+  "тренер" the command goes through the system's speech dialog (`VoiceInput`, as the chat's 🎤); a closed or empty
+  dialog returns to the spotter (`VoiceInput.WantsEmpty`).

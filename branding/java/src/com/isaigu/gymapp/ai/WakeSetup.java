@@ -79,6 +79,19 @@ public final class WakeSetup {
         sub = XemsUi.text(a, "", 14, XemsUi.MUTED, false);
         sub.setGravity(Gravity.CENTER);
         box.addView(sub, XemsUi.matchWrap(a, 6));
+        // what the microphone hears, live: the trainer sees at once whether the tablet hears them at all
+        LinearLayout meter = XemsUi.horizontal(a);
+        meter.setBackgroundDrawable(XemsUi.rounded(XemsUi.SURFACE, XemsUi.dp(a, 5), XemsUi.STROKE, XemsUi.dp(a, 1)));
+        bar = new View(a);
+        bar.setBackgroundDrawable(XemsUi.rounded(XemsUi.GO, XemsUi.dp(a, 5), XemsUi.GO, 0));
+        meter.addView(bar, new LinearLayout.LayoutParams(0, XemsUi.dp(a, 10), 0f));
+        meterRest = new View(a);
+        meter.addView(meterRest, new LinearLayout.LayoutParams(0, XemsUi.dp(a, 10), 1f));
+        box.addView(meter, XemsUi.matchWrap(a, 14));
+        micNote = XemsUi.text(a, "", 13, XemsUi.AMBER, true);
+        micNote.setGravity(Gravity.CENTER);
+        micNote.setVisibility(View.GONE);
+        box.addView(micNote, XemsUi.matchWrap(a, 6));
         LinearLayout btns = XemsUi.horizontal(a);
         TextView again = XemsUi.button(a, AiText.t("Отначало", "Start over"), XemsUi.GHOST);
         again.setOnClickListener(new Again());
@@ -100,6 +113,42 @@ public final class WakeSetup {
         d.show();
         WakeListener.beginSetup(a, new Events());
         begin();
+        MAIN.removeCallbacks(METER);
+        MAIN.postDelayed(METER, 100);
+    }
+
+    private static View bar, meterRest;
+    private static TextView micNote;
+    private static final Runnable METER = new Meter();
+
+    /** The level bar and, when the microphone gives only silence, what to do (Huawei: Celia holds the mic). */
+    static final class Meter implements Runnable {
+        @Override
+        public void run() {
+            if (dialog == null || bar == null) {
+                return;
+            }
+            float lv = Math.max(0.02f, WakeListener.level / 100f);
+            LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) bar.getLayoutParams();
+            LinearLayout.LayoutParams rp = (LinearLayout.LayoutParams) meterRest.getLayoutParams();
+            if (Math.abs(lp.weight - lv) > 0.01f) {
+                lp.weight = lv;
+                rp.weight = 1f - lv;
+                bar.setLayoutParams(lp);
+                meterRest.setLayoutParams(rp);
+            }
+            boolean deaf = WakeListener.silent;
+            if (deaf && micNote.getVisibility() != View.VISIBLE) {
+                micNote.setText(AiText.t("Таблетът не получава звук от микрофона. Изключи гласовия асистент "
+                                + "(при Huawei: „Celia“ / „Здравей, Celia“) и приложенията, които слушат, после „Отначало“.",
+                        "The tablet gets no sound from the microphone. Turn off the voice assistant "
+                                + "(Huawei: “Celia”) and apps that listen, then “Start over”."));
+                micNote.setVisibility(View.VISIBLE);
+            } else if (!deaf && micNote.getVisibility() == View.VISIBLE) {
+                micNote.setVisibility(View.GONE);
+            }
+            MAIN.postDelayed(this, 100);
+        }
     }
 
     private static boolean asked;
@@ -211,6 +260,8 @@ public final class WakeSetup {
         @Override
         public void onDismiss(android.content.DialogInterface d) {
             dialog = null;
+            MAIN.removeCallbacks(METER);
+            bar = null;
             if (step < STEPS) {
                 WakeListener.reloadExamples(host);           // not finished: the earlier examples stay as they were
             }

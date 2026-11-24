@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 171
+    .line 220
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -36,7 +36,7 @@
     .prologue
     const/4 v3, 0x3
 
-    .line 174
+    .line 223
     # getter for: Lcom/isaigu/gymapp/ai/WakeSetup;->dialog:Landroid/app/Dialog;
     invoke-static {}, Lcom/isaigu/gymapp/ai/WakeSetup;->access$000()Landroid/app/Dialog;
 
@@ -45,7 +45,7 @@
     if-eqz v0, :cond_e
 
     # getter for: Lcom/isaigu/gymapp/ai/WakeSetup;->step:I
-    invoke-static {}, Lcom/isaigu/gymapp/ai/WakeSetup;->access$100()I
+    invoke-static {}, Lcom/isaigu/gymapp/ai/WakeSetup;->access$500()I
 
     move-result v0
 
@@ -53,39 +53,39 @@
 
     if-lt v0, v1, :cond_f
 
-    .line 190
+    .line 239
     :cond_e
     :goto_e
     return-void
 
-    .line 177
+    .line 226
     :cond_f
     const/4 v0, 0x2
 
     if-ne p1, v0, :cond_1e
 
-    .line 178
+    .line 227
     # operator++ for: Lcom/isaigu/gymapp/ai/WakeSetup;->step:I
-    invoke-static {}, Lcom/isaigu/gymapp/ai/WakeSetup;->access$108()I
+    invoke-static {}, Lcom/isaigu/gymapp/ai/WakeSetup;->access$508()I
 
-    .line 179
+    .line 228
     const/16 v0, 0x19
 
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/WakeListener;->tone(I)V
 
-    .line 180
+    .line 229
     # invokes: Lcom/isaigu/gymapp/ai/WakeSetup;->ask()V
-    invoke-static {}, Lcom/isaigu/gymapp/ai/WakeSetup;->access$200()V
+    invoke-static {}, Lcom/isaigu/gymapp/ai/WakeSetup;->access$600()V
 
     goto :goto_e
 
-    .line 181
+    .line 230
     :cond_1e
     if-ne p1, v3, :cond_e
 
-    .line 182
+    .line 231
     # getter for: Lcom/isaigu/gymapp/ai/WakeSetup;->sub:Landroid/widget/TextView;
-    invoke-static {}, Lcom/isaigu/gymapp/ai/WakeSetup;->access$300()Landroid/widget/TextView;
+    invoke-static {}, Lcom/isaigu/gymapp/ai/WakeSetup;->access$700()Landroid/widget/TextView;
 
     move-result-object v0
 
@@ -99,22 +99,22 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 184
+    .line 233
     # getter for: Lcom/isaigu/gymapp/ai/WakeSetup;->step:I
-    invoke-static {}, Lcom/isaigu/gymapp/ai/WakeSetup;->access$100()I
+    invoke-static {}, Lcom/isaigu/gymapp/ai/WakeSetup;->access$500()I
 
     move-result v0
 
     if-ge v0, v3, :cond_3b
 
-    .line 185
+    .line 234
     sget-object v0, Lcom/isaigu/gymapp/ai/WakeListener;->SPOTTER:Lcom/isaigu/gymapp/ai/WakeWord;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/ai/WakeWord;->record()V
 
     goto :goto_e
 
-    .line 187
+    .line 236
     :cond_3b
     sget-object v0, Lcom/isaigu/gymapp/ai/WakeListener;->SPOTTER:Lcom/isaigu/gymapp/ai/WakeWord;
 

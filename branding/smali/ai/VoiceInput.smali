@@ -7,7 +7,8 @@
 .annotation system Ldalvik/annotation/MemberClasses;
     value = {
         Lcom/isaigu/gymapp/ai/VoiceInput$Result;,
-        Lcom/isaigu/gymapp/ai/VoiceInput$Host;
+        Lcom/isaigu/gymapp/ai/VoiceInput$Host;,
+        Lcom/isaigu/gymapp/ai/VoiceInput$WantsEmpty;
     }
 .end annotation
 
@@ -55,42 +56,42 @@
     .registers 7
 
     .prologue
-    .line 32
+    .line 36
     if-eqz p0, :cond_4
 
     if-nez p1, :cond_5
 
-    .line 63
+    .line 67
     :cond_4
     :goto_4
     return-void
 
-    .line 35
+    .line 39
     :cond_5
     sput-object p1, Lcom/isaigu/gymapp/ai/VoiceInput;->pending:Lcom/isaigu/gymapp/ai/VoiceInput$Result;
 
-    .line 37
+    .line 41
     :try_start_7
     invoke-virtual {p0}, Landroid/app/Activity;->getFragmentManager()Landroid/app/FragmentManager;
 
     move-result-object v1
 
-    .line 38
+    .line 42
     const-string v0, "xems_voice"
 
     invoke-virtual {v1, v0}, Landroid/app/FragmentManager;->findFragmentByTag(Ljava/lang/String;)Landroid/app/Fragment;
 
     move-result-object v0
 
-    .line 39
+    .line 43
     if-nez v0, :cond_a5
 
-    .line 40
+    .line 44
     new-instance v0, Lcom/isaigu/gymapp/ai/VoiceInput$Host;
 
     invoke-direct {v0}, Lcom/isaigu/gymapp/ai/VoiceInput$Host;-><init>()V
 
-    .line 41
+    .line 45
     invoke-virtual {v1}, Landroid/app/FragmentManager;->beginTransaction()Landroid/app/FragmentTransaction;
 
     move-result-object v2
@@ -103,12 +104,12 @@
 
     invoke-virtual {v2}, Landroid/app/FragmentTransaction;->commitAllowingStateLoss()I
 
-    .line 42
+    .line 46
     invoke-virtual {v1}, Landroid/app/FragmentManager;->executePendingTransactions()Z
 
     move-object v1, v0
 
-    .line 44
+    .line 48
     :goto_29
     new-instance v2, Landroid/content/Intent;
 
@@ -116,14 +117,14 @@
 
     invoke-direct {v2, v0}, Landroid/content/Intent;-><init>(Ljava/lang/String;)V
 
-    .line 45
+    .line 49
     const-string v0, "android.speech.extra.LANGUAGE_MODEL"
 
     const-string v3, "free_form"
 
     invoke-virtual {v2, v0, v3}, Landroid/content/Intent;->putExtra(Ljava/lang/String;Ljava/lang/String;)Landroid/content/Intent;
 
-    .line 46
+    .line 50
     const-string v0, "bg"
 
     const-string v3, "en"
@@ -142,23 +143,23 @@
 
     const-string v0, "bg-BG"
 
-    .line 47
+    .line 51
     :goto_49
     const-string v3, "android.speech.extra.LANGUAGE"
 
     invoke-virtual {v2, v3, v0}, Landroid/content/Intent;->putExtra(Ljava/lang/String;Ljava/lang/String;)Landroid/content/Intent;
 
-    .line 48
+    .line 52
     const-string v3, "android.speech.extra.LANGUAGE_PREFERENCE"
 
     invoke-virtual {v2, v3, v0}, Landroid/content/Intent;->putExtra(Ljava/lang/String;Ljava/lang/String;)Landroid/content/Intent;
 
-    .line 49
+    .line 53
     const-string v3, "android.speech.extra.ONLY_RETURN_LANGUAGE_PREFERENCE"
 
     invoke-virtual {v2, v3, v0}, Landroid/content/Intent;->putExtra(Ljava/lang/String;Ljava/lang/String;)Landroid/content/Intent;
 
-    .line 50
+    .line 54
     const-string v0, "android.speech.extra.PROMPT"
 
     const-string v3, "\u041a\u0430\u0436\u0438 \u0437\u0430 \u043a\u043b\u0438\u0435\u043d\u0442\u0430 \u0438\u043b\u0438 \u043a\u0430\u043a\u0432\u043e \u0434\u0430 \u0441\u043c\u0435\u043d\u044f\u2026"
@@ -171,14 +172,14 @@
 
     invoke-virtual {v2, v0, v3}, Landroid/content/Intent;->putExtra(Ljava/lang/String;Ljava/lang/String;)Landroid/content/Intent;
 
-    .line 52
+    .line 56
     const-string v0, "android.speech.extra.MAX_RESULTS"
 
     const/4 v3, 0x1
 
     invoke-virtual {v2, v0, v3}, Landroid/content/Intent;->putExtra(Ljava/lang/String;I)Landroid/content/Intent;
 
-    .line 53
+    .line 57
     const/16 v0, 0x5a1
 
     invoke-virtual {v1, v2, v0}, Landroid/app/Fragment;->startActivityForResult(Landroid/content/Intent;I)V
@@ -187,16 +188,16 @@
 
     goto :goto_4
 
-    .line 54
+    .line 58
     :catch_71
     move-exception v0
 
-    .line 55
+    .line 59
     const/4 v1, 0x0
 
     sput-object v1, Lcom/isaigu/gymapp/ai/VoiceInput;->pending:Lcom/isaigu/gymapp/ai/VoiceInput$Result;
 
-    .line 56
+    .line 60
     const-string v1, "voice"
 
     new-instance v2, Ljava/lang/StringBuilder;
@@ -219,7 +220,7 @@
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/wearable/WearableBleDiagLog;->log(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 58
+    .line 62
     :try_start_8d
     const-string v0, "\u041d\u044f\u043c\u0430 \u0433\u043b\u0430\u0441\u043e\u0432\u043e \u0432\u044a\u0432\u0435\u0436\u0434\u0430\u043d\u0435 \u043d\u0430 \u0442\u0430\u0431\u043b\u0435\u0442\u0430 (Google)."
 
@@ -235,20 +236,20 @@
 
     move-result-object v0
 
-    .line 59
+    .line 63
     invoke-virtual {v0}, Landroid/widget/Toast;->show()V
     :try_end_9d
     .catch Ljava/lang/Throwable; {:try_start_8d .. :try_end_9d} :catch_9f
 
     goto/16 :goto_4
 
-    .line 60
+    .line 64
     :catch_9f
     move-exception v0
 
     goto/16 :goto_4
 
-    .line 46
+    .line 50
     :cond_a2
     :try_start_a2
     const-string v0, "en-US"

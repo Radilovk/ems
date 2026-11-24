@@ -24,6 +24,10 @@ public final class VoiceInput {
         void onText(String text);
     }
 
+    /** A Result that also wants "" when nothing was said or the dialog was closed (the wake word's window). */
+    public interface WantsEmpty {
+    }
+
     private static final String TAG = "xems_voice";
     static final int REQ = 0x5A1;
     private static Result pending;
@@ -73,7 +77,13 @@ public final class VoiceInput {
             }
             Result cb = pending;
             pending = null;
-            if (cb == null || resultCode != Activity.RESULT_OK || data == null) {
+            if (cb == null) {
+                return;
+            }
+            if (resultCode != Activity.RESULT_OK || data == null) {
+                if (cb instanceof WantsEmpty) {
+                    cb.onText("");
+                }
                 return;
             }
             ArrayList<String> r = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
@@ -83,6 +93,8 @@ public final class VoiceInput {
                 } catch (Throwable t) {
                     WearableBleDiagLog.log("voice", "result: " + t);
                 }
+            } else if (cb instanceof WantsEmpty) {
+                cb.onText("");
             }
         }
     }

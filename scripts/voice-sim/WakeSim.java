@@ -70,6 +70,12 @@ public class WakeSim {
         return Arrays.copyOfRange(s, Math.max(0, a - 400), Math.min(s.length, b + 400));
     }
 
+    static short[] scale(short[] s, double k) {
+        short[] o = new short[s.length];
+        for (int i = 0; i < s.length; i++) o[i] = (short) Math.round(s[i] * k);
+        return o;
+    }
+
     static short[] add(short[] s, double level) {
         short[] o = s.clone();
         for (int i = 0; i < o.length; i++) o[i] = (short) Math.max(-32000, Math.min(32000, o[i] + rnd.nextGaussian() * level));
@@ -151,10 +157,24 @@ public class WakeSim {
         System.out.println("wake: hits " + tp + "/" + pos + ", false wakes " + fp + "/" + neg);
         check(tp >= pos * 0.85, "≥ 85 % of the wake words heard (" + tp + "/" + pos + ")");
         check(fp <= neg * 0.03, "≤ 3 % false wakes (" + fp + "/" + neg + ")");
+        // ---- owner, 1.1.555: the trainer's voice decides — the same word much quieter (across the hall, the radio) never
+        // wakes; a little quieter (a step back) still does
+        System.out.println("examples' loudness " + w.loud + " dB peak");
+        check(w.loud > 0, "the examples' loudness is known");
+        int quietWakes = 0, softHits = 0;
+        for (int[] v : voices) {
+            short[] word = trim(say("тренер", v[0], v[1]));
+            if (!feed(w, add(cat(noise(12000, 0), scale(word, 0.1), noise(12000, 0)), 30)).isEmpty()) quietWakes++;
+            if (!feed(w, add(cat(noise(12000, 0), scale(word, 0.6), noise(12000, 0)), 30)).isEmpty()) softHits++;
+        }
+        System.out.println("far / quiet (−20 dB): " + quietWakes + " wakes of 3; a step back (−4 dB): " + softHits + " of 3"
+                + " (last loudness " + w.lastLoud + ")");
+        check(quietWakes == 0, "a far, quiet \"тренер\" never wakes");
+        check(softHits >= 2, "a little quieter still wakes");
         // ---- storage round trip
         WakeWord w2 = new WakeWord();
-        check(w2.load(w.save()) && w2.ready() && w2.threshold() == w.threshold() && w2.hasContrast() == w.hasContrast(),
-                "save / load the examples");
+        check(w2.load(w.save()) && w2.ready() && w2.threshold() == w.threshold() && w2.hasContrast() == w.hasContrast()
+                        && Math.abs(w2.loud - w.loud) <= 0.5f, "save / load the examples (and their loudness)");
         System.out.println((fails == 0 ? "OK" : "FAIL") + " — wake word: " + checks + " checks, " + fails + " failures");
         if (fails > 0) System.exit(1);
     }

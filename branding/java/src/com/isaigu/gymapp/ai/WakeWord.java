@@ -394,6 +394,24 @@ public final class WakeWord {
     public int wakeFrame;
     private final float[] bands = new float[NMEL];
     private final float[] edb = new float[1];
+    /**
+     * How loud the trainer said the examples: the peak level in dB on this tablet's microphone (mean; 0 = unknown,
+     * older recordings). Absolute, not over the floor: a noisy hall raises the floor, the trainer's voice stays as loud.
+     * A word much quieter than that is the room — a voice across the hall, the radio, the trainer muttering — and
+     * never wakes (owner, 1.1.555: "the louder speech, my voice, decides that the command is for it").
+     */
+    public float loud;
+    private float loudSum;
+    private int loudN;
+    /** dB below the examples' loudness a wake still counts (a step further, a head turned). */
+    static final float LOUD_MARGIN = 10;
+    /** The last word's peak level (diagnostics). */
+    public float lastLoud;
+
+    boolean loudEnough(float peak) {
+        lastLoud = peak;
+        return loud <= 0 || lastLoud >= loud - LOUD_MARGIN;
+    }
 
     public boolean ready() {
         return tpl.size() >= MAXT;
@@ -427,6 +445,9 @@ public final class WakeWord {
         tpl.clear();
         neg.clear();
         thr = DEFAULT_THR;
+        loud = 0;
+        loudSum = 0;
+        loudN = 0;
     }
 
     /** One 16 kHz sample → NONE / WAKE / RECORDED / SKIPPED. */
@@ -449,6 +470,11 @@ public final class WakeWord {
             if (recording) {
                 recording = false;
                 List<Word> into = recordingNeg ? neg : tpl;
+                if (!recordingNeg) {
+                    loudSum += finder.wPeak;
+                    loudN++;
+                    loud = loudSum / loudN;
+                }
                 if (into.size() == MAXT) {
                     into.remove(0);
                 }
@@ -456,7 +482,7 @@ public final class WakeWord {
                 retune();
                 return RECORDED;
             }
-            if (!was && ready() && accept(w)) {
+            if (!was && ready() && loudEnough(finder.wPeak) && accept(w)) {
                 wakeFrame = finder.w1;
                 return WAKE;
             }
@@ -469,7 +495,7 @@ public final class WakeWord {
             if (len >= (int) (tl * 0.8f) && len <= (int) (tl * 1.3f)) {
                 Word w = new Word();
                 finder.span(w, front, finder.s0, finder.t, finder.peak);
-                if (accept(w)) {
+                if (loudEnough(finder.peak) && accept(w)) {
                     fired = true;
                     wakeFrame = finder.t;
                     return WAKE;
@@ -560,7 +586,7 @@ public final class WakeWord {
 
     public byte[] save() {
         java.io.ByteArrayOutputStream o = new java.io.ByteArrayOutputStream();
-        o.write(2);
+        o.write(3);
         o.write(tpl.size());
         for (Word w : tpl) {
             byte[] b = w.pack();
@@ -571,11 +597,12 @@ public final class WakeWord {
             byte[] b = w.pack();
             o.write(b, 0, b.length);
         }
+        o.write(Math.max(0, Math.min(127, Math.round(loud))));
         return o.toByteArray();
     }
 
     public boolean load(byte[] b) {
-        if (b == null || b.length < 2 || (b[0] != 1 && b[0] != 2)) {
+        if (b == null || b.length < 2 || b[0] < 1 || b[0] > 3) {
             return false;
         }
         tpl.clear();
@@ -584,12 +611,15 @@ public final class WakeWord {
         if (!read(b, p, b[1], tpl)) {
             return false;
         }
-        if (b[0] == 2 && p[0] < b.length) {
+        if (b[0] >= 2 && p[0] < b.length) {
             int nn = b[p[0]++];
             if (!read(b, p, nn, neg)) {
                 return false;
             }
         }
+        loud = b[0] == 3 && p[0] < b.length ? b[p[0]] : 0;
+        loudSum = loud;
+        loudN = loud > 0 ? 1 : 0;
         retune();
         return true;
     }

@@ -685,8 +685,39 @@ public final class AutoSession {
     }
 
     /** No client on the lead row (an unregistered person): the AI brief's guest taps (docs/xems-ai-brief.md). */
+    /** The session is the AI training (AiTrain): the AI board on the screen, the coach on top (1.1.537). */
+    public static boolean aiMode;
+    /** The AI's veto on the main impulse (1.1.539), given to the engine at ▶; 0 = the program's. */
+    public static int vetoHz, vetoOn, vetoOff;
+    public static String vetoReason;
+
     public static boolean isGuest() {
         return rows.isEmpty() || rows.get(0).userId == 0;
+    }
+
+    /**
+     * ▶ Старт without a strength set before (owner, 1.1.537: "the strength is set during the session by the person"):
+     * every row starts at 0 and the countdown begins; the first + on a row becomes its base (guard: "not calibrated at
+     * the start"), +5 per impulse at most. The face keeps its own calibration (FaceAuto).
+     */
+    public static void startDirect(Context c) {
+        if (plan == null) {
+            buildPlan();
+        }
+        faceMode();
+        written = calibrationCmd();
+        for (Row r : rows) {
+            r.cal = 0;
+            r.user = 1.0;
+            Arrays.fill(r.zoneOffset, 0);
+            Arrays.fill(r.zoneRatio, 100);
+            r.lastStrength = 0;
+            r.target = -1;
+        }
+        startRunNow(c);
+        notice(AiText.t("Програмата тръгна. Качи силата с + на реда до приятно усещане.",
+                "The program has started. Raise the strength with + on the row to a comfortable feel."), INFO,
+                System.currentTimeMillis());
     }
 
     public static boolean canStart() {
@@ -708,6 +739,13 @@ public final class AutoSession {
         if (plan == null || !canStart()) {
             return;
         }
+        startRunNow(c);
+    }
+
+    private static void startRunNow(Context c) {
+        if (plan == null) {
+            return;
+        }
         saveOptions(c);
         for (Row r : rows) {
             r.cal = r.block == null ? r.lastStrength : 0;
@@ -722,6 +760,9 @@ public final class AutoSession {
         }
         faceMode();
         engine = new AutoEngine(plan);
+        if (aiMode && (vetoHz > 0 || vetoOn > 0 || vetoOff > 0)) {
+            engine.setVeto(vetoHz, vetoOn, vetoOff);
+        }
         startEnergy();
         long now = System.currentTimeMillis();
         script = null;
@@ -843,7 +884,13 @@ public final class AutoSession {
         AutoLook.restore();
         AutoLook.unbindMainKeys(leaderRunning());
         AutoBoard.detach();
+        if (aiMode) {
+            WakeListener.stop();
+        }
         stage = Stage.IDLE;
+        aiMode = false;
+        vetoHz = vetoOn = vetoOff = 0;
+        vetoReason = null;
         written = null;
         engine = null;
         plan = null;
@@ -1354,6 +1401,73 @@ public final class AutoSession {
     }
 
     /** One face site's share on every row, 10 % a step (100 % = as the program asks; the master strength stays). */
+    /**
+     * A spoken step of the overall strength (owner, 1.1.539): ~10 % of each row's strength now ("малко" ~5 %), at least 1;
+     * up still rises at most +5 per impulse (rowStrength). Returns the leader's new value (−1 = nothing changed).
+     */
+    public static int strengthStep(int dir, boolean small) {
+        int lead = -1;
+        for (Row r : rows) {
+            if (r.block != null) {
+                continue;
+            }
+            int now = Math.max(0, r.writtenStrength >= 0 ? r.writtenStrength : r.lastStrength);
+            int to = Math.max(0, Math.min(100, now + dir * AiVoiceCmd.step(now, small)));
+            AutoModel.Plan rp = r.plan != null ? r.plan : plan;
+            double f = written != null && rp != null ? AutoEngine.rowFrac(written, rp.phiMax) : 1.0;
+            if (r.cal <= 0) {
+                r.cal = to;                                   // not raised yet: this becomes its base
+                r.user = 1.0;
+            } else if (f > 0) {
+                r.user = Math.max(0.05, to / (r.cal * f));
+            }
+            if (lead < 0) {
+                lead = to;
+            }
+        }
+        refreshOutput();
+        return lead;
+    }
+
+    /**
+     * A spoken step of one channel (owner, 1.1.539): ~10 % of its value now ("малко" ~5 %), at least 1 — legs at 50 → ±5,
+     * arms at 4 → ±1; off = 0, on = back to the program's share. Returns the leader's new value (−1 = none).
+     */
+    public static int channelStep(int ch, String dir, boolean small) {
+        if (ch < 0 || ch >= AutoModel.CHANNELS) {
+            return -1;
+        }
+        int lead = -1;
+        for (Row r : rows) {
+            if (r.block != null) {
+                continue;
+            }
+            int[] base = stepZones(r, written);
+            int now = r.writtenZones != null && ch < r.writtenZones.length ? r.writtenZones[ch] : base[ch];
+            int to;
+            if ("off".equals(dir)) {
+                to = 0;
+            } else if ("on".equals(dir)) {
+                to = now > 0 ? now : base[ch] > 0 ? base[ch] : 50;
+            } else {
+                to = now + ("up".equals(dir) ? 1 : -1) * AiVoiceCmd.step(now, small);
+            }
+            to = Math.max(0, Math.min(100, to));
+            r.zoneOffset[ch] = to - base[ch];
+            if (lead < 0) {
+                lead = to;
+            }
+        }
+        refreshOutput();
+        return lead;
+    }
+
+    private static void refreshOutput() {
+        if (stage == Stage.RUNNING && engine != null && engine.getState() == AutoEngine.State.RUN && written != null) {
+            writeRows(written, false);
+        }
+    }
+
     public static void adjustChannel(int ch, int delta) {
         if (ch < 0 || ch >= AutoModel.CHANNELS) {
             return;
@@ -1686,11 +1800,18 @@ public final class AutoSession {
             b.pulseContinue = Math.max(1, c.onS);
             b.pulsePause = Math.max(1, c.offS);
             b.strenth = strength;
+            // the row's 2nd-impulse switch stays as the session's setting (owner, 1.1.537: it followed every cycle and
+            // the stock index buttons blinked); a cycle / a rest without it gives it 0 strength
             boolean pause = c.pauseHz > 0 && strength > 0 && AiSession.pauseAllowed(r.item);
-            b.activePause = pause;
+            b.activePause = pause || steadyDouble(r);
             if (pause) {
                 b.pauseHz = c.pauseHz;
                 b.pauseStrenthPercent = Math.max(1, (int) Math.round(strength * c.pauseSigma));
+            } else if (b.activePause) {
+                b.pauseStrenthPercent = 0;
+                if (b.pauseHz <= 0) {
+                    b.pauseHz = 7;
+                }
             }
             if (b.strenthBean != null && b.strenthBean.buwei != null) {
                 for (int i = 0; i < Math.min(zones.length, b.strenthBean.buwei.length); i++) {
@@ -1717,6 +1838,14 @@ public final class AutoSession {
         }
     }
 
+    /** The session's double-impulse setting for this row (the switch the row shows, steady through the session). */
+    private static boolean steadyDouble(Row r) {
+        if (r == null || r.item == null || plan == null || !plan.doublePulseAllowed || !AiSession.pauseAllowed(r.item)) {
+            return false;
+        }
+        return engine != null ? engine.isDoublePulseOn() : plan.input.doublePulse;
+    }
+
     private static void zeroOutput() {
         zeroed = true;
         AutoEngine.Cmd c = written != null ? written : calibrationCmd();
@@ -1726,7 +1855,8 @@ public final class AutoSession {
                 continue;
             }
             b.strenth = 0;
-            b.activePause = false;
+            b.activePause = steadyDouble(r);                  // steady (1.1.537); nothing goes out: both at 0
+            b.pauseStrenthPercent = 0;
             r.writtenStrength = 0;
             try {
                 r.item.onParamsChange();
@@ -1778,9 +1908,9 @@ public final class AutoSession {
             }
             boolean params = b.hz != written.hz || b.pulseWidth != written.pwUs
                     || b.pulseContinue != Math.max(1, written.onS) || b.pulsePause != Math.max(1, written.offS);
-            boolean pause = b.activePause != (written.pauseHz > 0 && r.writtenStrength > 0
-                    && AiSession.pauseAllowed(r.item))
-                    || (b.activePause && b.pauseHz != written.pauseHz);
+            boolean pulseNow = written.pauseHz > 0 && r.writtenStrength > 0 && AiSession.pauseAllowed(r.item);
+            boolean pause = b.activePause != (pulseNow || steadyDouble(r))
+                    || (pulseNow && b.pauseHz != written.pauseHz);
             if (!params && !pause) {
                 continue;
             }

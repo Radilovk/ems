@@ -25,10 +25,10 @@
     .registers 2
 
     .prologue
-    .line 626
+    .line 631
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 627
+    .line 632
     if-nez p1, :cond_7
 
     const-string p1, ""
@@ -36,7 +36,7 @@
     :cond_7
     iput-object p1, p0, Lcom/isaigu/gymapp/ai/AiBrief$Json;->s:Ljava/lang/String;
 
-    .line 628
+    .line 633
     return-void
 .end method
 
@@ -55,40 +55,40 @@
     .prologue
     const/16 v3, 0x5d
 
-    .line 692
+    .line 697
     new-instance v0, Ljava/util/ArrayList;
 
     invoke-direct {v0}, Ljava/util/ArrayList;-><init>()V
 
-    .line 693
+    .line 698
     iget v1, p0, Lcom/isaigu/gymapp/ai/AiBrief$Json;->i:I
 
     add-int/lit8 v1, v1, 0x1
 
     iput v1, p0, Lcom/isaigu/gymapp/ai/AiBrief$Json;->i:I
 
-    .line 694
+    .line 699
     invoke-direct {p0}, Lcom/isaigu/gymapp/ai/AiBrief$Json;->ws()V
 
-    .line 695
+    .line 700
     invoke-direct {p0}, Lcom/isaigu/gymapp/ai/AiBrief$Json;->peek()C
 
     move-result v1
 
     if-ne v1, v3, :cond_1d
 
-    .line 696
+    .line 701
     iget v1, p0, Lcom/isaigu/gymapp/ai/AiBrief$Json;->i:I
 
     add-int/lit8 v1, v1, 0x1
 
     iput v1, p0, Lcom/isaigu/gymapp/ai/AiBrief$Json;->i:I
 
-    .line 707
+    .line 712
     :goto_1c
     return-object v0
 
-    .line 700
+    .line 705
     :cond_1d
     :goto_1d
     invoke-virtual {p0}, Lcom/isaigu/gymapp/ai/AiBrief$Json;->value()Ljava/lang/Object;
@@ -97,10 +97,10 @@
 
     invoke-interface {v0, v1}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    .line 701
+    .line 706
     invoke-direct {p0}, Lcom/isaigu/gymapp/ai/AiBrief$Json;->ws()V
 
-    .line 702
+    .line 707
     invoke-direct {p0}, Lcom/isaigu/gymapp/ai/AiBrief$Json;->peek()C
 
     move-result v1
@@ -109,7 +109,7 @@
 
     if-ne v1, v2, :cond_36
 
-    .line 703
+    .line 708
     iget v1, p0, Lcom/isaigu/gymapp/ai/AiBrief$Json;->i:I
 
     add-int/lit8 v1, v1, 0x1
@@ -118,7 +118,7 @@
 
     goto :goto_1d
 
-    .line 706
+    .line 711
     :cond_36
     invoke-direct {p0, v3}, Lcom/isaigu/gymapp/ai/AiBrief$Json;->expect(C)V
 
@@ -129,14 +129,14 @@
     .registers 5
 
     .prologue
-    .line 742
+    .line 747
     invoke-direct {p0}, Lcom/isaigu/gymapp/ai/AiBrief$Json;->peek()C
 
     move-result v0
 
     if-eq v0, p1, :cond_1f
 
-    .line 743
+    .line 748
     new-instance v0, Ljava/lang/IllegalArgumentException;
 
     new-instance v1, Ljava/lang/StringBuilder;
@@ -161,7 +161,7 @@
 
     throw v0
 
-    .line 745
+    .line 750
     :cond_1f
     iget v0, p0, Lcom/isaigu/gymapp/ai/AiBrief$Json;->i:I
 
@@ -169,7 +169,7 @@
 
     iput v0, p0, Lcom/isaigu/gymapp/ai/AiBrief$Json;->i:I
 
-    .line 746
+    .line 751
     return-void
 .end method
 
@@ -189,68 +189,68 @@
     .prologue
     const/16 v3, 0x7d
 
-    .line 668
+    .line 673
     new-instance v0, Ljava/util/LinkedHashMap;
 
     invoke-direct {v0}, Ljava/util/LinkedHashMap;-><init>()V
 
-    .line 669
+    .line 674
     iget v1, p0, Lcom/isaigu/gymapp/ai/AiBrief$Json;->i:I
 
     add-int/lit8 v1, v1, 0x1
 
     iput v1, p0, Lcom/isaigu/gymapp/ai/AiBrief$Json;->i:I
 
-    .line 670
+    .line 675
     invoke-direct {p0}, Lcom/isaigu/gymapp/ai/AiBrief$Json;->ws()V
 
-    .line 671
+    .line 676
     invoke-direct {p0}, Lcom/isaigu/gymapp/ai/AiBrief$Json;->peek()C
 
     move-result v1
 
     if-ne v1, v3, :cond_1d
 
-    .line 672
+    .line 677
     iget v1, p0, Lcom/isaigu/gymapp/ai/AiBrief$Json;->i:I
 
     add-int/lit8 v1, v1, 0x1
 
     iput v1, p0, Lcom/isaigu/gymapp/ai/AiBrief$Json;->i:I
 
-    .line 687
+    .line 692
     :goto_1c
     return-object v0
 
-    .line 676
+    .line 681
     :cond_1d
     :goto_1d
     invoke-direct {p0}, Lcom/isaigu/gymapp/ai/AiBrief$Json;->ws()V
 
-    .line 677
+    .line 682
     invoke-direct {p0}, Lcom/isaigu/gymapp/ai/AiBrief$Json;->string()Ljava/lang/String;
 
     move-result-object v1
 
-    .line 678
+    .line 683
     invoke-direct {p0}, Lcom/isaigu/gymapp/ai/AiBrief$Json;->ws()V
 
-    .line 679
+    .line 684
     const/16 v2, 0x3a
 
     invoke-direct {p0, v2}, Lcom/isaigu/gymapp/ai/AiBrief$Json;->expect(C)V
 
-    .line 680
+    .line 685
     invoke-virtual {p0}, Lcom/isaigu/gymapp/ai/AiBrief$Json;->value()Ljava/lang/Object;
 
     move-result-object v2
 
     invoke-interface {v0, v1, v2}, Ljava/util/Map;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
 
-    .line 681
+    .line 686
     invoke-direct {p0}, Lcom/isaigu/gymapp/ai/AiBrief$Json;->ws()V
 
-    .line 682
+    .line 687
     invoke-direct {p0}, Lcom/isaigu/gymapp/ai/AiBrief$Json;->peek()C
 
     move-result v1
@@ -259,7 +259,7 @@
 
     if-ne v1, v2, :cond_45
 
-    .line 683
+    .line 688
     iget v1, p0, Lcom/isaigu/gymapp/ai/AiBrief$Json;->i:I
 
     add-int/lit8 v1, v1, 0x1
@@ -268,7 +268,7 @@
 
     goto :goto_1d
 
-    .line 686
+    .line 691
     :cond_45
     invoke-direct {p0, v3}, Lcom/isaigu/gymapp/ai/AiBrief$Json;->expect(C)V
 
@@ -279,7 +279,7 @@
     .registers 3
 
     .prologue
-    .line 738
+    .line 743
     iget v0, p0, Lcom/isaigu/gymapp/ai/AiBrief$Json;->i:I
 
     iget-object v1, p0, Lcom/isaigu/gymapp/ai/AiBrief$Json;->s:Ljava/lang/String;
@@ -313,15 +313,15 @@
     .prologue
     const/16 v4, 0x22
 
-    .line 712
+    .line 717
     invoke-direct {p0, v4}, Lcom/isaigu/gymapp/ai/AiBrief$Json;->expect(C)V
 
-    .line 713
+    .line 718
     new-instance v0, Ljava/lang/StringBuilder;
 
     invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
 
-    .line 714
+    .line 719
     :goto_a
     iget v1, p0, Lcom/isaigu/gymapp/ai/AiBrief$Json;->i:I
 
@@ -332,45 +332,6 @@
     move-result v2
 
     if-ge v1, v2, :cond_ab
-
-    .line 715
-    iget-object v1, p0, Lcom/isaigu/gymapp/ai/AiBrief$Json;->s:Ljava/lang/String;
-
-    iget v2, p0, Lcom/isaigu/gymapp/ai/AiBrief$Json;->i:I
-
-    add-int/lit8 v3, v2, 0x1
-
-    iput v3, p0, Lcom/isaigu/gymapp/ai/AiBrief$Json;->i:I
-
-    invoke-virtual {v1, v2}, Ljava/lang/String;->charAt(I)C
-
-    move-result v1
-
-    .line 716
-    if-ne v1, v4, :cond_27
-
-    .line 717
-    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
-
-    move-result-object v0
-
-    return-object v0
-
-    .line 719
-    :cond_27
-    const/16 v2, 0x5c
-
-    if-ne v1, v2, :cond_a6
-
-    iget v2, p0, Lcom/isaigu/gymapp/ai/AiBrief$Json;->i:I
-
-    iget-object v3, p0, Lcom/isaigu/gymapp/ai/AiBrief$Json;->s:Ljava/lang/String;
-
-    invoke-virtual {v3}, Ljava/lang/String;->length()I
-
-    move-result v3
-
-    if-ge v2, v3, :cond_a6
 
     .line 720
     iget-object v1, p0, Lcom/isaigu/gymapp/ai/AiBrief$Json;->s:Ljava/lang/String;
@@ -386,6 +347,45 @@
     move-result v1
 
     .line 721
+    if-ne v1, v4, :cond_27
+
+    .line 722
+    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v0
+
+    return-object v0
+
+    .line 724
+    :cond_27
+    const/16 v2, 0x5c
+
+    if-ne v1, v2, :cond_a6
+
+    iget v2, p0, Lcom/isaigu/gymapp/ai/AiBrief$Json;->i:I
+
+    iget-object v3, p0, Lcom/isaigu/gymapp/ai/AiBrief$Json;->s:Ljava/lang/String;
+
+    invoke-virtual {v3}, Ljava/lang/String;->length()I
+
+    move-result v3
+
+    if-ge v2, v3, :cond_a6
+
+    .line 725
+    iget-object v1, p0, Lcom/isaigu/gymapp/ai/AiBrief$Json;->s:Ljava/lang/String;
+
+    iget v2, p0, Lcom/isaigu/gymapp/ai/AiBrief$Json;->i:I
+
+    add-int/lit8 v3, v2, 0x1
+
+    iput v3, p0, Lcom/isaigu/gymapp/ai/AiBrief$Json;->i:I
+
+    invoke-virtual {v1, v2}, Ljava/lang/String;->charAt(I)C
+
+    move-result v1
+
+    .line 726
     const/16 v2, 0x6e
 
     if-ne v1, v2, :cond_4b
@@ -396,7 +396,7 @@
 
     goto :goto_a
 
-    .line 722
+    .line 727
     :cond_4b
     const/16 v2, 0x74
 
@@ -408,7 +408,7 @@
 
     goto :goto_a
 
-    .line 723
+    .line 728
     :cond_55
     const/16 v2, 0x72
 
@@ -420,7 +420,7 @@
 
     goto :goto_a
 
-    .line 724
+    .line 729
     :cond_5f
     const/16 v2, 0x62
 
@@ -432,7 +432,7 @@
 
     goto :goto_a
 
-    .line 725
+    .line 730
     :cond_69
     const/16 v2, 0x66
 
@@ -444,7 +444,7 @@
 
     goto :goto_a
 
-    .line 726
+    .line 731
     :cond_73
     const/16 v2, 0x75
 
@@ -462,7 +462,7 @@
 
     if-gt v2, v3, :cond_a1
 
-    .line 727
+    .line 732
     iget-object v1, p0, Lcom/isaigu/gymapp/ai/AiBrief$Json;->s:Ljava/lang/String;
 
     iget v2, p0, Lcom/isaigu/gymapp/ai/AiBrief$Json;->i:I
@@ -485,7 +485,7 @@
 
     invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(C)Ljava/lang/StringBuilder;
 
-    .line 728
+    .line 733
     iget v1, p0, Lcom/isaigu/gymapp/ai/AiBrief$Json;->i:I
 
     add-int/lit8 v1, v1, 0x4
@@ -494,19 +494,19 @@
 
     goto/16 :goto_a
 
-    .line 729
+    .line 734
     :cond_a1
     invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(C)Ljava/lang/StringBuilder;
 
     goto/16 :goto_a
 
-    .line 731
+    .line 736
     :cond_a6
     invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(C)Ljava/lang/StringBuilder;
 
     goto/16 :goto_a
 
-    .line 734
+    .line 739
     :cond_ab
     new-instance v0, Ljava/lang/IllegalArgumentException;
 
@@ -521,7 +521,7 @@
     .registers 3
 
     .prologue
-    .line 749
+    .line 754
     :goto_0
     iget v0, p0, Lcom/isaigu/gymapp/ai/AiBrief$Json;->i:I
 
@@ -547,7 +547,7 @@
 
     if-eqz v0, :cond_1f
 
-    .line 750
+    .line 755
     iget v0, p0, Lcom/isaigu/gymapp/ai/AiBrief$Json;->i:I
 
     add-int/lit8 v0, v0, 0x1
@@ -556,7 +556,7 @@
 
     goto :goto_0
 
-    .line 752
+    .line 757
     :cond_1f
     return-void
 .end method
@@ -567,10 +567,10 @@
     .registers 6
 
     .prologue
-    .line 631
+    .line 636
     invoke-direct {p0}, Lcom/isaigu/gymapp/ai/AiBrief$Json;->ws()V
 
-    .line 632
+    .line 637
     iget v0, p0, Lcom/isaigu/gymapp/ai/AiBrief$Json;->i:I
 
     iget-object v1, p0, Lcom/isaigu/gymapp/ai/AiBrief$Json;->s:Ljava/lang/String;
@@ -581,7 +581,7 @@
 
     if-lt v0, v1, :cond_15
 
-    .line 633
+    .line 638
     new-instance v0, Ljava/lang/IllegalArgumentException;
 
     const-string v1, "end"
@@ -590,7 +590,7 @@
 
     throw v0
 
-    .line 635
+    .line 640
     :cond_15
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiBrief$Json;->s:Ljava/lang/String;
 
@@ -600,47 +600,47 @@
 
     move-result v0
 
-    .line 636
+    .line 641
     const/16 v1, 0x7b
 
     if-ne v0, v1, :cond_26
 
-    .line 637
+    .line 642
     invoke-direct {p0}, Lcom/isaigu/gymapp/ai/AiBrief$Json;->object()Ljava/util/Map;
 
     move-result-object v0
 
-    .line 664
+    .line 669
     :goto_25
     return-object v0
 
-    .line 639
+    .line 644
     :cond_26
     const/16 v1, 0x5b
 
     if-ne v0, v1, :cond_2f
 
-    .line 640
+    .line 645
     invoke-direct {p0}, Lcom/isaigu/gymapp/ai/AiBrief$Json;->array()Ljava/util/List;
 
     move-result-object v0
 
     goto :goto_25
 
-    .line 642
+    .line 647
     :cond_2f
     const/16 v1, 0x22
 
     if-ne v0, v1, :cond_38
 
-    .line 643
+    .line 648
     invoke-direct {p0}, Lcom/isaigu/gymapp/ai/AiBrief$Json;->string()Ljava/lang/String;
 
     move-result-object v0
 
     goto :goto_25
 
-    .line 645
+    .line 650
     :cond_38
     iget-object v1, p0, Lcom/isaigu/gymapp/ai/AiBrief$Json;->s:Ljava/lang/String;
 
@@ -654,19 +654,19 @@
 
     if-eqz v1, :cond_4d
 
-    .line 646
+    .line 651
     iget v0, p0, Lcom/isaigu/gymapp/ai/AiBrief$Json;->i:I
 
     add-int/lit8 v0, v0, 0x4
 
     iput v0, p0, Lcom/isaigu/gymapp/ai/AiBrief$Json;->i:I
 
-    .line 647
+    .line 652
     sget-object v0, Ljava/lang/Boolean;->TRUE:Ljava/lang/Boolean;
 
     goto :goto_25
 
-    .line 649
+    .line 654
     :cond_4d
     iget-object v1, p0, Lcom/isaigu/gymapp/ai/AiBrief$Json;->s:Ljava/lang/String;
 
@@ -680,19 +680,19 @@
 
     if-eqz v1, :cond_62
 
-    .line 650
+    .line 655
     iget v0, p0, Lcom/isaigu/gymapp/ai/AiBrief$Json;->i:I
 
     add-int/lit8 v0, v0, 0x5
 
     iput v0, p0, Lcom/isaigu/gymapp/ai/AiBrief$Json;->i:I
 
-    .line 651
+    .line 656
     sget-object v0, Ljava/lang/Boolean;->FALSE:Ljava/lang/Boolean;
 
     goto :goto_25
 
-    .line 653
+    .line 658
     :cond_62
     iget-object v1, p0, Lcom/isaigu/gymapp/ai/AiBrief$Json;->s:Ljava/lang/String;
 
@@ -706,23 +706,23 @@
 
     if-eqz v1, :cond_76
 
-    .line 654
+    .line 659
     iget v0, p0, Lcom/isaigu/gymapp/ai/AiBrief$Json;->i:I
 
     add-int/lit8 v0, v0, 0x4
 
     iput v0, p0, Lcom/isaigu/gymapp/ai/AiBrief$Json;->i:I
 
-    .line 655
+    .line 660
     const/4 v0, 0x0
 
     goto :goto_25
 
-    .line 657
+    .line 662
     :cond_76
     iget v1, p0, Lcom/isaigu/gymapp/ai/AiBrief$Json;->i:I
 
-    .line 658
+    .line 663
     :goto_78
     iget v2, p0, Lcom/isaigu/gymapp/ai/AiBrief$Json;->i:I
 
@@ -750,7 +750,7 @@
 
     if-ltz v2, :cond_99
 
-    .line 659
+    .line 664
     iget v2, p0, Lcom/isaigu/gymapp/ai/AiBrief$Json;->i:I
 
     add-int/lit8 v2, v2, 0x1
@@ -759,13 +759,13 @@
 
     goto :goto_78
 
-    .line 661
+    .line 666
     :cond_99
     iget v2, p0, Lcom/isaigu/gymapp/ai/AiBrief$Json;->i:I
 
     if-ne v1, v2, :cond_b6
 
-    .line 662
+    .line 667
     new-instance v1, Ljava/lang/IllegalArgumentException;
 
     new-instance v2, Ljava/lang/StringBuilder;
@@ -790,7 +790,7 @@
 
     throw v1
 
-    .line 664
+    .line 669
     :cond_b6
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiBrief$Json;->s:Ljava/lang/String;
 

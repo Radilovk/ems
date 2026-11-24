@@ -1,0 +1,143 @@
+.class final Lcom/isaigu/gymapp/ai/AiTrain$Step;
+.super Ljava/lang/Object;
+.source "AiTrain.java"
+
+# interfaces
+.implements Lcom/isaigu/gymapp/widget/XemsUi$OnStep;
+
+
+# annotations
+.annotation system Ldalvik/annotation/EnclosingClass;
+    value = Lcom/isaigu/gymapp/ai/AiTrain;
+.end annotation
+
+.annotation system Ldalvik/annotation/InnerClass;
+    accessFlags = 0x18
+    name = "Step"
+.end annotation
+
+
+# instance fields
+.field final which:I
+
+
+# direct methods
+.method constructor <init>(I)V
+    .registers 2
+
+    .prologue
+    .line 888
+    invoke-direct {p0}, Ljava/lang/Object;-><init>()V
+
+    .line 889
+    iput p1, p0, Lcom/isaigu/gymapp/ai/AiTrain$Step;->which:I
+
+    .line 890
+    return-void
+.end method
+
+
+# virtual methods
+.method public onStep(I)V
+    .registers 12
+
+    .prologue
+    .line 894
+    invoke-static {}, Lcom/isaigu/gymapp/ai/AutoSession;->getInput()Lcom/isaigu/gymapp/ai/AutoModel$Input;
+
+    move-result-object v0
+
+    .line 895
+    iget v1, p0, Lcom/isaigu/gymapp/ai/AiTrain$Step;->which:I
+
+    if-nez v1, :cond_20
+
+    .line 896
+    const/16 v1, 0xe
+
+    const/16 v2, 0x5a
+
+    iget v3, v0, Lcom/isaigu/gymapp/ai/AutoModel$Input;->age:I
+
+    add-int/2addr v3, p1
+
+    invoke-static {v2, v3}, Ljava/lang/Math;->min(II)I
+
+    move-result v2
+
+    invoke-static {v1, v2}, Ljava/lang/Math;->max(II)I
+
+    move-result v1
+
+    iput v1, v0, Lcom/isaigu/gymapp/ai/AutoModel$Input;->age:I
+
+    .line 902
+    :goto_19
+    invoke-static {}, Lcom/isaigu/gymapp/ai/AutoSession;->syncLeaderInput()V
+
+    .line 903
+    # invokes: Lcom/isaigu/gymapp/ai/AiTrain;->rebuild()V
+    invoke-static {}, Lcom/isaigu/gymapp/ai/AiTrain;->access$300()V
+
+    .line 904
+    return-void
+
+    .line 897
+    :cond_20
+    iget v1, p0, Lcom/isaigu/gymapp/ai/AiTrain$Step;->which:I
+
+    const/4 v2, 0x1
+
+    if-ne v1, v2, :cond_37
+
+    .line 898
+    const/16 v1, 0x82
+
+    const/16 v2, 0xdc
+
+    iget v3, v0, Lcom/isaigu/gymapp/ai/AutoModel$Input;->heightCm:I
+
+    add-int/2addr v3, p1
+
+    invoke-static {v2, v3}, Ljava/lang/Math;->min(II)I
+
+    move-result v2
+
+    invoke-static {v1, v2}, Ljava/lang/Math;->max(II)I
+
+    move-result v1
+
+    iput v1, v0, Lcom/isaigu/gymapp/ai/AutoModel$Input;->heightCm:I
+
+    goto :goto_19
+
+    .line 900
+    :cond_37
+    const-wide/16 v2, 0x23
+
+    const-wide/16 v4, 0xc8
+
+    iget-wide v6, v0, Lcom/isaigu/gymapp/ai/AutoModel$Input;->weightKg:D
+
+    invoke-static {v6, v7}, Ljava/lang/Math;->round(D)J
+
+    move-result-wide v6
+
+    int-to-long v8, p1
+
+    add-long/2addr v6, v8
+
+    invoke-static {v4, v5, v6, v7}, Ljava/lang/Math;->min(JJ)J
+
+    move-result-wide v4
+
+    invoke-static {v2, v3, v4, v5}, Ljava/lang/Math;->max(JJ)J
+
+    move-result-wide v2
+
+    long-to-double v2, v2
+
+    iput-wide v2, v0, Lcom/isaigu/gymapp/ai/AutoModel$Input;->weightKg:D
+
+    goto :goto_19
+.end method

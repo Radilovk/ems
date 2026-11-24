@@ -1,5 +1,84 @@
 # AI coach — the Smart Session with a dialogue (owner, 1.1.535)
 
+> **1.1.537 — the AI training is the automatic mode + the coach (`ai/AiTrain`).** Owner: "same templates and principle
+> as Auto, the AI model on top; not a full window — in the place of the rows 2–3, from the client's card down to the
+> dock; no strength set before the start (in Auto neither); a 🎤 like the keyboard's, Bulgarian; before ▶ everything the
+> AI set, summed up". The Smart Session sheet below stays only for the workouts' "with AI".
+> - **AI tile → `AiTrain.open`:** `AutoSession` with `aiMode`; `AutoBoard` shows `AiTrain.build` (KIND_AI) in the board's
+>   place. **Intake** (client · training · health · one line / 🎤 → ✦ Нагласи с AI) → **summary** (program, level,
+>   times, impulse Hz · ON / OFF · µs, double impulse, target feel, "strength from 0"; the advice; the chat with its
+>   question as buttons; ▶ Старт; ✓ Запази в профила for a client). Server: `kind:"coach", domain:"auto"` (Auto goals,
+>   the program menu, intensity, Auto windows ON −1…+1, OFF −1…+2, Hz ±10 %).
+> - **▶ Старт = `AutoSession.startDirect`:** every row at 0, the first + becomes its base (+5 / impulse). Auto's own
+>   client step starts the same way (no setting-up board any more); own maps start at once (`MapRunner.go` without the
+>   "strength first" stop). The face keeps its calibration (face studio).
+> - **Run:** the Auto board + **✦ AI** in its head → `AiTrain.buildLive` (KIND_AI_LIVE) in the same place: quick
+>   commands, the chat, 🎤. Live moves: `AutoEngine.setTune` (clamped, then `AutoLimits.clampStep`), `endActiveIn`,
+>   the session's own −10 % / +5 % / ❚❚ / ▶ / ⏭ / ■ / double impulse.
+> - **🎤 = `VoiceInput`:** Android's speech input (`RecognizerIntent`, the same Google voice typing as the keyboard's
+>   mic), bg-BG when the app is Bulgarian, through a headless fragment; the recognizer app asks for the mic itself (no
+>   RECORD_AUDIO in this app). The words go to the chat as a message (on the intake: into the line).
+> - **2nd-impulse blink fixed (Auto and Smart):** the row's `activePause` stays the session's setting; a cycle / rest
+>   without it gives it 0 % (before, it flipped every cycle and the stock index buttons blinked).
+> - Tests: `AutoSim.tuneFuzz` (random tunes + early end over every program, every cycle in limits).
+>
+> **1.1.538 — "✦ Нова от AI": a workout that is no template** (`ai/AiWorkout`). The summary's switch **Готова програма |
+> ✦ Нова от AI**. The model writes 5–10 exercises (dumbbells, kettlebell, free weight, mat, band, own body), each with
+> name, one-line how, sets 1–4 × 20–45 s, rest 15–90 s, equipment and its **load kind** (warm-up, strength,
+> hypertrophy, endurance, power, cardio, core, mobility) — server `kind:"workout"` (`validateWorkout`, ≤ 12 blocks).
+> The tablet sets the impulse by kind (`AiWorkout.IMPULSE`: 7 / 85 / 70 / 50 / 100 / 40 / 80 / 10 Hz with their µs and
+> ON / OFF; Hz ≤ the age limit; rest ≥ ⅔ ON), trims the active part to 20 min (last sets first), adds 10 min of passive
+> recovery, and runs it as a map (`MapRunner`, 🔒 blocks: the smart impulse leaves them): the card shows each
+> exercise's name and how — described, no figures. Strength from 0. Every chat message in this mode rewrites the
+> workout. Not yet: the ✦ AI chat during a map run (the map has its own card). Test: `WorkoutSim` (5 000 random
+> workouts: limits, ≤ 20 + 10 min).
+>
+> **1.1.539 (owner):**
+> - **Cardio = 7 Hz** (twitches + blood flow while the client moves; physiology §1 — 1–10 Hz). **40 Hz = tone**
+>   (fused tetanus, strength endurance), a kind of its own (`AiWorkout.IMPULSE`).
+> - **The AI's veto over the planner:** auto coach `veto:{hz, on_s, off_s, reason}` (reason required) replaces the main
+>   work's impulse (every tetanic step outside the warm-up and the recovery) — `AutoEngine.setVeto`, Hz still ≤ the age
+>   limit, then `AutoLimits.clampStep`; live from the next cycle. The summary shows the new impulse and "AI changed the
+>   program's impulse (was …): reason". The AI workout's blocks may carry `hz` (veto on the kind's frequency; the rest
+>   rule and ON ≤ 6 s at ≥ 50 Hz kept).
+> - **Spoken commands, cheap:** during the session every message goes 1) to the tablet's reader (`AiVoiceCmd`:
+>   "намали краката", "увеличи малко ръцете", "по-дълга пауза", "пауза", "прескочи"…), 2) else to the cheapest model
+>   (server `kind:"command"`, the newest Flash-Lite, a tiny prompt, ≤ 200 tokens), 3) only what is no command to the
+>   coach. **The step is relative to the value now:** ~10 % ("малко" ~5 %), never below 1 — legs 50 → ±5, arms 4 → ±1
+>   (`AutoSession.channelStep` / `strengthStep`); impulse / pause ±1 s, Hz ±10 % (±5), rests ±15 % (±8).
+> - Tests: `WorkoutSim` (commands, the step, vetoed frequencies), `AutoSim.tuneFuzz` (random vetoes).
+>
+> **1.1.540 — hands-free "Тренер, …"** (`ai/WakeListener`). From the AI training's start the tablet listens all the
+> time (Android's speech recognizer, bg-BG, offline when the language pack is installed, restarted after every
+> phrase; the system / notification sounds are muted while it listens so its start beep does not ring all session;
+> the program's beeps use the music stream and stay). It acts only on what follows the wake word ("тренер",
+> "треньор" and the recognizer's spellings — `AiVoiceCmd.afterWake`); "Тренер" alone arms the next phrase for 6 s.
+> No training needed. Before the start: "старт" = ✦ Нагласи / ▶ Старт, "стоп" closes, other words → the line / the
+> chat. During the session: the tablet reads the command (`AiVoiceCmd`: muscles, strength, impulse, pause, Hz, rests,
+> пауза, старт, стоп, прескочи, двоен импулс) — no AI; only what is none goes to Flash-Lite → the coach. A short tone:
+> done / not understood. 🎙 in the board's head turns it off / on. **RECORD_AUDIO is declared again** (asked once on
+> the tablet) — `verify-beta-safety.py` now allows it only for `WakeListener`. Not in a map run ("Нова от AI") yet.
+>
+> **1.1.541 — the wake word done the way voice assistants do it** (owner: "it listens, but acts only when I say
+> „тренер“ — the speech is aimed at it"; "тренировка" is another word and must never unlock).
+> 1. **Always on, on the tablet only — `ai/WakeWord`:** a keyword spotter ported from the voice module
+>    (`voice/xems_voice/kws.h`: 16 kHz, 26 mel bands, word finder, 12 cepstra + energy, DTW). It reads the microphone
+>    itself (`AudioRecord`) and knows only how the trainer says "тренер" — **3 recordings** + **"тренировка" once**
+>    (`WakeSetup`, ~30 s, per tablet; the look-alike is a contrast: a wake needs d ≤ thr AND d ≤ 75 % of the
+>    look-alike's distance, its beginning included — "трени…"). Nothing is transcribed, kept or sent. It matches the
+>    word **while it is said** (every 50 ms once it is as long as the examples), so "Тренер, увеличи краката" in one
+>    breath fires at the end of "тренер".
+> 2. **Wake:** a short tone, "🎙 Слушам…" in the board's head.
+> 3. **The command window:** the spotter lets the microphone go; Android's recognizer (bg-BG, offline preferred)
+>    takes only the following words, closing after 1 s of silence.
+> 4. **Understanding:** `AiTrain.voice` — the tablet's reader, else Flash-Lite, else the coach.
+> 5. **Answer by voice:** a short Bulgarian confirmation (TextToSpeech: "Крака 45 процента", "Пауза"), a tone when
+>    the tablet has no Bulgarian voice. One follow-up phrase right after needs no "тренер" ("… още").
+> Not recorded yet → the 1.1.540 way (the recognizer transcribes, acts only after "тренер").
+> **Test `scripts/voice-sim/run-wake.sh`** (espeak-ng, 3 voices × quiet / 2 noises): 34 / 36 wakes heard, **0 / 153
+> false** — "тренировка", "тренирам", "тренираме", "треньорка", "днес имаме тренировка", "пауза", "стоп", "три"…
+> (without the "тренировка" recording at the same threshold: 6 false). Synthetic voices — the real room may differ.
+
 Owner: "an AI training like a trainer who asks the right questions, programs the whole session and stays there to
 re-tune it live: a wizard of questions → the algorithm → a free-text dialogue where the AI asks what is unclear
 (1–3 questions, made in the dialogue). No warnings, no disclaimers; the strength is the person's."

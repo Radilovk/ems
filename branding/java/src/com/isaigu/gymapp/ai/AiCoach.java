@@ -45,7 +45,7 @@ public final class AiCoach {
     /** Goal names in AiModel.Goal order. */
     static final String[] GOAL_BG = {"стягане", "отслабване", "релакс", "дренаж", "целулит"};
     static final String[] ACTIONS = {"softer", "stronger", "pause", "resume", "continue", "to_cooldown", "double_on",
-            "double_off"};
+            "double_off", "skip", "to_recovery"};
     /** Advice keys, in the order shown. */
     public static final String[] ADVICE = {"exercise", "load", "rest", "equipment", "before", "during", "after"};
     public static final String[] ADVICE_BG = {"Упражнения", "Натоварване", "В почивките", "Тежест", "Преди", "По време",
@@ -72,6 +72,14 @@ public final class AiCoach {
         public final List<String> options = new ArrayList<String>();
         public String goal;
         public String mode;
+        /** Auto domain: a program of the menu, and soft / standard / intense. */
+        public String program;
+        public String intensity;
+        /** Auto domain: the AI's veto on the planner's main impulse (null = none), with its reason. */
+        public Integer vetoHz;
+        public Integer vetoOn;
+        public Integer vetoOff;
+        public String vetoReason;
         public Integer minutes;
         public Boolean doubleImpulse;
         public final List<String> condAdd = new ArrayList<String>();
@@ -276,7 +284,21 @@ public final class AiCoach {
                 }
             }
         }
-        r.goal = one(m.get("goal"), "TONE", "FAT", "MASSAGE", "DRAIN", "CELLULITE");
+        r.goal = one(m.get("goal"), "TONE", "FAT", "MASSAGE", "DRAIN", "CELLULITE", "SLIM", "HEALTH");
+        r.program = m.get("program") instanceof String && AutoCatalog.get((String) m.get("program")) != null
+                ? (String) m.get("program") : null;
+        r.intensity = one(m.get("intensity"), "SOFT", "STANDARD", "INTENSE");
+        if (m.get("veto") instanceof Map) {
+            Map<?, ?> v = (Map<?, ?>) m.get("veto");
+            r.vetoReason = str(v.get("reason"), 120);
+            r.vetoHz = num(v.get("hz"), 1, 120);
+            r.vetoOn = num(v.get("on_s"), 1, 10);
+            r.vetoOff = num(v.get("off_s"), 1, 10);
+            if (r.vetoReason.length() == 0 || (r.vetoHz == null && r.vetoOn == null && r.vetoOff == null)) {
+                r.vetoReason = null;
+                r.vetoHz = r.vetoOn = r.vetoOff = null;
+            }
+        }
         r.mode = one(m.get("mode"), "ACTIVE", "PASSIVE");
         r.minutes = num(m.get("minutes"), 10, 25);
         r.doubleImpulse = m.get("double_impulse") instanceof Boolean ? (Boolean) m.get("double_impulse") : null;
@@ -302,6 +324,177 @@ public final class AiCoach {
             r.advice = any ? out : null;
         }
         return r;
+    }
+
+    // ================================================================ the Auto domain (owner, 1.1.537)
+
+    /** A new AI training on the automatic mode: empty dialogue, the client's conditions as the base. */
+    public static void resetAuto(AutoModel.Input in) {
+        chat.clear();
+        advice = null;
+        condAtStart.clear();
+        condLearned.clear();
+        if (in != null) {
+            condAtStart.addAll(in.cond);
+        }
+    }
+
+    public static double bmi(AutoModel.Input in) {
+        return in.heightCm > 0 ? in.weightKg / Math.pow(in.heightCm / 100.0, 2) : 0;
+    }
+
+    /** Request fields for the Auto domain: inputs, the menu of programs, the plan, the running state, the chat. */
+    public static String requestFieldsAuto(AutoModel.Input in, String text, String planJson, String runJson,
+                                           boolean running) {
+        StringBuilder b = new StringBuilder();
+        b.append("\"kind\":\"coach\",\"domain\":\"auto\",\"text\":").append(AiBrief.q(text));
+        b.append(",\"context\":{\"session\":").append(AiBrief.q(running ? "RUNNING" : "PLANNING"));
+        b.append(",\"sex\":").append(AiBrief.q(in.sex.name())).append(",\"age\":").append(in.age);
+        if (in.heightCm > 0) {
+            b.append(",\"height_cm\":").append(in.heightCm);
+        }
+        b.append(",\"weight_kg\":").append(Math.round(in.weightKg));
+        double bmi = bmi(in);
+        if (bmi > 0) {
+            b.append(",\"bmi\":").append(String.format(Locale.ROOT, "%.1f", bmi))
+                    .append(",\"bmi_class\":").append(AiBrief.q(bmiClass(bmi)));
+        }
+        b.append(",\"fitness\":").append(AiBrief.q(in.fitness.name())).append(",\"ems_sessions\":").append(in.sessions);
+        b.append(",\"goal\":").append(AiBrief.q(in.goal.name())).append(",\"mode\":").append(AiBrief.q(in.kind.name()));
+        b.append(",\"program\":").append(AiBrief.q(in.programId));
+        b.append(",\"cond\":").append(list(in.cond)).append(",\"today\":").append(list(in.today))
+                .append(",\"focus\":").append(list(in.focus));
+        List<String> contra = new ArrayList<String>();
+        for (Map.Entry<String, Boolean> e : in.screening.contraindications.entrySet()) {
+            if (Boolean.TRUE.equals(e.getValue())) {
+                contra.add(e.getKey());
+            }
+        }
+        b.append(",\"contra\":").append(list(contra));
+        if (planJson != null) {
+            b.append(",\"plan\":").append(planJson);
+        }
+        if (runJson != null) {
+            b.append(",\"now\":").append(runJson);
+        }
+        b.append("},\"menu\":[");
+        int n = 0;
+        for (AutoCatalog.Program p : AiBrief.menu()) {
+            AutoModel.Goal g = AiBrief.goalOf(p);
+            b.append(n++ > 0 ? "," : "").append("{\"id\":").append(AiBrief.q(p.id)).append(",\"name\":")
+                    .append(AiBrief.q(p.name())).append(",\"goal\":").append(AiBrief.q(g != null ? g.name() : ""))
+                    .append(",\"kind\":").append(AiBrief.q(p.kind.name())).append('}');
+        }
+        b.append("],\"chat\":[");
+        int start = Math.max(0, chat.size() - 12);
+        for (int i = start; i < chat.size(); i++) {
+            Turn t = chat.get(i);
+            b.append(i > start ? "," : "").append("{\"role\":").append(t.ai ? "\"ai\"" : "\"trainer\"")
+                    .append(",\"text\":").append(AiBrief.q(t.text)).append(t.question ? ",\"q\":true" : "").append('}');
+        }
+        return b.append(']').toString();
+    }
+
+    /**
+     * The reply → the automatic mode's inputs through the AI brief's rules (the program follows the goal / the kind,
+     * a named one wins; minutes and the approach as {@link AiBrief}). Returns what changed.
+     */
+    public static List<String> applyAuto(Reply r, AutoModel.Input in) {
+        AiBrief.Patch p = new AiBrief.Patch();
+        if (r == null) {
+            return new ArrayList<String>();
+        }
+        p.goal = "FAT".equals(r.goal) ? "SLIM" : "TONE".equals(r.goal) || "SLIM".equals(r.goal) || "HEALTH".equals(r.goal)
+                ? r.goal : r.goal != null ? "HEALTH" : null;
+        p.kind = r.mode;
+        p.program = r.program;
+        p.intensity = r.intensity;
+        p.minutes = r.minutes;
+        p.doublePulse = r.doubleImpulse;
+        for (String k : r.condAdd) {
+            if (AiBrief.channelOrCond(k)) {
+                p.condAdd.add(k);
+            }
+        }
+        p.condRemove.addAll(r.condRemove);
+        p.focusAdd.addAll(r.focusAdd);
+        p.todayAdd.addAll(r.todayAdd);
+        p.contraAdd.addAll(r.contraAdd);
+        List<String> ch = AiBrief.apply(p, in);
+        // the conditions AiBrief does not know (diabetes, insulin, medicines…): kept for the plan's context and saving
+        for (String k : r.condAdd) {
+            if (!AiBrief.channelOrCond(k) && in.cond.add(k)) {
+                ch.add(nameOf(k, HEALTH, HEALTH_BG));
+            }
+            condLearned.add(k);
+            if ("insulin".equals(k) && in.cond.add("diabetes")) {
+                condLearned.add("diabetes");
+            }
+            if ("beta_blocker".equals(k)) {
+                in.screening.hrLoweringMedication = true;
+            }
+        }
+        for (String k : r.condRemove) {
+            condLearned.remove(k);
+        }
+        return ch;
+    }
+
+    /** Health chips on the Auto input (same keys as the Smart Session's). */
+    public static void toggleHealth(AutoModel.Input in, String key) {
+        if (indexOf(key, CONTRA) >= 0) {
+            in.screening.contraindications.put(key, !Boolean.TRUE.equals(in.screening.contraindications.get(key)));
+            return;
+        }
+        if (!in.cond.remove(key)) {
+            in.cond.add(key);
+        }
+        if ("diastasis".equals(key)) {
+            in.extra.diastasis = in.cond.contains(key);
+        }
+        if ("beta_blocker".equals(key)) {
+            in.screening.hrLoweringMedication = in.cond.contains(key);
+        }
+    }
+
+    public static boolean healthOn(AutoModel.Input in, String key) {
+        return indexOf(key, CONTRA) >= 0 ? Boolean.TRUE.equals(in.screening.contraindications.get(key))
+                : in.cond.contains(key);
+    }
+
+    public static boolean anyHealth(AutoModel.Input in) {
+        for (String k : HEALTH) {
+            if (in.cond.contains(k)) {
+                return true;
+            }
+        }
+        for (String k : CONTRA) {
+            if (Boolean.TRUE.equals(in.screening.contraindications.get(k))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static void clearHealth(AutoModel.Input in) {
+        for (String k : HEALTH) {
+            in.cond.remove(k);
+        }
+        for (String k : CONTRA) {
+            in.screening.contraindications.put(k, false);
+        }
+        in.extra.diastasis = false;
+        in.screening.hrLoweringMedication = false;
+    }
+
+    /** Experience taps → the Auto input (sessions drive its adaptation limits; fitness follows). */
+    public static void experience(AutoModel.Input in, int i) {
+        in.sessions = i <= 0 ? 0 : i == 1 ? 3 : 12;
+        in.fitness = i <= 0 ? AiModel.Fitness.LOW : i == 1 ? AiModel.Fitness.MID : AiModel.Fitness.HIGH;
+    }
+
+    public static int experienceOf(AutoModel.Input in) {
+        return in.sessions <= 0 ? 0 : in.sessions < 8 ? 1 : 2;
     }
 
     // ================================================================ apply (before the start)

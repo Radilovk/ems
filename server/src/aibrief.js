@@ -206,23 +206,38 @@ export function pickModel(models) {
   return top[0] || names[0] || null;
 }
 
-let modelCache = { name: null, at: 0 };
+let modelCache = { name: null, lite: null, at: 0 };
 
 export function resetModelCache() {
-  modelCache = { name: null, at: 0 };
+  modelCache = { name: null, lite: null, at: 0 };
+}
+
+/** The newest stable Flash-Lite (the cheapest, fastest): for the spoken commands (owner, 1.1.539). */
+export function pickLiteModel(models) {
+  const names = [];
+  for (const m of Array.isArray(models) ? models : []) {
+    const name = String(m?.name || '').replace(/^models\//, '');
+    const methods = Array.isArray(m?.supportedGenerationMethods) ? m.supportedGenerationMethods : [];
+    if (/^gemini-\d+(\.\d+)?-flash-lite/.test(name) && methods.includes('generateContent')) names.push(name);
+  }
+  const ver = (n) => Number((n.match(/^gemini-(\d+(?:\.\d+)?)/) || [])[1] || 0);
+  const rank = (n) => (/^gemini-\d+(\.\d+)?-flash-lite(-\d{3})?$/.test(n) ? 3 : /preview/.test(n) ? 2 : 1);
+  names.sort((a, b) => ver(b) - ver(a) || rank(b) - rank(a) || b.localeCompare(a));
+  return names[0] || null;
 }
 
 const API = 'https://generativelanguage.googleapis.com/v1beta';
 
-async function currentModel(env, fetchImpl, ts) {
-  if (env.GEMINI_MODEL) return env.GEMINI_MODEL;
-  if (modelCache.name && ts - modelCache.at < MODEL_CACHE_MS) return modelCache.name;
+async function currentModel(env, fetchImpl, ts, lite = false) {
+  if (lite && env.GEMINI_LITE_MODEL) return env.GEMINI_LITE_MODEL;
+  if (!lite && env.GEMINI_MODEL) return env.GEMINI_MODEL;
+  if (modelCache.name && ts - modelCache.at < MODEL_CACHE_MS) return lite ? modelCache.lite : modelCache.name;
   const res = await fetchImpl(`${API}/models?pageSize=200`, { headers: { 'x-goog-api-key': env.GEMINI_API_KEY } });
   if (!res.ok) throw new Error(`models ${res.status}`);
   const j = await res.json();
   const name = pickModel(j.models) || 'gemini-2.5-flash';
-  modelCache = { name, at: ts };
-  return name;
+  modelCache = { name, lite: pickLiteModel(j.models) || name, at: ts };
+  return lite ? modelCache.lite : name;
 }
 
 /** Least thinking a model takes: none on 2.x Flash, "minimal" on 3.x — short, fast answers (owner, 1.1.535). */
@@ -236,9 +251,10 @@ export function thinkingFor(model) {
  * One structured call: system + user text → the JSON the schema asks for. A model that refuses the thinking setting
  * (400) is asked once more without it. Throws on a model / network failure (the tablet keeps what it has).
  */
-export async function generateJson(env, system, userText, schema, maxTokens, fetchImpl = fetch, ts = Date.now()) {
+export async function generateJson(env, system, userText, schema, maxTokens, fetchImpl = fetch, ts = Date.now(),
+  lite = false) {
   if (!env.GEMINI_API_KEY) throw new Error('no_key');
-  const model = await currentModel(env, fetchImpl, ts);
+  const model = await currentModel(env, fetchImpl, ts, lite);
   const think = thinkingFor(model);
   for (let attempt = 0; attempt < 2; attempt++) {
     const gen = {

@@ -261,6 +261,11 @@ def patch_manifest(text: str) -> str:
         marker = _application_marker(text)
         text = text.replace(marker, NOTIFY_PERMISSIONS + "\n" + marker, 1)
         print("AndroidManifest: added foreground service permissions")
+    if "android.permission.RECORD_AUDIO" not in text:
+        # the AI training's hands-free "Тренер, …" (owner, 1.1.540: ai/WakeListener, the speech recognizer)
+        marker = _application_marker(text)
+        text = text.replace(marker, '    <uses-permission android:name="android.permission.RECORD_AUDIO"/>\n' + marker, 1)
+        print("AndroidManifest: added RECORD_AUDIO (AI training voice)")
     if "com.isaigu.gymapp.wearable.NotifyHaForegroundService" not in text:
         marker = "    </application>"
         if marker not in text:

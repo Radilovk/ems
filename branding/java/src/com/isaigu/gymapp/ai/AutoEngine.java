@@ -84,6 +84,19 @@ public final class AutoEngine {
 
     // person's changes inside the phase window (reset with each phase)
     private int userHz = -1;
+    // ---- the AI coach's live moves (owner, 1.1.537 — docs/xems-ai-coach.md): small offsets of the program's impulse,
+    // clamped below and again by AutoLimits.clampStep (L1–L6) on every cycle
+    private int tuneOn;
+    private int tuneOff;
+    private int tuneHzPct;
+    private double tuneRest = 1.0;
+    /** The AI's veto on the main work's impulse (owner, 1.1.539): replaces the program's Hz / ON / OFF of every
+     *  tetanic step outside the warm-up and the recovery; ≤ 0 = the program's. AutoLimits.clampStep still clamps. */
+    private int vetoHz;
+    private int vetoOn;
+    private int vetoOff;
+    /** Plan second at which the active part goes to the recovery (the coach: "още 5 мин и край"); ≤ 0 = the plan's. */
+    private double endAtS;
     private int userOn = -1;
     private int userOff = -1;
     private int userPw = -1;
@@ -589,7 +602,63 @@ public final class AutoEngine {
         return nextCycle(now);
     }
 
+    /**
+     * The coach's live move: ON −1…+1 s, OFF −1…+2 s, Hz −10…+10 % (the phase windows of §4.2), the rest's minimum
+     * ×0.7…1.6. Takes effect on the next cycle; AutoLimits.clampStep still has the last word.
+     */
+    public void setTune(int onDelta, int offDelta, int hzPct, double restFactor) {
+        tuneOn = Math.max(-1, Math.min(1, onDelta));
+        tuneOff = Math.max(-1, Math.min(2, offDelta));
+        tuneHzPct = Math.max(-10, Math.min(10, hzPct));
+        tuneRest = Math.max(0.7, Math.min(1.6, restFactor));
+    }
+
+    public int getTuneOn() {
+        return tuneOn;
+    }
+
+    /** The AI's veto (see {@code vetoHz}); 0 keeps the program's value. */
+    public void setVeto(int hz, int on, int off) {
+        vetoHz = Math.max(0, Math.min(120, hz));
+        vetoOn = Math.max(0, Math.min(10, on));
+        vetoOff = Math.max(0, Math.min(10, off));
+    }
+
+    public int getTuneOff() {
+        return tuneOff;
+    }
+
+    public int getTuneHzPct() {
+        return tuneHzPct;
+    }
+
+    public double getTuneRest() {
+        return tuneRest;
+    }
+
+    /** The active part goes to the recovery after {@code minutes} more (0 = now), never later than the plan. */
+    public void endActiveIn(double minutes, long now) {
+        int cool = cooldownIndex();
+        if (cool < 0 || (phase() != null && phase().isCooldown())) {
+            return;
+        }
+        double at = elapsedS + Math.max(0, minutes) * 60;
+        if (at >= phaseStartS(cool)) {
+            return;
+        }
+        if (minutes <= 0) {
+            stopPress(now);                      // as ■ in the active part: straight to the recovery (waits for ▶)
+        } else {
+            endAtS = at;
+        }
+    }
+
     public void tick(long now) {
+        if (endAtS > 0 && elapsedS >= endAtS && phase() != null && !phase().isCooldown()) {
+            endAtS = 0;
+            log(now, "coach: end of the active part");
+            stopPress(now);
+        }
         double dt = Math.max(0, (now - lastTickMs) / 1000.0);
         if (state != State.RUN) {
             advance(now);
@@ -850,7 +919,7 @@ public final class AutoEngine {
         if (beforeCooldown) {
             restMinS = untilRecoveryS;
         } else {
-            restMinS = rest;
+            restMinS = (int) Math.round(rest * tuneRest);
             lastRestMinS = restMinS;
             lastSetS = STATION_MAX_S;
         }
@@ -2248,6 +2317,22 @@ public final class AutoEngine {
             s.pwUs = userPw;
         }
         s.offS += corridorExt + doseExt;
+        if (s.isTetanic() && !ph.isCooldown() && !"WARMUP".equals(ph.id) && (vetoHz > 0 || vetoOn > 0 || vetoOff > 0)) {
+            if (vetoHz > 0) {
+                s.hz = Math.max(20, Math.min(SafeLimits.hzMax(plan.input != null ? plan.input.age : 40), vetoHz));
+            }
+            if (vetoOn > 0) {
+                s.onS = vetoOn;
+            }
+            if (vetoOff > 0) {
+                s.offS = vetoOff;
+            }
+        }
+        if (s.isTetanic() && (tuneOn != 0 || tuneOff != 0 || tuneHzPct != 0)) {
+            s.onS = Math.max(1, s.onS + tuneOn);
+            s.offS = Math.max(1, s.offS + tuneOff);
+            s.hz = Math.max(20, (int) Math.round(s.hz * (1 + tuneHzPct / 100.0)));
+        }
         s.rampUpMs = AutoDynamics.ramp(s.rampUpMs, current != null ? current.hz : -1, s.hz, fresh);
         s = AutoLimits.clampStep(s, next, plan, ph);
         double p = ph.durationS > 0 ? phaseElapsed() / ph.durationS : 0;

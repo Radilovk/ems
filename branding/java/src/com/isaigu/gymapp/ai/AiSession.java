@@ -1058,8 +1058,9 @@ public final class AiSession {
             if (b.hz != written.hz || b.pulseWidth != written.pwUs
                     || b.pulseContinue != Math.max(1, written.onS)
                     || b.pulsePause != Math.max(1, written.offS)
-                    || b.activePause != (written.pauseHz > 0 && writtenPercent > 0 && pauseAllowed(item))
-                    || (b.activePause && b.pauseHz != Math.max(1, Math.min(120, written.pauseHz)))) {
+                    || b.activePause != ((written.pauseHz > 0 && writtenPercent > 0 && pauseAllowed(item))
+                            || (engine != null && engine.isActivePauseOn() && pauseAllowed(item)))
+                    || (written.pauseHz > 0 && writtenPercent > 0 && b.pauseHz != Math.max(1, Math.min(120, written.pauseHz)))) {
                 params = true;
             }
             if (b.strenth > writtenPercent) {
@@ -1213,11 +1214,19 @@ public final class AiSession {
             bean.strenth = percent;
             // Active pause (impulse ↔ impulse): strength is absolute, so it follows the work
             // strength (reduce / HR control lower both together).
-            boolean activePause = c.pauseHz > 0 && percent > 0 && pauseAllowed(item);
-            bean.activePause = activePause;
-            if (activePause) {
+            // The row's 2nd-impulse switch stays as the session's setting (owner, 1.1.537: it followed every cycle and
+            // the stock index buttons blinked); a cycle without it gives it 0 strength.
+            boolean pulseNow = c.pauseHz > 0 && percent > 0 && pauseAllowed(item);
+            boolean steady = engine != null && engine.isActivePauseOn() && pauseAllowed(item);
+            bean.activePause = pulseNow || steady;
+            if (pulseNow) {
                 bean.pauseHz = Math.max(1, Math.min(120, c.pauseHz));
                 bean.pauseStrenthPercent = Math.max(1, (int) Math.round(percent * c.pauseSigma));
+            } else if (bean.activePause) {
+                bean.pauseStrenthPercent = 0;
+                if (bean.pauseHz <= 0) {
+                    bean.pauseHz = 7;
+                }
             }
             if (item.data != null && item.data.inStart) {
                 item.data.secondValue = bean.pulseContinue;

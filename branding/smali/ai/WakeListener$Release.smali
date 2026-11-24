@@ -1,0 +1,62 @@
+.class final Lcom/isaigu/gymapp/ai/WakeListener$Release;
+.super Ljava/lang/Object;
+.source "WakeListener.java"
+
+# interfaces
+.implements Ljava/lang/Runnable;
+
+
+# annotations
+.annotation system Ldalvik/annotation/EnclosingClass;
+    value = Lcom/isaigu/gymapp/ai/WakeListener;
+.end annotation
+
+.annotation system Ldalvik/annotation/InnerClass;
+    accessFlags = 0x18
+    name = "Release"
+.end annotation
+
+
+# instance fields
+.field final g:Landroid/media/ToneGenerator;
+
+
+# direct methods
+.method constructor <init>(Landroid/media/ToneGenerator;)V
+    .registers 2
+
+    .prologue
+    .line 590
+    invoke-direct {p0}, Ljava/lang/Object;-><init>()V
+
+    .line 591
+    iput-object p1, p0, Lcom/isaigu/gymapp/ai/WakeListener$Release;->g:Landroid/media/ToneGenerator;
+
+    .line 592
+    return-void
+.end method
+
+
+# virtual methods
+.method public run()V
+    .registers 2
+
+    .prologue
+    .line 597
+    :try_start_0
+    iget-object v0, p0, Lcom/isaigu/gymapp/ai/WakeListener$Release;->g:Landroid/media/ToneGenerator;
+
+    invoke-virtual {v0}, Landroid/media/ToneGenerator;->release()V
+    :try_end_5
+    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_5} :catch_6
+
+    .line 600
+    :goto_5
+    return-void
+
+    .line 598
+    :catch_6
+    move-exception v0
+
+    goto :goto_5
+.end method

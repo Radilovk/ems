@@ -392,6 +392,11 @@ public final class AiBrief {
         return true;
     }
 
+    /** A condition key the planner's profile knows (AiPersonal / the client form). */
+    static boolean channelOrCond(String k) {
+        return index(k, COND) >= 0;
+    }
+
     /** Channel index of a zone key (−1 = none). */
     public static int channel(String zone) {
         return index(zone, ZONES);

@@ -31,16 +31,36 @@
 
 # virtual methods
 .method public onClick(Landroid/view/View;)V
-    .registers 3
+    .registers 4
 
     .prologue
-    .line 138
+    .line 140
+    invoke-static {}, Lcom/isaigu/gymapp/ai/AiSession;->getStage()Lcom/isaigu/gymapp/ai/AiSession$Stage;
+
+    move-result-object v0
+
+    sget-object v1, Lcom/isaigu/gymapp/ai/AiSession$Stage;->IDLE:Lcom/isaigu/gymapp/ai/AiSession$Stage;
+
+    if-ne v0, v1, :cond_10
+
+    .line 141
+    invoke-static {p1}, Lcom/isaigu/gymapp/ai/AiSession;->activityOf(Landroid/view/View;)Landroid/app/Activity;
+
+    move-result-object v0
+
+    invoke-static {v0}, Lcom/isaigu/gymapp/ai/AiTrain;->open(Landroid/app/Activity;)V
+
+    .line 145
+    :goto_f
+    return-void
+
+    .line 143
+    :cond_10
     invoke-static {p1}, Lcom/isaigu/gymapp/ai/AiSession;->activityOf(Landroid/view/View;)Landroid/app/Activity;
 
     move-result-object v0
 
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/AiUi;->open(Landroid/app/Activity;)V
 
-    .line 139
-    return-void
+    goto :goto_f
 .end method

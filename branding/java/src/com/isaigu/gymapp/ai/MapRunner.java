@@ -272,14 +272,11 @@ public final class MapRunner {
         if (!isWaiting()) {
             return;
         }
-        boolean any = false;
+        // no strength set before the start (owner, 1.1.537): a row may begin at 0 — its + during the first block is
+        // read back as its 100 % at the next block (apply)
         for (TrainItem it : rows()) {
             ProgramDataBean b = bean(it);
             base.put(it, b != null ? b.strenth : 0);
-            any |= b != null && b.strenth > 0;
-        }
-        if (!any) {
-            return;                                            // nothing set yet: the card says so
         }
         waiting = false;
         lastIndex = -1;
@@ -558,7 +555,7 @@ public final class MapRunner {
             stop();
             return;
         }
-        if (clock.getElapsedS() >= Workout.MAX_TOTAL_S) {
+        if (clock.getElapsedS() >= Workout.RUN_MAX_S) {
             // owner (1.1.531): no program runs over 25 min with its rests (a studio map drawn longer ends here)
             WearableBleDiagLog.log("map", "25 min — closed");
             stop();
@@ -845,16 +842,17 @@ public final class MapRunner {
         } else {
             // the exercise only — no impulse sync, no counting: the client does it at their own pace
             figure.setExercise(b.hasExercise() ? b.ex : null);
-            name.setText(b.hasExercise() ? AutoTemplates.name(b.ex) : AiText.t("Импулс", "Impulse"));
+            name.setText(b.label != null ? b.label : b.hasExercise() ? AutoTemplates.name(b.ex) : AiText.t("Импулс", "Impulse"));
             AutoModel.Step s = cur;
-            detail.setText((s != null ? s.hz : b.hz) + " Hz · " + (s != null ? s.pwUs : b.pw) + " µs"
+            detail.setText((b.how != null && b.how.length() > 0 ? b.how + "\n" : "")
+                    + (s != null ? s.hz : b.hz) + " Hz · " + (s != null ? s.pwUs : b.pw) + " µs"
                     + (approach.length() > 0 ? "  ·  " + approach : ""));
         }
         String n = "";
         for (int k = idx + 1; k < map.blocks.size(); k++) {
             Workout.Block x = map.blocks.get(k);
             if (x.hasExercise()) {
-                n = AiText.t("Следва: ", "Next: ") + AutoTemplates.name(x.ex);
+                n = AiText.t("Следва: ", "Next: ") + (x.label != null ? x.label : AutoTemplates.name(x.ex));
                 break;
             }
         }

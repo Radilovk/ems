@@ -135,7 +135,13 @@ final class AiUi {
     static final class OpenListener implements View.OnClickListener {
         @Override
         public void onClick(View v) {
-            open(AiSession.activityOf(v));
+            // the AI training (owner, 1.1.537): the Auto programs with the coach, on the training screen; the old
+            // Smart Session sheet only for a session already running (and the workouts' "with AI")
+            if (AiSession.getStage() == AiSession.Stage.IDLE) {
+                AiTrain.open(AiSession.activityOf(v));
+            } else {
+                open(AiSession.activityOf(v));
+            }
         }
     }
 

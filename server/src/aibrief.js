@@ -206,6 +206,21 @@ export function pickModel(models) {
   return top[0] || names[0] || null;
 }
 
+/**
+ * The model to fall back to when the main one is overloaded (503 "high demand" on the newest Flash, 2026-11-24):
+ * the best Flash of an older version — another pool of capacity.
+ */
+export function pickBackupModel(models, main) {
+  const ver = (n) => Number((String(n).match(/^gemini-(\d+(?:\.\d+)?)/) || [])[1] || 0);
+  const rest = [];
+  for (const m of Array.isArray(models) ? models : []) {
+    const name = String(m?.name || '').replace(/^models\//, '');
+    const methods = Array.isArray(m?.supportedGenerationMethods) ? m.supportedGenerationMethods : [];
+    if (name !== main && ver(name) < ver(main) && methods.includes('generateContent')) rest.push(m);
+  }
+  return pickModel(rest);
+}
+
 let modelCache = { name: null, lite: null, at: 0 };
 
 export function resetModelCache() {
@@ -239,9 +254,11 @@ async function currentModel(env, fetchImpl, ts, lite = false) {
   if (!res.ok) throw new Error(`models ${res.status}`);
   const j = await res.json();
   const name = pickModel(j.models) || 'gemini-2.5-flash';
-  modelCache = { name, lite: pickLiteModel(j.models) || name, at: ts };
+  modelCache = { name, lite: pickLiteModel(j.models) || name, backup: pickBackupModel(j.models, name), at: ts };
   return lite ? modelCache.lite : name;
 }
+
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 /** The last refusal from Gemini (diagnostics: ai-smoke prints it). */
 export let lastError = '';
@@ -274,9 +291,9 @@ export function thinkingLadder(model) {
  * (400) is asked once more without it. Throws on a model / network failure (the tablet keeps what it has).
  */
 export async function generateJson(env, system, userText, schema, maxTokens, fetchImpl = fetch, ts = Date.now(),
-  lite = false, temperature = 0) {
+  lite = false, temperature = 0, forceModel = null, busyTries = 0) {
   if (!env.GEMINI_API_KEY) throw new Error('no_key');
-  const model = await currentModel(env, fetchImpl, ts, lite);
+  const model = forceModel || await currentModel(env, fetchImpl, ts, lite);
   const ladder = thinkingLadder(model);
   // some models (the Flash-Lite one) take no system instruction ("Developer instruction is not enabled"): then it
   // goes in front of the user text
@@ -317,9 +334,21 @@ export async function generateJson(env, system, userText, schema, maxTokens, fet
       }
       if (res.status === 400 && /think/i.test(why) && attempt < ladder.length - 1) continue;
       if (res.status === 404) resetModelCache();
+      // overloaded (503 / 429 / 500, "high demand"): once more after a moment, then an older Flash — the trainer
+      // gets an answer, not "no connection" (2026-11-24 smoke: two of four calls refused by Google)
+      if (res.status === 503 || res.status === 429 || res.status === 500) {
+        if (busyTries === 0) {
+          await sleep(env.AI_RETRY_MS !== undefined ? Number(env.AI_RETRY_MS) : 1200);
+          return generateJson(env, system, userText, schema, maxTokens, fetchImpl, ts, lite, temperature, model, 1);
+        }
+        const backup = modelCache.backup;
+        if (busyTries === 1 && backup && backup !== model) {
+          return generateJson(env, system, userText, schema, maxTokens, fetchImpl, ts, lite, temperature, backup, 2);
+        }
+      }
       // the cheap model cannot do this (2026-11-24: "JSON mode is not enabled for this model"): the main one does
       if (lite && res.status === 400) {
-        return generateJson(env, system, userText, schema, maxTokens, fetchImpl, ts, false);
+        return generateJson(env, system, userText, schema, maxTokens, fetchImpl, ts, false, temperature);
       }
       throw new Error(lastError);
     }
@@ -335,7 +364,7 @@ export async function generateJson(env, system, userText, schema, maxTokens, fet
       // to the end of the budget — once more, a little warmer
       if (cand?.finishReason === 'MAX_TOKENS' && temperature === 0) {
         lastError = `cut at ${j?.usageMetadata?.candidatesTokenCount} tokens, tail=${JSON.stringify(text.slice(-160))}`;
-        return generateJson(env, system, userText, schema, maxTokens, fetchImpl, ts, lite, 0.4);
+        return generateJson(env, system, userText, schema, maxTokens, fetchImpl, ts, lite, 0.4, forceModel, busyTries);
       }
       const u = j?.usageMetadata || {};
       throw new Error(`bad_json finish=${cand?.finishReason} out=${u.candidatesTokenCount} thoughts=${u.thoughtsTokenCount}`

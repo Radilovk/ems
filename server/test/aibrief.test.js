@@ -103,3 +103,26 @@ test('an answer cut at the token budget (a loop) is asked once more, warmer (1.1
   assert.equal(r.patch.note, 'ok');
   assert.deepEqual(budgets, [0, 0.4]);
 });
+
+test('an overloaded model (503): once more, then an older Flash (2026-11-24 smoke)', async () => {
+  resetModelCache();
+  const used = [];
+  const fake = async (url) => {
+    if (url.includes('/models?')) {
+      return new Response(JSON.stringify({ models: [
+        { name: 'models/gemini-2.5-flash', supportedGenerationMethods: ['generateContent'] },
+        { name: 'models/gemini-3.8-flash', supportedGenerationMethods: ['generateContent'] },
+        { name: 'models/gemini-3.5-flash-lite', supportedGenerationMethods: ['generateContent'] },
+      ] }));
+    }
+    used.push(url.match(/models\/([^:]+):/)[1]);
+    if (url.includes('gemini-3.8-flash')) {
+      return new Response(JSON.stringify({ error: { message: 'This model is currently experiencing high demand.' } }),
+        { status: 503 });
+    }
+    return new Response(JSON.stringify({ candidates: [{ content: { parts: [{ text: JSON.stringify({ note: 'ok' }) }] } }] }));
+  };
+  const r = await brief({ GEMINI_API_KEY: 'k', AI_RETRY_MS: 0 }, { text: 'x' }, fake, 1000);
+  assert.equal(r.patch.note, 'ok');
+  assert.deepEqual(used, ['gemini-3.8-flash', 'gemini-3.8-flash', 'gemini-2.5-flash']);
+});

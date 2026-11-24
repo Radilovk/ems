@@ -306,3 +306,13 @@ it, the warm-up runs softer by design); "s" read aloud as a letter → "секу
 - **No background recognizer** (`SpeechRecognizer.isRecognitionAvailable` false — Huawei without Google): after
   "тренер" the command goes through the system's speech dialog (`VoiceInput`, as the chat's 🎤); a closed or empty
   dialog returns to the spotter (`VoiceInput.WantsEmpty`).
+
+## 1.1.554 — voice: economical with the AI, smooth on Google tablets
+- **`ai/AiVoiceGate`** decides what heard speech may cost an AI call, after the tablet's own command reader:
+  noise ("ъъ", "хм", <3 letters) never; filler ("добре", "благодаря", "да", "ок") only as the answer to the AI's
+  question; the window after the tablet's answer (no "тренер") only a question, an answer or a 3+ word sentence;
+  the same words within 15 s never; at most 8 calls a minute (a radio in the hall). Dropped phrases leave no chat
+  bubble and are logged (`ai-gate`). Test: `sh scripts/voice-sim/run-gate.sh`.
+- **Faster command window**: Google's recognizer is bound at the start (`warmRecognizer`) and kept between
+  windows (`cancelRecognizer`, not destroy) — re-binding cost ~0.3–0.5 s, the first words after "тренер" were
+  lost. The window opens at once; the beep sounds at `onReadyForSpeech` ("speak now"), not at the wake.

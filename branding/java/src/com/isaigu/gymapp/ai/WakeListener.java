@@ -171,6 +171,7 @@ public final class WakeListener {
         on = true;
         followUps = 0;
         initTts();
+        warmRecognizer();
         if (SPOTTER.ready()) {
             micStart();
         } else {
@@ -463,17 +464,20 @@ public final class WakeListener {
         @Override
         public void run() {
             WearableBleDiagLog.log("wake", "тренер d=" + SPOTTER.lastD + " thr=" + SPOTTER.threshold());
-            tone(ToneGenerator.TONE_PROP_BEEP);
-            openWindow();
+            followUp = false;
+            openWindow();                                  // the tone sounds when the recognizer is ready
         }
     }
+
+    /** The window opened after the tablet's answer (no "тренер" said): stricter on what may go to the AI. */
+    static boolean followUp;
 
     static void openWindow() {
         window = true;
         state = "listening";
         AiTrain.voiceState();
         mute(true);
-        recognize(120);
+        recognize(0);
     }
 
     private static final Runnable RECOGNIZE = new Recognize();
@@ -543,6 +547,22 @@ public final class WakeListener {
         }
     }
 
+    /** Binds Google's recognizer at the start, so the first "Тренер, …" loses no words. */
+    private static void warmRecognizer() {
+        try {
+            if (serviceOk == null) {
+                serviceOk = SpeechRecognizer.isRecognitionAvailable(ctx);
+                WearableBleDiagLog.log("wake", "background recognizer: " + serviceOk);
+            }
+            if (serviceOk && rec == null) {
+                rec = SpeechRecognizer.createSpeechRecognizer(ctx);
+                rec.setRecognitionListener(new Listener());
+            }
+        } catch (Throwable t) {
+            WearableBleDiagLog.log("wake", "warm: " + t);
+        }
+    }
+
     /** The command from the system's speech dialog (no background recognizer). */
     static final class DialogCommand implements VoiceInput.Result, VoiceInput.WantsEmpty {
         @Override
@@ -592,6 +612,9 @@ public final class WakeListener {
 
         @Override
         public void onReadyForSpeech(Bundle params) {
+            if (window && !followUp) {
+                tone(ToneGenerator.TONE_PROP_BEEP);          // "speak now": the recognizer really hears from here
+            }
         }
 
         @Override
@@ -632,7 +655,7 @@ public final class WakeListener {
         }
         if (cmd.length() > 0) {
             WearableBleDiagLog.log("wake", "command \"" + cmd + "\"");
-            String said = AiTrain.voice(ctx, cmd);
+            String said = AiTrain.voice(ctx, cmd, followUp);
             if (said != null && said.length() > 0) {
                 // done on the tablet: say it, then listen again without "тренер" — a dialogue, not one-shot
                 endWindow();
@@ -651,7 +674,7 @@ public final class WakeListener {
     private static void endWindow() {
         window = false;
         state = "";
-        destroyRecognizer();
+        cancelRecognizer();
         AiTrain.voiceState();
     }
 
@@ -722,6 +745,7 @@ public final class WakeListener {
                 return;
             }
             micStop();
+            followUp = true;
             openWindow();
         }
     }
@@ -751,7 +775,7 @@ public final class WakeListener {
         window = false;
         state = "";
         AiTrain.voiceState();
-        destroyRecognizer();
+        cancelRecognizer();
         if (!on) {
             return;
         }
@@ -797,6 +821,17 @@ public final class WakeListener {
             say(said);
         } else {
             tone(ToneGenerator.TONE_PROP_ACK);
+        }
+    }
+
+    /** Ends a listening without unbinding the service: the next window starts at once. */
+    private static void cancelRecognizer() {
+        try {
+            if (rec != null) {
+                rec.cancel();
+            }
+        } catch (Throwable t) {
+            destroyRecognizer();
         }
     }
 

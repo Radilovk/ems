@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 436
+    .line 437
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,7 +34,7 @@
     .registers 2
 
     .prologue
-    .line 439
+    .line 440
     sget-object v0, Lcom/isaigu/gymapp/ai/WakeListener;->setup:Lcom/isaigu/gymapp/ai/WakeSetup$Sink;
 
     if-nez v0, :cond_18
@@ -61,11 +61,11 @@
 
     if-nez v0, :cond_1b
 
-    .line 440
+    .line 441
     :cond_18
     invoke-static {}, Lcom/isaigu/gymapp/ai/WakeListener;->micStart()V
 
-    .line 442
+    .line 443
     :cond_1b
     return-void
 .end method

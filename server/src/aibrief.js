@@ -251,6 +251,17 @@ export function thinkingFor(model) {
 }
 
 /**
+ * The settings to try, least thinking first (ai-smoke, 2026-11-24: gemini-3.8-flash refuses "minimal" — "low" is
+ * its least; a model that refuses every level is asked with none).
+ */
+export function thinkingLadder(model) {
+  const t = thinkingFor(model);
+  if (!t) return [null];
+  if (t.thinkingLevel === 'minimal') return [t, { thinkingLevel: 'low' }, null];
+  return [t, null];
+}
+
+/**
  * One structured call: system + user text → the JSON the schema asks for. A model that refuses the thinking setting
  * (400) is asked once more without it. Throws on a model / network failure (the tablet keeps what it has).
  */
@@ -258,23 +269,28 @@ export async function generateJson(env, system, userText, schema, maxTokens, fet
   lite = false) {
   if (!env.GEMINI_API_KEY) throw new Error('no_key');
   const model = await currentModel(env, fetchImpl, ts, lite);
-  const think = thinkingFor(model);
-  for (let attempt = 0; attempt < 2; attempt++) {
+  const ladder = thinkingLadder(model);
+  // some models (the Flash-Lite one) take no system instruction ("Developer instruction is not enabled"): then it
+  // goes in front of the user text
+  let merged = false;
+  for (let attempt = 0; attempt < ladder.length + 1; attempt++) {
+    const think = ladder[Math.min(attempt, ladder.length - 1)];
     const gen = {
       temperature: 0,
       responseMimeType: 'application/json',
       responseSchema: schema,
+      // the thinking shares this budget (2026-11-24: 630 thought tokens cut a 900-token answer)
       maxOutputTokens: maxTokens,
     };
-    if (think && attempt === 0) gen.thinkingConfig = think;
+    if (think) gen.thinkingConfig = think;
+    const body = merged
+      ? { contents: [{ role: 'user', parts: [{ text: system + '\n\n' + userText }] }], generationConfig: gen }
+      : { systemInstruction: { parts: [{ text: system }] }, contents: [{ role: 'user', parts: [{ text: userText }] }],
+        generationConfig: gen };
     const res = await fetchImpl(`${API}/models/${encodeURIComponent(model)}:generateContent`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'x-goog-api-key': String(env.GEMINI_API_KEY).trim() },
-      body: JSON.stringify({
-        systemInstruction: { parts: [{ text: system }] },
-        contents: [{ role: 'user', parts: [{ text: userText }] }],
-        generationConfig: gen,
-      }),
+      body: JSON.stringify(body),
     });
     if (!res.ok) {
       // Google's own message (never the key): what was refused — the thinking setting, the schema, the model
@@ -285,8 +301,13 @@ export async function generateJson(env, system, userText, schema, maxTokens, fet
       } catch {
         why = '';
       }
-      lastError = `gemini ${res.status} (${think && attempt === 0 ? 'with' : 'without'} thinking setting): ${why}`;
-      if (res.status === 400 && think && attempt === 0) continue;
+      lastError = `gemini ${res.status} (thinking ${think ? JSON.stringify(think) : 'none'}${merged ? ', merged' : ''}): ${why}`;
+      if (res.status === 400 && /developer instruction|system instruction/i.test(why) && !merged) {
+        merged = true;
+        attempt--;
+        continue;
+      }
+      if (res.status === 400 && /think/i.test(why) && attempt < ladder.length - 1) continue;
       if (res.status === 404) resetModelCache();
       throw new Error(lastError);
     }
@@ -309,6 +330,6 @@ export async function brief(env, body, fetchImpl = fetch, ts = Date.now()) {
   const programs = Array.isArray(body.menu)
     ? body.menu.map((m) => String(m?.id || '')).filter((id) => /^[a-z0-9_]{1,40}$/.test(id)).slice(0, 60)
     : [];
-  const r = await generateJson(env, SYSTEM, buildPrompt(body), responseSchema(programs), 1024, fetchImpl, ts);
+  const r = await generateJson(env, SYSTEM, buildPrompt(body), responseSchema(programs), 3000, fetchImpl, ts);
   return { model: r.model, patch: validatePatch(r.raw, programs) };
 }

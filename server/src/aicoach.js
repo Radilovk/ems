@@ -211,7 +211,7 @@ export async function coach(env, body, fetchImpl = fetch, ts = Date.now()) {
       .join('; ') + '\n' + prompt;
   }
   const system = auto ? COACH_SYSTEM + AUTO_NOTE : COACH_SYSTEM;
-  const r = await generateJson(env, system, prompt, coachSchema(auto ? 'auto' : null, programs), 900, fetchImpl, ts);
+  const r = await generateJson(env, system, prompt, coachSchema(auto ? 'auto' : null, programs), 3000, fetchImpl, ts);
   return { model: r.model, coach: validateCoach(r.raw, asked, auto ? 'auto' : null, programs) };
 }
 
@@ -283,7 +283,7 @@ export function validateWorkout(raw, askedSoFar = 0) {
 
 export async function workout(env, body, fetchImpl = fetch, ts = Date.now()) {
   const asked = Array.isArray(body.chat) ? body.chat.filter((t) => t && t.role === 'ai' && t.q).length : 0;
-  const r = await generateJson(env, COACH_SYSTEM + WORKOUT_NOTE, coachPrompt(body), workoutSchema(), 2200, fetchImpl, ts);
+  const r = await generateJson(env, COACH_SYSTEM + WORKOUT_NOTE, coachPrompt(body), workoutSchema(), 6000, fetchImpl, ts);
   return { model: r.model, coach: validateWorkout(r.raw, asked) };
 }
 
@@ -330,7 +330,7 @@ export function validateCommand(raw) {
 }
 
 export async function command(env, body, fetchImpl = fetch, ts = Date.now()) {
-  const r = await generateJson(env, COMMAND_SYSTEM, String(body.text || '').slice(0, 300), commandSchema(), 200,
+  const r = await generateJson(env, COMMAND_SYSTEM, String(body.text || '').slice(0, 300), commandSchema(), 800,
     fetchImpl, ts, true);
   return { model: r.model, command: validateCommand(r.raw) };
 }

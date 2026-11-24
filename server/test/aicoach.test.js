@@ -48,13 +48,17 @@ test('thinking: none on 2.x, minimal on 3.x; a refused setting is retried withou
   const fake = async (url, init) => {
     const req = JSON.parse(init.body);
     bodies.push(req);
-    if (req.generationConfig.thinkingConfig) return new Response('{}', { status: 400 });
+    if (req.generationConfig.thinkingConfig) {
+      return new Response(JSON.stringify({ error: { message: 'Thinking level MINIMAL is not supported for this model.' } }),
+        { status: 400 });
+    }
     return new Response(JSON.stringify({ candidates: [{ content: { parts: [
       { text: 'thinking…', thought: true },
       { text: JSON.stringify({ reply: 'Готово.', actions: ['pause'] }) }] } }] }));
   };
   const r = await coach({ GEMINI_API_KEY: 'k', GEMINI_MODEL: 'gemini-3-flash' }, { text: 'пауза' }, fake);
-  assert.equal(bodies.length, 2);
+  assert.equal(bodies.length, 3);                       // minimal → low → none (the real gemini-3.8-flash: low works)
+  assert.deepEqual(bodies[1].generationConfig.thinkingConfig, { thinkingLevel: 'low' });
   assert.equal(r.coach.reply, 'Готово.');
   assert.deepEqual(r.coach.actions, ['pause']);
 });
@@ -128,5 +132,24 @@ test('spoken commands: closed lists, the cheapest model', async () => {
   const r = await command({ GEMINI_API_KEY: 'k' }, { text: 'намали краката' }, fake);
   assert.equal(r.model, 'gemini-2.5-flash-lite');
   assert.match(urls[1], /gemini-2.5-flash-lite:generateContent/);
+  assert.deepEqual(r.command.commands, [{ target: 'legs', dir: 'down', step: 'normal' }]);
+});
+
+test('a model without system instructions gets them in front of the user text', async () => {
+  resetModelCache();
+  const bodies = [];
+  const fake = async (url, init) => {
+    const req = JSON.parse(init.body);
+    bodies.push(req);
+    if (req.systemInstruction) {
+      return new Response(JSON.stringify({ error: { message: 'Developer instruction is not enabled for this model' } }),
+        { status: 400 });
+    }
+    return new Response(JSON.stringify({ candidates: [{ content: { parts: [{ text: JSON.stringify({
+      commands: [{ target: 'legs', dir: 'down' }], coach: false }) }] } }] }));
+  };
+  const r = await command({ GEMINI_API_KEY: 'k', GEMINI_LITE_MODEL: 'gemma-x' }, { text: 'намали краката' }, fake);
+  assert.equal(bodies.length, 2);
+  assert.match(bodies[1].contents[0].parts[0].text, /^Turn a spoken Bulgarian/);
   assert.deepEqual(r.command.commands, [{ target: 'legs', dir: 'down', step: 'normal' }]);
 });

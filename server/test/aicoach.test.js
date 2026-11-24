@@ -155,3 +155,10 @@ test('a model without system instructions gets them in front of the user text', 
   assert.match(bodies[1].contents[0].parts[0].text, /^Turn a spoken Bulgarian/);
   assert.deepEqual(r.command.commands, [{ target: 'legs', dir: 'down', step: 'normal' }]);
 });
+
+test('live coach commands: the answer to its question acts on one channel, unknown targets dropped', () => {
+  const c = validateCoach({ reply: 'Добре, краката малко нагоре.', commands: [
+    { target: 'legs', dir: 'up', step: 'small' }, { target: 'nose', dir: 'up' }, { target: 'abs', dir: 'sideways' }] });
+  assert.deepEqual(c.commands, [{ target: 'legs', dir: 'up', step: 'small' }]);
+  assert.deepEqual(validateCoach({ reply: 'x' }).commands, []);
+});

@@ -279,3 +279,17 @@ it, the warm-up runs softer by design); "s" read aloud as a letter → "секу
   out. Announcements: "Първото упражнение е клек без тежест.", "Следва румънска тяга, три серии." The server's live
   prompt asks for the same.
 - `tools/app-sim` `SimCoachAll` + `SimCoachOwn`: 50 functions, and every sentence said is checked for symbols.
+
+## 1.1.552 — the coach asks back when unclear
+- Free speech has three readers: the tablet's own (clear commands, instant), the cheap command model (free wording →
+  command), the live coach (everything else). A vague place ("долната част на тялото", "отзад", one side) is no
+  longer read as the whole suit — the tablet and the command model pass it to the coach.
+- The coach, unsure what to change, asks one short question with options and changes nothing yet
+  (`LIVE_NOTE`). Never twice in a row: still unclear → the safer choice (less), said aloud.
+- The answer: `AiCoach.awaitingAnswer()` (the AI's last turn asked, ≤ 90 s ago) → the next words go straight to the
+  coach with the chat, past the command readers ("по-силно" alone is not the whole suit then). "пауза", "стоп",
+  "продължи" stay instant (`AiTrain.safety`).
+- The coach can now act on one channel: `commands` in its schema (same targets as the command reader), applied by
+  `AiTrain.liveApply` through `applyCommands` — on a ready program and on the AI's own workout.
+- Proof: `server/scripts/ai-smoke.mjs` FREE lines (12 everyday phrases) and DIALOG 1/2 (vague → question → answer
+  → command) with the real model.

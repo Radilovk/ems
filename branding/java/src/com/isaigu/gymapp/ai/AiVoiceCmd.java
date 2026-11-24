@@ -309,7 +309,10 @@ public final class AiVoiceCmd {
                 }
             }
             // "по-силно" / "намали импулсите" with no muscle: the overall strength
-            if (r.commands.isEmpty() && ("up".equals(dir) || "down".equals(dir))) {
+            // ...but a body place the tablet has no word for ("долната част на тялото", "отзад") is not the whole
+            // suit: leave it to the AI reader (1.1.552)
+            if (r.commands.isEmpty() && ("up".equals(dir) || "down".equals(dir))
+                    && !has(t, "част", "тялото", "долн", "горн", "отзад", "отпред", "страна", "лява", "ляв ", "дясн")) {
                 r.commands.add(new Cmd("strength", dir, small));
             }
         }
@@ -350,6 +353,30 @@ public final class AiVoiceCmd {
                 r.coach = true;
                 return r;
             }
+            read(m, r);
+            r.coach = r.isEmpty() || Boolean.TRUE.equals(m.get("coach"));
+        } catch (RuntimeException e) {
+            r.coach = true;
+        }
+        return r;
+    }
+
+    /** The coach's own {@code commands} (a channel, the impulse…; 1.1.552): the answer to its question, done. */
+    public static Result fromCoach(Map<?, ?> m) {
+        Result r = new Result();
+        try {
+            if (m != null) {
+                read(m, r);
+            }
+        } catch (RuntimeException e) {
+            r.commands.clear();
+        }
+        r.actions.clear();                               // the coach's actions go its own way (liveApply)
+        return r;
+    }
+
+    private static void read(Map<?, ?> m, Result r) {
+        {
             if (m.get("commands") instanceof List) {
                 for (Object o : (List<?>) m.get("commands")) {
                     if (o instanceof Map) {
@@ -371,11 +398,7 @@ public final class AiVoiceCmd {
                     }
                 }
             }
-            r.coach = r.isEmpty() || Boolean.TRUE.equals(m.get("coach"));
-        } catch (RuntimeException e) {
-            r.coach = true;
         }
-        return r;
     }
 
     public static String name(String target) {

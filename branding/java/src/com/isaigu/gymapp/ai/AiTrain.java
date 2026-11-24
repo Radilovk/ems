@@ -175,7 +175,13 @@ public final class AiTrain {
             say(c, cmd, true);                         // before the start: the words go to the AI's plan
             return "";
         }
+        boolean answer = AiCoach.awaitingAnswer();        // read before the bubble below is added
         AiCoach.userSpoke(cmd);                          // a 🎙 bubble in the chat, what was done under it
+        if (answer && !safety(vc)) {
+            voiceAsk = true;                              // the answer to the AI's own question: the coach, with the chat
+            send(c, cmd, true, true, true);
+            return "";
+        }
         if (!vc.isEmpty()) {
             commandsDone(vc, cmd);
             return lastSpoken != null && lastSpoken.length() > 0 ? lastSpoken : null;
@@ -603,6 +609,17 @@ public final class AiTrain {
     // ================================================================ the model
 
     static void send(Context c, String text, boolean live, boolean silent) {
+        send(c, text, live, silent, live && !silent && AiCoach.awaitingAnswer());
+    }
+
+    /** "пауза", "стоп", "продължи" stay instant even as an answer to a question. */
+    static boolean safety(AiVoiceCmd.Result vc) {
+        return vc.commands.isEmpty() && (vc.actions.contains("pause") || vc.actions.contains("stop")
+                || vc.actions.contains("resume"));
+    }
+
+    /** answer: the words answer the AI's question — no command reader, straight to the coach with the chat. */
+    static void send(Context c, String text, boolean live, boolean silent, boolean answer) {
         if (c == null || text == null || text.trim().length() == 0 || busy) {
             return;
         }
@@ -617,7 +634,7 @@ public final class AiTrain {
         if (live) {
             // a spoken / typed command: read on the tablet first — instant, no network (owner, 1.1.539)
             AiVoiceCmd.Result vc = AiVoiceCmd.parse(t);
-            if (!vc.isEmpty()) {
+            if (!vc.isEmpty() && (!answer || safety(vc))) {
                 commandsDone(vc, t);
                 return;
             }
@@ -629,7 +646,7 @@ public final class AiTrain {
         if (wantPlan) {
             fields = fields.replaceFirst("\"kind\":\"coach\"", "\"kind\":\"workout\"");
         }
-        new Thread(new Ask(c.getApplicationContext(), fields, ++seq, live, t, wantPlan), "xems-ai-train").start();
+        new Thread(new Ask(c.getApplicationContext(), fields, ++seq, live, t, wantPlan, !answer), "xems-ai-train").start();
     }
 
     /** The commands → the session now; the chat says what was done. */
@@ -749,6 +766,13 @@ public final class AiTrain {
 
     /** The coach's commands and impulse moves on the running Auto session. */
     static String liveApply(AiCoach.Reply r) {
+        // the coach's own commands first (a channel, the impulse): the same path as a spoken command
+        String cmds = r.cmds != null && !r.cmds.commands.isEmpty() ? applyCommands(r.cmds) : "";
+        String rest = liveTune(r);
+        return cmds.length() == 0 ? rest : rest.length() == 0 ? cmds : cmds + " · " + rest;
+    }
+
+    private static String liveTune(AiCoach.Reply r) {
         AutoEngine e = AutoSession.getEngine();
         if (MapRunner.isAi()) {
             StringBuilder m = new StringBuilder();
@@ -1398,7 +1422,11 @@ public final class AiTrain {
         final String text;
         final boolean wantPlan;
 
-        Ask(Context c, String fields, int my, boolean live, String text, boolean wantPlan) {
+        /** false: the words answer the AI's question — straight to the coach, no command reader. */
+        final boolean reader;
+
+        Ask(Context c, String fields, int my, boolean live, String text, boolean wantPlan, boolean reader) {
+            this.reader = reader;
             this.c = c;
             this.fields = fields;
             this.my = my;
@@ -1411,7 +1439,7 @@ public final class AiTrain {
         public void run() {
             AiCoach.Reply r = null;
             try {
-                if (live && !AiVoiceCmd.isQuestion(text)) {
+                if (live && reader && !AiVoiceCmd.isQuestion(text)) {
                     // the cheapest model reads commands; only what is none goes to the coach (a question goes
                     // straight to the coach — one call, the answer sooner)
                     String cr = com.isaigu.gymapp.widget.XemsLicenseClient.postBrief(c,

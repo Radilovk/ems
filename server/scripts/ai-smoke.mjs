@@ -64,4 +64,20 @@ for (const text of free) {
     console.log(`FREE "${text}" · error ${e && e.message}`);
   }
 }
+// A dialogue (owner, 1.1.552: "if something is unclear it may ask"): vague → the coach asks; the answer → it acts.
+{
+  const ctx = { kind: 'coach', domain: 'auto', menu, context: live, run: { phase: 'Сила', min_done: 6, state: 'RUN' } };
+  const t = Date.now();
+  try {
+    const a = (await coach(env, { ...ctx, text: 'дай малко повече на долната част на тялото', chat: [] })).coach;
+    console.log(`DIALOG 1 · ${Date.now() - t} ms · "${a.reply}"${a.question ? ' ? ' + a.question.text + ' ' + JSON.stringify(a.question.options) : ''} · ${JSON.stringify(a.commands)}`);
+    const said = (a.reply || '') + (a.question ? ' ' + a.question.text : '');
+    const t2 = Date.now();
+    const b = (await coach(env, { ...ctx, text: 'седалището', chat: [
+      { role: 'user', text: 'дай малко повече на долната част на тялото' }, { role: 'ai', text: said, q: !!a.question }] })).coach;
+    console.log(`DIALOG 2 · ${Date.now() - t2} ms · "${b.reply}" · ${JSON.stringify(b.commands)}`);
+  } catch (e) {
+    console.log(`DIALOG · error ${e && e.message}`);
+  }
+}
 process.exit(failed ? 1 : 0);

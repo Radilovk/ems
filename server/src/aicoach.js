@@ -65,6 +65,8 @@ export function coachSchema(domain = null, programs = []) {
       hz_pct: { type: 'INTEGER', nullable: true },
       rest_pct: { type: 'INTEGER', nullable: true },
       end_in_min: { type: 'INTEGER', nullable: true },
+      commands: { type: 'ARRAY', items: { type: 'OBJECT', properties: {
+        target: { type: 'STRING' }, dir: { type: 'STRING' }, step: { type: 'STRING' } }, required: ['target', 'dir'] } },
       advice,
     },
     required: ['reply'],
@@ -157,6 +159,7 @@ export function validateCoach(raw, askedSoFar = 0, domain = null, programs = [])
     hz_pct: r.hz_pct == null ? null : auto ? int(r.hz_pct, ...AUTO.hz) : int(r.hz_pct, -15, 15),
     rest_pct: r.rest_pct == null ? null : int(r.rest_pct, -30, 60),
     end_in_min: r.end_in_min == null ? null : int(r.end_in_min, 0, 25),
+    commands: validateCommand({ commands: r.commands }).commands,
     advice: null,
   };
   out.cond_remove = out.cond_remove.filter((k) => !out.cond_add.includes(k));
@@ -205,8 +208,12 @@ export const LIVE_NOTE = `
 SESSION=RUNNING: the trainer talks to you by voice during the workout, as to a real trainer standing next to them;
 the tablet speaks your reply aloud. Answer exactly what was asked, with concrete numbers: reps ("Направи 10
 клякания"), seconds, sets, the next exercise for the body part named (bodyweight or light free weights, fitting the
-client's health, e.g. knees → no jumps or deep squats). Wants more for a body part but did not say which → ask which
-(question with 2–4 options). reply: ≤ 2 short spoken sentences in natural Bulgarian, as a person talks — no
+client's health, e.g. knees → no jumps or deep squats). Unclear what to change (which body part, stronger or
+weaker, pain where, a vague place like "долната част") → do NOT guess: ask one short question with 2–4 options and
+change nothing yet. commands (live only): one body part or setting up/down/off/on, as the trainer means it —
+targets strength, legs, thighs, calves, glutes, abs, arms, chest, back, lower_back, traps, all_channels, impulse,
+pause, frequency, rest; dir up/down/off/on; step small/normal. The trainer's next words are the answer (CHAT has your question): act on it at once. Never ask
+twice in a row — if the answer is still unclear, take the safer choice (less, not more) and say what you did. reply: ≤ 2 short spoken sentences in natural Bulgarian, as a person talks — no
 colons, dashes, quotes, brackets, slashes, emoji, % or + signs, no abbreviations (say "процента", "секунди", "минути");
 numbers as digits.`;
 
@@ -317,7 +324,8 @@ current), legs, thighs, calves, glutes, abs, arms, chest, back, lower_back, trap
 impulse (its seconds), pause (its seconds), frequency (Hz), rest (between sets). dir: up / down / off / on.
 step: small ("малко", "леко") or normal. actions: pause, resume, skip, to_recovery, double_on, double_off, stop.
 Several commands may come in one sentence. Anything that is not a command (pain, a question, a wish about the plan)
-→ coach true, no commands.`;
+→ coach true, no commands. Unsure which target is meant (a vague place, "долната част", "отзад", one side) → coach
+true, no commands: the coach asks back instead of guessing.`;
 
 export function commandSchema() {
   return {

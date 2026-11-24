@@ -72,6 +72,8 @@ public class WorkoutSim {
         v = AiVoiceCmd.parse("колко повторения клек да направя");
         check(v.isEmpty() && AiVoiceCmd.isQuestion("колко повторения клек да направя"), "a question goes to the coach");
         check(!AiVoiceCmd.isQuestion("намали ръцете"), "a command is no question");
+        check(AiVoiceCmd.parse("дай малко повече на долната част на тялото").isEmpty(), "a body place without a word → AI");
+        check(AiVoiceCmd.parse("по-силно").commands.size() == 1, "plain по-силно stays local");
         // the double impulse and absolute levels (owner, 1.1.547)
         v = AiVoiceCmd.parse("спри двойния импулс");
         check(v.actions.contains("double_off") && !v.actions.contains("pause"), "спри двойния импулс = off, no pause");

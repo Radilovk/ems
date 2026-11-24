@@ -30,19 +30,19 @@
     .registers 4
 
     .prologue
-    .line 1449
+    .line 1477
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 1450
+    .line 1478
     iput-object p1, p0, Lcom/isaigu/gymapp/ai/AiTrain$Commands;->vc:Lcom/isaigu/gymapp/ai/AiVoiceCmd$Result;
 
-    .line 1451
+    .line 1479
     iput-object p2, p0, Lcom/isaigu/gymapp/ai/AiTrain$Commands;->text:Ljava/lang/String;
 
-    .line 1452
+    .line 1480
     iput p3, p0, Lcom/isaigu/gymapp/ai/AiTrain$Commands;->my:I
 
-    .line 1453
+    .line 1481
     return-void
 .end method
 
@@ -52,7 +52,7 @@
     .registers 5
 
     .prologue
-    .line 1457
+    .line 1485
     iget v0, p0, Lcom/isaigu/gymapp/ai/AiTrain$Commands;->my:I
 
     # getter for: Lcom/isaigu/gymapp/ai/AiTrain;->seq:I
@@ -62,17 +62,17 @@
 
     if-eq v0, v1, :cond_9
 
-    .line 1466
+    .line 1494
     :goto_8
     return-void
 
-    .line 1460
+    .line 1488
     :cond_9
     const/4 v0, 0x0
 
     sput-boolean v0, Lcom/isaigu/gymapp/ai/AiTrain;->busy:Z
 
-    .line 1462
+    .line 1490
     :try_start_c
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiTrain$Commands;->vc:Lcom/isaigu/gymapp/ai/AiVoiceCmd$Result;
 
@@ -84,11 +84,11 @@
 
     goto :goto_8
 
-    .line 1463
+    .line 1491
     :catch_14
     move-exception v0
 
-    .line 1464
+    .line 1492
     const-string v1, "ai-train"
 
     new-instance v2, Ljava/lang/StringBuilder;

@@ -199,8 +199,18 @@ This session runs a READY PROGRAM of the automatic mode (MENU below; CONTEXT.pro
   fresh injury, 70+, very obese beginner → lower hz / shorter on_s; trained athlete wanting strength → 85–100 hz).
   Give hz, on_s, off_s (any of them) and a short reason in Bulgarian. The tablet keeps the absolute limits.`;
 
+// The running session (owner, 1.1.545): the trainer talks by voice, the tablet speaks the reply aloud — a real
+// trainer's dialogue, not a form. Questions here don't count toward the planning limit.
+export const LIVE_NOTE = `
+SESSION=RUNNING: the trainer talks to you by voice during the workout, as to a real trainer standing next to them;
+the tablet speaks your reply aloud. Answer exactly what was asked, with concrete numbers: reps ("Направи 10
+клякания"), seconds, sets, the next exercise for the body part named (bodyweight or light free weights, fitting the
+client's health, e.g. knees → no jumps or deep squats). Wants more for a body part but did not say which → ask which
+(question with 2–4 options). reply: ≤ 2 short spoken sentences, no symbols or abbreviations, numbers as digits.`;
+
 export async function coach(env, body, fetchImpl = fetch, ts = Date.now()) {
-  const asked = Array.isArray(body.chat) ? body.chat.filter((t) => t && t.role === 'ai' && t.q).length : 0;
+  const live = body.context && body.context.session === 'RUNNING';
+  const asked = live ? 0 : Array.isArray(body.chat) ? body.chat.filter((t) => t && t.role === 'ai' && t.q).length : 0;
   const auto = body.domain === 'auto';
   const programs = auto && Array.isArray(body.menu)
     ? body.menu.map((m) => String(m?.id || '')).filter((id) => /^[a-z0-9_]{1,40}$/.test(id)).slice(0, 60)
@@ -210,7 +220,7 @@ export async function coach(env, body, fetchImpl = fetch, ts = Date.now()) {
     prompt = 'MENU: ' + body.menu.slice(0, 60).map((m) => `${m.id}=${String(m.name || '').slice(0, 40)} (${m.goal}/${m.kind})`)
       .join('; ') + '\n' + prompt;
   }
-  const system = auto ? COACH_SYSTEM + AUTO_NOTE : COACH_SYSTEM;
+  const system = (auto ? COACH_SYSTEM + AUTO_NOTE : COACH_SYSTEM) + (live ? LIVE_NOTE : '');
   const r = await generateJson(env, system, prompt, coachSchema(auto ? 'auto' : null, programs), 3000, fetchImpl, ts);
   return { model: r.model, coach: validateCoach(r.raw, asked, auto ? 'auto' : null, programs) };
 }

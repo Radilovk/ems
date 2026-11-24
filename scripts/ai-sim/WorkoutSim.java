@@ -60,6 +60,18 @@ public class WorkoutSim {
         check(v.commands.size() == 1 && v.commands.get(0).target.equals("legs") && v.commands.get(0).dir.equals("down"), "legs down");
         v = AiVoiceCmd.parse("увеличи малко ръцете и корема");
         check(v.commands.size() == 2 && v.commands.get(0).small, "arms + abs up, small " + v.commands.size());
+        check(v.commands.size() == 2 && v.commands.get(1).small, "the second part takes the first one's \"малко\"");
+        // several commands in one phrase, each with its own verb (owner, 1.1.545)
+        v = AiVoiceCmd.parse("увеличи ръцете и намали дупето");
+        check(v.commands.size() == 2 && v.commands.get(0).target.equals("arms") && v.commands.get(0).dir.equals("up")
+                && v.commands.get(1).target.equals("glutes") && v.commands.get(1).dir.equals("down"), "arms up + glutes down");
+        v = AiVoiceCmd.parse("намали задника");
+        check(v.commands.size() == 1 && v.commands.get(0).target.equals("glutes"), "задник = glutes");
+        v = AiVoiceCmd.parse("увеличи ръцете, намали корема и спри");
+        check(v.commands.size() == 2 && v.commands.get(1).dir.equals("down") && v.actions.contains("pause"), "two + pause");
+        v = AiVoiceCmd.parse("колко повторения клек да направя");
+        check(v.isEmpty() && AiVoiceCmd.isQuestion("колко повторения клек да направя"), "a question goes to the coach");
+        check(!AiVoiceCmd.isQuestion("намали ръцете"), "a command is no question");
         v = AiVoiceCmd.parse("по-силно");
         check(v.commands.size() == 1 && v.commands.get(0).target.equals("strength"), "strength up");
         v = AiVoiceCmd.parse("по-дълга пауза");

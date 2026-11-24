@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 383
+    .line 384
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,10 +34,10 @@
     .registers 4
 
     .prologue
-    .line 394
+    .line 395
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiChatDrawer;->touched()V
 
-    .line 395
+    .line 396
     # getter for: Lcom/isaigu/gymapp/ai/AiChatDrawer;->sendBtn:Landroid/widget/TextView;
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiChatDrawer;->access$400()Landroid/widget/TextView;
 
@@ -45,7 +45,7 @@
 
     if-eqz v0, :cond_22
 
-    .line 396
+    .line 397
     # getter for: Lcom/isaigu/gymapp/ai/AiChatDrawer;->sendBtn:Landroid/widget/TextView;
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiChatDrawer;->access$400()Landroid/widget/TextView;
 
@@ -72,11 +72,11 @@
     :goto_1f
     invoke-virtual {v1, v0}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 398
+    .line 399
     :cond_22
     return-void
 
-    .line 396
+    .line 397
     :cond_23
     const-string v0, "\ud83c\udfa4"
 
@@ -87,7 +87,7 @@
     .registers 5
 
     .prologue
-    .line 386
+    .line 387
     return-void
 .end method
 
@@ -95,6 +95,6 @@
     .registers 5
 
     .prologue
-    .line 390
+    .line 391
     return-void
 .end method

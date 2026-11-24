@@ -446,21 +446,93 @@ public final class WakeListener {
         if (cmd.length() > 0) {
             WearableBleDiagLog.log("wake", "command \"" + cmd + "\"");
             String said = AiTrain.voice(ctx, cmd);
-            if (said == null) {
-                tone(ToneGenerator.TONE_PROP_NACK);
-            } else if (said.length() > 0) {
-                say(said);
-            }
-            if (followUps == 0) {
-                followUps = 1;                         // "… още" right after needs no "тренер"
-                state = "listening";
-                AiTrain.voiceState();
-                recognize(900);
+            if (said != null && said.length() > 0) {
+                // done on the tablet: say it, then listen again without "тренер" — a dialogue, not one-shot
+                endWindow();
+                answer(said);
                 return;
             }
+            if (said == null) {
+                tone(ToneGenerator.TONE_PROP_NACK);
+            }
+            // "" = it went to the AI: back to the spotter; the answer is spoken when it comes (answer)
         }
-        followUps = 0;
         afterWindow(300);
+    }
+
+    /** The window ends without giving the microphone back to the spotter (an answer is about to be spoken). */
+    private static void endWindow() {
+        window = false;
+        state = "";
+        destroyRecognizer();
+        AiTrain.voiceState();
+    }
+
+    /**
+     * The coach's answer by the tablet's own voice (owner, 1.1.545: "a real trainer's dialogue"), then one more
+     * listening window without "тренер" — a reply, a question back; silence ends the dialogue (back to the spotter).
+     */
+    static void answer(String text) {
+        if (text == null || text.trim().length() == 0) {
+            return;
+        }
+        if (!on) {
+            // hands-free is off (the chat's 🎤): the answer is still spoken, nothing listens after it
+            if (ctx == null) {
+                return;
+            }
+            initTts();
+            say(text);
+            return;
+        }
+        MAIN.removeCallbacks(FOLLOW);
+        micStop();                                     // the spotter must not hear the tablet's own voice
+        if (window) {
+            endWindow();
+        }
+        if (!ttsOk || tts == null) {
+            tone(ToneGenerator.TONE_PROP_ACK);
+            MAIN.postDelayed(FOLLOW, 400);
+            return;
+        }
+        state = "speaking";
+        AiTrain.voiceState();
+        say(text, "xems-listen");
+        // a lost "done" never leaves the microphone off: ~70 ms a character at most
+        MAIN.postDelayed(FOLLOW, Math.min(20000, 1500 + 70L * text.length()));
+    }
+
+    private static final Runnable FOLLOW = new Follow();
+
+    static final class Follow implements Runnable {
+        @Override
+        public void run() {
+            MAIN.removeCallbacks(FOLLOW);
+            if (!on || window) {
+                return;
+            }
+            micStop();
+            openWindow();
+        }
+    }
+
+    static final class Spoken extends android.speech.tts.UtteranceProgressListener {
+        @Override
+        public void onStart(String id) {
+        }
+
+        @Override
+        public void onDone(String id) {
+            if (id != null && id.startsWith("xems-listen")) {
+                MAIN.removeCallbacks(FOLLOW);
+                MAIN.postDelayed(FOLLOW, 250);
+            }
+        }
+
+        @Override
+        public void onError(String id) {
+            onDone(id);
+        }
     }
 
     static void afterWindow(long delayMs) {
@@ -551,7 +623,8 @@ public final class WakeListener {
                 if (status == TextToSpeech.SUCCESS && tts != null) {
                     int r = tts.setLanguage(bg() ? new Locale("bg", "BG") : Locale.US);
                     ttsOk = r != TextToSpeech.LANG_MISSING_DATA && r != TextToSpeech.LANG_NOT_SUPPORTED;
-                    tts.setSpeechRate(1.1f);
+                    tts.setSpeechRate(1.05f);
+                    tts.setOnUtteranceProgressListener(new Spoken());
                 }
             } catch (Throwable t) {
                 ttsOk = false;
@@ -562,6 +635,10 @@ public final class WakeListener {
 
     /** A short confirmation: "Крака 45 %" → "Крака 45 процента"; no speech engine → the "done" tone. */
     static void say(String text) {
+        say(text, "xems");
+    }
+
+    static void say(String text, String id) {
         if (!ttsOk || tts == null) {
             tone(ToneGenerator.TONE_PROP_ACK);
             return;
@@ -569,7 +646,7 @@ public final class WakeListener {
         try {
             String t = text.replace("✓", "").replace(" · ", ". ").replace("%", bg() ? " процента" : " percent")
                     .replace("Hz", bg() ? "херца" : "hertz").replace("−", bg() ? "минус " : "minus ").replace("+", "плюс ");
-            tts.speak(t.length() > 160 ? t.substring(0, 160) : t, TextToSpeech.QUEUE_FLUSH, null, "xems");
+            tts.speak(t.length() > 400 ? t.substring(0, 400) : t, TextToSpeech.QUEUE_FLUSH, null, id);
         } catch (Throwable t) {
             tone(ToneGenerator.TONE_PROP_ACK);
         }

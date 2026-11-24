@@ -95,6 +95,20 @@ public final class MapRunner {
         return map != null && clock != null && !clock.isDone();
     }
 
+    /** The row's 2nd-impulse look while a map runs: on when any block has it (steady, never block by block). */
+    public static Boolean ledDouble() {
+        Workout m = map;
+        if (m == null || !isRunning()) {
+            return null;
+        }
+        for (Workout.Block x : m.blocks) {
+            if (x.dbl) {
+                return Boolean.TRUE;
+            }
+        }
+        return Boolean.FALSE;
+    }
+
     /** Why a map cannot start now, or null (and it starts). */
     public static String start(Activity a, Workout w) {
         return begin(a, w, false);

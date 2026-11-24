@@ -63,10 +63,13 @@ public final class AiCoachBar {
         pill.setPadding(XemsUi.dp(c, 6), 0, XemsUi.dp(c, 6), 0);
 
         boolean on = WakeListener.isOn();
-        boolean hearing = WakeListener.state().length() > 0;
+        String st = WakeListener.state();
+        boolean speaking = "speaking".equals(st);
+        boolean hearing = st.length() > 0 && !speaking;
         TextView mic = XemsUi.chip(c, !on ? "🎙  " + AiText.t("изкл.", "off")
+                : speaking ? "🔊  " + AiText.t("Говоря…", "Speaking…")
                 : hearing ? "🎙  " + AiText.t("Слушам…", "Listening…")
-                : "🎙  " + AiText.t("„Тренер, …“", "“Trainer, …”"), on, hearing ? XemsUi.AMBER : XemsUi.GO);
+                : "🎙  " + AiText.t("„Тренер, …“", "“Trainer, …”"), on, hearing || speaking ? XemsUi.AMBER : XemsUi.GO);
         mic.setOnClickListener(new Mic());
         pill.addView(mic, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, XemsUi.dp(c, 38)));
 
@@ -88,7 +91,7 @@ public final class AiCoachBar {
                 ViewGroup.LayoutParams.MATCH_PARENT));
     }
 
-    /** What the line says now: AI thinking, the last exchange, else the "during" advice. */
+    /** What the line says now: AI thinking, its last word during the session, else how to talk to it. */
     static String now() {
         if (AiTrain.busy) {
             return "✦ " + AiText.t("мисля…", "thinking…");
@@ -100,10 +103,7 @@ public final class AiCoachBar {
             String t = turns.get(turns.size() - 1).text;
             return t.startsWith("✓") ? t : "✦ " + t;
         }
-        String[] adv = AiCoach.advice();
-        if (adv != null && adv.length > 5 && adv[5] != null && adv[5].trim().length() > 0) {
-            return "✦ " + adv[5].trim();
-        }
+        // nothing from the preparation here (owner, 1.1.545): only what controls the session now
         return WakeListener.isOn()
                 ? AiText.t("Кажи „Тренер, по-силно краката“, „Тренер, пауза“… или ✦ Чат.",
                 "Say “Trainer, raise the legs”, “Trainer, pause”… or ✦ Chat.")

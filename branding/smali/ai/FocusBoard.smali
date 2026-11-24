@@ -9731,25 +9731,27 @@
     const/4 v0, 0x1
 
     .line 730
-    if-eqz p1, :cond_e
+    if-eqz p1, :cond_10
 
-    iget-boolean v1, p1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
+    invoke-static {p1}, Lcom/isaigu/gymapp/wearable/DoubleImpulse;->shown(Lcom/isaigu/gymapp/bean/ProgramDataBean;)Z
 
-    if-eqz v1, :cond_e
+    move-result v1
+
+    if-eqz v1, :cond_10
 
     invoke-static {p0}, Lcom/isaigu/gymapp/ai/FocusBoard;->mode(Lcom/isaigu/gymapp/train/model/TrainItem;)I
 
     move-result v1
 
-    if-eq v1, v0, :cond_e
+    if-eq v1, v0, :cond_10
 
-    :goto_d
+    :goto_f
     return v0
 
-    :cond_e
+    :cond_10
     const/4 v0, 0x0
 
-    goto :goto_d
+    goto :goto_f
 .end method
 
 .method private static sessionRow(Landroid/content/Context;)Landroid/view/View;

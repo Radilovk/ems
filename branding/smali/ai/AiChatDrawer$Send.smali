@@ -139,7 +139,7 @@
 
     if-nez v0, :cond_e
 
-    .line 369
+    .line 370
     :cond_d
     :goto_d
     return-void
@@ -153,11 +153,14 @@
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/AiCoach;->userSpoke(Ljava/lang/String;)V
 
     .line 367
+    sput-boolean v1, Lcom/isaigu/gymapp/ai/AiTrain;->voiceAsk:Z
+
+    .line 368
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiChatDrawer$Send;->c:Landroid/content/Context;
 
     invoke-static {v0, p1, v1, v1}, Lcom/isaigu/gymapp/ai/AiTrain;->send(Landroid/content/Context;Ljava/lang/String;ZZ)V
 
-    .line 368
+    .line 369
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiChatDrawer;->refresh()V
 
     goto :goto_d

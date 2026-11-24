@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 802
+    .line 837
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 803
+    .line 838
     iput p1, p0, Lcom/isaigu/gymapp/ai/AiTrain$Pick;->which:I
 
-    .line 804
+    .line 839
     return-void
 .end method
 
@@ -46,34 +46,34 @@
 
     const/4 v1, 0x0
 
-    .line 808
+    .line 843
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoSession;->getInput()Lcom/isaigu/gymapp/ai/AutoModel$Input;
 
     move-result-object v2
 
-    .line 809
+    .line 844
     iget v3, p0, Lcom/isaigu/gymapp/ai/AiTrain$Pick;->which:I
 
     packed-switch v3, :pswitch_data_80
 
-    .line 832
+    .line 867
     :pswitch_b
     if-nez p1, :cond_7d
 
-    .line 833
+    .line 868
     invoke-static {v2}, Lcom/isaigu/gymapp/ai/AiCoach;->clearHealth(Lcom/isaigu/gymapp/ai/AutoModel$Input;)V
 
-    .line 834
+    .line 869
     sput-boolean v1, Lcom/isaigu/gymapp/ai/AiTrain;->healthOpen:Z
 
-    .line 840
+    .line 875
     :goto_12
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiTrain;->changed()V
 
-    .line 841
+    .line 876
     return-void
 
-    .line 811
+    .line 846
     :pswitch_16
     if-nez p1, :cond_1d
 
@@ -89,13 +89,13 @@
 
     goto :goto_1a
 
-    .line 814
+    .line 849
     :pswitch_20
     invoke-static {v2, p1}, Lcom/isaigu/gymapp/ai/AiCoach;->experience(Lcom/isaigu/gymapp/ai/AutoModel$Input;I)V
 
     goto :goto_12
 
-    .line 817
+    .line 852
     :pswitch_24
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoModel$Goal;->values()[Lcom/isaigu/gymapp/ai/AutoModel$Goal;
 
@@ -115,7 +115,7 @@
 
     iput-object v0, v2, Lcom/isaigu/gymapp/ai/AutoModel$Input;->goal:Lcom/isaigu/gymapp/ai/AutoModel$Goal;
 
-    .line 818
+    .line 853
     iget-object v0, v2, Lcom/isaigu/gymapp/ai/AutoModel$Input;->goal:Lcom/isaigu/gymapp/ai/AutoModel$Goal;
 
     iget-object v1, v2, Lcom/isaigu/gymapp/ai/AutoModel$Input;->kind:Lcom/isaigu/gymapp/ai/AutoModel$Kind;
@@ -130,7 +130,7 @@
 
     if-eqz v0, :cond_4d
 
-    .line 819
+    .line 854
     iget-object v0, v2, Lcom/isaigu/gymapp/ai/AutoModel$Input;->kind:Lcom/isaigu/gymapp/ai/AutoModel$Kind;
 
     sget-object v1, Lcom/isaigu/gymapp/ai/AutoModel$Kind;->ACTIVE:Lcom/isaigu/gymapp/ai/AutoModel$Kind;
@@ -142,7 +142,7 @@
     :goto_4b
     iput-object v0, v2, Lcom/isaigu/gymapp/ai/AutoModel$Input;->kind:Lcom/isaigu/gymapp/ai/AutoModel$Kind;
 
-    .line 821
+    .line 856
     :cond_4d
     iget-object v0, v2, Lcom/isaigu/gymapp/ai/AutoModel$Input;->goal:Lcom/isaigu/gymapp/ai/AutoModel$Goal;
 
@@ -158,20 +158,20 @@
 
     goto :goto_12
 
-    .line 819
+    .line 854
     :cond_5a
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoModel$Kind;->ACTIVE:Lcom/isaigu/gymapp/ai/AutoModel$Kind;
 
     goto :goto_4b
 
-    .line 824
+    .line 859
     :pswitch_5d
     if-ne p1, v0, :cond_65
 
     :goto_5f
     sput-boolean v0, Lcom/isaigu/gymapp/ai/AiTrain;->free:Z
 
-    .line 825
+    .line 860
     const/4 v0, 0x0
 
     sput-object v0, Lcom/isaigu/gymapp/ai/AiTrain;->freePlan:Lcom/isaigu/gymapp/ai/AiWorkout$Plan;
@@ -181,10 +181,10 @@
     :cond_65
     move v0, v1
 
-    .line 824
+    .line 859
     goto :goto_5f
 
-    .line 828
+    .line 863
     :pswitch_67
     if-nez p1, :cond_7a
 
@@ -193,7 +193,7 @@
     :goto_6b
     iput-object v0, v2, Lcom/isaigu/gymapp/ai/AutoModel$Input;->kind:Lcom/isaigu/gymapp/ai/AutoModel$Kind;
 
-    .line 829
+    .line 864
     iget-object v0, v2, Lcom/isaigu/gymapp/ai/AutoModel$Input;->goal:Lcom/isaigu/gymapp/ai/AutoModel$Goal;
 
     iget-object v1, v2, Lcom/isaigu/gymapp/ai/AutoModel$Input;->kind:Lcom/isaigu/gymapp/ai/AutoModel$Kind;
@@ -208,19 +208,19 @@
 
     goto :goto_12
 
-    .line 828
+    .line 863
     :cond_7a
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoModel$Kind;->PASSIVE:Lcom/isaigu/gymapp/ai/AutoModel$Kind;
 
     goto :goto_6b
 
-    .line 836
+    .line 871
     :cond_7d
     sput-boolean v0, Lcom/isaigu/gymapp/ai/AiTrain;->healthOpen:Z
 
     goto :goto_12
 
-    .line 809
+    .line 844
     :pswitch_data_80
     .packed-switch 0x0
         :pswitch_16

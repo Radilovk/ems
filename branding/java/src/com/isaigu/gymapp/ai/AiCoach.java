@@ -132,6 +132,9 @@ public final class AiCoach {
         }
     }
 
+    /** The answer being read is for the running session: its questions do not count toward the 3. */
+    static volatile boolean liveTurn;
+
     public static List<Turn> chat() {
         return chat;
     }
@@ -290,7 +293,7 @@ public final class AiCoach {
                         r.options.add(s);
                     }
                 }
-                r.question = r.options.size() >= 2 && questionsAsked() < 3 ? t : null;
+                r.question = r.options.size() >= 2 && (liveTurn || questionsAsked() < 3) ? t : null;
                 if (r.question == null) {
                     r.options.clear();
                 }

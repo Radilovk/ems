@@ -185,3 +185,24 @@ trainer wants a session fitted to this person in seconds; the AI must never stan
   change. Words / phrases / 🎤 → `say()` straight to the AI. ▶ Старт drops an answer still on its way.
 - Coach bar shows only what the AI said during the session (`AiCoachBar.started`); the chat is 380 dp wide.
 - Shots: `ai-guest`, `ai-guest-busy`, `ai-client`, `ai-pad`, `ai-health`, `ai-bar`, `ai-chat`.
+
+## 1.1.545 — a spoken dialogue during the session; the 2nd-impulse blink
+- **The AI changes the running session** (it always could: `liveApply`, commands); ▶ Старт only drops an answer to
+  a *preparation* question still on its way.
+- **Spoken dialogue** (the tablet's own TTS, no paid voice): whatever went to the AI by voice ("Тренер, …" or the
+  chat's 🎤) is answered aloud (`AiTrain.voiceAsk` → `spoken()` = reply + question + its options →
+  `WakeListener.answer`), then one listening window opens without "тренер" (after the TTS "done", `Follow`); silence
+  ends the dialogue (back to the spotter). Commands done on the tablet are said back the same way. The spotter is off
+  while the tablet speaks.
+- **Questions** ("колко повторения…", "какво упражнение още…", "…?") skip the command model and go straight to the
+  coach (`AiVoiceCmd.isQuestion`). Server `LIVE_NOTE` (SESSION=RUNNING): concrete numbers (reps, seconds, sets), the
+  next exercise for the named body part, asks which part when none is named; live questions don't count toward 3.
+- **Several commands in one phrase**: `AiVoiceCmd.parse` splits on "и / а / , / после / също"; each part has its own
+  verb, a part without one takes the verb (and "малко") before: "увеличи ръцете и намали дупето" → arms up, glutes
+  down. "задник" = glutes.
+- **Operational screen**: the coach bar shows only the voice state (🎙 / 🔊 / listening) and what the AI said during
+  the session — no preparation advice.
+- **2nd-impulse blink**: the row's two 2nd-impulse index buttons coloured themselves from the bean (yellow / black),
+  which Auto / Smart / a map change cycle by cycle. `scripts/apply-double-impulse.py` `patch_shown` makes
+  `updatePauseMa/HzDisplay` read `DoubleImpulse.shown(b)` (the session's steady setting; `MapRunner.ledDouble` for
+  maps); FocusBoard's ∿ reads it too.

@@ -727,7 +727,7 @@ public final class FocusBoard {
 
     /** The second impulse runs (never in Мускули). */
     private static boolean second(TrainItem it, ProgramDataBean b) {
-        return b != null && b.activePause && mode(it) != 1;
+        return b != null && com.isaigu.gymapp.wearable.DoubleImpulse.shown(b) && mode(it) != 1;   // steady while a session leads
     }
 
     private static boolean marked(TrainItem it, int k) {

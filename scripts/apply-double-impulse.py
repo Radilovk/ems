@@ -165,8 +165,39 @@ def patch_carry() -> None:
     print("TrainItem.setUserType: massage starts from the left mode's strength")
 
 
+SHOWN_MARK = "# xems: 2nd-impulse buttons show the session's steady setting"
+AP_READ = re.compile(r"    iget-boolean (v\d+), (v\d+), " + re.escape(PDB) + r"->activePause:Z\n")
+
+
+def patch_shown() -> None:
+    """The 2nd-impulse index buttons' colour (yellow = on, black = off) read the bean, which Smart / Auto / a map
+    change cycle by cycle → the buttons blinked (owner, 1.1.545). They read DoubleImpulse.shown: the session's steady
+    setting while one leads, the bean otherwise."""
+    text = HOLDER.read_text(encoding="utf-8")
+    if SHOWN_MARK in text:
+        print("TrainViewHolder: 2nd-impulse colour already steady")
+        return
+    n = 0
+    for name in ("updatePauseMaDisplay", "updatePauseHzDisplay"):
+        a = text.find(f".method private {name}()V")
+        if a < 0:
+            sys.exit(f"apply-double-impulse: {name} not found")
+        b = text.find(".end method", a)
+        body = text[a:b]
+        body, k = AP_READ.subn(lambda m: (f"    {SHOWN_MARK}\n    invoke-static {{{m.group(2)}}}, "
+                                          f"Lcom/isaigu/gymapp/wearable/DoubleImpulse;->shown({PDB})Z\n\n"
+                                          f"    move-result {m.group(1)}\n"), body)
+        if k != 1:
+            sys.exit(f"apply-double-impulse: {name}: expected 1 activePause read, found {k}")
+        n += k
+        text = text[:a] + body + text[b:]
+    HOLDER.write_text(text, encoding="utf-8")
+    print(f"TrainViewHolder: 2nd-impulse buttons' colour from DoubleImpulse.shown ({n})")
+
+
 def main() -> None:
     patch_holder()
+    patch_shown()
     patch_item()
     patch_carry()
     patch_restart()

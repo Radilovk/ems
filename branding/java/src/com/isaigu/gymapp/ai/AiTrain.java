@@ -150,6 +150,7 @@ public final class AiTrain {
                 close();
                 return AiText.t("Затворено", "Closed");
             }
+            voiceAsk = true;                           // its answer is spoken (WakeListener.answer)
             say(c, cmd, true);                         // before the start: the words go to the AI's plan
             return "";
         }
@@ -158,8 +159,39 @@ public final class AiTrain {
             commandsDone(vc, cmd);
             return lastSpoken != null && lastSpoken.length() > 0 ? lastSpoken : null;
         }
+        voiceAsk = true;
         send(c, cmd, true, true);
         return "";
+    }
+
+    /** The last question came by voice: the AI's answer is spoken back (the tablet's own voice), then it listens. */
+    static boolean voiceAsk;
+
+    /** What the tablet says aloud for an answer: the reply, the question with its options, else what was done. */
+    static String spoken(AiCoach.Reply r, String done) {
+        StringBuilder b = new StringBuilder();
+        if (r != null && r.reply != null && r.reply.trim().length() > 0) {
+            b.append(r.reply.trim());
+        } else if (done != null && done.length() > 0) {
+            b.append(done);
+        }
+        if (r != null && r.hasQuestion()) {
+            b.append(b.length() > 0 ? " " : "").append(r.question.trim());
+            if (!r.question.trim().endsWith("?")) {
+                b.append('?');
+            }
+            for (int i = 0; i < r.options.size(); i++) {
+                b.append(i == 0 ? " " : i == r.options.size() - 1 ? AiText.t(" или ", " or ") : ", ").append(r.options.get(i));
+            }
+        }
+        return b.toString();
+    }
+
+    private static void speakBack(String text) {
+        if (voiceAsk) {
+            voiceAsk = false;
+            WakeListener.answer(text.length() > 0 ? text : AiText.t("Готово.", "Done."));
+        }
     }
 
     /** ✕ before the start: the AI training goes, the screen is as before. */
@@ -572,6 +604,7 @@ public final class AiTrain {
         AiCoach.aiSaid(r);
         lastChanges = done;
         rebuild();
+        speakBack(done.length() > 0 ? done : r.reply);
         WearableBleDiagLog.log("ai-train", "command \"" + text + "\" → " + done);
     }
 
@@ -637,6 +670,7 @@ public final class AiTrain {
                     "No AI connection — I did what I understood from the words.");
             AiCoach.aiSaid(off);
             rebuild();
+            speakBack(AiText.t("Няма връзка с AI.", "No AI connection."));
             return;
         }
         AiCoach.aiSaid(r);
@@ -666,6 +700,7 @@ public final class AiTrain {
         }
         lastChanges = AiBrief.line(ch) + (done.length() > 0 ? (ch.isEmpty() ? "" : " · ") + done : "");
         rebuild();
+        speakBack(spoken(r, done));
         WearableBleDiagLog.log("ai-train", (live ? "live " : "plan ") + ch + " " + done);
     }
 
@@ -1175,8 +1210,9 @@ public final class AiTrain {
         public void run() {
             AiCoach.Reply r = null;
             try {
-                if (live) {
-                    // the cheapest model reads commands; only what is none goes to the coach
+                if (live && !AiVoiceCmd.isQuestion(text)) {
+                    // the cheapest model reads commands; only what is none goes to the coach (a question goes
+                    // straight to the coach — one call, the answer sooner)
                     String cr = com.isaigu.gymapp.widget.XemsLicenseClient.postBrief(c,
                             "\"kind\":\"command\",\"text\":" + AiBrief.q(text));
                     AiVoiceCmd.Result vc = AiVoiceCmd.parseServer(cr);
@@ -1186,6 +1222,7 @@ public final class AiTrain {
                     }
                 }
                 String resp = com.isaigu.gymapp.widget.XemsLicenseClient.postBrief(c, fields);
+                AiCoach.liveTurn = live;
                 r = AiCoach.parse(resp);
                 if (r != null && wantPlan) {
                     AiWorkout.Plan p = AiWorkout.parse(resp);

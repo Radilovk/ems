@@ -39,6 +39,10 @@
     .end annotation
 .end field
 
+.field dir:Ljava/lang/String;
+
+.field small:Z
+
 
 # direct methods
 .method public constructor <init>()V
@@ -71,7 +75,7 @@
     .registers 2
 
     .prologue
-    .line 57
+    .line 60
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiVoiceCmd$Result;->commands:Ljava/util/List;
 
     invoke-interface {v0}, Ljava/util/List;->isEmpty()Z

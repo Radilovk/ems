@@ -127,7 +127,7 @@ public final class AiChatDrawer {
         LinearLayout who = XemsUi.vertical(c);
         who.addView(XemsUi.text(c, AiText.t("AI треньор", "AI coach"), 16, XemsUi.TEXT, true));
         boolean on = WakeListener.isOn();
-        boolean hearing = WakeListener.state().length() > 0;
+        boolean hearing = WakeListener.state().length() > 0 && !"speaking".equals(WakeListener.state());
         TextView st = XemsUi.text(c, AiTrain.busy ? AiText.t("пише…", "typing…")
                 : hearing ? "🎙 " + AiText.t("слуша…", "listening…")
                 : on ? "🎙 " + AiText.t("„Тренер, …“ работи", "“Trainer, …” is on")
@@ -364,6 +364,7 @@ public final class AiChatDrawer {
                 return;
             }
             AiCoach.userSpoke(text.trim());
+            AiTrain.voiceAsk = true;                     // spoken to → the answer is spoken back
             AiTrain.send(c, text, true, true);
             refresh();
         }

@@ -324,6 +324,11 @@ export async function generateJson(env, system, userText, schema, maxTokens, fet
     try {
       return { model, raw: JSON.parse(text) };
     } catch {
+      // cut off at the budget (2026-11-24, 1.1.548 smoke: the planning answer ran to 2985 tokens and stopped
+      // mid-JSON): once more with twice the room — the tablet waits up to 30 s
+      if (cand?.finishReason === 'MAX_TOKENS' && maxTokens < 6000) {
+        return generateJson(env, system, userText, schema, Math.min(8192, maxTokens * 2), fetchImpl, ts, lite);
+      }
       const u = j?.usageMetadata || {};
       throw new Error(`bad_json finish=${cand?.finishReason} out=${u.candidatesTokenCount} thoughts=${u.thoughtsTokenCount}`
         + ` text=${JSON.stringify(text.slice(0, 120))}`);

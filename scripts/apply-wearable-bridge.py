@@ -266,6 +266,18 @@ def patch_manifest(text: str) -> str:
         marker = _application_marker(text)
         text = text.replace(marker, '    <uses-permission android:name="android.permission.RECORD_AUDIO"/>\n' + marker, 1)
         print("AndroidManifest: added RECORD_AUDIO (AI training voice)")
+    if "android.speech.RecognitionService" not in text:
+        # Android 11+ package visibility (targetSdk 30): without these the app does not see the speech recognizer
+        # service nor the TTS engine — SpeechRecognizer fails to bind (hands-free "Тренер" never listened) and
+        # TextToSpeech finds no engine (owner, 1.1.547)
+        queries = ("    <queries>\n"
+                   "        <intent><action android:name=\"android.speech.RecognitionService\"/></intent>\n"
+                   "        <intent><action android:name=\"android.speech.action.RECOGNIZE_SPEECH\"/></intent>\n"
+                   "        <intent><action android:name=\"android.intent.action.TTS_SERVICE\"/></intent>\n"
+                   "    </queries>\n")
+        marker = _application_marker(text)
+        text = text.replace(marker, queries + marker, 1)
+        print("AndroidManifest: <queries> for the speech recognizer and TTS (Android 11+)")
     if "com.isaigu.gymapp.wearable.NotifyHaForegroundService" not in text:
         marker = "    </application>"
         if marker not in text:

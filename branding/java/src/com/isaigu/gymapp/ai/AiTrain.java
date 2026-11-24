@@ -78,6 +78,10 @@ public final class AiTrain {
             return;
         }
         host = new java.lang.ref.WeakReference<Activity>(a);
+        if (MapRunner.isAi()) {
+            AiChatDrawer.open(a);                      // the AI's own workout runs: the tile opens its chat
+            return;
+        }
         AutoSession.Stage st = AutoSession.getStage();
         if (st != AutoSession.Stage.IDLE) {
             if (AutoSession.aiMode) {
@@ -149,13 +153,17 @@ public final class AiTrain {
     /** null = not taken / not understood; "" = taken (the AI answers in the chat); else what to say back. */
     private static String voiceAct(Context c, String cmd) {
         lastSpoken = null;
-        if (!AutoSession.aiMode || c == null || cmd == null || cmd.trim().length() == 0) {
+        if (!(AutoSession.aiMode || MapRunner.isAi()) || c == null || cmd == null || cmd.trim().length() == 0) {
             return null;
         }
-        boolean running = AutoSession.getStage() == AutoSession.Stage.RUNNING && AutoSession.getEngine() != null;
+        boolean running = live();
         AiVoiceCmd.Result vc = AiVoiceCmd.parse(cmd);
         if (!running) {
             if (vc.actions.contains("resume") && vc.commands.isEmpty()) {
+                if (MapRunner.isWaiting()) {
+                    MapRunner.go();
+                    return AiText.t("Старт", "Start");
+                }
                 start(c, AiSession.activityOf(AutoSession.getPanelRoot()));
                 return AiText.t("Старт", "Start");
             }
@@ -175,6 +183,21 @@ public final class AiTrain {
         voiceAsk = true;
         send(c, cmd, true, true);
         return "";
+    }
+
+    /** The AI's session runs now: a ready program on Auto's engine, or the AI's own workout on the map engine. */
+    static boolean live() {
+        return (AutoSession.aiMode && AutoSession.getStage() == AutoSession.Stage.RUNNING && AutoSession.getEngine() != null)
+                || (MapRunner.isAi() && !MapRunner.isWaiting());
+    }
+
+    /** The AI's own workout ended: its chat and listening go with it. */
+    static void mapEnded() {
+        AiChatDrawer.close();
+        AiCoachBar.forget();
+        if (!AutoSession.aiMode) {
+            WakeListener.stop();
+        }
     }
 
     /** The last question came by voice: the AI's answer is spoken back (the tablet's own voice), then it listens. */
@@ -623,18 +646,22 @@ public final class AiTrain {
 
     /** Each command with the relative step (AiVoiceCmd.step): muscles, strength, impulse, pause, Hz, rests, actions. */
     static String applyCommands(AiVoiceCmd.Result vc) {
+        if (MapRunner.isAi()) {
+            return applyMap(vc);
+        }
         AutoEngine e = AutoSession.getEngine();
         StringBuilder b = new StringBuilder();
         for (AiVoiceCmd.Cmd c : vc.commands) {
             int sign = "up".equals(c.dir) || "on".equals(c.dir) ? 1 : -1;
             if (c.isMuscle()) {
-                int v = AutoSession.channelStep(c.channels(), c.dir, c.small);   // the group together
+                int v = AutoSession.channelStep(c.channels(), c.dir, c.small, c.value);   // the group together
                 if (v >= 0) {
                     b.append(AiVoiceCmd.name(c.target)).append(' ').append("off".equals(c.dir) ? AiText.t("изкл.", "off") : v + " %")
                             .append(" · ");
                 }
             } else if ("strength".equals(c.target)) {
-                int v = AutoSession.strengthStep(sign, c.small);
+                int v = AutoSession.strengthStep(sign, c.small, "set".equals(c.dir) ? -1 : c.value,
+                        "set".equals(c.dir) ? c.value : -1);
                 if (v >= 0) {
                     b.append(AiText.t("сила ", "strength ")).append(v).append(" · ");
                 }
@@ -716,6 +743,13 @@ public final class AiTrain {
     /** The coach's commands and impulse moves on the running Auto session. */
     static String liveApply(AiCoach.Reply r) {
         AutoEngine e = AutoSession.getEngine();
+        if (MapRunner.isAi()) {
+            StringBuilder m = new StringBuilder();
+            for (String a : r.actions) {
+                m.append(mapAction(a));
+            }
+            return trim(m);
+        }
         if (e == null) {
             return "";
         }
@@ -750,7 +784,74 @@ public final class AiTrain {
         return trim(b);
     }
 
+    /** The commands on the AI's own workout (MapRunner): strength, channels, pause, next, double impulse. */
+    static String applyMap(AiVoiceCmd.Result vc) {
+        StringBuilder b = new StringBuilder();
+        for (AiVoiceCmd.Cmd c : vc.commands) {
+            int sign = "up".equals(c.dir) || "on".equals(c.dir) ? 1 : -1;
+            if (c.isMuscle()) {
+                int[] chs = c.channels();
+                int now = MapRunner.channelLevel(chs[0]);
+                int to = "set".equals(c.dir) ? c.value : "off".equals(c.dir) ? 0
+                        : now + sign * (c.value > 0 ? c.value : AiVoiceCmd.step(Math.max(now, 1), c.small));
+                int v = MapRunner.setChannels(chs, to);
+                b.append(AiVoiceCmd.name(c.target)).append(' ').append("off".equals(c.dir) ? AiText.t("изкл.", "off") : v + " %")
+                        .append(" · ");
+            } else if ("strength".equals(c.target)) {
+                int now = MapRunner.strength();
+                int to = "set".equals(c.dir) ? c.value : now + sign * (c.value > 0 ? c.value
+                        : AiVoiceCmd.step(Math.max(now, 1), c.small));
+                b.append(AiText.t("сила ", "strength ")).append(MapRunner.setStrength(to)).append(" · ");
+            } else {
+                b.append(AiText.t("това не се сменя в тази тренировка · ", "not changeable in this workout · "));
+            }
+        }
+        for (String a : vc.actions) {
+            b.append(mapAction("stop".equals(a) ? "to_recovery" : a));
+        }
+        return trim(b);
+    }
+
+    private static String mapAction(String a) {
+        if ("softer".equals(a)) {
+            int s = MapRunner.strength();
+            return AiText.t("сила ", "strength ") + MapRunner.setStrength(s - Math.max(1, s / 10)) + " · ";
+        }
+        if ("stronger".equals(a)) {
+            int s = MapRunner.strength();
+            return AiText.t("сила ", "strength ") + MapRunner.setStrength(s + Math.max(1, s / 20)) + " · ";
+        }
+        if ("pause".equals(a)) {
+            return MapRunner.isPaused() ? AiText.t("на пауза е · ", "it is paused · ")
+                    : MapRunner.pause(true) ? AiText.t("пауза · ", "pause · ") : "";
+        }
+        if ("resume".equals(a) || "continue".equals(a)) {
+            if (MapRunner.isWaiting()) {
+                MapRunner.go();
+                return AiText.t("старт · ", "start · ");
+            }
+            return !MapRunner.isPaused() ? AiText.t("тече · ", "it is running · ")
+                    : MapRunner.pause(false) ? AiText.t("продължаваме · ", "going on · ") : "";
+        }
+        if ("skip".equals(a)) {
+            return MapRunner.skip() ? AiText.t("следващото · ", "the next one · ") : "";
+        }
+        if ("double_on".equals(a) || "double_off".equals(a)) {
+            MapRunner.noDouble = "double_off".equals(a);
+            return MapRunner.noDouble ? AiText.t("без двоен импулс · ", "no double impulse · ")
+                    : AiText.t("двоен импулс · ", "double impulse · ");
+        }
+        if ("to_recovery".equals(a) || "to_cooldown".equals(a)) {
+            MapRunner.stop();
+            return AiText.t("край на тренировката · ", "the workout ends · ");
+        }
+        return "";
+    }
+
     private static String action(AutoEngine e, String a) {
+        if (MapRunner.isAi()) {
+            return mapAction(a);
+        }
         if (e == null) {
             return "";
         }
@@ -1089,11 +1190,20 @@ public final class AiTrain {
             Workout w = AiWorkout.toWorkout(freePlan, AutoSession.getInput());
             AiSetupSheet.close();
             AutoSession.close();
+            MapRunner.ai = true;                       // the AI tab: its board, bar, voice and chat (1.1.547)
+            AiAnnounce.reset();
+            MapRunner.noDouble = false;
             String why = MapRunner.arm(a, w);
             if (why != null) {
+                MapRunner.ai = false;
                 toast(c, why);
             } else {
                 MapRunner.go();
+                AiCoachBar.started();
+                if (!WakeListener.isOn()) {
+                    WakeListener.start(a != null ? a : activity(null));   // AutoSession.close() stopped it
+                }
+                AiCoachBar.refresh();
             }
             return;
         }

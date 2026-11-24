@@ -37,7 +37,7 @@
             <sim.out>${sim.out}</sim.out>
           </systemPropertyVariables>
           <trimStackTrace>false</trimStackTrace>
-          <forkCount>1</forkCount>
+          <forkCount>3</forkCount>
           <reuseForks>false</reuseForks>
           <argLine>-Xmx6g -XX:+IgnoreUnrecognizedVMOptions -Xverify:none -Dxems.sim=true</argLine>
           <redirectTestOutputToFile>true</redirectTestOutputToFile>

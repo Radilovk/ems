@@ -72,6 +72,25 @@ public class WorkoutSim {
         v = AiVoiceCmd.parse("колко повторения клек да направя");
         check(v.isEmpty() && AiVoiceCmd.isQuestion("колко повторения клек да направя"), "a question goes to the coach");
         check(!AiVoiceCmd.isQuestion("намали ръцете"), "a command is no question");
+        // the double impulse and absolute levels (owner, 1.1.547)
+        v = AiVoiceCmd.parse("спри двойния импулс");
+        check(v.actions.contains("double_off") && !v.actions.contains("pause"), "спри двойния импулс = off, no pause");
+        v = AiVoiceCmd.parse("пусни двойния импулс");
+        check(v.actions.contains("double_on") && !v.actions.contains("resume"), "пусни двойния импулс = on");
+        v = AiVoiceCmd.parse("махни втория импулс");
+        check(v.actions.contains("double_off"), "махни втория импулс = off");
+        v = AiVoiceCmd.parse("силата на 50");
+        check(v.commands.size() == 1 && v.commands.get(0).target.equals("strength") && v.commands.get(0).value == 50
+                && v.commands.get(0).dir.equals("set"), "силата на 50 = set 50");
+        v = AiVoiceCmd.parse("увеличи на 50%");
+        check(v.commands.size() == 1 && v.commands.get(0).target.equals("strength") && v.commands.get(0).value == 50, "увеличи на 50% = strength 50");
+        v = AiVoiceCmd.parse("краката на 30 процента");
+        check(v.commands.size() == 1 && v.commands.get(0).target.equals("legs") && v.commands.get(0).value == 30, "legs set 30");
+        v = AiVoiceCmd.parse("увеличи с 10");
+        check(v.commands.size() == 1 && v.commands.get(0).dir.equals("up") && v.commands.get(0).value == 10, "up by 10");
+        v = AiVoiceCmd.parse("увеличи ръцете с 5 и намали дупето");
+        check(v.commands.size() == 2 && v.commands.get(0).value == 5 && v.commands.get(1).dir.equals("down")
+                && v.commands.get(1).value == -1, "arms +5, glutes a step down");
         v = AiVoiceCmd.parse("по-силно");
         check(v.commands.size() == 1 && v.commands.get(0).target.equals("strength"), "strength up");
         v = AiVoiceCmd.parse("по-дълга пауза");

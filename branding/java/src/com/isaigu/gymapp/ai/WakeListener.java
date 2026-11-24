@@ -502,6 +502,29 @@ public final class WakeListener {
         MAIN.postDelayed(FOLLOW, Math.min(20000, 1500 + 70L * text.length()));
     }
 
+    /**
+     * A step of the training said aloud (AiAnnounce): after anything already being said, never cutting the trainer's
+     * dialogue; the spotter is off while the tablet talks (it must not hear itself) and back after.
+     */
+    static void announce(String text) {
+        if (text == null || text.length() == 0 || ctx == null) {
+            return;
+        }
+        initTts();
+        if (!ttsOk || tts == null) {
+            return;
+        }
+        try {
+            if (on && !window) {
+                micStop();
+            }
+            String t = text.replace("%", bg() ? " процента" : " percent");
+            tts.speak(t, TextToSpeech.QUEUE_ADD, null, "xems-ann");
+        } catch (Throwable t) {
+            WearableBleDiagLog.log("wake", "announce: " + t);
+        }
+    }
+
     private static final Runnable FOLLOW = new Follow();
 
     static final class Follow implements Runnable {
@@ -526,6 +549,8 @@ public final class WakeListener {
             if (id != null && id.startsWith("xems-listen")) {
                 MAIN.removeCallbacks(FOLLOW);
                 MAIN.postDelayed(FOLLOW, 250);
+            } else if (id != null && id.startsWith("xems-ann")) {
+                MAIN.postDelayed(new MicAgain(), 300);      // the announcement said: the spotter listens again
             }
         }
 
@@ -624,12 +649,47 @@ public final class WakeListener {
                     int r = tts.setLanguage(bg() ? new Locale("bg", "BG") : Locale.US);
                     ttsOk = r != TextToSpeech.LANG_MISSING_DATA && r != TextToSpeech.LANG_NOT_SUPPORTED;
                     tts.setSpeechRate(1.05f);
+                    bestVoice();
                     tts.setOnUtteranceProgressListener(new Spoken());
                 }
             } catch (Throwable t) {
                 ttsOk = false;
             }
             WearableBleDiagLog.log("wake", "tts " + (ttsOk ? "bg ok" : "none — tones only"));
+        }
+    }
+
+    /**
+     * The best Bulgarian voice the tablet has (owner, 1.1.547: "the device's own voice, chosen well"): the highest
+     * quality, a local one before a network one at the same quality (no wait, works offline).
+     */
+    static void bestVoice() {
+        try {
+            if (android.os.Build.VERSION.SDK_INT < 21 || tts == null || tts.getVoices() == null) {
+                return;
+            }
+            String lang = bg() ? "bg" : "en";
+            android.speech.tts.Voice best = null;
+            for (android.speech.tts.Voice v : tts.getVoices()) {
+                if (v == null || v.getLocale() == null || !lang.equals(v.getLocale().getLanguage())) {
+                    continue;
+                }
+                if (v.getFeatures() != null && v.getFeatures().contains(TextToSpeech.Engine.KEY_FEATURE_NOT_INSTALLED)) {
+                    continue;
+                }
+                if (best == null || v.getQuality() > best.getQuality()
+                        || (v.getQuality() == best.getQuality() && best.isNetworkConnectionRequired()
+                        && !v.isNetworkConnectionRequired())) {
+                    best = v;
+                }
+            }
+            if (best != null) {
+                tts.setVoice(best);
+            }
+            WearableBleDiagLog.log("wake", "tts voice " + (best != null ? best.getName() + " q=" + best.getQuality()
+                    + (best.isNetworkConnectionRequired() ? " net" : " local") : "default"));
+        } catch (Throwable t) {
+            WearableBleDiagLog.log("wake", "voice: " + t);
         }
     }
 

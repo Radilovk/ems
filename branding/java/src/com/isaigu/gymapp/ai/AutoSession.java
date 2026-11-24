@@ -763,6 +763,9 @@ public final class AutoSession {
         }
         faceMode();
         engine = new AutoEngine(plan);
+        // the AI training never stops by itself: no rests between sets, no HR stop — the impulse adapts (1.1.548)
+        engine.setContinuous(aiMode);
+        AiAnnounce.reset();
         if (aiMode && (vetoHz > 0 || vetoOn > 0 || vetoOff > 0)) {
             engine.setVeto(vetoHz, vetoOn, vetoOff);
         }
@@ -1321,6 +1324,9 @@ public final class AutoSession {
         engine.traceTick(now);                   // a pause / rest: the timeline falls with the load as it lasts
         AutoEngine.State after = engine.getState();
         engineEvents(now);
+        if (aiMode) {
+            AiAnnounce.auto(engine);                 // the steps aloud (owner, 1.1.548)
+        }
         if (before == AutoEngine.State.COUNTDOWN && after == AutoEngine.State.RUN) {
             onGo(now);
         } else if (after == AutoEngine.State.COUNTDOWN) {
@@ -1409,13 +1415,22 @@ public final class AutoSession {
      * up still rises at most +5 per impulse (rowStrength). Returns the leader's new value (−1 = nothing changed).
      */
     public static int strengthStep(int dir, boolean small) {
+        return strengthStep(dir, small, -1, -1);
+    }
+
+    /**
+     * @param by   the step's size ("увеличи с 10"), −1 = ~10 % of the value now
+     * @param set  the level asked for ("силата на 50"), −1 = a step
+     */
+    public static int strengthStep(int dir, boolean small, int by, int set) {
         int lead = -1;
         for (Row r : rows) {
             if (r.block != null) {
                 continue;
             }
             int now = level(r);
-            int to = Math.max(0, Math.min(100, now + dir * AiVoiceCmd.step(Math.max(now, 1), small)));
+            int to = set >= 0 ? set : now + dir * (by > 0 ? by : AiVoiceCmd.step(Math.max(now, 1), small));
+            to = Math.max(0, Math.min(100, to));
             setRowStrength(r, to);
             if (lead < 0) {
                 lead = to;
@@ -1435,6 +1450,11 @@ public final class AutoSession {
 
     /** A muscle group (legs = front thigh, back thigh, calf) moved together; the level of the first is returned. */
     public static int channelStep(int[] chs, String dir, boolean small) {
+        return channelStep(chs, dir, small, -1);
+    }
+
+    /** @param value "set": the level asked for; up / down: the step's size (−1 = ~10 % of the level now) */
+    public static int channelStep(int[] chs, String dir, boolean small, int value) {
         if (chs == null || chs.length == 0) {
             return -1;
         }
@@ -1463,8 +1483,10 @@ public final class AutoSession {
                 to = 0;
             } else if ("on".equals(dir)) {
                 to = now > 0 ? now : Math.max(1, (int) Math.round(s * Math.max(50, base[ch]) / 100.0));
+            } else if ("set".equals(dir)) {
+                to = Math.max(0, value);
             } else {
-                to = now + ("up".equals(dir) ? 1 : -1) * AiVoiceCmd.step(Math.max(now, 1), small);
+                to = now + ("up".equals(dir) ? 1 : -1) * (value > 0 ? value : AiVoiceCmd.step(Math.max(now, 1), small));
             }
             to = Math.max(0, Math.min(100, to));
             if (to > s && s >= 0) {

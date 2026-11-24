@@ -13,13 +13,21 @@ if [ ! -f "$O/app.jar" ] || [ "$APK" -nt "$O/app.jar" ]; then
   java -cp "$D/d2j/*" com.googlecode.dex2jar.tools.Dex2jarCmd -f -o "$O/app.jar" "$APK" >/dev/null 2>&1
 fi
 # our Java over the APK's copy (the same classes, the source as it is now)
-C="$O/overlay"; rm -rf "$C"; mkdir -p "$C"
+C="$O/overlay"
+# recompiled only when a source is newer than the last overlay (a test-only change starts in seconds)
 if [ "${OVERLAY:-1}" = "1" ]; then
-  find "$ROOT/branding/java/src" -name '*.java' > "$O/src.txt"
-  javac -nowarn -encoding UTF-8 --release 8 -proc:none -classpath "$ROOT/android-sdk/platforms/android-30/android.jar:$O/app.jar" \
-    -d "$C" @"$O/src.txt" 2>&1 | grep -v '^Note:\|warning' | head -20 || true
+  if [ ! -f "$O/overlay.jar" ] || [ -n "$(find "$ROOT/branding/java/src" -name '*.java' -newer "$O/overlay.jar" | head -1)" ] \
+     || [ "$O/app.jar" -nt "$O/overlay.jar" ] || [ -f "$O/overlay.off" ]; then
+    rm -rf "$C"; mkdir -p "$C"; rm -f "$O/overlay.off"
+    find "$ROOT/branding/java/src" -name '*.java' > "$O/src.txt"
+    javac -nowarn -encoding UTF-8 --release 8 -proc:none -classpath "$ROOT/android-sdk/platforms/android-30/android.jar:$O/app.jar" \
+      -d "$C" @"$O/src.txt" 2>&1 | grep -v '^Note:\|warning' | head -20 || true
+    (cd "$C" && jar cf "$O/overlay.jar" .)
+  fi
+else
+  rm -rf "$C"; mkdir -p "$C"; touch "$C/.empty" "$O/overlay.off"
+  (cd "$C" && jar cf "$O/overlay.jar" .empty)
 fi
-(cd "$C" && jar cf "$O/overlay.jar" . 2>/dev/null || jar cf "$O/overlay.jar" -C "$C" .)
 # Robolectric reads the app's manifest (text) and its compiled resources (the APK)
 mkdir -p "$D/src/test/resources/com/android/tools"
 cat > "$D/src/test/resources/com/android/tools/test_config.properties" <<P

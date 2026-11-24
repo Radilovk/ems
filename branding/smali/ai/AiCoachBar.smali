@@ -567,7 +567,7 @@
 
     move-result v0
 
-    if-nez v0, :cond_78
+    if-nez v0, :cond_76
 
     invoke-interface {v1}, Ljava/util/List;->size()I
 
@@ -583,19 +583,17 @@
 
     iget-boolean v0, v0, Lcom/isaigu/gymapp/ai/AiCoach$Turn;->ai:Z
 
-    if-eqz v0, :cond_78
+    if-eqz v0, :cond_76
 
-    invoke-static {}, Lcom/isaigu/gymapp/ai/AutoSession;->getStage()Lcom/isaigu/gymapp/ai/AutoSession$Stage;
+    invoke-static {}, Lcom/isaigu/gymapp/ai/AiTrain;->live()Z
 
-    move-result-object v0
+    move-result v0
 
-    sget-object v2, Lcom/isaigu/gymapp/ai/AutoSession$Stage;->RUNNING:Lcom/isaigu/gymapp/ai/AutoSession$Stage;
-
-    if-ne v0, v2, :cond_78
+    if-eqz v0, :cond_76
 
     sget v0, Lcom/isaigu/gymapp/ai/AiCoachBar;->runTurns:I
 
-    if-ltz v0, :cond_78
+    if-ltz v0, :cond_76
 
     .line 102
     invoke-interface {v1}, Ljava/util/List;->size()I
@@ -604,7 +602,7 @@
 
     sget v2, Lcom/isaigu/gymapp/ai/AiCoachBar;->runTurns:I
 
-    if-le v0, v2, :cond_78
+    if-le v0, v2, :cond_76
 
     .line 103
     invoke-interface {v1}, Ljava/util/List;->size()I
@@ -651,12 +649,12 @@
     goto :goto_1f
 
     .line 107
-    :cond_78
+    :cond_76
     invoke-static {}, Lcom/isaigu/gymapp/ai/WakeListener;->isOn()Z
 
     move-result v0
 
-    if-eqz v0, :cond_87
+    if-eqz v0, :cond_85
 
     .line 108
     const-string v0, "\u041a\u0430\u0436\u0438 \u201e\u0422\u0440\u0435\u043d\u0435\u0440, \u043f\u043e-\u0441\u0438\u043b\u043d\u043e \u043a\u0440\u0430\u043a\u0430\u0442\u0430\u201c, \u201e\u0422\u0440\u0435\u043d\u0435\u0440, \u043f\u0430\u0443\u0437\u0430\u201c\u2026 \u0438\u043b\u0438 \u2726 \u0427\u0430\u0442."
@@ -670,7 +668,7 @@
     goto :goto_1f
 
     .line 110
-    :cond_87
+    :cond_85
     const-string v0, "\u2726 \u0427\u0430\u0442 \u2014 \u043f\u0438\u0448\u0438 \u0438\u043b\u0438 \u0433\u043e\u0432\u043e\u0440\u0438 \u043d\u0430 AI, \u043f\u0440\u043e\u043c\u0435\u043d\u0438\u0442\u0435 \u0441\u0430 \u0432\u0435\u0434\u043d\u0430\u0433\u0430."
 
     const-string v1, "\u2726 Chat \u2014 write or talk to the AI, changes apply at once."

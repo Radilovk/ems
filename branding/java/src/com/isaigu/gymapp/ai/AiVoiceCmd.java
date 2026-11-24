@@ -27,14 +27,21 @@ public final class AiVoiceCmd {
 
     public static final class Cmd {
         public final String target;
-        /** up / down / off / on */
+        /** up / down / off / on / set (to {@link #value}) */
         public final String dir;
         public final boolean small;
+        /** "на 50 %", "до 30": the level asked for; −1 = a step. */
+        public int value = -1;
 
         Cmd(String target, String dir, boolean small) {
             this.target = target;
             this.dir = dir;
             this.small = small;
+        }
+
+        Cmd(String target, int value) {
+            this(target, "set", false);
+            this.value = value;
         }
 
         public int[] channels() {
@@ -151,7 +158,7 @@ public final class AiVoiceCmd {
                 continue;
             }
             Result r = parseOne(part, lastDir, lastSmall);
-            if (r.dir != null) {
+            if (r.dir != null && !"set".equals(r.dir)) {
                 lastDir = r.dir;
                 lastSmall = r.small;
             }
@@ -175,6 +182,41 @@ public final class AiVoiceCmd {
     private static Result parseOne(String text, String inherited, boolean inheritedSmall) {
         Result r = new Result();
         String t = " " + text.toLowerCase(Locale.ROOT).replace('ѝ', 'и').replaceAll("[,.!?;]", " ") + " ";
+        // the double impulse first: "спри двойния импулс" is no pause, "пусни втория импулс" no resume (1.1.547)
+        if (has(t, "двоен", "двойн", "втори импулс", "втория импулс", "втори импулси", "активна пауза", "активната пауза")) {
+            boolean off = has(t, "спри", "изключи", "махни", "без ", "стоп", "намали", "свали", "премахни");
+            r.actions.add(off ? "double_off" : "double_on");
+            r.dir = null;
+            return r;
+        }
+        // an absolute level: "силата на 50", "краката до 30 процента", "сила 40" — set, not a step
+        // "увеличи с 10": a step of 10 (up / down), not the level 10
+        java.util.regex.Matcher by = java.util.regex.Pattern.compile("\\sс\\s*(\\d{1,3})(?=\\s|%)").matcher(t);
+        Integer stepBy = by.find() ? Integer.valueOf(Integer.parseInt(by.group(1))) : null;
+        java.util.regex.Matcher num = java.util.regex.Pattern.compile("(?:^|\\s)(?:на|до)?\\s*(\\d{1,3})\\s*(?:%|процента|процент)?(?=\\s|$)")
+                .matcher(t);
+        if (stepBy == null && num.find()) {
+            int v = Math.max(0, Math.min(100, Integer.parseInt(num.group(1))));
+            boolean any = false;
+            for (int i = 1; i < WORDS.length; i++) {
+                for (int j = 1; j < WORDS[i].length; j++) {
+                    String tg = WORDS[i][0];
+                    if (t.contains(WORDS[i][j]) && !contains(r, tg) && AiCoach.indexOf(tg, TARGETS) <= 10
+                            && !("legs".equals(tg) && (contains(r, "thighs") || contains(r, "calves")))) {
+                        r.commands.add(new Cmd(tg, v));
+                        any = true;
+                        break;
+                    }
+                }
+            }
+            if (!any && (has(t, "сила", "силата", "интензитет", "тока") || has(t, "увеличи", "намали", "вдигни", "свали", "качи", "дай"))) {
+                r.commands.add(new Cmd("strength", v));
+            }
+            if (!r.commands.isEmpty()) {
+                r.dir = "set";
+                return r;
+            }
+        }
         boolean small = has(t, "малко", "леко ", "мъничко", "съвсем малко");
         String dir = has(t, "намали", "по-слабо", "по слабо", "по-малко", "по малко", "свали", "отслаби", "по-леко", "по леко")
                 ? "down" : has(t, "увеличи", "по-силно", "по силно", "повече", "качи", "вдигни", "засили", "усили")
@@ -223,9 +265,10 @@ public final class AiVoiceCmd {
         }
         if (has(t, "прескочи", "следващо", "следващото")) r.actions.add("skip");
         if (has(t, "възстановяване", "приключи активната")) r.actions.add("to_recovery");
-        if (has(t, "двоен импулс", "втори импулс")) {
-            r.actions.add("off".equals(dir) || "down".equals(dir) ? "double_off" : "double_on");
-            r.commands.clear();
+        if (stepBy != null) {
+            for (Cmd c : r.commands) {
+                c.value = Math.max(1, Math.min(100, stepBy));     // the size of this step
+            }
         }
         return r;
     }

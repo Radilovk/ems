@@ -1336,12 +1336,12 @@ public final class XemsNav {
                 text = com.isaigu.gymapp.wearable.vr.VrPanel.status();
                 break;
             case M_AUTO:
-                if (com.isaigu.gymapp.ai.MapRunner.isRunning()) {
+                if (com.isaigu.gymapp.ai.MapRunner.isRunning() && !com.isaigu.gymapp.ai.MapRunner.isAi()) {
                     state = 1;                         // a program from "Програми" runs in the automatic mode
                     text = com.isaigu.gymapp.ai.MapRunner.name();
                     break;
                 }
-                if (com.isaigu.gymapp.ai.AutoSession.aiMode) {
+                if (com.isaigu.gymapp.ai.AutoSession.aiMode || com.isaigu.gymapp.ai.MapRunner.isAi()) {
                     state = 0;                         // the AI training runs on Auto's engine: its own tile lights
                     text = tr("Готови програми", "Ready programs");
                     break;
@@ -1352,6 +1352,11 @@ public final class XemsNav {
                 text = com.isaigu.gymapp.ai.AutoUi.status();
                 break;
             default:
+                if (com.isaigu.gymapp.ai.MapRunner.isAi()) {
+                    state = 1;                         // the AI's own workout: the AI tab, not Auto (1.1.547)
+                    text = "✦ " + com.isaigu.gymapp.ai.MapRunner.name();
+                    break;
+                }
                 if (com.isaigu.gymapp.ai.AutoSession.aiMode) {
                     com.isaigu.gymapp.ai.AutoSession.Stage ai = com.isaigu.gymapp.ai.AutoSession.getStage();
                     state = ai == com.isaigu.gymapp.ai.AutoSession.Stage.RUNNING ? 1 : 2;

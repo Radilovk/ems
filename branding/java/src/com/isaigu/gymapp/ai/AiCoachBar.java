@@ -98,7 +98,7 @@ public final class AiCoachBar {
         }
         // the AI's last word (a change done reads "✓ крака 46 %"); the trainer's own words are in the chat
         List<AiCoach.Turn> turns = AiCoach.chat();
-        if (!turns.isEmpty() && turns.get(turns.size() - 1).ai && AutoSession.getStage() == AutoSession.Stage.RUNNING
+        if (!turns.isEmpty() && turns.get(turns.size() - 1).ai && AiTrain.live()
                 && runTurns >= 0 && turns.size() > runTurns) {
             String t = turns.get(turns.size() - 1).text;
             return t.startsWith("✓") ? t : "✦ " + t;

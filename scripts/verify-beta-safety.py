@@ -56,9 +56,10 @@ def main() -> int:
     if manifest.exists() and "RECORD_AUDIO" in manifest.read_text(encoding="utf-8"):
         users = [p for p in DECOMPILED.glob("smali*/com/isaigu/gymapp/**/*.smali")
                  if "android.permission.RECORD_AUDIO" in p.read_text(encoding="utf-8")]
-        if any("WakeListener" not in p.name for p in users):
-            errors.append("AndroidManifest.xml: RECORD_AUDIO only for ai/WakeListener, found " +
-                          ", ".join(p.name for p in users if "WakeListener" not in p.name))
+        voice = ("WakeListener", "WakeSetup")          # the wake word and its recording page (ai/)
+        if any(not p.name.startswith(voice) for p in users):
+            errors.append("AndroidManifest.xml: RECORD_AUDIO only for ai/WakeListener + WakeSetup, found " +
+                          ", ".join(p.name for p in users if not p.name.startswith(voice)))
     for smali in DECOMPILED.glob("smali*/com/isaigu/gymapp/**/*.smali"):
         if "MusicSyncHelper" in smali.read_text(encoding="utf-8"):
             errors.append(f"{smali.relative_to(DECOMPILED)}: references removed MusicSyncHelper")

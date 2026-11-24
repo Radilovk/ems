@@ -26,38 +26,43 @@
 
 .field final my:I
 
+.field final reader:Z
+
 .field final text:Ljava/lang/String;
 
 .field final wantPlan:Z
 
 
 # direct methods
-.method constructor <init>(Landroid/content/Context;Ljava/lang/String;IZLjava/lang/String;Z)V
-    .registers 7
+.method constructor <init>(Landroid/content/Context;Ljava/lang/String;IZLjava/lang/String;ZZ)V
+    .registers 8
 
     .prologue
-    .line 1326
+    .line 1428
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 1327
+    .line 1429
+    iput-boolean p7, p0, Lcom/isaigu/gymapp/ai/AiTrain$Ask;->reader:Z
+
+    .line 1430
     iput-object p1, p0, Lcom/isaigu/gymapp/ai/AiTrain$Ask;->c:Landroid/content/Context;
 
-    .line 1328
+    .line 1431
     iput-object p2, p0, Lcom/isaigu/gymapp/ai/AiTrain$Ask;->fields:Ljava/lang/String;
 
-    .line 1329
+    .line 1432
     iput p3, p0, Lcom/isaigu/gymapp/ai/AiTrain$Ask;->my:I
 
-    .line 1330
+    .line 1433
     iput-boolean p4, p0, Lcom/isaigu/gymapp/ai/AiTrain$Ask;->live:Z
 
-    .line 1331
+    .line 1434
     iput-object p5, p0, Lcom/isaigu/gymapp/ai/AiTrain$Ask;->text:Ljava/lang/String;
 
-    .line 1332
+    .line 1435
     iput-boolean p6, p0, Lcom/isaigu/gymapp/ai/AiTrain$Ask;->wantPlan:Z
 
-    .line 1333
+    .line 1436
     return-void
 .end method
 
@@ -69,14 +74,18 @@
     .prologue
     const/16 v5, 0xa0
 
-    .line 1337
+    .line 1440
     const/4 v0, 0x0
 
-    .line 1339
+    .line 1442
     :try_start_3
     iget-boolean v1, p0, Lcom/isaigu/gymapp/ai/AiTrain$Ask;->live:Z
 
-    if-eqz v1, :cond_4d
+    if-eqz v1, :cond_51
+
+    iget-boolean v1, p0, Lcom/isaigu/gymapp/ai/AiTrain$Ask;->reader:Z
+
+    if-eqz v1, :cond_51
 
     iget-object v1, p0, Lcom/isaigu/gymapp/ai/AiTrain$Ask;->text:Ljava/lang/String;
 
@@ -84,9 +93,9 @@
 
     move-result v1
 
-    if-nez v1, :cond_4d
+    if-nez v1, :cond_51
 
-    .line 1342
+    .line 1445
     iget-object v1, p0, Lcom/isaigu/gymapp/ai/AiTrain$Ask;->c:Landroid/content/Context;
 
     new-instance v2, Ljava/lang/StringBuilder;
@@ -101,7 +110,7 @@
 
     iget-object v3, p0, Lcom/isaigu/gymapp/ai/AiTrain$Ask;->text:Ljava/lang/String;
 
-    .line 1343
+    .line 1446
     invoke-static {v3}, Lcom/isaigu/gymapp/ai/AiBrief;->q(Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v3
@@ -114,28 +123,28 @@
 
     move-result-object v2
 
-    .line 1342
+    .line 1445
     invoke-static {v1, v2}, Lcom/isaigu/gymapp/widget/XemsLicenseClient;->postBrief(Landroid/content/Context;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v1
 
-    .line 1344
+    .line 1447
     invoke-static {v1}, Lcom/isaigu/gymapp/ai/AiVoiceCmd;->parseServer(Ljava/lang/String;)Lcom/isaigu/gymapp/ai/AiVoiceCmd$Result;
 
     move-result-object v1
 
-    .line 1345
+    .line 1448
     invoke-virtual {v1}, Lcom/isaigu/gymapp/ai/AiVoiceCmd$Result;->isEmpty()Z
 
     move-result v2
 
-    if-nez v2, :cond_4d
+    if-nez v2, :cond_51
 
     iget-boolean v2, v1, Lcom/isaigu/gymapp/ai/AiVoiceCmd$Result;->coach:Z
 
-    if-nez v2, :cond_4d
+    if-nez v2, :cond_51
 
-    .line 1346
+    .line 1449
     # getter for: Lcom/isaigu/gymapp/ai/AiTrain;->MAIN:Landroid/os/Handler;
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiTrain;->access$200()Landroid/os/Handler;
 
@@ -151,12 +160,12 @@
 
     invoke-virtual {v2, v3}, Landroid/os/Handler;->post(Ljava/lang/Runnable;)Z
 
-    .line 1366
-    :goto_4c
+    .line 1469
+    :goto_50
     return-void
 
-    .line 1350
-    :cond_4d
+    .line 1453
+    :cond_51
     iget-object v1, p0, Lcom/isaigu/gymapp/ai/AiTrain$Ask;->c:Landroid/content/Context;
 
     iget-object v2, p0, Lcom/isaigu/gymapp/ai/AiTrain$Ask;->fields:Ljava/lang/String;
@@ -165,32 +174,32 @@
 
     move-result-object v1
 
-    .line 1351
+    .line 1454
     iget-boolean v2, p0, Lcom/isaigu/gymapp/ai/AiTrain$Ask;->live:Z
 
     sput-boolean v2, Lcom/isaigu/gymapp/ai/AiCoach;->liveTurn:Z
 
-    .line 1352
+    .line 1455
     invoke-static {v1}, Lcom/isaigu/gymapp/ai/AiCoach;->parse(Ljava/lang/String;)Lcom/isaigu/gymapp/ai/AiCoach$Reply;
 
     move-result-object v0
 
-    .line 1353
-    if-eqz v0, :cond_75
+    .line 1456
+    if-eqz v0, :cond_79
 
     iget-boolean v2, p0, Lcom/isaigu/gymapp/ai/AiTrain$Ask;->wantPlan:Z
 
-    if-eqz v2, :cond_75
+    if-eqz v2, :cond_79
 
-    .line 1354
+    .line 1457
     invoke-static {v1}, Lcom/isaigu/gymapp/ai/AiWorkout;->parse(Ljava/lang/String;)Lcom/isaigu/gymapp/ai/AiWorkout$Plan;
 
     move-result-object v2
 
-    .line 1355
-    if-eqz v2, :cond_75
+    .line 1458
+    if-eqz v2, :cond_79
 
-    .line 1356
+    .line 1459
     # getter for: Lcom/isaigu/gymapp/ai/AiTrain;->MAIN:Landroid/os/Handler;
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiTrain;->access$200()Landroid/os/Handler;
 
@@ -202,11 +211,11 @@
 
     invoke-virtual {v3, v4}, Landroid/os/Handler;->post(Ljava/lang/Runnable;)Z
 
-    .line 1359
-    :cond_75
-    if-nez v0, :cond_9c
+    .line 1462
+    :cond_79
+    if-nez v0, :cond_a0
 
-    .line 1360
+    .line 1463
     const-string v2, "ai-train"
 
     new-instance v3, Ljava/lang/StringBuilder;
@@ -223,7 +232,7 @@
 
     move-result v4
 
-    if-le v4, v5, :cond_91
+    if-le v4, v5, :cond_95
 
     const/4 v4, 0x0
 
@@ -233,7 +242,7 @@
 
     move-result-object v1
 
-    :cond_91
+    :cond_95
     invoke-virtual {v3, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     move-result-object v1
@@ -243,12 +252,12 @@
     move-result-object v1
 
     invoke-static {v2, v1}, Lcom/isaigu/gymapp/wearable/WearableBleDiagLog;->log(Ljava/lang/String;Ljava/lang/String;)V
-    :try_end_9c
-    .catch Ljava/lang/Throwable; {:try_start_3 .. :try_end_9c} :catch_af
+    :try_end_a0
+    .catch Ljava/lang/Throwable; {:try_start_3 .. :try_end_a0} :catch_b3
 
-    .line 1365
-    :cond_9c
-    :goto_9c
+    .line 1468
+    :cond_a0
+    :goto_a0
     # getter for: Lcom/isaigu/gymapp/ai/AiTrain;->MAIN:Landroid/os/Handler;
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiTrain;->access$200()Landroid/os/Handler;
 
@@ -266,13 +275,13 @@
 
     invoke-virtual {v1, v2}, Landroid/os/Handler;->post(Ljava/lang/Runnable;)Z
 
-    goto :goto_4c
+    goto :goto_50
 
-    .line 1362
-    :catch_af
+    .line 1465
+    :catch_b3
     move-exception v1
 
-    .line 1363
+    .line 1466
     const-string v2, "ai-train"
 
     new-instance v3, Ljava/lang/StringBuilder;
@@ -295,5 +304,5 @@
 
     invoke-static {v2, v1}, Lcom/isaigu/gymapp/wearable/WearableBleDiagLog;->log(Ljava/lang/String;Ljava/lang/String;)V
 
-    goto :goto_9c
+    goto :goto_a0
 .end method

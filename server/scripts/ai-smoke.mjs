@@ -40,4 +40,44 @@ await step('workout', () => workout(env, { kind: 'workout', domain: 'auto', menu
   text: 'Състави нова тренировка с дъмбели и постелка.', chat: [] }));
 await step('command (lite)', () => command(env, { text: 'дай малко повече на долната част на тялото' }));
 await step('brief', () => brief(env, { text: '52 г., болки в кръста, иска седалище', menu, context }));
+// Free speech during a session (owner, 1.1.551: "does it understand free text?"): each phrase as the tablet sends it
+// — the cheap command reader first; what it calls "not a command" goes to the live coach. Printed, not judged.
+const live = { ...context, session: 'RUNNING', program: 'general' };
+const free = ['краката ме болят малко', 'стига толкова за ръцете', 'почини ми малко', 'прекалено силно е',
+  'не усещам нищо в седалището', 'много ме щипе на корема', 'хайде пак', 'смени упражнението', 'уморих се',
+  'може ли малко по-нежно', 'какво упражнение за ръцете ми препоръчваш', 'колко повторения мъртва тяга'];
+for (const text of free) {
+  const t = Date.now();
+  try {
+    const c = await command(env, { text });
+    const cmd = c.command || {};
+    if (!cmd.coach && ((cmd.commands || []).length || (cmd.actions || []).length)) {
+      console.log(`FREE "${text}" · ${Date.now() - t} ms · command ${JSON.stringify({ c: cmd.commands, a: cmd.actions })}`);
+      continue;
+    }
+    const r = await coach(env, { kind: 'coach', domain: 'auto', menu, context: live, text, chat: [],
+      run: { phase: 'Сила', min_done: 6, state: 'RUN' } });
+    const k = r.coach || {};
+    const did = { c: k.commands, a: k.actions, on: k.on_delta, off: k.off_delta, hz: k.hz_pct, rest: k.rest_pct, end: k.end_in_min };
+    console.log(`FREE "${text}" · ${Date.now() - t} ms · coach "${k.reply}"${k.question ? ' ? ' + k.question : ''} · ${JSON.stringify(did)}`);
+  } catch (e) {
+    console.log(`FREE "${text}" · error ${e && e.message}`);
+  }
+}
+// A dialogue (owner, 1.1.552: "if something is unclear it may ask"): vague → the coach asks; the answer → it acts.
+{
+  const ctx = { kind: 'coach', domain: 'auto', menu, context: live, run: { phase: 'Сила', min_done: 6, state: 'RUN' } };
+  const t = Date.now();
+  try {
+    const a = (await coach(env, { ...ctx, text: 'не ми е приятно така', chat: [] })).coach;
+    console.log(`DIALOG 1 · ${Date.now() - t} ms · "${a.reply}"${a.question ? ' ? ' + a.question.text + ' ' + JSON.stringify(a.question.options) : ''} · ${JSON.stringify(a.commands)}`);
+    const said = (a.reply || '') + (a.question ? ' ' + a.question.text : '');
+    const t2 = Date.now();
+    const b = (await coach(env, { ...ctx, text: (a.question && a.question.options[0]) || 'корема щипе', chat: [
+      { role: 'user', text: 'не ми е приятно така' }, { role: 'ai', text: said, q: !!a.question }] })).coach;
+    console.log(`DIALOG 2 · ${Date.now() - t2} ms · "${b.reply}" · ${JSON.stringify(b.commands)}`);
+  } catch (e) {
+    console.log(`DIALOG · error ${e && e.message}`);
+  }
+}
 process.exit(failed ? 1 : 0);

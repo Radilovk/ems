@@ -128,21 +128,21 @@
 
     sput-object v0, Lcom/isaigu/gymapp/train/utils/PartLook;->PAINTED:Ljava/util/WeakHashMap;
 
-    .line 238
+    .line 248
     new-instance v0, Ljava/util/WeakHashMap;
 
     invoke-direct {v0}, Ljava/util/WeakHashMap;-><init>()V
 
     sput-object v0, Lcom/isaigu/gymapp/train/utils/PartLook;->IDLE:Ljava/util/WeakHashMap;
 
-    .line 239
+    .line 249
     new-instance v0, Lcom/isaigu/gymapp/train/utils/PartLook$Block;
 
     invoke-direct {v0}, Lcom/isaigu/gymapp/train/utils/PartLook$Block;-><init>()V
 
     sput-object v0, Lcom/isaigu/gymapp/train/utils/PartLook;->BLOCK:Lcom/isaigu/gymapp/train/utils/PartLook$Block;
 
-    .line 264
+    .line 274
     const/16 v0, 0xa
 
     new-array v0, v0, [I
@@ -151,21 +151,21 @@
 
     sput-object v0, Lcom/isaigu/gymapp/train/utils/PartLook;->STOCK:[I
 
-    .line 340
+    .line 350
     new-instance v0, Ljava/util/WeakHashMap;
 
     invoke-direct {v0}, Ljava/util/WeakHashMap;-><init>()V
 
     sput-object v0, Lcom/isaigu/gymapp/train/utils/PartLook;->ROWS:Ljava/util/WeakHashMap;
 
-    .line 342
+    .line 352
     new-instance v0, Ljava/util/WeakHashMap;
 
     invoke-direct {v0}, Ljava/util/WeakHashMap;-><init>()V
 
     sput-object v0, Lcom/isaigu/gymapp/train/utils/PartLook;->HEADER_ORIG:Ljava/util/WeakHashMap;
 
-    .line 434
+    .line 444
     new-instance v0, Ljava/lang/Object;
 
     invoke-direct {v0}, Ljava/lang/Object;-><init>()V
@@ -190,7 +190,7 @@
         -0x7100
     .end array-data
 
-    .line 264
+    .line 274
     :array_5e
     .array-data 4
         0x3
@@ -236,7 +236,7 @@
 
     const/4 v3, 0x0
 
-    .line 306
+    .line 316
     if-eqz p0, :cond_17
 
     array-length v0, p0
@@ -249,7 +249,7 @@
 
     aget-object v0, p0, v3
 
-    .line 307
+    .line 317
     invoke-virtual {v0}, Landroid/view/View;->getParent()Landroid/view/ViewParent;
 
     move-result-object v0
@@ -258,11 +258,11 @@
 
     if-nez v0, :cond_18
 
-    .line 337
+    .line 347
     :cond_17
     return-void
 
-    .line 310
+    .line 320
     :cond_18
     aget-object v0, p0, v3
 
@@ -272,18 +272,18 @@
 
     check-cast v0, Landroid/view/ViewGroup;
 
-    .line 311
+    .line 321
     const v5, 0x7fffffff
 
     const/4 v4, -0x1
 
     move v1, v3
 
-    .line 312
+    .line 322
     :goto_25
     if-ge v1, v7, :cond_44
 
-    .line 313
+    .line 323
     aget-object v6, p0, v1
 
     if-eqz v6, :cond_17
@@ -296,29 +296,29 @@
 
     if-ne v6, v0, :cond_17
 
-    .line 316
+    .line 326
     aget-object v6, p0, v1
 
     invoke-virtual {v0, v6}, Landroid/view/ViewGroup;->indexOfChild(Landroid/view/View;)I
 
     move-result v6
 
-    .line 317
+    .line 327
     invoke-static {v5, v6}, Ljava/lang/Math;->min(II)I
 
     move-result v5
 
-    .line 318
+    .line 328
     invoke-static {v4, v6}, Ljava/lang/Math;->max(II)I
 
     move-result v4
 
-    .line 312
+    .line 322
     add-int/lit8 v1, v1, 0x1
 
     goto :goto_25
 
-    .line 320
+    .line 330
     :cond_44
     sub-int v1, v4, v5
 
@@ -330,13 +330,13 @@
 
     move v1, v2
 
-    .line 324
+    .line 334
     :goto_4c
     if-ge v4, v7, :cond_62
 
     if-eqz v1, :cond_62
 
-    .line 325
+    .line 335
     add-int v1, v5, v4
 
     invoke-virtual {v0, v1}, Landroid/view/ViewGroup;->getChildAt(I)Landroid/view/View;
@@ -351,7 +351,7 @@
 
     move v1, v2
 
-    .line 324
+    .line 334
     :goto_5d
     add-int/lit8 v4, v4, 0x1
 
@@ -360,23 +360,23 @@
     :cond_60
     move v1, v3
 
-    .line 325
+    .line 335
     goto :goto_5d
 
-    .line 327
+    .line 337
     :cond_62
     if-nez v1, :cond_17
 
-    .line 330
+    .line 340
     :goto_64
     if-ge v3, v7, :cond_17
 
-    .line 331
+    .line 341
     aget v1, p1, v3
 
     aget-object v1, p0, v1
 
-    .line 332
+    .line 342
     invoke-virtual {v0, v1}, Landroid/view/ViewGroup;->indexOfChild(Landroid/view/View;)I
 
     move-result v2
@@ -385,15 +385,15 @@
 
     if-eq v2, v4, :cond_7a
 
-    .line 333
+    .line 343
     invoke-virtual {v0, v1}, Landroid/view/ViewGroup;->removeView(Landroid/view/View;)V
 
-    .line 334
+    .line 344
     add-int v2, v5, v3
 
     invoke-virtual {v0, v1, v2}, Landroid/view/ViewGroup;->addView(Landroid/view/View;I)V
 
-    .line 330
+    .line 340
     :cond_7a
     add-int/lit8 v3, v3, 0x1
 
@@ -442,7 +442,7 @@
     .registers 5
 
     .prologue
-    .line 641
+    .line 661
     invoke-virtual {p0}, Landroid/content/Context;->getResources()Landroid/content/res/Resources;
 
     move-result-object v0
@@ -457,7 +457,7 @@
 
     move-result v0
 
-    .line 642
+    .line 662
     if-eqz v0, :cond_19
 
     invoke-virtual {p0}, Landroid/content/Context;->getResources()Landroid/content/res/Resources;
@@ -485,7 +485,7 @@
 
     const/4 v3, 0x0
 
-    .line 205
+    .line 215
     if-eqz p0, :cond_3a
 
     iget-object v0, p0, Lcom/isaigu/gymapp/train/model/TrainItem;->data:Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
@@ -496,7 +496,7 @@
 
     iget-object v0, v0, Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;->macAddress:Ljava/lang/String;
 
-    .line 206
+    .line 216
     invoke-static {v0}, Lcom/isaigu/gymapp/bodytech/BtBridge;->isBodytechMac(Ljava/lang/String;)Z
 
     move-result v0
@@ -505,7 +505,7 @@
 
     move v1, v2
 
-    .line 208
+    .line 218
     :goto_13
     array-length v0, p1
 
@@ -515,7 +515,7 @@
 
     if-eqz v0, :cond_96
 
-    .line 209
+    .line 219
     aget-object v0, p1, v3
 
     invoke-static {p0, v0, v1}, Lcom/isaigu/gymapp/train/utils/PartLook;->header(Lcom/isaigu/gymapp/train/model/TrainItem;Landroid/view/View;Z)Z
@@ -524,7 +524,7 @@
 
     move v4, v0
 
-    .line 211
+    .line 221
     :goto_21
     array-length v0, p1
 
@@ -532,13 +532,13 @@
 
     move v5, v3
 
-    .line 212
+    .line 222
     :goto_25
     array-length v0, p1
 
     if-ge v5, v0, :cond_88
 
-    .line 213
+    .line 223
     aget-object v0, p1, v5
 
     if-eqz v0, :cond_36
@@ -553,7 +553,7 @@
 
     if-nez v0, :cond_3c
 
-    .line 212
+    .line 222
     :cond_36
     :goto_36
     add-int/lit8 v0, v5, 0x1
@@ -565,10 +565,10 @@
     :cond_3a
     move v1, v3
 
-    .line 206
+    .line 216
     goto :goto_13
 
-    .line 216
+    .line 226
     :cond_3c
     aget-object v0, p1, v5
 
@@ -578,20 +578,20 @@
 
     check-cast v0, Landroid/view/View;
 
-    .line 217
+    .line 227
     aput-object v0, v7, v5
 
-    .line 218
+    .line 228
     invoke-virtual {v0}, Landroid/view/View;->getVisibility()I
 
     move-result v6
 
     if-eqz v6, :cond_4f
 
-    .line 219
+    .line 229
     invoke-virtual {v0, v3}, Landroid/view/View;->setVisibility(I)V
 
-    .line 221
+    .line 231
     :cond_4f
     if-eqz v1, :cond_7b
 
@@ -603,11 +603,11 @@
 
     move v6, v2
 
-    .line 222
+    .line 232
     :goto_58
     if-eqz v6, :cond_7d
 
-    .line 223
+    .line 233
     sget-object v8, Lcom/isaigu/gymapp/train/utils/PartLook;->IDLE:Ljava/util/WeakHashMap;
 
     aget-object v9, p1, v5
@@ -616,7 +616,7 @@
 
     invoke-virtual {v8, v9, v10}, Ljava/util/WeakHashMap;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
 
-    .line 227
+    .line 237
     :goto_63
     aget-object v8, p1, v5
 
@@ -624,12 +624,12 @@
 
     invoke-virtual {v8, v9}, Lcom/isaigu/gymapp/widget/VerticalColorSeekBar;->setOnTouchListener(Landroid/view/View$OnTouchListener;)V
 
-    .line 228
+    .line 238
     if-eqz v6, :cond_85
 
     const v6, 0x3eb33333    # 0.35f
 
-    .line 229
+    .line 239
     :goto_6f
     invoke-virtual {v0}, Landroid/view/View;->getAlpha()F
 
@@ -639,7 +639,7 @@
 
     if-eqz v8, :cond_36
 
-    .line 230
+    .line 240
     invoke-virtual {v0, v6}, Landroid/view/View;->setAlpha(F)V
 
     goto :goto_36
@@ -647,10 +647,10 @@
     :cond_7b
     move v6, v3
 
-    .line 221
+    .line 231
     goto :goto_58
 
-    .line 225
+    .line 235
     :cond_7d
     sget-object v8, Lcom/isaigu/gymapp/train/utils/PartLook;->IDLE:Ljava/util/WeakHashMap;
 
@@ -660,13 +660,13 @@
 
     goto :goto_63
 
-    .line 228
+    .line 238
     :cond_85
     const/high16 v6, 0x3f800000    # 1.0f
 
     goto :goto_6f
 
-    .line 233
+    .line 243
     :cond_88
     if-eqz v1, :cond_94
 
@@ -679,13 +679,13 @@
 
     invoke-static {v7, v0}, Lcom/isaigu/gymapp/train/utils/PartLook;->arrange([Landroid/view/View;[I)V
 
-    .line 234
+    .line 244
     return-void
 
     :cond_94
     move v2, v3
 
-    .line 233
+    .line 243
     goto :goto_8c
 
     :cond_96
@@ -698,36 +698,36 @@
     .registers 8
 
     .prologue
-    .line 498
+    .line 508
     invoke-static {p0}, Lcom/isaigu/gymapp/train/utils/PartStrength;->bean(Lcom/isaigu/gymapp/train/model/TrainItem;)Lcom/isaigu/gymapp/bean/ProgramDataBean;
 
     move-result-object v1
 
-    .line 499
+    .line 509
     if-nez v1, :cond_8
 
-    .line 500
+    .line 510
     const/4 v0, 0x0
 
-    .line 519
+    .line 529
     :goto_7
     return v0
 
-    .line 503
+    .line 513
     :cond_8
     :try_start_8
     invoke-static {p1}, Lcom/isaigu/gymapp/train/utils/PartLook;->held(Ljava/lang/Object;)Lcom/isaigu/gymapp/train/utils/PartLook$Lock;
 
     move-result-object v0
 
-    .line 504
+    .line 514
     if-eqz v0, :cond_12
 
     iget-boolean v2, v0, Lcom/isaigu/gymapp/train/utils/PartLook$Lock;->dragging:Z
 
     if-nez v2, :cond_26
 
-    .line 505
+    .line 515
     :cond_12
     invoke-static {p0, v1}, Lcom/isaigu/gymapp/train/utils/PartLook;->live(Lcom/isaigu/gymapp/train/model/TrainItem;Lcom/isaigu/gymapp/bean/ProgramDataBean;)Z
 
@@ -737,52 +737,52 @@
 
     move-result v2
 
-    .line 506
+    .line 516
     new-instance v0, Lcom/isaigu/gymapp/train/utils/PartLook$Lock;
 
     invoke-direct {v0}, Lcom/isaigu/gymapp/train/utils/PartLook$Lock;-><init>()V
 
-    .line 507
+    .line 517
     iput-boolean v2, v0, Lcom/isaigu/gymapp/train/utils/PartLook$Lock;->second:Z
 
-    .line 508
+    .line 518
     sget-object v2, Lcom/isaigu/gymapp/train/utils/PartLook;->LOCKS:Ljava/util/WeakHashMap;
 
     invoke-virtual {v2, p1, v0}, Ljava/util/WeakHashMap;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
 
-    .line 510
+    .line 520
     :cond_26
     const/4 v2, 0x1
 
     iput-boolean v2, v0, Lcom/isaigu/gymapp/train/utils/PartLook$Lock;->dragging:Z
 
-    .line 511
+    .line 521
     iput p3, v0, Lcom/isaigu/gymapp/train/utils/PartLook$Lock;->p:F
 
-    .line 512
+    .line 522
     invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
 
     move-result-wide v2
 
     iput-wide v2, v0, Lcom/isaigu/gymapp/train/utils/PartLook$Lock;->last:J
 
-    .line 513
+    .line 523
     instance-of v2, p1, Lcom/isaigu/gymapp/widget/VerticalColorSeekBar;
 
     if-eqz v2, :cond_3c
 
-    .line 514
+    .line 524
     check-cast p1, Lcom/isaigu/gymapp/widget/VerticalColorSeekBar;
 
     iget-boolean v2, v0, Lcom/isaigu/gymapp/train/utils/PartLook$Lock;->second:Z
 
     invoke-static {p1, v2}, Lcom/isaigu/gymapp/train/utils/PartLook;->look(Lcom/isaigu/gymapp/widget/VerticalColorSeekBar;Z)V
 
-    .line 516
+    .line 526
     :cond_3c
     invoke-static {}, Lcom/isaigu/gymapp/wearable/PartPick;->touch()V
 
-    .line 517
+    .line 527
     iget-boolean v0, v0, Lcom/isaigu/gymapp/train/utils/PartLook$Lock;->second:Z
 
     if-eqz v0, :cond_48
@@ -800,11 +800,11 @@
 
     goto :goto_7
 
-    .line 518
+    .line 528
     :catch_4b
     move-exception v0
 
-    .line 519
+    .line 529
     iget v0, v1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenth:I
 
     goto :goto_7
@@ -814,13 +814,13 @@
     .registers 14
 
     .prologue
-    .line 352
+    .line 362
     const/4 v4, 0x0
 
-    .line 354
+    .line 364
     if-eqz p0, :cond_31
 
-    .line 355
+    .line 365
     :try_start_3
     iget-object v0, p0, Lcom/isaigu/gymapp/train/model/TrainItem;->data:Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
 
@@ -844,11 +844,11 @@
 
     const/4 v0, 0x1
 
-    .line 356
+    .line 366
     :goto_18
     if-eqz v0, :cond_6e
 
-    .line 357
+    .line 367
     sget-object v0, Lcom/isaigu/gymapp/train/utils/PartLook;->ROWS:Ljava/util/WeakHashMap;
 
     const/4 v1, 0x2
@@ -873,14 +873,14 @@
 
     invoke-virtual {v0, p0, v1}, Ljava/util/WeakHashMap;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
 
-    .line 362
+    .line 372
     :cond_31
     :goto_31
     const/4 v3, 0x0
 
     const/4 v2, 0x0
 
-    .line 363
+    .line 373
     sget-object v0, Lcom/isaigu/gymapp/train/utils/PartLook;->ROWS:Ljava/util/WeakHashMap;
 
     invoke-virtual {v0}, Ljava/util/WeakHashMap;->values()Ljava/util/Collection;
@@ -905,7 +905,7 @@
 
     check-cast v0, [Ljava/lang/Object;
 
-    .line 365
+    .line 375
     const/4 v1, 0x0
 
     aget-object v1, v0, v1
@@ -918,7 +918,7 @@
 
     check-cast v1, Landroid/view/View;
 
-    .line 366
+    .line 376
     if-eqz v1, :cond_3d
 
     invoke-virtual {v1}, Landroid/view/View;->isAttachedToWindow()Z
@@ -927,7 +927,7 @@
 
     if-eqz v1, :cond_3d
 
-    .line 369
+    .line 379
     const/4 v1, 0x1
 
     aget-object v0, v0, v1
@@ -940,7 +940,7 @@
 
     if-eqz v0, :cond_77
 
-    .line 370
+    .line 380
     const/4 v1, 0x1
 
     move v0, v2
@@ -950,16 +950,16 @@
 
     move v3, v1
 
-    .line 374
+    .line 384
     goto :goto_3d
 
-    .line 355
+    .line 365
     :cond_6c
     const/4 v0, 0x0
 
     goto :goto_18
 
-    .line 359
+    .line 369
     :cond_6e
     sget-object v0, Lcom/isaigu/gymapp/train/utils/PartLook;->ROWS:Ljava/util/WeakHashMap;
 
@@ -969,17 +969,17 @@
 
     goto :goto_31
 
-    .line 429
+    .line 439
     :catch_74
     move-exception v0
 
     move v0, v4
 
-    .line 431
+    .line 441
     :goto_76
     return v0
 
-    .line 372
+    .line 382
     :cond_77
     const/4 v0, 0x1
 
@@ -987,7 +987,7 @@
 
     goto :goto_69
 
-    .line 375
+    .line 385
     :cond_7a
     if-eqz v3, :cond_87
 
@@ -995,34 +995,34 @@
 
     const/4 v2, 0x1
 
-    .line 376
+    .line 386
     :goto_7f
     :try_start_7f
     invoke-virtual {p1}, Landroid/view/View;->getRootView()Landroid/view/View;
 
     move-result-object v5
 
-    .line 377
+    .line 387
     if-nez v5, :cond_89
 
     move v0, v2
 
-    .line 378
+    .line 388
     goto :goto_76
 
-    .line 375
+    .line 385
     :cond_87
     const/4 v2, 0x0
 
     goto :goto_7f
 
-    .line 380
+    .line 390
     :cond_89
     const/16 v0, 0xa
 
     new-array v6, v0, [Landroid/view/View;
 
-    .line 381
+    .line 391
     invoke-virtual {v5}, Landroid/view/View;->getContext()Landroid/content/Context;
 
     move-result-object v0
@@ -1031,21 +1031,21 @@
 
     move-result-object v7
 
-    .line 382
+    .line 392
     const/4 v0, 0x0
 
     invoke-static {v0}, Lcom/isaigu/gymapp/bodytech/BtSettings;->legSlider(Z)I
 
     move-result v8
 
-    .line 383
+    .line 393
     const/4 v0, 0x1
 
     invoke-static {v0}, Lcom/isaigu/gymapp/bodytech/BtSettings;->legSlider(Z)I
 
     move-result v9
 
-    .line 384
+    .line 394
     const/4 v0, 0x0
 
     move v4, v0
@@ -1055,7 +1055,7 @@
 
     if-ge v4, v0, :cond_1b4
 
-    .line 385
+    .line 395
     invoke-virtual {v5}, Landroid/view/View;->getResources()Landroid/content/res/Resources;
 
     move-result-object v0
@@ -1086,20 +1086,20 @@
 
     move-result v0
 
-    .line 386
+    .line 396
     if-eqz v0, :cond_d2
 
     invoke-virtual {v5, v0}, Landroid/view/View;->findViewById(I)Landroid/view/View;
 
     move-result-object v0
 
-    .line 387
+    .line 397
     :goto_ca
     instance-of v1, v0, Landroid/view/ViewGroup;
 
     if-nez v1, :cond_d4
 
-    .line 384
+    .line 394
     :cond_ce
     :goto_ce
     add-int/lit8 v0, v4, 0x1
@@ -1108,32 +1108,32 @@
 
     goto :goto_a1
 
-    .line 386
+    .line 396
     :cond_d2
     const/4 v0, 0x0
 
     goto :goto_ca
 
-    .line 390
+    .line 400
     :cond_d4
     check-cast v0, Landroid/view/ViewGroup;
 
-    .line 391
+    .line 401
     aput-object v0, v6, v4
 
-    .line 392
+    .line 402
     invoke-virtual {v0}, Landroid/view/ViewGroup;->getVisibility()I
 
     move-result v1
 
     if-eqz v1, :cond_e2
 
-    .line 393
+    .line 403
     const/4 v1, 0x0
 
     invoke-virtual {v0, v1}, Landroid/view/ViewGroup;->setVisibility(I)V
 
-    .line 396
+    .line 406
     :cond_e2
     if-eqz v2, :cond_18d
 
@@ -1147,13 +1147,13 @@
 
     move v3, v1
 
-    .line 397
+    .line 407
     :goto_ec
     if-eqz v3, :cond_191
 
     const v1, 0x3eb33333    # 0.35f
 
-    .line 398
+    .line 408
     :goto_f1
     invoke-virtual {v0}, Landroid/view/ViewGroup;->getAlpha()F
 
@@ -1163,10 +1163,10 @@
 
     if-eqz v10, :cond_fc
 
-    .line 399
+    .line 409
     invoke-virtual {v0, v1}, Landroid/view/ViewGroup;->setAlpha(F)V
 
-    .line 401
+    .line 411
     :cond_fc
     invoke-virtual {v0}, Landroid/view/ViewGroup;->isClickable()Z
 
@@ -1182,7 +1182,7 @@
 
     if-eqz v1, :cond_110
 
-    .line 402
+    .line 412
     :cond_10a
     if-nez v3, :cond_195
 
@@ -1191,7 +1191,7 @@
     :goto_10d
     invoke-virtual {v0, v1}, Landroid/view/ViewGroup;->setClickable(Z)V
 
-    .line 404
+    .line 414
     :cond_110
     invoke-virtual {v0}, Landroid/view/ViewGroup;->getChildCount()I
 
@@ -1207,7 +1207,7 @@
 
     move-object v3, v1
 
-    .line 405
+    .line 415
     :goto_11c
     if-eqz v3, :cond_135
 
@@ -1219,7 +1219,7 @@
 
     if-ne v1, v10, :cond_135
 
-    .line 406
+    .line 416
     sget-object v1, Lcom/isaigu/gymapp/train/utils/PartLook;->HEADER_ORIG:Ljava/util/WeakHashMap;
 
     invoke-virtual {v1, v3}, Ljava/util/WeakHashMap;->get(Ljava/lang/Object;)Ljava/lang/Object;
@@ -1230,12 +1230,12 @@
 
     invoke-virtual {v3, v1}, Landroid/view/View;->setBackgroundDrawable(Landroid/graphics/drawable/Drawable;)V
 
-    .line 407
+    .line 417
     const/4 v1, 0x0
 
     invoke-virtual {v3, v1}, Landroid/view/View;->setTag(Ljava/lang/Object;)V
 
-    .line 409
+    .line 419
     :cond_135
     invoke-virtual {v0}, Landroid/view/ViewGroup;->getChildCount()I
 
@@ -1265,11 +1265,11 @@
 
     move-object v1, v0
 
-    .line 410
+    .line 420
     :goto_14d
     if-eqz v1, :cond_ce
 
-    .line 413
+    .line 423
     sget-object v0, Lcom/isaigu/gymapp/train/utils/PartLook;->HEADER_ORIG:Ljava/util/WeakHashMap;
 
     invoke-virtual {v0, v1}, Ljava/util/WeakHashMap;->containsKey(Ljava/lang/Object;)Z
@@ -1278,7 +1278,7 @@
 
     if-nez v0, :cond_160
 
-    .line 414
+    .line 424
     sget-object v0, Lcom/isaigu/gymapp/train/utils/PartLook;->HEADER_ORIG:Ljava/util/WeakHashMap;
 
     invoke-virtual {v1}, Landroid/widget/TextView;->getText()Ljava/lang/CharSequence;
@@ -1287,7 +1287,7 @@
 
     invoke-virtual {v0, v1, v3}, Ljava/util/WeakHashMap;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
 
-    .line 416
+    .line 426
     :cond_160
     sget-object v0, Lcom/isaigu/gymapp/train/utils/PartLook;->HEADER_ORIG:Ljava/util/WeakHashMap;
 
@@ -1297,17 +1297,17 @@
 
     check-cast v0, Ljava/lang/CharSequence;
 
-    .line 417
+    .line 427
     if-eqz v2, :cond_19e
 
     if-ne v4, v8, :cond_19e
 
     if-eq v8, v9, :cond_19e
 
-    .line 418
+    .line 428
     const-string v0, "\u041b\u044f\u0432\u043e \u0431\u0435\u0434\u0440\u043e"
 
-    .line 424
+    .line 434
     :cond_170
     :goto_170
     if-eqz v0, :cond_ce
@@ -1330,12 +1330,12 @@
 
     if-nez v3, :cond_ce
 
-    .line 425
+    .line 435
     invoke-virtual {v1, v0}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
     goto/16 :goto_ce
 
-    .line 429
+    .line 439
     :catch_189
     move-exception v0
 
@@ -1343,7 +1343,7 @@
 
     goto/16 :goto_76
 
-    .line 396
+    .line 406
     :cond_18d
     const/4 v1, 0x0
 
@@ -1351,19 +1351,19 @@
 
     goto/16 :goto_ec
 
-    .line 397
+    .line 407
     :cond_191
     const/high16 v1, 0x3f800000    # 1.0f
 
     goto/16 :goto_f1
 
-    .line 402
+    .line 412
     :cond_195
     const/4 v1, 0x0
 
     goto/16 :goto_10d
 
-    .line 404
+    .line 414
     :cond_198
     const/4 v1, 0x0
 
@@ -1371,7 +1371,7 @@
 
     goto :goto_11c
 
-    .line 409
+    .line 419
     :cond_19b
     const/4 v0, 0x0
 
@@ -1379,7 +1379,7 @@
 
     goto :goto_14d
 
-    .line 419
+    .line 429
     :cond_19e
     if-eqz v2, :cond_1a7
 
@@ -1387,12 +1387,12 @@
 
     if-eq v8, v9, :cond_1a7
 
-    .line 420
+    .line 430
     const-string v0, "\u0414\u044f\u0441\u043d\u043e \u0431\u0435\u0434\u0440\u043e"
 
     goto :goto_170
 
-    .line 421
+    .line 431
     :cond_1a7
     if-eqz v2, :cond_170
 
@@ -1402,14 +1402,14 @@
 
     if-eqz v3, :cond_170
 
-    .line 422
+    .line 432
     invoke-static {v4}, Lcom/isaigu/gymapp/bodytech/BtSettings;->rowName(I)Ljava/lang/String;
 
     move-result-object v0
 
     goto :goto_170
 
-    .line 428
+    .line 438
     :cond_1b4
     invoke-static {v2}, Lcom/isaigu/gymapp/train/utils/PartLook;->order(Z)[I
 
@@ -1421,7 +1421,7 @@
 
     move v0, v2
 
-    .line 430
+    .line 440
     goto/16 :goto_76
 .end method
 
@@ -1508,7 +1508,7 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 251
+    .line 261
     move v0, v1
 
     :goto_2
@@ -1516,7 +1516,7 @@
 
     if-ge v0, v2, :cond_2f
 
-    .line 252
+    .line 262
     aget-object v2, p0, v0
 
     if-eqz v2, :cond_13
@@ -1531,14 +1531,14 @@
 
     if-nez v2, :cond_16
 
-    .line 251
+    .line 261
     :cond_13
     :goto_13
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_2
 
-    .line 255
+    .line 265
     :cond_16
     aget-object v2, p0, v0
 
@@ -1546,7 +1546,7 @@
 
     invoke-virtual {v2, v3}, Lcom/isaigu/gymapp/widget/VerticalColorSeekBar;->setProgress(F)V
 
-    .line 256
+    .line 266
     if-eqz p1, :cond_2d
 
     array-length v2, p1
@@ -1555,11 +1555,11 @@
 
     aget-object v2, p1, v0
 
-    .line 257
+    .line 267
     :goto_23
     if-eqz v2, :cond_13
 
-    .line 258
+    .line 268
     invoke-static {v1}, Lcom/isaigu/gymapp/train/utils/PartLook;->percent(I)Ljava/lang/String;
 
     move-result-object v3
@@ -1568,22 +1568,59 @@
 
     goto :goto_13
 
-    .line 256
+    .line 266
     :cond_2d
     const/4 v2, 0x0
 
     goto :goto_23
 
-    .line 261
+    .line 271
     :cond_2f
     return-void
+.end method
+
+.method static ledShown(I)I
+    .registers 2
+
+    .prologue
+    .line 536
+    :try_start_0
+    invoke-static {p0}, Lcom/isaigu/gymapp/ai/AutoSession;->channelShown(I)I
+
+    move-result v0
+
+    .line 537
+    if-ltz v0, :cond_7
+
+    .line 539
+    :goto_6
+    return v0
+
+    .line 537
+    :cond_7
+    invoke-static {p0}, Lcom/isaigu/gymapp/ai/MapRunner;->channelShown(I)I
+    :try_end_a
+    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_a} :catch_c
+
+    move-result v0
+
+    goto :goto_6
+
+    .line 538
+    :catch_c
+    move-exception v0
+
+    .line 539
+    const/4 v0, -0x1
+
+    goto :goto_6
 .end method
 
 .method static legTags(Lcom/isaigu/gymapp/train/model/TrainItem;[Landroid/widget/TextView;)V
     .registers 8
 
     .prologue
-    .line 475
+    .line 485
     if-eqz p1, :cond_12
 
     if-eqz p0, :cond_12
@@ -1596,18 +1633,18 @@
 
     iget-object v0, v0, Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;->macAddress:Ljava/lang/String;
 
-    .line 476
+    .line 486
     invoke-static {v0}, Lcom/isaigu/gymapp/bodytech/BtBridge;->isBodytechMac(Ljava/lang/String;)Z
 
     move-result v0
 
     if-nez v0, :cond_13
 
-    .line 491
+    .line 501
     :cond_12
     return-void
 
-    .line 479
+    .line 489
     :cond_13
     const/4 v0, 0x0
 
@@ -1616,10 +1653,10 @@
 
     if-ge v0, v1, :cond_12
 
-    .line 480
+    .line 490
     aget-object v3, p1, v0
 
-    .line 481
+    .line 491
     if-eqz v3, :cond_25
 
     invoke-static {v0}, Lcom/isaigu/gymapp/bodytech/BtSettings;->rowTag(I)Ljava/lang/String;
@@ -1628,18 +1665,18 @@
 
     move-object v2, v1
 
-    .line 482
+    .line 492
     :goto_20
     if-nez v2, :cond_28
 
-    .line 479
+    .line 489
     :cond_22
     :goto_22
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_14
 
-    .line 481
+    .line 491
     :cond_25
     const/4 v1, 0x0
 
@@ -1647,18 +1684,18 @@
 
     goto :goto_20
 
-    .line 485
+    .line 495
     :cond_28
     invoke-virtual {v3}, Landroid/widget/TextView;->getText()Ljava/lang/CharSequence;
 
     move-result-object v1
 
-    .line 486
+    .line 496
     if-nez v1, :cond_64
 
     const-string v1, ""
 
-    .line 487
+    .line 497
     :goto_30
     new-instance v4, Ljava/lang/StringBuilder;
 
@@ -1684,7 +1721,7 @@
 
     if-nez v4, :cond_22
 
-    .line 488
+    .line 498
     new-instance v4, Ljava/lang/StringBuilder;
 
     invoke-direct {v4}, Ljava/lang/StringBuilder;-><init>()V
@@ -1711,7 +1748,7 @@
 
     goto :goto_22
 
-    .line 486
+    .line 496
     :cond_64
     invoke-interface {v1}, Ljava/lang/CharSequence;->toString()Ljava/lang/String;
 
@@ -1724,46 +1761,46 @@
     .registers 14
 
     .prologue
-    .line 442
+    .line 452
     if-eqz p0, :cond_6
 
     iget-object v0, p0, Lcom/isaigu/gymapp/train/model/TrainItem;->data:Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
 
     if-nez v0, :cond_7
 
-    .line 472
+    .line 482
     :cond_6
     return-void
 
-    .line 445
+    .line 455
     :cond_7
     iget-object v0, p0, Lcom/isaigu/gymapp/train/model/TrainItem;->data:Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;
 
     iget-object v2, v0, Lcom/isaigu/gymapp/bean/TrainUserProgramDataWrapper;->macAddress:Ljava/lang/String;
 
-    .line 446
+    .line 456
     invoke-static {v2}, Lcom/isaigu/gymapp/bodytech/BtBridge;->isBodytechMac(Ljava/lang/String;)Z
 
     move-result v0
 
     if-eqz v0, :cond_6
 
-    .line 449
+    .line 459
     invoke-static {}, Lcom/isaigu/gymapp/bodytech/BtSettings;->legSliders()[I
 
     move-result-object v3
 
-    .line 450
+    .line 460
     iget-object v0, p1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenthBean:Lcom/isaigu/gymapp/bean/PartStrenthBean;
 
     iget-object v4, v0, Lcom/isaigu/gymapp/bean/PartStrenthBean;->buwei:[I
 
-    .line 451
+    .line 461
     invoke-static {p0, p1}, Lcom/isaigu/gymapp/train/utils/PartLook;->live(Lcom/isaigu/gymapp/train/model/TrainItem;Lcom/isaigu/gymapp/bean/ProgramDataBean;)Z
 
     move-result v5
 
-    .line 452
+    .line 462
     array-length v6, v3
 
     const/4 v0, 0x0
@@ -1775,7 +1812,7 @@
 
     aget v0, v3, v1
 
-    .line 453
+    .line 463
     array-length v7, p2
 
     if-ge v0, v7, :cond_2e
@@ -1788,7 +1825,7 @@
 
     if-nez v7, :cond_32
 
-    .line 452
+    .line 462
     :cond_2e
     :goto_2e
     add-int/lit8 v0, v1, 0x1
@@ -1797,28 +1834,28 @@
 
     goto :goto_20
 
-    .line 456
+    .line 466
     :cond_32
     invoke-static {v2, v4, v0}, Lcom/isaigu/gymapp/bodytech/BtBridge;->legValue(Ljava/lang/String;[II)I
 
     move-result v7
 
-    .line 457
+    .line 467
     if-ltz v7, :cond_2e
 
     aget v8, v4, v0
 
     if-eq v7, v8, :cond_2e
 
-    .line 460
+    .line 470
     aget-object v8, p2, v0
 
-    .line 461
+    .line 471
     invoke-static {v8}, Lcom/isaigu/gymapp/train/utils/PartLook;->held(Ljava/lang/Object;)Lcom/isaigu/gymapp/train/utils/PartLook$Lock;
 
     move-result-object v9
 
-    .line 462
+    .line 472
     if-eqz v9, :cond_48
 
     iget-boolean v9, v9, Lcom/isaigu/gymapp/train/utils/PartLook$Lock;->dragging:Z
@@ -1832,17 +1869,17 @@
 
     if-nez v9, :cond_2e
 
-    .line 465
+    .line 475
     iget v9, p1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pulseWidth:I
 
     invoke-static {v0, v7, v9}, Lcom/isaigu/gymapp/train/utils/ChannelStrengthScale;->shown(III)F
 
     move-result v7
 
-    .line 466
+    .line 476
     invoke-virtual {v8, v7}, Lcom/isaigu/gymapp/widget/VerticalColorSeekBar;->setProgress(F)V
 
-    .line 467
+    .line 477
     if-eqz p3, :cond_70
 
     array-length v8, p3
@@ -1851,11 +1888,11 @@
 
     aget-object v0, p3, v0
 
-    .line 468
+    .line 478
     :goto_5e
     if-eqz v0, :cond_2e
 
-    .line 469
+    .line 479
     const/high16 v8, 0x42c80000    # 100.0f
 
     div-float/2addr v7, v8
@@ -1876,7 +1913,7 @@
 
     goto :goto_2e
 
-    .line 467
+    .line 477
     :cond_70
     const/4 v0, 0x0
 
@@ -2003,7 +2040,7 @@
     .registers 5
 
     .prologue
-    .line 595
+    .line 615
     sget-object v0, Lcom/isaigu/gymapp/train/utils/PartLook;->PAINTED:Ljava/util/WeakHashMap;
 
     invoke-virtual {v0, p0}, Ljava/util/WeakHashMap;->get(Ljava/lang/Object;)Ljava/lang/Object;
@@ -2012,7 +2049,7 @@
 
     check-cast v0, Ljava/lang/Boolean;
 
-    .line 596
+    .line 616
     if-eqz v0, :cond_11
 
     invoke-virtual {v0}, Ljava/lang/Boolean;->booleanValue()Z
@@ -2021,51 +2058,51 @@
 
     if-ne v0, p1, :cond_11
 
-    .line 609
+    .line 629
     :goto_10
     return-void
 
-    .line 599
+    .line 619
     :cond_11
     invoke-virtual {p0}, Lcom/isaigu/gymapp/widget/VerticalColorSeekBar;->getContext()Landroid/content/Context;
 
     move-result-object v0
 
-    .line 600
+    .line 620
     const-string v1, "light_green_color"
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/train/utils/PartLook;->color(Landroid/content/Context;Ljava/lang/String;)I
 
     move-result v1
 
-    .line 601
+    .line 621
     const-string v2, "dark_green_color"
 
     invoke-static {v0, v2}, Lcom/isaigu/gymapp/train/utils/PartLook;->color(Landroid/content/Context;Ljava/lang/String;)I
 
     move-result v0
 
-    .line 602
+    .line 622
     if-eqz p1, :cond_2b
 
-    .line 603
+    .line 623
     invoke-static {v1}, Lcom/isaigu/gymapp/train/utils/PartLook;->yellow(I)I
 
     move-result v1
 
-    .line 604
+    .line 624
     invoke-static {v0}, Lcom/isaigu/gymapp/train/utils/PartLook;->yellow(I)I
 
     move-result v0
 
-    .line 606
+    .line 626
     :cond_2b
     invoke-virtual {p0, v1, v1, v0}, Lcom/isaigu/gymapp/widget/VerticalColorSeekBar;->setColorArray(III)V
 
-    .line 607
+    .line 627
     invoke-virtual {p0}, Lcom/isaigu/gymapp/widget/VerticalColorSeekBar;->invalidate()V
 
-    .line 608
+    .line 628
     sget-object v0, Lcom/isaigu/gymapp/train/utils/PartLook;->PAINTED:Ljava/util/WeakHashMap;
 
     invoke-static {p1}, Ljava/lang/Boolean;->valueOf(Z)Ljava/lang/Boolean;
@@ -2081,7 +2118,7 @@
     .registers 6
 
     .prologue
-    .line 612
+    .line 632
     sget-object v0, Lcom/isaigu/gymapp/train/utils/PartLook;->PAINTED:Ljava/util/WeakHashMap;
 
     invoke-virtual {v0, p0}, Ljava/util/WeakHashMap;->get(Ljava/lang/Object;)Ljava/lang/Object;
@@ -2090,7 +2127,7 @@
 
     check-cast v0, Ljava/lang/Boolean;
 
-    .line 613
+    .line 633
     if-eqz v0, :cond_11
 
     invoke-virtual {v0}, Ljava/lang/Boolean;->booleanValue()Z
@@ -2099,17 +2136,17 @@
 
     if-ne v0, p1, :cond_11
 
-    .line 620
+    .line 640
     :goto_10
     return-void
 
-    .line 616
+    .line 636
     :cond_11
     if-eqz p1, :cond_2e
 
     sget-object v0, Lcom/isaigu/gymapp/train/utils/PartLook;->RING_SECOND:[I
 
-    .line 617
+    .line 637
     :goto_15
     const/4 v1, 0x0
 
@@ -2125,10 +2162,10 @@
 
     invoke-virtual {p0, v1, v2, v0}, Lcom/isaigu/gymapp/widget/CircleSeekBar;->setSectionColors(III)V
 
-    .line 618
+    .line 638
     invoke-virtual {p0}, Lcom/isaigu/gymapp/widget/CircleSeekBar;->invalidate()V
 
-    .line 619
+    .line 639
     sget-object v0, Lcom/isaigu/gymapp/train/utils/PartLook;->PAINTED:Ljava/util/WeakHashMap;
 
     invoke-static {p1}, Ljava/lang/Boolean;->valueOf(Z)Ljava/lang/Boolean;
@@ -2139,7 +2176,7 @@
 
     goto :goto_10
 
-    .line 616
+    .line 636
     :cond_2e
     sget-object v0, Lcom/isaigu/gymapp/train/utils/PartLook;->RING_MAIN:[I
 
@@ -2158,28 +2195,28 @@
 
     const/4 v3, 0x0
 
-    .line 268
+    .line 278
     if-nez p0, :cond_b
 
-    .line 269
+    .line 279
     sget-object v0, Lcom/isaigu/gymapp/train/utils/PartLook;->STOCK:[I
 
-    .line 298
+    .line 308
     :goto_a
     return-object v0
 
-    .line 271
+    .line 281
     :cond_b
     invoke-static {v3}, Lcom/isaigu/gymapp/bodytech/BtSettings;->legSlider(Z)I
 
     move-result v5
 
-    .line 272
+    .line 282
     invoke-static {v10}, Lcom/isaigu/gymapp/bodytech/BtSettings;->legSlider(Z)I
 
     move-result v6
 
-    .line 273
+    .line 283
     if-ltz v5, :cond_1d
 
     if-ltz v6, :cond_1d
@@ -2190,17 +2227,17 @@
 
     if-ne v5, v6, :cond_20
 
-    .line 274
+    .line 284
     :cond_1d
     sget-object v0, Lcom/isaigu/gymapp/train/utils/PartLook;->STOCK:[I
 
     goto :goto_a
 
-    .line 276
+    .line 286
     :cond_20
     new-array v2, v11, [I
 
-    .line 278
+    .line 288
     sget-object v7, Lcom/isaigu/gymapp/train/utils/PartLook;->STOCK:[I
 
     array-length v8, v7
@@ -2214,12 +2251,12 @@
 
     aget v9, v7, v4
 
-    .line 279
+    .line 289
     if-eq v9, v5, :cond_2f
 
     if-ne v9, v6, :cond_33
 
-    .line 278
+    .line 288
     :cond_2f
     :goto_2f
     add-int/lit8 v1, v4, 0x1
@@ -2228,43 +2265,43 @@
 
     goto :goto_27
 
-    .line 282
+    .line 292
     :cond_33
     add-int/lit8 v1, v0, 0x1
 
     aput v9, v2, v0
 
-    .line 283
+    .line 293
     const/4 v0, 0x3
 
     if-ne v9, v0, :cond_61
 
-    .line 284
+    .line 294
     add-int/lit8 v9, v1, 0x1
 
     aput v5, v2, v1
 
-    .line 285
+    .line 295
     add-int/lit8 v0, v9, 0x1
 
     aput v6, v2, v9
 
     goto :goto_2f
 
-    .line 288
+    .line 298
     :cond_43
     if-eq v0, v11, :cond_5d
 
-    .line 289
+    .line 299
     aput v5, v2, v3
 
-    .line 290
+    .line 300
     aput v6, v2, v10
 
-    .line 291
+    .line 301
     const/4 v1, 0x2
 
-    .line 292
+    .line 302
     sget-object v4, Lcom/isaigu/gymapp/train/utils/PartLook;->STOCK:[I
 
     array-length v7, v4
@@ -2274,17 +2311,17 @@
 
     aget v8, v4, v3
 
-    .line 293
+    .line 303
     if-eq v8, v5, :cond_5f
 
     if-eq v8, v6, :cond_5f
 
-    .line 294
+    .line 304
     add-int/lit8 v0, v1, 0x1
 
     aput v8, v2, v1
 
-    .line 292
+    .line 302
     :goto_59
     add-int/lit8 v3, v3, 0x1
 
@@ -2295,7 +2332,7 @@
     :cond_5d
     move-object v0, v2
 
-    .line 298
+    .line 308
     goto :goto_a
 
     :cond_5f
@@ -2313,169 +2350,232 @@
     .registers 16
 
     .prologue
+    const/4 v0, 0x0
+
     .line 146
-    if-eqz p2, :cond_5
+    if-eqz p2, :cond_6
 
     .line 147
-    :try_start_2
+    :try_start_3
     invoke-static {p0, p2}, Lcom/isaigu/gymapp/train/utils/PartLook;->columns(Lcom/isaigu/gymapp/train/model/TrainItem;[Lcom/isaigu/gymapp/widget/VerticalColorSeekBar;)V
 
     .line 149
-    :cond_5
-    if-eqz p4, :cond_a
+    :cond_6
+    if-eqz p4, :cond_b
 
     .line 150
     invoke-static {p0, p4, p2, p3}, Lcom/isaigu/gymapp/wearable/DoubleImpulse;->paint(Lcom/isaigu/gymapp/train/model/TrainItem;Landroid/view/View;[Landroid/view/View;[Landroid/view/View;)V
 
     .line 152
-    :cond_a
-    if-eqz p0, :cond_1a
+    :cond_b
+    if-eqz p0, :cond_1b
 
-    if-eqz p1, :cond_1a
+    if-eqz p1, :cond_1b
 
-    if-eqz p2, :cond_1a
+    if-eqz p2, :cond_1b
 
-    iget-object v0, p1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenthBean:Lcom/isaigu/gymapp/bean/PartStrenthBean;
+    iget-object v1, p1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenthBean:Lcom/isaigu/gymapp/bean/PartStrenthBean;
 
-    if-eqz v0, :cond_1a
+    if-eqz v1, :cond_1b
 
-    iget-object v0, p1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenthBean:Lcom/isaigu/gymapp/bean/PartStrenthBean;
+    iget-object v1, p1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenthBean:Lcom/isaigu/gymapp/bean/PartStrenthBean;
 
-    iget-object v0, v0, Lcom/isaigu/gymapp/bean/PartStrenthBean;->buwei:[I
+    iget-object v1, v1, Lcom/isaigu/gymapp/bean/PartStrenthBean;->buwei:[I
 
-    if-nez v0, :cond_1b
+    if-nez v1, :cond_1c
 
-    .line 192
-    :cond_1a
-    :goto_1a
+    .line 202
+    :cond_1b
+    :goto_1b
     return-void
 
     .line 155
-    :cond_1b
+    :cond_1c
     invoke-static {p0, p1}, Lcom/isaigu/gymapp/train/utils/PartLook;->live(Lcom/isaigu/gymapp/train/model/TrainItem;Lcom/isaigu/gymapp/bean/ProgramDataBean;)Z
 
-    move-result v6
+    move-result v7
 
     .line 156
-    iget-object v0, p1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenthBean:Lcom/isaigu/gymapp/bean/PartStrenthBean;
+    iget-object v1, p1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenthBean:Lcom/isaigu/gymapp/bean/PartStrenthBean;
 
-    iget-object v5, v0, Lcom/isaigu/gymapp/bean/PartStrenthBean;->buwei:[I
+    iget-object v6, v1, Lcom/isaigu/gymapp/bean/PartStrenthBean;->buwei:[I
 
     .line 157
-    iget-boolean v0, p1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
+    iget-boolean v1, p1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
 
-    if-eqz v0, :cond_40
+    if-eqz v1, :cond_40
 
-    invoke-static {p1, v5}, Lcom/isaigu/gymapp/wearable/SecondParts;->effective(Lcom/isaigu/gymapp/bean/ProgramDataBean;[I)[I
+    invoke-static {p1, v6}, Lcom/isaigu/gymapp/wearable/SecondParts;->effective(Lcom/isaigu/gymapp/bean/ProgramDataBean;[I)[I
 
-    move-result-object v0
+    move-result-object v1
 
-    move-object v4, v0
+    move-object v5, v1
 
     .line 158
-    :goto_2c
+    :goto_2d
     invoke-static {p0, p1}, Lcom/isaigu/gymapp/train/utils/PartStrength;->secondStrength(Lcom/isaigu/gymapp/train/model/TrainItem;Lcom/isaigu/gymapp/bean/ProgramDataBean;)I
 
     move-result v1
 
+    move v4, v0
+
     .line 159
-    const/4 v0, 0x0
-
-    move v3, v0
-
     :goto_32
     array-length v0, p2
 
-    if-ge v3, v0, :cond_9d
+    if-ge v4, v0, :cond_c2
 
-    array-length v0, v5
+    array-length v0, v6
 
-    if-ge v3, v0, :cond_9d
+    if-ge v4, v0, :cond_c2
 
     .line 160
-    aget-object v7, p2, v3
+    aget-object v8, p2, v4
 
     .line 161
-    if-nez v7, :cond_42
+    if-nez v8, :cond_42
 
     .line 159
     :goto_3c
-    add-int/lit8 v0, v3, 0x1
+    add-int/lit8 v0, v4, 0x1
 
-    move v3, v0
+    move v4, v0
 
     goto :goto_32
 
     :cond_40
-    move-object v4, v5
+    move-object v5, v6
 
     .line 157
-    goto :goto_2c
+    goto :goto_2d
 
     .line 164
     :cond_42
-    invoke-static {p0, p1, v7, v3, v6}, Lcom/isaigu/gymapp/train/utils/PartLook;->barSecond(Lcom/isaigu/gymapp/train/model/TrainItem;Lcom/isaigu/gymapp/bean/ProgramDataBean;Ljava/lang/Object;IZ)Z
+    invoke-static {p0, p1, v8, v4, v7}, Lcom/isaigu/gymapp/train/utils/PartLook;->barSecond(Lcom/isaigu/gymapp/train/model/TrainItem;Lcom/isaigu/gymapp/bean/ProgramDataBean;Ljava/lang/Object;IZ)Z
 
-    move-result v8
+    move-result v9
 
     .line 165
-    invoke-static {v7}, Lcom/isaigu/gymapp/train/utils/PartLook;->held(Ljava/lang/Object;)Lcom/isaigu/gymapp/train/utils/PartLook$Lock;
+    invoke-static {v8}, Lcom/isaigu/gymapp/train/utils/PartLook;->held(Ljava/lang/Object;)Lcom/isaigu/gymapp/train/utils/PartLook$Lock;
 
-    move-result-object v9
+    move-result-object v10
 
     .line 166
-    if-eqz p3, :cond_8c
+    if-eqz p3, :cond_76
 
     array-length v0, p3
 
-    if-ge v3, v0, :cond_8c
+    if-ge v4, v0, :cond_76
 
-    aget-object v0, p3, v3
+    aget-object v0, p3, v4
 
-    move-object v2, v0
+    move-object v3, v0
 
     .line 167
     :goto_52
     const/high16 v0, -0x40800000    # -1.0f
 
     .line 168
-    if-eqz v9, :cond_8f
+    if-eqz v10, :cond_79
 
-    iget-boolean v10, v9, Lcom/isaigu/gymapp/train/utils/PartLook$Lock;->dragging:Z
+    iget-boolean v2, v10, Lcom/isaigu/gymapp/train/utils/PartLook$Lock;->dragging:Z
 
-    if-eqz v10, :cond_8f
+    if-eqz v2, :cond_79
+
+    const/4 v2, -0x1
 
     .line 169
-    iget v0, v9, Lcom/isaigu/gymapp/train/utils/PartLook$Lock;->p:F
+    :goto_5b
+    if-ltz v2, :cond_7e
+
+    .line 171
+    iget v0, p1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pulseWidth:I
+
+    invoke-static {v4, v2, v0}, Lcom/isaigu/gymapp/train/utils/ChannelStrengthScale;->shown(III)F
+
+    move-result v0
+
+    invoke-virtual {v8, v0}, Lcom/isaigu/gymapp/widget/VerticalColorSeekBar;->setProgress(F)V
+
+    .line 172
+    if-eqz v3, :cond_6f
 
     .line 173
-    :cond_5c
-    :goto_5c
-    const/4 v9, 0x0
+    invoke-static {v2}, Lcom/isaigu/gymapp/train/utils/PartLook;->percent(I)Ljava/lang/String;
 
-    cmpl-float v9, v0, v9
+    move-result-object v0
 
-    if-ltz v9, :cond_77
-
-    .line 174
-    invoke-virtual {v7, v0}, Lcom/isaigu/gymapp/widget/VerticalColorSeekBar;->setProgress(F)V
+    invoke-virtual {v3, v0}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
     .line 175
-    if-eqz v2, :cond_77
+    :cond_6f
+    const/4 v0, 0x0
 
-    .line 176
-    const/high16 v9, 0x42c80000    # 100.0f
+    invoke-static {v8, v0}, Lcom/isaigu/gymapp/train/utils/PartLook;->look(Lcom/isaigu/gymapp/widget/VerticalColorSeekBar;Z)V
 
-    div-float v9, v0, v9
+    goto :goto_3c
 
-    if-eqz v8, :cond_9a
+    .line 200
+    :catch_74
+    move-exception v0
+
+    goto :goto_1b
+
+    .line 166
+    :cond_76
+    const/4 v0, 0x0
+
+    move-object v3, v0
+
+    goto :goto_52
+
+    .line 168
+    :cond_79
+    invoke-static {v4}, Lcom/isaigu/gymapp/train/utils/PartLook;->ledShown(I)I
+
+    move-result v2
+
+    goto :goto_5b
+
+    .line 178
+    :cond_7e
+    if-eqz v10, :cond_b4
+
+    iget-boolean v2, v10, Lcom/isaigu/gymapp/train/utils/PartLook$Lock;->dragging:Z
+
+    if-eqz v2, :cond_b4
+
+    .line 179
+    iget v0, v10, Lcom/isaigu/gymapp/train/utils/PartLook$Lock;->p:F
+
+    .line 183
+    :cond_86
+    :goto_86
+    const/4 v2, 0x0
+
+    cmpl-float v2, v0, v2
+
+    if-ltz v2, :cond_a1
+
+    .line 184
+    invoke-virtual {v8, v0}, Lcom/isaigu/gymapp/widget/VerticalColorSeekBar;->setProgress(F)V
+
+    .line 185
+    if-eqz v3, :cond_a1
+
+    .line 186
+    const/high16 v2, 0x42c80000    # 100.0f
+
+    div-float v2, v0, v2
+
+    if-eqz v9, :cond_bf
 
     move v0, v1
 
-    :goto_6d
+    :goto_97
     int-to-float v0, v0
 
-    mul-float/2addr v0, v9
+    mul-float/2addr v0, v2
 
     float-to-int v0, v0
 
@@ -2483,16 +2583,16 @@
 
     move-result-object v0
 
-    invoke-virtual {v2, v0}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
+    invoke-virtual {v3, v0}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 179
-    :cond_77
-    if-eqz v2, :cond_86
+    .line 189
+    :cond_a1
+    if-eqz v3, :cond_b0
 
-    if-eqz v8, :cond_86
+    if-eqz v9, :cond_b0
 
-    .line 180
-    invoke-virtual {v2}, Landroid/widget/TextView;->getContext()Landroid/content/Context;
+    .line 190
+    invoke-virtual {v3}, Landroid/widget/TextView;->getContext()Landroid/content/Context;
 
     move-result-object v0
 
@@ -2500,80 +2600,66 @@
 
     move-result v0
 
-    invoke-virtual {v2, v0}, Landroid/widget/TextView;->setTextColor(I)V
+    invoke-virtual {v3, v0}, Landroid/widget/TextView;->setTextColor(I)V
 
-    .line 182
-    :cond_86
-    invoke-static {v7, v8}, Lcom/isaigu/gymapp/train/utils/PartLook;->look(Lcom/isaigu/gymapp/widget/VerticalColorSeekBar;Z)V
+    .line 192
+    :cond_b0
+    invoke-static {v8, v9}, Lcom/isaigu/gymapp/train/utils/PartLook;->look(Lcom/isaigu/gymapp/widget/VerticalColorSeekBar;Z)V
 
     goto :goto_3c
 
-    .line 190
-    :catch_8a
-    move-exception v0
+    .line 180
+    :cond_b4
+    if-eqz v9, :cond_86
 
-    goto :goto_1a
+    .line 181
+    aget v0, v5, v4
 
-    .line 166
-    :cond_8c
-    const/4 v0, 0x0
+    iget v2, p1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pulseWidth:I
 
-    move-object v2, v0
-
-    goto :goto_52
-
-    .line 170
-    :cond_8f
-    if-eqz v8, :cond_5c
-
-    .line 171
-    aget v0, v4, v3
-
-    iget v9, p1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pulseWidth:I
-
-    invoke-static {v3, v0, v9}, Lcom/isaigu/gymapp/train/utils/ChannelStrengthScale;->shown(III)F
+    invoke-static {v4, v0, v2}, Lcom/isaigu/gymapp/train/utils/ChannelStrengthScale;->shown(III)F
 
     move-result v0
 
-    goto :goto_5c
+    goto :goto_86
 
-    .line 176
-    :cond_9a
+    .line 186
+    :cond_bf
     iget v0, p1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->strenth:I
 
-    goto :goto_6d
+    goto :goto_97
 
-    .line 184
-    :cond_9d
-    if-eqz p4, :cond_a6
+    .line 194
+    :cond_c2
+    if-eqz p4, :cond_cb
 
-    .line 185
-    invoke-static {p0, p1, v6}, Lcom/isaigu/gymapp/train/utils/PartLook;->ringSecond(Lcom/isaigu/gymapp/train/model/TrainItem;Lcom/isaigu/gymapp/bean/ProgramDataBean;Z)Z
+    .line 195
+    invoke-static {p0, p1, v7}, Lcom/isaigu/gymapp/train/utils/PartLook;->ringSecond(Lcom/isaigu/gymapp/train/model/TrainItem;Lcom/isaigu/gymapp/bean/ProgramDataBean;Z)Z
 
     move-result v0
 
     invoke-static {p4, v0}, Lcom/isaigu/gymapp/train/utils/PartLook;->lookRing(Lcom/isaigu/gymapp/widget/CircleSeekBar;Z)V
 
-    .line 187
-    :cond_a6
+    .line 197
+    :cond_cb
     invoke-static {p0, p1, p2, p3}, Lcom/isaigu/gymapp/train/utils/PartLook;->legs(Lcom/isaigu/gymapp/train/model/TrainItem;Lcom/isaigu/gymapp/bean/ProgramDataBean;[Lcom/isaigu/gymapp/widget/VerticalColorSeekBar;[Landroid/widget/TextView;)V
 
-    .line 188
+    .line 198
     invoke-static {p0, p3}, Lcom/isaigu/gymapp/train/utils/PartLook;->legTags(Lcom/isaigu/gymapp/train/model/TrainItem;[Landroid/widget/TextView;)V
 
-    .line 189
+    .line 199
     invoke-static {p2, p3}, Lcom/isaigu/gymapp/train/utils/PartLook;->idle([Lcom/isaigu/gymapp/widget/VerticalColorSeekBar;[Landroid/widget/TextView;)V
-    :try_end_af
-    .catch Ljava/lang/Throwable; {:try_start_2 .. :try_end_af} :catch_8a
+    :try_end_d4
+    .catch Ljava/lang/Throwable; {:try_start_3 .. :try_end_d4} :catch_74
 
-    goto/16 :goto_1a
+    goto/16 :goto_1b
 .end method
 
 .method static percent(I)Ljava/lang/String;
     .registers 3
 
     .prologue
-    .line 633
+    .line 653
     new-instance v0, Ljava/lang/StringBuilder;
 
     invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
@@ -2599,20 +2685,20 @@
     .registers 7
 
     .prologue
-    .line 525
+    .line 545
     invoke-static {p0}, Lcom/isaigu/gymapp/train/utils/PartLook;->held(Ljava/lang/Object;)Lcom/isaigu/gymapp/train/utils/PartLook$Lock;
 
     move-result-object v0
 
-    .line 526
+    .line 546
     if-eqz v0, :cond_12
 
-    .line 527
+    .line 547
     const/4 v1, 0x0
 
     iput-boolean v1, v0, Lcom/isaigu/gymapp/train/utils/PartLook$Lock;->dragging:Z
 
-    .line 528
+    .line 548
     invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
 
     move-result-wide v2
@@ -2623,7 +2709,7 @@
 
     iput-wide v2, v0, Lcom/isaigu/gymapp/train/utils/PartLook$Lock;->until:J
 
-    .line 530
+    .line 550
     :cond_12
     return-void
 .end method
@@ -2634,26 +2720,26 @@
     .prologue
     const/4 v0, 0x0
 
-    .line 565
+    .line 585
     :try_start_1
     invoke-static {p0}, Lcom/isaigu/gymapp/train/utils/PartStrength;->bean(Lcom/isaigu/gymapp/train/model/TrainItem;)Lcom/isaigu/gymapp/bean/ProgramDataBean;
 
     move-result-object v1
 
-    .line 566
+    .line 586
     invoke-static {p0}, Lcom/isaigu/gymapp/train/utils/PartLook;->held(Ljava/lang/Object;)Lcom/isaigu/gymapp/train/utils/PartLook$Lock;
 
     move-result-object v2
 
-    .line 567
+    .line 587
     if-eqz v2, :cond_17
 
-    .line 568
+    .line 588
     const/4 v3, 0x0
 
     iput-boolean v3, v2, Lcom/isaigu/gymapp/train/utils/PartLook$Lock;->dragging:Z
 
-    .line 569
+    .line 589
     invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
 
     move-result-wide v4
@@ -2664,11 +2750,11 @@
 
     iput-wide v4, v2, Lcom/isaigu/gymapp/train/utils/PartLook$Lock;->until:J
 
-    .line 571
+    .line 591
     :cond_17
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/DoubleImpulse;->touch(Lcom/isaigu/gymapp/train/model/TrainItem;)V
 
-    .line 572
+    .line 592
     if-eqz v1, :cond_2c
 
     iget-boolean v3, v1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->activePause:Z
@@ -2687,12 +2773,12 @@
 
     if-nez v2, :cond_2d
 
-    .line 579
+    .line 599
     :cond_2c
     :goto_2c
     return v0
 
-    .line 575
+    .line 595
     :cond_2d
     const/4 v2, 0x0
 
@@ -2716,17 +2802,17 @@
 
     iput v2, v1, Lcom/isaigu/gymapp/bean/ProgramDataBean;->pauseStrenthPercent:I
 
-    .line 576
+    .line 596
     invoke-static {p0}, Lcom/isaigu/gymapp/train/utils/PartStrength;->saveProgram(Lcom/isaigu/gymapp/train/model/TrainItem;)V
     :try_end_44
     .catch Ljava/lang/Throwable; {:try_start_1 .. :try_end_44} :catch_46
 
-    .line 577
+    .line 597
     const/4 v0, 0x1
 
     goto :goto_2c
 
-    .line 578
+    .line 598
     :catch_46
     move-exception v1
 
@@ -2790,33 +2876,33 @@
 
     const/4 v1, 0x0
 
-    .line 538
+    .line 558
     :try_start_2
     invoke-static {p0}, Lcom/isaigu/gymapp/train/utils/PartStrength;->bean(Lcom/isaigu/gymapp/train/model/TrainItem;)Lcom/isaigu/gymapp/bean/ProgramDataBean;
 
     move-result-object v3
 
-    .line 539
+    .line 559
     if-nez v3, :cond_9
 
-    .line 554
+    .line 574
     :goto_8
     return v1
 
-    .line 542
+    .line 562
     :cond_9
     invoke-static {p0}, Lcom/isaigu/gymapp/train/utils/PartLook;->held(Ljava/lang/Object;)Lcom/isaigu/gymapp/train/utils/PartLook$Lock;
 
     move-result-object v2
 
-    .line 543
+    .line 563
     if-eqz v2, :cond_13
 
     iget-boolean v4, v2, Lcom/isaigu/gymapp/train/utils/PartLook$Lock;->dragging:Z
 
     if-nez v4, :cond_27
 
-    .line 544
+    .line 564
     :cond_13
     invoke-static {p0, v3}, Lcom/isaigu/gymapp/train/utils/PartLook;->live(Lcom/isaigu/gymapp/train/model/TrainItem;Lcom/isaigu/gymapp/bean/ProgramDataBean;)Z
 
@@ -2826,36 +2912,36 @@
 
     move-result v4
 
-    .line 545
+    .line 565
     new-instance v2, Lcom/isaigu/gymapp/train/utils/PartLook$Lock;
 
     invoke-direct {v2}, Lcom/isaigu/gymapp/train/utils/PartLook$Lock;-><init>()V
 
-    .line 546
+    .line 566
     iput-boolean v4, v2, Lcom/isaigu/gymapp/train/utils/PartLook$Lock;->second:Z
 
-    .line 547
+    .line 567
     sget-object v4, Lcom/isaigu/gymapp/train/utils/PartLook;->LOCKS:Ljava/util/WeakHashMap;
 
     invoke-virtual {v4, p0, v2}, Ljava/util/WeakHashMap;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
 
-    .line 549
+    .line 569
     :cond_27
     const/4 v4, 0x1
 
     iput-boolean v4, v2, Lcom/isaigu/gymapp/train/utils/PartLook$Lock;->dragging:Z
 
-    .line 550
+    .line 570
     invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
 
     move-result-wide v4
 
     iput-wide v4, v2, Lcom/isaigu/gymapp/train/utils/PartLook$Lock;->last:J
 
-    .line 551
+    .line 571
     invoke-static {p0}, Lcom/isaigu/gymapp/wearable/DoubleImpulse;->touch(Lcom/isaigu/gymapp/train/model/TrainItem;)V
 
-    .line 552
+    .line 572
     iget-boolean v2, v2, Lcom/isaigu/gymapp/train/utils/PartLook$Lock;->second:Z
 
     if-eqz v2, :cond_3f
@@ -2878,7 +2964,7 @@
 
     goto :goto_3d
 
-    .line 553
+    .line 573
     :catch_41
     move-exception v0
 
@@ -2991,7 +3077,7 @@
     .registers 4
 
     .prologue
-    .line 585
+    .line 605
     invoke-static {p0, p1}, Lcom/isaigu/gymapp/train/utils/PartLook;->ringFree(Lcom/isaigu/gymapp/train/model/TrainItem;Lcom/isaigu/gymapp/bean/ProgramDataBean;)Z
 
     move-result v0
@@ -3008,7 +3094,7 @@
 
     if-eqz v0, :cond_18
 
-    .line 586
+    .line 606
     invoke-static {p0, p1}, Lcom/isaigu/gymapp/train/utils/PartStrength;->secondStrength(Lcom/isaigu/gymapp/train/model/TrainItem;Lcom/isaigu/gymapp/bean/ProgramDataBean;)I
 
     move-result v0
@@ -3017,7 +3103,7 @@
 
     div-int/lit8 p2, v0, 0x64
 
-    .line 588
+    .line 608
     :cond_18
     return p2
 .end method
@@ -3026,7 +3112,7 @@
     .registers 2
 
     .prologue
-    .line 637
+    .line 657
     invoke-static {p0}, Lcom/isaigu/gymapp/utils/ThemeUtils;->isDarkMode(Landroid/content/Context;)Z
 
     move-result v0
@@ -3050,22 +3136,22 @@
     .prologue
     const/4 v3, 0x1
 
-    .line 624
+    .line 644
     const/4 v0, 0x3
 
     new-array v0, v0, [F
 
-    .line 625
+    .line 645
     invoke-static {p0, v0}, Landroid/graphics/Color;->colorToHSV(I[F)V
 
-    .line 626
+    .line 646
     const/4 v1, 0x0
 
     const/high16 v2, 0x42340000    # 45.0f
 
     aput v2, v0, v1
 
-    .line 627
+    .line 647
     aget v1, v0, v3
 
     const v2, 0x3f19999a    # 0.6f
@@ -3076,7 +3162,7 @@
 
     aput v1, v0, v3
 
-    .line 628
+    .line 648
     invoke-static {p0}, Landroid/graphics/Color;->alpha(I)I
 
     move-result v1

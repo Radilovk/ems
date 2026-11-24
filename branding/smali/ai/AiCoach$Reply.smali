@@ -28,6 +28,8 @@
 
 .field public advice:[Ljava/lang/String;
 
+.field public cmds:Lcom/isaigu/gymapp/ai/AiVoiceCmd$Result;
+
 .field public final condAdd:Ljava/util/List;
     .annotation system Ldalvik/annotation/Signature;
         value = {
@@ -200,7 +202,7 @@
     .registers 2
 
     .prologue
-    .line 111
+    .line 113
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiCoach$Reply;->actions:Ljava/util/List;
 
     invoke-interface {v0}, Ljava/util/List;->isEmpty()Z
@@ -245,7 +247,7 @@
     .registers 3
 
     .prologue
-    .line 107
+    .line 109
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiCoach$Reply;->question:Ljava/lang/String;
 
     if-eqz v0, :cond_17

@@ -241,3 +241,55 @@ trainer wants a session fitted to this person in seconds; the AI must never stan
   HR_PAUSE, never quiet > 15 s, adaptation in bounds, runs to DONE — seconds); `tools/app-sim` SimAi: 4 min of the
   real app, the engine looked at every second, the announcements heard. app-sim: the overlay is recompiled only
   when a source changed, tests run in 3 parallel JVMs (all 7 in ~1.5 min).
+
+## 1.1.549 — the strength from 0 in the AI training with a ready program
+- The channel sliders showed the share (100 % → full) while the text said the real level (0 %); a slider moved at
+  strength 0 changed only a share (0 × anything = 0) — "nothing moves from 0". In Auto / AI the slider now is the
+  channel's REAL level (`PartLook.ledShown` ← `AutoSession.channelShown` / `MapRunner.channelShown`) and the finger
+  sets that level (`PartStrength.bar` → `channelFromSlider` → channelStep "set": above the strength it rises, the
+  other channels keep their own level).
+- A + pressed during the start's countdown (or a pause) was zeroed and lost; it now raises the row's level for when
+  the impulses run (`AutoSession.guard`).
+- Off-device: `tools/app-sim` `SimStrength` (+ in the countdown, + every 15 s for 3 min, "силата на 30", a slider to
+  40 with the others kept) and `SimAuto`.
+
+## 1.1.550 — every function the AI coach reaches, tested
+`tools/app-sim` `SimCoachAll` (a ready program) and `SimCoachOwn` (the AI's own workout): each spoken command and
+each coach answer (the server's JSON through `AiTrain.onAnswer`), then what the suit actually gets (the row's bean:
+strength, channel levels, Hz, ON / OFF, 2nd impulse) and the engine's state — a PASS / FAIL table (43 functions).
+Found and fixed: "по-дълъг импулс" was not read (the singular "дълъг"); the AI's own workout had no impulse /
+pause / frequency tune (`MapRunner.tune`, by voice and by the coach's on/off/hz/rest deltas, end_in_min 0); "силата
+на 30" now means the program's strongest impulse (`AutoSession.level` on φmax — the wave's lower impulses go under
+it, the warm-up runs softer by design); "s" read aloud as a letter → "секунди".
+
+## 1.1.551 — the whole screen by voice; speech in natural sentences
+- **The approach checked** against the literature: a personal wake word by DTW template matching of a few user
+  recordings (no training) is the published method for mobile devices (EUSIPCO 2014 "Wake-up-word spotting for
+  mobile systems"; few-shot query-by-example: Fluent.ai DONUT, TACos), wake word first and a separate recognizer
+  for the command second (as Porcupine-style products). Kept.
+- **New by voice** (`AiVoiceCmd` → `AiTrain.applyCommands` / `applyMap` / `commonAction`): the impulse's depth
+  ("по-дълбок / по-плитък импулс" → `AutoEngine.setTunePw`, `MapRunner.tunePwPct`), the 2nd impulse's strength
+  ("намали / увеличи втория импулс" — a step, no longer off: `secondScale`), the music ("спри / пусни музиката",
+  "следващата / предишната песен" — never the training's pause or next exercise), the end ("приключи след 3
+  минути", "още 5 минути" → endActiveIn / `MapRunner.endAtMs`), and answers with no AI: "колко остава", "какъв ми
+  е пулсът" (not "импулс"), "колко е силата".
+- **Natural speech** (`AiSpeak`): the chat keeps its short form, the voice gets sentences — "Краката са на 28
+  процента.", "Импулсът е с една секунда по-дълъг.", "Изключих двойния импулс.", "Остават 17 минути." Every spoken
+  text (also the coach's own) goes through `AiSpeak.clean`: no colons, dots, arrows, quotes, brackets, %, + read
+  out. Announcements: "Първото упражнение е клек без тежест.", "Следва румънска тяга, три серии." The server's live
+  prompt asks for the same.
+- `tools/app-sim` `SimCoachAll` + `SimCoachOwn`: 50 functions, and every sentence said is checked for symbols.
+
+## 1.1.552 — the coach asks back when unclear
+- Free speech has three readers: the tablet's own (clear commands, instant), the cheap command model (free wording →
+  command), the live coach (everything else). A vague place ("долната част на тялото", "отзад", one side) is no
+  longer read as the whole suit — the tablet and the command model pass it to the coach.
+- The coach, unsure what to change, asks one short question with options and changes nothing yet
+  (`LIVE_NOTE`). Never twice in a row: still unclear → the safer choice (less), said aloud.
+- The answer: `AiCoach.awaitingAnswer()` (the AI's last turn asked, ≤ 90 s ago) → the next words go straight to the
+  coach with the chat, past the command readers ("по-силно" alone is not the whole suit then). "пауза", "стоп",
+  "продължи" stay instant (`AiTrain.safety`).
+- The coach can now act on one channel: `commands` in its schema (same targets as the command reader), applied by
+  `AiTrain.liveApply` through `applyCommands` — on a ready program and on the AI's own workout.
+- Proof: `server/scripts/ai-smoke.mjs` FREE lines (12 everyday phrases) and DIALOG 1/2 (vague → question → answer
+  → command) with the real model.

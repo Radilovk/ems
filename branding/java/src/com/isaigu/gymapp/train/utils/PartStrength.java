@@ -678,6 +678,11 @@ public final class PartStrength {
             return;
         }
         try {
+            if (com.isaigu.gymapp.ai.AutoSession.channelFromSlider(i, stored)
+                    || com.isaigu.gymapp.ai.MapRunner.channelFromSlider(i, stored)) {
+                PartLook.release(view);                    // Auto / AI: the finger sets the channel's real level
+                return;
+            }
             boolean seenSecond = PartLook.lockedSecond(view);   // the look the bar had under the finger
             PartLook.release(view);
             PartPick.touch();

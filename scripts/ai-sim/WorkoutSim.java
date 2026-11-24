@@ -72,6 +72,8 @@ public class WorkoutSim {
         v = AiVoiceCmd.parse("колко повторения клек да направя");
         check(v.isEmpty() && AiVoiceCmd.isQuestion("колко повторения клек да направя"), "a question goes to the coach");
         check(!AiVoiceCmd.isQuestion("намали ръцете"), "a command is no question");
+        check(AiVoiceCmd.parse("дай малко повече на долната част на тялото").isEmpty(), "a body place without a word → AI");
+        check(AiVoiceCmd.parse("по-силно").commands.size() == 1, "plain по-силно stays local");
         // the double impulse and absolute levels (owner, 1.1.547)
         v = AiVoiceCmd.parse("спри двойния импулс");
         check(v.actions.contains("double_off") && !v.actions.contains("pause"), "спри двойния импулс = off, no pause");
@@ -91,6 +93,30 @@ public class WorkoutSim {
         v = AiVoiceCmd.parse("увеличи ръцете с 5 и намали дупето");
         check(v.commands.size() == 2 && v.commands.get(0).value == 5 && v.commands.get(1).dir.equals("down")
                 && v.commands.get(1).value == -1, "arms +5, glutes a step down");
+        // the rest of the training screen by voice (owner, 1.1.551: "full control")
+        v = AiVoiceCmd.parse("намали втория импулс");
+        check(v.commands.size() == 1 && v.commands.get(0).target.equals("second") && v.commands.get(0).dir.equals("down")
+                && v.actions.isEmpty(), "намали втория импулс = its strength down, not off");
+        v = AiVoiceCmd.parse("по-дълбок импулс");
+        check(v.commands.size() == 1 && v.commands.get(0).target.equals("width") && v.commands.get(0).dir.equals("up"), "deeper = width up");
+        v = AiVoiceCmd.parse("по-плитък импулс");
+        check(v.commands.size() == 1 && v.commands.get(0).target.equals("width") && v.commands.get(0).dir.equals("down"), "shallower");
+        v = AiVoiceCmd.parse("спри музиката");
+        check(v.actions.contains("music_toggle") && !v.actions.contains("pause"), "спри музиката = music, no pause");
+        v = AiVoiceCmd.parse("следващата песен");
+        check(v.actions.contains("music_next") && !v.actions.contains("skip"), "next song, not the next exercise");
+        v = AiVoiceCmd.parse("приключи след 3 минути");
+        check(v.actions.contains("end_in") && v.minutes == 3, "end in 3");
+        v = AiVoiceCmd.parse("още 5 минути");
+        check(v.actions.contains("end_in") && v.minutes == 5, "5 more minutes");
+        v = AiVoiceCmd.parse("увеличи още 5");
+        check(!v.actions.contains("end_in"), "увеличи още 5 is no end");
+        v = AiVoiceCmd.parse("колко остава");
+        check(v.actions.contains("ask_time"), "how long left");
+        v = AiVoiceCmd.parse("какъв ми е пулсът");
+        check(v.actions.contains("ask_hr"), "the pulse");
+        v = AiVoiceCmd.parse("по-дълъг импулс");
+        check(!v.actions.contains("ask_hr") && v.commands.size() == 1 && v.commands.get(0).target.equals("impulse"), "импулс is no пулс");
         v = AiVoiceCmd.parse("по-силно");
         check(v.commands.size() == 1 && v.commands.get(0).target.equals("strength"), "strength up");
         v = AiVoiceCmd.parse("по-дълга пауза");

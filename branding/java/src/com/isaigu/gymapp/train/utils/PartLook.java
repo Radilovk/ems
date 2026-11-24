@@ -165,6 +165,16 @@ public final class PartLook {
                 Lock l = held(bar);
                 TextView t = texts != null && i < texts.length ? texts[i] : null;
                 float shown = -1f;
+                int led = l != null && l.dragging ? -1 : ledShown(i);
+                if (led >= 0) {
+                    // Auto / AI: the bar is the channel's real level (strength × share) — at the start 0, not full
+                    bar.setProgress(ChannelStrengthScale.shown(i, led, b.pulseWidth));   // as the finger maps back
+                    if (t != null) {
+                        t.setText(percent(led));
+                    }
+                    look(bar, false);
+                    continue;
+                }
                 if (l != null && l.dragging) {
                     shown = l.p;                          // the finger's place, not the stored one
                 } else if (yellow) {
@@ -517,6 +527,16 @@ public final class PartLook {
             return l.second ? PartStrength.secondStrength(item, b) : b.strenth;
         } catch (Throwable t) {
             return b.strenth;
+        }
+    }
+
+    /** Auto / AI lead the row: the level its bar shows, −1 = the stock share. */
+    static int ledShown(int ch) {
+        try {
+            int v = com.isaigu.gymapp.ai.AutoSession.channelShown(ch);
+            return v >= 0 ? v : com.isaigu.gymapp.ai.MapRunner.channelShown(ch);
+        } catch (Throwable t) {
+            return -1;
         }
     }
 

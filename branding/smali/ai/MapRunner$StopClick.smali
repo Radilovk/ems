@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 1084
+    .line 1145
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,9 +34,9 @@
     .registers 2
 
     .prologue
-    .line 1087
+    .line 1148
     invoke-static {}, Lcom/isaigu/gymapp/ai/MapRunner;->stop()V
 
-    .line 1088
+    .line 1149
     return-void
 .end method

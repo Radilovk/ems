@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 654
+    .line 706
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,14 +34,14 @@
     .registers 5
 
     .prologue
-    .line 658
+    .line 710
     :try_start_0
     # invokes: Lcom/isaigu/gymapp/ai/MapRunner;->tick()V
     invoke-static {}, Lcom/isaigu/gymapp/ai/MapRunner;->access$000()V
     :try_end_3
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_3} :catch_13
 
-    .line 662
+    .line 714
     :goto_3
     # getter for: Lcom/isaigu/gymapp/ai/MapRunner;->map:Lcom/isaigu/gymapp/ai/Workout;
     invoke-static {}, Lcom/isaigu/gymapp/ai/MapRunner;->access$100()Lcom/isaigu/gymapp/ai/Workout;
@@ -50,7 +50,7 @@
 
     if-eqz v0, :cond_12
 
-    .line 663
+    .line 715
     # getter for: Lcom/isaigu/gymapp/ai/MapRunner;->handler:Landroid/os/Handler;
     invoke-static {}, Lcom/isaigu/gymapp/ai/MapRunner;->access$200()Landroid/os/Handler;
 
@@ -60,15 +60,15 @@
 
     invoke-virtual {v0, p0, v2, v3}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
 
-    .line 665
+    .line 717
     :cond_12
     return-void
 
-    .line 659
+    .line 711
     :catch_13
     move-exception v0
 
-    .line 660
+    .line 712
     const-string v1, "map"
 
     new-instance v2, Ljava/lang/StringBuilder;

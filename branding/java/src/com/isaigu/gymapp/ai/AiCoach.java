@@ -96,6 +96,8 @@ public final class AiCoach {
         public final List<String> contraAdd = new ArrayList<String>();
         public final List<String> actions = new ArrayList<String>();
         public Integer onDelta;
+        /** Live: the coach's own channel / impulse commands (the answer to its question, 1.1.552). */
+        public AiVoiceCmd.Result cmds;
         public Integer offDelta;
         public Integer hzPct;
         public Integer restPct;
@@ -174,6 +176,22 @@ public final class AiCoach {
         chat.add(new Turn(false, text, false, true));
     }
 
+    /** When the AI's last turn asked something (a question with options, or its words end in "?"). */
+    private static long askedAt;
+
+    /**
+     * The AI asked back ≤ 90 s ago and nothing was said since (owner, 1.1.552: "if something is unclear it may ask"):
+     * the next words are the answer — they go to the coach with the chat, not to the command readers, which would
+     * take "по-силно" alone as the whole suit.
+     */
+    public static boolean awaitingAnswer() {
+        if (chat.isEmpty() || System.currentTimeMillis() - askedAt > 90_000L) {
+            return false;
+        }
+        Turn t = chat.get(chat.size() - 1);
+        return t.ai && (t.question || t.text.trim().endsWith("?"));
+    }
+
     public static void aiSaid(Reply r) {
         String t = r.reply != null ? r.reply : "";
         if (r.hasQuestion()) {
@@ -181,6 +199,7 @@ public final class AiCoach {
         }
         if (t.length() > 0) {
             chat.add(new Turn(true, t, r.hasQuestion()));
+            askedAt = r.hasQuestion() || t.trim().endsWith("?") ? System.currentTimeMillis() : 0L;
         }
         if (r.advice != null) {
             advice = r.advice;
@@ -324,6 +343,7 @@ public final class AiCoach {
         strings(m.get("contra_add"), CONTRA_ALL, r.contraAdd);
         strings(m.get("actions"), ACTIONS, r.actions);
         r.onDelta = num(m.get("on_delta"), -2, 2);
+        r.cmds = AiVoiceCmd.fromCoach(m);
         r.offDelta = num(m.get("off_delta"), -2, 3);
         r.hzPct = num(m.get("hz_pct"), -15, 15);
         r.restPct = num(m.get("rest_pct"), -30, 60);

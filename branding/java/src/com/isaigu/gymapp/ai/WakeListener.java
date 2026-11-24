@@ -518,7 +518,7 @@ public final class WakeListener {
             if (on && !window) {
                 micStop();
             }
-            String t = text.replace("%", bg() ? " процента" : " percent");
+            String t = AiSpeak.clean(text);
             tts.speak(t, TextToSpeech.QUEUE_ADD, null, "xems-ann");
         } catch (Throwable t) {
             WearableBleDiagLog.log("wake", "announce: " + t);
@@ -704,8 +704,7 @@ public final class WakeListener {
             return;
         }
         try {
-            String t = text.replace("✓", "").replace(" · ", ". ").replace("%", bg() ? " процента" : " percent")
-                    .replace("Hz", bg() ? "херца" : "hertz").replace("−", bg() ? "минус " : "minus ").replace("+", "плюс ");
+            String t = AiSpeak.clean(text);              // never a symbol read out (1.1.551)
             tts.speak(t.length() > 400 ? t.substring(0, 400) : t, TextToSpeech.QUEUE_FLUSH, null, id);
         } catch (Throwable t) {
             tone(ToneGenerator.TONE_PROP_ACK);

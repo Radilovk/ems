@@ -36,7 +36,13 @@ public class SimCoachAll {
         Voice.say(phrase);
         Ui.idle(settleMs);
         List<String> said = Voice.heard();
-        return said.isEmpty() ? "" : said.get(said.size() - 1);
+        for (String x : said) {
+            // spoken naturally (owner, 1.1.551): no symbol may be read out
+            if (x.matches(".*[:·•%+✓✦▶⏸⏭→\"„“()\\[\\]/].*")) {
+                row("voice", "spoken without symbols", "\"" + phrase + "\"", false, "\"" + x + "\"");
+            }
+        }
+        return String.join(" | ", said);                   // every sentence (an announcement may come after the answer)
     }
 
 
@@ -168,6 +174,27 @@ public class SimCoachAll {
         o = Out.now();
         row(W, "double impulse off", "\"спри двойния импулс\"", !o.engineDbl && !o.dbl && "RUN".equals(o.engine),
                 "engine " + o.engineDbl + ", suit " + o.dbl + ", state " + o.engine);
+        // ---- the rest of the screen (1.1.551)
+        b = Out.now();
+        s = voice("по-дълбок импулс", 15000);
+        o = Out.now();
+        row(W, "impulse deeper (width)", "\"по-дълбок импулс\"", o.pw > b.pw || s.contains("по-дълбок"), "pw " + b.pw + "→" + o.pw + " · \"" + s + "\"");
+        s = voice("пусни двойния импулс", 6000);
+        s = voice("намали втория импулс", 12000);
+        o = Out.now();
+        row(W, "2nd impulse strength down", "\"намали втория импулс\"", o.engineDbl && s.contains("Вторият импулс"), "2nd on " + o.engineDbl + " · \"" + s + "\"");
+        s = voice("колко остава", 2000);
+        row(W, "time left (no AI)", "\"колко остава\"", s.contains("Остават"), "\"" + s + "\"");
+        s = voice("какъв ми е пулсът", 2000);
+        row(W, "the pulse (no AI)", "\"какъв ми е пулсът\"", s.contains("пулс") || s.contains("Пулсът"), "\"" + s + "\"");
+        s = voice("колко е силата", 2000);
+        row(W, "the strength (no AI)", "\"колко е силата\"", s.contains("Силата е"), "\"" + s + "\"");
+        s = voice("следващата песен", 2000);
+        row(W, "music: next song", "\"следващата песен\"", s.contains("песен"), "\"" + s + "\" (no exercise change)");
+        s = voice("спри музиката", 2000);
+        o = Out.now();
+        row(W, "music: play / pause", "\"спри музиката\"", "RUN".equals(o.engine), "the training still " + o.engine + " · \"" + s + "\"");
+        s = voice("спри двойния импулс", 6000);
         // ---- flow
         b = Out.now();
         s = voice("следващото упражнение", 6000);

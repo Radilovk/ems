@@ -11,11 +11,13 @@ public final class AiAnnounce {
     private static String lastPhase;
     private static String lastExercise;
     private static boolean done;
+    private static boolean mainSaid;
 
     static void reset() {
         lastPhase = null;
         lastExercise = null;
         done = false;
+        mainSaid = false;
     }
 
     /** AutoSession's tick in an AI training. */
@@ -27,7 +29,7 @@ public final class AiAnnounce {
         if (st == AutoEngine.State.DONE || st == AutoEngine.State.STOPPED) {
             if (!done) {
                 done = true;
-                say(AiText.t("Край. Браво — пий вода и се раздвижи леко.", "The end. Well done — drink some water."));
+                say(AiText.t("Край. Браво. Пий вода и се раздвижи леко.", "That is the end. Well done. Drink some water."));
             }
             return;
         }
@@ -43,10 +45,12 @@ public final class AiAnnounce {
             if ("WARMUP".equals(ph.id)) {
                 say(AiText.t("Започваме със загрявка.", "We start with the warm-up."));
             } else if (ph.isCooldown()) {
-                say(AiText.t("Възстановяване — мускулите се отпускат, импулсът е лек.",
-                        "Recovery — the muscles let go, the impulse is light."));
+                say(AiText.t("Сега възстановяване. Импулсът е лек, мускулите се отпускат.",
+                        "Now the recovery. The impulse is light, the muscles let go."));
             } else {
-                say((first ? "" : AiText.t("Основна част: ", "Main part: ")) + ph.nameBg + ".");
+                say(!mainSaid ? AiText.t("Започва основната част.", "The main part begins.")
+                        : AiText.t("Следващата част е ", "The next part is ") + lower(ph.nameBg) + ".");
+                mainSaid = true;
             }
         }
         String ex = e.getExercise();
@@ -55,7 +59,8 @@ public final class AiAnnounce {
             lastExercise = ex;
             String n = AutoTemplates.name(ex);
             if (n != null && n.length() > 0) {
-                say((first ? AiText.t("Упражнение: ", "Exercise: ") : AiText.t("Следва: ", "Next: ")) + n + ".");
+                say((first ? AiText.t("Първото упражнение е ", "The first exercise is ")
+                        : AiText.t("Следващото упражнение е ", "The next exercise is ")) + lower(n) + ".");
             }
         }
     }
@@ -70,7 +75,7 @@ public final class AiAnnounce {
         if (k.isDone()) {
             if (!done) {
                 done = true;
-                say(AiText.t("Край. Браво — пий вода и се раздвижи леко.", "The end. Well done — drink some water."));
+                say(AiText.t("Край. Браво. Пий вода и се раздвижи леко.", "That is the end. Well done. Drink some water."));
             }
             return;
         }
@@ -88,8 +93,8 @@ public final class AiAnnounce {
                     sets++;
                 }
             }
-            say((first ? AiText.t("Започваме: ", "We start: ") : AiText.t("Следва: ", "Next: ")) + n
-                    + (sets > 1 ? ", " + sets + AiText.t(" серии.", " sets.") : "."));
+            say((first ? AiText.t("Започваме с ", "We start with ") : AiText.t("Следва ", "Next comes "))
+                    + lower(n) + (sets > 1 ? AiText.t(", " + count(sets) + " серии.", ", " + sets + " sets.") : "."));
         }
     }
 
@@ -97,8 +102,18 @@ public final class AiAnnounce {
     static void end() {
         if (!done) {
             done = true;
-            say(AiText.t("Край. Браво — пий вода и се раздвижи леко.", "The end. Well done — drink some water."));
+            say(AiText.t("Край. Браво. Пий вода и се раздвижи леко.", "That is the end. Well done. Drink some water."));
         }
+    }
+
+    /** "Клек без тежест" in the middle of a sentence: "клек без тежест" (a name like "Румънска тяга" too). */
+    static String lower(String n) {
+        return n == null || n.length() < 2 ? n : Character.toLowerCase(n.charAt(0)) + n.substring(1);
+    }
+
+    static String count(int n) {
+        String[] w = {"нула", "една", "две", "три", "четири", "пет", "шест", "седем", "осем", "девет", "десет"};
+        return n >= 0 && n < w.length ? w[n] : String.valueOf(n);
     }
 
     private static void say(String text) {

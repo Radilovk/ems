@@ -41,6 +41,8 @@
 
 .field dir:Ljava/lang/String;
 
+.field public minutes:I
+
 .field small:Z
 
 
@@ -49,22 +51,27 @@
     .registers 2
 
     .prologue
-    .line 57
-    invoke-direct {p0}, Ljava/lang/Object;-><init>()V
-
     .line 58
-    new-instance v0, Ljava/util/ArrayList;
-
-    invoke-direct {v0}, Ljava/util/ArrayList;-><init>()V
-
-    iput-object v0, p0, Lcom/isaigu/gymapp/ai/AiVoiceCmd$Result;->commands:Ljava/util/List;
+    invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     .line 59
     new-instance v0, Ljava/util/ArrayList;
 
     invoke-direct {v0}, Ljava/util/ArrayList;-><init>()V
 
+    iput-object v0, p0, Lcom/isaigu/gymapp/ai/AiVoiceCmd$Result;->commands:Ljava/util/List;
+
+    .line 60
+    new-instance v0, Ljava/util/ArrayList;
+
+    invoke-direct {v0}, Ljava/util/ArrayList;-><init>()V
+
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/AiVoiceCmd$Result;->actions:Ljava/util/List;
+
+    .line 64
+    const/4 v0, -0x1
+
+    iput v0, p0, Lcom/isaigu/gymapp/ai/AiVoiceCmd$Result;->minutes:I
 
     return-void
 .end method
@@ -75,7 +82,7 @@
     .registers 2
 
     .prologue
-    .line 67
+    .line 70
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiVoiceCmd$Result;->commands:Ljava/util/List;
 
     invoke-interface {v0}, Ljava/util/List;->isEmpty()Z

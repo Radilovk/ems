@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 973
+    .line 1029
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 974
+    .line 1030
     iput p1, p0, Lcom/isaigu/gymapp/ai/AiTrain$Pick;->which:I
 
-    .line 975
+    .line 1031
     return-void
 .end method
 
@@ -46,34 +46,34 @@
 
     const/4 v1, 0x0
 
-    .line 979
+    .line 1035
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoSession;->getInput()Lcom/isaigu/gymapp/ai/AutoModel$Input;
 
     move-result-object v2
 
-    .line 980
+    .line 1036
     iget v3, p0, Lcom/isaigu/gymapp/ai/AiTrain$Pick;->which:I
 
     packed-switch v3, :pswitch_data_80
 
-    .line 1003
+    .line 1059
     :pswitch_b
     if-nez p1, :cond_7d
 
-    .line 1004
+    .line 1060
     invoke-static {v2}, Lcom/isaigu/gymapp/ai/AiCoach;->clearHealth(Lcom/isaigu/gymapp/ai/AutoModel$Input;)V
 
-    .line 1005
+    .line 1061
     sput-boolean v1, Lcom/isaigu/gymapp/ai/AiTrain;->healthOpen:Z
 
-    .line 1011
+    .line 1067
     :goto_12
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiTrain;->changed()V
 
-    .line 1012
+    .line 1068
     return-void
 
-    .line 982
+    .line 1038
     :pswitch_16
     if-nez p1, :cond_1d
 
@@ -89,13 +89,13 @@
 
     goto :goto_1a
 
-    .line 985
+    .line 1041
     :pswitch_20
     invoke-static {v2, p1}, Lcom/isaigu/gymapp/ai/AiCoach;->experience(Lcom/isaigu/gymapp/ai/AutoModel$Input;I)V
 
     goto :goto_12
 
-    .line 988
+    .line 1044
     :pswitch_24
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoModel$Goal;->values()[Lcom/isaigu/gymapp/ai/AutoModel$Goal;
 
@@ -115,7 +115,7 @@
 
     iput-object v0, v2, Lcom/isaigu/gymapp/ai/AutoModel$Input;->goal:Lcom/isaigu/gymapp/ai/AutoModel$Goal;
 
-    .line 989
+    .line 1045
     iget-object v0, v2, Lcom/isaigu/gymapp/ai/AutoModel$Input;->goal:Lcom/isaigu/gymapp/ai/AutoModel$Goal;
 
     iget-object v1, v2, Lcom/isaigu/gymapp/ai/AutoModel$Input;->kind:Lcom/isaigu/gymapp/ai/AutoModel$Kind;
@@ -130,7 +130,7 @@
 
     if-eqz v0, :cond_4d
 
-    .line 990
+    .line 1046
     iget-object v0, v2, Lcom/isaigu/gymapp/ai/AutoModel$Input;->kind:Lcom/isaigu/gymapp/ai/AutoModel$Kind;
 
     sget-object v1, Lcom/isaigu/gymapp/ai/AutoModel$Kind;->ACTIVE:Lcom/isaigu/gymapp/ai/AutoModel$Kind;
@@ -142,7 +142,7 @@
     :goto_4b
     iput-object v0, v2, Lcom/isaigu/gymapp/ai/AutoModel$Input;->kind:Lcom/isaigu/gymapp/ai/AutoModel$Kind;
 
-    .line 992
+    .line 1048
     :cond_4d
     iget-object v0, v2, Lcom/isaigu/gymapp/ai/AutoModel$Input;->goal:Lcom/isaigu/gymapp/ai/AutoModel$Goal;
 
@@ -158,20 +158,20 @@
 
     goto :goto_12
 
-    .line 990
+    .line 1046
     :cond_5a
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoModel$Kind;->ACTIVE:Lcom/isaigu/gymapp/ai/AutoModel$Kind;
 
     goto :goto_4b
 
-    .line 995
+    .line 1051
     :pswitch_5d
     if-ne p1, v0, :cond_65
 
     :goto_5f
     sput-boolean v0, Lcom/isaigu/gymapp/ai/AiTrain;->free:Z
 
-    .line 996
+    .line 1052
     const/4 v0, 0x0
 
     sput-object v0, Lcom/isaigu/gymapp/ai/AiTrain;->freePlan:Lcom/isaigu/gymapp/ai/AiWorkout$Plan;
@@ -181,10 +181,10 @@
     :cond_65
     move v0, v1
 
-    .line 995
+    .line 1051
     goto :goto_5f
 
-    .line 999
+    .line 1055
     :pswitch_67
     if-nez p1, :cond_7a
 
@@ -193,7 +193,7 @@
     :goto_6b
     iput-object v0, v2, Lcom/isaigu/gymapp/ai/AutoModel$Input;->kind:Lcom/isaigu/gymapp/ai/AutoModel$Kind;
 
-    .line 1000
+    .line 1056
     iget-object v0, v2, Lcom/isaigu/gymapp/ai/AutoModel$Input;->goal:Lcom/isaigu/gymapp/ai/AutoModel$Goal;
 
     iget-object v1, v2, Lcom/isaigu/gymapp/ai/AutoModel$Input;->kind:Lcom/isaigu/gymapp/ai/AutoModel$Kind;
@@ -208,19 +208,19 @@
 
     goto :goto_12
 
-    .line 999
+    .line 1055
     :cond_7a
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoModel$Kind;->PASSIVE:Lcom/isaigu/gymapp/ai/AutoModel$Kind;
 
     goto :goto_6b
 
-    .line 1007
+    .line 1063
     :cond_7d
     sput-boolean v0, Lcom/isaigu/gymapp/ai/AiTrain;->healthOpen:Z
 
     goto :goto_12
 
-    .line 980
+    .line 1036
     :pswitch_data_80
     .packed-switch 0x0
         :pswitch_16

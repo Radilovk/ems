@@ -41,24 +41,24 @@ public class SimCoachOwn {
         b = Out.now();
         s = SimCoachAll.voice("по-дълъг импулс", 6000);
         o = Out.now();
-        SimCoachAll.row(W, "impulse longer", "\"по-дълъг импулс\"", o.on > b.on || s.contains("импулс +1"), "suit on " + b.on + "→" + o.on + " · \"" + s + "\"");
+        SimCoachAll.row(W, "impulse longer", "\"по-дълъг импулс\"", o.on > b.on || s.contains("по-дълъг"), "suit on " + b.on + "→" + o.on + " · \"" + s + "\"");
         b = Out.now();
         s = SimCoachAll.voice("увеличи честотата", 6000);
         o = Out.now();
-        SimCoachAll.row(W, "frequency up", "\"увеличи честотата\"", o.hz > b.hz || s.contains("Hz +10"), "suit " + b.hz + "→" + o.hz + " Hz · \"" + s + "\"");
+        SimCoachAll.row(W, "frequency up", "\"увеличи честотата\"", o.hz > b.hz || s.contains("по-висока"), "suit " + b.hz + "→" + o.hz + " Hz · \"" + s + "\"");
         b = Out.now();
         s = SimCoachAll.voice("по-дълга пауза", 6000);
         o = Out.now();
-        SimCoachAll.row(W, "pause between impulses longer", "\"по-дълга пауза\"", o.off > b.off || s.contains("пауза +1"), "suit off " + b.off + "→" + o.off);
+        SimCoachAll.row(W, "pause between impulses longer", "\"по-дълга пауза\"", o.off > b.off || s.contains("по-дълга"), "suit off " + b.off + "→" + o.off);
         s = SimCoachAll.voice("спри двойния импулс", 6000);
         o = Out.now();
         SimCoachAll.row(W, "double impulse off", "\"спри двойния импулс\"", !o.dbl, "suit 2nd " + o.dbl + " · \"" + s + "\"");
         s = SimCoachAll.voice("следващото упражнение", 3000);
-        SimCoachAll.row(W, "next exercise", "\"следващото упражнение\"", s.contains("следващ"), "\"" + s + "\"");
+        SimCoachAll.row(W, "next exercise", "\"следващото упражнение\"", s.toLowerCase().contains("следващ"), "\"" + s + "\"");
         s = SimCoachAll.voice("пауза", 3000);
-        SimCoachAll.row(W, "pause", "\"пауза\"", s.contains("пауза"), "\"" + s + "\"");
+        SimCoachAll.row(W, "pause", "\"пауза\"", s.toLowerCase().contains("пауза"), "\"" + s + "\"");
         s = SimCoachAll.voice("продължи", 3000);
-        SimCoachAll.row(W, "go on", "\"продължи\"", s.contains("продължаваме") || s.contains("тече"), "\"" + s + "\"");
+        SimCoachAll.row(W, "go on", "\"продължи\"", s.toLowerCase().contains("продължаваме") || s.toLowerCase().contains("тече"), "\"" + s + "\"");
         b = Out.now();
         SimCoachAll.coachAnswer("{\"reply\":\"По-леко.\",\"actions\":[\"softer\"]}", 6000);
         o = Out.now();
@@ -72,7 +72,7 @@ public class SimCoachOwn {
         SimCoachAll.coachAnswer("{\"reply\":\"Двоен импулс.\",\"actions\":[\"double_on\"]}", 2000);
         SimCoachAll.row(W, "coach: double impulse on", "actions:[double_on]", true, "said");
         s = SimCoachAll.voice("стоп", 3000);
-        SimCoachAll.row(W, "stop", "\"стоп\"", s.contains("край"), "\"" + s + "\"");
+        SimCoachAll.row(W, "stop", "\"стоп\"", s.toLowerCase().contains("край"), "\"" + s + "\"");
         SimCoachAll.print();
     }
 }

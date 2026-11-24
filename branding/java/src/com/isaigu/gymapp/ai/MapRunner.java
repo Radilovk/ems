@@ -106,7 +106,11 @@ public final class MapRunner {
      * The coach's live tune of the AI's workout (1.1.549 — "longer impulse", "higher frequency" did nothing here):
      * seconds added to every block's impulse / pause, % on its frequency (the safety limits clamp after, SafeGuard).
      */
-    static int tuneOn, tuneOff, tuneHzPct;
+    static int tuneOn, tuneOff, tuneHzPct, tunePwPct;
+    /** The 2nd impulse's strength × this (voice / coach). */
+    static double secondScale = 1.0;
+    /** "приключи след N минути": the workout ends at this wall time (0 = by the map). */
+    static long endAtMs;
 
     static int tunedHz(int hz) {
         return tuneHzPct == 0 || hz < 2 ? hz : Math.max(2, (int) Math.round(hz * (1 + tuneHzPct / 100.0)));
@@ -250,6 +254,18 @@ public final class MapRunner {
             WearableBleDiagLog.log("map", "voice pause: " + t);
             return false;
         }
+    }
+
+    /** Minutes to the workout's end. */
+    static int minutesLeft() {
+        if (map == null || clock == null) {
+            return -1;
+        }
+        double left = map.totalSeconds() - clock.position();
+        if (endAtMs > 0) {
+            left = Math.min(left, (endAtMs - System.currentTimeMillis()) / 1000.0);
+        }
+        return (int) Math.ceil(Math.max(0, left) / 60.0);
     }
 
     static boolean isPaused() {
@@ -659,7 +675,9 @@ public final class MapRunner {
             AiAnnounce.end();
             ai = false;
             noDouble = false;
-            tuneOn = tuneOff = tuneHzPct = 0;
+            tuneOn = tuneOff = tuneHzPct = tunePwPct = 0;
+            secondScale = 1.0;
+            endAtMs = 0;
             View any = screen != null ? screen.get() : null;
             AutoBoard.sync(any);                             // the board goes with the workout
             AiTrain.mapEnded();
@@ -742,6 +760,11 @@ public final class MapRunner {
         }
         if (ai) {
             AiAnnounce.map();                         // the AI's workout says its exercises aloud (1.1.548)
+            if (endAtMs > 0 && now >= endAtMs) {
+                endAtMs = 0;
+                stop();                               // "приключи след N минути" (1.1.551)
+                return;
+            }
         }
         if (running && clock.tick(clockS)) {
             apply(false);
@@ -816,6 +839,7 @@ public final class MapRunner {
             } else {
                 bean.hz = tunedHz(b.hz);
                 bean.pulseWidth = b.pw;
+                bean.pulseWidth = tunePwPct == 0 ? bean.pulseWidth : Math.max(50, (int) Math.round(b.pw * (1 + tunePwPct / 100.0)));
                 bean.pulseContinue = Math.max(1, b.on + (b.hz >= 2 ? tuneOn : 0));
                 bean.pulsePause = Math.max(1, b.off + (b.hz >= 2 ? tuneOff : 0));
                 bean.strenth = Math.max(0, Math.min(100, Math.round(full * b.rel / 100f)));
@@ -823,7 +847,7 @@ public final class MapRunner {
                 bean.activePause = b.dbl && !noDouble;
                 if (b.dbl && !noDouble) {
                     bean.pauseHz = b.hz2;
-                    bean.pauseStrenthPercent = Math.max(1, Math.round(bean.strenth * b.str2 / 100f));
+                    bean.pauseStrenthPercent = Math.max(1, (int) Math.round(bean.strenth * b.str2 / 100.0 * secondScale));
                 }
                 bean.inputRamp = b.rampIn;
                 bean.outputRamp = b.rampOut;
@@ -866,6 +890,9 @@ public final class MapRunner {
             }
             bean.hz = tunedHz(s.hz);
             bean.pulseWidth = s.pwUs;
+            if (tunePwPct != 0) {
+                bean.pulseWidth = Math.max(50, (int) Math.round(s.pwUs * (1 + tunePwPct / 100.0)));
+            }
             bean.pulseContinue = Math.max(1, s.onS + (s.hz >= 2 ? tuneOn : 0));
             bean.pulsePause = Math.max(1, s.offS + (s.hz >= 2 ? tuneOff : 0));
             // the row's 2nd-impulse switch steady through a block (owner, 1.1.542: it followed every repetition's
@@ -876,7 +903,7 @@ public final class MapRunner {
             bean.activePause = steady;
             if (dbl && steady) {
                 bean.pauseHz = s.pauseHz;
-                bean.pauseStrenthPercent = Math.max(1, (int) Math.round(bean.strenth * s.pauseSigma));
+                bean.pauseStrenthPercent = Math.max(1, (int) Math.round(bean.strenth * s.pauseSigma * secondScale));
             } else if (steady) {
                 bean.pauseStrenthPercent = 0;
                 if (bean.pauseHz <= 0) {

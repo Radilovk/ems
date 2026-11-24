@@ -765,6 +765,7 @@ public final class AutoSession {
         engine = new AutoEngine(plan);
         // the AI training never stops by itself: no rests between sets, no HR stop — the impulse adapts (1.1.548)
         engine.setContinuous(aiMode);
+        secondScale = 1.0;
         AiAnnounce.reset();
         if (aiMode && (vetoHz > 0 || vetoOn > 0 || vetoOff > 0)) {
             engine.setVeto(vetoHz, vetoOn, vetoOff);
@@ -1543,6 +1544,36 @@ public final class AutoSession {
      * (owner, 1.1.549: "the sliders stand at the top and show 0, a channel does not move up from 0").
      * PartStrength.bar hands the finger's value here.
      */
+    /** The 2nd impulse's strength by voice / the coach: × this on what the program gives it (1.1.551). */
+    static double secondScale = 1.0;
+
+    static int secondStep(int dir, boolean small) {
+        secondScale = Math.max(0.3, Math.min(2.0, secondScale + dir * (small ? 0.05 : 0.1)));
+        refreshOutput();
+        return (int) Math.round(secondScale * 100);
+    }
+
+    /** "приключи след N минути": the active part ends then (the coach's end_in_min, by voice). */
+    static boolean endIn(int minutes) {
+        if (engine == null) {
+            return false;
+        }
+        engine.endActiveIn(minutes, System.currentTimeMillis());
+        return true;
+    }
+
+    /** Minutes to the end of the session (the active part and the recovery). */
+    static int minutesLeft() {
+        if (engine == null || plan == null) {
+            return -1;
+        }
+        return (int) Math.ceil(Math.max(0, plan.totalS - engine.getElapsedS()) / 60.0);
+    }
+
+    static int leaderLevel() {
+        return rows.isEmpty() ? -1 : level(rows.get(0));
+    }
+
     public static boolean channelFromSlider(int ch, int level) {
         if (!ownsOutput() || ch < 0 || ch >= AutoModel.CHANNELS) {
             return false;
@@ -1919,7 +1950,7 @@ public final class AutoSession {
             b.activePause = pause || (steadyDouble(r) && c.hz >= 2);
             if (pause) {
                 b.pauseHz = c.pauseHz;
-                b.pauseStrenthPercent = Math.max(1, (int) Math.round(strength * c.pauseSigma));
+                b.pauseStrenthPercent = Math.max(1, (int) Math.round(strength * c.pauseSigma * secondScale));
             } else if (b.activePause) {
                 b.pauseStrenthPercent = 0;
                 if (b.pauseHz <= 0) {

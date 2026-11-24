@@ -226,7 +226,8 @@ public final class AiTrain {
     private static void speakBack(String text) {
         if (voiceAsk) {
             voiceAsk = false;
-            WakeListener.answer(text.length() > 0 ? text : AiText.t("Готово.", "Done."));
+            String said = AiSpeak.clean(text);
+            WakeListener.answer(said.length() > 0 ? said : AiText.t("Готово.", "Done."));
         }
     }
 
@@ -634,13 +635,13 @@ public final class AiTrain {
     /** The commands → the session now; the chat says what was done. */
     static void commandsDone(AiVoiceCmd.Result vc, String text) {
         String done = applyCommands(vc);
-        lastSpoken = done;
+        lastSpoken = AiSpeak.natural(done);          // said aloud as sentences, not the chat's short form
         AiCoach.Reply r = new AiCoach.Reply();
         r.reply = done.length() > 0 ? "✓ " + done : AiText.t("Не можах да го направя сега.", "Could not do it now.");
         AiCoach.aiSaid(r);
         lastChanges = done;
         rebuild();
-        speakBack(done.length() > 0 ? done : r.reply);
+        speakBack(done.length() > 0 ? AiSpeak.natural(done) : r.reply);
         WearableBleDiagLog.log("ai-train", "command \"" + text + "\" → " + done);
     }
 
@@ -674,6 +675,11 @@ public final class AiTrain {
             } else if (e != null && "frequency".equals(c.target)) {
                 e.setTune(e.getTuneOn(), e.getTuneOff(), e.getTuneHzPct() + sign * (c.small ? 5 : 10), e.getTuneRest());
                 b.append("Hz ").append(signed(e.getTuneHzPct())).append(" % · ");
+            } else if (e != null && "width".equals(c.target)) {
+                e.setTunePw(e.getTunePwPct() + sign * (c.small ? 5 : 10));
+                b.append(AiText.t("дълбочина ", "depth ")).append(signed(e.getTunePwPct())).append(" % · ");
+            } else if ("second".equals(c.target)) {
+                b.append(AiText.t("втори импулс ", "second impulse ")).append(AutoSession.secondStep(sign, c.small)).append(" % · ");
             } else if (e != null && "rest".equals(c.target)) {
                 e.setTune(e.getTuneOn(), e.getTuneOff(), e.getTuneHzPct(), e.getTuneRest() + sign * (c.small ? 0.08 : 0.15));
                 b.append(AiText.t("почивки ", "rests ")).append(signed((int) Math.round((e.getTuneRest() - 1) * 100)))
@@ -681,7 +687,8 @@ public final class AiTrain {
             }
         }
         for (String a : vc.actions) {
-            b.append(action(e, "stop".equals(a) ? "to_recovery" : a));
+            String common = commonAction(a, vc);
+            b.append(common != null ? common : action(e, "stop".equals(a) ? "to_recovery" : a));
         }
         return trim(b);
     }
@@ -736,7 +743,7 @@ public final class AiTrain {
         }
         lastChanges = AiBrief.line(ch) + (done.length() > 0 ? (ch.isEmpty() ? "" : " · ") + done : "");
         rebuild();
-        speakBack(spoken(r, done));
+        speakBack(r.reply != null && r.reply.trim().length() > 0 ? spoken(r, "") : spoken(r, AiSpeak.natural(done)));
         WearableBleDiagLog.log("ai-train", (live ? "live " : "plan ") + ch + " " + done);
     }
 
@@ -823,12 +830,61 @@ public final class AiTrain {
             } else if ("frequency".equals(c.target)) {
                 MapRunner.tune(MapRunner.tuneOn, MapRunner.tuneOff, MapRunner.tuneHzPct + sign * (c.small ? 5 : 10));
                 b.append("Hz ").append(signed(MapRunner.tuneHzPct)).append(" % · ");
+            } else if ("width".equals(c.target)) {
+                MapRunner.tunePwPct = Math.max(-30, Math.min(30, MapRunner.tunePwPct + sign * (c.small ? 5 : 10)));
+                MapRunner.tune(MapRunner.tuneOn, MapRunner.tuneOff, MapRunner.tuneHzPct);
+                b.append(AiText.t("дълбочина ", "depth ")).append(signed(MapRunner.tunePwPct)).append(" % · ");
+            } else if ("second".equals(c.target)) {
+                MapRunner.secondScale = Math.max(0.3, Math.min(2.0, MapRunner.secondScale + sign * (c.small ? 0.05 : 0.1)));
+                MapRunner.tune(MapRunner.tuneOn, MapRunner.tuneOff, MapRunner.tuneHzPct);
+                b.append(AiText.t("втори импулс ", "second impulse ")).append(Math.round(MapRunner.secondScale * 100)).append(" % · ");
             }
         }
         for (String a : vc.actions) {
-            b.append(mapAction("stop".equals(a) ? "to_recovery" : a));
+            String common = commonAction(a, vc);
+            b.append(common != null ? common : mapAction("stop".equals(a) ? "to_recovery" : a));
         }
         return trim(b);
+    }
+
+    /**
+     * What both engines share (1.1.551): the music, the end of the active part, and the answers the tablet knows —
+     * time left, the pulse, the strength — said at once, no AI. Null = not one of these.
+     */
+    static String commonAction(String a, AiVoiceCmd.Result vc) {
+        boolean map = MapRunner.isAi();
+        if ("music_toggle".equals(a)) {
+            com.isaigu.gymapp.dialog.MusicPlayerHelper.togglePlayPause();
+            return AiText.t("музика · ", "music · ");
+        }
+        if ("music_next".equals(a) || "music_prev".equals(a)) {
+            com.isaigu.gymapp.dialog.MusicPlayerHelper.skipTrack("music_next".equals(a) ? 1 : -1);
+            return "music_next".equals(a) ? AiText.t("следваща песен · ", "next song · ")
+                    : AiText.t("предишна песен · ", "previous song · ");
+        }
+        if ("end_in".equals(a)) {
+            int n = Math.max(0, vc != null ? vc.minutes : 0);
+            if (map) {
+                MapRunner.endAtMs = System.currentTimeMillis() + n * 60000L;
+            } else if (!AutoSession.endIn(n)) {
+                return "";
+            }
+            return AiText.t("край след ", "the end in ") + n + AiText.t(" мин · ", " min · ");
+        }
+        if ("ask_time".equals(a)) {
+            int m = map ? MapRunner.minutesLeft() : AutoSession.minutesLeft();
+            return m < 0 ? "" : AiText.t("остават ", "left ") + m + AiText.t(" мин · ", " min · ");
+        }
+        if ("ask_hr".equals(a)) {
+            return AiSession.isBandStreaming() && AiSession.getLastBandHr() > 0
+                    ? AiText.t("пулс ", "pulse ") + AiSession.getLastBandHr() + " · "
+                    : AiText.t("няма пулс · ", "no pulse · ");
+        }
+        if ("ask_strength".equals(a)) {
+            int s = map ? MapRunner.strength() : AutoSession.leaderLevel();
+            return s < 0 ? "" : AiText.t("сила ", "strength ") + s + " · ";
+        }
+        return null;
     }
 
     private static String mapAction(String a) {

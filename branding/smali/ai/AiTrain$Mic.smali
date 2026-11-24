@@ -29,13 +29,13 @@
     .registers 2
 
     .prologue
-    .line 1315
+    .line 1371
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 1316
+    .line 1372
     iput-boolean p1, p0, Lcom/isaigu/gymapp/ai/AiTrain$Mic;->live:Z
 
-    .line 1317
+    .line 1373
     return-void
 .end method
 
@@ -45,24 +45,24 @@
     .registers 3
 
     .prologue
-    .line 1321
+    .line 1377
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsUi;->haptic(Landroid/view/View;)V
 
-    .line 1322
+    .line 1378
     invoke-virtual {p1}, Landroid/view/View;->getContext()Landroid/content/Context;
 
     move-result-object v0
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/AiTrain$Mic;->c:Landroid/content/Context;
 
-    .line 1323
+    .line 1379
     invoke-static {p1}, Lcom/isaigu/gymapp/ai/AiTrain;->activity(Landroid/view/View;)Landroid/app/Activity;
 
     move-result-object v0
 
     invoke-static {v0, p0}, Lcom/isaigu/gymapp/ai/VoiceInput;->listen(Landroid/app/Activity;Lcom/isaigu/gymapp/ai/VoiceInput$Result;)V
 
-    .line 1324
+    .line 1380
     return-void
 .end method
 
@@ -72,25 +72,25 @@
     .prologue
     const/4 v2, 0x1
 
-    .line 1328
+    .line 1384
     iget-boolean v0, p0, Lcom/isaigu/gymapp/ai/AiTrain$Mic;->live:Z
 
     if-nez v0, :cond_b
 
-    .line 1329
+    .line 1385
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiTrain$Mic;->c:Landroid/content/Context;
 
     invoke-static {v0, p1, v2}, Lcom/isaigu/gymapp/ai/AiTrain;->say(Landroid/content/Context;Ljava/lang/String;Z)V
 
-    .line 1334
+    .line 1390
     :goto_a
     return-void
 
-    .line 1332
+    .line 1388
     :cond_b
     invoke-static {p1}, Lcom/isaigu/gymapp/ai/AiCoach;->userSpoke(Ljava/lang/String;)V
 
-    .line 1333
+    .line 1389
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiTrain$Mic;->c:Landroid/content/Context;
 
     iget-boolean v1, p0, Lcom/isaigu/gymapp/ai/AiTrain$Mic;->live:Z

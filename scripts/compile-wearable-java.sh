@@ -209,6 +209,7 @@ WEARABLE_JAVA=(
   "${JAVA_SRC}/com/isaigu/gymapp/ai/VoiceSettings.java"
   "${JAVA_SRC}/com/isaigu/gymapp/ai/AiMapBoard.java"
   "${JAVA_SRC}/com/isaigu/gymapp/ai/AiAnnounce.java"
+  "${JAVA_SRC}/com/isaigu/gymapp/ai/AiSpeak.java"
   "${JAVA_SRC}/com/isaigu/gymapp/ai/VoiceInput.java"
   "${JAVA_SRC}/com/isaigu/gymapp/ai/AutoLook.java"
   "${JAVA_SRC}/com/isaigu/gymapp/ai/AutoTemplateData.java"

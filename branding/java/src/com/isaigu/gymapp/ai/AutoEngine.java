@@ -133,6 +133,17 @@ public final class AutoEngine {
     private int adaptOff;
     private int adaptHzPct;
 
+    /** The impulse's depth (its width, µs) by voice / the coach: % on every impulse from the next cycle (1.1.551). */
+    private int tunePwPct;
+
+    public void setTunePw(int pct) {
+        tunePwPct = Math.max(-30, Math.min(30, pct));
+    }
+
+    public int getTunePwPct() {
+        return tunePwPct;
+    }
+
     public void setContinuous(boolean on) {
         continuous = on;
     }
@@ -2414,6 +2425,9 @@ public final class AutoEngine {
             s.onS = Math.max(1, s.onS + tuneOn);
             s.offS = Math.max(1, s.offS + tuneOff);
             s.hz = Math.max(20, (int) Math.round(s.hz * (1 + tuneHzPct / 100.0)));
+        }
+        if (tunePwPct != 0) {
+            s.pwUs = Math.max(50, (int) Math.round(s.pwUs * (1 + tunePwPct / 100.0)));   // the limits clamp it next
         }
         s.rampUpMs = AutoDynamics.ramp(s.rampUpMs, current != null ? current.hz : -1, s.hz, fresh);
         s = AutoLimits.clampStep(s, next, plan, ph);

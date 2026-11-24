@@ -17,13 +17,14 @@ public final class AiVoiceCmd {
     private AiVoiceCmd() {}
 
     public static final String[] TARGETS = {"strength", "legs", "thighs", "calves", "glutes", "abs", "arms", "chest",
-            "back", "lower_back", "traps", "impulse", "pause", "frequency", "rest", "all_channels"};
+            "back", "lower_back", "traps", "impulse", "pause", "frequency", "rest", "all_channels", "width", "second"};
     /** Channels per muscle target (PartStrenthBean.buwei − 1: chest 0, abs 1, front thigh 2, calf 3, arms 4, traps 5,
      *  back 6, lower back 7, glutes 8, back thigh 9). */
     static final int[][] CHANNELS = {{}, {2, 9, 3}, {2, 9}, {3}, {8}, {1}, {4}, {0}, {6}, {7}, {5}, {}, {}, {}, {},
-            {0, 1, 2, 3, 4, 5, 6, 7, 8, 9}};
+            {0, 1, 2, 3, 4, 5, 6, 7, 8, 9}, {}, {}};
     public static final String[] TARGETS_BG = {"сила", "крака", "бедра", "прасци", "седалище", "корем", "ръце", "гърди",
-            "гръб", "кръст", "трапец", "импулс", "пауза", "честота", "почивки", "всички канали"};
+            "гръб", "кръст", "трапец", "импулс", "пауза", "честота", "почивки", "всички канали", "дълбочина",
+            "втори импулс"};
 
     public static final class Cmd {
         public final String target;
@@ -59,6 +60,8 @@ public final class AiVoiceCmd {
         public final List<String> actions = new ArrayList<String>();
         /** The server said: not a command — ask the coach. */
         public boolean coach;
+        /** "приключи след 3 минути", "още 5 минути": the active part ends in this many minutes (action end_in). */
+        public int minutes = -1;
         /** The verb read in this part and its "малко" (parse's own use). */
         String dir;
         boolean small;
@@ -172,6 +175,9 @@ public final class AiVoiceCmd {
                     all.actions.add(a);
                 }
             }
+            if (r.minutes >= 0) {
+                all.minutes = r.minutes;
+            }
         }
         if (all.actions.contains("double_on") || all.actions.contains("double_off")) {
             all.commands.clear();
@@ -182,10 +188,58 @@ public final class AiVoiceCmd {
     private static Result parseOne(String text, String inherited, boolean inheritedSmall) {
         Result r = new Result();
         String t = " " + text.toLowerCase(Locale.ROOT).replace('ѝ', 'и').replaceAll("[,.!?;]", " ") + " ";
-        // the double impulse first: "спри двойния импулс" is no pause, "пусни втория импулс" no resume (1.1.547)
+        // what the trainer asks to know: answered on the tablet at once, no AI (1.1.551)
+        if (has(t, "колко остава", "колко време остава", "колко още", "колко минути остават", "колко минути още")) {
+            r.actions.add("ask_time");
+            return r;
+        }
+        if (has(t, " пулс")) {                                  // the word, not "импулс"
+            r.actions.add("ask_hr");
+            return r;
+        }
+        if (has(t, "колко е силата", "каква е силата", "на колко е силата", "на колко съм")) {
+            r.actions.add("ask_strength");
+            return r;
+        }
+        // the music (before pause / stop / next: "спри музиката" is no pause of the training)
+        if (has(t, "музик", "песен", "песента", "парче")) {
+            if (has(t, "следващ", "друга", "друго", "смени", "напред")) {
+                r.actions.add("music_next");
+            } else if (has(t, "предишн", "назад", "върни")) {
+                r.actions.add("music_prev");
+            } else {
+                r.actions.add("music_toggle");
+            }
+            return r;
+        }
+        // the end of the active part: "приключи след 3 минути", "още 5 минути", "край след 2"
+        java.util.regex.Matcher end = java.util.regex.Pattern
+                .compile("(?:след|още|до|за)\\s*(\\d{1,2})\\s*(?:мин|минути|минута)?").matcher(t);
+        if (end.find() && has(t, "минут", "приключи", "край", "свърши", "спри след")) {
+            r.minutes = Math.max(0, Math.min(25, Integer.parseInt(end.group(1))));
+            r.actions.add("end_in");
+            return r;
+        }
+        // the double impulse first: "спри двойния импулс" is no pause, "пусни втория импулс" no resume (1.1.547);
+        // its strength is a step, not off ("намали втория импулс", 1.1.551)
         if (has(t, "двоен", "двойн", "втори импулс", "втория импулс", "втори импулси", "активна пауза", "активната пауза")) {
-            boolean off = has(t, "спри", "изключи", "махни", "без ", "стоп", "намали", "свали", "премахни");
+            boolean up = has(t, "увеличи", "по-силно", "по силно", "усили", "засили", "качи", "вдигни", "повече");
+            boolean down = has(t, "намали", "по-слабо", "по слабо", "по-леко", "по леко", "свали", "по-малко");
+            if (up || down) {
+                r.commands.add(new Cmd("second", up ? "up" : "down", has(t, "малко")));
+                r.dir = null;
+                return r;
+            }
+            boolean off = has(t, "спри", "изключи", "махни", "без ", "стоп", "премахни");
             r.actions.add(off ? "double_off" : "double_on");
+            r.dir = null;
+            return r;
+        }
+        // the impulse's depth (its width, µs): "по-дълбок импулс", "по-плитък"
+        if (has(t, "дълбок", "дълбоко", "дълбочина", "плитък", "плитко", "повърхност", "по-широк", "по-тесен", "ширина")) {
+            boolean deeper = has(t, "по-дълбок", "по дълбок", "по-дълбоко", "по дълбоко", "по-широк", "увеличи", "повече")
+                    && !has(t, "плит", "повърхност", "тесен", "намали");
+            r.commands.add(new Cmd("width", deeper ? "up" : "down", has(t, "малко")));
             r.dir = null;
             return r;
         }

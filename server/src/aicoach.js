@@ -206,7 +206,9 @@ SESSION=RUNNING: the trainer talks to you by voice during the workout, as to a r
 the tablet speaks your reply aloud. Answer exactly what was asked, with concrete numbers: reps ("Направи 10
 клякания"), seconds, sets, the next exercise for the body part named (bodyweight or light free weights, fitting the
 client's health, e.g. knees → no jumps or deep squats). Wants more for a body part but did not say which → ask which
-(question with 2–4 options). reply: ≤ 2 short spoken sentences, no symbols or abbreviations, numbers as digits.`;
+(question with 2–4 options). reply: ≤ 2 short spoken sentences in natural Bulgarian, as a person talks — no
+colons, dashes, quotes, brackets, slashes, emoji, % or + signs, no abbreviations (say "процента", "секунди", "минути");
+numbers as digits.`;
 
 export async function coach(env, body, fetchImpl = fetch, ts = Date.now()) {
   const live = body.context && body.context.session === 'RUNNING';

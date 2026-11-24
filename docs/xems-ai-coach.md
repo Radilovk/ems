@@ -261,3 +261,21 @@ Found and fixed: "по-дълъг импулс" was not read (the singular "дъ
 pause / frequency tune (`MapRunner.tune`, by voice and by the coach's on/off/hz/rest deltas, end_in_min 0); "силата
 на 30" now means the program's strongest impulse (`AutoSession.level` on φmax — the wave's lower impulses go under
 it, the warm-up runs softer by design); "s" read aloud as a letter → "секунди".
+
+## 1.1.551 — the whole screen by voice; speech in natural sentences
+- **The approach checked** against the literature: a personal wake word by DTW template matching of a few user
+  recordings (no training) is the published method for mobile devices (EUSIPCO 2014 "Wake-up-word spotting for
+  mobile systems"; few-shot query-by-example: Fluent.ai DONUT, TACos), wake word first and a separate recognizer
+  for the command second (as Porcupine-style products). Kept.
+- **New by voice** (`AiVoiceCmd` → `AiTrain.applyCommands` / `applyMap` / `commonAction`): the impulse's depth
+  ("по-дълбок / по-плитък импулс" → `AutoEngine.setTunePw`, `MapRunner.tunePwPct`), the 2nd impulse's strength
+  ("намали / увеличи втория импулс" — a step, no longer off: `secondScale`), the music ("спри / пусни музиката",
+  "следващата / предишната песен" — never the training's pause or next exercise), the end ("приключи след 3
+  минути", "още 5 минути" → endActiveIn / `MapRunner.endAtMs`), and answers with no AI: "колко остава", "какъв ми
+  е пулсът" (not "импулс"), "колко е силата".
+- **Natural speech** (`AiSpeak`): the chat keeps its short form, the voice gets sentences — "Краката са на 28
+  процента.", "Импулсът е с една секунда по-дълъг.", "Изключих двойния импулс.", "Остават 17 минути." Every spoken
+  text (also the coach's own) goes through `AiSpeak.clean`: no colons, dots, arrows, quotes, brackets, %, + read
+  out. Announcements: "Първото упражнение е клек без тежест.", "Следва румънска тяга, три серии." The server's live
+  prompt asks for the same.
+- `tools/app-sim` `SimCoachAll` + `SimCoachOwn`: 50 functions, and every sentence said is checked for symbols.

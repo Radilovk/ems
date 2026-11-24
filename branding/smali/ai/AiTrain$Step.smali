@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 894
+    .line 853
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 895
+    .line 854
     iput p1, p0, Lcom/isaigu/gymapp/ai/AiTrain$Step;->which:I
 
-    .line 896
+    .line 855
     return-void
 .end method
 
@@ -42,17 +42,17 @@
     .registers 12
 
     .prologue
-    .line 900
+    .line 859
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoSession;->getInput()Lcom/isaigu/gymapp/ai/AutoModel$Input;
 
     move-result-object v0
 
-    .line 901
+    .line 860
     iget v1, p0, Lcom/isaigu/gymapp/ai/AiTrain$Step;->which:I
 
     if-nez v1, :cond_20
 
-    .line 902
+    .line 861
     const/16 v1, 0xe
 
     const/16 v2, 0x5a
@@ -71,18 +71,17 @@
 
     iput v1, v0, Lcom/isaigu/gymapp/ai/AutoModel$Input;->age:I
 
-    .line 908
+    .line 867
     :goto_19
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoSession;->syncLeaderInput()V
 
-    .line 909
-    # invokes: Lcom/isaigu/gymapp/ai/AiTrain;->rebuild()V
-    invoke-static {}, Lcom/isaigu/gymapp/ai/AiTrain;->access$000()V
+    .line 868
+    invoke-static {}, Lcom/isaigu/gymapp/ai/AiTrain;->rebuild()V
 
-    .line 910
+    .line 869
     return-void
 
-    .line 903
+    .line 862
     :cond_20
     iget v1, p0, Lcom/isaigu/gymapp/ai/AiTrain$Step;->which:I
 
@@ -90,7 +89,7 @@
 
     if-ne v1, v2, :cond_37
 
-    .line 904
+    .line 863
     const/16 v1, 0x82
 
     const/16 v2, 0xdc
@@ -111,7 +110,7 @@
 
     goto :goto_19
 
-    .line 906
+    .line 865
     :cond_37
     const-wide/16 v2, 0x23
 

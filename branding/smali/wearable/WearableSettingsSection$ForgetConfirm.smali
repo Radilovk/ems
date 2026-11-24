@@ -30,19 +30,19 @@
     .registers 4
 
     .prologue
-    .line 369
+    .line 371
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 370
+    .line 372
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$ForgetConfirm;->a:Landroid/app/Activity;
 
-    .line 371
+    .line 373
     iput-object p2, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$ForgetConfirm;->root:Landroid/view/View;
 
-    .line 372
+    .line 374
     iput-object p3, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$ForgetConfirm;->mac:Ljava/lang/String;
 
-    .line 373
+    .line 375
     return-void
 .end method
 
@@ -52,7 +52,7 @@
     .registers 5
 
     .prologue
-    .line 378
+    .line 380
     :try_start_0
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$ForgetConfirm;->a:Landroid/app/Activity;
 
@@ -60,17 +60,17 @@
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/WearableConfig;->forgetBand(Landroid/content/Context;Ljava/lang/String;)V
 
-    .line 379
+    .line 381
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$ForgetConfirm;->a:Landroid/app/Activity;
 
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->onControlBandChanged(Landroid/content/Context;)V
 
-    .line 380
+    .line 382
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$ForgetConfirm;->a:Landroid/app/Activity;
 
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->onRoleChanged(Landroid/content/Context;)V
 
-    .line 381
+    .line 383
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$ForgetConfirm;->a:Landroid/app/Activity;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$ForgetConfirm;->root:Landroid/view/View;
@@ -80,15 +80,15 @@
     :try_end_18
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_18} :catch_19
 
-    .line 385
+    .line 387
     :goto_18
     return-void
 
-    .line 382
+    .line 384
     :catch_19
     move-exception v0
 
-    .line 383
+    .line 385
     const-string v1, "WearableSettingsSection.forget"
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V

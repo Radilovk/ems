@@ -105,14 +105,14 @@ public final class AiWizard {
         View gap = new View(c);
         f.addView(gap, new LinearLayout.LayoutParams(0, 1, 1f));
         if (step == SUMMARY) {
-            f.addView(XemsUi.segmented(c, new String[] {AiText.t("Готова програма", "Ready program"),
-                    AiText.t("✦ Нова от AI", "✦ New by the AI")}, AiTrain.free ? 1 : 0, new AiTrain.Pick(AiTrain.P_FREE)),
-                    new LinearLayout.LayoutParams(XemsUi.dp(c, 380), ViewGroup.LayoutParams.WRAP_CONTENT));
-            TextView go = XemsUi.button(c, "▶  " + AiText.t("Старт", "Start"), XemsUi.PRIMARY);
+            TextView go = XemsUi.button(c, AiTrain.busy ? "✦  " + AiText.t("AI нагласява…", "The AI is tuning…")
+                    : "▶  " + AiText.t("Старт", "Start"), XemsUi.PRIMARY);
             go.setOnClickListener(new AiTrain.Act(AiTrain.A_START));
-            LinearLayout.LayoutParams gp = new LinearLayout.LayoutParams(XemsUi.dp(c, 220), XemsUi.dp(c, 56));
-            gp.leftMargin = XemsUi.dp(c, 14);
-            f.addView(go, gp);
+            if (AiTrain.busy || (AiTrain.free && AiTrain.freePlan == null)) {
+                go.setAlpha(0.45f);
+                go.setEnabled(false);
+            }
+            f.addView(go, new LinearLayout.LayoutParams(XemsUi.dp(c, 280), XemsUi.dp(c, 60)));
         } else {
             String label = step == ASK ? "✦  " + AiText.t("Нагласи с AI", "Tune with AI") : AiText.t("Напред", "Next") + "  ›";
             TextView next = XemsUi.button(c, label, step == ASK ? XemsUi.PRIMARY : XemsUi.ACCENT_BTN);
@@ -140,7 +140,7 @@ public final class AiWizard {
         LinearLayout b = tile(c);
         b.setGravity(Gravity.CENTER);
         b.addView(label(c, AiText.t("ИТМ", "BMI")));
-        b.addView(XemsUi.text(c, bmi > 0 ? String.format(Locale.ROOT, "%.1f", bmi) : "—", 40, bmi >= 30 ? XemsUi.AMBER
+        b.addView(XemsUi.text(c, bmi > 0 ? String.format(Locale.ROOT, "%.1f", bmi) : "—", 56, bmi >= 30 ? XemsUi.AMBER
                 : XemsUi.TEXT, true));
         b.addView(XemsUi.text(c, AiCoach.bmiClass(bmi), 14, XemsUi.MUTED, true));
         body.addView(b, colW(c, 0.8f, 14));
@@ -149,9 +149,11 @@ public final class AiWizard {
     /** A big number with − / + under it (the value never wraps). */
     private static View number(Context c, String title, String value, String unit, int which) {
         LinearLayout t = tile(c);
-        t.setGravity(Gravity.CENTER_HORIZONTAL);
-        t.addView(label(c, title));
-        TextView v = XemsUi.text(c, value, 44, XemsUi.TEXT, true);
+        t.setGravity(Gravity.CENTER);                   // the number and its − / + in the middle of the tall card
+        TextView lt = label(c, title);
+        lt.setGravity(Gravity.CENTER);
+        t.addView(lt, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        TextView v = XemsUi.text(c, value, 64, XemsUi.TEXT, true);
         v.setMaxLines(1);
         v.setGravity(Gravity.CENTER);
         t.addView(v, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
@@ -160,16 +162,16 @@ public final class AiWizard {
         t.addView(u, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         LinearLayout pm = XemsUi.horizontal(c);
         TextView minus = XemsUi.button(c, "−", XemsUi.SECONDARY);
-        minus.setTextSize(26);
+        minus.setTextSize(30);
         minus.setOnClickListener(new StepClick(which, -1));
-        pm.addView(minus, new LinearLayout.LayoutParams(0, XemsUi.dp(c, 52), 1f));
+        pm.addView(minus, new LinearLayout.LayoutParams(0, XemsUi.dp(c, 72), 1f));
         TextView plus = XemsUi.button(c, "+", XemsUi.SECONDARY);
-        plus.setTextSize(26);
+        plus.setTextSize(30);
         plus.setOnClickListener(new StepClick(which, 1));
-        LinearLayout.LayoutParams pp = new LinearLayout.LayoutParams(0, XemsUi.dp(c, 52), 1f);
+        LinearLayout.LayoutParams pp = new LinearLayout.LayoutParams(0, XemsUi.dp(c, 72), 1f);
         pp.leftMargin = XemsUi.dp(c, 10);
         pm.addView(plus, pp);
-        t.addView(pm, XemsUi.matchWrap(c, 10));
+        t.addView(pm, XemsUi.matchWrap(c, 24));
         return t;
     }
 
@@ -203,6 +205,9 @@ public final class AiWizard {
         right.addView(XemsUi.segmented(c, new String[] {AiText.t("Първи път", "First time"), AiText.t("Няколко", "A few"),
                 AiText.t("Редовно", "Regularly")}, AiCoach.experienceOf(in), new AiTrain.Pick(AiTrain.P_EXP)),
                 XemsUi.matchWrap(c, 6));
+        right.addView(label(c, AiText.t("Програма", "Program")), XemsUi.matchWrap(c, 12));
+        right.addView(XemsUi.segmented(c, new String[] {AiText.t("Готова", "Ready"), AiText.t("✦ AI да състави", "✦ The AI writes it")},
+                AiTrain.free ? 1 : 0, new AiTrain.Pick(AiTrain.P_FREE)), XemsUi.matchWrap(c, 6));
         body.addView(right, colW(c, 1.1f, 22));
     }
 
@@ -294,24 +299,7 @@ public final class AiWizard {
         }
         left.addView(quick, XemsUi.matchWrap(c, 10));
         body.addView(left, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
-        // 🎙 the hands-free word, one quiet line at the side
-        LinearLayout side = XemsUi.vertical(c);
-        side.setGravity(Gravity.CENTER_HORIZONTAL);
-        boolean taught = WakeListener.enrolled(c);
-        side.addView(XemsUi.text(c, "🎙", 34, taught ? XemsUi.GO_TEXT : XemsUi.MUTED, true));
-        TextView w = XemsUi.text(c, taught ? AiText.t("„Тренер, …“ работи", "“Trainer, …” is on")
-                : AiText.t("Гласово управление: научи „Тренер“", "Voice control: teach “Trainer”"), 13, XemsUi.MUTED, true);
-        w.setGravity(Gravity.CENTER);
-        side.addView(w, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-        TextView teach = XemsUi.button(c, taught ? AiText.t("Запиши пак", "Record again") : AiText.t("Научи (30 s)", "Teach (30 s)"),
-                XemsUi.SECONDARY);
-        teach.setOnClickListener(new AiTrain.Act(AiTrain.A_TEACH));
-        LinearLayout.LayoutParams tp = new LinearLayout.LayoutParams(XemsUi.dp(c, 190), XemsUi.dp(c, 48));
-        tp.topMargin = XemsUi.dp(c, 8);
-        side.addView(teach, tp);
-        LinearLayout.LayoutParams sp = new LinearLayout.LayoutParams(XemsUi.dp(c, 240), ViewGroup.LayoutParams.WRAP_CONTENT);
-        sp.leftMargin = XemsUi.dp(c, 18);
-        body.addView(side, sp);
+        body.addView(new View(c), new LinearLayout.LayoutParams(XemsUi.dp(c, 4), 1));
     }
 
     // ================================================================ 5 · summary
@@ -358,37 +346,52 @@ public final class AiWizard {
                     "The strength starts at 0 — raise it with + during the session."), 13, XemsUi.MUTED, false), XemsUi.matchWrap(c, 8));
         }
         body.addView(box1, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1.1f));
-        // ---- the advice
+        // ---- why, and what to do before: the AI's word, short; one line to change something
         LinearLayout col2 = tile(c);
-        col2.addView(label(c, AiText.t("Препоръки", "Advice")));
+        col2.addView(label(c, "✦ " + AiText.t("AI реши", "The AI decided")));
+        String why = lastAiWord();
+        TextView w = XemsUi.text(c, AiTrain.busy ? AiText.t("Нагласям тренировката за клиента…", "Tuning the session for the client…")
+                : why.length() > 0 ? why : AiText.t("Няма връзка с AI — тренировката е по алгоритъма и пак е готова.",
+                "No AI connection — the session follows the algorithm and is ready."), 17, XemsUi.TEXT, false);
+        col2.addView(w, XemsUi.matchWrap(c, 6));
         String[] adv = AiCoach.advice();
-        LinearLayout list = XemsUi.vertical(c);
-        if (adv == null) {
-            list.addView(XemsUi.text(c, AiTrain.busy ? "✦ " + AiText.t("AI подготвя препоръките…", "The AI is preparing the advice…")
-                    : AiText.t("Няма връзка с AI — тренировката е готова и без препоръки.", "No AI — the session is ready without advice."),
-                    15, XemsUi.MUTED, false), XemsUi.matchWrap(c, 6));
-        } else {
-            for (int i = 0; i < AiCoach.ADVICE.length && i < adv.length; i++) {
-                if (adv[i] != null && adv[i].length() > 0) {
-                    TextView k = XemsUi.text(c, AiCoach.ADVICE_BG[i], 12, XemsUi.ACCENT, true);
-                    list.addView(k, XemsUi.matchWrap(c, i == 0 ? 2 : 8));
-                    list.addView(XemsUi.text(c, adv[i], 14, XemsUi.TEXT, false), XemsUi.matchWrap(c, 1));
-                }
+        if (adv != null) {
+            String before = adv[4];                         // ADVICE: exercise, load, rest, equipment, before, during, after
+            String during = adv[5];
+            if (before != null && before.length() > 0) {
+                col2.addView(label(c, AiText.t("Преди старта", "Before the start")), XemsUi.matchWrap(c, 14));
+                col2.addView(XemsUi.text(c, before, 15, XemsUi.TEXT, false), XemsUi.matchWrap(c, 3));
+            }
+            if (during != null && during.length() > 0) {
+                col2.addView(label(c, AiText.t("По време", "During")), XemsUi.matchWrap(c, 10));
+                col2.addView(XemsUi.text(c, during, 15, XemsUi.TEXT, false), XemsUi.matchWrap(c, 3));
             }
         }
-        ScrollView sa = new ScrollView(c);
-        sa.addView(list);
-        col2.addView(sa, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
-        body.addView(col2, colW(c, 1.2f, 14));
-        // ---- the chat
-        LinearLayout col3 = tile(c);
-        col3.addView(label(c, "✦ " + AiText.t("Говори с AI", "Talk to the AI")));
-        LinearLayout chat = XemsUi.vertical(c);
-        AiTrain.chat(c, chat, false);
-        ScrollView sc = new ScrollView(c);
-        sc.addView(chat);
-        col3.addView(sc, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
-        body.addView(col3, colW(c, 1.2f, 14));
+        if (AiTrain.pending != null && !AiTrain.busy) {
+            AiUi.FlowRow opts = new AiUi.FlowRow(c);
+            for (String o : AiTrain.pending) {
+                TextView ch = XemsUi.chip(c, o, false, XemsUi.ACCENT);
+                ch.setTextSize(16);
+                ch.setOnClickListener(new AiTrain.Quick(o, false));
+                opts.add(ch);
+            }
+            col2.addView(opts, XemsUi.matchWrap(c, 10));
+        }
+        View gap = new View(c);
+        col2.addView(gap, new LinearLayout.LayoutParams(1, 0, 1f));
+        col2.addView(AiTrain.inputRow(c, false), XemsUi.matchWrap(c, 8));
+        body.addView(col2, colW(c, 1.15f, 16));
+    }
+
+    /** The AI's last word in the dialogue ("" = none yet). */
+    static String lastAiWord() {
+        List<AiCoach.Turn> t = AiCoach.chat();
+        for (int i = t.size() - 1; i >= 0; i--) {
+            if (t.get(i).ai) {
+                return t.get(i).text;
+            }
+        }
+        return "";
     }
 
     private static void freeTraining(Context c, LinearLayout col) {
@@ -513,7 +516,7 @@ public final class AiWizard {
             } else if (step < ASK) {
                 step++;
             }
-            AutoBoard.rebuild();
+            AiTrain.rebuild();
         }
     }
 
@@ -562,7 +565,7 @@ public final class AiWizard {
             String now = AiTrain.intakeField != null && AiTrain.intakeField.getText() != null
                     ? AiTrain.intakeField.getText().toString().trim() : AiTrain.draft;
             AiTrain.draft = (now != null && now.length() > 0 ? now + ", " : "") + phrase;
-            AutoBoard.rebuild();
+            AiTrain.rebuild();
         }
     }
 }

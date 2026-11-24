@@ -40,6 +40,8 @@ public final class WearableSettingsSection {
         } catch (Throwable t) {
             com.isaigu.gymapp.widget.XemsGuard.report("WearableSettingsSection.attach", t);
         }
+        // 🎙 "Тренер" is taught here, once per tablet (1.1.543)
+        com.isaigu.gymapp.ai.VoiceSettings.attach(activity, root);
     }
 
     private static void build(final Activity a, View root) {

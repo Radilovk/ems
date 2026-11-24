@@ -28,16 +28,16 @@
     .registers 3
 
     .prologue
-    .line 540
+    .line 541
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 541
+    .line 542
     iput p1, p0, Lcom/isaigu/gymapp/ai/AiWizard$StepClick;->which:I
 
-    .line 542
+    .line 543
     iput p2, p0, Lcom/isaigu/gymapp/ai/AiWizard$StepClick;->dir:I
 
-    .line 543
+    .line 544
     return-void
 .end method
 
@@ -47,10 +47,10 @@
     .registers 4
 
     .prologue
-    .line 547
+    .line 548
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsUi;->haptic(Landroid/view/View;)V
 
-    .line 548
+    .line 549
     new-instance v0, Lcom/isaigu/gymapp/ai/AiTrain$Step;
 
     iget v1, p0, Lcom/isaigu/gymapp/ai/AiWizard$StepClick;->which:I
@@ -61,6 +61,6 @@
 
     invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/ai/AiTrain$Step;->onStep(I)V
 
-    .line 549
+    .line 550
     return-void
 .end method

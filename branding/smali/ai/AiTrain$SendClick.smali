@@ -28,16 +28,16 @@
     .registers 3
 
     .prologue
-    .line 1042
+    .line 1001
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 1043
+    .line 1002
     iput-object p1, p0, Lcom/isaigu/gymapp/ai/AiTrain$SendClick;->f:Landroid/widget/EditText;
 
-    .line 1044
+    .line 1003
     iput-boolean p2, p0, Lcom/isaigu/gymapp/ai/AiTrain$SendClick;->live:Z
 
-    .line 1045
+    .line 1004
     return-void
 .end method
 
@@ -47,17 +47,17 @@
     .registers 4
 
     .prologue
-    .line 1049
+    .line 1008
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsUi;->haptic(Landroid/view/View;)V
 
-    .line 1050
+    .line 1009
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiTrain$SendClick;->f:Landroid/widget/EditText;
 
     iget-boolean v1, p0, Lcom/isaigu/gymapp/ai/AiTrain$SendClick;->live:Z
 
     # invokes: Lcom/isaigu/gymapp/ai/AiTrain;->fire(Landroid/widget/EditText;Z)V
-    invoke-static {v0, v1}, Lcom/isaigu/gymapp/ai/AiTrain;->access$200(Landroid/widget/EditText;Z)V
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/ai/AiTrain;->access$000(Landroid/widget/EditText;Z)V
 
-    .line 1051
+    .line 1010
     return-void
 .end method

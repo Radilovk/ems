@@ -46,7 +46,6 @@ public final class AiTrain {
     static final int INTAKE = 0;
     static final int SUMMARY = 1;
     static int view = INTAKE;
-    private static boolean liveChat;
     static boolean busy;
     static boolean healthOpen;
     static String draft = "";
@@ -69,7 +68,11 @@ public final class AiTrain {
         AutoSession.Stage st = AutoSession.getStage();
         if (st != AutoSession.Stage.IDLE) {
             if (AutoSession.aiMode) {
-                AutoBoard.sync(root(a));                   // already here: the board comes back
+                if (AutoSession.getStage() == AutoSession.Stage.RUNNING) {
+                    AiChatDrawer.open(a);                  // during the session the tile opens the chat
+                } else {
+                    AiSetupSheet.open(a);                  // the preparation again
+                }
             } else {
                 toast(a, AiText.t("Тече автоматична тренировка.", "An automatic session is running."));
             }
@@ -98,14 +101,13 @@ public final class AiTrain {
         view = INTAKE;
         free = false;
         freePlan = null;
-        liveChat = false;
         busy = false;
         healthOpen = false;
         draft = "";
         lastChanges = "";
         pending = null;
         seq++;
-        AutoBoard.sync(root(a));
+        AiSetupSheet.open(a);                          // the preparation: a window of its own, gone at ▶ Старт
     }
 
     /**
@@ -153,24 +155,24 @@ public final class AiTrain {
                 rebuild();
                 return AiText.t("Записах", "Noted");
             }
-            send(c, cmd, false, false);
+            AiCoach.userSpoke(cmd);
+            send(c, cmd, false, true);
             return "";
         }
+        AiCoach.userSpoke(cmd);                          // a 🎙 bubble in the chat, what was done under it
         if (!vc.isEmpty()) {
             commandsDone(vc, cmd);
             return lastSpoken != null && lastSpoken.length() > 0 ? lastSpoken : null;
         }
-        send(c, cmd, true, false);
+        send(c, cmd, true, true);
         return "";
     }
 
     /** ✕ before the start: the AI training goes, the screen is as before. */
     static void close() {
+        AiSetupSheet.close();
+        AiChatDrawer.close();
         AutoSession.close();
-    }
-
-    static boolean liveChatOpen() {
-        return liveChat;
     }
 
     private static View root(Activity a) {
@@ -178,8 +180,14 @@ public final class AiTrain {
         return r != null ? r : a.getWindow().getDecorView();
     }
 
-    private static void rebuild() {
-        AutoBoard.rebuild();
+    /** What shows the AI now again: the preparation window, else the coach bar and the side chat. */
+    static void rebuild() {
+        if (AiSetupSheet.isOpen()) {
+            AiSetupSheet.refresh();
+            return;
+        }
+        AiCoachBar.refresh();
+        AiChatDrawer.refresh();
     }
 
     // ================================================================ the board's content
@@ -412,48 +420,6 @@ public final class AiTrain {
             col3.addView(save, XemsUi.matchWrap(c, 6));
         }
         row.addView(col3, colParams(c, 1.2f));
-    }
-
-    /** AutoBoard: the chat over the running session (its ✦ AI). */
-    static void buildLive(Context c, LinearLayout content) {
-        XemsUi.init(c);
-        LinearLayout card = AutoUi.nativeCard(c);
-        LinearLayout row = XemsUi.horizontal(c);
-        LinearLayout left = XemsUi.vertical(c);
-        left.addView(XemsUi.label(c, "✦ " + AiText.t("Кажи на AI", "Tell the AI")));
-        left.addView(XemsUi.text(c, WakeListener.isOn()
-                ? AiText.t("🎙 Слушам: кажи „Тренер, увеличи краката“, „Тренер, пауза“, „Тренер, стоп“…",
-                "🎙 Listening: say “Trainer, raise the legs”, “Trainer, pause”, “Trainer, stop”…")
-                : AiText.t("🎙 Гласът е изключен — 🎙 в таблото го пуска.", "🎙 Voice is off — 🎙 on the board turns it on."),
-                13, WakeListener.isOn() ? XemsUi.GO_TEXT : XemsUi.MUTED, true), XemsUi.matchWrap(c, 4));
-        AiUi.FlowRow quick = new AiUi.FlowRow(c);
-        String[] q = {AiText.t("по-леко", "softer"), AiText.t("по-силно", "stronger"), AiText.t("пауза", "pause"),
-                AiText.t("продължи", "go on"), AiText.t("по-дълги почивки", "longer rests"),
-                AiText.t("по-кратки импулси", "shorter impulses"), AiText.t("прескочи упражнението", "skip the exercise"),
-                AiText.t("към възстановяване", "to the recovery")};
-        for (String t : q) {
-            TextView ch = XemsUi.chip(c, t, false, XemsUi.ACCENT);
-            ch.setOnClickListener(new Quick(t, true));
-            quick.add(ch);
-        }
-        left.addView(quick, XemsUi.matchWrap(c, 6));
-        TextView back = XemsUi.button(c, "‹  " + AiText.t("Към таблото", "To the board"), XemsUi.GHOST);
-        back.setOnClickListener(new Act(A_LIVE_CLOSE));
-        left.addView(back, XemsUi.matchWrap(c, 10));
-        row.addView(left, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
-        LinearLayout right = XemsUi.vertical(c);
-        chat(c, right, true);
-        row.addView(right, colParams(c, 1.3f));
-        card.addView(row, XemsUi.matchWrap(c, 0));
-        ScrollView sc = new ScrollView(c);
-        sc.addView(card);
-        content.addView(sc, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
-    }
-
-    /** The run board's ✦ AI (AutoUi.buildBoard). */
-    static void openLive() {
-        liveChat = true;
-        rebuild();
     }
 
     // ================================================================ chat parts
@@ -860,15 +826,8 @@ public final class AiTrain {
                     in.programId = AutoCatalog.recommended(in.goal, in.kind, in).id;
                     break;
                 case P_FREE:
-                    free = i == 1;
-                    if (free && freePlan == null && !busy) {
-                        AutoSession.syncLeaderInput();
-                        rebuild();
-                        send(AutoSession.getPanelRoot() != null ? AutoSession.getPanelRoot().getContext() : null,
-                                AiText.t("Състави нова тренировка за този клиент.", "Write a new workout for this client."),
-                                false, true);
-                        return;
-                    }
+                    free = i == 1;                    // chosen on step 2; the AI writes it at ✦ Нагласи (tune)
+                    freePlan = null;
                     break;
                 case P_KIND:
                     in.kind = i == 0 ? Kind.ACTIVE : Kind.PASSIVE;
@@ -965,8 +924,7 @@ public final class AiTrain {
                     rebuild();
                     break;
                 default:
-                    liveChat = false;
-                    rebuild();
+                                rebuild();
                     break;
             }
         }
@@ -1002,6 +960,7 @@ public final class AiTrain {
             }
             // the AI's workout runs as a map: block by block, strength from 0, the card says each exercise
             Workout w = AiWorkout.toWorkout(freePlan, AutoSession.getInput());
+            AiSetupSheet.close();
             AutoSession.close();
             String why = MapRunner.arm(a, w);
             if (why != null) {
@@ -1014,8 +973,8 @@ public final class AiTrain {
         if (AutoSession.getPlan() == null) {
             AutoSession.buildPlan();
         }
+        AiSetupSheet.close();                          // nothing of the preparation stays on the screen
         AutoSession.startDirect(a != null ? a : c);
-        liveChat = false;
         rebuild();
     }
 
@@ -1110,7 +1069,8 @@ public final class AiTrain {
                 rebuild();
                 return;
             }
-            send(c, text, live, false);
+            AiCoach.userSpoke(text);
+            send(c, text, live, true);
         }
     }
 

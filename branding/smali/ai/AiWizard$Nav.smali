@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 492
+    .line 493
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 493
+    .line 494
     iput p1, p0, Lcom/isaigu/gymapp/ai/AiWizard$Nav;->what:I
 
-    .line 494
+    .line 495
     return-void
 .end method
 
@@ -46,56 +46,56 @@
 
     const/4 v2, 0x3
 
-    .line 498
+    .line 499
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsUi;->haptic(Landroid/view/View;)V
 
-    .line 499
+    .line 500
     iget v0, p0, Lcom/isaigu/gymapp/ai/AiWizard$Nav;->what:I
 
     const/4 v1, 0x2
 
     if-ne v0, v1, :cond_e
 
-    .line 500
+    .line 501
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiTrain;->close()V
 
-    .line 517
+    .line 518
     :goto_d
     return-void
 
-    .line 503
+    .line 504
     :cond_e
     iget v0, p0, Lcom/isaigu/gymapp/ai/AiWizard$Nav;->what:I
 
     if-nez v0, :cond_2a
 
-    .line 504
+    .line 505
     sget v0, Lcom/isaigu/gymapp/ai/AiWizard;->step:I
 
     if-ne v0, v3, :cond_1f
 
-    .line 505
+    .line 506
     const/4 v0, 0x0
 
     sput v0, Lcom/isaigu/gymapp/ai/AiTrain;->view:I
 
-    .line 506
+    .line 507
     sput v2, Lcom/isaigu/gymapp/ai/AiWizard;->step:I
 
-    .line 516
+    .line 517
     :cond_1b
     :goto_1b
-    invoke-static {}, Lcom/isaigu/gymapp/ai/AutoBoard;->rebuild()V
+    invoke-static {}, Lcom/isaigu/gymapp/ai/AiTrain;->rebuild()V
 
     goto :goto_d
 
-    .line 507
+    .line 508
     :cond_1f
     sget v0, Lcom/isaigu/gymapp/ai/AiWizard;->step:I
 
     if-lez v0, :cond_1b
 
-    .line 508
+    .line 509
     sget v0, Lcom/isaigu/gymapp/ai/AiWizard;->step:I
 
     add-int/lit8 v0, v0, -0x1
@@ -104,31 +104,31 @@
 
     goto :goto_1b
 
-    .line 510
+    .line 511
     :cond_2a
     sget v0, Lcom/isaigu/gymapp/ai/AiWizard;->step:I
 
     if-ne v0, v2, :cond_38
 
-    .line 511
+    .line 512
     invoke-virtual {p1}, Landroid/view/View;->getContext()Landroid/content/Context;
 
     move-result-object v0
 
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/AiTrain;->tune(Landroid/content/Context;)V
 
-    .line 512
+    .line 513
     sput v3, Lcom/isaigu/gymapp/ai/AiWizard;->step:I
 
     goto :goto_1b
 
-    .line 513
+    .line 514
     :cond_38
     sget v0, Lcom/isaigu/gymapp/ai/AiWizard;->step:I
 
     if-ge v0, v2, :cond_1b
 
-    .line 514
+    .line 515
     sget v0, Lcom/isaigu/gymapp/ai/AiWizard;->step:I
 
     add-int/lit8 v0, v0, 0x1

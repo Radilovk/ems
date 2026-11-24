@@ -12,7 +12,7 @@ import org.robolectric.annotation.GraphicsMode;
 
 import xems.Shots;
 
-/** The AI training's wizard as the tablet shows it (the board's place: 1160 dp wide; 330 and 460 dp high). */
+/** The AI training: its preparation window (1200 × 640 dp), the coach bar, the side chat, the Settings card. */
 @RunWith(RobolectricTestRunner.class)
 @Config(sdk = 30, qualifiers = "w1280dp-h800dp-land-mdpi")
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
@@ -29,6 +29,9 @@ public class ShotsAi {
         in.programId = AutoCatalog.recommended(in.goal, in.kind, in).id;
         for (int st = 0; st <= 3; st++) {
             AiWizard.step = st;
+            if (st == 1) {
+                AiTrain.free = false;
+            }
             if (st == 2) {
                 AiTrain.healthOpen = true;
                 in.cond.add("knees");
@@ -48,11 +51,35 @@ public class ShotsAi {
         draw(a, "ai-5");
     }
 
+    /** During the session: the coach bar and the side chat (a messenger). */
+    @Test
+    public void live() throws Exception {
+        Activity a = Robolectric.buildActivity(Activity.class).setup().get();
+        com.isaigu.gymapp.widget.XemsUi.init(a);
+        AiCoach.userSpoke("по-силно краката");
+        AiCoach.Reply r1 = new AiCoach.Reply();
+        r1.reply = "✓ крака 46 %";
+        AiCoach.aiSaid(r1);
+        AiCoach.userSaid("леко ме боли коляното при клякането");
+        AiCoach.Reply r2 = AiCoach.parse("{\"ok\":true,\"coach\":{\"reply\":\"Сваля бедрата с 10 % и удължавам почивките. "
+                + "Клякай до половината, без да заключваш коляното.\",\"question\":{\"text\":\"Боли ли и при ходене?\","
+                + "\"options\":[\"Да\",\"Не\",\"Само на стълби\"]}}}");
+        AiCoach.aiSaid(r2);
+        AiTrain.pending = r2.options.toArray(new String[0]);
+        LinearLayout bar = com.isaigu.gymapp.widget.XemsUi.vertical(a);
+        bar.addView(AiCoachBar.build(a), new LinearLayout.LayoutParams(-1, com.isaigu.gymapp.widget.XemsUi.dp(a, AiCoachBar.H_DP)));
+        Shots.shot(bar, 1160, AiCoachBar.H_DP, "ai-bar");
+        LinearLayout d = com.isaigu.gymapp.widget.XemsUi.vertical(a);
+        AiChatDrawer.build(a, d);
+        Shots.shot(d, AiChatDrawer.W_DP, 760, "ai-chat");
+        LinearLayout set = com.isaigu.gymapp.widget.XemsUi.vertical(a);
+        set.addView(VoiceSettings.card(a));
+        Shots.shot(set, 900, 200, "ai-voice-settings");
+    }
+
     static void draw(Activity a, String name) throws Exception {
-        for (int h : new int[] {330, 460}) {
-            LinearLayout content = com.isaigu.gymapp.widget.XemsUi.vertical(a);
-            AiTrain.build(a, content);
-            Shots.shot(content, 1160, h, name + "-" + h);
-        }
+        LinearLayout content = com.isaigu.gymapp.widget.XemsUi.vertical(a);
+        AiWizard.build(a, content);
+        Shots.shot(content, AiSetupSheet.W_DP, AiSetupSheet.H_DP, name);
     }
 }

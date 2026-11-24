@@ -28,16 +28,16 @@
     .registers 3
 
     .prologue
-    .line 392
+    .line 394
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 393
+    .line 395
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$Rebuild;->a:Landroid/app/Activity;
 
-    .line 394
+    .line 396
     iput-object p2, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$Rebuild;->root:Landroid/view/View;
 
-    .line 395
+    .line 397
     return-void
 .end method
 
@@ -47,7 +47,7 @@
     .registers 3
 
     .prologue
-    .line 400
+    .line 402
     :try_start_0
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$Rebuild;->a:Landroid/app/Activity;
 
@@ -58,11 +58,11 @@
     :try_end_7
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_7} :catch_8
 
-    .line 403
+    .line 405
     :goto_7
     return-void
 
-    .line 401
+    .line 403
     :catch_8
     move-exception v0
 

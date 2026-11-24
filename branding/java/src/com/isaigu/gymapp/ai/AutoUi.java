@@ -57,8 +57,6 @@ public final class AutoUi {
     private static final int A_SETUP_GO = 43;
     private static final int A_SETUP_BACK = 44;
     private static final int A_SETUP_LAST = 46;
-    private static final int A_AI_LIVE = 48;
-    private static final int A_WAKE = 49;
     private static final int A_HOW = 40;
     private static final int A_SEX = 28;
     private static final int A_EDIT_PROFILE = 29;
@@ -1263,26 +1261,6 @@ public final class AutoUi {
         LinearLayout headLeft = XemsUi.horizontal(c);
         headLeft.setGravity(Gravity.CENTER_VERTICAL);
         headLeft.addView(goal);
-        if (AutoSession.aiMode) {
-            // the AI training: its chat in the same place, words or 🎤 change the session now (1.1.537)
-            TextView ai = XemsUi.chip(c, "✦  AI", false, XemsUi.ACCENT);
-            ai.setOnClickListener(new Act(A_AI_LIVE, 0));
-            LinearLayout.LayoutParams alp2 = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
-                    XemsUi.dp(c, 48));
-            alp2.leftMargin = XemsUi.dp(c, 10);
-            headLeft.addView(ai, alp2);
-            // 🎙 "Тренер, …" — the tablet listens hands-free (1.1.540); a tap turns it off / on
-            boolean wake = WakeListener.isOn();
-            String ws = WakeListener.state();
-            TextView mic = XemsUi.chip(c, !wake ? "🎙  " + AiText.t("изкл.", "off")
-                    : ws.length() > 0 ? "🎙  " + AiText.t("Слушам…", "Listening…")
-                    : "🎙  " + AiText.t("„Тренер, …“", "“Trainer, …”"), wake, ws.length() > 0 ? XemsUi.AMBER : XemsUi.GO);
-            mic.setOnClickListener(new Act(A_WAKE, 0));
-            LinearLayout.LayoutParams mlp2 = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
-                    XemsUi.dp(c, 48));
-            mlp2.leftMargin = XemsUi.dp(c, 8);
-            headLeft.addView(mic, mlp2);
-        }
         headBar.addView(headLeft, new android.widget.FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.START | Gravity.CENTER_VERTICAL));
         LinearLayout clock = XemsUi.horizontal(c);
@@ -2123,17 +2101,6 @@ public final class AutoUi {
                 return;
             case A_SETUP_BACK:
                 setupBack();
-                return;
-            case A_AI_LIVE:
-                AiTrain.openLive();
-                return;
-            case A_WAKE:
-                if (WakeListener.isOn()) {
-                    WakeListener.stop();
-                } else {
-                    WakeListener.start(host);
-                }
-                AutoBoard.rebuild();
                 return;
             case A_SETUP_LAST:
                 AutoSession.riseToLast(arg);

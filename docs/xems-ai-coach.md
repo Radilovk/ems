@@ -154,3 +154,19 @@ The Auto mode has no AI card any more (1.1.535): Auto is the ready programs; the
 - **2nd-impulse blink:** ≤ 1 Hz the limits switch the 2nd impulse off at every phase while Auto switched it back on —
   steady "on" now only ≥ 2 Hz; maps keep the switch steady through a block (a repetition without it gets 0 %).
 
+
+## 1.1.543 — preparation window, coach bar, side chat
+Owner: the setup must not stay on the operational screen; the chat must look like a chat.
+- **Preparation** = `AiSetupSheet`: a temporary window (1200 × 640 dp, dimmed screen behind) holding the 5-step
+  wizard (`AiWizard`: client → training (+ "Готова / ✦ AI да състави") → health → tell the AI → plan). It closes at
+  ▶ Старт; nothing of it stays. No AI board before the start (`AutoBoard` shows only Auto's own boards).
+- **During the session** the normal run board stays the main thing. `AiCoachBar` (50 dp, under the run board):
+  🎙 state (tap = on/off, amber while listening) · the last exchange "Ти: … → ✓ …" or the "during" advice · ✦ Чат.
+  The old "✦ AI" / "🎙" head chips and the full-board live chat are gone.
+- **Chat** = `AiChatDrawer`: a right-side panel (500 dp, full height, not modal — the training screen beside it
+  stays usable), messenger look: trainer right, AI left, spoken words as 🎙 bubbles (`AiCoach.userSpoke`), changes
+  as green "✓ …" entries, one-tap answers under the AI's question (else the usual moves), one line whose button is
+  🎤 while empty and ➤ with text. Slides away after 10 s without a touch (not while the AI writes, a question waits
+  or text is typed). The AI tile during the run opens it.
+- **Teaching "Тренер"** moved to Settings (`VoiceSettings` card, AI licence only) — once per tablet.
+- Shots: `sh tools/ui-shot/run.sh` → `ai-1..5`, `ai-bar`, `ai-chat`, `ai-voice-settings` (docs/xems-ui-shots.md).

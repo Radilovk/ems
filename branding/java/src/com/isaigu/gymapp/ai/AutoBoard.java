@@ -21,10 +21,9 @@ public final class AutoBoard {
     private static ViewGroup.LayoutParams listParams;
     private static View board;
     private static int heightPx = -1;
-    /** What the attached board is: KIND_RUN, KIND_SETUP (before ▶, the face), KIND_AI (the AI training before ▶),
-     *  KIND_AI_LIVE (the AI chat over the run). */
+    /** What the attached board is: KIND_RUN (with the AI's coach bar in an AI training), KIND_SETUP (before ▶). */
     private static int kind;
-    static final int KIND_RUN = 1, KIND_SETUP = 2, KIND_AI = 3, KIND_AI_LIVE = 4;
+    static final int KIND_RUN = 1, KIND_SETUP = 2;
     /** Reference width of the board (dp); its height follows the real space (never below DESIGN_H). */
     static final int DESIGN_W = 1160;
     static final int DESIGN_H = 290;
@@ -124,9 +123,9 @@ public final class AutoBoard {
     static void sync(View any) {
         boolean run = AutoSession.getStage() == AutoSession.Stage.RUNNING && AutoSession.getEngine() != null;
         boolean setup = AutoSession.getStage() == AutoSession.Stage.CALIB && AutoSession.getPlan() != null;
-        boolean ai = AutoSession.aiMode && AutoSession.getStage() == AutoSession.Stage.SETUP;
-        boolean want = (run || setup || ai) && !com.isaigu.gymapp.wearable.face.FaceStudio.ownsAuto();
-        int k = run ? (AutoSession.aiMode && AiTrain.liveChatOpen() ? KIND_AI_LIVE : KIND_RUN) : ai ? KIND_AI : KIND_SETUP;
+        // the AI training's preparation is a window of its own (AiSetupSheet): no board until ▶ Старт
+        boolean want = (run || setup) && !com.isaigu.gymapp.wearable.face.FaceStudio.ownsAuto();
+        int k = run ? KIND_RUN : KIND_SETUP;
         try {
             if (!want) {
                 detach();
@@ -175,14 +174,17 @@ public final class AutoBoard {
         // evenly to the real width; its height is whatever is left (Fit), so it fills the space on every tablet —
         // no scrolling, nothing cut, no empty band above or below.
         LinearLayout content = XemsUi.vertical(c);
-        if (kind == KIND_AI) {
-            AiTrain.build(c, content);
-        } else if (kind == KIND_AI_LIVE) {
-            AiTrain.buildLive(c, content);
-        } else if (kind == KIND_SETUP) {
+        if (kind == KIND_SETUP) {
             AutoUi.buildSetupBoard(c, content);
         } else {
-            AutoUi.buildBoard(c, content);
+            LinearLayout runBoard = XemsUi.vertical(c);
+            AutoUi.buildBoard(c, runBoard);
+            content.addView(runBoard, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
+            if (AutoSession.aiMode) {
+                // the AI during the session: one line above the dock — listening, the last word, ✦ Чат (1.1.543)
+                content.addView(AiCoachBar.build(c), new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                        XemsUi.dp(c, AiCoachBar.H_DP)));
+            }
         }
         android.widget.FrameLayout sv = new android.widget.FrameLayout(c);
         sv.addView(content, new android.widget.FrameLayout.LayoutParams(XemsUi.dp(c, DESIGN_W), XemsUi.dp(c, DESIGN_H)));
@@ -233,5 +235,9 @@ public final class AutoBoard {
         list = null;
         listParams = null;
         AutoUi.onBoardDetached();
+        AiCoachBar.forget();
+        if (!(AutoSession.aiMode && AutoSession.getStage() == AutoSession.Stage.RUNNING)) {
+            AiChatDrawer.close();                        // the session is over: its chat goes with the board
+        }
     }
 }

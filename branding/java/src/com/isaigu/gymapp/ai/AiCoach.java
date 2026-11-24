@@ -57,11 +57,18 @@ public final class AiCoach {
         public final String text;
         /** An AI turn that asked a question (counts toward the 3). */
         public final boolean question;
+        /** A user turn that was spoken (🎙 in the chat), not typed. */
+        public final boolean voice;
 
         Turn(boolean ai, String text, boolean question) {
+            this(ai, text, question, false);
+        }
+
+        Turn(boolean ai, String text, boolean question, boolean voice) {
             this.ai = ai;
             this.text = text;
             this.question = question;
+            this.voice = voice;
         }
     }
 
@@ -157,6 +164,11 @@ public final class AiCoach {
 
     public static void userSaid(String text) {
         chat.add(new Turn(false, text, false));
+    }
+
+    /** The trainer's words by voice ("Тренер, …" or 🎤): a voice bubble in the chat. */
+    public static void userSpoke(String text) {
+        chat.add(new Turn(false, text, false, true));
     }
 
     public static void aiSaid(Reply r) {

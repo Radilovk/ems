@@ -34,25 +34,25 @@
     .registers 6
 
     .prologue
-    .line 310
+    .line 312
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 311
+    .line 313
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$BandRolePick;->a:Landroid/app/Activity;
 
-    .line 312
+    .line 314
     iput-object p2, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$BandRolePick;->root:Landroid/view/View;
 
-    .line 313
+    .line 315
     iput-object p3, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$BandRolePick;->mac:Ljava/lang/String;
 
-    .line 314
+    .line 316
     iput-object p4, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$BandRolePick;->key:Ljava/lang/String;
 
-    .line 315
+    .line 317
     iput-boolean p5, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$BandRolePick;->bandApp:Z
 
-    .line 316
+    .line 318
     return-void
 .end method
 
@@ -68,13 +68,13 @@
 
     const/4 v2, 0x0
 
-    .line 322
+    .line 324
     if-nez p1, :cond_21
 
-    .line 323
+    .line 325
     const/4 v2, -0x1
 
-    .line 330
+    .line 332
     :cond_6
     :goto_6
     :try_start_6
@@ -86,17 +86,17 @@
 
     invoke-static {v0, v1, v3, v2}, Lcom/isaigu/gymapp/wearable/WearableConfig;->assignBandRole(Landroid/content/Context;Ljava/lang/String;Ljava/lang/String;I)V
 
-    .line 331
+    .line 333
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$BandRolePick;->a:Landroid/app/Activity;
 
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->onControlBandChanged(Landroid/content/Context;)V
 
-    .line 332
+    .line 334
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$BandRolePick;->a:Landroid/app/Activity;
 
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/NotifyWearableBridge;->onRoleChanged(Landroid/content/Context;)V
 
-    .line 333
+    .line 335
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$BandRolePick;->a:Landroid/app/Activity;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$BandRolePick;->root:Landroid/view/View;
@@ -104,11 +104,11 @@
     # invokes: Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->build(Landroid/app/Activity;Landroid/view/View;)V
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/WearableSettingsSection;->access$100(Landroid/app/Activity;Landroid/view/View;)V
 
-    .line 337
+    .line 339
     :goto_20
     return-void
 
-    .line 324
+    .line 326
     :cond_21
     iget-boolean v3, p0, Lcom/isaigu/gymapp/wearable/WearableSettingsSection$BandRolePick;->bandApp:Z
     :try_end_23
@@ -116,13 +116,13 @@
 
     if-eqz v3, :cond_6
 
-    .line 327
+    .line 329
     if-ne p1, v1, :cond_29
 
     :goto_27
     move v2, v0
 
-    .line 328
+    .line 330
     goto :goto_6
 
     :cond_29
@@ -137,11 +137,11 @@
 
     goto :goto_27
 
-    .line 334
+    .line 336
     :catch_2f
     move-exception v0
 
-    .line 335
+    .line 337
     const-string v1, "WearableSettingsSection.role"
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V

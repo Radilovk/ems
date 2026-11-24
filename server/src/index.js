@@ -15,7 +15,7 @@ import { handleUnitUpdate, handleUnitPack, handleUnitLog, handleUnitLogRead, adm
 import { handleVrlogPut, handleVrlogGet } from './vrlog.js';
 import { handleCertIssue } from './cert.js';
 import { brief, BRIEF_MAX_BYTES } from './aibrief.js';
-import { coach, workout, command } from './aicoach.js';
+import { coach, workout, command, liveTurn } from './aicoach.js';
 import certHtml from '../../branding/certificate/index.html';
 import { handleWiemsUpdate, handleWiemsApk, handleWiemsSeen } from './wiemsapp.js';
 import {
@@ -421,6 +421,12 @@ async function handleAiBrief(request, env) {
     }
     if (body.kind === 'workout') {
       const r = await workout(env, body);
+      return json({ ok: true, model: r.model, coach: r.coach });
+    }
+    if (body.kind === 'coach' && body.reader === true && body.context && body.context.session === 'RUNNING') {
+      // one round trip for a live phrase (1.1.558): the cheap reader, then the coach only if it is not a command
+      const r = await liveTurn(env, body);
+      if (r.command) return json({ ok: true, model: r.model, command: r.command });
       return json({ ok: true, model: r.model, coach: r.coach });
     }
     if (body.kind === 'coach') {

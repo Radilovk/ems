@@ -362,3 +362,13 @@ it, the warm-up runs softer by design); "s" read aloud as a letter → "секу
   `DOWN_WORDS`, with synonyms: вдигни, качи, повиши, добави, плюс / свали, смъкни, понижи, махни N, минус) is a step of
   that many points; only "на / до N" is a level. Before, "намали 5" SET the strength to 5. Numbers in words after
   these verbs too ("увеличи едно", "смъкни пет").
+
+## 1.1.558 — faster live answers
+- **One request** for a live phrase: the tablet sends the coach's fields with `"reader":true`; the server runs the
+  cheap reader (`liveTurn`) and returns `{command}` for a plain command, else the coach's answer in the same request.
+  Two round trips (and two licence checks) before. Old tablets keep working (no flag → the coach).
+- **The live schema** (`liveSchema`): reply, question, actions, commands, the deltas, contra_add — the model wrote all
+  ~20 planning keys (goal, program, advice…) on every live turn.
+- **Thinking live**: symptoms (`symptom`) → medium; a physiology "why" → low (planning keeps medium for both). The
+  reader is skipped only for symptoms ("увеличи импулса" is a command, not physiology).
+- `generateJson` returns the token usage (in / out / think); ai-smoke prints it per phrase.

@@ -590,9 +590,9 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 
 ## server (Cloudflare Worker license server)
 - `server/src/admin.js` (717L) — admin panel HTML/JS (licenses, suits/MAC, APK releases)
-- `server/src/aibrief.js` (418L) — The AI layer over the training algorithm (docs/xems-ai-brief.md): the trainer's free text (or speech) about a client
-- `server/src/aicoach.js` (459L) — The AI coach of the Smart Session (owner, 1.1.535 — docs/xems-ai-coach.md): a short dialogue with the trainer /
-- `server/src/airoute.js` (74L) — Which model and how much thinking each AI call gets (owner, 1.1.556: "maximum adequacy — a cheap model only for the
+- `server/src/aibrief.js` (420L) — The AI layer over the training algorithm (docs/xems-ai-brief.md): the trainer's free text (or speech) about a client
+- `server/src/aicoach.js` (501L) — The AI coach of the Smart Session (owner, 1.1.535 — docs/xems-ai-coach.md): a short dialogue with the trainer /
+- `server/src/airoute.js` (89L) — Which model and how much thinking each AI call gets (owner, 1.1.556: "maximum adequacy — a cheap model only for the
 - `server/src/card.js` (99L) — Shareable client card: validation of what the tablet sends, the link id, and the page itself.
 - `server/src/catalog.js` (39L) — Каталог на модули и функции — източник на истина за абонаменти.
 - `server/src/cert.js` (37L) — Trainer certificates (branding/certificate/index.html, served at /cert): the trainer types the name and downloads a
@@ -601,7 +601,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `server/src/ems.js` (136L) — MAC адреси, които влизат в жетона (активни + чакащи дистанционно сдвояване).
 - `server/src/exercises.js` (89L) — The picker groups the admin may give an exercise ('' = the library's own).
 - `server/src/history.js` (77L) — A training id is its start time in ms: digits only, else null.
-- `server/src/index.js` (1447L) — Worker entry: routes /v1/license/activate|refresh, /v1/app/update, releases, admin API, rate limits
+- `server/src/index.js` (1453L) — Worker entry: routes /v1/license/activate|refresh, /v1/app/update, releases, admin API, rate limits
 - `server/src/limits.js` (34L) — Caps and rate-limit settings — stay safe on Workers free tier.
 - `server/src/measures.js` (110L) — The client's scale measurements: the tablet sends each weigh-in's compact result (no impedances, no name);
 - `server/src/plans.js` (28L) — Plan presets → mods / feat arrays (applied at license creation).
@@ -613,7 +613,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `server/src/vrlog.js` (69L) — The VR game's leg recordings (owner 2026-11-10: "the legs in the game are bad — record, find the cause"): the game
 - `server/src/wiemsapp.js` (80L) — "1.21 22" → {name, code}; null when it is not that.
 - `server/test/aibrief.test.js` (129L) — 
-- `server/test/aicoach.test.js` (275L) — 
+- `server/test/aicoach.test.js` (309L) — 
 - `server/test/card.test.js` (109L) — 
 - `server/test/catalog.test.js` (29L) — 
 - `server/test/cert.test.js` (45L) — 
@@ -650,7 +650,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `server/migrations/0016_vr_logs.sql` (12L) — 
 - `server/migrations/0017_wiems_seen.sql` (15L) — 
 - `server/migrations/0018_certificates.sql` (11L) — 
-- `server/scripts/ai-smoke.mjs` (87L) — A real call to Gemini with the server's own prompts and schemas (CI, the GEMINI_API_KEY secret): proves the key,
+- `server/scripts/ai-smoke.mjs` (88L) — A real call to Gemini with the server's own prompts and schemas (CI, the GEMINI_API_KEY secret): proves the key,
 - `server/scripts/seed-release.sh` (25L) — Register current APK as a release on the license server.
 
 ## Branding YAML maps (top-level keys)
@@ -963,7 +963,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L36 ## Server
   - L45 ## Tests
 
-`docs/xems-ai-coach.md` (365L)
+`docs/xems-ai-coach.md` (375L)
   - L1 # AI coach — the Smart Session with a dialogue (owner, 1.1.535)
   - L86 ## Flow (Smart Session tile)
   - L107 ## Who decides what
@@ -985,6 +985,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L325 ## 1.1.555 — "Тренер" presses the chat's 🎤; a dialogue only with the AI; the trainer's voice decides
   - L338 ## 1.1.556 — the model and its thinking chosen per turn; the coach knows EMS physiology
   - L351 ## 1.1.556 (tablet) — a percent is a point of the 0–100 scale
+  - L366 ## 1.1.558 — faster live answers
 
 `docs/xems-ai-session-implementation.md` (230L)
   - L1 # XEMS AI (Smart Session) — реализация v1.1.58-ai

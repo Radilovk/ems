@@ -220,7 +220,9 @@ test('route: Lite only for plain commands; the coach thinks, more with health or
   assert.deepEqual([route('coach', { text: 'колко минути остават', context: live }).lite,
     route('coach', { text: 'колко минути остават', context: live }).think], [false, 'low']);
   assert.equal(route('coach', { text: 'замая ми се', context: live }).think, 'medium');
-  assert.equal(route('coach', { text: 'защо 85 херца', context: live }).think, 'medium');
+  // 1.1.558: live, a "why" is answered on low (sooner); a symptom always thinks more; planning: both
+  assert.equal(route('coach', { text: 'защо 85 херца', context: live }).think, 'low');
+  assert.equal(route('coach', { text: 'защо 85 херца', context: {} }).think, 'medium');
   assert.equal(route('coach', { text: 'нагласи я', context: { cond: ['knees'] } }).think, 'medium');
   assert.equal(route('coach', { text: 'нагласи я', context: {} }).think, 'low');
   assert.equal(route('workout').think, 'medium');
@@ -271,4 +273,36 @@ test('one change, not two: a strength command drops the softer / stronger action
   assert.deepEqual(c.actions, ['pause']);
   assert.deepEqual(validateCoach({ reply: 'x', actions: ['softer'], commands: [{ target: 'legs', dir: 'down' }] }).actions,
     ['softer']);
+});
+
+test('a live phrase in one request: a plain command back from the reader, else the coach — with the live schema', async () => {
+  resetModelCache();
+  clearCommandCache();
+  const { liveTurn } = await import('../src/aicoach.js');
+  const seen = [];
+  const fake = async (url, init) => {
+    const req = JSON.parse(init.body);
+    const lite = /flash-lite/.test(url);
+    seen.push({ lite, keys: Object.keys(req.generationConfig.responseSchema.properties) });
+    const out = lite ? (/краката/.test(req.contents[0].parts[0].text)
+      ? { commands: [{ target: 'legs', dir: 'up' }], coach: false } : { coach: true })
+      : { reply: 'Направи 10 клякания.' };
+    return new Response(JSON.stringify({ candidates: [{ content: { parts: [{ text: JSON.stringify(out) }] } }],
+      usageMetadata: { promptTokenCount: 900, candidatesTokenCount: 30, thoughtsTokenCount: 120 } }));
+  };
+  const env = { GEMINI_API_KEY: 'k', GEMINI_MODEL: 'gemini-3-flash', GEMINI_LITE_MODEL: 'gemini-3-flash-lite' };
+  const ctx = { session: 'RUNNING' };
+  const a = await liveTurn(env, { text: 'вдигни краката', context: ctx }, fake);
+  assert.deepEqual(a.command.commands, [{ target: 'legs', dir: 'up', step: 'normal' }]);
+  assert.equal(seen.length, 1);
+  const b = await liveTurn(env, { text: 'какво упражнение сега', context: ctx }, fake);
+  assert.equal(b.coach.reply, 'Направи 10 клякания.');
+  assert.equal(seen.length, 3);
+  // the coach's live schema: no planning keys (goal, program, advice…) — fewer tokens written on every turn
+  assert.ok(!seen[2].keys.includes('advice') && !seen[2].keys.includes('goal') && seen[2].keys.includes('commands'));
+  assert.deepEqual(b.usage, { in: 900, out: 30, think: 120 });
+  // a symptom skips the cheap reader: straight to the coach, one call
+  await liveTurn(env, { text: 'замая ми се', context: ctx }, fake);
+  assert.equal(seen.length, 4);
+  assert.equal(seen[3].lite, false);
 });

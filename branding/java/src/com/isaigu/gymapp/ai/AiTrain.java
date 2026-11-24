@@ -1456,18 +1456,18 @@ public final class AiTrain {
         public void run() {
             AiCoach.Reply r = null;
             try {
-                if (live && reader && !AiVoiceCmd.isQuestion(text)) {
-                    // the cheapest model reads commands; only what is none goes to the coach (a question goes
-                    // straight to the coach — one call, the answer sooner)
-                    String cr = com.isaigu.gymapp.widget.XemsLicenseClient.postBrief(c,
-                            "\"kind\":\"command\",\"text\":" + AiBrief.q(text));
-                    AiVoiceCmd.Result vc = AiVoiceCmd.parseServer(cr);
+                // one request (1.1.558): the server's cheap reader first, the coach in the same request only if it
+                // is not a command — two round trips before (a question goes straight to the coach)
+                boolean read = live && reader && !AiVoiceCmd.isQuestion(text);
+                String resp = com.isaigu.gymapp.widget.XemsLicenseClient.postBrief(c,
+                        read ? fields + ",\"reader\":true" : fields);
+                if (read && resp != null && resp.contains("\"command\":{")) {
+                    AiVoiceCmd.Result vc = AiVoiceCmd.parseServer(resp);
                     if (!vc.isEmpty() && !vc.coach) {
                         MAIN.post(new Commands(vc, text, my));
                         return;
                     }
                 }
-                String resp = com.isaigu.gymapp.widget.XemsLicenseClient.postBrief(c, fields);
                 AiCoach.liveTurn = live;
                 r = AiCoach.parse(resp);
                 if (r != null && wantPlan) {

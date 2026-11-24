@@ -1,6 +1,6 @@
 // A real call to Gemini with the server's own prompts and schemas (CI, the GEMINI_API_KEY secret): proves the key,
 // the model the server picks, that Gemini accepts our response schemas, and how long a turn takes. No deploy, no D1.
-import { coach, workout, command } from '../src/aicoach.js';
+import { coach, workout, command, liveTurn } from '../src/aicoach.js';
 import { brief } from '../src/aibrief.js';
 import * as ab from '../src/aibrief.js';
 
@@ -52,17 +52,18 @@ const free = ['краката ме болят малко', 'стига толк�
 for (const text of free) {
   const t = Date.now();
   try {
-    const c = await command(env, { text });
-    const cmd = c.command || {};
-    if (!cmd.coach && ((cmd.commands || []).length || (cmd.actions || []).length)) {
-      console.log(`FREE "${text}" · ${Date.now() - t} ms · command ${JSON.stringify({ c: cmd.commands, a: cmd.actions })}`);
+    // the tablet's live path (1.1.558): one request — the reader, then the coach only if it is not a command
+    const r = await liveTurn(env, { kind: 'coach', reader: true, domain: 'auto', menu, context: live, text, chat: [],
+      run: { phase: 'Сила', min_done: 6, state: 'RUN' } });
+    if (r.command) {
+      console.log(`FREE "${text}" · ${Date.now() - t} ms · command ${JSON.stringify({ c: r.command.commands, a: r.command.actions })}`);
       continue;
     }
-    const r = await coach(env, { kind: 'coach', domain: 'auto', menu, context: live, text, chat: [],
-      run: { phase: 'Сила', min_done: 6, state: 'RUN' } });
     const k = r.coach || {};
+    const u = r.usage || {};
     const did = { c: k.commands, a: k.actions, on: k.on_delta, off: k.off_delta, hz: k.hz_pct, rest: k.rest_pct, end: k.end_in_min };
-    console.log(`FREE "${text}" · ${Date.now() - t} ms · ${r.model}/${r.route} · coach "${k.reply}"${k.question ? ' ? ' + k.question.text + ' ' + JSON.stringify(k.question.options) : ''} · ${JSON.stringify(did)}`);
+    console.log(`FREE "${text}" · ${Date.now() - t} ms · ${r.model}/${r.route} · tokens in ${u.in} out ${u.out} think ${u.think}`
+      + ` · coach "${k.reply}"${k.question ? ' ? ' + k.question.text + ' ' + JSON.stringify(k.question.options) : ''} · ${JSON.stringify(did)}`);
   } catch (e) {
     console.log(`FREE "${text}" · error ${e && e.message}`);
   }

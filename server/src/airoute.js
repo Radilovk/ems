@@ -24,24 +24,38 @@ const CAREFUL = [
   'бремен', 'епилеп', 'пейсмейк', 'стимулатор', 'диабет', 'инсулин', 'захар', 'кърв', 'тромб', 'разредител',
   'операци', 'херни', 'дискова', 'протез', 'остеопор', 'бъбре', 'температур', 'настинк', 'вирус', 'лекарств',
   'хапче', 'рак', 'онко', 'щитовид',
-  // physiology and "why"
-  'защо', 'как действа', 'как работи', 'физиолог', 'умора', 'млечна', 'възстанов', 'мускулна треска', 'херц',
-  'честота', 'импулс', 'ширина', 'микросекунд', 'калори', 'изгаря', 'метабол', 'хормон', 'колко често', 'колко пъти седмично',
-  'pain', 'hurt', 'dizzy', 'nause', 'chest', 'heart', 'breath', 'pregnan', 'diabet', 'injur', 'why', 'how does',
 ];
 
-/** Does this text bring health or physiology into the turn? */
-export function careful(text) {
+/** Physiology and "why": worth thinking over when planning; live, the coach answers it on low (1.1.558: speed). */
+const PHYSIO = [
+  'защо', 'как действа', 'как работи', 'физиолог', 'умора', 'млечна', 'възстанов', 'мускулна треска', 'херц',
+  'честота', 'импулс', 'ширина', 'микросекунд', 'калори', 'изгаря', 'метабол', 'хормон', 'колко често', 'колко пъти седмично',
+  'why', 'how does',
+];
+CAREFUL.push('pain', 'hurt', 'dizzy', 'nause', 'chest', 'heart', 'breath', 'pregnan', 'diabet', 'injur');
+
+/** Does this text hold a stem of the list (word-start) or one of its phrases? */
+function matches(text, list) {
   const t = String(text || '').toLowerCase().replace(/ѝ/g, 'и');
   const words = t.split(/[^\p{L}\p{N}]+/u).filter(Boolean);
   const flat = ' ' + words.join(' ') + ' ';
-  for (const w of CAREFUL) {
+  for (const w of list) {
     // a stem matches the start of a word ("болка", not "футбол"); a phrase matches as words
     if (w.includes(' ') ? flat.includes(' ' + w + ' ') || flat.includes(' ' + w) : words.some((x) => x.startsWith(w))) {
       return true;
     }
   }
   return false;
+}
+
+/** Health in the turn: pain, symptoms, conditions (thinking medium, always). */
+export function symptom(text) {
+  return matches(text, CAREFUL);
+}
+
+/** Health or physiology in the turn. */
+export function careful(text) {
+  return matches(text, CAREFUL) || matches(text, PHYSIO);
 }
 
 /** The client has conditions on record (the planning must weigh them). */
@@ -58,7 +72,8 @@ function hasConditions(body) {
 export function route(kind, body = {}) {
   const live = body?.context?.session === 'RUNNING';
   const last = Array.isArray(body?.chat) ? body.chat.slice(-2).map((t) => String(t?.text || '')).join(' ') : '';
-  const risky = careful(body?.text) || (live ? false : careful(last));
+  // live: only symptoms think more (a "why" is answered well on low, and sooner); planning: physiology too
+  const risky = live ? symptom(body?.text) : careful(body?.text) || careful(last);
   if (kind === 'command') return { lite: true, think: 'minimal', max: 800, why: 'command' };
   if (kind === 'workout') return { lite: false, think: 'medium', max: 6000, why: 'plan' };
   if (kind === 'brief') {

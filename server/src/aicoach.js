@@ -5,7 +5,7 @@
 // planner's; the model only nudges them inside fixed windows.
 
 import { generateJson, FOCUS, CONTRA, THINK_ROOM } from './aibrief.js';
-import { route, careful } from './airoute.js';
+import { route, symptom } from './airoute.js';
 
 export const GOALS = ['TONE', 'FAT', 'MASSAGE', 'DRAIN', 'CELLULITE'];
 export const MODES = ['ACTIVE', 'PASSIVE'];
@@ -30,6 +30,36 @@ const QUESTIONS_MAX = 3;
 // no maxLength in the schema (not every Gemini accepts it): validateCoach cuts the lengths
 const str = () => ({ type: 'STRING' });
 const list = (e) => ({ type: 'ARRAY', items: { type: 'STRING', enum: e } });
+
+/**
+ * The running session's schema (owner, 1.1.558: "something slows the answers"): only what a live turn can use — the
+ * reply, a question back, the actions, the deltas, the commands, a contraindication. The model wrote all ~20 keys of
+ * the planning schema on every turn (mostly null): each one is time.
+ */
+export function liveSchema(domain = null) {
+  return {
+    type: 'OBJECT',
+    properties: {
+      reply: str(260),
+      question: {
+        type: 'OBJECT', nullable: true,
+        properties: { text: str(140), options: { type: 'ARRAY', items: str(40) } },
+        required: ['text', 'options'],
+      },
+      actions: list(domain === 'auto' ? AUTO.actions : ACTIONS),
+      commands: { type: 'ARRAY', items: { type: 'OBJECT', properties: {
+        target: { type: 'STRING' }, dir: { type: 'STRING' }, step: { type: 'STRING' },
+        amount: { type: 'INTEGER', nullable: true } }, required: ['target', 'dir'] } },
+      on_delta: { type: 'INTEGER', nullable: true },
+      off_delta: { type: 'INTEGER', nullable: true },
+      hz_pct: { type: 'INTEGER', nullable: true },
+      rest_pct: { type: 'INTEGER', nullable: true },
+      end_in_min: { type: 'INTEGER', nullable: true },
+      contra_add: list(CONTRA),
+    },
+    required: ['reply'],
+  };
+}
 
 export function coachSchema(domain = null, programs = []) {
   const advice = { type: 'OBJECT', nullable: true, properties: {} };
@@ -287,9 +317,21 @@ export async function coach(env, body, fetchImpl = fetch, ts = Date.now()) {
   // owner, 1.1.556: every reply of the coach is the main model (it decides about the body); it thinks a little, and
   // more when health or physiology is in the turn (airoute.js) — the cheap model only reads plain commands
   const rt = route('coach', body);
-  const r = await generateJson(env, system, prompt, coachSchema(auto ? 'auto' : null, programs),
-    rt.max + THINK_ROOM[rt.think], fetchImpl, ts, rt);
-  return { model: r.model, route: rt.why, coach: validateCoach(r.raw, asked, auto ? 'auto' : null, programs) };
+  const schema = live ? liveSchema(auto ? 'auto' : null) : coachSchema(auto ? 'auto' : null, programs);
+  const r = await generateJson(env, system, prompt, schema, rt.max + THINK_ROOM[rt.think], fetchImpl, ts, rt);
+  return { model: r.model, route: rt.why, usage: r.usage,
+    coach: validateCoach(r.raw, asked, auto ? 'auto' : null, programs) };
+}
+
+/**
+ * One request for a live phrase (1.1.558): the cheap reader first, here on the server; a plain command comes back as
+ * { command }, anything else goes on to the coach in the same request — the tablet made two round trips before.
+ */
+export async function liveTurn(env, body, fetchImpl = fetch, ts = Date.now()) {
+  const c = await command(env, body, fetchImpl, ts);
+  const k = c.command;
+  if (!k.coach && (k.commands.length || k.actions.length)) return { model: c.model, command: k };
+  return coach(env, body, fetchImpl, ts);
 }
 
 // ================================================================ the AI's own workout (owner, 1.1.538)
@@ -437,7 +479,7 @@ export function clearCommandCache() {
 
 export async function command(env, body, fetchImpl = fetch, ts = Date.now()) {
   // pain, symptoms, "why": not a command at all — straight to the coach, the cheap model never reads it
-  if (careful(body.text)) return { model: 'route', command: { commands: [], actions: [], coach: true } };
+  if (symptom(body.text)) return { model: 'route', command: { commands: [], actions: [], coach: true } };
   const key = commandKey(body.text);
   const hit = key && commandCache.get(key);
   if (hit) return { model: 'cache', command: hit };

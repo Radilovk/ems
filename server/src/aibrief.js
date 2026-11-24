@@ -387,7 +387,9 @@ export async function generateJson(env, system, userText, schema, maxTokens, fet
     const cand = j?.candidates?.[0];
     const text = cand?.content?.parts?.filter((p) => !p.thought).map((p) => p.text || '').join('') || '';
     try {
-      return { model, raw: JSON.parse(text) };
+      const u = j?.usageMetadata || {};
+      return { model, raw: JSON.parse(text), usage: { in: u.promptTokenCount, out: u.candidatesTokenCount,
+        think: u.thoughtsTokenCount || 0 } };
     } catch {
       // cut off at the budget (2026-11-24, 1.1.548 smoke: the planning answer ran to 2985 tokens and stopped
       // mid-JSON): once more with twice the room — the tablet waits up to 30 s

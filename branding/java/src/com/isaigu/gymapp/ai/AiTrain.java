@@ -748,6 +748,18 @@ public final class AiTrain {
             for (String a : r.actions) {
                 m.append(mapAction(a));
             }
+            if (r.onDelta != null || r.offDelta != null || r.hzPct != null || r.restPct != null) {
+                // the coach's impulse moves on the AI's own workout too (rests = the pause between impulses here)
+                int off = r.offDelta != null ? r.offDelta : r.restPct != null ? (int) Math.round(r.restPct / 20.0) : MapRunner.tuneOff;
+                MapRunner.tune(r.onDelta != null ? r.onDelta : MapRunner.tuneOn, off,
+                        r.hzPct != null ? r.hzPct : MapRunner.tuneHzPct);
+                m.append(AiText.t("импулс ", "impulse ")).append(signed(MapRunner.tuneOn)).append(" s, ")
+                        .append(AiText.t("пауза ", "pause ")).append(signed(MapRunner.tuneOff)).append(" s, Hz ")
+                        .append(signed(MapRunner.tuneHzPct)).append(" % · ");
+            }
+            if (r.endInMin != null && r.endInMin == 0) {
+                m.append(mapAction("to_recovery"));
+            }
             return trim(m);
         }
         if (e == null) {
@@ -802,8 +814,15 @@ public final class AiTrain {
                 int to = "set".equals(c.dir) ? c.value : now + sign * (c.value > 0 ? c.value
                         : AiVoiceCmd.step(Math.max(now, 1), c.small));
                 b.append(AiText.t("сила ", "strength ")).append(MapRunner.setStrength(to)).append(" · ");
-            } else {
-                b.append(AiText.t("това не се сменя в тази тренировка · ", "not changeable in this workout · "));
+            } else if ("impulse".equals(c.target)) {
+                MapRunner.tune(MapRunner.tuneOn + sign, MapRunner.tuneOff, MapRunner.tuneHzPct);
+                b.append(AiText.t("импулс ", "impulse ")).append(signed(MapRunner.tuneOn)).append(" s · ");
+            } else if ("pause".equals(c.target) || "rest".equals(c.target)) {
+                MapRunner.tune(MapRunner.tuneOn, MapRunner.tuneOff + sign, MapRunner.tuneHzPct);
+                b.append(AiText.t("пауза ", "pause ")).append(signed(MapRunner.tuneOff)).append(" s · ");
+            } else if ("frequency".equals(c.target)) {
+                MapRunner.tune(MapRunner.tuneOn, MapRunner.tuneOff, MapRunner.tuneHzPct + sign * (c.small ? 5 : 10));
+                b.append("Hz ").append(signed(MapRunner.tuneHzPct)).append(" % · ");
             }
         }
         for (String a : vc.actions) {

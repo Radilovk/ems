@@ -2414,11 +2414,26 @@
     .line 707
     :cond_10
     :try_start_10
-    const-string v0, "\u2713"
+    const-string v1, "(\\d) s\\b"
 
-    const-string v1, ""
+    invoke-static {}, Lcom/isaigu/gymapp/ai/WakeListener;->bg()Z
 
-    invoke-virtual {p0, v0, v1}, Ljava/lang/String;->replace(Ljava/lang/CharSequence;Ljava/lang/CharSequence;)Ljava/lang/String;
+    move-result v0
+
+    if-eqz v0, :cond_7a
+
+    const-string v0, "$1 \u0441\u0435\u043a\u0443\u043d\u0434\u0438"
+
+    :goto_1a
+    invoke-virtual {p0, v1, v0}, Ljava/lang/String;->replaceAll(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
+
+    const-string v1, "\u2713"
+
+    const-string v2, ""
+
+    invoke-virtual {v0, v1, v2}, Ljava/lang/String;->replace(Ljava/lang/CharSequence;Ljava/lang/CharSequence;)Ljava/lang/String;
 
     move-result-object v0
 
@@ -2436,11 +2451,11 @@
 
     move-result v0
 
-    if-eqz v0, :cond_6c
+    if-eqz v0, :cond_7d
 
     const-string v0, " \u043f\u0440\u043e\u0446\u0435\u043d\u0442\u0430"
 
-    :goto_2a
+    :goto_38
     invoke-virtual {v1, v2, v0}, Ljava/lang/String;->replace(Ljava/lang/CharSequence;Ljava/lang/CharSequence;)Ljava/lang/String;
 
     move-result-object v1
@@ -2452,11 +2467,11 @@
 
     move-result v0
 
-    if-eqz v0, :cond_6f
+    if-eqz v0, :cond_80
 
     const-string v0, "\u0445\u0435\u0440\u0446\u0430"
 
-    :goto_38
+    :goto_46
     invoke-virtual {v1, v2, v0}, Ljava/lang/String;->replace(Ljava/lang/CharSequence;Ljava/lang/CharSequence;)Ljava/lang/String;
 
     move-result-object v1
@@ -2467,11 +2482,11 @@
 
     move-result v0
 
-    if-eqz v0, :cond_72
+    if-eqz v0, :cond_83
 
     const-string v0, "\u043c\u0438\u043d\u0443\u0441 "
 
-    :goto_46
+    :goto_54
     invoke-virtual {v1, v2, v0}, Ljava/lang/String;->replace(Ljava/lang/CharSequence;Ljava/lang/CharSequence;)Ljava/lang/String;
 
     move-result-object v0
@@ -2491,7 +2506,7 @@
 
     move-result v2
 
-    if-le v2, v3, :cond_61
+    if-le v2, v3, :cond_6f
 
     const/4 v2, 0x0
 
@@ -2501,19 +2516,19 @@
 
     move-result-object v0
 
-    :cond_61
+    :cond_6f
     const/4 v2, 0x0
 
     const/4 v3, 0x0
 
     invoke-virtual {v1, v0, v2, v3, p1}, Landroid/speech/tts/TextToSpeech;->speak(Ljava/lang/CharSequence;ILandroid/os/Bundle;Ljava/lang/String;)I
-    :try_end_66
-    .catch Ljava/lang/Throwable; {:try_start_10 .. :try_end_66} :catch_67
+    :try_end_74
+    .catch Ljava/lang/Throwable; {:try_start_10 .. :try_end_74} :catch_75
 
     goto :goto_f
 
     .line 710
-    :catch_67
+    :catch_75
     move-exception v0
 
     .line 711
@@ -2522,24 +2537,29 @@
     goto :goto_f
 
     .line 707
-    :cond_6c
-    :try_start_6c
+    :cond_7a
+    :try_start_7a
+    const-string v0, "$1 seconds"
+
+    goto :goto_1a
+
+    :cond_7d
     const-string v0, " percent"
-
-    goto :goto_2a
-
-    .line 708
-    :cond_6f
-    const-string v0, "hertz"
 
     goto :goto_38
 
-    :cond_72
-    const-string v0, "minus "
-    :try_end_74
-    .catch Ljava/lang/Throwable; {:try_start_6c .. :try_end_74} :catch_67
+    .line 708
+    :cond_80
+    const-string v0, "hertz"
 
     goto :goto_46
+
+    :cond_83
+    const-string v0, "minus "
+    :try_end_85
+    .catch Ljava/lang/Throwable; {:try_start_7a .. :try_end_85} :catch_75
+
+    goto :goto_54
 .end method
 
 .method public static start(Landroid/app/Activity;)Z

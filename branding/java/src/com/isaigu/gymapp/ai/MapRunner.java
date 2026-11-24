@@ -102,6 +102,26 @@ public final class MapRunner {
     static boolean ai;
     /** "Тренер, спри двойния импулс": no 2nd impulse from here on (the AI's workout). */
     static boolean noDouble;
+    /**
+     * The coach's live tune of the AI's workout (1.1.549 — "longer impulse", "higher frequency" did nothing here):
+     * seconds added to every block's impulse / pause, % on its frequency (the safety limits clamp after, SafeGuard).
+     */
+    static int tuneOn, tuneOff, tuneHzPct;
+
+    static int tunedHz(int hz) {
+        return tuneHzPct == 0 || hz < 2 ? hz : Math.max(2, (int) Math.round(hz * (1 + tuneHzPct / 100.0)));
+    }
+
+    /** A tune change: from the next impulse on (the block now is written again). */
+    static void tune(int on, int off, int hzPct) {
+        tuneOn = Math.max(-2, Math.min(3, on));
+        tuneOff = Math.max(-2, Math.min(4, off));
+        tuneHzPct = Math.max(-30, Math.min(30, hzPct));
+        if (clock != null && !waiting) {
+            lastIndex = -1;
+            apply(false);
+        }
+    }
     private static java.lang.ref.WeakReference<View> screen;
 
     public static boolean isAi() {
@@ -639,6 +659,7 @@ public final class MapRunner {
             AiAnnounce.end();
             ai = false;
             noDouble = false;
+            tuneOn = tuneOff = tuneHzPct = 0;
             View any = screen != null ? screen.get() : null;
             AutoBoard.sync(any);                             // the board goes with the workout
             AiTrain.mapEnded();
@@ -793,10 +814,10 @@ public final class MapRunner {
             } else if (dyn != null) {
                 bean.strenth = Math.max(0, Math.min(100, Math.round(full * b.rel / 100f)));
             } else {
-                bean.hz = b.hz;
+                bean.hz = tunedHz(b.hz);
                 bean.pulseWidth = b.pw;
-                bean.pulseContinue = Math.max(1, b.on);
-                bean.pulsePause = Math.max(1, b.off);
+                bean.pulseContinue = Math.max(1, b.on + (b.hz >= 2 ? tuneOn : 0));
+                bean.pulsePause = Math.max(1, b.off + (b.hz >= 2 ? tuneOff : 0));
                 bean.strenth = Math.max(0, Math.min(100, Math.round(full * b.rel / 100f)));
                 // the second impulse rides the suit's active pause (its own Hz, its strength a share of the first)
                 bean.activePause = b.dbl && !noDouble;
@@ -843,10 +864,10 @@ public final class MapRunner {
             if (bean == null) {
                 continue;
             }
-            bean.hz = s.hz;
+            bean.hz = tunedHz(s.hz);
             bean.pulseWidth = s.pwUs;
-            bean.pulseContinue = Math.max(1, s.onS);
-            bean.pulsePause = Math.max(1, s.offS);
+            bean.pulseContinue = Math.max(1, s.onS + (s.hz >= 2 ? tuneOn : 0));
+            bean.pulsePause = Math.max(1, s.offS + (s.hz >= 2 ? tuneOff : 0));
             // the row's 2nd-impulse switch steady through a block (owner, 1.1.542: it followed every repetition's
             // approach and the stock index buttons blinked); a repetition without it gives it 0 %; ≤ 1 Hz never (the
             // limits switch it off there, SafeLimits AP)

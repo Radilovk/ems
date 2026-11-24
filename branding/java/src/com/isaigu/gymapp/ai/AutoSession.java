@@ -1529,8 +1529,11 @@ public final class AutoSession {
         if (r.writtenStrength > 0) {
             return r.writtenStrength;
         }
-        if (r.cal > 0 && r.workFrac > 0) {
-            return Math.max(0, Math.min(100, (int) Math.round(r.cal * r.user * r.workFrac)));   // with steps said in it
+        AutoModel.Plan rp = r.plan != null ? r.plan : plan;
+        if (r.cal > 0 && rp != null && rp.phiMax > 0) {
+            // the level of the program's strongest impulse: what "силата на 30" means and what is said back — the
+            // wave's lower impulses go under it (a level of the impulse now changed with every step of the wave)
+            return Math.max(0, Math.min(100, (int) Math.round(r.cal * r.user * rp.phiMax)));
         }
         return r.working > 0 ? r.working : Math.max(0, r.lastStrength);
     }
@@ -1562,12 +1565,11 @@ public final class AutoSession {
     /** The row's strength to this value now (as strengthStep does). */
     private static void setRowStrength(Row r, int to) {
         AutoModel.Plan rp = r.plan != null ? r.plan : plan;
-        double f = r.writtenStrength > 0 && written != null && rp != null ? AutoEngine.rowFrac(written, rp.phiMax)
-                : r.workFrac > 0 ? r.workFrac : 1.0;
+        double f = rp != null && rp.phiMax > 0 ? rp.phiMax : 1.0;      // the strongest impulse (level(r))
         if (r.cal <= 0) {
-            r.cal = to;
-            r.user = 1.0;
-        } else if (f > 0) {
+            r.cal = Math.max(1, (int) Math.round(to / f));   // not raised yet: this becomes its base
+        }
+        if (f > 0) {
             r.user = Math.max(0.05, to / (r.cal * f));
         }
     }

@@ -228,7 +228,8 @@ public final class AiVoiceCmd {
             small = small || inheritedSmall;
         }
         // the impulse's / the pause's length
-        boolean longer = has(t, "по-дълг", "по дълг", "удължи");
+        // "по-дълъг импулс" (the singular has "ъ" before "г" — 1.1.549, found by tools/app-sim SimCoachAll)
+        boolean longer = has(t, "по-дълг", "по дълг", "по-дълъг", "по дълъг", "удължи");
         boolean shorter = has(t, "по-къс", "по къс", "по-кратк", "по кратк", "скъси");
         if ((longer || shorter) && has(t, "пауз")) {
             r.commands.add(new Cmd("pause", longer ? "up" : "down", small));

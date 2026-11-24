@@ -704,7 +704,7 @@ public final class WakeListener {
             return;
         }
         try {
-            String t = text.replace("✓", "").replace(" · ", ". ").replace("%", bg() ? " процента" : " percent")
+            String t = text.replaceAll("(\\d) s\\b", bg() ? "$1 секунди" : "$1 seconds").replace("✓", "").replace(" · ", ". ").replace("%", bg() ? " процента" : " percent")
                     .replace("Hz", bg() ? "херца" : "hertz").replace("−", bg() ? "минус " : "minus ").replace("+", "плюс ");
             tts.speak(t.length() > 400 ? t.substring(0, 400) : t, TextToSpeech.QUEUE_FLUSH, null, id);
         } catch (Throwable t) {

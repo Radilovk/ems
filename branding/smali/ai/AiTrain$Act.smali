@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 1035
+    .line 1054
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 1036
+    .line 1055
     iput p1, p0, Lcom/isaigu/gymapp/ai/AiTrain$Act;->code:I
 
-    .line 1037
+    .line 1056
     return-void
 .end method
 
@@ -44,49 +44,49 @@
     .prologue
     const/4 v3, 0x0
 
-    .line 1041
+    .line 1060
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsUi;->haptic(Landroid/view/View;)V
 
-    .line 1042
+    .line 1061
     invoke-virtual {p1}, Landroid/view/View;->getContext()Landroid/content/Context;
 
     move-result-object v0
 
-    .line 1043
+    .line 1062
     iget v1, p0, Lcom/isaigu/gymapp/ai/AiTrain$Act;->code:I
 
     packed-switch v1, :pswitch_data_58
 
-    .line 1071
+    .line 1090
     :pswitch_d
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiTrain;->rebuild()V
 
-    .line 1074
+    .line 1093
     :goto_10
     return-void
 
-    .line 1045
+    .line 1064
     :pswitch_11
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/AiTrain;->tune(Landroid/content/Context;)V
 
     goto :goto_10
 
-    .line 1048
+    .line 1067
     :pswitch_15
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiTrain;->close()V
 
     goto :goto_10
 
-    .line 1051
+    .line 1070
     :pswitch_19
     sput v3, Lcom/isaigu/gymapp/ai/AiTrain;->view:I
 
-    .line 1052
+    .line 1071
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiTrain;->rebuild()V
 
     goto :goto_10
 
-    .line 1055
+    .line 1074
     :pswitch_1f
     invoke-static {p1}, Lcom/isaigu/gymapp/ai/AiTrain;->activity(Landroid/view/View;)Landroid/app/Activity;
 
@@ -96,7 +96,7 @@
 
     goto :goto_10
 
-    .line 1058
+    .line 1077
     :pswitch_27
     invoke-static {p1}, Lcom/isaigu/gymapp/ai/AiTrain;->activity(Landroid/view/View;)Landroid/app/Activity;
 
@@ -106,7 +106,7 @@
 
     goto :goto_10
 
-    .line 1061
+    .line 1080
     :pswitch_2f
     const-string v1, "\u0421\u044a\u0441\u0442\u0430\u0432\u0438 \u043d\u043e\u0432\u0430 \u0442\u0440\u0435\u043d\u0438\u0440\u043e\u0432\u043a\u0430 \u0437\u0430 \u0442\u043e\u0437\u0438 \u043a\u043b\u0438\u0435\u043d\u0442."
 
@@ -122,7 +122,7 @@
 
     goto :goto_10
 
-    .line 1065
+    .line 1084
     :pswitch_3c
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoSession;->leaderUserId()J
 
@@ -134,10 +134,10 @@
 
     invoke-static {v0, v2, v3, v1}, Lcom/isaigu/gymapp/ai/AiProfile;->addCond(Landroid/content/Context;JLjava/util/Set;)V
 
-    .line 1066
+    .line 1085
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiCoach;->savedLearned()V
 
-    .line 1067
+    .line 1086
     const-string v0, "\u0437\u0430\u043f\u0430\u0437\u0435\u043d\u043e \u0432 \u043f\u0440\u043e\u0444\u0438\u043b\u0430"
 
     const-string v1, "saved to the profile"
@@ -148,12 +148,12 @@
 
     sput-object v0, Lcom/isaigu/gymapp/ai/AiTrain;->lastChanges:Ljava/lang/String;
 
-    .line 1068
+    .line 1087
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiTrain;->rebuild()V
 
     goto :goto_10
 
-    .line 1043
+    .line 1062
     :pswitch_data_58
     .packed-switch 0x0
         :pswitch_11

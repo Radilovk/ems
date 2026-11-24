@@ -252,3 +252,12 @@ trainer wants a session fitted to this person in seconds; the AI must never stan
   the impulses run (`AutoSession.guard`).
 - Off-device: `tools/app-sim` `SimStrength` (+ in the countdown, + every 15 s for 3 min, "силата на 30", a slider to
   40 with the others kept) and `SimAuto`.
+
+## 1.1.550 — every function the AI coach reaches, tested
+`tools/app-sim` `SimCoachAll` (a ready program) and `SimCoachOwn` (the AI's own workout): each spoken command and
+each coach answer (the server's JSON through `AiTrain.onAnswer`), then what the suit actually gets (the row's bean:
+strength, channel levels, Hz, ON / OFF, 2nd impulse) and the engine's state — a PASS / FAIL table (43 functions).
+Found and fixed: "по-дълъг импулс" was not read (the singular "дълъг"); the AI's own workout had no impulse /
+pause / frequency tune (`MapRunner.tune`, by voice and by the coach's on/off/hz/rest deltas, end_in_min 0); "силата
+на 30" now means the program's strongest impulse (`AutoSession.level` on φmax — the wave's lower impulses go under
+it, the warm-up runs softer by design); "s" read aloud as a letter → "секунди".

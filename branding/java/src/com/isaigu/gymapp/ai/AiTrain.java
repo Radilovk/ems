@@ -183,7 +183,7 @@ public final class AiTrain {
                 return AiText.t("Затворено", "Closed");
             }
             if (!AiVoiceGate.pass(cmd, voiceFollowUp, false, AiVoiceCmd.isQuestion(cmd))) {
-                return "";                             // noise / filler / a repeat: no AI call
+                return dropped(cmd);                   // noise / filler / a repeat: no AI call
             }
             voiceAsk = true;                           // its answer is spoken (WakeListener.answer)
             say(c, cmd, true);                         // before the start: the words go to the AI's plan
@@ -218,7 +218,7 @@ public final class AiTrain {
         }
         boolean answer = AiCoach.awaitingAnswer();        // read before the bubble below is added
         if ((vc.isEmpty() || (answer && !safety(vc))) && !AiVoiceGate.pass(cmd, voiceFollowUp, answer, AiVoiceCmd.isQuestion(cmd))) {
-            return "";                                    // noise / filler / a repeat: no AI call, no bubble
+            return dropped(cmd);                          // noise / filler / a repeat: no AI call
         }
         AiCoach.userSpoke(cmd);                          // a 🎙 bubble in the chat, what was done under it
         if (answer && !safety(vc)) {
@@ -233,6 +233,21 @@ public final class AiTrain {
         voiceAsk = true;
         send(c, cmd, true, true);
         return "";
+    }
+
+    /**
+     * The gate kept these words on the tablet. After an explicit "тренер" that is not silence (owner, 2026-11-25: "it
+     * does not always write it in the chat, I do not know whether it heard me"): the words are shown as a bubble and the
+     * tablet says it did not understand (null). A dialogue's stray word or a repeat stays quiet.
+     */
+    private static String dropped(String cmd) {
+        String why = AiVoiceGate.why;
+        if (voiceFollowUp || !("noise".equals(why) || "filler".equals(why) || "stray".equals(why))) {
+            return "";
+        }
+        AiCoach.userSpoke(cmd);
+        rebuild();
+        return null;
     }
 
     /** The AI's session runs now: a ready program on Auto's engine, or the AI's own workout on the map engine. */

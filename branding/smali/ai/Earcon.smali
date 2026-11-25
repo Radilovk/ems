@@ -14,11 +14,15 @@
 # static fields
 .field static final RATE:I = 0x5dc0
 
+.field private static accepted:[S
+
 .field private static again:[S
 
 .field private static closed:[S
 
 .field private static ready:[S
+
+.field private static rejected:[S
 
 .field private static thinking:[S
 
@@ -32,6 +36,57 @@
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
+.end method
+
+.method public static accepted()V
+    .registers 4
+
+    .prologue
+    const/4 v1, 0x2
+
+    .line 53
+    sget-object v0, Lcom/isaigu/gymapp/ai/Earcon;->accepted:[S
+
+    if-nez v0, :cond_1a
+
+    .line 54
+    new-array v0, v1, [D
+
+    fill-array-data v0, :array_20
+
+    new-array v1, v1, [I
+
+    fill-array-data v1, :array_2c
+
+    const-wide v2, 0x3fd999999999999aL    # 0.4
+
+    invoke-static {v0, v1, v2, v3}, Lcom/isaigu/gymapp/ai/Earcon;->notes([D[ID)[S
+
+    move-result-object v0
+
+    sput-object v0, Lcom/isaigu/gymapp/ai/Earcon;->accepted:[S
+
+    .line 56
+    :cond_1a
+    sget-object v0, Lcom/isaigu/gymapp/ai/Earcon;->accepted:[S
+
+    invoke-static {v0}, Lcom/isaigu/gymapp/ai/Earcon;->play([S)V
+
+    .line 57
+    return-void
+
+    .line 54
+    :array_20
+    .array-data 8
+        0x40905c0000000000L    # 1047.0
+        0x4095d40000000000L    # 1397.0
+    .end array-data
+
+    :array_2c
+    .array-data 4
+        0x46
+        0x6e
+    .end array-data
 .end method
 
 .method public static again()V
@@ -84,12 +139,12 @@
     .prologue
     const/4 v1, 0x2
 
-    .line 50
+    .line 68
     sget-object v0, Lcom/isaigu/gymapp/ai/Earcon;->closed:[S
 
     if-nez v0, :cond_1a
 
-    .line 51
+    .line 69
     new-array v0, v1, [D
 
     fill-array-data v0, :array_20
@@ -106,16 +161,16 @@
 
     sput-object v0, Lcom/isaigu/gymapp/ai/Earcon;->closed:[S
 
-    .line 53
+    .line 71
     :cond_1a
     sget-object v0, Lcom/isaigu/gymapp/ai/Earcon;->closed:[S
 
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/Earcon;->play([S)V
 
-    .line 54
+    .line 72
     return-void
 
-    .line 51
+    .line 69
     :array_20
     .array-data 8
         0x408b800000000000L    # 880.0
@@ -133,10 +188,10 @@
     .registers 24
 
     .prologue
-    .line 58
+    .line 76
     const/4 v3, 0x0
 
-    .line 59
+    .line 77
     move-object/from16 v0, p1
 
     array-length v4, v0
@@ -148,26 +203,26 @@
 
     aget v5, p1, v2
 
-    .line 60
+    .line 78
     mul-int/lit16 v5, v5, 0x5dc0
 
     div-int/lit16 v5, v5, 0x3e8
 
     add-int/2addr v3, v5
 
-    .line 59
+    .line 77
     add-int/lit8 v2, v2, 0x1
 
     goto :goto_5
 
-    .line 62
+    .line 80
     :cond_11
     new-array v5, v3, [S
 
-    .line 63
+    .line 81
     const/4 v3, 0x0
 
-    .line 64
+    .line 82
     const/4 v2, 0x0
 
     :goto_15
@@ -177,14 +232,14 @@
 
     if-ge v2, v4, :cond_85
 
-    .line 65
+    .line 83
     aget v4, p1, v2
 
     mul-int/lit16 v4, v4, 0x5dc0
 
     div-int/lit16 v6, v4, 0x3e8
 
-    .line 66
+    .line 84
     div-int/lit8 v4, v6, 0x3
 
     const/16 v7, 0x120
@@ -193,13 +248,13 @@
 
     move-result v7
 
-    .line 67
+    .line 85
     const/4 v4, 0x0
 
     :goto_29
     if-ge v4, v6, :cond_81
 
-    .line 68
+    .line 86
     const-wide/high16 v8, 0x3ff0000000000000L    # 1.0
 
     int-to-double v10, v4
@@ -228,14 +283,14 @@
 
     move-result-wide v8
 
-    .line 69
+    .line 87
     int-to-double v10, v4
 
     const-wide v12, 0x40d7700000000000L    # 24000.0
 
     div-double/2addr v10, v12
 
-    .line 70
+    .line 88
     const-wide v12, 0x401921fb54442d18L    # 6.283185307179586
 
     aget-wide v14, p0, v2
@@ -266,7 +321,7 @@
 
     add-double/2addr v10, v12
 
-    .line 71
+    .line 89
     add-int v12, v3, v4
 
     const-wide/high16 v14, 0x3ff4000000000000L    # 1.25
@@ -291,21 +346,21 @@
 
     aput-short v8, v5, v12
 
-    .line 67
+    .line 85
     add-int/lit8 v4, v4, 0x1
 
     goto :goto_29
 
-    .line 73
+    .line 91
     :cond_81
     add-int/2addr v3, v6
 
-    .line 64
+    .line 82
     add-int/lit8 v2, v2, 0x1
 
     goto :goto_15
 
-    .line 75
+    .line 93
     :cond_85
     return-object v5
 .end method
@@ -314,13 +369,13 @@
     .registers 8
 
     .prologue
-    .line 80
+    .line 98
     :try_start_0
     array-length v0, p0
 
     mul-int/lit8 v5, v0, 0x2
 
-    .line 81
+    .line 99
     new-instance v0, Landroid/media/AudioTrack;
 
     const/4 v1, 0x3
@@ -335,35 +390,35 @@
 
     invoke-direct/range {v0 .. v6}, Landroid/media/AudioTrack;-><init>(IIIIII)V
 
-    .line 83
+    .line 101
     const/4 v1, 0x0
 
     array-length v2, p0
 
     invoke-virtual {v0, p0, v1, v2}, Landroid/media/AudioTrack;->write([SII)I
 
-    .line 84
+    .line 102
     array-length v1, p0
 
     invoke-virtual {v0, v1}, Landroid/media/AudioTrack;->setNotificationMarkerPosition(I)I
 
-    .line 85
+    .line 103
     new-instance v1, Lcom/isaigu/gymapp/ai/Earcon$Release;
 
     invoke-direct {v1}, Lcom/isaigu/gymapp/ai/Earcon$Release;-><init>()V
 
     invoke-virtual {v0, v1}, Landroid/media/AudioTrack;->setPlaybackPositionUpdateListener(Landroid/media/AudioTrack$OnPlaybackPositionUpdateListener;)V
 
-    .line 86
+    .line 104
     invoke-virtual {v0}, Landroid/media/AudioTrack;->play()V
     :try_end_22
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_22} :catch_23
 
-    .line 90
+    .line 108
     :goto_22
     return-void
 
-    .line 87
+    .line 105
     :catch_23
     move-exception v0
 
@@ -418,6 +473,57 @@
     .array-data 4
         0x6e
         0xbe
+    .end array-data
+.end method
+
+.method public static rejected()V
+    .registers 4
+
+    .prologue
+    const/4 v1, 0x2
+
+    .line 61
+    sget-object v0, Lcom/isaigu/gymapp/ai/Earcon;->rejected:[S
+
+    if-nez v0, :cond_1a
+
+    .line 62
+    new-array v0, v1, [D
+
+    fill-array-data v0, :array_20
+
+    new-array v1, v1, [I
+
+    fill-array-data v1, :array_2c
+
+    const-wide v2, 0x3fdccccccccccccdL    # 0.45
+
+    invoke-static {v0, v1, v2, v3}, Lcom/isaigu/gymapp/ai/Earcon;->notes([D[ID)[S
+
+    move-result-object v0
+
+    sput-object v0, Lcom/isaigu/gymapp/ai/Earcon;->rejected:[S
+
+    .line 64
+    :cond_1a
+    sget-object v0, Lcom/isaigu/gymapp/ai/Earcon;->rejected:[S
+
+    invoke-static {v0}, Lcom/isaigu/gymapp/ai/Earcon;->play([S)V
+
+    .line 65
+    return-void
+
+    .line 62
+    :array_20
+    .array-data 8
+        0x4074a00000000000L    # 330.0
+        0x406ee00000000000L    # 247.0
+    .end array-data
+
+    :array_2c
+    .array-data 4
+        0x82
+        0xdc
     .end array-data
 .end method
 

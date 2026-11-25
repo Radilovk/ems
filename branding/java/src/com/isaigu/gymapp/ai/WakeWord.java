@@ -385,7 +385,7 @@ public final class WakeWord {
     int thr = DEFAULT_THR;
     /** > 1 accepts more easily (the setting); the tablet lowers it itself after wakes that led to nothing. */
     public float sens = 1.0f;
-    static final float SENS_MIN = 0.7f;
+    static final float SENS_MIN = 0.7f, SENS_MAX = 1.4f;
     /**
      * Words that woke it for nothing (the room's noise, a look-alike): the next word closer to one of them than to
      * "тренер" is not a wake. The assistants' way — the false alarms the user never wanted are learned as negatives.
@@ -398,7 +398,11 @@ public final class WakeWord {
     /** A word that was only just not close enough: the same word again within NEAR_MS is the trainer repeating it. */
     private long nearAt;
     static final long NEAR_MS = 10000;
-    static final float NEAR_FACTOR = 1.35f;
+    static final float NEAR_FACTOR = 1.6f;
+    /** Set when a word was heard and not taken (the diag log: why "тренер" needed a second try), read once. */
+    public String miss;
+    /** The last wake came from a repeated near-miss. */
+    private boolean lastNear;
     boolean recording;
     /** The current word already fired (one wake per word). */
     private boolean fired;
@@ -424,7 +428,12 @@ public final class WakeWord {
 
     boolean loudEnough(float peak) {
         lastLoud = peak;
-        return loud <= 0 || lastLoud >= loud - LOUD_MARGIN;
+        return loud <= 0 || lastLoud >= loud - loudMargin();
+    }
+
+    /** A tablet where it needed repeats (sens up) hears quieter words too; one that fired for nothing (sens down) less. */
+    float loudMargin() {
+        return LOUD_MARGIN + Math.max(0f, sens - 1f) * 30f;
     }
 
     public boolean ready() {
@@ -499,23 +508,29 @@ public final class WakeWord {
                 retune();
                 return RECORDED;
             }
-            if (!was && ready() && loudEnough(finder.wPeak)) {
-                if (accept(w, 1f)) {
+            if (!was && ready()) {
+                boolean loudOk = loudEnough(finder.wPeak);
+                if (loudOk && accept(w, 1f)) {
                     wakeFrame = finder.w1;
+                    lastNear = false;
                     woke(w);
                     return WAKE;
                 }
-                // "I said it ten times and nothing": a word just outside the limit, said again soon, is the trainer
+                // "I said it ten times and nothing": a word just outside the limit (or a little quiet), said again
+                // soon, is the trainer repeating it — the repeat decides, not the first try's loudness
                 if (accept(w, NEAR_FACTOR)) {
                     long now = System.currentTimeMillis();
                     if (nearAt > 0 && now - nearAt <= NEAR_MS) {
                         nearAt = 0;
                         wakeFrame = finder.w1;
+                        lastNear = true;
                         woke(w);
                         return WAKE;
                     }
                     nearAt = now;
                 }
+                miss = "word not taken: d=" + lastD + " limit=" + threshold() + " loud=" + Math.round(finder.wPeak)
+                        + " need>=" + Math.round(loud - loudMargin()) + " sens=" + sens;
             }
             return NONE;
         }
@@ -556,8 +571,11 @@ public final class WakeWord {
      * a false alarm and makes it a little stricter; a command makes it a little more willing again.
      */
     public void feedback(boolean real) {
+        boolean near = lastNear;
+        lastNear = false;
         if (real) {
-            sens = Math.min(1.0f, sens * 1.04f);
+            // a command after a repeated near-miss: this tablet / room needs a more willing ear
+            sens = near ? Math.min(SENS_MAX, sens * 1.08f) : sens < 1f ? Math.min(1.0f, sens * 1.04f) : sens;
             return;
         }
         if (lastWakeWord == null || lastWakeD == INF || lastWakeD < threshold() * 0.6f) {

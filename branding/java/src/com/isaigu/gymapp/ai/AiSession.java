@@ -720,6 +720,7 @@ public final class AiSession {
         } else {
             engine.userPause(now);
             zeroOutput();
+            stopDevice();                      // the rows' own ❚❚ shows paused too
         }
     }
 

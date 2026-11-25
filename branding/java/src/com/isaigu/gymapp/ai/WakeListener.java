@@ -100,7 +100,7 @@ public final class WakeListener {
             if (c.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getBoolean("noBgRec", false)) {
                 serviceOk = false;                         // this tablet's background recognizer never worked
             }
-            SPOTTER.sens = Math.max(WakeWord.SENS_MIN, Math.min(1.0f,
+            SPOTTER.sens = Math.max(WakeWord.SENS_MIN, Math.min(WakeWord.SENS_MAX,
                     c.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getFloat("sens", 1.0f)));
             String hex = c.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getString("tpl", "");
             if (hex.length() > 0) {
@@ -152,7 +152,7 @@ public final class WakeListener {
     static void reloadExamples(Context c) {
         try {
             SPOTTER.clear();
-            SPOTTER.sens = Math.max(WakeWord.SENS_MIN, Math.min(1.0f,
+            SPOTTER.sens = Math.max(WakeWord.SENS_MIN, Math.min(WakeWord.SENS_MAX,
                     c.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getFloat("sens", 1.0f)));
             String hex = c.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getString("tpl", "");
             if (hex.length() > 0) {
@@ -366,6 +366,11 @@ public final class WakeListener {
                             }
                             int ev = SPOTTER.push(buf[i]);
                             if (ev == WakeWord.NONE) {
+                                String miss = SPOTTER.miss;
+                                if (miss != null) {
+                                    SPOTTER.miss = null;
+                                    WearableBleDiagLog.log("wake", miss);
+                                }
                                 continue;
                             }
                             WakeSetup.Sink sink = setup;
@@ -740,6 +745,14 @@ public final class WakeListener {
                     WearableBleDiagLog.log("wake", "window error " + error);
                 }
                 followUps = 0;
+                if (!followUp && error == SpeechRecognizer.ERROR_NO_MATCH && spoke) {
+                    // something was said but not recognised (not silence): the "not understood" sound
+                    WearableBleDiagLog.log("wake", "window: not recognised");
+                    windowResult(false);
+                    Earcon.rejected();
+                    afterWindow(200);
+                    return;
+                }
                 windowResult(false);
                 Earcon.closed();                              // it stopped listening: "тренер" again
                 afterWindow(200);
@@ -813,6 +826,7 @@ public final class WakeListener {
         }
         if (cmd.length() > 0) {
             WearableBleDiagLog.log("wake", "command \"" + cmd + "\"");
+            Earcon.accepted();                            // heard: a quick rising pair, whatever happens next
             String said = AiTrain.voice(ctx, cmd, followUp);
             if (said != null && said.length() > 0) {
                 // a command done on the tablet: say it, then back to "тренер" (owner, 1.1.555: a command is not a
@@ -822,7 +836,10 @@ public final class WakeListener {
                 return;
             }
             if (said == null) {
-                tone(ToneGenerator.TONE_PROP_NACK);
+                // heard, not understood: a low falling sound (owner: signals, no spoken answer)
+                Earcon.rejected();
+                afterWindow(300);
+                return;
             }
             // "" = it went to the AI: back to the spotter; the answer is spoken when it comes (answer)
         }

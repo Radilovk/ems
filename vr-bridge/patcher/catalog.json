@@ -11,6 +11,15 @@
       }
     },
     {
+      "id": "bhapticsspy",
+      "name": "XEMS bHaptics слушател",
+      "note": "За изпитване: записва какво изпращат игрите с bHaptics поддръжка (къде е ударът) и го качва сам. Заменя bHaptics Player на шлема. Лично, за проучване.",
+      "source": {
+        "url": "https://github.com/Radilovk/ems/raw/main/vr-workout/xems-bhaptics-spy.apk",
+        "ready": true
+      }
+    },
+    {
       "id": "challengebox",
       "name": "ChallengeBox Fitness",
       "note": "Бокс фитнес: загрявка, горна/долна част, HIIT, бокс срещу други. Безплатна, от SideQuest.",

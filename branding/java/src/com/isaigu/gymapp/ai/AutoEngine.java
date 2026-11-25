@@ -160,6 +160,59 @@ public final class AutoEngine {
         return adaptHzPct;
     }
 
+    // ---- the AI training's only automatic safety step (owner, 1.1.561 → 1.1.562): never the strength, never the pause
+    // between impulses — the frequency, −5 Hz, and only when the mode can hold less than 2 more minutes by the
+    // critical-intensity model (ai/Endurance, physiology §3.6); never under the frequency at which it holds. A pause the
+    // trainer makes refills the reserve; the restart frequency is the highest that holds again.
+    private final Endurance end;
+    /** Hz taken off the impulse now (0 = as planned). */
+    private int safeHzCut;
+    /** The heart reached its ceiling (or near it at a set's end): the next cycle may take a step. */
+    private boolean hrStep;
+
+    public int getSafeHzCut() {
+        return safeHzCut;
+    }
+
+    public Endurance getEndurance() {
+        return end;
+    }
+
+    /** Can this cycle be held the whole session (under the critical intensity)? */
+    public boolean sustainable(Cmd c) {
+        return c == null || end.intensity(c.hz, c.onS, c.offS, c.pauseHz, c.pauseSigma, c.pwUs) <= 1;
+    }
+
+    /** Before each cycle of the AI training: the last cycle spent (or refilled) the reserve; a step when needed. */
+    private void safeDecide(long now) {
+        if (!continuous || current == null) {
+            hrStep = false;
+            return;
+        }
+        boolean stepped = end.work(current.hz, current.onS, current.offS, current.pauseHz, current.pauseSigma,
+                current.pwUs, current.durationMs() / 1000.0, hrStep);
+        hrStep = false;
+        safeHzCut = end.cut();
+        if (stepped) {
+            log(now, "safety: " + end.last());
+        }
+    }
+
+    /** The reserve is spent and the frequency at its floor: only a pause helps (the trainer may be told). */
+    public boolean needsPause() {
+        return continuous && end.reserve() < 0;
+    }
+
+    /** After a pause: the reserve refilled by its length, the frequency back as far as it holds again. */
+    private void safeAfterPause(long now, double pauseS) {
+        end.rest(pauseS);
+        if (current != null && safeHzCut > 0) {
+            end.restart(current.hz, current.onS, current.offS, current.pauseHz, current.pauseSigma, current.pwUs);
+            log(now, "safety: " + end.last());
+        }
+        safeHzCut = end.cut();
+    }
+
     /** A set ended without a rest: the rest the fatigue asked for becomes the next set's easier impulse. */
     private void adaptFor(int restNeedS, long now) {
         int ext = restNeedS >= 60 ? 3 : restNeedS >= 35 ? 2 : restNeedS >= 18 ? 1 : 0;
@@ -249,6 +302,7 @@ public final class AutoEngine {
     public AutoEngine(Plan plan) {
         this.plan = plan;
         this.doublePulse = plan.doublePulseAllowed && plan.input.doublePulse;
+        this.end = new Endurance(plan.input.fitness);
         double[] fp = AiPlanner.fatigueParams(plan.input.fitness);
         fMax = fp[0];
         fRec = fp[1];
@@ -341,6 +395,10 @@ public final class AutoEngine {
                 if (from == State.HR_PAUSE) {
                     reentry = Math.min(reentry, 0.8);
                 }
+            }
+            if (continuous) {
+                reentry = 1.0;                         // the AI training: the strength stays the person's (1.1.561)
+                safeAfterPause(now, pauseS);
             }
             log(now, "go after " + Math.round(pauseS) + "s (" + from + ") r=" + fmt(reentry) + " F=" + fmt(peakF()));
         } else {
@@ -479,6 +537,10 @@ public final class AutoEngine {
         reentry = pauseS >= 30 ? clamp(1.0 - pauseS / 600.0, 0.6, 0.9) : Math.min(reentry, 1.0);
         if (state == State.HR_PAUSE) {
             reentry = Math.min(reentry, 0.8);
+        }
+        if (continuous) {
+            reentry = 1.0;                             // the AI training: the strength stays the person's (1.1.561)
+            safeAfterPause(now, pauseS);
         }
         state = State.RUN;
         resumeNeedsConfirm = false;
@@ -749,11 +811,10 @@ public final class AutoEngine {
         }
         // L11: heart rate at the ceiling → the output stops.
         if (plan.hrUse != HrUse.NONE && fresh && hr >= plan.hrCap && continuous) {
-            if (adaptOff < 3 || adaptHzPct < 15) {
-                adaptOff = 3;                          // no stop in the AI training: the easiest impulse instead
-                adaptHzPct = Math.max(adaptHzPct, 15);
+            if (!hrStep) {
+                hrStep = true;                         // no stop in the AI training: a frequency step at the next cycle
                 capHits++;
-                log(now, "HR " + hr + " ≥ cap " + plan.hrCap + " → continuous: pause +3 s, Hz −15 %");
+                log(now, "HR " + hr + " ≥ cap " + plan.hrCap + " → continuous: a safety step");
             }
         } else if (plan.hrUse != HrUse.NONE && fresh && hr >= plan.hrCap) {
             settle(now);
@@ -859,8 +920,7 @@ public final class AutoEngine {
             hrEndedSets++;
             enterRest(now, false);
             if (continuous) {
-                adaptOff = 3;                          // the heart high: the easiest impulse, no stop
-                adaptHzPct = Math.max(adaptHzPct, 15);
+                hrStep = true;                         // the heart high: a frequency step, no stop
             }
             if (state == State.REST) {
                 return null;
@@ -877,6 +937,7 @@ public final class AutoEngine {
                 corridorExt--;
             }
         }
+        safeDecide(now);
         Cmd c = build(ph, stepIndex, now);
         if (isStationPhase(phaseIndex) && stationS > 0 && stationS + c.durationMs() / 1000.0 > STATION_MAX_S
                 && stationS >= STATION_MIN_S - c.durationMs() / 1000.0) {
@@ -992,7 +1053,8 @@ public final class AutoEngine {
                     stationIndex = 0;
                 }
             } else {
-                adaptFor(rest, now);
+                // 1.1.561: no set-wise "easier impulse" (pause +N s, Hz −N %) — the safety step decides per cycle
+                log(now, "continuous: set done, the rest it would need " + rest + " s, F " + fmt(fMax > 0 ? peakF() / fMax : 0));
             }
             lastSetS = STATION_MAX_S;
             return;
@@ -2337,7 +2399,8 @@ public final class AutoEngine {
         Step base = program;
         boolean station = isStationPhase(phaseIndex);
         AutoDynamics.Approach[] list = station ? AutoDynamics.approaches(plan, ph) : null;
-        double g = AutoDynamics.glide(fMax > 0 ? peakF() / fMax : 0);
+        // the AI training: no glide (Hz down, pause +2 s, µs +20 as fatigue rises) — only the safety step (1.1.561)
+        double g = continuous ? 0 : AutoDynamics.glide(fMax > 0 ? peakF() / fMax : 0);
         if (list != null) {
             int key = phaseIndex * 100000 + stationsDone;
             if (key != apKey) {                       // a new set: its approach from what is happening now
@@ -2404,11 +2467,8 @@ public final class AutoEngine {
             s.pwUs = userPw;
         }
         s.offS += corridorExt + doseExt;
-        if (continuous && s.isTetanic() && !ph.isCooldown()) {
-            s.offS += adaptOff;
-            if (adaptHzPct > 0) {
-                s.hz = Math.max(20, (int) Math.round(s.hz * (1 - adaptHzPct / 100.0)));
-            }
+        if (continuous && s.isTetanic() && !ph.isCooldown() && safeHzCut > 0) {
+            s.hz = Math.max(Endurance.FLOOR_HZ, s.hz - safeHzCut);
         }
         if (s.isTetanic() && !ph.isCooldown() && !"WARMUP".equals(ph.id) && (vetoHz > 0 || vetoOn > 0 || vetoOff > 0)) {
             if (vetoHz > 0) {

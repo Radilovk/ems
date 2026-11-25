@@ -344,6 +344,9 @@ public final class MapRunner {
         approach = "";
         if (!map.isPassive()) {
             dyn = dynamicsFor(a);
+            if (dyn != null) {
+                dyn.ai = ai;
+            }
         }
         idleS = 0;
         base.clear();

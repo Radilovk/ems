@@ -162,6 +162,13 @@ public final class CloudVoice {
         }
     }
 
+    /** Something is said or waits to be said: nothing may listen meanwhile (it would hear the coach, 1.1.561). */
+    public static synchronized boolean busy() {
+        return track != null || !QUEUE.isEmpty() || playing;
+    }
+
+    private static volatile boolean playing;
+
     /** Silence now: what plays stops, what waits is dropped. */
     public static synchronized void stop() {
         stopNow();
@@ -200,10 +207,13 @@ public final class CloudVoice {
                     it = QUEUE.removeFirst();
                 }
                 boolean ok = false;
+                playing = true;
                 try {
                     ok = play(it);
                 } catch (Throwable t) {
                     WearableBleDiagLog.log("voice", "play: " + t);
+                } finally {
+                    playing = false;
                 }
                 if (it.gen != gen) {
                     continue;                              // stopped meanwhile: no "done", no fallback

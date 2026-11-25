@@ -24,6 +24,7 @@ import com.isaigu.gymapp.ai.AutoModel.Step;
 public final class MapDynamics {
     public static final int REST_MAX_S = 120;
 
+    private final AiModel.Fitness fitness;
     private final double fMax;
     private final double fRec;
     private final double tau;
@@ -43,8 +44,24 @@ public final class MapDynamics {
     private int lastHz = -1;
     private boolean fresh;
 
+    // ---- the AI's own workout (owner, 1.1.561 → 1.1.562, as AutoEngine's continuous mode): no glide — the frequency
+    // steps −5 Hz only when the mode can hold less than 2 more minutes (ai/Endurance); a pause or a rest block refills
+    // the reserve and the frequency comes back as far as it holds again
+    /** Set by MapRunner for the AI's workout. */
+    public boolean ai;
+    private Endurance end;
+    /** Seconds worked / without work since the last impulse was sent. */
+    private double workS;
+    private double idleS;
+    private Step lastSent;
+
+    public int safeHzCut() {
+        return end != null ? end.cut() : 0;
+    }
+
     /** @param hrMax the leader's HR max (≤ 0 = unknown: the heart rate is not used) */
     public MapDynamics(AiModel.Fitness fitness, int sessions, int age, int hrMax) {
+        this.fitness = fitness;
         double[] fp = AiPlanner.fatigueParams(fitness != null ? fitness : AiModel.Fitness.MID);
         this.fMax = fp[0];
         this.fRec = fp[1];
@@ -67,6 +84,11 @@ public final class MapDynamics {
     public void advance(double dtS, boolean running, boolean on, int hz, int pauseHz, double pauseSigma, double rho) {
         if (dtS <= 0) {
             return;
+        }
+        if (!running) {
+            idleS += dtS;                                    // a pause or a rest block: the reserve comes back
+        } else {
+            workS += dtS;
         }
         double e = Math.exp(-dtS / tau);
         double g = 0;
@@ -151,11 +173,35 @@ public final class MapDynamics {
             return null;
         }
         Step s = idx >= 0 && list != null
-                ? AutoDynamics.apply(drawn, list[idx], AutoDynamics.glide(fatigue()), pauseOk) : drawn.copy();
+                ? AutoDynamics.apply(drawn, list[idx], ai ? 0 : AutoDynamics.glide(fatigue()), pauseOk) : drawn.copy();
+        if (ai && s.isTetanic()) {
+            safety(s);
+        }
         s.rampUpMs = AutoDynamics.ramp(s.rampUpMs, lastHz, s.hz, fresh);
         fresh = false;
         lastHz = s.hz;
         return s;
+    }
+
+    /** The last impulse's work spent the reserve (a step when needed); a pause / rest refilled it (back as far as it holds). */
+    void safety(Step s) {
+        if (end == null) {
+            end = new Endurance(fitness);
+        }
+        Step p = lastSent;
+        if (idleS >= 5) {
+            end.rest(idleS);
+            if (p != null) {
+                end.restart(p.hz, p.onS, p.offS, p.pauseHz, p.pauseSigma, p.pwUs);
+            }
+        }
+        if (p != null && workS > 0) {
+            end.work(p.hz, p.onS, p.offS, p.pauseHz, p.pauseSigma, p.pwUs, workS, false);
+        }
+        workS = 0;
+        idleS = 0;
+        s.hz = Math.max(Endurance.FLOOR_HZ, s.hz - end.cut());
+        lastSent = s.copy();
     }
 
     /** A rest block starts: how long it must last (s) — the drawn one, longer when the muscle is not back yet. */

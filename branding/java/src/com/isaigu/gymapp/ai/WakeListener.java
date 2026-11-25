@@ -437,6 +437,10 @@ public final class WakeListener {
     static final class MicAgain implements Runnable {
         @Override
         public void run() {
+            if (setup == null && speaking()) {
+                MAIN.postDelayed(this, 250);               // the coach still talks: the spotter would hear it
+                return;
+            }
             if (setup != null || (on && SPOTTER.ready() && !window)) {
                 micStart();
             }
@@ -463,6 +467,12 @@ public final class WakeListener {
     static final class Wake implements Runnable {
         @Override
         public void run() {
+            if (speaking() || window) {
+                // its own voice (or a window already open): not a wake — the spotter listens again after
+                WearableBleDiagLog.log("wake", "wake ignored: the tablet is talking");
+                MAIN.postDelayed(new MicAgain(), 300);
+                return;
+            }
             WearableBleDiagLog.log("wake", "тренер d=" + SPOTTER.lastD + " thr=" + SPOTTER.threshold());
             followUp = false;
             openWindow();                                  // the tone sounds when the recognizer is ready
@@ -476,10 +486,14 @@ public final class WakeListener {
         window = true;
         state = "listening";
         AiTrain.voiceState();
-        // owner, 1.1.555: "тренер" presses the chat's 🎤 — the same speech dialog: it shows that it listens, ends by
-        // itself on a pause, and hands the words to the same path (commands on the tablet, else the AI's dialogue)
+        // owner, 1.1.561: no window that asks to "try again" (a tap the trainer cannot make) — Google's recognizer in
+        // the background, the board shows 🎙; nothing heard → it simply closes. The system dialog (1.1.555) only on a
+        // tablet without a background recognizer (Huawei without Google).
+        if (serviceOk == null && ctx != null) {
+            warmRecognizer();
+        }
         Activity a = host != null ? host.get() : null;
-        if (a != null && !a.isFinishing() && VoiceInput.listen(a, new DialogCommand(),
+        if (!Boolean.TRUE.equals(serviceOk) && a != null && !a.isFinishing() && VoiceInput.listen(a, new DialogCommand(),
                 followUp ? AiText.t("Слушам…", "Listening…") : AiText.t("Тренер слуша — кажи команда или въпрос",
                         "The trainer listens — a command or a question"))) {
             return;
@@ -506,6 +520,10 @@ public final class WakeListener {
 
     private static void begin() {
         if (!on || ctx == null) {
+            return;
+        }
+        if (speaking()) {
+            recognize(250);                                 // never listen over the coach's own voice
             return;
         }
         try {
@@ -539,7 +557,6 @@ public final class WakeListener {
             String lang = bg() ? "bg-BG" : "en-US";
             i.putExtra(RecognizerIntent.EXTRA_LANGUAGE, lang);
             i.putExtra(RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE, lang);
-            i.putExtra(RecognizerIntent.EXTRA_PREFER_OFFLINE, true);
             i.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 3);
             i.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE, ctx.getPackageName());
             if (window) {
@@ -740,12 +757,18 @@ public final class WakeListener {
         if (text == null || text.length() == 0 || ctx == null) {
             return;
         }
+        if (window) {
+            synchronized (LATER) {
+                LATER.add(text);                            // the recognizer would write the coach's own words
+            }
+            return;
+        }
         initTts();
         if ((!ttsOk || tts == null) && !cloud()) {
             return;
         }
         try {
-            if (on && !window) {
+            if (on) {
                 micStop();
             }
             String t = AiSpeak.clean(text);
@@ -762,6 +785,43 @@ public final class WakeListener {
     private static final Runnable FOLLOW = new Follow();
     private static final Runnable SPOTTER_AGAIN = new SpotterAgain();
     static final Spoken SPOKEN = new Spoken();
+
+    /**
+     * The tablet is talking (the cloud voice or its own engine): nothing listens meanwhile — not the spotter, not the
+     * command window (owner, 1.1.561: "it started dictating to itself"). Plus a short tail for the room's echo.
+     */
+    /** The steps that waited for a window to close. */
+    static void sayLater() {
+        java.util.ArrayList<String> l;
+        synchronized (LATER) {
+            if (LATER.isEmpty()) {
+                return;
+            }
+            l = new java.util.ArrayList<String>(LATER);
+            LATER.clear();
+        }
+        for (String t : l) {
+            announce(t);
+        }
+    }
+
+    static boolean speaking() {
+        boolean now = CloudVoice.busy();
+        try {
+            now = now || (tts != null && tts.isSpeaking());
+        } catch (Throwable ignored) {
+        }
+        if (now) {
+            quietSince = System.currentTimeMillis();
+            return true;
+        }
+        return System.currentTimeMillis() - quietSince < ECHO_MS;
+    }
+
+    private static volatile long quietSince;
+    static final long ECHO_MS = 450;
+    /** Steps said while a window listened: said after it (never into the recognizer). */
+    private static final java.util.ArrayList<String> LATER = new java.util.ArrayList<String>();
 
     /** The settings card speaks before any training started this session. */
     static void bind(Context c) {
@@ -821,6 +881,10 @@ public final class WakeListener {
             if (!on || window) {
                 return;
             }
+            if (speaking()) {
+                MAIN.postDelayed(FOLLOW, 200);              // the answer is still being said (a slow network)
+                return;
+            }
             micStop();
             followUp = true;
             openWindow();
@@ -836,10 +900,10 @@ public final class WakeListener {
         public void onDone(String id) {
             if (id != null && id.startsWith("xems-listen")) {
                 MAIN.removeCallbacks(FOLLOW);
-                MAIN.postDelayed(FOLLOW, 250);
+                MAIN.postDelayed(FOLLOW, ECHO_MS);
             } else if (id != null && id.startsWith("xems-said")) {
                 MAIN.removeCallbacks(SPOTTER_AGAIN);
-                MAIN.postDelayed(SPOTTER_AGAIN, 250);
+                MAIN.postDelayed(SPOTTER_AGAIN, ECHO_MS);
             } else if (id != null && id.startsWith("xems-ann")) {
                 MAIN.postDelayed(new MicAgain(), 300);      // the announcement said: the spotter listens again
             }
@@ -854,6 +918,7 @@ public final class WakeListener {
     static void afterWindow(long delayMs) {
         window = false;
         state = "";
+        sayLater();
         AiTrain.voiceState();
         cancelRecognizer();
         if (!on) {

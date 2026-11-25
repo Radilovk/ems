@@ -11,7 +11,7 @@ B="${ROOT}/branding/java/src/com/isaigu/gymapp/wearable/bluetens"
 S="${ROOT}/scripts/ai-sim/stub/com/isaigu/gymapp"
 javac -nowarn -encoding UTF-8 -source 8 -target 8 -d "${OUT}" "${A}"/Ai{Model,Screening,Planner,Personal,Energy}.java \
   "${S}/ai/AiText.java" "${S}/train/utils/ChannelStrengthScale.java" \
-  "${A}"/Auto{Model,Catalog,Limits,Planner,Dynamics,Engine,Cues,TemplateData,Templates}.java "${A}/SafeLimits.java" \
+  "${A}"/Auto{Model,Catalog,Limits,Planner,Dynamics,Engine,Cues,TemplateData,Templates}.java "${A}/SafeLimits.java" "${A}/Endurance.java" \
   "${A}/PulseAdvice.java" "${F}"/Face{Art,Program}.java "${B}"/Bluetens{Lok,Programs}.java "${D}/FaceExport.java" 2>&1 \
   | grep -v "Picked up\|bootstrap\|warning" || true
 java -Dfile.encoding=UTF-8 -cp "${OUT}" FaceExport "${1:-${ROOT}/branding/face/procedures.json}" 2>&1 | grep -v "Picked up" || true

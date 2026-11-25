@@ -34,3 +34,9 @@ is to contact bHaptics for third-party hardware. Have the full text read (by the
 ## Licence-free alternative: our own boxing sparring in XEMS Studio
 We draw the opponent, so we know the glove's contact point → zone → per-zone impulse (needs a wire message with a
 channel mask + a tablet-side per-channel boost over `PartStrength`; `suit.gd` already carries zone/side).
+
+## Update 2026-11-25 — phase 1 built (owner accepted the licence risk, private use only)
+`bhaptics-spy/` — a `com.bhaptics.player` look-alike that only LISTENS and uploads what games send (README there).
+APK is built locally (`bhaptics-spy/build.sh`), not published. `xems_vr_patch.py --install` installs it as-is
+(package `com.bhaptics.player` → ready path). Next: read the first recording (Thrill of the Fight), then decide the
+zone → channel mapping and the tablet link.

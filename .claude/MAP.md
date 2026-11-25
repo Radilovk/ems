@@ -94,7 +94,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/apply-ui-theme.py` (615L, build:L53) — Apply comprehensive UI theme across all app screens.
 - `scripts/apply-version.py` (56L, build:L48) — Stamp RELEASE_VERSION (versionName / versionCode) into build/decompiled/apktool.yml — its own step since 1.1.333 (it us…
 - `scripts/apply-voice-firmware.py` (32L, NOT-IN-BUILD) — Ship the voice module's firmware inside the APK: voice/xems-voice-sense-plus-ota.zip (sh scripts/voice/build-voice.sh) …
-- `scripts/apply-vr-bridge.py` (98L, build:L122[BETA_MUSIC]) — Quest 3 haptic bridge (wearable/vr, vr-bridge/): manifest permissions for the UDP receiver's Wi-Fi locks (WAKE_LOCK → l…
+- `scripts/apply-vr-bridge.py` (103L, build:L122[BETA_MUSIC]) — Quest 3 haptic bridge (wearable/vr, vr-bridge/): manifest permissions for the UDP receiver's Wi-Fi locks (WAKE_LOCK → l…
 - `scripts/apply-wearable-bridge.py` (503L, build:L120[BETA_MUSIC]) — Notify wearable sync: config modal + floating HR dial (interval-timer style).
 - `scripts/apply-wearable-permissions.py` (90L, build:L121[BETA_MUSIC]) — At MainActivity startup ask only for what the suit needs, in one request (wearable/XemsAccess) — the vendor's own stora…
 - `scripts/apply-xems-nav.py` (91L, build:L129[BETA_MUSIC]) — XEMS navigation (v1.1.64): page tabs → ☰ menu top-left, bottom bar → module tiles.
@@ -119,7 +119,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/compile-interval-timer-java.sh` (103L, build:L113[BETA_MUSIC,SKIP_JAVA_RECOMPILE]) — Compile interval timer + block program classes from Java to smali.
 - `scripts/compile-music-sync-java.sh` (220L, build:L103[BETA_MUSIC,SKIP_JAVA_RECOMPILE]) — Compile BETA music-sync classes from Java to smali (avoids hand-written branch bugs).
 - `scripts/compile-softramp-java.sh` (44L, build:L83[SKIP_JAVA_RECOMPILE]) — Compile train/model/SoftRamp.java (the tablet-side ramp + the safety guard hook) to branding/smali/softramp/
-- `scripts/compile-wearable-java.sh` (304L, build:L118[BETA_MUSIC,SKIP_JAVA_RECOMPILE]) — Compile the wearable bridge + band UI, the Smart Session and the automatic mode (ai package) from Java to smali.
+- `scripts/compile-wearable-java.sh` (309L, build:L118[BETA_MUSIC,SKIP_JAVA_RECOMPILE]) — Compile the wearable bridge + band UI, the Smart Session and the automatic mode (ai package) from Java to smali.
 - `scripts/compile-xems-license-java.sh` (61L, build:L80[SKIP_JAVA_RECOMPILE]) — Compile XemsLicense*.java to branding/smali/widget/
 - `scripts/compile-xems-local-java.sh` (86L, build:L127[BETA_MUSIC,SKIP_JAVA_RECOMPILE]) — Compile XemsLocal*.java to branding/smali/widget/
 - `scripts/design-apply.sh` (96L) — Sync studio → validate → apply train design → optional APK build
@@ -455,7 +455,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `MastogoLink.java` (371L, compile:music-sync*,wearable) — One MASTOGO H-024B over BLE for as long as its page is open: service FFF0, notify on FFF4, write on FFF5 (the vendor ap…
 - `MastogoModes.java` (189L, compile:music-sync*,wearable) — The 26 firmware programs of the MASTOGO H- unit as the vendor's own DOMAS app (com.roblink.domas 3.1.1, device "Hawk TE…
 - `MastogoScan.java` (124L, compile:music-sync*,wearable) — Finds MASTOGO H- units (the vendor app's name prefix) while the page is open; results on the main thread.
-- `MastogoScreen.java` (2381L, compile:music-sync*,wearable) — The MASTOGO page (menu → "Mastogo"): the H-024B TENS / EMS unit, apart from the suit — owner, 2026-10-27 ("I want the m…
+- `MastogoScreen.java` (2408L, compile:music-sync*,wearable) — The MASTOGO page (menu → "Mastogo"): the H-024B TENS / EMS unit, apart from the suit — owner, 2026-10-27 ("I want the m…
 - `MastogoShell.java` (1630L, compile:music-sync*,wearable) — The conversation with one MASTOGO H-024B (DOMAS "Candy TENS 3S", board ZX-571C, SYD8811) — pure Java, no Android: the B…
 - `MastogoStore.java` (141L, compile:music-sync*) — The trainer's own MASTOGO combinations and program notes (owner, 2026-10-27: "combinations and notes") — pure Java, the…
 
@@ -465,7 +465,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `ScaleBody.java` (234L, compile:music-sync*,wearable) — Body composition from one scale measurement — iCOMON's WLA25, the algorithm Fitdays uses for these scales, so the numbe…
 - `ScaleDetail.java` (582L, compile:music-sync*,wearable) — The full report of one weigh-in, as the fitness apps list it — every value with its status word — plus the five zones a…
 - `ScaleInsight.java` (928L, compile:music-sync*,wearable) — What the scale's measurements mean for EMS — pure Java (docs/xems-scale.md "EMS use", docs/xems-ems-physiology.md §6): …
-- `ScaleLink.java` (1188L, compile:music-sync*,wearable) — The body-composition scale, straight over BLE (no Fitdays, no cloud), for as long as the page is open: find the scale w…
+- `ScaleLink.java` (1193L, compile:music-sync*,wearable) — The body-composition scale, straight over BLE (no Fitdays, no cloud), for as long as the page is open: find the scale w…
 - `ScaleModel.java` (446L, compile:music-sync*,wearable) — XEMS body model over the scale's impedances: sex-aware, and steady from one weigh-in to the next.
 - `ScaleProtocol.java` (401L, compile:music-sync*,wearable) — The ICOMON body-composition scale (Lepulse Lescale P1, Fitdays app) over BLE service FFB0, plaintext — pure Java, no ra…
 - `ScaleScreen.java` (2888L, compile:music-sync*,wearable) — The scale page of one client (client row → scale icon) — a full-screen work surface, landscape, two views behind one sw…
@@ -479,22 +479,27 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `ScaleViews.java` (2037L, compile:music-sync*,wearable) — The drawn parts of the scale's result page: the body figure painted by segment, the radar of the five segments against …
 
 **wearable/vr/** (`branding/java/src/com/isaigu/gymapp/wearable/vr/`)
-- `VrBridge.java` (58L, compile:music-sync*,wearable) — Lifecycle of the Quest 3 haptic bridge (vr-bridge/): listening while the training screen is open (wearable/NotifyWearab…
+- `VrBridge.java` (59L, compile:music-sync*,wearable) — Lifecycle of the Quest 3 haptic bridge (vr-bridge/): listening while the training screen is open (wearable/NotifyWearab…
 - `VrClockSync.java` (61L, compile:music-sync*,wearable) — Quest ↔ tablet monotonic clock offset from PING/PONG.
 - `VrControl.java` (125L, compile:music-sync*,wearable) — The impulse dock of XEMS Studio (owner, 2026-10: "a dock for the impulses, channels, strength"): the game's "Костюм" pa…
 - `VrControlSink.java` (16L, compile:music-sync*,wearable) — Where a game's own impulse controls leave the network layer (XEMS Studio's "Костюм" page and wrist dock, vr-workout/scr…
-- `VrDrive.java` (270L, compile:music-sync*,wearable) — The game's haptic level ({@link VrPulses}) → the XEMS controller, the way MusicSync drives it: the trainer's strength o…
+- `VrDrive.java` (271L, compile:music-sync*,wearable) — The game's haptic level ({@link VrPulses}) → the XEMS controller, the way MusicSync drives it: the trainer's strength o…
 - `VrHapticEvent.java` (56L, compile:music-sync*,wearable) — One xrApplyHapticFeedback call from the game, already time-mapped to this tablet's clock.
-- `VrHapticRouter.java` (41L, compile:music-sync*,wearable) — The one {@link VrHapticSink}: VrTelemetryReceiver → {@link VrNoiseGate} → {@link VrPulses} → {@link VrDrive} (MusicSync…
+- `VrHapticRouter.java` (42L, compile:music-sync*,wearable) — The one {@link VrHapticSink}: VrTelemetryReceiver → {@link VrNoiseGate} → {@link VrPulses} → {@link VrDrive} (MusicSync…
 - `VrHapticSink.java` (17L, compile:music-sync*,wearable) — Where VR telemetry leaves the network layer (implementation: {@link VrHapticRouter}).
 - `VrMainCall.java` (30L, compile:music-sync*,wearable) — Main-thread hops for {@link VrDrive} (named, dx-safe: no anonymous Runnables).
 - `VrNoiseGate.java` (60L, compile:music-sync*,wearable) — Which game haptics become an impulse (owner, 1.1.397): UI clicks, hovers and background rumble are dropped, hits pass.
 - `VrPanel.java` (473L, compile:music-sync*,wearable) — VR haptics sheet (owner, 1.1.402), opened from the "VR" tile of the module bar.
 - `VrPulses.java` (73L, compile:music-sync*,wearable) — The game's haptics as one level 0..1 (share of the trainer's strength): per hand, the pulse's amplitude until it ends.
 - `VrSettings.java` (152L, compile:music-sync*,wearable) — The trainer's VR settings (owner, 1.1.402): one set for the tablet, the same for every client (prefs "xems_vr").
-- `VrTelemetryReceiver.java` (362L, compile:music-sync*,wearable) — UDP gateway for the Quest 3 OpenXR haptic layer (vr-bridge/quest-layer).
-- `VrWire.java` (58L, compile:music-sync*,wearable) — Wire constants — mirror of vr-bridge/quest-layer/src/xems_wire.h (little-endian, packed).
-- `VrZones.java` (64L, compile:music-sync*,wearable) — Less fatigue in VR (owner, 1.1.396): while VR drives a row, the resting channels ({@link VrSettings#rests}; by default …
+- `VrTelemetryReceiver.java` (388L, compile:music-sync*,wearable) — UDP gateway for the Quest 3 OpenXR haptic layer (vr-bridge/quest-layer).
+- `VrWire.java` (66L, compile:music-sync*,wearable) — Wire constants — mirror of vr-bridge/quest-layer/src/xems_wire.h (little-endian, packed).
+- `VrZoneFocus.java` (46L, compile:music-sync*,wearable) — Which suit channels a zone hit still holds at a moment: per channel the time its last hit ends.
+- `VrZoneHit.java` (30L, compile:music-sync*,wearable) — One hit on a body region as a zone-aware game sent it: region ({@link VrWire#ZR_VEST_FRONT}…), levels per motor.
+- `VrZoneMap.java` (54L, compile:music-sync*,wearable) — Which suit channels a zone hit contracts (owner, 2026-11-25: "hits in the arms tighten the arms channel, hits in the be…
+- `VrZoneRouter.java` (55L, compile:music-sync*,wearable) — Zone hits (the bHaptics listener on the headset → VrTelemetryReceiver) → what the player's body should feel: (1) the su…
+- `VrZoneSink.java` (7L, compile:music-sync*,wearable) — Where a zone hit leaves the network layer (implementation: {@link VrZoneRouter}); receiver thread, keep it short.
+- `VrZones.java` (96L, compile:music-sync*,wearable) — Less fatigue in VR (owner, 1.1.396): while VR drives a row, the resting channels ({@link VrSettings#rests}; by default …
 
 **wearable/xiaomi/** (`branding/java/src/com/isaigu/gymapp/wearable/xiaomi/`)
 - `MiFitnessLogImport.java` (697L, compile:music-sync*,wearable) — Reads the band's auth key (and BLE MAC when present) out of the log files the Mi Fitness app writes (Profile → About → …
@@ -791,6 +796,12 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L23 ## Train screen preview — **canonical method for UI frames**
   - L40 ## Not automatable without hardware
 
+`bhaptics-spy/README.md` (32L)
+  - L1 # XEMS bHaptics listener (`com.bhaptics.player` look-alike) — personal research tool
+  - L14 ## Use (the owner: install once, then only play)
+  - L22 ## Build / test
+  - L28 ## Files
+
 `bodytech/HANDOFF.md` (36L)
   - L1 # Bodytech — състояние (1.1.345-ai)
   - L9 ## Къде е какво
@@ -1079,6 +1090,16 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L950 ## 22. Owner's answers on the tests (1.1.571)
   - L970 ## 23. Efficiency ≠ load: liberal (owner, 1.1.572)
 
+`docs/xems-bhaptics-research.md` (76L)
+  - L1 # bHaptics ecosystem as a source of hit ZONES (research, 2026-11-25 — nothing built yet)
+  - L6 ## How a Quest game talks to bHaptics (read from `bhaptics/tact-android`, `libs/bhaptics_manager.aar`)
+  - L22 ## Idea (NOT built)
+  - L27 ## BLOCKER to clear first — the SDK licence (https://bhaptics.gitbook.io/license-sdk/, 11.08.2024)
+  - L34 ## Licence-free alternative: our own boxing sparring in XEMS Studio
+  - L38 ## Update 2026-11-25 — phase 1 built (owner accepted the licence risk, private use only)
+  - L44 ## First recording — The Thrill of the Fight (Quest 3, 2026-11-25, code 5YFKJNHUHH, `com.fyian.TheThrillOfTheFight`)
+  - L64 ## 1.1.579-ai — zone hits reach the tablet (owner's spec, 2026-11-25)
+
 `docs/xems-bluetens.md` (124L)
   - L1 # Bluetens — protocol and the XEMS module plan
   - L7 ## Device
@@ -1249,7 +1270,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L197 ## Какво остава за сървъра
   - L204 ## Проверки (без Android)
 
-`docs/xems-mastogo.md` (229L)
+`docs/xems-mastogo.md` (233L)
   - L1 # MASTOGO H-024B (DOMAS / PNrelief) — BLE protocol
   - L7 ## Hardware (owner's photos, 2026-10-27)
   - L27 ## Transport
@@ -1424,34 +1445,34 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L44 ## 3. UI / UX
   - L57 ## 4. Какво да се провери на първото истинско мерене
 
-`docs/xems-scale.md` (528L)
+`docs/xems-scale.md` (535L)
   - L1 # Body-composition scale (Lepulse Lescale P1) — direct BLE, no Fitdays
-  - L40 ## Code (`branding/java/src/com/isaigu/gymapp/wearable/scale/`, compile:wearable)
-  - L58 ## Senssun / MovingLife scales — Klausberg KB-7853 (1.1.306–307-ai, `ScaleSenssun`)
-  - L112 ## EMS use (1.1.286-ai)
-  - L123 ## Where the scale's data goes — every algorithm that uses the body (1.1.292-ai)
-  - L147 ### Readiness and focus, second pass (1.1.311-ai)
-  - L161 ### Client card — "Тяло" (1.1.310-ai)
-  - L175 ### Weight: the newest entry wins — typed or weighed (1.1.458-ai, owner)
-  - L182 ### Strength is never derived from the body (1.1.458-ai, owner)
-  - L188 ### Weight: the scale wins over the card (1.1.315-ai, owner; superseded by "newest entry wins" above)
-  - L195 ### Trend: tap a dot (1.1.315-ai)
-  - L199 ## Body type, physical age — what the fitness apps get wrong (1.1.287-ai)
-  - L218 ## XEMS model — sex-aware, steady (1.1.295-ai, `ScaleModel`)
-  - L244 ## Physiological limit between weigh-ins (1.1.342-ai, owner: "fat can't change that much in minutes")
-  - L254 ## State vs trait — why physical age jumped (1.1.300-ai)
-  - L268 ## One session must be enough — per-value stability (1.1.301-ai)
-  - L313 ## Owner's Fitdays report = test vector (1.1.288-ai)
-  - L320 ## Figures (1.1.288-ai)
-  - L325 ## Measuring — the stage and the session (1.1.301-ai, owner: "why does it make me step off?")
-  - L357 ## Scientific basis — "Научна основа" (1.1.298-ai, `ScaleSources`)
-  - L370 ## Result page (`ScaleScreen`) — two views
-  - L467 ## What the hardware is
-  - L478 ## Two verified open-source decoders (both MIT — portable to Java)
-  - L499 ## Measuring protocol (owner: no suit, thin clothes)
-  - L507 ## Validation path
-  - L512 ## Gemini / LLM
-  - L517 ## Licences of the ported code
+  - L47 ## Code (`branding/java/src/com/isaigu/gymapp/wearable/scale/`, compile:wearable)
+  - L65 ## Senssun / MovingLife scales — Klausberg KB-7853 (1.1.306–307-ai, `ScaleSenssun`)
+  - L119 ## EMS use (1.1.286-ai)
+  - L130 ## Where the scale's data goes — every algorithm that uses the body (1.1.292-ai)
+  - L154 ### Readiness and focus, second pass (1.1.311-ai)
+  - L168 ### Client card — "Тяло" (1.1.310-ai)
+  - L182 ### Weight: the newest entry wins — typed or weighed (1.1.458-ai, owner)
+  - L189 ### Strength is never derived from the body (1.1.458-ai, owner)
+  - L195 ### Weight: the scale wins over the card (1.1.315-ai, owner; superseded by "newest entry wins" above)
+  - L202 ### Trend: tap a dot (1.1.315-ai)
+  - L206 ## Body type, physical age — what the fitness apps get wrong (1.1.287-ai)
+  - L225 ## XEMS model — sex-aware, steady (1.1.295-ai, `ScaleModel`)
+  - L251 ## Physiological limit between weigh-ins (1.1.342-ai, owner: "fat can't change that much in minutes")
+  - L261 ## State vs trait — why physical age jumped (1.1.300-ai)
+  - L275 ## One session must be enough — per-value stability (1.1.301-ai)
+  - L320 ## Owner's Fitdays report = test vector (1.1.288-ai)
+  - L327 ## Figures (1.1.288-ai)
+  - L332 ## Measuring — the stage and the session (1.1.301-ai, owner: "why does it make me step off?")
+  - L364 ## Scientific basis — "Научна основа" (1.1.298-ai, `ScaleSources`)
+  - L377 ## Result page (`ScaleScreen`) — two views
+  - L474 ## What the hardware is
+  - L485 ## Two verified open-source decoders (both MIT — portable to Java)
+  - L506 ## Measuring protocol (owner: no suit, thin clothes)
+  - L514 ## Validation path
+  - L519 ## Gemini / LLM
+  - L524 ## Licences of the ported code
 
 `docs/xems-server-spec.md` (287L)
   - L1 # XEMS сървър — задание за доразработка (лицензи, функции, обновяване)
@@ -1735,7 +1756,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L39 ## Deploy
   - L57 ## Разходи
 
-`vr-bridge/README.md` (116L)
+`vr-bridge/README.md` (122L)
   - L1 # XEMS VR haptic bridge
   - L24 ## Tablet (in the APK since 1.1.395-ai; manual mode + zones since 1.1.396-ai)
   - L45 ## Build (layer)
@@ -1744,6 +1765,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L83 ## Tablet UI — the "VR" tile (1.1.402)
   - L96 ## Protocol
   - L111 ## Test
+  - L117 ## Zone hits (T_ZHIT, 1.1.579-ai)
 
 `vr-bridge/patcher/android-launcher/README.md` (125L)
   - L1 # XEMS VR Launcher (on-device front end)
@@ -1768,7 +1790,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L203 ## Build / preview
   - L212 ## Licences
 
-`vr-workout/assets/CREDITS.md` (30L)
+`vr-workout/assets/CREDITS.md` (29L)
   - L1 # Asset credits
 
 `wiems/PROTOCOL.md` (218L)

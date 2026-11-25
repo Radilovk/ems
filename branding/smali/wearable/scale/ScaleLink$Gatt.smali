@@ -23,13 +23,13 @@
     .registers 2
 
     .prologue
-    .line 1001
+    .line 1006
     invoke-direct {p0}, Landroid/bluetooth/BluetoothGattCallback;-><init>()V
 
-    .line 1002
+    .line 1007
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink$Gatt;->link:Lcom/isaigu/gymapp/wearable/scale/ScaleLink;
 
-    .line 1003
+    .line 1008
     return-void
 .end method
 
@@ -41,12 +41,12 @@
     .prologue
     const/4 v4, 0x0
 
-    .line 1017
+    .line 1022
     invoke-virtual {p2}, Landroid/bluetooth/BluetoothGattCharacteristic;->getValue()[B
 
     move-result-object v3
 
-    .line 1018
+    .line 1023
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink$Gatt;->link:Lcom/isaigu/gymapp/wearable/scale/ScaleLink;
 
     iget-object v8, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->main:Landroid/os/Handler;
@@ -80,10 +80,10 @@
 
     invoke-virtual {v8, v0}, Landroid/os/Handler;->post(Ljava/lang/Runnable;)Z
 
-    .line 1019
+    .line 1024
     return-void
 
-    .line 1018
+    .line 1023
     :cond_24
     const/4 v7, 0x0
 
@@ -91,72 +91,6 @@
 .end method
 
 .method public onCharacteristicWrite(Landroid/bluetooth/BluetoothGatt;Landroid/bluetooth/BluetoothGattCharacteristic;I)V
-    .registers 13
-
-    .prologue
-    const/4 v6, 0x0
-
-    .line 1023
-    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink$Gatt;->link:Lcom/isaigu/gymapp/wearable/scale/ScaleLink;
-
-    iget-object v8, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->main:Landroid/os/Handler;
-
-    new-instance v0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink$Event;
-
-    iget-object v1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink$Gatt;->link:Lcom/isaigu/gymapp/wearable/scale/ScaleLink;
-
-    const/4 v2, 0x4
-
-    const/4 v5, 0x0
-
-    move-object v3, p1
-
-    move v4, p3
-
-    move-object v7, v6
-
-    invoke-direct/range {v0 .. v7}, Lcom/isaigu/gymapp/wearable/scale/ScaleLink$Event;-><init>(Lcom/isaigu/gymapp/wearable/scale/ScaleLink;ILandroid/bluetooth/BluetoothGatt;IILjava/util/UUID;[B)V
-
-    invoke-virtual {v8, v0}, Landroid/os/Handler;->post(Ljava/lang/Runnable;)Z
-
-    .line 1024
-    return-void
-.end method
-
-.method public onConnectionStateChange(Landroid/bluetooth/BluetoothGatt;II)V
-    .registers 13
-
-    .prologue
-    const/4 v6, 0x0
-
-    .line 1007
-    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink$Gatt;->link:Lcom/isaigu/gymapp/wearable/scale/ScaleLink;
-
-    iget-object v8, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->main:Landroid/os/Handler;
-
-    new-instance v0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink$Event;
-
-    iget-object v1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink$Gatt;->link:Lcom/isaigu/gymapp/wearable/scale/ScaleLink;
-
-    const/4 v2, 0x1
-
-    move-object v3, p1
-
-    move v4, p2
-
-    move v5, p3
-
-    move-object v7, v6
-
-    invoke-direct/range {v0 .. v7}, Lcom/isaigu/gymapp/wearable/scale/ScaleLink$Event;-><init>(Lcom/isaigu/gymapp/wearable/scale/ScaleLink;ILandroid/bluetooth/BluetoothGatt;IILjava/util/UUID;[B)V
-
-    invoke-virtual {v8, v0}, Landroid/os/Handler;->post(Ljava/lang/Runnable;)Z
-
-    .line 1008
-    return-void
-.end method
-
-.method public onDescriptorWrite(Landroid/bluetooth/BluetoothGatt;Landroid/bluetooth/BluetoothGattDescriptor;I)V
     .registers 13
 
     .prologue
@@ -189,13 +123,79 @@
     return-void
 .end method
 
+.method public onConnectionStateChange(Landroid/bluetooth/BluetoothGatt;II)V
+    .registers 13
+
+    .prologue
+    const/4 v6, 0x0
+
+    .line 1012
+    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink$Gatt;->link:Lcom/isaigu/gymapp/wearable/scale/ScaleLink;
+
+    iget-object v8, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->main:Landroid/os/Handler;
+
+    new-instance v0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink$Event;
+
+    iget-object v1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink$Gatt;->link:Lcom/isaigu/gymapp/wearable/scale/ScaleLink;
+
+    const/4 v2, 0x1
+
+    move-object v3, p1
+
+    move v4, p2
+
+    move v5, p3
+
+    move-object v7, v6
+
+    invoke-direct/range {v0 .. v7}, Lcom/isaigu/gymapp/wearable/scale/ScaleLink$Event;-><init>(Lcom/isaigu/gymapp/wearable/scale/ScaleLink;ILandroid/bluetooth/BluetoothGatt;IILjava/util/UUID;[B)V
+
+    invoke-virtual {v8, v0}, Landroid/os/Handler;->post(Ljava/lang/Runnable;)Z
+
+    .line 1013
+    return-void
+.end method
+
+.method public onDescriptorWrite(Landroid/bluetooth/BluetoothGatt;Landroid/bluetooth/BluetoothGattDescriptor;I)V
+    .registers 13
+
+    .prologue
+    const/4 v6, 0x0
+
+    .line 1033
+    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink$Gatt;->link:Lcom/isaigu/gymapp/wearable/scale/ScaleLink;
+
+    iget-object v8, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->main:Landroid/os/Handler;
+
+    new-instance v0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink$Event;
+
+    iget-object v1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink$Gatt;->link:Lcom/isaigu/gymapp/wearable/scale/ScaleLink;
+
+    const/4 v2, 0x4
+
+    const/4 v5, 0x0
+
+    move-object v3, p1
+
+    move v4, p3
+
+    move-object v7, v6
+
+    invoke-direct/range {v0 .. v7}, Lcom/isaigu/gymapp/wearable/scale/ScaleLink$Event;-><init>(Lcom/isaigu/gymapp/wearable/scale/ScaleLink;ILandroid/bluetooth/BluetoothGatt;IILjava/util/UUID;[B)V
+
+    invoke-virtual {v8, v0}, Landroid/os/Handler;->post(Ljava/lang/Runnable;)Z
+
+    .line 1034
+    return-void
+.end method
+
 .method public onServicesDiscovered(Landroid/bluetooth/BluetoothGatt;I)V
     .registers 12
 
     .prologue
     const/4 v6, 0x0
 
-    .line 1012
+    .line 1017
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink$Gatt;->link:Lcom/isaigu/gymapp/wearable/scale/ScaleLink;
 
     iget-object v8, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->main:Landroid/os/Handler;
@@ -218,6 +218,6 @@
 
     invoke-virtual {v8, v0}, Landroid/os/Handler;->post(Ljava/lang/Runnable;)Z
 
-    .line 1013
+    .line 1018
     return-void
 .end method

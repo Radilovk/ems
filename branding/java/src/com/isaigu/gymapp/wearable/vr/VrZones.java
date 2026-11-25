@@ -14,6 +14,9 @@ import com.isaigu.gymapp.wearable.WearableBleDiagLog;
 final class VrZones {
     private static TrainItem item;
     private static boolean[] switchedOff;
+    /** Channels that were on when VR engaged (the only ones VR may switch) and the focus mask now applied. */
+    private static boolean[] managed;
+    private static int focus;
 
     private VrZones() {}
 
@@ -31,8 +34,35 @@ final class VrZones {
                 mine[i] = true;
             }
         }
+        boolean[] man = new boolean[d.length];
+        for (int i = 0; i < d.length; i++) {
+            man[i] = !d[i] || mine[i];                 // on at the start (the rests are ours already)
+        }
         item = row;
         switchedOff = mine;
+        managed = man;
+        focus = 0;
+        PartPick.refresh();
+    }
+
+    /**
+     * A zone hit is running: only its channels carry the impulse ({@code mask}, bit = partsDisabled index); 0 = back
+     * to the resting channels. Only channels that were on when VR engaged are touched. Main thread, every tick.
+     */
+    static void setFocus(int mask) {
+        TrainItem row = item;
+        boolean[] man = managed;
+        if (row == null || man == null || row.partsDisabled == null || mask == focus) {
+            return;
+        }
+        focus = mask;
+        boolean[] d = row.partsDisabled;
+        for (int i = 0; i < d.length && i < man.length && i < VrSettings.CHANNELS; i++) {
+            if (!man[i]) {
+                continue;
+            }
+            d[i] = mask != 0 ? (mask & (1 << i)) == 0 : VrSettings.rests(i);
+        }
         PartPick.refresh();
     }
 
@@ -46,16 +76,18 @@ final class VrZones {
 
     static void release() {
         TrainItem row = item;
-        boolean[] mine = switchedOff;
+        boolean[] man = managed;
         item = null;
         switchedOff = null;
-        if (row == null || mine == null || row.partsDisabled == null) {
+        managed = null;
+        focus = 0;
+        if (row == null || man == null || row.partsDisabled == null) {
             return;
         }
         boolean[] d = row.partsDisabled;
-        for (int i = 0; i < mine.length && i < d.length; i++) {
-            if (mine[i]) {
-                d[i] = false;
+        for (int i = 0; i < man.length && i < d.length; i++) {
+            if (man[i]) {
+                d[i] = false;                          // on again (the trainer's own off was never ours)
             }
         }
         PartPick.refresh();

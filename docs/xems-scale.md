@@ -37,6 +37,13 @@ strongest first (★ = FFB0 in the advert), one tap saves its MAC as the scale (
 protocol is captured as gen X). Log: `start: saved … location …`, `seen MAC rssi "name" FFB0 adv …` per device,
 `not found in 10 s: N adverts, M devices near`, `picked MAC`.
 
+**Faster after the advert (1.1.578-ai).** The first advert already decides (saved MAC / FFB0 / scale-like name → connect
+at once, scan stopped). Now after `CONNECTED` the link asks `CONNECTION_PRIORITY_HIGH` (short interval: discovery,
+CCCDs and the handshake in milliseconds, not seconds) and a missed gen-A hello is covered after 0.5 s (was 1.5 s).
+History check: gen A (FG2305ULB, name Lescale / Lepulse / FFB0) is the original P1 path (1.1.285); the owner's unit
+FG2001ULB "F8" (1.1.488–492) speaks the B frames. iComon's own SDK (`ScaleIcomon`, 1.1.493) is only on branch
+`ccr-7db337c1-8suskq`, **not merged**.
+
 ## Code (`branding/java/src/com/isaigu/gymapp/wearable/scale/`, compile:wearable)
 | Class | What |
 |---|---|

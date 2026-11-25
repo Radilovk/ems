@@ -34,6 +34,7 @@ public final class VrHapticRouter implements VrHapticSink {
         } else {
             passed = 0;
             dropped = 0;
+            VrZoneRouter.reset();
         }
         VrDrive.postLink(up, app);
     }

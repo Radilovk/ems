@@ -111,11 +111,11 @@
 
     invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/wearable/vr/VrPulses;->stop(I)V
 
-    .line 38
+    .line 39
     :goto_9
     invoke-static {p1, p2}, Lcom/isaigu/gymapp/wearable/vr/VrDrive;->postLink(ZLjava/lang/String;)V
 
-    .line 39
+    .line 40
     return-void
 
     .line 35
@@ -124,6 +124,9 @@
 
     .line 36
     sput v0, Lcom/isaigu/gymapp/wearable/vr/VrHapticRouter;->dropped:I
+
+    .line 37
+    invoke-static {}, Lcom/isaigu/gymapp/wearable/vr/VrZoneRouter;->reset()V
 
     goto :goto_9
 .end method

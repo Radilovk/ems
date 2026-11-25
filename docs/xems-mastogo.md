@@ -226,3 +226,7 @@ hidden command the sweep must find).
   anything else (`+X:OK`, a tagged error like `+X ERROR:103`, silence) = the name exists → listed. Pause + strength
   0 after every such hit. Same two-tap arming and resume after the unit's idle power-off as the query sweep.
 - Not done: no device test yet; one unit at a time (the vendor links several); no folding to a pill.
+
+- **VR zone hits (1.1.579-ai, test):** every hit the player TAKES in a game with body zones (bHaptics listener,
+  docs/xems-bhaptics-research.md) calls `MastogoScreen.vrHit()` = the panel's УДАР (14 Пеперуда, `fxMs`, ФОН), ≤ 4/s, while
+  the Mastogo panel is open with a unit ready. The unit is meant to sit on the shoulder.

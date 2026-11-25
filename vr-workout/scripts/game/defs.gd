@@ -14,7 +14,7 @@
 ## (belly, glutes, back), upper body → arms, legs → legs. Those are the suit zones.
 ##
 ## The chef (scenario "Готвачът", Piazza Bologni or Pretville Street): a cook at his food cart throws food at the player on the beat.
-##   FOOD (a burger, a cheeseburger, a doughnut, ice cream) – smash it with a fist: it bursts and burns a little;
+##   FOOD (a burger, a doughnut, ice cream) – smash it with a fist: it bursts and burns a little;
 ##                                missed, it is eaten: all its calories go on (far more than a hit takes off)
 ##   APPLE (healthy, rare)        – not for smashing: let it come and eat it (smashing it breaks the combo)
 ## Every hit has a power (weak · medium · mighty) from the fist's speed and its run-up — see Power.
@@ -128,7 +128,7 @@ static func multiplier(combo: int) -> int:
 
 ## What the chef throws. kcal = a real portion (eaten when it gets through) · size = its longest side in flight (m) ·
 ## splash = the colour of its splat and crumbs · hp = power points to break it (a weak hit 1, medium 2, mighty 3).
-## The MEGA burger and the whole cake need a mighty hit (or a medium and a weak); anything less cracks them and they fly on.
+## The whole cake needs a mighty hit (or a medium and a weak); anything less cracks them and they fly on.
 const FOODS := {
 	"burger": {"name": "Бургер", "model": "res://assets/chef/burger.glb", "kcal": 550, "size": 0.21,
 		"splash": Color(0.62, 0.36, 0.16), "hp": 1},
@@ -136,10 +136,6 @@ const FOODS := {
 		"splash": Color(0.36, 0.2, 0.1), "hp": 1},
 	"ice_cream": {"name": "Сладолед", "model": "res://assets/chef/ice_cream.glb", "kcal": 280, "size": 0.2,
 		"splash": Color(1.0, 0.72, 0.82), "hp": 1},
-	"cheeseburger": {"name": "Двоен чийзбургер", "model": "res://assets/chef/cheeseburger.glb", "kcal": 920, "size": 0.24,
-		"splash": Color(0.95, 0.68, 0.15), "hp": 1},
-	"mega": {"name": "МЕГА бургер", "model": "res://assets/chef/cheeseburger.glb", "kcal": 1650, "size": 0.46,
-		"splash": Color(0.95, 0.6, 0.12), "hp": 3},
 	"croissant": {"name": "Кроасан", "model": "res://assets/chef/croissant.glb", "kcal": 270, "size": 0.2,
 		"splash": Color(0.86, 0.62, 0.3), "hp": 1},
 	"cake": {"name": "Цяла торта", "model": "res://assets/chef/cake.glb", "kcal": 2900, "size": 0.42,
@@ -147,8 +143,8 @@ const FOODS := {
 	"apple": {"name": "Ябълка", "model": "res://assets/chef/apple.glb", "kcal": 95, "size": 0.14,
 		"splash": Color(0.95, 0.95, 0.75), "hp": 1},
 }
-const JUNK := ["burger", "burger", "donut", "donut", "ice_cream", "cheeseburger", "croissant"]
-const BOSSES := ["mega", "cake"]   # what closes a level: needs a mighty hit
+const JUNK := ["burger", "burger", "donut", "donut", "ice_cream", "croissant", "burger"]
+const BOSSES := ["cake"]   # what closes a level: needs a mighty hit
 
 
 static func boss(id: String) -> bool:
@@ -159,7 +155,7 @@ const BURN := [0.05, 0.1, 0.18]
 const RETURN_BONUS := 0.12         # a mighty hit sent back onto the chef burns this much more of it
 const APPLE_POINTS := 150          # eating the apple (letting it come): healthy, the combo goes on
 
-## The chef's levels: speed m/s · gap s · count · apple = share of apples · pat = share of combinations · mega = a MEGA
+## The chef's levels: speed m/s · gap s · count · apple = share of apples · pat = share of combinations · mega = a boss (the cake)
 ## burger closes the level. The food is aimed at the chest and face, from level 3 also low (a squat) and wide.
 const CHEF_LEVELS := [
 	{"speed": 3.2, "gap": [2.2, 2.8], "count": 10, "apple": 0.0, "pat": 0.0, "mega": false},

@@ -52,6 +52,8 @@
 
 .field public static final LEN_STOP:I = 0x1c
 
+.field public static final LEN_ZHIT:I = 0x40
+
 .field public static final MAGIC:I = 0x48525658
 
 .field public static final PORT:I = 0xbab8
@@ -86,7 +88,35 @@
 
 .field public static final T_STOP:I = 0x2
 
+.field public static final T_ZHIT:I = 0x6
+
 .field public static final VERSION:I = 0x1
+
+.field public static final ZHIT_LEVELS:I = 0x20
+
+.field public static final ZR_FOOT_L:I = 0x8
+
+.field public static final ZR_FOOT_R:I = 0x9
+
+.field public static final ZR_FOREARM_L:I = 0x6
+
+.field public static final ZR_FOREARM_R:I = 0x7
+
+.field public static final ZR_GLOVE_L:I = 0xa
+
+.field public static final ZR_GLOVE_R:I = 0xb
+
+.field public static final ZR_HAND_L:I = 0x1
+
+.field public static final ZR_HAND_R:I = 0x2
+
+.field public static final ZR_HEAD:I = 0x5
+
+.field public static final ZR_UNKNOWN:I = 0x0
+
+.field public static final ZR_VEST_BACK:I = 0x4
+
+.field public static final ZR_VEST_FRONT:I = 0x3
 
 
 # direct methods

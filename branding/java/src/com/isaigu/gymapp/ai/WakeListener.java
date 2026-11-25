@@ -694,7 +694,7 @@ public final class WakeListener {
                 // a command done on the tablet: say it, then back to "тренер" (owner, 1.1.555: a command is not a
                 // dialogue — the room's noise must not keep it listening)
                 endWindow();
-                answer(said, false);
+                answer(said, AiLive.asking());             // a question back ("Да го направя ли?"): it listens on
                 return;
             }
             if (said == null) {

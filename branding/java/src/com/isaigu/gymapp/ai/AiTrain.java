@@ -189,6 +189,23 @@ public final class AiTrain {
             say(c, cmd, true);                         // before the start: the words go to the AI's plan
             return "";
         }
+        if (AiLive.asking()) {
+            boolean[] no = new boolean[1];
+            AiVoiceCmd.Result yes = AiLive.answer(cmd, no);
+            if (yes != null || no[0]) {
+                AiCoach.userSpoke(cmd);
+                if (yes != null) {
+                    commandsDone(yes, cmd, true);
+                    return lastSpoken != null && lastSpoken.length() > 0 ? lastSpoken : AiText.t("Готово.", "Done.");
+                }
+                String keep = AiText.t("Добре, оставям го така.", "Fine, I leave it as it is.");
+                AiCoach.Reply r = new AiCoach.Reply();
+                r.reply = keep;
+                AiCoach.aiSaid(r);
+                rebuild();
+                return keep;
+            }
+        }
         boolean answer = AiCoach.awaitingAnswer();        // read before the bubble below is added
         if ((vc.isEmpty() || (answer && !safety(vc))) && !AiVoiceGate.pass(cmd, voiceFollowUp, answer, AiVoiceCmd.isQuestion(cmd))) {
             return "";                                    // noise / filler / a repeat: no AI call, no bubble
@@ -648,6 +665,21 @@ public final class AiTrain {
             draft = "";
         }
         pending = null;
+        if (live && AiLive.asking()) {
+            boolean[] no = new boolean[1];
+            AiVoiceCmd.Result yes = AiLive.answer(t, no);
+            if (yes != null) {
+                commandsDone(yes, t, true);
+                return;
+            }
+            if (no[0]) {
+                AiCoach.Reply r = new AiCoach.Reply();
+                r.reply = AiText.t("Добре, оставям го така.", "Fine, I leave it as it is.");
+                AiCoach.aiSaid(r);
+                rebuild();
+                return;
+            }
+        }
         if (live) {
             // a spoken / typed command: read on the tablet first — instant, no network (owner, 1.1.539)
             AiVoiceCmd.Result vc = AiVoiceCmd.parse(t);
@@ -668,7 +700,36 @@ public final class AiTrain {
 
     /** The commands → the session now; the chat says what was done. */
     static void commandsDone(AiVoiceCmd.Result vc, String text) {
-        String done = applyCommands(vc);
+        commandsDone(vc, text, false);
+    }
+
+    /**
+     * confirmed: the trainer said "да" to a warning — no check again. Else (1.1.564) a raise of the frequency, depth,
+     * impulse, a shorter pause or the 2nd impulse is checked: refused with the reason, or warned and asked.
+     */
+    static void commandsDone(AiVoiceCmd.Result vc, String text, boolean confirmed) {
+        String note = "";
+        if (!confirmed && AiTrain.live()) {
+            AiLive.Verdict v = AiLive.check(vc);
+            note = v.said.toString().trim();
+            if (!v.ask.isEmpty()) {
+                AiLive.ask(v.ask);
+            }
+            vc = v.now;
+        }
+        String done = vc.isEmpty() ? "" : applyCommands(vc);
+        if (note.length() > 0) {
+            String spoken = (done.length() > 0 ? AiSpeak.natural(done) + ". " : "") + note;
+            lastSpoken = spoken;
+            AiCoach.Reply r = new AiCoach.Reply();
+            r.reply = (done.length() > 0 ? "✓ " + done + " · " : "") + note;
+            AiCoach.aiSaid(r);
+            lastChanges = done;
+            rebuild();
+            speakBack(spoken);
+            WearableBleDiagLog.log("ai-train", "command \"" + text + "\" → " + done + " | " + note);
+            return;
+        }
         lastSpoken = AiSpeak.natural(done);          // said aloud as sentences, not the chat's short form
         AiCoach.Reply r = new AiCoach.Reply();
         r.reply = done.length() > 0 ? "✓ " + done : AiText.t("Не можах да го направя сега.", "Could not do it now.");
@@ -1039,16 +1100,12 @@ public final class AiTrain {
         return b.append("]}").toString();
     }
 
+    /** The live state for the coach (1.1.564: the impulse, the heart, how long it holds, the engine's decisions). */
     static String runJson() {
-        AutoEngine e = AutoSession.getEngine();
-        if (e == null) {
+        if (AutoSession.getEngine() == null && !MapRunner.isAi()) {
             return null;
         }
-        AutoModel.Phase ph = e.phase();
-        return "{\"phase\":" + AiBrief.q(ph != null ? ph.nameBg : "") + ",\"min_done\":"
-                + Math.round(e.getSessionS(System.currentTimeMillis()) / 60.0) + ",\"state\":\"" + e.getState().name()
-                + "\",\"tune\":{\"on\":" + e.getTuneOn() + ",\"off\":" + e.getTuneOff() + ",\"hz_pct\":" + e.getTuneHzPct()
-                + ",\"rest_pct\":" + Math.round((e.getTuneRest() - 1) * 100) + "}}";
+        return AiLive.json();
     }
 
     private static void toast(Context c, String s) {
@@ -1308,6 +1365,7 @@ public final class AiTrain {
             AutoSession.close();
             MapRunner.ai = true;                       // the AI tab: its board, bar, voice and chat (1.1.547)
             AiAnnounce.reset();
+            AiLive.reset();
             MapRunner.noDouble = false;
             String why = MapRunner.arm(a, w);
             if (why != null) {

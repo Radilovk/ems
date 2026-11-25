@@ -1670,7 +1670,7 @@
 .end method
 
 .method static commandHeard(Ljava/util/ArrayList;)V
-    .registers 6
+    .registers 5
     .annotation system Ldalvik/annotation/Signature;
         value = {
             "(",
@@ -1682,24 +1682,24 @@
     .end annotation
 
     .prologue
-    const/4 v4, 0x0
+    const/4 v1, 0x0
 
     .line 681
-    if-eqz p0, :cond_64
+    if-eqz p0, :cond_68
 
     invoke-virtual {p0}, Ljava/util/ArrayList;->isEmpty()Z
 
     move-result v0
 
-    if-nez v0, :cond_64
+    if-nez v0, :cond_68
 
-    invoke-virtual {p0, v4}, Ljava/util/ArrayList;->get(I)Ljava/lang/Object;
+    invoke-virtual {p0, v1}, Ljava/util/ArrayList;->get(I)Ljava/lang/Object;
 
     move-result-object v0
 
-    if-eqz v0, :cond_64
+    if-eqz v0, :cond_68
 
-    invoke-virtual {p0, v4}, Ljava/util/ArrayList;->get(I)Ljava/lang/Object;
+    invoke-virtual {p0, v1}, Ljava/util/ArrayList;->get(I)Ljava/lang/Object;
 
     move-result-object v0
 
@@ -1737,7 +1737,7 @@
 
     move-result v1
 
-    if-lez v1, :cond_6e
+    if-lez v1, :cond_72
 
     .line 691
     const-string v1, "wake"
@@ -1778,33 +1778,37 @@
     move-result-object v0
 
     .line 693
-    if-eqz v0, :cond_67
+    if-eqz v0, :cond_6b
 
     invoke-virtual {v0}, Ljava/lang/String;->length()I
 
     move-result v1
 
-    if-lez v1, :cond_67
+    if-lez v1, :cond_6b
 
     .line 696
     invoke-static {}, Lcom/isaigu/gymapp/ai/WakeListener;->endWindow()V
 
     .line 697
-    invoke-static {v0, v4}, Lcom/isaigu/gymapp/ai/WakeListener;->answer(Ljava/lang/String;Z)V
+    invoke-static {}, Lcom/isaigu/gymapp/ai/AiLive;->asking()Z
+
+    move-result v1
+
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/ai/WakeListener;->answer(Ljava/lang/String;Z)V
 
     .line 706
-    :goto_63
+    :goto_67
     return-void
 
     .line 681
-    :cond_64
+    :cond_68
     const-string v0, ""
 
     goto :goto_19
 
     .line 700
-    :cond_67
-    if-nez v0, :cond_6e
+    :cond_6b
+    if-nez v0, :cond_72
 
     .line 701
     const/16 v0, 0x1a
@@ -1812,12 +1816,12 @@
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/WakeListener;->tone(I)V
 
     .line 705
-    :cond_6e
+    :cond_72
     const-wide/16 v0, 0x12c
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/ai/WakeListener;->afterWindow(J)V
 
-    goto :goto_63
+    goto :goto_67
 .end method
 
 .method private static destroyRecognizer()V

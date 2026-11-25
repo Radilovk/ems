@@ -132,6 +132,15 @@ public final class MapRunner {
         return ai && map != null;
     }
 
+    /** The impulse sent now (the AI's live context, 1.1.564); null before the first. */
+    static AutoModel.Step current() {
+        return cur;
+    }
+
+    static MapDynamics dynamics() {
+        return dyn;
+    }
+
     static Workout map() {
         return map;
     }
@@ -762,7 +771,8 @@ public final class MapRunner {
                     work ? b.rel / 100.0 : 0);
         }
         if (ai) {
-            AiAnnounce.map();                         // the AI's workout says its exercises aloud (1.1.548)
+            AiAnnounce.map();
+            AiLive.tick();                         // the AI's workout says its exercises aloud (1.1.548)
             if (endAtMs > 0 && now >= endAtMs) {
                 endAtMs = 0;
                 stop();                               // "приключи след N минути" (1.1.551)

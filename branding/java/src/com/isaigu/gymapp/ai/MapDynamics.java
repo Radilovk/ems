@@ -59,6 +59,26 @@ public final class MapDynamics {
         return end != null ? end.cut() : 0;
     }
 
+    public Endurance endurance() {
+        if (end == null) {
+            end = new Endurance(fitness);
+        }
+        return end;
+    }
+
+    public int hrCap() {
+        return hrCap;
+    }
+
+    /** The decisions since the last call (AutoEngine's kinds): the coach says them (1.1.564). */
+    private final java.util.ArrayList<int[]> events = new java.util.ArrayList<int[]>();
+
+    public synchronized java.util.List<int[]> pollEvents() {
+        java.util.List<int[]> out = new java.util.ArrayList<int[]>(events);
+        events.clear();
+        return out;
+    }
+
     /** @param hrMax the leader's HR max (≤ 0 = unknown: the heart rate is not used) */
     public MapDynamics(AiModel.Fitness fitness, int sessions, int age, int hrMax) {
         this.fitness = fitness;
@@ -191,12 +211,22 @@ public final class MapDynamics {
         Step p = lastSent;
         if (idleS >= 5) {
             end.rest(idleS);
+            int was = end.cut();
             if (p != null) {
                 end.restart(p.hz, p.onS, p.offS, p.pauseHz, p.pauseSigma, p.pwUs);
+                if (end.cut() < was) {
+                    synchronized (this) {
+                        events.add(new int[] {AutoEngine.EV_BACK, p.hz, p.hz + (was - end.cut()), 0});
+                    }
+                }
             }
         }
-        if (p != null && workS > 0) {
-            end.work(p.hz, p.onS, p.offS, p.pauseHz, p.pauseSigma, p.pwUs, workS, false);
+        if (p != null && workS > 0 && end.work(p.hz, p.onS, p.offS, p.pauseHz, p.pauseSigma, p.pwUs, workS, false)) {
+            synchronized (this) {
+                if (events.size() < 20) {
+                    events.add(new int[] {AutoEngine.EV_STEP_TIME, p.hz, p.hz - Endurance.STEP_HZ, (int) end.lastHoldS});
+                }
+            }
         }
         workS = 0;
         idleS = 0;

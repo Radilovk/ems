@@ -28,6 +28,10 @@
 
 .field private last:Ljava/lang/String;
 
+.field public lastByHeart:Z
+
+.field public lastHoldS:D
+
 .field private reserve:D
 
 .field private sinceStep:D
@@ -40,7 +44,7 @@
     .registers 6
 
     .prologue
-    .line 45
+    .line 48
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     .line 40
@@ -58,7 +62,7 @@
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/Endurance;->last:Ljava/lang/String;
 
-    .line 46
+    .line 49
     if-eqz p1, :cond_23
 
     :goto_14
@@ -66,24 +70,24 @@
 
     move-result-object v0
 
-    .line 47
+    .line 50
     const/4 v1, 0x0
 
     aget-wide v2, v0, v1
 
     iput-wide v2, p0, Lcom/isaigu/gymapp/ai/Endurance;->fMax:D
 
-    .line 48
+    .line 51
     const/4 v1, 0x2
 
     aget-wide v0, v0, v1
 
     iput-wide v0, p0, Lcom/isaigu/gymapp/ai/Endurance;->tau:D
 
-    .line 49
+    .line 52
     return-void
 
-    .line 46
+    .line 49
     :cond_23
     sget-object p1, Lcom/isaigu/gymapp/ai/AiModel$Fitness;->MID:Lcom/isaigu/gymapp/ai/AiModel$Fitness;
 
@@ -94,7 +98,7 @@
     .registers 7
 
     .prologue
-    .line 66
+    .line 69
     const/16 v0, 0x32
 
     invoke-static {v0, p0}, Ljava/lang/Math;->max(II)I
@@ -111,7 +115,7 @@
 
     move-result-wide v0
 
-    .line 67
+    .line 70
     const-wide v2, 0x3feb333333333333L    # 0.85
 
     const-wide v4, 0x3ff2666666666666L    # 1.15
@@ -133,7 +137,7 @@
     .registers 17
 
     .prologue
-    .line 86
+    .line 89
     move v2, p1
 
     :goto_1
@@ -153,7 +157,7 @@
 
     move/from16 v8, p7
 
-    .line 87
+    .line 90
     invoke-virtual/range {v1 .. v8}, Lcom/isaigu/gymapp/ai/Endurance;->intensity(IIIIDI)D
 
     move-result-wide v0
@@ -164,17 +168,17 @@
 
     if-gtz v0, :cond_17
 
-    .line 91
+    .line 94
     :goto_16
     return v2
 
-    .line 86
+    .line 89
     :cond_17
     add-int/lit8 v2, v2, -0x1
 
     goto :goto_1
 
-    .line 91
+    .line 94
     :cond_1a
     const/16 v2, 0x14
 
@@ -185,7 +189,7 @@
     .registers 2
 
     .prologue
-    .line 53
+    .line 56
     iget v0, p0, Lcom/isaigu/gymapp/ai/Endurance;->cut:I
 
     return v0
@@ -197,12 +201,12 @@
     .prologue
     const-wide/high16 v6, 0x3ff0000000000000L    # 1.0
 
-    .line 80
+    .line 83
     invoke-virtual/range {p0 .. p7}, Lcom/isaigu/gymapp/ai/Endurance;->intensity(IIIIDI)D
 
     move-result-wide v0
 
-    .line 81
+    .line 84
     cmpg-double v2, v0, v6
 
     if-gtz v2, :cond_d
@@ -240,7 +244,7 @@
 
     const-wide/16 v0, 0x0
 
-    .line 72
+    .line 75
     const/16 v2, 0x14
 
     if-lt p1, v2, :cond_d
@@ -251,7 +255,7 @@
 
     if-gtz v2, :cond_e
 
-    .line 75
+    .line 78
     :cond_d
     :goto_d
     return-wide v0
@@ -294,7 +298,7 @@
     .registers 2
 
     .prologue
-    .line 62
+    .line 65
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/Endurance;->last:Ljava/lang/String;
 
     return-object v0
@@ -304,7 +308,7 @@
     .registers 3
 
     .prologue
-    .line 57
+    .line 60
     iget-wide v0, p0, Lcom/isaigu/gymapp/ai/Endurance;->reserve:D
 
     return-wide v0
@@ -316,14 +320,14 @@
     .prologue
     const-wide/high16 v8, 0x3ff0000000000000L    # 1.0
 
-    .line 130
+    .line 135
     const-wide/16 v0, 0x0
 
     cmpl-double v0, p1, v0
 
     if-lez v0, :cond_24
 
-    .line 131
+    .line 136
     iget-wide v0, p0, Lcom/isaigu/gymapp/ai/Endurance;->reserve:D
 
     iget-wide v2, p0, Lcom/isaigu/gymapp/ai/Endurance;->reserve:D
@@ -348,7 +352,7 @@
 
     iput-wide v0, p0, Lcom/isaigu/gymapp/ai/Endurance;->reserve:D
 
-    .line 132
+    .line 137
     iget-wide v0, p0, Lcom/isaigu/gymapp/ai/Endurance;->reserve:D
 
     invoke-static {v8, v9, v0, v1}, Ljava/lang/Math;->min(DD)D
@@ -357,7 +361,7 @@
 
     iput-wide v0, p0, Lcom/isaigu/gymapp/ai/Endurance;->reserve:D
 
-    .line 134
+    .line 139
     :cond_24
     return-void
 .end method
@@ -366,23 +370,23 @@
     .registers 19
 
     .prologue
-    .line 141
+    .line 146
     iget v0, p0, Lcom/isaigu/gymapp/ai/Endurance;->cut:I
 
     if-gtz v0, :cond_5
 
-    .line 155
+    .line 160
     :cond_4
     :goto_4
     return-void
 
-    .line 144
+    .line 149
     :cond_5
     iget v0, p0, Lcom/isaigu/gymapp/ai/Endurance;->cut:I
 
     add-int v9, p1, v0
 
-    .line 145
+    .line 150
     const/4 v0, 0x0
 
     :goto_a
@@ -390,7 +394,7 @@
 
     if-gt v0, v1, :cond_4
 
-    .line 146
+    .line 151
     sub-int v2, v9, v0
 
     move-object v1, p0
@@ -405,7 +409,7 @@
 
     move/from16 v8, p7
 
-    .line 147
+    .line 152
     invoke-virtual/range {v1 .. v8}, Lcom/isaigu/gymapp/ai/Endurance;->holdS(IIIIDI)D
 
     move-result-wide v4
@@ -416,7 +420,7 @@
 
     if-ltz v1, :cond_6d
 
-    .line 148
+    .line 153
     new-instance v1, Ljava/lang/StringBuilder;
 
     invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
@@ -485,17 +489,17 @@
 
     iput-object v1, p0, Lcom/isaigu/gymapp/ai/Endurance;->last:Ljava/lang/String;
 
-    .line 150
+    .line 155
     iput v0, p0, Lcom/isaigu/gymapp/ai/Endurance;->cut:I
 
-    .line 151
+    .line 156
     const-wide/16 v0, 0x0
 
     iput-wide v0, p0, Lcom/isaigu/gymapp/ai/Endurance;->sinceStep:D
 
     goto :goto_4
 
-    .line 145
+    .line 150
     :cond_6d
     add-int/lit8 v0, v0, 0x5
 
@@ -506,34 +510,34 @@
     .registers 25
 
     .prologue
-    .line 99
+    .line 102
     const-wide/16 v2, 0x0
 
     cmpg-double v2, p8, v2
 
     if-gtz v2, :cond_8
 
-    .line 100
+    .line 103
     const/4 v2, 0x0
 
-    .line 125
+    .line 130
     :goto_7
     return v2
 
-    .line 102
+    .line 105
     :cond_8
     invoke-virtual/range {p0 .. p7}, Lcom/isaigu/gymapp/ai/Endurance;->intensity(IIIIDI)D
 
     move-result-wide v8
 
-    .line 103
+    .line 106
     const-wide/high16 v2, 0x3ff0000000000000L    # 1.0
 
     cmpl-double v2, v8, v2
 
     if-lez v2, :cond_3c
 
-    .line 104
+    .line 107
     iget-wide v2, p0, Lcom/isaigu/gymapp/ai/Endurance;->reserve:D
 
     const-wide/high16 v4, 0x3ff0000000000000L    # 1.0
@@ -550,7 +554,7 @@
 
     iput-wide v2, p0, Lcom/isaigu/gymapp/ai/Endurance;->reserve:D
 
-    .line 108
+    .line 111
     :goto_20
     const-wide/high16 v2, -0x4020000000000000L    # -0.5
 
@@ -568,24 +572,24 @@
 
     iput-wide v2, p0, Lcom/isaigu/gymapp/ai/Endurance;->reserve:D
 
-    .line 109
+    .line 112
     iget-wide v2, p0, Lcom/isaigu/gymapp/ai/Endurance;->sinceStep:D
 
     add-double v2, v2, p8
 
     iput-wide v2, p0, Lcom/isaigu/gymapp/ai/Endurance;->sinceStep:D
 
-    .line 110
+    .line 113
     const/16 v2, 0x14
 
     if-ge p1, v2, :cond_58
 
-    .line 111
+    .line 114
     const/4 v2, 0x0
 
     goto :goto_7
 
-    .line 106
+    .line 109
     :cond_3c
     iget-wide v2, p0, Lcom/isaigu/gymapp/ai/Endurance;->reserve:D
 
@@ -619,13 +623,13 @@
 
     goto :goto_20
 
-    .line 113
+    .line 116
     :cond_58
     const-wide/high16 v2, 0x3ff0000000000000L    # 1.0
 
     cmpl-double v2, v8, v2
 
-    if-lez v2, :cond_116
+    if-lez v2, :cond_11f
 
     const-wide/16 v2, 0x0
 
@@ -645,7 +649,7 @@
 
     div-double/2addr v2, v4
 
-    .line 114
+    .line 117
     :goto_6e
     const/16 v4, 0x14
 
@@ -657,12 +661,12 @@
 
     move-result v4
 
-    .line 115
+    .line 118
     const-wide/high16 v6, 0x405e000000000000L    # 120.0
 
     cmpg-double v5, v2, v6
 
-    if-gez v5, :cond_11a
+    if-gez v5, :cond_123
 
     iget-wide v6, p0, Lcom/isaigu/gymapp/ai/Endurance;->sinceStep:D
 
@@ -670,15 +674,15 @@
 
     cmpl-double v5, v6, v10
 
-    if-ltz v5, :cond_11a
+    if-ltz v5, :cond_123
 
     const/4 v5, 0x1
 
     move v6, v5
 
-    .line 116
+    .line 119
     :goto_88
-    if-eqz p10, :cond_11e
+    if-eqz p10, :cond_127
 
     iget-wide v10, p0, Lcom/isaigu/gymapp/ai/Endurance;->sinceStep:D
 
@@ -686,48 +690,61 @@
 
     cmpl-double v5, v10, v12
 
-    if-ltz v5, :cond_11e
+    if-ltz v5, :cond_127
 
     const/4 v5, 0x1
 
-    .line 117
+    .line 120
     :goto_93
     if-nez v6, :cond_97
 
-    if-eqz v5, :cond_140
+    if-eqz v5, :cond_14b
 
     :cond_97
-    add-int/lit8 v6, p1, -0x5
+    add-int/lit8 v7, p1, -0x5
 
     if-eqz v5, :cond_9d
 
     const/16 v4, 0x14
 
     :cond_9d
-    if-lt v6, v4, :cond_140
+    if-lt v7, v4, :cond_14b
 
-    .line 118
+    .line 121
     iget v4, p0, Lcom/isaigu/gymapp/ai/Endurance;->cut:I
 
     add-int/lit8 v4, v4, 0x5
 
     iput v4, p0, Lcom/isaigu/gymapp/ai/Endurance;->cut:I
 
-    .line 119
-    const-wide/16 v6, 0x0
+    .line 122
+    const-wide/16 v10, 0x0
 
-    iput-wide v6, p0, Lcom/isaigu/gymapp/ai/Endurance;->sinceStep:D
+    iput-wide v10, p0, Lcom/isaigu/gymapp/ai/Endurance;->sinceStep:D
 
-    .line 120
+    .line 123
+    if-eqz v5, :cond_12a
+
+    if-nez v6, :cond_12a
+
+    const/4 v4, 0x1
+
+    :goto_ae
+    iput-boolean v4, p0, Lcom/isaigu/gymapp/ai/Endurance;->lastByHeart:Z
+
+    .line 124
+    iput-wide v2, p0, Lcom/isaigu/gymapp/ai/Endurance;->lastHoldS:D
+
+    .line 125
     new-instance v4, Ljava/lang/StringBuilder;
 
     invoke-direct {v4}, Ljava/lang/StringBuilder;-><init>()V
 
-    if-eqz v5, :cond_121
+    if-eqz v5, :cond_12c
 
     const-string v2, "heart at its ceiling"
 
-    :goto_b2
+    :goto_bb
     invoke-virtual {v4, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     move-result-object v2
@@ -776,7 +793,7 @@
 
     mul-double/2addr v4, v8
 
-    .line 121
+    .line 126
     invoke-static {v4, v5}, Ljava/lang/Math;->round(D)J
 
     move-result-wide v4
@@ -829,33 +846,39 @@
 
     iput-object v2, p0, Lcom/isaigu/gymapp/ai/Endurance;->last:Ljava/lang/String;
 
-    .line 123
+    .line 128
     const/4 v2, 0x1
 
     goto/16 :goto_7
 
-    .line 113
-    :cond_116
+    .line 116
+    :cond_11f
     const-wide/high16 v2, 0x7ff0000000000000L    # Double.POSITIVE_INFINITY
 
     goto/16 :goto_6e
 
-    .line 115
-    :cond_11a
+    .line 118
+    :cond_123
     const/4 v5, 0x0
 
     move v6, v5
 
     goto/16 :goto_88
 
-    .line 116
-    :cond_11e
+    .line 119
+    :cond_127
     const/4 v5, 0x0
 
     goto/16 :goto_93
 
-    .line 120
-    :cond_121
+    .line 123
+    :cond_12a
+    const/4 v4, 0x0
+
+    goto :goto_ae
+
+    .line 125
+    :cond_12c
     new-instance v5, Ljava/lang/StringBuilder;
 
     invoke-direct {v5}, Ljava/lang/StringBuilder;-><init>()V
@@ -884,10 +907,10 @@
 
     move-result-object v2
 
-    goto/16 :goto_b2
+    goto/16 :goto_bb
 
-    .line 125
-    :cond_140
+    .line 130
+    :cond_14b
     const/4 v2, 0x0
 
     goto/16 :goto_7

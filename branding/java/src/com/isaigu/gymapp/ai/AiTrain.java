@@ -189,6 +189,16 @@ public final class AiTrain {
             say(c, cmd, true);                         // before the start: the words go to the AI's plan
             return "";
         }
+        if (AiLive.redFlag(cmd)) {
+            // 1.1.565: a red flag — the tablet stops at once (no waiting for the model); the coach thinks and advises
+            AiVoiceCmd.Result p = new AiVoiceCmd.Result();
+            p.actions.add("pause");
+            applyCommands(p);
+            AiCoach.userSpoke(cmd);
+            voiceAsk = true;
+            send(c, cmd, true, true, true);
+            return AiText.t("Спирам. Момент…", "Stopping. One moment…");
+        }
         if (AiLive.asking()) {
             boolean[] no = new boolean[1];
             AiVoiceCmd.Result yes = AiLive.answer(cmd, no);
@@ -689,6 +699,9 @@ public final class AiTrain {
             }
         }
         busy = true;
+        if (voiceAsk) {
+            Earcon.thinking();                            // heard: the AI is on it (1.1.565)
+        }
         rebuild();
         String fields = AiCoach.requestFieldsAuto(AutoSession.getInput(), t, planJson(), live ? runJson() : null, live);
         boolean wantPlan = free && !live;
@@ -981,6 +994,9 @@ public final class AiTrain {
             return AiSession.isBandStreaming() && AiSession.getLastBandHr() > 0
                     ? AiText.t("пулс ", "pulse ") + AiSession.getLastBandHr() + " · "
                     : AiText.t("няма пулс · ", "no pulse · ");
+        }
+        if ("ask_mode".equals(a)) {
+            return AiLive.describe() + " · ";
         }
         if ("ask_strength".equals(a)) {
             int s = map ? MapRunner.strength() : AutoSession.leaderLevel();
@@ -1516,7 +1532,7 @@ public final class AiTrain {
             try {
                 // one request (1.1.558): the server's cheap reader first, the coach in the same request only if it
                 // is not a command — two round trips before (a question goes straight to the coach)
-                boolean read = live && reader && !AiVoiceCmd.isQuestion(text);
+                boolean read = live && reader && !AiVoiceCmd.isQuestion(text) && AiVoiceCmd.mayBeCommand(text);
                 String resp = com.isaigu.gymapp.widget.XemsLicenseClient.postBrief(c,
                         read ? fields + ",\"reader\":true" : fields);
                 if (read && resp != null && resp.contains("\"command\":{")) {

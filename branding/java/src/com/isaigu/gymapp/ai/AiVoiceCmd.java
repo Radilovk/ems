@@ -228,6 +228,23 @@ public final class AiVoiceCmd {
     static final String[] DOWN_WORDS = {"намали", "свали", "отслаби", "смъкни", "понижи", "снижи", "по-слабо", "по слабо",
             "по-малко", "по малко", "по-леко", "по леко", "махни", "минус"};
 
+    /**
+     * Could the server's command reader find a command here (1.1.565)? A verb of direction or of the controls, a body
+     * part, a setting or a number. No → straight to the coach (the reader cost ~0.7 s for nothing).
+     */
+    public static boolean mayBeCommand(String text) {
+        if (text == null) {
+            return false;
+        }
+        String t = " " + text.toLowerCase(Locale.ROOT).replace('ѝ', 'и') + " ";
+        if (has(t, UP_WORDS) || has(t, DOWN_WORDS) || hasMuscle(t) || t.matches(".*\\d.*")) {
+            return true;
+        }
+        return has(t, "изключи", "включи", "махни", "спри", "пусни", "пауза", "стоп", "продължи", "смени", "прескочи",
+                "следващ", "стига", "почини", "почивка", "хайде", "давай", "импулс", "честот", "пауз", "дълбо", "сила",
+                "силно", "слабо", "леко", "двоен", "втори", "музик", "приключ", "край", "възстанов");
+    }
+
     public static Result parse(String text) {
         Result all = new Result();
         if (text == null) {
@@ -278,6 +295,13 @@ public final class AiVoiceCmd {
         }
         if (has(t, " пулс")) {                                  // the word, not "импулс"
             r.actions.add("ask_hr");
+            return r;
+        }
+        // the impulse now, how long it holds, why the tablet lowered it (1.1.565: answered at once, no AI)
+        if (has(t, "каква е честотата", "на колко херца", "колко херца", "какъв е импулсът", "какви са параметрите",
+                "колко още издържа", "колко издържа", "защо свали", "защо намали честотата", "защо падна честотата",
+                "какво промени", "какво направи с честотата")) {
+            r.actions.add("ask_mode");
             return r;
         }
         if (has(t, "колко е силата", "каква е силата", "на колко е силата", "на колко съм")) {

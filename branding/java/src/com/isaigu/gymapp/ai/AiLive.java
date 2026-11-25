@@ -256,6 +256,55 @@ public final class AiLive {
         WakeListener.announce(text);
     }
 
+    /** "Каква е честотата / колко издържа / защо свали": the impulse now, how long it holds, the last decision. */
+    static String describe() {
+        int[] i = impulse();
+        if (i == null) {
+            return AiText.t("Още нищо не тече.", "Nothing runs yet.");
+        }
+        StringBuilder b = new StringBuilder();
+        b.append(AiText.t("Сега " + i[0] + " херца", "Now " + i[0] + " Hz"));
+        if (i[6] > 0) {
+            b.append(AiText.t(" — планът е " + (i[0] + i[6]) + ", свалих " + i[6] + " заради умората",
+                    " — the plan is " + (i[0] + i[6]) + ", lowered " + i[6] + " for fatigue"));
+        }
+        b.append(AiText.t(", импулс " + i[1] + " секунди, пауза " + i[2] + ", " + i[3] + " микросекунди",
+                ", impulse " + i[1] + " s, pause " + i[2] + " s, " + i[3] + " µs"));
+        if (i[4] > 0) {
+            b.append(AiText.t(", втори импулс " + i[4] + " херца", ", second impulse " + i[4] + " Hz"));
+        }
+        Endurance en = endurance();
+        if (en != null && i[0] >= SafeLimits.TETANIC_HZ) {
+            double hold = en.holdS(i[0], i[1], i[2], i[4], i[5] / 100.0, i[3]);
+            b.append(Double.isInfinite(hold) ? AiText.t(". Така издържа цялата " + noun().replace("та", "") + ".",
+                    ". It holds the whole session.")
+                    : AiText.t(". Така издържа още около " + Math.max(1, Math.round(hold / 60)) + " минути.",
+                    ". It holds about " + Math.max(1, Math.round(hold / 60)) + " more minutes."));
+        } else {
+            b.append('.');
+        }
+        synchronized (recent) {
+            if (!recent.isEmpty()) {
+                b.append(' ').append(recent.get(recent.size() - 1));
+            }
+        }
+        return b.toString();
+    }
+
+    /** Words that must stop the impulse at once, before any model answers (1.1.565). */
+    static boolean redFlag(String text) {
+        String t = " " + String.valueOf(text).toLowerCase(Locale.ROOT).replace('ѝ', 'и') + " ";
+        String[] w = {"замая", "вие ми се", "виe ми се", "гади ми", "повръща", "сърцето", "гърдите ме", "в гърдите",
+                "задух", "не мога да дишам", "не ми стига въздух", "припада", "причерня", "ще припадна", "изтръпна",
+                "схвана ме", "крамп", "много ме боли", "силна болка", "остра болка", "пари много", "изгаря"};
+        for (String x : w) {
+            if (t.contains(x)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     // ================================================================ a raise asked: allowed, warned, refused
 
     /** What a command list will do: the allowed part (done now), the warned part (waits for "да"), the words. */

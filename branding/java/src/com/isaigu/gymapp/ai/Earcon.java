@@ -36,6 +36,16 @@ public final class Earcon {
         play(again);
     }
 
+    /** Two soft short ticks: heard, the AI is thinking (1.1.565). */
+    public static void thinking() {
+        if (thinking == null) {
+            thinking = notes(new double[] {660, 0, 660}, new int[] {45, 70, 45}, 0.22);
+        }
+        play(thinking);
+    }
+
+    private static short[] thinking;
+
     public static void closed() {
         if (closed == null) {
             closed = notes(new double[] {880, 587}, new int[] {100, 160}, 0.3);    // A5 → D5

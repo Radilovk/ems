@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 82
+    .line 92
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,17 +34,17 @@
     .registers 3
 
     .prologue
-    .line 86
+    .line 96
     :try_start_0
     invoke-virtual {p1}, Landroid/media/AudioTrack;->release()V
     :try_end_3
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_3} :catch_4
 
-    .line 89
+    .line 99
     :goto_3
     return-void
 
-    .line 87
+    .line 97
     :catch_4
     move-exception v0
 
@@ -55,6 +55,6 @@
     .registers 2
 
     .prologue
-    .line 93
+    .line 103
     return-void
 .end method

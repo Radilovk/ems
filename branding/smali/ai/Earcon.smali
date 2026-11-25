@@ -20,6 +20,8 @@
 
 .field private static ready:[S
 
+.field private static thinking:[S
+
 
 # direct methods
 .method private constructor <init>()V
@@ -82,12 +84,12 @@
     .prologue
     const/4 v1, 0x2
 
-    .line 40
+    .line 50
     sget-object v0, Lcom/isaigu/gymapp/ai/Earcon;->closed:[S
 
     if-nez v0, :cond_1a
 
-    .line 41
+    .line 51
     new-array v0, v1, [D
 
     fill-array-data v0, :array_20
@@ -104,16 +106,16 @@
 
     sput-object v0, Lcom/isaigu/gymapp/ai/Earcon;->closed:[S
 
-    .line 43
+    .line 53
     :cond_1a
     sget-object v0, Lcom/isaigu/gymapp/ai/Earcon;->closed:[S
 
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/Earcon;->play([S)V
 
-    .line 44
+    .line 54
     return-void
 
-    .line 41
+    .line 51
     :array_20
     .array-data 8
         0x408b800000000000L    # 880.0
@@ -131,10 +133,10 @@
     .registers 24
 
     .prologue
-    .line 48
+    .line 58
     const/4 v3, 0x0
 
-    .line 49
+    .line 59
     move-object/from16 v0, p1
 
     array-length v4, v0
@@ -146,26 +148,26 @@
 
     aget v5, p1, v2
 
-    .line 50
+    .line 60
     mul-int/lit16 v5, v5, 0x5dc0
 
     div-int/lit16 v5, v5, 0x3e8
 
     add-int/2addr v3, v5
 
-    .line 49
+    .line 59
     add-int/lit8 v2, v2, 0x1
 
     goto :goto_5
 
-    .line 52
+    .line 62
     :cond_11
     new-array v5, v3, [S
 
-    .line 53
+    .line 63
     const/4 v3, 0x0
 
-    .line 54
+    .line 64
     const/4 v2, 0x0
 
     :goto_15
@@ -175,14 +177,14 @@
 
     if-ge v2, v4, :cond_85
 
-    .line 55
+    .line 65
     aget v4, p1, v2
 
     mul-int/lit16 v4, v4, 0x5dc0
 
     div-int/lit16 v6, v4, 0x3e8
 
-    .line 56
+    .line 66
     div-int/lit8 v4, v6, 0x3
 
     const/16 v7, 0x120
@@ -191,13 +193,13 @@
 
     move-result v7
 
-    .line 57
+    .line 67
     const/4 v4, 0x0
 
     :goto_29
     if-ge v4, v6, :cond_81
 
-    .line 58
+    .line 68
     const-wide/high16 v8, 0x3ff0000000000000L    # 1.0
 
     int-to-double v10, v4
@@ -226,14 +228,14 @@
 
     move-result-wide v8
 
-    .line 59
+    .line 69
     int-to-double v10, v4
 
     const-wide v12, 0x40d7700000000000L    # 24000.0
 
     div-double/2addr v10, v12
 
-    .line 60
+    .line 70
     const-wide v12, 0x401921fb54442d18L    # 6.283185307179586
 
     aget-wide v14, p0, v2
@@ -264,7 +266,7 @@
 
     add-double/2addr v10, v12
 
-    .line 61
+    .line 71
     add-int v12, v3, v4
 
     const-wide/high16 v14, 0x3ff4000000000000L    # 1.25
@@ -289,21 +291,21 @@
 
     aput-short v8, v5, v12
 
-    .line 57
+    .line 67
     add-int/lit8 v4, v4, 0x1
 
     goto :goto_29
 
-    .line 63
+    .line 73
     :cond_81
     add-int/2addr v3, v6
 
-    .line 54
+    .line 64
     add-int/lit8 v2, v2, 0x1
 
     goto :goto_15
 
-    .line 65
+    .line 75
     :cond_85
     return-object v5
 .end method
@@ -312,13 +314,13 @@
     .registers 8
 
     .prologue
-    .line 70
+    .line 80
     :try_start_0
     array-length v0, p0
 
     mul-int/lit8 v5, v0, 0x2
 
-    .line 71
+    .line 81
     new-instance v0, Landroid/media/AudioTrack;
 
     const/4 v1, 0x3
@@ -333,35 +335,35 @@
 
     invoke-direct/range {v0 .. v6}, Landroid/media/AudioTrack;-><init>(IIIIII)V
 
-    .line 73
+    .line 83
     const/4 v1, 0x0
 
     array-length v2, p0
 
     invoke-virtual {v0, p0, v1, v2}, Landroid/media/AudioTrack;->write([SII)I
 
-    .line 74
+    .line 84
     array-length v1, p0
 
     invoke-virtual {v0, v1}, Landroid/media/AudioTrack;->setNotificationMarkerPosition(I)I
 
-    .line 75
+    .line 85
     new-instance v1, Lcom/isaigu/gymapp/ai/Earcon$Release;
 
     invoke-direct {v1}, Lcom/isaigu/gymapp/ai/Earcon$Release;-><init>()V
 
     invoke-virtual {v0, v1}, Landroid/media/AudioTrack;->setPlaybackPositionUpdateListener(Landroid/media/AudioTrack$OnPlaybackPositionUpdateListener;)V
 
-    .line 76
+    .line 86
     invoke-virtual {v0}, Landroid/media/AudioTrack;->play()V
     :try_end_22
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_22} :catch_23
 
-    .line 80
+    .line 90
     :goto_22
     return-void
 
-    .line 77
+    .line 87
     :catch_23
     move-exception v0
 
@@ -416,5 +418,58 @@
     .array-data 4
         0x6e
         0xbe
+    .end array-data
+.end method
+
+.method public static thinking()V
+    .registers 4
+
+    .prologue
+    const/4 v1, 0x3
+
+    .line 41
+    sget-object v0, Lcom/isaigu/gymapp/ai/Earcon;->thinking:[S
+
+    if-nez v0, :cond_1a
+
+    .line 42
+    new-array v0, v1, [D
+
+    fill-array-data v0, :array_20
+
+    new-array v1, v1, [I
+
+    fill-array-data v1, :array_30
+
+    const-wide v2, 0x3fcc28f5c28f5c29L    # 0.22
+
+    invoke-static {v0, v1, v2, v3}, Lcom/isaigu/gymapp/ai/Earcon;->notes([D[ID)[S
+
+    move-result-object v0
+
+    sput-object v0, Lcom/isaigu/gymapp/ai/Earcon;->thinking:[S
+
+    .line 44
+    :cond_1a
+    sget-object v0, Lcom/isaigu/gymapp/ai/Earcon;->thinking:[S
+
+    invoke-static {v0}, Lcom/isaigu/gymapp/ai/Earcon;->play([S)V
+
+    .line 45
+    return-void
+
+    .line 42
+    :array_20
+    .array-data 8
+        0x4084a00000000000L    # 660.0
+        0x0
+        0x4084a00000000000L    # 660.0
+    .end array-data
+
+    :array_30
+    .array-data 4
+        0x2d
+        0x46
+        0x2d
     .end array-data
 .end method

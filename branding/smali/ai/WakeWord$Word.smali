@@ -25,10 +25,10 @@
     .registers 3
 
     .prologue
-    .line 29
+    .line 33
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 31
+    .line 35
     const/16 v0, 0x80
 
     const/16 v1, 0xd
@@ -56,12 +56,12 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 43
+    .line 47
     new-instance v2, Lcom/isaigu/gymapp/ai/WakeWord$Word;
 
     invoke-direct {v2}, Lcom/isaigu/gymapp/ai/WakeWord$Word;-><init>()V
 
-    .line 44
+    .line 48
     const/16 v0, 0x80
 
     aget-byte v3, p0, v1
@@ -76,7 +76,7 @@
 
     move v0, v1
 
-    .line 45
+    .line 49
     :goto_13
     iget v3, v2, Lcom/isaigu/gymapp/ai/WakeWord$Word;->n:I
 
@@ -92,7 +92,7 @@
 
     if-gt v3, v4, :cond_30
 
-    .line 46
+    .line 50
     mul-int/lit8 v3, v0, 0xd
 
     add-int/lit8 v3, v3, 0x1
@@ -105,12 +105,12 @@
 
     invoke-static {p0, v3, v4, v1, v5}, Ljava/lang/System;->arraycopy(Ljava/lang/Object;ILjava/lang/Object;II)V
 
-    .line 45
+    .line 49
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_13
 
-    .line 48
+    .line 52
     :cond_30
     return-object v2
 .end method
@@ -123,7 +123,7 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 34
+    .line 38
     iget v0, p0, Lcom/isaigu/gymapp/ai/WakeWord$Word;->n:I
 
     mul-int/lit8 v0, v0, 0xd
@@ -132,7 +132,7 @@
 
     new-array v2, v0, [B
 
-    .line 35
+    .line 39
     iget v0, p0, Lcom/isaigu/gymapp/ai/WakeWord$Word;->n:I
 
     int-to-byte v0, v0
@@ -141,13 +141,13 @@
 
     move v0, v1
 
-    .line 36
+    .line 40
     :goto_f
     iget v3, p0, Lcom/isaigu/gymapp/ai/WakeWord$Word;->n:I
 
     if-ge v0, v3, :cond_23
 
-    .line 37
+    .line 41
     iget-object v3, p0, Lcom/isaigu/gymapp/ai/WakeWord$Word;->f:[[B
 
     aget-object v3, v3, v0
@@ -160,12 +160,12 @@
 
     invoke-static {v3, v1, v2, v4, v5}, Ljava/lang/System;->arraycopy(Ljava/lang/Object;ILjava/lang/Object;II)V
 
-    .line 36
+    .line 40
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_f
 
-    .line 39
+    .line 43
     :cond_23
     return-object v2
 .end method

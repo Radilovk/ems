@@ -1078,6 +1078,13 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L950 ## 22. Owner's answers on the tests (1.1.571)
   - L970 ## 23. Efficiency ≠ load: liberal (owner, 1.1.572)
 
+`docs/xems-bhaptics-research.md` (37L)
+  - L1 # bHaptics ecosystem as a source of hit ZONES (research, 2026-11-25 — nothing built yet)
+  - L6 ## How a Quest game talks to bHaptics (read from `bhaptics/tact-android`, `libs/bhaptics_manager.aar`)
+  - L22 ## Idea (NOT built)
+  - L27 ## BLOCKER to clear first — the SDK licence (https://bhaptics.gitbook.io/license-sdk/, 11.08.2024)
+  - L34 ## Licence-free alternative: our own boxing sparring in XEMS Studio
+
 `docs/xems-bluetens.md` (124L)
   - L1 # Bluetens — protocol and the XEMS module plan
   - L7 ## Device
@@ -1767,7 +1774,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L203 ## Build / preview
   - L212 ## Licences
 
-`vr-workout/assets/CREDITS.md` (30L)
+`vr-workout/assets/CREDITS.md` (29L)
   - L1 # Asset credits
 
 `wiems/PROTOCOL.md` (218L)

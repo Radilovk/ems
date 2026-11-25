@@ -43,7 +43,8 @@ public final class ScaleLink {
     public static final int SEARCHING = 1, CONNECTING = 2, READY = 3, MEASURING = 4, DONE = 5, NO_BLUETOOTH = 6,
             NO_LOCATION = 7;
 
-    static final long HELLO_WAIT_MS = 1500;
+    /** The scale's own hello comes right after the CCCDs; if it was missed, start the handshake after this. */
+    static final long HELLO_WAIT_MS = 500;
     static final long BEAT_MS = 400;
     static final long OP_TIMEOUT_MS = 1500;
     /** No link this long after connectGatt → give up and listen again (Android's own wait is ~30 s, scan stopped). */
@@ -480,6 +481,10 @@ public final class ScaleLink {
         if (newState == BluetoothProfile.STATE_CONNECTED) {
             linked = true;
             log("connected");
+            try {
+                g.requestConnectionPriority(BluetoothGatt.CONNECTION_PRIORITY_HIGH);   // short interval: discovery + CCCDs in ms
+            } catch (Throwable ignored) {
+            }
             try {
                 g.discoverServices();
             } catch (Throwable t) {

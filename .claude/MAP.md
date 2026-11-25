@@ -465,7 +465,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `ScaleBody.java` (234L, compile:music-sync*,wearable) — Body composition from one scale measurement — iCOMON's WLA25, the algorithm Fitdays uses for these scales, so the numbe…
 - `ScaleDetail.java` (582L, compile:music-sync*,wearable) — The full report of one weigh-in, as the fitness apps list it — every value with its status word — plus the five zones a…
 - `ScaleInsight.java` (928L, compile:music-sync*,wearable) — What the scale's measurements mean for EMS — pure Java (docs/xems-scale.md "EMS use", docs/xems-ems-physiology.md §6): …
-- `ScaleLink.java` (1188L, compile:music-sync*,wearable) — The body-composition scale, straight over BLE (no Fitdays, no cloud), for as long as the page is open: find the scale w…
+- `ScaleLink.java` (1193L, compile:music-sync*,wearable) — The body-composition scale, straight over BLE (no Fitdays, no cloud), for as long as the page is open: find the scale w…
 - `ScaleModel.java` (446L, compile:music-sync*,wearable) — XEMS body model over the scale's impedances: sex-aware, and steady from one weigh-in to the next.
 - `ScaleProtocol.java` (401L, compile:music-sync*,wearable) — The ICOMON body-composition scale (Lepulse Lescale P1, Fitdays app) over BLE service FFB0, plaintext — pure Java, no ra…
 - `ScaleScreen.java` (2888L, compile:music-sync*,wearable) — The scale page of one client (client row → scale icon) — a full-screen work surface, landscape, two views behind one sw…
@@ -1437,34 +1437,34 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L44 ## 3. UI / UX
   - L57 ## 4. Какво да се провери на първото истинско мерене
 
-`docs/xems-scale.md` (528L)
+`docs/xems-scale.md` (535L)
   - L1 # Body-composition scale (Lepulse Lescale P1) — direct BLE, no Fitdays
-  - L40 ## Code (`branding/java/src/com/isaigu/gymapp/wearable/scale/`, compile:wearable)
-  - L58 ## Senssun / MovingLife scales — Klausberg KB-7853 (1.1.306–307-ai, `ScaleSenssun`)
-  - L112 ## EMS use (1.1.286-ai)
-  - L123 ## Where the scale's data goes — every algorithm that uses the body (1.1.292-ai)
-  - L147 ### Readiness and focus, second pass (1.1.311-ai)
-  - L161 ### Client card — "Тяло" (1.1.310-ai)
-  - L175 ### Weight: the newest entry wins — typed or weighed (1.1.458-ai, owner)
-  - L182 ### Strength is never derived from the body (1.1.458-ai, owner)
-  - L188 ### Weight: the scale wins over the card (1.1.315-ai, owner; superseded by "newest entry wins" above)
-  - L195 ### Trend: tap a dot (1.1.315-ai)
-  - L199 ## Body type, physical age — what the fitness apps get wrong (1.1.287-ai)
-  - L218 ## XEMS model — sex-aware, steady (1.1.295-ai, `ScaleModel`)
-  - L244 ## Physiological limit between weigh-ins (1.1.342-ai, owner: "fat can't change that much in minutes")
-  - L254 ## State vs trait — why physical age jumped (1.1.300-ai)
-  - L268 ## One session must be enough — per-value stability (1.1.301-ai)
-  - L313 ## Owner's Fitdays report = test vector (1.1.288-ai)
-  - L320 ## Figures (1.1.288-ai)
-  - L325 ## Measuring — the stage and the session (1.1.301-ai, owner: "why does it make me step off?")
-  - L357 ## Scientific basis — "Научна основа" (1.1.298-ai, `ScaleSources`)
-  - L370 ## Result page (`ScaleScreen`) — two views
-  - L467 ## What the hardware is
-  - L478 ## Two verified open-source decoders (both MIT — portable to Java)
-  - L499 ## Measuring protocol (owner: no suit, thin clothes)
-  - L507 ## Validation path
-  - L512 ## Gemini / LLM
-  - L517 ## Licences of the ported code
+  - L47 ## Code (`branding/java/src/com/isaigu/gymapp/wearable/scale/`, compile:wearable)
+  - L65 ## Senssun / MovingLife scales — Klausberg KB-7853 (1.1.306–307-ai, `ScaleSenssun`)
+  - L119 ## EMS use (1.1.286-ai)
+  - L130 ## Where the scale's data goes — every algorithm that uses the body (1.1.292-ai)
+  - L154 ### Readiness and focus, second pass (1.1.311-ai)
+  - L168 ### Client card — "Тяло" (1.1.310-ai)
+  - L182 ### Weight: the newest entry wins — typed or weighed (1.1.458-ai, owner)
+  - L189 ### Strength is never derived from the body (1.1.458-ai, owner)
+  - L195 ### Weight: the scale wins over the card (1.1.315-ai, owner; superseded by "newest entry wins" above)
+  - L202 ### Trend: tap a dot (1.1.315-ai)
+  - L206 ## Body type, physical age — what the fitness apps get wrong (1.1.287-ai)
+  - L225 ## XEMS model — sex-aware, steady (1.1.295-ai, `ScaleModel`)
+  - L251 ## Physiological limit between weigh-ins (1.1.342-ai, owner: "fat can't change that much in minutes")
+  - L261 ## State vs trait — why physical age jumped (1.1.300-ai)
+  - L275 ## One session must be enough — per-value stability (1.1.301-ai)
+  - L320 ## Owner's Fitdays report = test vector (1.1.288-ai)
+  - L327 ## Figures (1.1.288-ai)
+  - L332 ## Measuring — the stage and the session (1.1.301-ai, owner: "why does it make me step off?")
+  - L364 ## Scientific basis — "Научна основа" (1.1.298-ai, `ScaleSources`)
+  - L377 ## Result page (`ScaleScreen`) — two views
+  - L474 ## What the hardware is
+  - L485 ## Two verified open-source decoders (both MIT — portable to Java)
+  - L506 ## Measuring protocol (owner: no suit, thin clothes)
+  - L514 ## Validation path
+  - L519 ## Gemini / LLM
+  - L524 ## Licences of the ported code
 
 `docs/xems-server-spec.md` (287L)
   - L1 # XEMS сървър — задание за доразработка (лицензи, функции, обновяване)

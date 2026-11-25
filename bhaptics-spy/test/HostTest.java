@@ -87,6 +87,17 @@ public class HostTest {
         ok(r.answer(idx("playMotors"), new Object[]{"a", 0, 1, new int[0]}) instanceof Integer, "request id");
         ok(Sig.ret(idx("getDeviceList")) == 'L' && Sig.ret(idx("getStatus")) == 'b', "return kinds");
 
+        // the zone hits: a call of the real recording → region, ms, levels
+        byte[] dots = new byte[20];
+        dots[12] = 100;
+        Object[] z = Regions.fromCall("hapticEventDot", new Object[]{"app", "id", "VestFront", dots, 100});
+        ok(z != null && (Integer) z[0] == TabletLink.ZR_VEST_FRONT && (Integer) z[1] == 100 && ((int[]) z[2])[12] == 100, "dot → vest front");
+        ok(Regions.fromCall("hapticEventDot", new Object[]{"app", "id", "Nowhere", dots, 100}) == null, "unknown position → none");
+        ok(Regions.fromCall("playMotors", new Object[]{"app", 3, 80, new int[]{1, 2}}) != null, "playMotors head");
+        ok(Regions.fromCall("hapticEventDot", new Object[]{"app"}) == null, "malformed call → none, no crash");
+        byte[] z64 = TabletLink.zhit(7, 9, TabletLink.ZR_HEAD, 100, new int[]{100, 50});
+        ok(z64.length == 64 && z64[5] == 6 && z64[24] == 5 && z64[28] == 2 && z64[32] == 100 && z64[33] == 50, "wire layout of T_ZHIT");
+
         // thinning: a big file keeps writing, hot methods every 10th
         File fl2 = File.createTempFile("spy2", ".jsonl");
         try (java.io.RandomAccessFile raf = new java.io.RandomAccessFile(fl2, "rw")) {

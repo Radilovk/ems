@@ -60,3 +60,16 @@ The look-alike worked first time: the game's own pairing screen (options → bHa
   hands → arms, weak (own effort). Left/right: the vendor suit channels are shared L/R per name — check `PartStrength`.
 `bhaptics-spy/analyze.py <code>` prints any recording this way. The listener is the only bHaptics-specific code; the
 tablet would get a generic "zone hit" message (channel mask + level + ms).
+
+## 1.1.579-ai — zone hits reach the tablet (owner's spec, 2026-11-25)
+Listener → tablet: the listener (`TabletLink`) speaks the layer's UDP protocol (HELLO broadcast → ACK → heartbeat, PING →
+PONG) plus **T_ZHIT** (0x06, 64 B: region u8, durationMs u16, count u8, levels[32]) for every `hapticEventDot` /
+`playMotors` that names a body region. Tablet: `VrTelemetryReceiver` → `VrZoneRouter`:
+- suit: `VrZoneMap` — forearm → **arms**, vest-front rows 2–4 → **abs**, vest-front rows 0–1 and the vest's back → **back**,
+  head → no channel; own punches (hands) are not hits taken. The hit runs the whole-suit level through `VrPulses`
+  (ceiling / floor / absolute limits as for every VR haptic, ≥ 120 ms) while `VrZones.setFocus` lets only those
+  channels carry it (`partsDisabled`; only channels that were on when VR engaged are touched).
+- Mastogo (test mode, every hit taken, head included): `MastogoScreen.vrHit()` = the panel's УДАР — works while the
+  Mastogo panel is open with a unit ready (first hit arms it, ~0.5 s); ≤ 4 hits/s.
+Needs a running row with VR driving (VR not paused). Orientation of the vest grid is unproven (row 0 top?).
+Tests: `bash bhaptics-spy/run-test.sh` — real `TabletLink` → real receiver on loopback, mapping, focus.

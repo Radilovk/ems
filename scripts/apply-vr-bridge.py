@@ -15,7 +15,7 @@ MANIFEST = DECOMPILED / "AndroidManifest.xml"
 PERMISSIONS = ("android.permission.WAKE_LOCK", "android.permission.CHANGE_WIFI_MULTICAST_STATE",
                "android.permission.INTERNET")
 VR_CLASSES = ("VrTelemetryReceiver", "VrHapticRouter", "VrDrive", "VrPulses", "VrNoiseGate", "VrZones", "VrBridge", "VrMainCall",
-              "VrSettings", "VrPanel")
+              "VrSettings", "VrPanel", "VrZoneRouter", "VrZoneMap", "VrZoneHit")
 CALLS = {
     "wearable/NotifyWearableBridge.smali": (
         "Lcom/isaigu/gymapp/wearable/vr/VrBridge;->attach(Landroid/content/Context;)V",
@@ -31,6 +31,11 @@ CALLS = {
         "Lcom/isaigu/gymapp/train/utils/MasterStrengthControl;->setMasterStrength(IZZ)V",
         "Lcom/isaigu/gymapp/wearable/vr/VrZones;->engage(Lcom/isaigu/gymapp/train/model/TrainItem;)V",
         "Lcom/isaigu/gymapp/wearable/vr/VrZones;->release()V",
+        "Lcom/isaigu/gymapp/wearable/vr/VrZones;->setFocus(I)V",
+    ),
+    "wearable/vr/VrZoneRouter.smali": (             # zone hits (bHaptics listener) → suit channels + the Mastogo unit
+        "Lcom/isaigu/gymapp/wearable/vr/VrPulses;->pulse(IFJZZJ)V",
+        "Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen;->vrHit()V",
     ),
     "wearable/vr/VrZones.smali": (
         "Lcom/isaigu/gymapp/train/model/TrainItem;->partsDisabled:[Z",

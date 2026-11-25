@@ -97,6 +97,9 @@ public final class WakeListener {
         }
         loaded = true;
         try {
+            if (c.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getBoolean("noBgRec", false)) {
+                serviceOk = false;                         // this tablet's background recognizer never worked
+            }
             String hex = c.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getString("tpl", "");
             if (hex.length() > 0) {
                 SPOTTER.load(unhex(hex));
@@ -182,6 +185,7 @@ public final class WakeListener {
     }
 
     public static void stop() {
+        MAIN.removeCallbacks(NOT_READY);
         on = false;
         armedUntil = 0;
         state = "";
@@ -564,12 +568,62 @@ public final class WakeListener {
                 i.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS, 1000L);
                 i.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS, 800L);
             }
+            readySeen = false;
             rec.startListening(i);
+            if (window) {
+                MAIN.removeCallbacks(NOT_READY);
+                MAIN.postDelayed(NOT_READY, READY_MS);
+            }
         } catch (Throwable t) {
             WearableBleDiagLog.log("wake", "begin: " + t);
             destroyRecognizer();
             afterWindow(2000);
         }
+    }
+
+    /**
+     * Huawei & co. (owner, 2026-11-25: "the setup records, but in a session "тренер" opens nothing"): a recognition
+     * service is listed but never gets ready (or fails with a service / language error) — the window then stayed open
+     * for good and every later "тренер" was ignored. Not ready in READY_MS, or such an error before it was ready → this
+     * tablet uses the system's speech dialog from now on (kept), as before 1.1.561.
+     */
+    static final long READY_MS = 3000;
+    private static volatile boolean readySeen;
+    private static final Runnable NOT_READY = new NotReady();
+
+    static final class NotReady implements Runnable {
+        @Override
+        public void run() {
+            if (window && !readySeen) {
+                giveUpBackground("not ready in " + READY_MS + " ms");
+            }
+        }
+    }
+
+    static void giveUpBackground(String why) {
+        WearableBleDiagLog.log("wake", "background recognizer unusable (" + why + "): the system dialog from now on");
+        MAIN.removeCallbacks(NOT_READY);
+        serviceOk = false;
+        try {
+            if (ctx != null) {
+                ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().putBoolean("noBgRec", true).apply();
+            }
+        } catch (Throwable ignored) {
+        }
+        destroyRecognizer();
+        Activity a = host != null ? host.get() : null;
+        if (window && a != null && !a.isFinishing() && chime() && VoiceInput.listen(a, new DialogCommand(),
+                followUp ? AiText.t("Слушам…", "Listening…") : AiText.t("Тренер слуша — кажи команда или въпрос",
+                        "The trainer listens — a command or a question"))) {
+            return;
+        }
+        afterWindow(500);
+    }
+
+    /** A service / client / language error of the recognizer itself (not "nothing heard"). */
+    static boolean serviceError(int error) {
+        return error == SpeechRecognizer.ERROR_CLIENT || error == SpeechRecognizer.ERROR_SERVER
+                || error == SpeechRecognizer.ERROR_RECOGNIZER_BUSY || error == 12 || error == 13;   // 12/13: language
     }
 
     /** Binds Google's recognizer at the start, so the first "Тренер, …" loses no words. */
@@ -606,6 +660,7 @@ public final class WakeListener {
     static final class Listener implements RecognitionListener {
         @Override
         public void onResults(Bundle b) {
+            MAIN.removeCallbacks(NOT_READY);
             ArrayList<String> r = b != null ? b.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION) : null;
             if (window) {
                 commandHeard(r);
@@ -617,6 +672,11 @@ public final class WakeListener {
 
         @Override
         public void onError(int error) {
+            MAIN.removeCallbacks(NOT_READY);
+            if (window && !readySeen && serviceError(error)) {
+                giveUpBackground("error " + error);
+                return;
+            }
             if (error == SpeechRecognizer.ERROR_RECOGNIZER_BUSY || error == SpeechRecognizer.ERROR_CLIENT) {
                 destroyRecognizer();
             }
@@ -638,6 +698,8 @@ public final class WakeListener {
 
         @Override
         public void onReadyForSpeech(Bundle params) {
+            readySeen = true;
+            MAIN.removeCallbacks(NOT_READY);
             if (window) {
                 // "speak now": the recognizer really hears from here (1.1.563: a clear chime, not the system beep)
                 if (followUp) {

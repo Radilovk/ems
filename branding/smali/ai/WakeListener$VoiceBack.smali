@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 859
+    .line 921
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,12 +34,12 @@
     .registers 3
 
     .prologue
-    .line 878
+    .line 940
     sget-object v0, Lcom/isaigu/gymapp/ai/WakeListener;->SPOKEN:Lcom/isaigu/gymapp/ai/WakeListener$Spoken;
 
     invoke-virtual {v0, p1}, Lcom/isaigu/gymapp/ai/WakeListener$Spoken;->onDone(Ljava/lang/String;)V
 
-    .line 879
+    .line 941
     return-void
 .end method
 
@@ -51,45 +51,45 @@
 
     const/4 v0, 0x0
 
-    .line 862
+    .line 924
     # invokes: Lcom/isaigu/gymapp/ai/WakeListener;->initTts()V
-    invoke-static {}, Lcom/isaigu/gymapp/ai/WakeListener;->access$1300()V
+    invoke-static {}, Lcom/isaigu/gymapp/ai/WakeListener;->access$1500()V
 
-    .line 863
+    .line 925
     # getter for: Lcom/isaigu/gymapp/ai/WakeListener;->ttsOk:Z
-    invoke-static {}, Lcom/isaigu/gymapp/ai/WakeListener;->access$1400()Z
+    invoke-static {}, Lcom/isaigu/gymapp/ai/WakeListener;->access$1600()Z
 
     move-result v1
 
     if-eqz v1, :cond_12
 
     # getter for: Lcom/isaigu/gymapp/ai/WakeListener;->tts:Landroid/speech/tts/TextToSpeech;
-    invoke-static {}, Lcom/isaigu/gymapp/ai/WakeListener;->access$1500()Landroid/speech/tts/TextToSpeech;
+    invoke-static {}, Lcom/isaigu/gymapp/ai/WakeListener;->access$1700()Landroid/speech/tts/TextToSpeech;
 
     move-result-object v1
 
     if-nez v1, :cond_1d
 
-    .line 864
+    .line 926
     :cond_12
     const/16 v0, 0x19
 
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/WakeListener;->tone(I)V
 
-    .line 865
+    .line 927
     sget-object v0, Lcom/isaigu/gymapp/ai/WakeListener;->SPOKEN:Lcom/isaigu/gymapp/ai/WakeListener$Spoken;
 
     invoke-virtual {v0, p2}, Lcom/isaigu/gymapp/ai/WakeListener$Spoken;->onDone(Ljava/lang/String;)V
 
-    .line 874
+    .line 936
     :goto_1c
     return-void
 
-    .line 869
+    .line 931
     :cond_1d
     :try_start_1d
     # getter for: Lcom/isaigu/gymapp/ai/WakeListener;->tts:Landroid/speech/tts/TextToSpeech;
-    invoke-static {}, Lcom/isaigu/gymapp/ai/WakeListener;->access$1500()Landroid/speech/tts/TextToSpeech;
+    invoke-static {}, Lcom/isaigu/gymapp/ai/WakeListener;->access$1700()Landroid/speech/tts/TextToSpeech;
 
     move-result-object v1
 
@@ -107,32 +107,32 @@
 
     move-result-object p1
 
-    .line 870
+    .line 932
     :cond_2e
     if-eqz p3, :cond_3c
 
     :goto_30
     const/4 v2, 0x0
 
-    .line 869
+    .line 931
     invoke-virtual {v1, p1, v0, v2, p2}, Landroid/speech/tts/TextToSpeech;->speak(Ljava/lang/CharSequence;ILandroid/os/Bundle;Ljava/lang/String;)I
     :try_end_34
     .catch Ljava/lang/Throwable; {:try_start_1d .. :try_end_34} :catch_35
 
     goto :goto_1c
 
-    .line 871
+    .line 933
     :catch_35
     move-exception v0
 
-    .line 872
+    .line 934
     sget-object v0, Lcom/isaigu/gymapp/ai/WakeListener;->SPOKEN:Lcom/isaigu/gymapp/ai/WakeListener$Spoken;
 
     invoke-virtual {v0, p2}, Lcom/isaigu/gymapp/ai/WakeListener$Spoken;->onDone(Ljava/lang/String;)V
 
     goto :goto_1c
 
-    .line 870
+    .line 932
     :cond_3c
     const/4 v0, 0x1
 

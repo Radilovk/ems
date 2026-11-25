@@ -9,7 +9,7 @@
 ## start so that this falls exactly when the food must leave to land on its beat (on fast levels he skips the reach
 ## and hurries the throw).
 ## Everything else is his face for the game: he laughs when the player eats, gets cross at a mighty smash, staggers
-## back when a mighty hit sends the food back into him, announces the MEGA burger, sulks at an eaten apple. His words
+## back when a mighty hit sends the food back into him, announces the cake, sulks at an eaten apple. His words
 ## are a bubble over his head and his own voice from his mouth, in the room (ChefVoice: one real voice actor for every
 ## word, laugh, grunt and cry — "Ha ha ha! Clean-up on aisle four!", "Oh my god!", a grunt with each throw; cut by
 ## gen/make_chef_voice.py). One man, one mouth: a new reaction cuts what he was saying, a call-out or a throw's grunt
@@ -36,13 +36,13 @@ const CART_AT := Vector3(0.6, 0.0, 1.17)    # the cart's middle from his feet: h
 const COUNTER := 1.03
 const PICK := Vector3(-0.25, 1.03, 0.62)    # the spot on the counter in reach of his right hand (his space)
 const REACH_MAX := 0.55                     # s at most for bending to the counter and back up (when there is time)
-const STOCK := ["burger", "donut", "cheeseburger", "ice_cream", "croissant", "donut", "burger", "cake"]
+const STOCK := ["burger", "donut", "ice_cream", "croissant", "donut", "burger", "cake"]
 
 ## event → [the motion ("" = stay as he is), the face, seconds of that face]
 const REACT := {
 	"laugh": ["", "laugh", 1.6], "gloat": ["gesture", "smug", 2.0], "angry": ["shove", "surprise", 1.4],
 	"splat": ["spat", "pain", 2.4], "wow": ["shove", "surprise", 1.6], "apple": ["", "disgust", 1.4],
-	"apple_hit": ["", "laugh", 1.2], "mega": ["gesture", "smug", 2.0], "cake": ["gesture", "smug", 2.0],
+	"apple_hit": ["", "laugh", 1.2], "cake": ["gesture", "smug", 2.0],
 	"boss_down": ["defeat", "sad", 5.0], "lost": ["defeat", "sad", 4.0], "won": ["gesture", "smug", 2.2],
 }
 const GESTURE_LEN := 1.9                    # s of Strong Gesture before a big one is thrown
@@ -57,7 +57,6 @@ const LINES := {
 	"splat": ["Ох! Право в мен!", "Ауу!", "Не е честно!", "Престилката ми!"],
 	"apple": ["Пфу, ябълка…", "Скучно и полезно.", "Добре де, витамини."],
 	"apple_hit": ["Ха! Ябълката удари?!", "Тя беше полезната!"],
-	"mega": ["МЕГА БУРГЕР!", "Специалитетът на заведението!", "1650 калории — опитай!"],
 	"cake": ["Цяла торта! Честит рожден ден!", "2900 калории любов!", "Тортата е за теб!"],
 	"taunt": ["Хапни си!", "Гладен ли си?", "Поръчка!", "Топло, топло!", "Още една порция!"],
 	"wow": ["Леле, каква сила!", "Не мога да те нахраня!", "Ти си машина!"],

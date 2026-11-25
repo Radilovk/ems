@@ -31,17 +31,17 @@ In **one of two real places, the player's pick** (home menu → *Къде е г�
 the colourful **retro Pretville Street**, Poly Haven 8K, placed so the open ground is ahead; choosing moves you there)
 a cook works **behind the counter of his street-food cart**
 4.5–6.5 m ahead (the counter, 1.03 m, between you; his stock laid out on its trays) and **throws junk food at you on
-the beat**: a burger, a double cheeseburger, a doughnut, ice cream, a croissant. Before each throw he **bends over the
+the beat**: a burger, a doughnut, ice cream, a croissant. Before each throw he **bends over the
 counter, reaches for the portion and takes it** (a skeleton modifier over the animation: spine and right arm), then
 straightens into his real overarm throw and lobs it over the counter (on fast levels he skips the reach and hurries).
 **Smash it** with a fist and it burns a little; **miss it and you have eaten it** — all its real calories go on
-(burger 550, cheeseburger 920, doughnut 310, ice cream 280, croissant 270). A hit takes off far less than a miss puts on
+(burger 550, doughnut 310, ice cream 280, croissant 270). A hit takes off far less than a miss puts on
 (`Defs.BURN`: 5 / 10 / 18 % of the portion by the hit's power), so a few misses are hard to win back.
 **The heads-up card** above your line of sight (`kcal_hud.gd`) shows the balance biggest — red "+1 240 ккал · +0,16
 кг" or green "−…" — with a bar left (burned) / right (eaten) and both sides under it (1 kg = 7700 kcal, real kilos).
 **Twists:** now and then (6–10 %) an **apple** — the one healthy thing, not for smashing: let it come and eat it
-(points, the combo goes on; smashing it breaks the combo). A big one closes every level from 2 — the **MEGA burger**
-(1650 kcal) or a **whole cake** (2900 kcal): only a **mighty** hit breaks it (or a medium and a weak one; less cracks
+(points, the combo goes on; smashing it breaks the combo). A big one closes every level from 2 — the **whole cake**
+(2900 kcal): only a **mighty** hit breaks it (or a medium and a weak one; less cracks
 it and it flies on). A **mighty straight punch** sends the portion **back into the chef** (+12 %
 of it burned, he staggers, a splat on his apron). Combinations: two portions at once, three doughnuts on three beats. Six levels (`Defs.CHEF_LEVELS`): faster, wider, lower (bend your knees).
 **His face and body** (`chef.gd` Face, REACT): he keeps 32 of his Character Creator face shapes (`convert/chef2scn.gd`) —
@@ -55,7 +55,7 @@ takes over from any of them.
 (`burger_bits.glb`), the rest into lumps of its colour, with a wet splat (`food_fx.gd`, `shaders/splat.gdshader`); a
 weak hit only knocks it down, it tumbles and bounces. Eaten food splats across your eyes and slides off, a chomp, the
 suit's punishment in the belly. **The chef** (`chef.gd`) laughs when you eat ("Ха-ха! Още едно?"), gets cross at a
-mighty smash, staggers when hit, sulks at an apple, announces the MEGA burger, is impressed by four mighty hits in a
+mighty smash, staggers when hit, sulks at an apple, announces the cake, is impressed by four mighty hits in a
 row — his words in a bubble over his head **and in his own voice**, from his mouth in the room (3D, through the effects'
 hall). One real voice actor for all of it (VoiceBosch, CC-BY-SA 4.0; `ChefVoice`, `assets/sfx/chef/`, cut by
 `gen/make_chef_voice.py` from his OpenGameArt packs): his mocking showman BANTER MAN for the words and the laugh, the
@@ -63,7 +63,7 @@ same man's short cries, effort grunts, pain grunts and groans. A grunt with ever
 four!", "And I call that move: the Feeding Tube!", "How embarrassing!" when you eat; "Ladies and gentlemen, are you not
 entertained?" after three; "Oh my god!", "Oh damn!", "Holy crap, what a beating!", "No way!" at a mighty smash; "That
 is what we call some weak sauce! Boooo!" now and then at a weak one; pain grunts, "God damn, I felt that one!" when it
-comes back at him; "BONUS ROUND!" / "FINAL ROUND!" before the MEGA burger / the cake; cries and "Uh-oh…" when it is
+comes back at him; "BONUS ROUND!" / "FINAL ROUND!" before the cake; cries and "Uh-oh…" when it is
 smashed. One man, one mouth: a reaction cuts what he was saying, a call-out or a grunt waits until he has finished;
 never the same line twice in a row. The summary leads with the balance (kcal and kg), smashed, eaten, sent back,
 mighty hits, the hardest punch in km/h.

@@ -40,7 +40,7 @@ var p2 := Vector3.ZERO              # the target (contact point / the player's p
 var flying := false
 static var beat := 0.0              # 0 … 1, peaks on each beat: the spheres swell with the music
 var food := ""                       # the chef's throws: a key of Defs.FOODS ("" = a sphere, a shield, a hazard)
-var hp := 1                          # power points still needed to break it (Defs.FOODS hp; the MEGA burger 3)
+var hp := 1                          # power points still needed to break it (Defs.FOODS hp; the cake 3)
 var arc := 0.0                       # food is lobbed: the height of its arc over the straight line (m)
 var _model: Node3D
 static var _scenes := {}             # food model path -> PackedScene (loaded once)
@@ -113,7 +113,7 @@ func _build_food(f: Dictionary) -> void:
 	_spin = Vector3(randf_range(-2.0, 2.0), randf_range(2.0, 4.0), randf_range(-1.0, 1.0)) * (0.4 if Defs.boss(food) else 1.0)
 
 
-## A hit that was not enough (the MEGA burger): it shakes, flashes and flies on, a little slower.
+## A hit that was not enough (the cake): it shakes, flashes and flies on, a little slower.
 func crack(left: int) -> void:
 	hp = left
 	var tw := create_tween()

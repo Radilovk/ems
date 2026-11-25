@@ -612,7 +612,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `server/src/plans.js` (28L) — Plan presets → mods / feat arrays (applied at license creation).
 - `server/src/profile.js` (118L) — Client profiles from the booking PWA → the studio's tablets (validation, studio code, cheap limiter).
 - `server/src/report.js` (145L) — The client's copy of the tablet's training report (branding/report/session-report.html): the same page,
-- `server/src/sweep.js` (17L) — Nightly sweep (wrangler.toml crons): the tables that only grow.
+- `server/src/sweep.js` (21L) — Nightly sweep (wrangler.toml crons): the tables that only grow.
 - `server/src/tts.js` (105L) — 24 kHz, 16-bit, mono: what the tablet's AudioTrack plays as it arrives.
 - `server/src/units.js` (165L) — Units without a license — the XBody unit's XEMS mod (xbody/overlay/opt/xems/bin/xems-net). The unit calls only
 - `server/src/utils.js` (130L) — Shared helpers for license server (testable, no Worker bindings).
@@ -633,7 +633,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `server/test/plans.test.js` (30L) — 
 - `server/test/profile.test.js` (74L) — 
 - `server/test/report.test.js` (23L) — 
-- `server/test/sweep.test.js` (43L) — D1-shaped wrapper over node:sqlite with the real migrations.
+- `server/test/sweep.test.js` (54L) — D1-shaped wrapper over node:sqlite with the real migrations.
 - `server/test/tts.test.js` (68L) — 
 - `server/test/units.test.js` (125L) — 
 - `server/test/utils.test.js` (115L) — 
@@ -970,7 +970,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L36 ## Server
   - L45 ## Tests
 
-`docs/xems-ai-coach.md` (497L)
+`docs/xems-ai-coach.md` (507L)
   - L1 # AI coach — the Smart Session with a dialogue (owner, 1.1.535)
   - L86 ## Flow (Smart Session tile)
   - L107 ## Who decides what
@@ -1003,6 +1003,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L462 ## 1.1.575 — signals, one pause, an ear that learns both ways
   - L476 ## 1.1.576 — the wake phrase is "окей тренер"
   - L485 ## 1.1.577 — what was useful in two older branches
+  - L498 ## 1.1.577 — server cost check (Cloudflare / Azure / Gemini)
 
 `docs/xems-ai-session-implementation.md` (230L)
   - L1 # XEMS AI (Smart Session) — реализация v1.1.58-ai

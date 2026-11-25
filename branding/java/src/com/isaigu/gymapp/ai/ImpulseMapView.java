@@ -306,7 +306,7 @@ public final class ImpulseMapView extends View {
             shape.lineTo(r.right, r.bottom);
             shape.close();
             fill.setColor(col);
-            fill.setAlpha(b.isRest() ? 220 : Math.round(90 + 150 * Math.max(0.2f, b.rel / 100f)));
+            fill.setAlpha(b.isRest() ? 220 : 240);                // no strength per block (owner, 2026-11-25)
             c.drawPath(shape, fill);
             if (sel) {
                 stroke.setColor(ink());

@@ -470,12 +470,12 @@ public final class AutoCatalog {
         return s;
     }
 
-    /** A wave step of the lymph pump: {@code on} at 100 %, {@code prev} at 50 % (they still press), 1 s : 1 s. */
+    /** A wave step of the lymph pump: {@code on} and {@code prev} on (they still press), each at the person's level. */
     private static Step faceWave(int[] on, int[] prev) {
         int[] z = new int[CHANNELS];
         if (prev != null) {
             for (int c : prev) {
-                z[c] = 50;
+                z[c] = 100;
             }
         }
         for (int c : on) {

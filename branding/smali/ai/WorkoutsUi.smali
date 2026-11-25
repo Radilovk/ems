@@ -321,7 +321,7 @@
 
     const/4 v1, 0x1
 
-    .line 1346
+    .line 1347
     sget-object v0, Lcom/isaigu/gymapp/ai/WorkoutsUi;->shell:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/widget/XemsUi$Shell;->dialog:Landroid/app/Dialog;
@@ -330,18 +330,18 @@
 
     move-result-object v6
 
-    .line 1347
+    .line 1348
     iget v0, p0, Lcom/isaigu/gymapp/ai/WorkoutsUi$Act;->code:I
 
     packed-switch v0, :pswitch_data_37a
 
-    .line 1570
+    .line 1571
     :cond_12
     :goto_12
     :pswitch_12
     return-void
 
-    .line 1349
+    .line 1350
     :pswitch_13
     if-ne p1, v1, :cond_22
 
@@ -352,13 +352,13 @@
 
     if-eq v0, v3, :cond_12
 
-    .line 1350
+    .line 1351
     if-ne p1, v1, :cond_24
 
     :goto_1c
     sput-boolean v1, Lcom/isaigu/gymapp/ai/WorkoutsUi;->procedures:Z
 
-    .line 1351
+    .line 1352
     invoke-static {v2}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->go(I)V
 
     goto :goto_12
@@ -366,29 +366,29 @@
     :cond_22
     move v0, v2
 
-    .line 1349
+    .line 1350
     goto :goto_16
 
     :cond_24
     move v1, v2
 
-    .line 1350
+    .line 1351
     goto :goto_1c
 
-    .line 1356
+    .line 1357
     :pswitch_26
     new-instance v6, Lcom/isaigu/gymapp/ai/Workout;
 
     invoke-direct {v6}, Lcom/isaigu/gymapp/ai/Workout;-><init>()V
 
-    .line 1357
+    .line 1358
     invoke-static {}, Lcom/isaigu/gymapp/ai/WorkoutStore;->newId()Ljava/lang/String;
 
     move-result-object v0
 
     iput-object v0, v6, Lcom/isaigu/gymapp/ai/Workout;->id:Ljava/lang/String;
 
-    .line 1358
+    .line 1359
     iget v0, p0, Lcom/isaigu/gymapp/ai/WorkoutsUi$Act;->code:I
 
     const/16 v7, 0x19
@@ -400,14 +400,14 @@
     :goto_39
     iput-object v0, v6, Lcom/isaigu/gymapp/ai/Workout;->goal:Ljava/lang/String;
 
-    .line 1359
+    .line 1360
     invoke-virtual {v6}, Lcom/isaigu/gymapp/ai/Workout;->isPassive()Z
 
     move-result v0
 
     if-eqz v0, :cond_4a
 
-    .line 1360
+    .line 1361
     iget-object v0, v6, Lcom/isaigu/gymapp/ai/Workout;->blocks:Ljava/util/List;
 
     invoke-virtual {v6}, Lcom/isaigu/gymapp/ai/Workout;->clean()Lcom/isaigu/gymapp/ai/Workout$Block;
@@ -416,23 +416,23 @@
 
     invoke-interface {v0, v7}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    .line 1362
+    .line 1363
     :cond_4a
     sput-object v6, Lcom/isaigu/gymapp/ai/WorkoutsUi;->editing:Lcom/isaigu/gymapp/ai/Workout;
 
-    .line 1363
+    .line 1364
     sput-boolean v1, Lcom/isaigu/gymapp/ai/WorkoutsUi;->dirty:Z
 
-    .line 1364
+    .line 1365
     sput-boolean v2, Lcom/isaigu/gymapp/ai/WorkoutsUi;->confirmDelete:Z
 
-    .line 1365
+    .line 1366
     sput-object v4, Lcom/isaigu/gymapp/ai/WorkoutsUi;->preview:Ljava/lang/String;
 
-    .line 1366
+    .line 1367
     sput v5, Lcom/isaigu/gymapp/ai/WorkoutsUi;->replaceIndex:I
 
-    .line 1367
+    .line 1368
     invoke-virtual {v6}, Lcom/isaigu/gymapp/ai/Workout;->isPassive()Z
 
     move-result v0
@@ -444,7 +444,7 @@
 
     goto :goto_12
 
-    .line 1358
+    .line 1359
     :cond_5e
     const-string v0, "tone"
 
@@ -453,10 +453,10 @@
     :cond_61
     move v1, v3
 
-    .line 1367
+    .line 1368
     goto :goto_5a
 
-    .line 1371
+    .line 1372
     :pswitch_63
     invoke-static {v6}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->ownList(Landroid/content/Context;)Ljava/util/List;
 
@@ -468,7 +468,7 @@
 
     check-cast v0, Lcom/isaigu/gymapp/ai/Workout;
 
-    .line 1372
+    .line 1373
     iget-object v3, v0, Lcom/isaigu/gymapp/ai/Workout;->id:Ljava/lang/String;
 
     iget-object v4, v0, Lcom/isaigu/gymapp/ai/Workout;->name:Ljava/lang/String;
@@ -479,23 +479,23 @@
 
     sput-object v0, Lcom/isaigu/gymapp/ai/WorkoutsUi;->editing:Lcom/isaigu/gymapp/ai/Workout;
 
-    .line 1373
+    .line 1374
     sget-object v0, Lcom/isaigu/gymapp/ai/WorkoutsUi;->editing:Lcom/isaigu/gymapp/ai/Workout;
 
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->deriveGoal(Lcom/isaigu/gymapp/ai/Workout;)V
 
-    .line 1374
+    .line 1375
     sput-boolean v2, Lcom/isaigu/gymapp/ai/WorkoutsUi;->dirty:Z
 
-    .line 1375
+    .line 1376
     sput-boolean v2, Lcom/isaigu/gymapp/ai/WorkoutsUi;->confirmDelete:Z
 
-    .line 1376
+    .line 1377
     invoke-static {v1}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->go(I)V
 
     goto :goto_12
 
-    .line 1380
+    .line 1381
     :pswitch_84
     invoke-static {p1, p0}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->presetAt(ILcom/isaigu/gymapp/ai/WorkoutsUi$Act;)Lcom/isaigu/gymapp/ai/Workout;
 
@@ -503,15 +503,15 @@
 
     sput-object v0, Lcom/isaigu/gymapp/ai/WorkoutsUi;->editing:Lcom/isaigu/gymapp/ai/Workout;
 
-    .line 1381
+    .line 1382
     sput-boolean v2, Lcom/isaigu/gymapp/ai/WorkoutsUi;->dirty:Z
 
-    .line 1382
+    .line 1383
     invoke-static {v1}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->go(I)V
 
     goto :goto_12
 
-    .line 1385
+    .line 1386
     :pswitch_90
     sget-object v0, Lcom/isaigu/gymapp/ai/WorkoutsUi;->editing:Lcom/isaigu/gymapp/ai/Workout;
 
@@ -553,15 +553,15 @@
 
     sput-object v0, Lcom/isaigu/gymapp/ai/WorkoutsUi;->editing:Lcom/isaigu/gymapp/ai/Workout;
 
-    .line 1386
+    .line 1387
     sput-boolean v1, Lcom/isaigu/gymapp/ai/WorkoutsUi;->dirty:Z
 
-    .line 1387
+    .line 1388
     invoke-static {v1}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->go(I)V
 
     goto/16 :goto_12
 
-    .line 1391
+    .line 1392
     :pswitch_c0
     sget v0, Lcom/isaigu/gymapp/ai/WorkoutsUi;->screen:I
 
@@ -587,34 +587,34 @@
 
     if-nez v0, :cond_db
 
-    .line 1392
+    .line 1393
     invoke-static {v6}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->save(Landroid/content/Context;)V
 
-    .line 1394
+    .line 1395
     :cond_db
     invoke-static {v2}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->go(I)V
 
     goto/16 :goto_12
 
-    .line 1397
+    .line 1398
     :pswitch_e0
     invoke-static {v6}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->save(Landroid/content/Context;)V
 
-    .line 1398
+    .line 1399
     invoke-static {v1}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->go(I)V
 
     goto/16 :goto_12
 
-    .line 1401
+    .line 1402
     :pswitch_e8
     sput-boolean v1, Lcom/isaigu/gymapp/ai/WorkoutsUi;->confirmDelete:Z
 
-    .line 1402
+    .line 1403
     invoke-static {v1}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->go(I)V
 
     goto/16 :goto_12
 
-    .line 1405
+    .line 1406
     :pswitch_ef
     sget-object v0, Lcom/isaigu/gymapp/ai/WorkoutsUi;->editing:Lcom/isaigu/gymapp/ai/Workout;
 
@@ -622,15 +622,15 @@
 
     invoke-static {v6, v0}, Lcom/isaigu/gymapp/ai/WorkoutStore;->delete(Landroid/content/Context;Ljava/lang/String;)V
 
-    .line 1406
+    .line 1407
     sput-boolean v2, Lcom/isaigu/gymapp/ai/WorkoutsUi;->confirmDelete:Z
 
-    .line 1407
+    .line 1408
     invoke-static {v2}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->go(I)V
 
     goto/16 :goto_12
 
-    .line 1410
+    .line 1411
     :pswitch_fd
     sget v0, Lcom/isaigu/gymapp/ai/WorkoutsUi;->screen:I
 
@@ -660,16 +660,16 @@
 
     if-nez v0, :cond_11c
 
-    .line 1411
+    .line 1412
     invoke-static {v6}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->save(Landroid/content/Context;)V
 
-    .line 1413
+    .line 1414
     :cond_11c
     invoke-static {}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->close()V
 
     goto/16 :goto_12
 
-    .line 1416
+    .line 1417
     :pswitch_121
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoModel$Goal;->values()[Lcom/isaigu/gymapp/ai/AutoModel$Goal;
 
@@ -677,31 +677,31 @@
 
     aget-object v0, v0, p1
 
-    .line 1417
+    .line 1418
     sget-object v2, Lcom/isaigu/gymapp/ai/WorkoutsUi;->editing:Lcom/isaigu/gymapp/ai/Workout;
 
     invoke-virtual {v2}, Lcom/isaigu/gymapp/ai/Workout;->effectiveGoals()Ljava/util/Set;
 
     move-result-object v2
 
-    .line 1418
+    .line 1419
     invoke-interface {v2, v0}, Ljava/util/Set;->contains(Ljava/lang/Object;)Z
 
     move-result v3
 
     if-eqz v3, :cond_15f
 
-    .line 1419
+    .line 1420
     invoke-interface {v2}, Ljava/util/Set;->size()I
 
     move-result v3
 
     if-le v3, v1, :cond_13c
 
-    .line 1420
+    .line 1421
     invoke-interface {v2, v0}, Ljava/util/Set;->remove(Ljava/lang/Object;)Z
 
-    .line 1425
+    .line 1426
     :cond_13c
     :goto_13c
     sget-object v0, Lcom/isaigu/gymapp/ai/WorkoutsUi;->editing:Lcom/isaigu/gymapp/ai/Workout;
@@ -710,7 +710,7 @@
 
     invoke-interface {v0}, Ljava/util/Set;->clear()V
 
-    .line 1426
+    .line 1427
     invoke-interface {v2}, Ljava/util/Set;->iterator()Ljava/util/Iterator;
 
     move-result-object v1
@@ -728,7 +728,7 @@
 
     check-cast v0, Lcom/isaigu/gymapp/ai/AutoModel$Goal;
 
-    .line 1427
+    .line 1428
     sget-object v2, Lcom/isaigu/gymapp/ai/WorkoutsUi;->editing:Lcom/isaigu/gymapp/ai/Workout;
 
     iget-object v2, v2, Lcom/isaigu/gymapp/ai/Workout;->goals:Ljava/util/Set;
@@ -741,30 +741,30 @@
 
     goto :goto_147
 
-    .line 1423
+    .line 1424
     :cond_15f
     invoke-interface {v2, v0}, Ljava/util/Set;->add(Ljava/lang/Object;)Z
 
     goto :goto_13c
 
-    .line 1429
+    .line 1430
     :cond_163
     invoke-static {v6}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->classChanged(Landroid/content/Context;)V
 
     goto/16 :goto_12
 
-    .line 1433
+    .line 1434
     :pswitch_168
     sget-object v0, Lcom/isaigu/gymapp/ai/WorkoutsUi;->editing:Lcom/isaigu/gymapp/ai/Workout;
 
     iput p1, v0, Lcom/isaigu/gymapp/ai/Workout;->level:I
 
-    .line 1434
+    .line 1435
     invoke-static {v6}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->classChanged(Landroid/content/Context;)V
 
     goto/16 :goto_12
 
-    .line 1437
+    .line 1438
     :pswitch_171
     sget-object v2, Lcom/isaigu/gymapp/ai/WorkoutsUi;->editing:Lcom/isaigu/gymapp/ai/Workout;
 
@@ -775,12 +775,12 @@
     :goto_177
     iput-object v0, v2, Lcom/isaigu/gymapp/ai/Workout;->sex:Ljava/lang/String;
 
-    .line 1438
+    .line 1439
     invoke-static {v6}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->classChanged(Landroid/content/Context;)V
 
     goto/16 :goto_12
 
-    .line 1437
+    .line 1438
     :cond_17e
     if-ne p1, v3, :cond_183
 
@@ -793,7 +793,7 @@
 
     goto :goto_177
 
-    .line 1441
+    .line 1442
     :pswitch_185
     sget-boolean v0, Lcom/isaigu/gymapp/ai/WorkoutsUi;->advanced:Z
 
@@ -802,7 +802,7 @@
     :goto_189
     sput-boolean v1, Lcom/isaigu/gymapp/ai/WorkoutsUi;->advanced:Z
 
-    .line 1442
+    .line 1443
     invoke-static {v6}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->fillPanel(Landroid/content/Context;)V
 
     goto/16 :goto_12
@@ -810,10 +810,10 @@
     :cond_190
     move v1, v2
 
-    .line 1441
+    .line 1442
     goto :goto_189
 
-    .line 1446
+    .line 1447
     :pswitch_192
     sget-object v0, Lcom/isaigu/gymapp/ai/WorkoutsUi;->mapView:Lcom/isaigu/gymapp/ai/ImpulseMapView;
 
@@ -825,7 +825,7 @@
 
     move-result v5
 
-    .line 1447
+    .line 1448
     :cond_19c
     if-ltz v5, :cond_12
 
@@ -839,7 +839,7 @@
 
     if-ge v5, v0, :cond_12
 
-    .line 1448
+    .line 1449
     sget-object v0, Lcom/isaigu/gymapp/ai/WorkoutsUi;->editing:Lcom/isaigu/gymapp/ai/Workout;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/ai/Workout;->blocks:Ljava/util/List;
@@ -850,7 +850,7 @@
 
     check-cast v0, Lcom/isaigu/gymapp/ai/Workout$Block;
 
-    .line 1449
+    .line 1450
     iget-boolean v3, v0, Lcom/isaigu/gymapp/ai/Workout$Block;->lock:Z
 
     if-nez v3, :cond_1b7
@@ -860,20 +860,20 @@
     :cond_1b7
     iput-boolean v2, v0, Lcom/isaigu/gymapp/ai/Workout$Block;->lock:Z
 
-    .line 1450
+    .line 1451
     sput-boolean v1, Lcom/isaigu/gymapp/ai/WorkoutsUi;->dirty:Z
 
-    .line 1451
+    .line 1452
     sget-object v0, Lcom/isaigu/gymapp/ai/WorkoutsUi;->mapView:Lcom/isaigu/gymapp/ai/ImpulseMapView;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/ai/ImpulseMapView;->invalidate()V
 
-    .line 1452
+    .line 1453
     invoke-static {v6}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->fillPanel(Landroid/content/Context;)V
 
     goto/16 :goto_12
 
-    .line 1457
+    .line 1458
     :pswitch_1c5
     sget-object v0, Lcom/isaigu/gymapp/ai/WorkoutsUi;->mapView:Lcom/isaigu/gymapp/ai/ImpulseMapView;
 
@@ -885,7 +885,7 @@
 
     move-result v5
 
-    .line 1458
+    .line 1459
     :cond_1cf
     if-ltz v5, :cond_12
 
@@ -918,7 +918,7 @@
 
     if-eq v3, v0, :cond_12
 
-    .line 1459
+    .line 1460
     sget-object v0, Lcom/isaigu/gymapp/ai/WorkoutsUi;->editing:Lcom/isaigu/gymapp/ai/Workout;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/ai/Workout;->blocks:Ljava/util/List;
@@ -929,7 +929,7 @@
 
     check-cast v0, Lcom/isaigu/gymapp/ai/Workout$Block;
 
-    .line 1460
+    .line 1461
     if-ne p1, v1, :cond_1f9
 
     move v2, v1
@@ -937,27 +937,27 @@
     :cond_1f9
     iput-boolean v2, v0, Lcom/isaigu/gymapp/ai/Workout$Block;->dbl:Z
 
-    .line 1461
+    .line 1462
     invoke-virtual {v0}, Lcom/isaigu/gymapp/ai/Workout$Block;->clampAll()V
 
-    .line 1462
+    .line 1463
     sput-boolean v1, Lcom/isaigu/gymapp/ai/WorkoutsUi;->dirty:Z
 
-    .line 1463
+    .line 1464
     sget-object v0, Lcom/isaigu/gymapp/ai/WorkoutsUi;->mapView:Lcom/isaigu/gymapp/ai/ImpulseMapView;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/ai/ImpulseMapView;->invalidate()V
 
-    .line 1464
+    .line 1465
     invoke-static {v6}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->fillPanel(Landroid/content/Context;)V
 
-    .line 1465
+    .line 1466
     invoke-static {}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->refreshFooter()V
 
-    .line 1466
+    .line 1467
     invoke-static {}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->refreshLegend()V
 
-    .line 1467
+    .line 1468
     invoke-static {v6}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->autosave(Landroid/content/Context;)V
 
     goto/16 :goto_12
@@ -965,33 +965,33 @@
     :cond_213
     move v3, v2
 
-    .line 1458
+    .line 1459
     goto :goto_1de
 
-    .line 1472
+    .line 1473
     :pswitch_215
     sput v5, Lcom/isaigu/gymapp/ai/WorkoutsUi;->replaceIndex:I
 
-    .line 1473
+    .line 1474
     invoke-static {}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->lastPicked()Ljava/lang/String;
 
     move-result-object v0
 
     sput-object v0, Lcom/isaigu/gymapp/ai/WorkoutsUi;->preview:Ljava/lang/String;
 
-    .line 1474
+    .line 1475
     sput-object v4, Lcom/isaigu/gymapp/ai/WorkoutsUi;->justPicked:Ljava/lang/String;
 
-    .line 1475
+    .line 1476
     invoke-static {v3}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->go(I)V
 
     goto/16 :goto_12
 
-    .line 1478
+    .line 1479
     :pswitch_224
     sput-object v4, Lcom/isaigu/gymapp/ai/WorkoutsUi;->preview:Ljava/lang/String;
 
-    .line 1479
+    .line 1480
     sget-object v0, Lcom/isaigu/gymapp/ai/WorkoutsUi;->mapView:Lcom/isaigu/gymapp/ai/ImpulseMapView;
 
     if-eqz v0, :cond_237
@@ -1005,7 +1005,7 @@
     :goto_230
     sput v0, Lcom/isaigu/gymapp/ai/WorkoutsUi;->replaceIndex:I
 
-    .line 1480
+    .line 1481
     invoke-static {v3}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->go(I)V
 
     goto/16 :goto_12
@@ -1013,10 +1013,10 @@
     :cond_237
     move v0, v5
 
-    .line 1479
+    .line 1480
     goto :goto_230
 
-    .line 1483
+    .line 1484
     :pswitch_239
     sget-object v0, Lcom/isaigu/gymapp/ai/WorkoutsUi;->mapView:Lcom/isaigu/gymapp/ai/ImpulseMapView;
 
@@ -1024,21 +1024,8 @@
 
     move-result v3
 
-    .line 1484
-    if-ltz v3, :cond_12
-
     .line 1485
-    sget-object v0, Lcom/isaigu/gymapp/ai/WorkoutsUi;->editing:Lcom/isaigu/gymapp/ai/Workout;
-
-    iget-object v0, v0, Lcom/isaigu/gymapp/ai/Workout;->blocks:Ljava/util/List;
-
-    invoke-interface {v0, v3}, Ljava/util/List;->get(I)Ljava/lang/Object;
-
-    move-result-object v0
-
-    check-cast v0, Lcom/isaigu/gymapp/ai/Workout$Block;
-
-    iput-object v4, v0, Lcom/isaigu/gymapp/ai/Workout$Block;->ex:Ljava/lang/String;
+    if-ltz v3, :cond_12
 
     .line 1486
     sget-object v0, Lcom/isaigu/gymapp/ai/WorkoutsUi;->editing:Lcom/isaigu/gymapp/ai/Workout;
@@ -1051,7 +1038,7 @@
 
     check-cast v0, Lcom/isaigu/gymapp/ai/Workout$Block;
 
-    iput-object v4, v0, Lcom/isaigu/gymapp/ai/Workout$Block;->pat:Ljava/lang/String;
+    iput-object v4, v0, Lcom/isaigu/gymapp/ai/Workout$Block;->ex:Ljava/lang/String;
 
     .line 1487
     sget-object v0, Lcom/isaigu/gymapp/ai/WorkoutsUi;->editing:Lcom/isaigu/gymapp/ai/Workout;
@@ -1064,31 +1051,44 @@
 
     check-cast v0, Lcom/isaigu/gymapp/ai/Workout$Block;
 
-    iput-boolean v2, v0, Lcom/isaigu/gymapp/ai/Workout$Block;->hold:Z
+    iput-object v4, v0, Lcom/isaigu/gymapp/ai/Workout$Block;->pat:Ljava/lang/String;
 
     .line 1488
-    sput-boolean v1, Lcom/isaigu/gymapp/ai/WorkoutsUi;->dirty:Z
+    sget-object v0, Lcom/isaigu/gymapp/ai/WorkoutsUi;->editing:Lcom/isaigu/gymapp/ai/Workout;
+
+    iget-object v0, v0, Lcom/isaigu/gymapp/ai/Workout;->blocks:Ljava/util/List;
+
+    invoke-interface {v0, v3}, Ljava/util/List;->get(I)Ljava/lang/Object;
+
+    move-result-object v0
+
+    check-cast v0, Lcom/isaigu/gymapp/ai/Workout$Block;
+
+    iput-boolean v2, v0, Lcom/isaigu/gymapp/ai/Workout$Block;->hold:Z
 
     .line 1489
-    invoke-static {v1}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->go(I)V
+    sput-boolean v1, Lcom/isaigu/gymapp/ai/WorkoutsUi;->dirty:Z
 
     .line 1490
+    invoke-static {v1}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->go(I)V
+
+    .line 1491
     sget-object v0, Lcom/isaigu/gymapp/ai/WorkoutsUi;->mapView:Lcom/isaigu/gymapp/ai/ImpulseMapView;
 
     invoke-virtual {v0, v3}, Lcom/isaigu/gymapp/ai/ImpulseMapView;->select(I)V
 
-    .line 1491
+    .line 1492
     invoke-static {v6}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->fillPanel(Landroid/content/Context;)V
 
     goto/16 :goto_12
 
-    .line 1497
+    .line 1498
     :pswitch_274
     invoke-static {}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->insertAt()I
 
     move-result v2
 
-    .line 1498
+    .line 1499
     sget-object v0, Lcom/isaigu/gymapp/ai/WorkoutsUi;->editing:Lcom/isaigu/gymapp/ai/Workout;
 
     iget-object v3, v0, Lcom/isaigu/gymapp/ai/Workout;->blocks:Ljava/util/List;
@@ -1106,14 +1106,14 @@
     :goto_286
     invoke-interface {v3, v2, v0}, Ljava/util/List;->add(ILjava/lang/Object;)V
 
-    .line 1499
+    .line 1500
     invoke-static {v6}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->tooLong(Landroid/content/Context;)Z
 
     move-result v0
 
     if-eqz v0, :cond_29f
 
-    .line 1500
+    .line 1501
     sget-object v0, Lcom/isaigu/gymapp/ai/WorkoutsUi;->editing:Lcom/isaigu/gymapp/ai/Workout;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/ai/Workout;->blocks:Ljava/util/List;
@@ -1122,7 +1122,7 @@
 
     goto/16 :goto_12
 
-    .line 1498
+    .line 1499
     :cond_298
     sget-object v0, Lcom/isaigu/gymapp/ai/WorkoutsUi;->editing:Lcom/isaigu/gymapp/ai/Workout;
 
@@ -1132,24 +1132,24 @@
 
     goto :goto_286
 
-    .line 1503
+    .line 1504
     :cond_29f
     sput-boolean v1, Lcom/isaigu/gymapp/ai/WorkoutsUi;->dirty:Z
 
-    .line 1504
+    .line 1505
     invoke-static {v1}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->go(I)V
 
-    .line 1505
+    .line 1506
     sget-object v0, Lcom/isaigu/gymapp/ai/WorkoutsUi;->mapView:Lcom/isaigu/gymapp/ai/ImpulseMapView;
 
     invoke-virtual {v0, v2}, Lcom/isaigu/gymapp/ai/ImpulseMapView;->select(I)V
 
-    .line 1506
+    .line 1507
     invoke-static {v6}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->fillPanel(Landroid/content/Context;)V
 
     goto/16 :goto_12
 
-    .line 1510
+    .line 1511
     :pswitch_2ae
     sget-object v0, Lcom/isaigu/gymapp/ai/WorkoutsUi;->ZONES:[Ljava/lang/String;
 
@@ -1157,41 +1157,41 @@
 
     sput-object v0, Lcom/isaigu/gymapp/ai/WorkoutsUi;->zone:Ljava/lang/String;
 
-    .line 1511
+    .line 1512
     invoke-static {v3}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->go(I)V
 
     goto/16 :goto_12
 
-    .line 1515
+    .line 1516
     :pswitch_2b9
     invoke-static {v6, p0}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->picked(Landroid/content/Context;Lcom/isaigu/gymapp/ai/WorkoutsUi$Act;)V
 
     goto/16 :goto_12
 
-    .line 1518
+    .line 1519
     :pswitch_2be
     sget v0, Lcom/isaigu/gymapp/ai/WorkoutsUi;->replaceIndex:I
 
-    .line 1519
+    .line 1520
     sput v5, Lcom/isaigu/gymapp/ai/WorkoutsUi;->replaceIndex:I
 
-    .line 1520
+    .line 1521
     invoke-static {v1}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->go(I)V
 
-    .line 1521
+    .line 1522
     if-ltz v0, :cond_12
 
-    .line 1522
+    .line 1523
     sget-object v1, Lcom/isaigu/gymapp/ai/WorkoutsUi;->mapView:Lcom/isaigu/gymapp/ai/ImpulseMapView;
 
     invoke-virtual {v1, v0}, Lcom/isaigu/gymapp/ai/ImpulseMapView;->select(I)V
 
-    .line 1523
+    .line 1524
     invoke-static {v6}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->fillPanel(Landroid/content/Context;)V
 
     goto/16 :goto_12
 
-    .line 1528
+    .line 1529
     :pswitch_2d1
     sget-object v0, Lcom/isaigu/gymapp/ai/WorkoutsUi;->mapView:Lcom/isaigu/gymapp/ai/ImpulseMapView;
 
@@ -1203,7 +1203,7 @@
 
     move-result v5
 
-    .line 1529
+    .line 1530
     :cond_2db
     if-ltz v5, :cond_12
 
@@ -1213,7 +1213,7 @@
 
     if-nez v0, :cond_12
 
-    .line 1532
+    .line 1533
     sget-object v0, Lcom/isaigu/gymapp/ai/WorkoutsUi;->editing:Lcom/isaigu/gymapp/ai/Workout;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/ai/Workout;->blocks:Ljava/util/List;
@@ -1224,24 +1224,24 @@
 
     check-cast v0, Lcom/isaigu/gymapp/ai/Workout$Block;
 
-    .line 1533
+    .line 1534
     invoke-virtual {v0}, Lcom/isaigu/gymapp/ai/Workout$Block;->copy()Lcom/isaigu/gymapp/ai/Workout$Block;
 
     move-result-object v2
 
-    .line 1534
+    .line 1535
     iget v3, p0, Lcom/isaigu/gymapp/ai/WorkoutsUi$Act;->arg:I
 
     invoke-static {v0, v3, p1}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->step(Lcom/isaigu/gymapp/ai/Workout$Block;II)V
 
-    .line 1535
+    .line 1536
     invoke-static {v6}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->tooLong(Landroid/content/Context;)Z
 
     move-result v3
 
     if-eqz v3, :cond_304
 
-    .line 1536
+    .line 1537
     sget-object v0, Lcom/isaigu/gymapp/ai/WorkoutsUi;->editing:Lcom/isaigu/gymapp/ai/Workout;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/ai/Workout;->blocks:Ljava/util/List;
@@ -1250,7 +1250,7 @@
 
     move-object v0, v2
 
-    .line 1539
+    .line 1540
     :cond_304
     iget-object v2, p0, Lcom/isaigu/gymapp/ai/WorkoutsUi$Act;->value:Landroid/widget/TextView;
 
@@ -1268,23 +1268,23 @@
 
     invoke-virtual {v2, v0}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 1540
+    .line 1541
     sput-boolean v1, Lcom/isaigu/gymapp/ai/WorkoutsUi;->dirty:Z
 
-    .line 1541
+    .line 1542
     sget-object v0, Lcom/isaigu/gymapp/ai/WorkoutsUi;->mapView:Lcom/isaigu/gymapp/ai/ImpulseMapView;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/ai/ImpulseMapView;->invalidate()V
 
-    .line 1542
+    .line 1543
     invoke-static {}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->refreshFooter()V
 
-    .line 1543
+    .line 1544
     invoke-static {}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->refreshLegend()V
 
     goto/16 :goto_12
 
-    .line 1547
+    .line 1548
     :pswitch_324
     sget-object v0, Lcom/isaigu/gymapp/ai/WorkoutsUi;->editing:Lcom/isaigu/gymapp/ai/Workout;
 
@@ -1306,27 +1306,27 @@
 
     if-nez v0, :cond_33b
 
-    .line 1548
+    .line 1549
     invoke-static {v6}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->save(Landroid/content/Context;)V
 
-    .line 1550
+    .line 1551
     :cond_33b
     sget-object v0, Lcom/isaigu/gymapp/ai/WorkoutsUi;->editing:Lcom/isaigu/gymapp/ai/Workout;
 
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/AiSession;->useWorkout(Lcom/isaigu/gymapp/ai/Workout;)V
 
-    .line 1551
+    .line 1552
     sget-object v0, Lcom/isaigu/gymapp/ai/WorkoutsUi;->host:Landroid/app/Activity;
 
-    .line 1552
+    .line 1553
     invoke-static {}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->close()V
 
-    .line 1553
+    .line 1554
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/AiUi;->open(Landroid/app/Activity;)V
 
     goto/16 :goto_12
 
-    .line 1556
+    .line 1557
     :pswitch_34a
     sget-object v0, Lcom/isaigu/gymapp/ai/WorkoutsUi;->editing:Lcom/isaigu/gymapp/ai/Workout;
 
@@ -1348,10 +1348,10 @@
 
     if-nez v0, :cond_361
 
-    .line 1557
+    .line 1558
     invoke-static {v6}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->save(Landroid/content/Context;)V
 
-    .line 1559
+    .line 1560
     :cond_361
     sget-object v0, Lcom/isaigu/gymapp/ai/WorkoutsUi;->host:Landroid/app/Activity;
 
@@ -1361,10 +1361,10 @@
 
     move-result-object v0
 
-    .line 1560
+    .line 1561
     if-eqz v0, :cond_374
 
-    .line 1561
+    .line 1562
     invoke-static {v6, v0, v1}, Landroid/widget/Toast;->makeText(Landroid/content/Context;Ljava/lang/CharSequence;I)Landroid/widget/Toast;
 
     move-result-object v0
@@ -1373,13 +1373,13 @@
 
     goto/16 :goto_12
 
-    .line 1563
+    .line 1564
     :cond_374
     invoke-static {}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->close()V
 
     goto/16 :goto_12
 
-    .line 1347
+    .line 1348
     nop
 
     :pswitch_data_37a
@@ -1508,7 +1508,7 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 1638
+    .line 1639
     if-eqz p2, :cond_4a
 
     iget-object v0, p2, Lcom/isaigu/gymapp/ai/ExerciseLibrary$Entry;->pat:Ljava/lang/String;
@@ -1526,23 +1526,23 @@
 
     const/4 v0, 0x1
 
-    .line 1639
+    .line 1640
     :goto_f
     invoke-static {p0, p2}, Lcom/isaigu/gymapp/ai/ExerciseLibrary;->zoneOf(Landroid/content/Context;Lcom/isaigu/gymapp/ai/ExerciseLibrary$Entry;)Ljava/lang/String;
 
     move-result-object v3
 
-    .line 1638
+    .line 1639
     invoke-static {p1, v2, v0, v3}, Lcom/isaigu/gymapp/ai/Workout;->forExercise(Ljava/lang/String;Ljava/lang/String;ZLjava/lang/String;)Lcom/isaigu/gymapp/ai/Workout$Block;
 
     move-result-object v3
 
-    .line 1640
+    .line 1641
     const/4 v0, -0x1
 
     move v2, v0
 
-    .line 1641
+    .line 1642
     :goto_19
     sget-object v0, Lcom/isaigu/gymapp/ai/WorkoutsUi;->editing:Lcom/isaigu/gymapp/ai/Workout;
 
@@ -1554,7 +1554,7 @@
 
     if-ge v1, v0, :cond_52
 
-    .line 1642
+    .line 1643
     sget-object v0, Lcom/isaigu/gymapp/ai/WorkoutsUi;->editing:Lcom/isaigu/gymapp/ai/Workout;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/ai/Workout;->blocks:Ljava/util/List;
@@ -1591,7 +1591,7 @@
 
     move v0, v1
 
-    .line 1641
+    .line 1642
     :goto_46
     add-int/lit8 v1, v1, 0x1
 
@@ -1599,7 +1599,7 @@
 
     goto :goto_19
 
-    .line 1638
+    .line 1639
     :cond_4a
     invoke-static {p1}, Lcom/isaigu/gymapp/ai/Workout;->patternOf(Ljava/lang/String;)Ljava/lang/String;
 
@@ -1614,11 +1614,11 @@
 
     goto :goto_f
 
-    .line 1646
+    .line 1647
     :cond_52
     if-ltz v2, :cond_79
 
-    .line 1647
+    .line 1648
     sget-object v0, Lcom/isaigu/gymapp/ai/WorkoutsUi;->editing:Lcom/isaigu/gymapp/ai/Workout;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/ai/Workout;->blocks:Ljava/util/List;
@@ -1629,12 +1629,12 @@
 
     check-cast v0, Lcom/isaigu/gymapp/ai/Workout$Block;
 
-    .line 1648
+    .line 1649
     invoke-virtual {v0}, Lcom/isaigu/gymapp/ai/Workout$Block;->copy()Lcom/isaigu/gymapp/ai/Workout$Block;
 
     move-result-object v1
 
-    .line 1649
+    .line 1650
     sget-object v3, Lcom/isaigu/gymapp/ai/WorkoutsUi;->editing:Lcom/isaigu/gymapp/ai/Workout;
 
     iget-object v3, v3, Lcom/isaigu/gymapp/ai/Workout;->blocks:Ljava/util/List;
@@ -1647,7 +1647,7 @@
 
     invoke-interface {v3, v4, v0}, Ljava/util/List;->add(ILjava/lang/Object;)V
 
-    .line 1650
+    .line 1651
     sget-object v0, Lcom/isaigu/gymapp/ai/WorkoutsUi;->editing:Lcom/isaigu/gymapp/ai/Workout;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/ai/Workout;->blocks:Ljava/util/List;
@@ -1656,11 +1656,11 @@
 
     invoke-interface {v0, v2, v1}, Ljava/util/List;->add(ILjava/lang/Object;)V
 
-    .line 1657
+    .line 1658
     :goto_78
     return-void
 
-    .line 1653
+    .line 1654
     :cond_79
     sget-object v0, Lcom/isaigu/gymapp/ai/WorkoutsUi;->editing:Lcom/isaigu/gymapp/ai/Workout;
 
@@ -1698,7 +1698,7 @@
 
     if-nez v0, :cond_bc
 
-    .line 1654
+    .line 1655
     sget-object v0, Lcom/isaigu/gymapp/ai/WorkoutsUi;->editing:Lcom/isaigu/gymapp/ai/Workout;
 
     iget-object v1, v0, Lcom/isaigu/gymapp/ai/Workout;->blocks:Ljava/util/List;
@@ -1729,7 +1729,7 @@
 
     invoke-interface {v1, v0}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
-    .line 1656
+    .line 1657
     :cond_bc
     sget-object v0, Lcom/isaigu/gymapp/ai/WorkoutsUi;->editing:Lcom/isaigu/gymapp/ai/Workout;
 
@@ -1751,12 +1751,12 @@
     .prologue
     const/4 v4, 0x1
 
-    .line 1704
+    .line 1705
     invoke-virtual {p0}, Lcom/isaigu/gymapp/ai/Workout;->derivedFocus()Ljava/util/List;
 
     move-result-object v1
 
-    .line 1705
+    .line 1706
     invoke-virtual {p0}, Lcom/isaigu/gymapp/ai/Workout;->isPassive()Z
 
     move-result v0
@@ -1769,7 +1769,7 @@
 
     if-eqz v0, :cond_4c
 
-    .line 1706
+    .line 1707
     :cond_11
     new-instance v1, Ljava/text/SimpleDateFormat;
 
@@ -1779,7 +1779,7 @@
 
     invoke-direct {v1, v0, v2}, Ljava/text/SimpleDateFormat;-><init>(Ljava/lang/String;Ljava/util/Locale;)V
 
-    .line 1707
+    .line 1708
     new-instance v2, Ljava/lang/StringBuilder;
 
     invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
@@ -1807,7 +1807,7 @@
 
     invoke-direct {v2}, Ljava/util/Date;-><init>()V
 
-    .line 1708
+    .line 1709
     invoke-virtual {v1, v2}, Ljava/text/SimpleDateFormat;->format(Ljava/util/Date;)Ljava/lang/String;
 
     move-result-object v1
@@ -1820,12 +1820,12 @@
 
     move-result-object v0
 
-    .line 1714
+    .line 1715
     :cond_42
     :goto_42
     return-object v0
 
-    .line 1707
+    .line 1708
     :cond_43
     const-string v0, "\u0422\u0440\u0435\u043d\u0438\u0440\u043e\u0432\u043a\u0430 "
 
@@ -1837,7 +1837,7 @@
 
     goto :goto_2d
 
-    .line 1710
+    .line 1711
     :cond_4c
     const/4 v0, 0x0
 
@@ -1851,14 +1851,14 @@
 
     move-result-object v0
 
-    .line 1711
+    .line 1712
     invoke-interface {v1}, Ljava/util/List;->size()I
 
     move-result v2
 
     if-le v2, v4, :cond_42
 
-    .line 1712
+    .line 1713
     new-instance v2, Ljava/lang/StringBuilder;
 
     invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
@@ -2029,18 +2029,18 @@
     .registers 2
 
     .prologue
-    .line 1334
+    .line 1335
     const/4 v0, 0x1
 
     sput-boolean v0, Lcom/isaigu/gymapp/ai/WorkoutsUi;->dirty:Z
 
-    .line 1335
+    .line 1336
     invoke-static {p0}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->fillClasses(Landroid/content/Context;)V
 
-    .line 1336
+    .line 1337
     invoke-static {p0}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->autosave(Landroid/content/Context;)V
 
-    .line 1337
+    .line 1338
     return-void
 .end method
 
@@ -2084,12 +2084,12 @@
     .registers 1
 
     .prologue
-    .line 1718
+    .line 1719
     sget-object v0, Lcom/isaigu/gymapp/ai/WorkoutsUi;->shell:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
 
     if-eqz v0, :cond_b
 
-    .line 1720
+    .line 1721
     :try_start_4
     sget-object v0, Lcom/isaigu/gymapp/ai/WorkoutsUi;->shell:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
 
@@ -2099,17 +2099,17 @@
     :try_end_b
     .catch Ljava/lang/Throwable; {:try_start_4 .. :try_end_b} :catch_f
 
-    .line 1724
+    .line 1725
     :cond_b
     :goto_b
     const/4 v0, 0x0
 
     sput-object v0, Lcom/isaigu/gymapp/ai/WorkoutsUi;->shell:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
 
-    .line 1725
+    .line 1726
     return-void
 
-    .line 1721
+    .line 1722
     :catch_f
     move-exception v0
 
@@ -2120,10 +2120,10 @@
     .registers 5
 
     .prologue
-    .line 1112
+    .line 1113
     const/4 v0, 0x0
 
-    .line 1113
+    .line 1114
     sget-object v1, Lcom/isaigu/gymapp/ai/WorkoutsUi;->editing:Lcom/isaigu/gymapp/ai/Workout;
 
     iget-object v1, v1, Lcom/isaigu/gymapp/ai/Workout;->blocks:Ljava/util/List;
@@ -2147,7 +2147,7 @@
 
     check-cast v0, Lcom/isaigu/gymapp/ai/Workout$Block;
 
-    .line 1114
+    .line 1115
     iget-object v3, v0, Lcom/isaigu/gymapp/ai/Workout$Block;->ex:Ljava/lang/String;
 
     invoke-virtual {p0, v3}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
@@ -2162,7 +2162,7 @@
 
     if-nez v0, :cond_2a
 
-    .line 1115
+    .line 1116
     add-int/lit8 v1, v1, 0x1
 
     move v0, v1
@@ -2170,10 +2170,10 @@
     :goto_27
     move v1, v0
 
-    .line 1117
+    .line 1118
     goto :goto_a
 
-    .line 1118
+    .line 1119
     :cond_29
     return v1
 
@@ -2577,35 +2577,35 @@
 
     const/4 v1, 0x0
 
-    .line 1061
+    .line 1062
     sget-object v0, Lcom/isaigu/gymapp/ai/WorkoutsUi;->pickGrid:Landroid/widget/LinearLayout;
 
     if-nez v0, :cond_c
 
-    .line 1109
+    .line 1110
     :cond_b
     :goto_b
     return-void
 
-    .line 1064
+    .line 1065
     :cond_c
     sget-object v0, Lcom/isaigu/gymapp/ai/WorkoutsUi;->pickGrid:Landroid/widget/LinearLayout;
 
     invoke-virtual {v0}, Landroid/widget/LinearLayout;->removeAllViews()V
 
-    .line 1065
+    .line 1066
     invoke-static {p0}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->filtered(Landroid/content/Context;)Ljava/util/List;
 
     move-result-object v5
 
-    .line 1066
+    .line 1067
     invoke-interface {v5}, Ljava/util/List;->isEmpty()Z
 
     move-result v0
 
     if-eqz v0, :cond_67
 
-    .line 1067
+    .line 1068
     invoke-static {p0}, Lcom/isaigu/gymapp/ai/ExerciseLibrary;->enabled(Landroid/content/Context;)Ljava/util/List;
 
     move-result-object v0
@@ -2614,17 +2614,17 @@
 
     move-result v0
 
-    .line 1069
+    .line 1070
     if-eqz v0, :cond_5e
 
-    .line 1070
+    .line 1071
     invoke-static {p0}, Lcom/isaigu/gymapp/ai/ExerciseLibrary;->pending(Landroid/content/Context;)I
 
     move-result v0
 
     if-lez v0, :cond_55
 
-    .line 1071
+    .line 1072
     const-string v0, "\u0423\u043f\u0440\u0430\u0436\u043d\u0435\u043d\u0438\u044f\u0442\u0430 \u0441\u0435 \u0438\u0437\u0442\u0435\u0433\u043b\u044f\u0442 \u2014 \u0441\u043b\u0435\u0434 \u043c\u0430\u043b\u043a\u043e \u0441\u0430 \u0442\u0443\u043a."
 
     const-string v2, "The exercises are downloading \u2014 here in a moment."
@@ -2633,23 +2633,23 @@
 
     move-result-object v0
 
-    .line 1074
+    .line 1075
     :goto_33
     const/high16 v2, 0x41700000    # 15.0f
 
     sget v3, Lcom/isaigu/gymapp/widget/XemsUi;->MUTED:I
 
-    .line 1069
+    .line 1070
     invoke-static {p0, v0, v2, v3, v1}, Lcom/isaigu/gymapp/widget/XemsUi;->text(Landroid/content/Context;Ljava/lang/String;FIZ)Landroid/widget/TextView;
 
     move-result-object v0
 
-    .line 1075
+    .line 1076
     const/16 v2, 0x11
 
     invoke-virtual {v0, v2}, Landroid/widget/TextView;->setGravity(I)V
 
-    .line 1076
+    .line 1077
     invoke-static {p0, v4}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
 
     move-result v2
@@ -2660,7 +2660,7 @@
 
     invoke-virtual {v0, v1, v2, v1, v3}, Landroid/widget/TextView;->setPadding(IIII)V
 
-    .line 1077
+    .line 1078
     sget-object v2, Lcom/isaigu/gymapp/ai/WorkoutsUi;->pickGrid:Landroid/widget/LinearLayout;
 
     invoke-static {p0, v1}, Lcom/isaigu/gymapp/widget/XemsUi;->matchWrap(Landroid/content/Context;I)Landroid/widget/LinearLayout$LayoutParams;
@@ -2671,7 +2671,7 @@
 
     goto :goto_b
 
-    .line 1072
+    .line 1073
     :cond_55
     const-string v0, "\u041e\u0449\u0435 \u043d\u044f\u043c\u0430 \u0432\u043a\u043b\u044e\u0447\u0435\u043d\u0438 \u0443\u043f\u0440\u0430\u0436\u043d\u0435\u043d\u0438\u044f \u2014 \u0430\u0434\u043c\u0438\u043d\u044a\u0442 \u0433\u0438 \u0438\u0437\u0431\u0438\u0440\u0430 \u043e\u0442 \u0441\u0442\u0440\u0430\u043d\u0438\u0446\u0430\u0442\u0430 \u201e\u0423\u043f\u0440\u0430\u0436\u043d\u0435\u043d\u0438\u044f\u201c \u043d\u0430 \u0441\u044a\u0440\u0432\u044a\u0440\u0430."
 
@@ -2683,7 +2683,7 @@
 
     goto :goto_33
 
-    .line 1074
+    .line 1075
     :cond_5e
     const-string v0, "\u041d\u0438\u0449\u043e \u043d\u0435 \u0441\u044a\u0432\u043f\u0430\u0434\u0430."
 
@@ -2695,13 +2695,13 @@
 
     goto :goto_33
 
-    .line 1081
+    .line 1082
     :cond_67
     const/4 v0, 0x0
 
     move v4, v1
 
-    .line 1082
+    .line 1083
     :goto_69
     invoke-interface {v5}, Ljava/util/List;->size()I
 
@@ -2709,33 +2709,33 @@
 
     if-ge v4, v2, :cond_cb
 
-    .line 1083
+    .line 1084
     rem-int/lit8 v2, v4, 0x4
 
     if-nez v2, :cond_f1
 
-    .line 1084
+    .line 1085
     invoke-static {p0}, Lcom/isaigu/gymapp/widget/XemsUi;->horizontal(Landroid/content/Context;)Landroid/widget/LinearLayout;
 
     move-result-object v2
 
-    .line 1086
+    .line 1087
     const/high16 v0, 0x41000000    # 8.0f
 
     invoke-static {p0, v0}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
 
     move-result v0
 
-    .line 1087
+    .line 1088
     invoke-virtual {v2, v0, v0, v0, v0}, Landroid/widget/LinearLayout;->setPadding(IIII)V
 
-    .line 1088
+    .line 1089
     invoke-virtual {v2, v1}, Landroid/widget/LinearLayout;->setClipChildren(Z)V
 
-    .line 1089
+    .line 1090
     invoke-virtual {v2, v1}, Landroid/widget/LinearLayout;->setClipToPadding(Z)V
 
-    .line 1090
+    .line 1091
     sget-object v3, Lcom/isaigu/gymapp/ai/WorkoutsUi;->pickGrid:Landroid/widget/LinearLayout;
 
     if-nez v4, :cond_c6
@@ -2749,7 +2749,7 @@
 
     invoke-virtual {v3, v2, v0}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 1092
+    .line 1093
     :goto_92
     invoke-interface {v5, v4}, Ljava/util/List;->get(I)Ljava/lang/Object;
 
@@ -2757,12 +2757,12 @@
 
     check-cast v0, Lcom/isaigu/gymapp/ai/ExerciseLibrary$Entry;
 
-    .line 1093
+    .line 1094
     invoke-static {p0, v0}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->pickCell(Landroid/content/Context;Lcom/isaigu/gymapp/ai/ExerciseLibrary$Entry;)Landroid/view/View;
 
     move-result-object v6
 
-    .line 1094
+    .line 1095
     new-instance v7, Lcom/isaigu/gymapp/ai/WorkoutsUi$Act;
 
     sget v3, Lcom/isaigu/gymapp/ai/WorkoutsUi;->replaceIndex:I
@@ -2774,38 +2774,38 @@
     :goto_a4
     invoke-direct {v7, v3, v1}, Lcom/isaigu/gymapp/ai/WorkoutsUi$Act;-><init>(II)V
 
-    .line 1095
+    .line 1096
     iget-object v0, v0, Lcom/isaigu/gymapp/ai/ExerciseLibrary$Entry;->id:Ljava/lang/String;
 
     iput-object v0, v7, Lcom/isaigu/gymapp/ai/WorkoutsUi$Act;->ex:Ljava/lang/String;
 
-    .line 1096
+    .line 1097
     invoke-virtual {v6, v7}, Landroid/view/View;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
-    .line 1097
+    .line 1098
     new-instance v0, Landroid/widget/LinearLayout$LayoutParams;
 
     const/4 v3, -0x1
 
     invoke-direct {v0, v1, v3, v8}, Landroid/widget/LinearLayout$LayoutParams;-><init>(IIF)V
 
-    .line 1098
+    .line 1099
     rem-int/lit8 v3, v4, 0x4
 
     if-lez v3, :cond_be
 
-    .line 1099
+    .line 1100
     invoke-static {p0, v9}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
 
     move-result v3
 
     iput v3, v0, Landroid/widget/LinearLayout$LayoutParams;->leftMargin:I
 
-    .line 1101
+    .line 1102
     :cond_be
     invoke-virtual {v2, v6, v0}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 1082
+    .line 1083
     add-int/lit8 v3, v4, 0x1
 
     move v4, v3
@@ -2814,19 +2814,19 @@
 
     goto :goto_69
 
-    .line 1090
+    .line 1091
     :cond_c6
     const/4 v0, 0x4
 
     goto :goto_8b
 
-    .line 1094
+    .line 1095
     :cond_c8
     const/16 v3, 0x1d
 
     goto :goto_a4
 
-    .line 1103
+    .line 1104
     :cond_cb
     invoke-interface {v5}, Ljava/util/List;->size()I
 
@@ -2840,34 +2840,34 @@
 
     move v2, v1
 
-    .line 1104
+    .line 1105
     :goto_d6
     if-ge v2, v3, :cond_b
 
     if-eqz v0, :cond_b
 
-    .line 1105
+    .line 1106
     new-instance v4, Landroid/widget/LinearLayout$LayoutParams;
 
     const/4 v5, 0x1
 
     invoke-direct {v4, v1, v5, v8}, Landroid/widget/LinearLayout$LayoutParams;-><init>(IIF)V
 
-    .line 1106
+    .line 1107
     invoke-static {p0, v9}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
 
     move-result v5
 
     iput v5, v4, Landroid/widget/LinearLayout$LayoutParams;->leftMargin:I
 
-    .line 1107
+    .line 1108
     new-instance v5, Landroid/view/View;
 
     invoke-direct {v5, p0}, Landroid/view/View;-><init>(Landroid/content/Context;)V
 
     invoke-virtual {v0, v5, v4}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 1104
+    .line 1105
     add-int/lit8 v2, v2, 0x1
 
     goto :goto_d6
@@ -2895,7 +2895,7 @@
 
     if-nez v0, :cond_d
 
-    .line 831
+    .line 832
     :cond_c
     :goto_c
     return-void
@@ -2995,7 +2995,7 @@
 
     move-result v0
 
-    if-eqz v0, :cond_3ac
+    if-eqz v0, :cond_3ae
 
     .line 715
     new-instance v0, Lcom/isaigu/gymapp/ai/ExerciseFigure;
@@ -3074,7 +3074,7 @@
     .line 732
     iget-object v0, v6, Lcom/isaigu/gymapp/ai/Workout$Block;->ex:Ljava/lang/String;
 
-    if-eqz v0, :cond_402
+    if-eqz v0, :cond_404
 
     iget-object v0, v6, Lcom/isaigu/gymapp/ai/Workout$Block;->ex:Ljava/lang/String;
 
@@ -3088,7 +3088,7 @@
 
     move-result v1
 
-    if-eqz v1, :cond_405
+    if-eqz v1, :cond_407
 
     const-string v1, "\u041f\u043e\u0447\u0438\u0432\u043a\u0430"
 
@@ -3178,7 +3178,7 @@
 
     move-result v1
 
-    if-eqz v1, :cond_423
+    if-eqz v1, :cond_425
 
     const-string v1, "\u0421\u043c\u0435\u043d\u0438 \u0443\u043f\u0440\u0430\u0436\u043d\u0435\u043d\u0438\u0435\u0442\u043e"
 
@@ -3256,7 +3256,7 @@
 
     move-result v1
 
-    if-eqz v1, :cond_42d
+    if-eqz v1, :cond_42f
 
     .line 752
     const-string v1, "\u0411\u0435\u0437 \u0442\u043e\u043a. \u0414\u044a\u043b\u0436\u0438\u043d\u0430\u0442\u0430 \u0435 \u0432\u0440\u0435\u043c\u0435\u0442\u043e \u0437\u0430 \u043f\u043e\u0447\u0438\u0432\u043a\u0430."
@@ -3303,7 +3303,7 @@
     invoke-virtual {v8, v1}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
     .line 761
-    if-nez v3, :cond_394
+    if-nez v3, :cond_396
 
     .line 763
     invoke-static {p0}, Lcom/isaigu/gymapp/widget/XemsUi;->horizontal(Landroid/content/Context;)Landroid/widget/LinearLayout;
@@ -3316,13 +3316,13 @@
     invoke-virtual {v2, v1}, Landroid/widget/LinearLayout;->setGravity(I)V
 
     .line 765
-    if-eqz v0, :cond_517
+    if-eqz v0, :cond_501
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/ai/ExerciseLibrary$Entry;->isHold()Z
 
     move-result v0
 
-    if-eqz v0, :cond_517
+    if-eqz v0, :cond_501
 
     const/4 v0, 0x1
 
@@ -3332,7 +3332,7 @@
 
     move-result v1
 
-    if-eqz v1, :cond_51a
+    if-eqz v1, :cond_504
 
     const-string v0, "\u0441\u0435\u043a\u0443\u043d\u0434\u0438"
 
@@ -3356,12 +3356,12 @@
 
     move-result v0
 
-    if-nez v0, :cond_56a
+    if-nez v0, :cond_554
 
     .line 770
     sget-boolean v0, Lcom/isaigu/gymapp/ai/WorkoutsUi;->advanced:Z
 
-    if-eqz v0, :cond_540
+    if-eqz v0, :cond_52a
 
     const-string v0, "\u0418\u043c\u043f\u0443\u043b\u0441 \u25be"
 
@@ -3423,12 +3423,12 @@
 
     move-result v0
 
-    if-nez v0, :cond_557
+    if-nez v0, :cond_541
 
     .line 778
     iget-boolean v0, v6, Lcom/isaigu/gymapp/ai/Workout$Block;->lock:Z
 
-    if-eqz v0, :cond_54a
+    if-eqz v0, :cond_534
 
     const-string v0, "\ud83d\udd12 \u0422\u043e\u0447\u043d\u043e \u043a\u0430\u043a\u0442\u043e \u0435"
 
@@ -3442,7 +3442,7 @@
     :goto_1ed
     iget-boolean v1, v6, Lcom/isaigu/gymapp/ai/Workout$Block;->lock:Z
 
-    if-eqz v1, :cond_554
+    if-eqz v1, :cond_53e
 
     const/4 v1, 0x2
 
@@ -3516,11 +3516,11 @@
 
     move-result v0
 
-    if-nez v0, :cond_394
+    if-nez v0, :cond_396
 
     sget-boolean v0, Lcom/isaigu/gymapp/ai/WorkoutsUi;->advanced:Z
 
-    if-eqz v0, :cond_394
+    if-eqz v0, :cond_396
 
     .line 794
     const/4 v0, 0x2
@@ -3554,7 +3554,7 @@
 
     iget-boolean v0, v6, Lcom/isaigu/gymapp/ai/Workout$Block;->dbl:Z
 
-    if-eqz v0, :cond_57d
+    if-eqz v0, :cond_567
 
     const/4 v0, 0x1
 
@@ -3585,7 +3585,7 @@
     .line 797
     iget-boolean v0, v6, Lcom/isaigu/gymapp/ai/Workout$Block;->dbl:Z
 
-    if-eqz v0, :cond_580
+    if-eqz v0, :cond_56a
 
     const-string v0, "\u0418\u043c\u043f\u0443\u043b\u0441 1"
 
@@ -3660,26 +3660,24 @@
 
     invoke-static/range {v0 .. v5}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->param(Landroid/content/Context;Landroid/widget/LinearLayout;Ljava/lang/String;III)V
 
-    .line 803
-    const-string v0, "\u0441\u0438\u043b\u0430 %"
-
-    const-string v2, "strength %"
-
-    invoke-static {v0, v2}, Lcom/isaigu/gymapp/ai/AiText;->t(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object v2
-
-    const/4 v3, 0x6
-
-    iget v4, v6, Lcom/isaigu/gymapp/ai/Workout$Block;->rel:I
-
-    const/4 v5, 0x5
-
-    move-object v0, p0
-
-    invoke-static/range {v0 .. v5}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->param(Landroid/content/Context;Landroid/widget/LinearLayout;Ljava/lang/String;III)V
-
     .line 804
+    new-instance v0, Landroid/view/View;
+
+    invoke-direct {v0, p0}, Landroid/view/View;-><init>(Landroid/content/Context;)V
+
+    new-instance v2, Landroid/widget/LinearLayout$LayoutParams;
+
+    const/4 v3, 0x0
+
+    const/4 v4, 0x1
+
+    const/high16 v5, 0x3f800000    # 1.0f
+
+    invoke-direct {v2, v3, v4, v5}, Landroid/widget/LinearLayout$LayoutParams;-><init>(IIF)V
+
+    invoke-virtual {v1, v0, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
+
+    .line 805
     const/4 v0, 0x4
 
     invoke-static {p0, v0}, Lcom/isaigu/gymapp/widget/XemsUi;->matchWrap(Landroid/content/Context;I)Landroid/widget/LinearLayout$LayoutParams;
@@ -3688,10 +3686,10 @@
 
     invoke-virtual {v8, v1, v0}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 805
+    .line 806
     iget-boolean v0, v6, Lcom/isaigu/gymapp/ai/Workout$Block;->dbl:Z
 
-    if-eqz v0, :cond_58a
+    if-eqz v0, :cond_574
 
     const-string v0, "\u0418\u043c\u043f\u0443\u043b\u0441 2 \u2014 \u0432\u043c\u0435\u0441\u0442\u043e \u043f\u0430\u0443\u0437\u0430\u0442\u0430"
 
@@ -3701,32 +3699,32 @@
 
     move-result-object v0
 
-    :goto_2d0
+    :goto_2d1
     invoke-static {p0, v0}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->group(Landroid/content/Context;Ljava/lang/String;)Landroid/widget/TextView;
 
     move-result-object v0
 
     const/16 v1, 0xa
 
-    .line 806
+    .line 807
     invoke-static {p0, v1}, Lcom/isaigu/gymapp/widget/XemsUi;->matchWrap(Landroid/content/Context;I)Landroid/widget/LinearLayout$LayoutParams;
 
     move-result-object v1
 
-    .line 805
+    .line 806
     invoke-virtual {v8, v0, v1}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 807
+    .line 808
     invoke-static {p0}, Lcom/isaigu/gymapp/widget/XemsUi;->horizontal(Landroid/content/Context;)Landroid/widget/LinearLayout;
 
     move-result-object v1
 
-    .line 808
+    .line 809
     iget-boolean v0, v6, Lcom/isaigu/gymapp/ai/Workout$Block;->dbl:Z
 
-    if-eqz v0, :cond_594
+    if-eqz v0, :cond_57e
 
-    .line 809
+    .line 810
     const-string v2, "Hz"
 
     const/4 v3, 0x0
@@ -3739,7 +3737,7 @@
 
     invoke-static/range {v0 .. v5}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->param(Landroid/content/Context;Landroid/widget/LinearLayout;Ljava/lang/String;III)V
 
-    .line 810
+    .line 811
     const-string v0, "\u0441\u0435\u043a"
 
     const-string v2, "s"
@@ -3755,25 +3753,6 @@
     move-result v4
 
     const/4 v5, 0x4
-
-    move-object v0, p0
-
-    invoke-static/range {v0 .. v5}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->param(Landroid/content/Context;Landroid/widget/LinearLayout;Ljava/lang/String;III)V
-
-    .line 811
-    const-string v0, "\u0441\u0438\u043b\u0430 % \u043e\u0442 1-\u0432\u0438"
-
-    const-string v2, "strength % of 1st"
-
-    invoke-static {v0, v2}, Lcom/isaigu/gymapp/ai/AiText;->t(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object v2
-
-    const/4 v3, 0x6
-
-    iget v4, v6, Lcom/isaigu/gymapp/ai/Workout$Block;->str2:I
-
-    const/4 v5, 0x7
 
     move-object v0, p0
 
@@ -3820,8 +3799,25 @@
 
     invoke-virtual {v1, v0, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 820
-    :goto_338
+    .line 816
+    new-instance v0, Landroid/view/View;
+
+    invoke-direct {v0, p0}, Landroid/view/View;-><init>(Landroid/content/Context;)V
+
+    new-instance v2, Landroid/widget/LinearLayout$LayoutParams;
+
+    const/4 v3, 0x0
+
+    const/4 v4, 0x1
+
+    const/high16 v5, 0x3f800000    # 1.0f
+
+    invoke-direct {v2, v3, v4, v5}, Landroid/widget/LinearLayout$LayoutParams;-><init>(IIF)V
+
+    invoke-virtual {v1, v0, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
+
+    .line 821
+    :goto_33a
     const/4 v0, 0x4
 
     invoke-static {p0, v0}, Lcom/isaigu/gymapp/widget/XemsUi;->matchWrap(Landroid/content/Context;I)Landroid/widget/LinearLayout$LayoutParams;
@@ -3830,7 +3826,7 @@
 
     invoke-virtual {v8, v1, v0}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 821
+    .line 822
     const-string v0, "\u0420\u0430\u043c\u043f\u0430 \u043d\u0430 \u0432\u0441\u0435\u043a\u0438 \u0438\u043c\u043f\u0443\u043b\u0441"
 
     const-string v1, "Ramp of every impulse"
@@ -3851,12 +3847,12 @@
 
     invoke-virtual {v8, v0, v1}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 822
+    .line 823
     invoke-static {p0}, Lcom/isaigu/gymapp/widget/XemsUi;->horizontal(Landroid/content/Context;)Landroid/widget/LinearLayout;
 
     move-result-object v1
 
-    .line 823
+    .line 824
     const-string v0, "\u043d\u0430\u0447\u0430\u043b\u043e, \u0441\u0435\u043a"
 
     const-string v2, "start, s"
@@ -3875,7 +3871,7 @@
 
     invoke-static/range {v0 .. v5}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->param(Landroid/content/Context;Landroid/widget/LinearLayout;Ljava/lang/String;III)V
 
-    .line 824
+    .line 825
     const-string v0, "\u043a\u0440\u0430\u0439, \u0441\u0435\u043a"
 
     const-string v2, "end, s"
@@ -3894,7 +3890,7 @@
 
     invoke-static/range {v0 .. v5}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->param(Landroid/content/Context;Landroid/widget/LinearLayout;Ljava/lang/String;III)V
 
-    .line 825
+    .line 826
     new-instance v0, Landroid/view/View;
 
     invoke-direct {v0, p0}, Landroid/view/View;-><init>(Landroid/content/Context;)V
@@ -3911,7 +3907,7 @@
 
     invoke-virtual {v1, v0, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 826
+    .line 827
     const/4 v0, 0x4
 
     invoke-static {p0, v0}, Lcom/isaigu/gymapp/widget/XemsUi;->matchWrap(Landroid/content/Context;I)Landroid/widget/LinearLayout$LayoutParams;
@@ -3920,8 +3916,8 @@
 
     invoke-virtual {v8, v1, v0}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 829
-    :cond_394
+    .line 830
+    :cond_396
     new-instance v0, Landroid/widget/LinearLayout$LayoutParams;
 
     const/4 v1, 0x0
@@ -3934,7 +3930,7 @@
 
     invoke-virtual {v7, v8, v0}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 830
+    .line 831
     sget-object v0, Lcom/isaigu/gymapp/ai/WorkoutsUi;->panel:Landroid/widget/LinearLayout;
 
     const/4 v1, 0x0
@@ -3948,7 +3944,7 @@
     goto/16 :goto_c
 
     .line 720
-    :cond_3ac
+    :cond_3ae
     new-instance v4, Landroid/view/View;
 
     invoke-direct {v4, p0}, Landroid/view/View;-><init>(Landroid/content/Context;)V
@@ -3958,11 +3954,11 @@
 
     move-result v0
 
-    if-eqz v0, :cond_3f8
+    if-eqz v0, :cond_3fa
 
     const v0, -0xa5a095
 
-    :goto_3ba
+    :goto_3bc
     const/high16 v5, 0x41200000    # 10.0f
 
     .line 722
@@ -3996,11 +3992,11 @@
 
     move-result v0
 
-    if-eqz v0, :cond_3ff
+    if-eqz v0, :cond_401
 
     const/high16 v0, 0x41600000    # 14.0f
 
-    :goto_3da
+    :goto_3dc
     invoke-static {p0, v0}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
 
     move-result v0
@@ -4031,30 +4027,30 @@
     goto/16 :goto_94
 
     .line 721
-    :cond_3f8
+    :cond_3fa
     iget v0, v6, Lcom/isaigu/gymapp/ai/Workout$Block;->hz:I
 
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/ImpulseMapView;->colorFor(I)I
 
     move-result v0
 
-    goto :goto_3ba
+    goto :goto_3bc
 
     .line 723
-    :cond_3ff
+    :cond_401
     const/high16 v0, 0x428c0000    # 70.0f
 
-    goto :goto_3da
+    goto :goto_3dc
 
     .line 732
-    :cond_402
+    :cond_404
     const/4 v0, 0x0
 
     goto/16 :goto_b1
 
     .line 734
-    :cond_405
-    if-eqz v0, :cond_40d
+    :cond_407
+    if-eqz v0, :cond_40f
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/ai/ExerciseLibrary$Entry;->name()Ljava/lang/String;
 
@@ -4062,10 +4058,10 @@
 
     goto/16 :goto_bf
 
-    :cond_40d
+    :cond_40f
     iget-object v1, v6, Lcom/isaigu/gymapp/ai/Workout$Block;->ex:Ljava/lang/String;
 
-    if-eqz v1, :cond_419
+    if-eqz v1, :cond_41b
 
     iget-object v1, v6, Lcom/isaigu/gymapp/ai/Workout$Block;->ex:Ljava/lang/String;
 
@@ -4075,7 +4071,7 @@
 
     goto/16 :goto_bf
 
-    :cond_419
+    :cond_41b
     const-string v1, "\u0418\u043c\u043f\u0443\u043b\u0441 \u0431\u0435\u0437 \u0443\u043f\u0440\u0430\u0436\u043d\u0435\u043d\u0438\u0435"
 
     const-string v4, "Impulse, no exercise"
@@ -4087,7 +4083,7 @@
     goto/16 :goto_bf
 
     .line 741
-    :cond_423
+    :cond_425
     const-string v1, "\u0421\u043b\u043e\u0436\u0438 \u0443\u043f\u0440\u0430\u0436\u043d\u0435\u043d\u0438\u0435"
 
     const-string v2, "Set an exercise"
@@ -4099,7 +4095,7 @@
     goto/16 :goto_114
 
     .line 757
-    :cond_42d
+    :cond_42f
     new-instance v1, Ljava/lang/StringBuilder;
 
     invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
@@ -4152,7 +4148,7 @@
     .line 754
     iget-boolean v1, v6, Lcom/isaigu/gymapp/ai/Workout$Block;->dbl:Z
 
-    if-eqz v1, :cond_4ef
+    if-eqz v1, :cond_4d9
 
     new-instance v1, Ljava/lang/StringBuilder;
 
@@ -4196,19 +4192,7 @@
 
     move-result-object v1
 
-    const-string v4, " Hz "
-
-    invoke-virtual {v1, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v1
-
-    iget v4, v6, Lcom/isaigu/gymapp/ai/Workout$Block;->str2:I
-
-    invoke-virtual {v1, v4}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
-
-    move-result-object v1
-
-    const-string v4, "%"
+    const-string v4, " Hz"
 
     invoke-virtual {v1, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
@@ -4219,7 +4203,7 @@
     move-result-object v1
 
     .line 755
-    :goto_4a3
+    :goto_499
     invoke-virtual {v2, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     move-result-object v1
@@ -4267,26 +4251,14 @@
 
     move-result-object v1
 
-    const-string v2, " \u0441\u0435\u043a \u00b7 \u0441\u0438\u043b\u0430 "
+    const-string v2, " \u0441\u0435\u043a"
 
-    const-string v4, " s \u00b7 strength "
+    const-string v4, " s"
 
     .line 757
     invoke-static {v2, v4}, Lcom/isaigu/gymapp/ai/AiText;->t(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v2
-
-    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v1
-
-    iget v2, v6, Lcom/isaigu/gymapp/ai/Workout$Block;->rel:I
-
-    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
-
-    move-result-object v1
-
-    const-string v2, "%"
 
     invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
@@ -4299,7 +4271,7 @@
     goto/16 :goto_159
 
     .line 755
-    :cond_4ef
+    :cond_4d9
     new-instance v1, Ljava/lang/StringBuilder;
 
     invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
@@ -4338,17 +4310,17 @@
 
     move-result-object v1
 
-    goto :goto_4a3
+    goto :goto_499
 
     .line 765
-    :cond_517
+    :cond_501
     const/4 v0, 0x0
 
     goto/16 :goto_18a
 
     .line 766
-    :cond_51a
-    if-eqz v0, :cond_526
+    :cond_504
+    if-eqz v0, :cond_510
 
     const-string v0, "\u0437\u0430\u0434\u044a\u0440\u0436\u0430\u043d\u0438\u044f"
 
@@ -4361,12 +4333,12 @@
     goto/16 :goto_198
 
     .line 767
-    :cond_526
+    :cond_510
     invoke-virtual {v6}, Lcom/isaigu/gymapp/ai/Workout$Block;->hasExercise()Z
 
     move-result v0
 
-    if-eqz v0, :cond_536
+    if-eqz v0, :cond_520
 
     const-string v0, "\u043f\u043e\u0432\u0442\u043e\u0440\u0435\u043d\u0438\u044f"
 
@@ -4378,7 +4350,7 @@
 
     goto/16 :goto_198
 
-    :cond_536
+    :cond_520
     const-string v0, "\u0438\u043c\u043f\u0443\u043b\u0441\u0430"
 
     const-string v1, "impulses"
@@ -4390,7 +4362,7 @@
     goto/16 :goto_198
 
     .line 770
-    :cond_540
+    :cond_52a
     const-string v0, "\u0418\u043c\u043f\u0443\u043b\u0441 \u25b8"
 
     const-string v1, "Impulse \u25b8"
@@ -4402,7 +4374,7 @@
     goto/16 :goto_1b0
 
     .line 779
-    :cond_54a
+    :cond_534
     const-string v0, "\u2726 \u0423\u043c\u0435\u043d \u0438\u043c\u043f\u0443\u043b\u0441"
 
     const-string v1, "\u2726 Smart impulse"
@@ -4413,13 +4385,13 @@
 
     goto/16 :goto_1ed
 
-    :cond_554
+    :cond_53e
     const/4 v1, 0x3
 
     goto/16 :goto_1f2
 
     .line 786
-    :cond_557
+    :cond_541
     new-instance v0, Landroid/view/View;
 
     invoke-direct {v0, p0}, Landroid/view/View;-><init>(Landroid/content/Context;)V
@@ -4439,7 +4411,7 @@
     goto/16 :goto_22b
 
     .line 789
-    :cond_56a
+    :cond_554
     new-instance v0, Landroid/view/View;
 
     invoke-direct {v0, p0}, Landroid/view/View;-><init>(Landroid/content/Context;)V
@@ -4459,13 +4431,13 @@
     goto/16 :goto_22b
 
     .line 795
-    :cond_57d
+    :cond_567
     const/4 v0, 0x0
 
     goto/16 :goto_256
 
     .line 797
-    :cond_580
+    :cond_56a
     const-string v0, "\u0418\u043c\u043f\u0443\u043b\u0441"
 
     const-string v1, "Impulse"
@@ -4476,8 +4448,8 @@
 
     goto/16 :goto_277
 
-    .line 806
-    :cond_58a
+    .line 807
+    :cond_574
     const-string v0, "\u041f\u0430\u0443\u0437\u0430"
 
     const-string v1, "Pause"
@@ -4486,10 +4458,10 @@
 
     move-result-object v0
 
-    goto/16 :goto_2d0
+    goto/16 :goto_2d1
 
-    .line 817
-    :cond_594
+    .line 818
+    :cond_57e
     const-string v0, "\u0441\u0435\u043a"
 
     const-string v2, "s"
@@ -4508,7 +4480,7 @@
 
     invoke-static/range {v0 .. v5}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->param(Landroid/content/Context;Landroid/widget/LinearLayout;Ljava/lang/String;III)V
 
-    .line 818
+    .line 819
     new-instance v0, Landroid/view/View;
 
     invoke-direct {v0, p0}, Landroid/view/View;-><init>(Landroid/content/Context;)V
@@ -4525,7 +4497,7 @@
 
     invoke-virtual {v1, v0, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    goto/16 :goto_338
+    goto/16 :goto_33a
 .end method
 
 .method private static filtered(Landroid/content/Context;)Ljava/util/List;
@@ -4545,12 +4517,12 @@
     .prologue
     const/4 v2, 0x0
 
-    .line 1039
+    .line 1040
     new-instance v4, Ljava/util/ArrayList;
 
     invoke-direct {v4}, Ljava/util/ArrayList;-><init>()V
 
-    .line 1040
+    .line 1041
     sget-object v0, Lcom/isaigu/gymapp/ai/WorkoutsUi;->query:Ljava/lang/String;
 
     invoke-virtual {v0}, Ljava/lang/String;->trim()Ljava/lang/String;
@@ -4567,7 +4539,7 @@
 
     move-result-object v5
 
-    .line 1041
+    .line 1042
     invoke-static {p0}, Lcom/isaigu/gymapp/ai/ExerciseLibrary;->enabled(Landroid/content/Context;)Ljava/util/List;
 
     move-result-object v0
@@ -4590,7 +4562,7 @@
 
     check-cast v0, Lcom/isaigu/gymapp/ai/ExerciseLibrary$Entry;
 
-    .line 1042
+    .line 1043
     const-string v1, "all"
 
     sget-object v3, Lcom/isaigu/gymapp/ai/WorkoutsUi;->zone:Ljava/lang/String;
@@ -4611,7 +4583,7 @@
 
     if-eqz v1, :cond_1e
 
-    .line 1045
+    .line 1046
     :cond_3e
     new-instance v1, Ljava/lang/StringBuilder;
 
@@ -4667,10 +4639,10 @@
 
     move-result-object v7
 
-    .line 1046
+    .line 1047
     const/4 v1, 0x1
 
-    .line 1047
+    .line 1048
     array-length v8, v5
 
     move v3, v2
@@ -4680,7 +4652,7 @@
 
     aget-object v9, v5, v3
 
-    .line 1048
+    .line 1049
     invoke-virtual {v9}, Ljava/lang/String;->length()I
 
     move-result v10
@@ -4695,22 +4667,22 @@
 
     move v1, v2
 
-    .line 1053
+    .line 1054
     :cond_89
     if-eqz v1, :cond_1e
 
-    .line 1054
+    .line 1055
     invoke-interface {v4, v0}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
     goto :goto_1e
 
-    .line 1047
+    .line 1048
     :cond_8f
     add-int/lit8 v3, v3, 0x1
 
     goto :goto_78
 
-    .line 1057
+    .line 1058
     :cond_92
     return-object v4
 .end method
@@ -5164,7 +5136,7 @@
     .prologue
     const/4 v3, 0x0
 
-    .line 835
+    .line 836
     const/high16 v0, 0x41480000    # 12.5f
 
     sget v1, Lcom/isaigu/gymapp/widget/XemsUi;->MUTED:I
@@ -5175,7 +5147,7 @@
 
     move-result-object v0
 
-    .line 836
+    .line 837
     const/high16 v1, 0x40000000    # 2.0f
 
     invoke-static {p0, v1}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
@@ -5184,7 +5156,7 @@
 
     invoke-virtual {v0, v1, v3, v3, v3}, Landroid/widget/TextView;->setPadding(IIII)V
 
-    .line 837
+    .line 838
     return-object v0
 .end method
 
@@ -5192,7 +5164,7 @@
     .registers 1
 
     .prologue
-    .line 1341
+    .line 1342
     sget-object v0, Lcom/isaigu/gymapp/ai/WorkoutsUi;->mapView:Lcom/isaigu/gymapp/ai/ImpulseMapView;
 
     if-eqz v0, :cond_f
@@ -5203,7 +5175,7 @@
 
     move-result v0
 
-    .line 1342
+    .line 1343
     :goto_a
     if-ltz v0, :cond_11
 
@@ -5212,13 +5184,13 @@
     :goto_e
     return v0
 
-    .line 1341
+    .line 1342
     :cond_f
     const/4 v0, -0x1
 
     goto :goto_a
 
-    .line 1342
+    .line 1343
     :cond_11
     sget-object v0, Lcom/isaigu/gymapp/ai/WorkoutsUi;->editing:Lcom/isaigu/gymapp/ai/Workout;
 
@@ -5263,13 +5235,13 @@
     .registers 5
 
     .prologue
-    .line 1134
+    .line 1135
     const/4 v2, 0x0
 
-    .line 1135
+    .line 1136
     const/4 v1, 0x0
 
-    .line 1136
+    .line 1137
     sget-object v0, Lcom/isaigu/gymapp/ai/WorkoutsUi;->editing:Lcom/isaigu/gymapp/ai/Workout;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/ai/Workout;->blocks:Ljava/util/List;
@@ -5291,7 +5263,7 @@
 
     check-cast v0, Lcom/isaigu/gymapp/ai/Workout$Block;
 
-    .line 1137
+    .line 1138
     iget-object v4, v0, Lcom/isaigu/gymapp/ai/Workout$Block;->ex:Ljava/lang/String;
 
     if-eqz v4, :cond_34
@@ -5310,14 +5282,14 @@
 
     if-le v4, v1, :cond_34
 
-    .line 1138
+    .line 1139
     iget-object v1, v0, Lcom/isaigu/gymapp/ai/Workout$Block;->ex:Ljava/lang/String;
 
     invoke-static {v1}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->orderOf(Ljava/lang/String;)I
 
     move-result v1
 
-    .line 1139
+    .line 1140
     iget-object v2, v0, Lcom/isaigu/gymapp/ai/Workout$Block;->ex:Ljava/lang/String;
 
     move v0, v1
@@ -5325,10 +5297,10 @@
     :goto_31
     move v1, v0
 
-    .line 1141
+    .line 1142
     goto :goto_a
 
-    .line 1142
+    .line 1143
     :cond_33
     return-object v2
 
@@ -6125,12 +6097,12 @@
     .registers 5
 
     .prologue
-    .line 1123
+    .line 1124
     new-instance v1, Ljava/util/ArrayList;
 
     invoke-direct {v1}, Ljava/util/ArrayList;-><init>()V
 
-    .line 1124
+    .line 1125
     sget-object v0, Lcom/isaigu/gymapp/ai/WorkoutsUi;->editing:Lcom/isaigu/gymapp/ai/Workout;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/ai/Workout;->blocks:Ljava/util/List;
@@ -6153,7 +6125,7 @@
 
     check-cast v0, Lcom/isaigu/gymapp/ai/Workout$Block;
 
-    .line 1125
+    .line 1126
     iget-object v3, v0, Lcom/isaigu/gymapp/ai/Workout$Block;->ex:Ljava/lang/String;
 
     if-eqz v3, :cond_d
@@ -6172,14 +6144,14 @@
 
     if-nez v3, :cond_d
 
-    .line 1126
+    .line 1127
     iget-object v0, v0, Lcom/isaigu/gymapp/ai/Workout$Block;->ex:Ljava/lang/String;
 
     invoke-interface {v1, v0}, Ljava/util/List;->add(Ljava/lang/Object;)Z
 
     goto :goto_d
 
-    .line 1129
+    .line 1130
     :cond_31
     invoke-interface {v1, p0}, Ljava/util/List;->indexOf(Ljava/lang/Object;)I
 
@@ -6256,7 +6228,7 @@
     .registers 11
 
     .prologue
-    .line 841
+    .line 842
     const/4 v3, -0x1
 
     move-object v0, p0
@@ -6271,7 +6243,7 @@
 
     invoke-static/range {v0 .. v5}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->param(Landroid/content/Context;Landroid/widget/LinearLayout;Ljava/lang/String;III)V
 
-    .line 842
+    .line 843
     return-void
 .end method
 
@@ -6279,27 +6251,27 @@
     .registers 14
 
     .prologue
-    .line 846
+    .line 847
     invoke-static {p0}, Lcom/isaigu/gymapp/widget/XemsUi;->vertical(Landroid/content/Context;)Landroid/widget/LinearLayout;
 
     move-result-object v0
 
-    .line 847
+    .line 848
     const/4 v1, 0x1
 
     invoke-virtual {v0, v1}, Landroid/widget/LinearLayout;->setGravity(I)V
 
-    .line 848
+    .line 849
     invoke-static {p0}, Lcom/isaigu/gymapp/widget/XemsUi;->horizontal(Landroid/content/Context;)Landroid/widget/LinearLayout;
 
     move-result-object v1
 
-    .line 849
+    .line 850
     const/16 v2, 0x10
 
     invoke-virtual {v1, v2}, Landroid/widget/LinearLayout;->setGravity(I)V
 
-    .line 850
+    .line 851
     sget v2, Lcom/isaigu/gymapp/widget/XemsUi;->SURFACE:I
 
     const/high16 v3, 0x41b00000    # 22.0f
@@ -6324,7 +6296,7 @@
 
     invoke-virtual {v1, v2}, Landroid/widget/LinearLayout;->setBackgroundDrawable(Landroid/graphics/drawable/Drawable;)V
 
-    .line 851
+    .line 852
     const/high16 v2, 0x40400000    # 3.0f
 
     invoke-static {p0, v2}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
@@ -6351,7 +6323,7 @@
 
     invoke-virtual {v1, v2, v3, v4, v5}, Landroid/widget/LinearLayout;->setPadding(IIII)V
 
-    .line 852
+    .line 853
     const-string v2, "\u2212"
 
     sget v3, Lcom/isaigu/gymapp/widget/XemsUi;->CARD:I
@@ -6364,7 +6336,7 @@
 
     move-result-object v2
 
-    .line 853
+    .line 854
     const-string v3, "+"
 
     sget v4, Lcom/isaigu/gymapp/widget/XemsUi;->CARD:I
@@ -6377,7 +6349,7 @@
 
     move-result-object v3
 
-    .line 854
+    .line 855
     invoke-static {p5, p4}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->valueText(II)Ljava/lang/String;
 
     move-result-object v4
@@ -6392,40 +6364,40 @@
 
     move-result-object v4
 
-    .line 855
+    .line 856
     const/16 v5, 0x11
 
     invoke-virtual {v4, v5}, Landroid/widget/TextView;->setGravity(I)V
 
-    .line 856
+    .line 857
     const/4 v5, 0x1
 
     invoke-virtual {v4, v5}, Landroid/widget/TextView;->setSingleLine(Z)V
 
-    .line 857
+    .line 858
     new-instance v5, Lcom/isaigu/gymapp/ai/WorkoutsUi$Act;
 
     const/16 v6, 0x18
 
     invoke-direct {v5, v6, p5}, Lcom/isaigu/gymapp/ai/WorkoutsUi$Act;-><init>(II)V
 
-    .line 858
+    .line 859
     iput-object v4, v5, Lcom/isaigu/gymapp/ai/WorkoutsUi$Act;->value:Landroid/widget/TextView;
 
-    .line 859
+    .line 860
     const/4 v6, -0x1
 
     invoke-static {v2, v5, v6}, Lcom/isaigu/gymapp/widget/XemsUi;->repeatOnHold(Landroid/view/View;Lcom/isaigu/gymapp/widget/XemsUi$OnStep;I)V
 
-    .line 860
+    .line 861
     const/4 v6, 0x1
 
     invoke-static {v3, v5, v6}, Lcom/isaigu/gymapp/widget/XemsUi;->repeatOnHold(Landroid/view/View;Lcom/isaigu/gymapp/widget/XemsUi$OnStep;I)V
 
-    .line 862
+    .line 863
     invoke-virtual {v1, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
-    .line 863
+    .line 864
     new-instance v2, Landroid/widget/LinearLayout$LayoutParams;
 
     const/4 v5, 0x0
@@ -6438,10 +6410,10 @@
 
     invoke-virtual {v1, v4, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 864
+    .line 865
     invoke-virtual {v1, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
-    .line 865
+    .line 866
     new-instance v2, Landroid/widget/LinearLayout$LayoutParams;
 
     const/4 v3, -0x1
@@ -6452,7 +6424,7 @@
 
     invoke-virtual {v0, v1, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 867
+    .line 868
     const/high16 v1, 0x41300000    # 11.0f
 
     sget v2, Lcom/isaigu/gymapp/widget/XemsUi;->HINT:I
@@ -6463,7 +6435,7 @@
 
     move-result-object v1
 
-    .line 868
+    .line 869
     const/4 v2, 0x0
 
     const/high16 v3, 0x40400000    # 3.0f
@@ -6478,15 +6450,15 @@
 
     invoke-virtual {v1, v2, v3, v4, v5}, Landroid/widget/TextView;->setPadding(IIII)V
 
-    .line 869
+    .line 870
     const/16 v2, 0x11
 
     invoke-virtual {v1, v2}, Landroid/widget/TextView;->setGravity(I)V
 
-    .line 870
+    .line 871
     if-ltz p3, :cond_e9
 
-    .line 871
+    .line 872
     new-instance v2, Lcom/isaigu/gymapp/ai/ImpulseGlyph;
 
     sget v3, Lcom/isaigu/gymapp/widget/XemsUi;->MUTED:I
@@ -6501,21 +6473,21 @@
 
     invoke-direct {v2, p3, v3, v4}, Lcom/isaigu/gymapp/ai/ImpulseGlyph;-><init>(IIF)V
 
-    .line 872
+    .line 873
     const/high16 v3, 0x41500000    # 13.0f
 
     invoke-static {p0, v3}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
 
     move-result v3
 
-    .line 873
+    .line 874
     const/4 v4, 0x0
 
     const/4 v5, 0x0
 
     invoke-virtual {v2, v4, v5, v3, v3}, Lcom/isaigu/gymapp/ai/ImpulseGlyph;->setBounds(IIII)V
 
-    .line 874
+    .line 875
     const/4 v3, 0x0
 
     const/4 v4, 0x0
@@ -6524,7 +6496,7 @@
 
     invoke-virtual {v1, v2, v3, v4, v5}, Landroid/widget/TextView;->setCompoundDrawables(Landroid/graphics/drawable/Drawable;Landroid/graphics/drawable/Drawable;Landroid/graphics/drawable/Drawable;Landroid/graphics/drawable/Drawable;)V
 
-    .line 875
+    .line 876
     const/high16 v2, 0x40800000    # 4.0f
 
     invoke-static {p0, v2}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
@@ -6533,16 +6505,16 @@
 
     invoke-virtual {v1, v2}, Landroid/widget/TextView;->setCompoundDrawablePadding(I)V
 
-    .line 876
+    .line 877
     const/16 v2, 0x10
 
     invoke-virtual {v1, v2}, Landroid/widget/TextView;->setGravity(I)V
 
-    .line 878
+    .line 879
     :cond_e9
     invoke-virtual {v0, v1}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
-    .line 879
+    .line 880
     new-instance v1, Landroid/widget/LinearLayout$LayoutParams;
 
     const/4 v2, 0x0
@@ -6553,7 +6525,7 @@
 
     invoke-direct {v1, v2, v3, v4}, Landroid/widget/LinearLayout$LayoutParams;-><init>(IIF)V
 
-    .line 880
+    .line 881
     const/high16 v2, 0x41000000    # 8.0f
 
     invoke-static {p0, v2}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
@@ -6562,10 +6534,10 @@
 
     iput v2, v1, Landroid/widget/LinearLayout$LayoutParams;->rightMargin:I
 
-    .line 881
+    .line 882
     invoke-virtual {p1, v0, v1}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 882
+    .line 883
     return-void
 .end method
 
@@ -6573,21 +6545,21 @@
     .registers 13
 
     .prologue
-    .line 1153
+    .line 1154
     iget-object v0, p1, Lcom/isaigu/gymapp/ai/ExerciseLibrary$Entry;->id:Ljava/lang/String;
 
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->countIn(Ljava/lang/String;)I
 
     move-result v8
 
-    .line 1154
+    .line 1155
     if-lez v8, :cond_1ed
 
     const/4 v0, 0x1
 
     move v6, v0
 
-    .line 1155
+    .line 1156
     :goto_a
     sget v0, Lcom/isaigu/gymapp/ai/WorkoutsUi;->replaceIndex:I
 
@@ -6597,13 +6569,13 @@
 
     move v7, v0
 
-    .line 1156
+    .line 1157
     :goto_10
     invoke-static {p0}, Lcom/isaigu/gymapp/widget/XemsUi;->vertical(Landroid/content/Context;)Landroid/widget/LinearLayout;
 
     move-result-object v9
 
-    .line 1157
+    .line 1158
     const/high16 v0, 0x41600000    # 14.0f
 
     invoke-static {p0, v0}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
@@ -6612,15 +6584,15 @@
 
     int-to-float v1, v0
 
-    .line 1158
+    .line 1159
     if-eqz v6, :cond_20d
 
-    .line 1160
+    .line 1161
     new-instance v2, Landroid/graphics/drawable/GradientDrawable;
 
     invoke-direct {v2}, Landroid/graphics/drawable/GradientDrawable;-><init>()V
 
-    .line 1161
+    .line 1162
     const/high16 v0, 0x40800000    # 4.0f
 
     invoke-static {p0, v0}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
@@ -6633,7 +6605,7 @@
 
     invoke-virtual {v2, v0}, Landroid/graphics/drawable/GradientDrawable;->setCornerRadius(F)V
 
-    .line 1162
+    .line 1163
     sget v0, Lcom/isaigu/gymapp/widget/XemsUi;->GO:I
 
     const/16 v3, 0x38
@@ -6644,7 +6616,7 @@
 
     invoke-virtual {v2, v0}, Landroid/graphics/drawable/GradientDrawable;->setColor(I)V
 
-    .line 1163
+    .line 1164
     new-instance v0, Landroid/graphics/drawable/LayerDrawable;
 
     const/4 v3, 0x2
@@ -6663,7 +6635,7 @@
 
     const v10, 0x3e0f5c29    # 0.14f
 
-    .line 1164
+    .line 1165
     invoke-static {v4, v5, v10}, Lcom/isaigu/gymapp/widget/XemsUi;->mix(IIF)I
 
     move-result v4
@@ -6684,14 +6656,14 @@
 
     invoke-direct {v0, v3}, Landroid/graphics/drawable/LayerDrawable;-><init>([Landroid/graphics/drawable/Drawable;)V
 
-    .line 1165
+    .line 1166
     const/high16 v1, 0x40800000    # 4.0f
 
     invoke-static {p0, v1}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
 
     move-result v2
 
-    .line 1166
+    .line 1167
     const/4 v1, 0x1
 
     move v3, v2
@@ -6702,10 +6674,10 @@
 
     invoke-virtual/range {v0 .. v5}, Landroid/graphics/drawable/LayerDrawable;->setLayerInset(IIIII)V
 
-    .line 1167
+    .line 1168
     invoke-virtual {v9, v0}, Landroid/widget/LinearLayout;->setBackgroundDrawable(Landroid/graphics/drawable/Drawable;)V
 
-    .line 1168
+    .line 1169
     const/high16 v0, 0x41400000    # 12.0f
 
     invoke-static {p0, v0}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
@@ -6732,7 +6704,7 @@
 
     invoke-virtual {v9, v0, v1, v2, v3}, Landroid/widget/LinearLayout;->setPadding(IIII)V
 
-    .line 1169
+    .line 1170
     const/high16 v0, 0x41200000    # 10.0f
 
     invoke-static {p0, v0}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
@@ -6743,24 +6715,24 @@
 
     invoke-virtual {v9, v0}, Landroid/widget/LinearLayout;->setElevation(F)V
 
-    .line 1170
+    .line 1171
     sget v0, Landroid/os/Build$VERSION;->SDK_INT:I
 
     const/16 v1, 0x1c
 
     if-lt v0, v1, :cond_a2
 
-    .line 1171
+    .line 1172
     sget v0, Lcom/isaigu/gymapp/widget/XemsUi;->GO:I
 
     invoke-virtual {v9, v0}, Landroid/widget/LinearLayout;->setOutlineSpotShadowColor(I)V
 
-    .line 1172
+    .line 1173
     sget v0, Lcom/isaigu/gymapp/widget/XemsUi;->GO:I
 
     invoke-virtual {v9, v0}, Landroid/widget/LinearLayout;->setOutlineAmbientShadowColor(I)V
 
-    .line 1174
+    .line 1175
     :cond_a2
     iget-object v0, p1, Lcom/isaigu/gymapp/ai/ExerciseLibrary$Entry;->id:Ljava/lang/String;
 
@@ -6772,17 +6744,17 @@
 
     if-eqz v0, :cond_1f5
 
-    .line 1175
+    .line 1176
     const v0, 0x3f75c28f    # 0.96f
 
     invoke-virtual {v9, v0}, Landroid/widget/LinearLayout;->setScaleX(F)V
 
-    .line 1176
+    .line 1177
     const v0, 0x3f75c28f    # 0.96f
 
     invoke-virtual {v9, v0}, Landroid/widget/LinearLayout;->setScaleY(F)V
 
-    .line 1177
+    .line 1178
     invoke-virtual {v9}, Landroid/widget/LinearLayout;->animate()Landroid/view/ViewPropertyAnimator;
 
     move-result-object v0
@@ -6819,13 +6791,13 @@
 
     invoke-virtual {v0}, Landroid/view/ViewPropertyAnimator;->start()V
 
-    .line 1187
+    .line 1188
     :goto_de
     new-instance v0, Landroid/widget/FrameLayout;
 
     invoke-direct {v0, p0}, Landroid/widget/FrameLayout;-><init>(Landroid/content/Context;)V
 
-    .line 1188
+    .line 1189
     const v1, -0xedebe6
 
     const/high16 v2, 0x41200000    # 10.0f
@@ -6846,27 +6818,27 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/FrameLayout;->setBackgroundDrawable(Landroid/graphics/drawable/Drawable;)V
 
-    .line 1189
+    .line 1190
     new-instance v1, Lcom/isaigu/gymapp/ai/ExerciseFigure;
 
     invoke-direct {v1, p0}, Lcom/isaigu/gymapp/ai/ExerciseFigure;-><init>(Landroid/content/Context;)V
 
-    .line 1190
+    .line 1191
     const/4 v2, 0x0
 
     invoke-virtual {v1, v2}, Lcom/isaigu/gymapp/ai/ExerciseFigure;->setGlow(Z)V
 
-    .line 1191
+    .line 1192
     const/4 v2, 0x1
 
     invoke-virtual {v1, v2}, Lcom/isaigu/gymapp/ai/ExerciseFigure;->setStill(Z)V
 
-    .line 1192
+    .line 1193
     iget-object v2, p1, Lcom/isaigu/gymapp/ai/ExerciseLibrary$Entry;->id:Ljava/lang/String;
 
     invoke-virtual {v1, v2}, Lcom/isaigu/gymapp/ai/ExerciseFigure;->setExercise(Ljava/lang/String;)V
 
-    .line 1193
+    .line 1194
     new-instance v2, Landroid/widget/FrameLayout$LayoutParams;
 
     const/4 v3, -0x1
@@ -6881,12 +6853,12 @@
 
     invoke-virtual {v0, v1, v2}, Landroid/widget/FrameLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 1194
+    .line 1195
     if-eqz v6, :cond_16a
 
     if-nez v7, :cond_16a
 
-    .line 1196
+    .line 1197
     iget-object v1, p1, Lcom/isaigu/gymapp/ai/ExerciseLibrary$Entry;->id:Ljava/lang/String;
 
     invoke-static {v1}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->orderOf(Ljava/lang/String;)I
@@ -6907,35 +6879,35 @@
 
     move-result-object v1
 
-    .line 1197
+    .line 1198
     const/16 v2, 0x11
 
     invoke-virtual {v1, v2}, Landroid/widget/TextView;->setGravity(I)V
 
-    .line 1198
+    .line 1199
     new-instance v2, Landroid/graphics/drawable/GradientDrawable;
 
     invoke-direct {v2}, Landroid/graphics/drawable/GradientDrawable;-><init>()V
 
-    .line 1199
+    .line 1200
     const/4 v3, 0x1
 
     invoke-virtual {v2, v3}, Landroid/graphics/drawable/GradientDrawable;->setShape(I)V
 
-    .line 1200
+    .line 1201
     sget v3, Lcom/isaigu/gymapp/widget/XemsUi;->GO:I
 
     invoke-virtual {v2, v3}, Landroid/graphics/drawable/GradientDrawable;->setColor(I)V
 
-    .line 1201
+    .line 1202
     invoke-virtual {v1, v2}, Landroid/widget/TextView;->setBackgroundDrawable(Landroid/graphics/drawable/Drawable;)V
 
-    .line 1202
+    .line 1203
     new-instance v2, Landroid/widget/FrameLayout$LayoutParams;
 
     const/high16 v3, 0x41e00000    # 28.0f
 
-    .line 1203
+    .line 1204
     invoke-static {p0, v3}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
 
     move-result v3
@@ -6950,7 +6922,7 @@
 
     invoke-direct {v2, v3, v4, v5}, Landroid/widget/FrameLayout$LayoutParams;-><init>(III)V
 
-    .line 1204
+    .line 1205
     const/high16 v3, 0x40c00000    # 6.0f
 
     invoke-static {p0, v3}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
@@ -6959,7 +6931,7 @@
 
     iput v3, v2, Landroid/widget/FrameLayout$LayoutParams;->topMargin:I
 
-    .line 1205
+    .line 1206
     const/high16 v3, 0x40c00000    # 6.0f
 
     invoke-static {p0, v3}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
@@ -6968,14 +6940,14 @@
 
     iput v3, v2, Landroid/widget/FrameLayout$LayoutParams;->leftMargin:I
 
-    .line 1206
+    .line 1207
     invoke-virtual {v0, v1, v2}, Landroid/widget/FrameLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 1208
+    .line 1209
     :cond_16a
     if-nez v7, :cond_18a
 
-    .line 1210
+    .line 1211
     iget-object v1, p1, Lcom/isaigu/gymapp/ai/ExerciseLibrary$Entry;->id:Ljava/lang/String;
 
     const/4 v2, 0x0
@@ -6992,7 +6964,7 @@
 
     invoke-virtual {v0, v1, v2}, Landroid/widget/FrameLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 1211
+    .line 1212
     iget-object v1, p1, Lcom/isaigu/gymapp/ai/ExerciseLibrary$Entry;->id:Ljava/lang/String;
 
     const/4 v2, 0x1
@@ -7009,11 +6981,11 @@
 
     invoke-virtual {v0, v1, v2}, Landroid/widget/FrameLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 1213
+    .line 1214
     :cond_18a
     invoke-virtual {v9, v0}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
-    .line 1214
+    .line 1215
     invoke-virtual {p1}, Lcom/isaigu/gymapp/ai/ExerciseLibrary$Entry;->name()Ljava/lang/String;
 
     move-result-object v0
@@ -7028,12 +7000,12 @@
 
     move-result-object v0
 
-    .line 1215
+    .line 1216
     const/4 v1, 0x2
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setMaxLines(I)V
 
-    .line 1216
+    .line 1217
     const/4 v1, 0x0
 
     const/high16 v2, 0x41000000    # 8.0f
@@ -7048,10 +7020,10 @@
 
     invoke-virtual {v0, v1, v2, v3, v4}, Landroid/widget/TextView;->setPadding(IIII)V
 
-    .line 1217
+    .line 1218
     invoke-virtual {v9, v0}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
-    .line 1218
+    .line 1219
     if-eqz v6, :cond_242
 
     new-instance v0, Ljava/lang/StringBuilder;
@@ -7107,12 +7079,12 @@
     :goto_1dc
     const/high16 v2, 0x41380000    # 11.5f
 
-    .line 1219
+    .line 1220
     if-eqz v6, :cond_246
 
     sget v0, Lcom/isaigu/gymapp/widget/XemsUi;->GO_TEXT:I
 
-    .line 1218
+    .line 1219
     :goto_1e2
     invoke-static {p0, v1, v2, v0, v6}, Lcom/isaigu/gymapp/widget/XemsUi;->text(Landroid/content/Context;Ljava/lang/String;FIZ)Landroid/widget/TextView;
 
@@ -7120,13 +7092,13 @@
 
     invoke-virtual {v9, v0}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
-    .line 1220
+    .line 1221
     invoke-static {v9}, Lcom/isaigu/gymapp/widget/XemsUi;->pressable(Landroid/view/View;)V
 
-    .line 1221
+    .line 1222
     return-object v9
 
-    .line 1154
+    .line 1155
     :cond_1ed
     const/4 v0, 0x0
 
@@ -7134,7 +7106,7 @@
 
     goto/16 :goto_a
 
-    .line 1155
+    .line 1156
     :cond_1f1
     const/4 v0, 0x0
 
@@ -7142,18 +7114,18 @@
 
     goto/16 :goto_10
 
-    .line 1179
+    .line 1180
     :cond_1f5
     const v0, 0x3f83d70a    # 1.03f
 
     invoke-virtual {v9, v0}, Landroid/widget/LinearLayout;->setScaleX(F)V
 
-    .line 1180
+    .line 1181
     const v0, 0x3f83d70a    # 1.03f
 
     invoke-virtual {v9, v0}, Landroid/widget/LinearLayout;->setScaleY(F)V
 
-    .line 1181
+    .line 1182
     const/high16 v0, 0x40c00000    # 6.0f
 
     invoke-static {p0, v0}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
@@ -7166,7 +7138,7 @@
 
     goto/16 :goto_de
 
-    .line 1184
+    .line 1185
     :cond_20d
     sget v0, Lcom/isaigu/gymapp/widget/XemsUi;->CARD:I
 
@@ -7184,7 +7156,7 @@
 
     invoke-virtual {v9, v0}, Landroid/widget/LinearLayout;->setBackgroundDrawable(Landroid/graphics/drawable/Drawable;)V
 
-    .line 1185
+    .line 1186
     const/high16 v0, 0x41000000    # 8.0f
 
     invoke-static {p0, v0}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
@@ -7213,7 +7185,7 @@
 
     goto/16 :goto_de
 
-    .line 1218
+    .line 1219
     :cond_23b
     const-string v0, " \u0441\u0435\u0440\u0438\u0438"
 
@@ -7233,7 +7205,7 @@
 
     goto :goto_1dc
 
-    .line 1219
+    .line 1220
     :cond_246
     sget v0, Lcom/isaigu/gymapp/widget/XemsUi;->MUTED:I
 
@@ -7250,14 +7222,14 @@
 
     const/4 v2, 0x1
 
-    .line 1580
+    .line 1581
     iget-object v0, p1, Lcom/isaigu/gymapp/ai/WorkoutsUi$Act;->ex:Ljava/lang/String;
 
     invoke-static {p0, v0}, Lcom/isaigu/gymapp/ai/ExerciseLibrary;->get(Landroid/content/Context;Ljava/lang/String;)Lcom/isaigu/gymapp/ai/ExerciseLibrary$Entry;
 
     move-result-object v3
 
-    .line 1581
+    .line 1582
     sget v0, Lcom/isaigu/gymapp/ai/WorkoutsUi;->replaceIndex:I
 
     if-ltz v0, :cond_68
@@ -7278,7 +7250,7 @@
 
     if-ltz v0, :cond_68
 
-    .line 1582
+    .line 1583
     sget-object v0, Lcom/isaigu/gymapp/ai/WorkoutsUi;->editing:Lcom/isaigu/gymapp/ai/Workout;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/ai/Workout;->blocks:Ljava/util/List;
@@ -7291,12 +7263,12 @@
 
     check-cast v0, Lcom/isaigu/gymapp/ai/Workout$Block;
 
-    .line 1583
+    .line 1584
     iget-object v1, p1, Lcom/isaigu/gymapp/ai/WorkoutsUi$Act;->ex:Ljava/lang/String;
 
     iput-object v1, v0, Lcom/isaigu/gymapp/ai/Workout$Block;->ex:Ljava/lang/String;
 
-    .line 1584
+    .line 1585
     if-eqz v3, :cond_5f
 
     iget-object v1, v3, Lcom/isaigu/gymapp/ai/ExerciseLibrary$Entry;->pat:Ljava/lang/String;
@@ -7304,7 +7276,7 @@
     :goto_32
     iput-object v1, v0, Lcom/isaigu/gymapp/ai/Workout$Block;->pat:Ljava/lang/String;
 
-    .line 1585
+    .line 1586
     if-eqz v3, :cond_66
 
     invoke-virtual {v3}, Lcom/isaigu/gymapp/ai/ExerciseLibrary$Entry;->isHold()Z
@@ -7318,49 +7290,49 @@
     :goto_3d
     iput-boolean v1, v0, Lcom/isaigu/gymapp/ai/Workout$Block;->hold:Z
 
-    .line 1586
+    .line 1587
     invoke-virtual {v0}, Lcom/isaigu/gymapp/ai/Workout$Block;->isRest()Z
 
     move-result v1
 
     if-eqz v1, :cond_4c
 
-    .line 1587
+    .line 1588
     const/16 v1, 0x64
 
     iput v1, v0, Lcom/isaigu/gymapp/ai/Workout$Block;->rel:I
 
-    .line 1588
+    .line 1589
     invoke-virtual {v0}, Lcom/isaigu/gymapp/ai/Workout$Block;->clampAll()V
 
-    .line 1590
+    .line 1591
     :cond_4c
     sput-boolean v2, Lcom/isaigu/gymapp/ai/WorkoutsUi;->dirty:Z
 
-    .line 1591
+    .line 1592
     sget v0, Lcom/isaigu/gymapp/ai/WorkoutsUi;->replaceIndex:I
 
-    .line 1592
+    .line 1593
     const/4 v1, -0x1
 
     sput v1, Lcom/isaigu/gymapp/ai/WorkoutsUi;->replaceIndex:I
 
-    .line 1593
+    .line 1594
     invoke-static {v2}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->go(I)V
 
-    .line 1594
+    .line 1595
     sget-object v1, Lcom/isaigu/gymapp/ai/WorkoutsUi;->mapView:Lcom/isaigu/gymapp/ai/ImpulseMapView;
 
     invoke-virtual {v1, v0}, Lcom/isaigu/gymapp/ai/ImpulseMapView;->select(I)V
 
-    .line 1595
+    .line 1596
     invoke-static {p0}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->fillPanel(Landroid/content/Context;)V
 
-    .line 1624
+    .line 1625
     :goto_5e
     return-void
 
-    .line 1584
+    .line 1585
     :cond_5f
     iget-object v1, p1, Lcom/isaigu/gymapp/ai/WorkoutsUi$Act;->ex:Ljava/lang/String;
 
@@ -7370,13 +7342,13 @@
 
     goto :goto_32
 
-    .line 1585
+    .line 1586
     :cond_66
     const/4 v1, 0x0
 
     goto :goto_3d
 
-    .line 1598
+    .line 1599
     :cond_68
     iget v0, p1, Lcom/isaigu/gymapp/ai/WorkoutsUi$Act;->code:I
 
@@ -7390,15 +7362,15 @@
 
     if-lez v0, :cond_a2
 
-    .line 1599
+    .line 1600
     iget-object v0, p1, Lcom/isaigu/gymapp/ai/WorkoutsUi$Act;->ex:Ljava/lang/String;
 
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->removeAll(Ljava/lang/String;)V
 
-    .line 1600
+    .line 1601
     sput-object v1, Lcom/isaigu/gymapp/ai/WorkoutsUi;->justPicked:Ljava/lang/String;
 
-    .line 1619
+    .line 1620
     :goto_7b
     iget-object v0, p1, Lcom/isaigu/gymapp/ai/WorkoutsUi$Act;->ex:Ljava/lang/String;
 
@@ -7413,10 +7385,10 @@
     :goto_85
     sput-object v0, Lcom/isaigu/gymapp/ai/WorkoutsUi;->preview:Ljava/lang/String;
 
-    .line 1620
+    .line 1621
     sput-boolean v2, Lcom/isaigu/gymapp/ai/WorkoutsUi;->dirty:Z
 
-    .line 1621
+    .line 1622
     sget-object v0, Lcom/isaigu/gymapp/ai/WorkoutsUi;->shell:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/widget/XemsUi$Shell;->scroll:Landroid/widget/ScrollView;
@@ -7425,12 +7397,12 @@
 
     move-result v0
 
-    .line 1622
+    .line 1623
     const/4 v1, 0x2
 
     invoke-static {v1}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->go(I)V
 
-    .line 1623
+    .line 1624
     sget-object v1, Lcom/isaigu/gymapp/ai/WorkoutsUi;->shell:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
 
     iget-object v1, v1, Lcom/isaigu/gymapp/widget/XemsUi$Shell;->scroll:Landroid/widget/ScrollView;
@@ -7443,7 +7415,7 @@
 
     goto :goto_5e
 
-    .line 1601
+    .line 1602
     :cond_a2
     iget v0, p1, Lcom/isaigu/gymapp/ai/WorkoutsUi$Act;->code:I
 
@@ -7453,7 +7425,7 @@
 
     if-gez v0, :cond_e5
 
-    .line 1602
+    .line 1603
     sget-object v0, Lcom/isaigu/gymapp/ai/WorkoutsUi;->editing:Lcom/isaigu/gymapp/ai/Workout;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/ai/Workout;->blocks:Ljava/util/List;
@@ -7469,7 +7441,7 @@
     :goto_b5
     if-ltz v3, :cond_de
 
-    .line 1603
+    .line 1604
     iget-object v4, p1, Lcom/isaigu/gymapp/ai/WorkoutsUi$Act;->ex:Ljava/lang/String;
 
     sget-object v0, Lcom/isaigu/gymapp/ai/WorkoutsUi;->editing:Lcom/isaigu/gymapp/ai/Workout;
@@ -7506,16 +7478,16 @@
 
     if-nez v0, :cond_e1
 
-    .line 1604
+    .line 1605
     invoke-static {v3}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->removeSet(I)V
 
-    .line 1608
+    .line 1609
     :cond_de
     sput-object v1, Lcom/isaigu/gymapp/ai/WorkoutsUi;->justPicked:Ljava/lang/String;
 
     goto :goto_7b
 
-    .line 1602
+    .line 1603
     :cond_e1
     add-int/lit8 v0, v3, -0x1
 
@@ -7523,7 +7495,7 @@
 
     goto :goto_b5
 
-    .line 1610
+    .line 1611
     :cond_e5
     new-instance v0, Ljava/util/ArrayList;
 
@@ -7533,33 +7505,33 @@
 
     invoke-direct {v0, v4}, Ljava/util/ArrayList;-><init>(Ljava/util/Collection;)V
 
-    .line 1611
+    .line 1612
     iget-object v4, p1, Lcom/isaigu/gymapp/ai/WorkoutsUi$Act;->ex:Ljava/lang/String;
 
     invoke-static {p0, v4, v3}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->addSet(Landroid/content/Context;Ljava/lang/String;Lcom/isaigu/gymapp/ai/ExerciseLibrary$Entry;)V
 
-    .line 1612
+    .line 1613
     invoke-static {p0}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->tooLong(Landroid/content/Context;)Z
 
     move-result v3
 
     if-eqz v3, :cond_107
 
-    .line 1613
+    .line 1614
     sget-object v3, Lcom/isaigu/gymapp/ai/WorkoutsUi;->editing:Lcom/isaigu/gymapp/ai/Workout;
 
     iget-object v3, v3, Lcom/isaigu/gymapp/ai/Workout;->blocks:Ljava/util/List;
 
     invoke-interface {v3}, Ljava/util/List;->clear()V
 
-    .line 1614
+    .line 1615
     sget-object v3, Lcom/isaigu/gymapp/ai/WorkoutsUi;->editing:Lcom/isaigu/gymapp/ai/Workout;
 
     iget-object v3, v3, Lcom/isaigu/gymapp/ai/Workout;->blocks:Ljava/util/List;
 
     invoke-interface {v3, v0}, Ljava/util/List;->addAll(Ljava/util/Collection;)Z
 
-    .line 1616
+    .line 1617
     :cond_107
     iget-object v0, p1, Lcom/isaigu/gymapp/ai/WorkoutsUi$Act;->ex:Ljava/lang/String;
 
@@ -7581,7 +7553,7 @@
 
     goto :goto_111
 
-    .line 1619
+    .line 1620
     :cond_117
     invoke-static {}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->lastPicked()Ljava/lang/String;
 
@@ -7594,12 +7566,12 @@
     .registers 5
 
     .prologue
-    .line 1574
+    .line 1575
     invoke-static {}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->presetList()Ljava/util/List;
 
     move-result-object v0
 
-    .line 1575
+    .line 1576
     const/4 v1, 0x0
 
     invoke-interface {v0}, Ljava/util/List;->size()I
@@ -7744,25 +7716,25 @@
 
     const/4 v7, 0x0
 
-    .line 1254
+    .line 1255
     invoke-static {p0, p1}, Lcom/isaigu/gymapp/ai/ExerciseLibrary;->get(Landroid/content/Context;Ljava/lang/String;)Lcom/isaigu/gymapp/ai/ExerciseLibrary$Entry;
 
     move-result-object v2
 
-    .line 1255
+    .line 1256
     invoke-static {p0}, Lcom/isaigu/gymapp/widget/XemsUi;->card(Landroid/content/Context;)Landroid/widget/LinearLayout;
 
     move-result-object v3
 
-    .line 1256
+    .line 1257
     invoke-virtual {v3, v7}, Landroid/widget/LinearLayout;->setOrientation(I)V
 
-    .line 1257
+    .line 1258
     new-instance v0, Landroid/widget/LinearLayout;
 
     invoke-direct {v0, p0}, Landroid/widget/LinearLayout;-><init>(Landroid/content/Context;)V
 
-    .line 1258
+    .line 1259
     const v1, -0xedebe6
 
     const/high16 v4, 0x41400000    # 12.0f
@@ -7779,22 +7751,22 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/LinearLayout;->setBackgroundDrawable(Landroid/graphics/drawable/Drawable;)V
 
-    .line 1259
+    .line 1260
     new-instance v1, Lcom/isaigu/gymapp/ai/ExerciseFigure;
 
     invoke-direct {v1, p0}, Lcom/isaigu/gymapp/ai/ExerciseFigure;-><init>(Landroid/content/Context;)V
 
-    .line 1260
+    .line 1261
     invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
 
     move-result-wide v4
 
     invoke-virtual {v1, v4, v5, v6, v6}, Lcom/isaigu/gymapp/ai/ExerciseFigure;->setCycle(JII)V
 
-    .line 1261
+    .line 1262
     invoke-virtual {v1, p1}, Lcom/isaigu/gymapp/ai/ExerciseFigure;->setExercise(Ljava/lang/String;)V
 
-    .line 1262
+    .line 1263
     new-instance v4, Landroid/widget/LinearLayout$LayoutParams;
 
     const/high16 v5, 0x433e0000    # 190.0f
@@ -7813,15 +7785,15 @@
 
     invoke-virtual {v0, v1, v4}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 1263
+    .line 1264
     invoke-virtual {v3, v0}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
-    .line 1264
+    .line 1265
     invoke-static {p0}, Lcom/isaigu/gymapp/widget/XemsUi;->vertical(Landroid/content/Context;)Landroid/widget/LinearLayout;
 
     move-result-object v4
 
-    .line 1265
+    .line 1266
     const/high16 v0, 0x41900000    # 18.0f
 
     invoke-static {p0, v0}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
@@ -7830,12 +7802,12 @@
 
     invoke-virtual {v4, v0, v7, v7, v7}, Landroid/widget/LinearLayout;->setPadding(IIII)V
 
-    .line 1266
+    .line 1267
     invoke-static {p1}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->countIn(Ljava/lang/String;)I
 
     move-result v5
 
-    .line 1267
+    .line 1268
     new-instance v0, Ljava/lang/StringBuilder;
 
     invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
@@ -7879,7 +7851,7 @@
 
     invoke-virtual {v4, v0}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
-    .line 1268
+    .line 1269
     new-instance v0, Ljava/lang/StringBuilder;
 
     invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
@@ -7920,7 +7892,7 @@
 
     move-result-object v0
 
-    .line 1269
+    .line 1270
     const/high16 v1, 0x40000000    # 2.0f
 
     invoke-static {p0, v1}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
@@ -7929,10 +7901,10 @@
 
     invoke-virtual {v0, v7, v1, v7, v7}, Landroid/widget/TextView;->setPadding(IIII)V
 
-    .line 1270
+    .line 1271
     invoke-virtual {v4, v0}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
-    .line 1271
+    .line 1272
     if-eqz v2, :cond_ee
 
     invoke-virtual {v2}, Lcom/isaigu/gymapp/ai/ExerciseLibrary$Entry;->howText()Ljava/lang/String;
@@ -7948,7 +7920,7 @@
 
     move-result-object v0
 
-    .line 1272
+    .line 1273
     const/high16 v1, 0x40c00000    # 6.0f
 
     invoke-static {p0, v1}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
@@ -7957,10 +7929,10 @@
 
     invoke-virtual {v0, v7, v1, v7, v7}, Landroid/widget/TextView;->setPadding(IIII)V
 
-    .line 1273
+    .line 1274
     invoke-virtual {v4, v0}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
-    .line 1274
+    .line 1275
     new-instance v0, Landroid/widget/LinearLayout$LayoutParams;
 
     const/4 v1, -0x2
@@ -7971,13 +7943,13 @@
 
     invoke-virtual {v3, v4, v0}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 1275
+    .line 1276
     invoke-static {v3}, Lcom/isaigu/gymapp/widget/XemsUi;->enter(Landroid/view/View;)V
 
-    .line 1276
+    .line 1277
     return-object v3
 
-    .line 1267
+    .line 1268
     :cond_e2
     invoke-static {p1}, Lcom/isaigu/gymapp/ai/AutoTemplates;->name(Ljava/lang/String;)Ljava/lang/String;
 
@@ -7985,7 +7957,7 @@
 
     goto :goto_74
 
-    .line 1268
+    .line 1269
     :cond_e7
     const-string v0, " \u0441\u0435\u0440\u0438\u0438"
 
@@ -7998,7 +7970,7 @@
 
     goto :goto_99
 
-    .line 1271
+    .line 1272
     :cond_ee
     const-string v0, ""
 
@@ -8009,7 +7981,7 @@
     .registers 2
 
     .prologue
-    .line 965
+    .line 966
     sget-object v0, Lcom/isaigu/gymapp/ai/WorkoutsUi;->shell:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
 
     if-eqz v0, :cond_9
@@ -8020,12 +7992,12 @@
 
     if-eq v0, v1, :cond_a
 
-    .line 970
+    .line 971
     :cond_9
     :goto_9
     return-void
 
-    .line 968
+    .line 969
     :cond_a
     sget-object v0, Lcom/isaigu/gymapp/ai/WorkoutsUi;->shell:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
 
@@ -8037,7 +8009,7 @@
 
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->autosave(Landroid/content/Context;)V
 
-    .line 969
+    .line 970
     invoke-static {}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->refreshSummary()V
 
     goto :goto_9
@@ -8387,7 +8359,7 @@
     .registers 3
 
     .prologue
-    .line 1670
+    .line 1671
     sget-object v0, Lcom/isaigu/gymapp/ai/WorkoutsUi;->editing:Lcom/isaigu/gymapp/ai/Workout;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/ai/Workout;->blocks:Ljava/util/List;
@@ -8401,7 +8373,7 @@
     :goto_a
     if-ltz v1, :cond_40
 
-    .line 1671
+    .line 1672
     sget-object v0, Lcom/isaigu/gymapp/ai/WorkoutsUi;->editing:Lcom/isaigu/gymapp/ai/Workout;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/ai/Workout;->blocks:Ljava/util/List;
@@ -8436,10 +8408,10 @@
 
     if-nez v0, :cond_41
 
-    .line 1672
+    .line 1673
     invoke-static {v1}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->removeSet(I)V
 
-    .line 1673
+    .line 1674
     sget-object v0, Lcom/isaigu/gymapp/ai/WorkoutsUi;->editing:Lcom/isaigu/gymapp/ai/Workout;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/ai/Workout;->blocks:Ljava/util/List;
@@ -8452,13 +8424,13 @@
 
     move-result v0
 
-    .line 1670
+    .line 1671
     :goto_3d
     add-int/lit8 v1, v0, -0x1
 
     goto :goto_a
 
-    .line 1676
+    .line 1677
     :cond_40
     return-void
 
@@ -8472,14 +8444,14 @@
     .registers 3
 
     .prologue
-    .line 1661
+    .line 1662
     sget-object v0, Lcom/isaigu/gymapp/ai/WorkoutsUi;->editing:Lcom/isaigu/gymapp/ai/Workout;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/ai/Workout;->blocks:Ljava/util/List;
 
     invoke-interface {v0, p0}, Ljava/util/List;->remove(I)Ljava/lang/Object;
 
-    .line 1662
+    .line 1663
     if-lez p0, :cond_31
 
     add-int/lit8 v0, p0, -0x1
@@ -8512,7 +8484,7 @@
 
     if-eqz v0, :cond_31
 
-    .line 1663
+    .line 1664
     sget-object v0, Lcom/isaigu/gymapp/ai/WorkoutsUi;->editing:Lcom/isaigu/gymapp/ai/Workout;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/ai/Workout;->blocks:Ljava/util/List;
@@ -8521,12 +8493,12 @@
 
     invoke-interface {v0, v1}, Ljava/util/List;->remove(I)Ljava/lang/Object;
 
-    .line 1667
+    .line 1668
     :cond_30
     :goto_30
     return-void
 
-    .line 1664
+    .line 1665
     :cond_31
     sget-object v0, Lcom/isaigu/gymapp/ai/WorkoutsUi;->editing:Lcom/isaigu/gymapp/ai/Workout;
 
@@ -8554,7 +8526,7 @@
 
     if-eqz v0, :cond_30
 
-    .line 1665
+    .line 1666
     sget-object v0, Lcom/isaigu/gymapp/ai/WorkoutsUi;->editing:Lcom/isaigu/gymapp/ai/Workout;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/ai/Workout;->blocks:Ljava/util/List;
@@ -8595,12 +8567,12 @@
     .registers 3
 
     .prologue
-    .line 1694
+    .line 1695
     sget-object v0, Lcom/isaigu/gymapp/ai/WorkoutsUi;->editing:Lcom/isaigu/gymapp/ai/Workout;
 
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->deriveGoal(Lcom/isaigu/gymapp/ai/Workout;)V
 
-    .line 1695
+    .line 1696
     sget-object v0, Lcom/isaigu/gymapp/ai/WorkoutsUi;->editing:Lcom/isaigu/gymapp/ai/Workout;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/ai/Workout;->name:Ljava/lang/String;
@@ -8615,7 +8587,7 @@
 
     if-nez v0, :cond_1d
 
-    .line 1696
+    .line 1697
     sget-object v0, Lcom/isaigu/gymapp/ai/WorkoutsUi;->editing:Lcom/isaigu/gymapp/ai/Workout;
 
     sget-object v1, Lcom/isaigu/gymapp/ai/WorkoutsUi;->editing:Lcom/isaigu/gymapp/ai/Workout;
@@ -8626,18 +8598,18 @@
 
     iput-object v1, v0, Lcom/isaigu/gymapp/ai/Workout;->name:Ljava/lang/String;
 
-    .line 1698
+    .line 1699
     :cond_1d
     sget-object v0, Lcom/isaigu/gymapp/ai/WorkoutsUi;->editing:Lcom/isaigu/gymapp/ai/Workout;
 
     invoke-static {p0, v0}, Lcom/isaigu/gymapp/ai/WorkoutStore;->save(Landroid/content/Context;Lcom/isaigu/gymapp/ai/Workout;)V
 
-    .line 1699
+    .line 1700
     const/4 v0, 0x0
 
     sput-boolean v0, Lcom/isaigu/gymapp/ai/WorkoutsUi;->dirty:Z
 
-    .line 1700
+    .line 1701
     return-void
 .end method
 
@@ -10240,14 +10212,14 @@
 
     const/4 v2, 0x0
 
-    .line 992
+    .line 993
     sget v0, Lcom/isaigu/gymapp/ai/WorkoutsUi;->replaceIndex:I
 
     if-ltz v0, :cond_d4
 
     move v0, v1
 
-    .line 993
+    .line 994
     :goto_d
     sget-object v3, Lcom/isaigu/gymapp/ai/WorkoutsUi;->shell:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
 
@@ -10266,7 +10238,7 @@
     :goto_1b
     invoke-virtual {v4, v3}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 995
+    .line 996
     sget-object v3, Lcom/isaigu/gymapp/ai/WorkoutsUi;->shell:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
 
     iget-object v4, v3, Lcom/isaigu/gymapp/widget/XemsUi$Shell;->subtitle:Landroid/widget/TextView;
@@ -10284,32 +10256,32 @@
     :goto_2c
     invoke-virtual {v4, v3}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 998
+    .line 999
     sget-object v3, Lcom/isaigu/gymapp/ai/WorkoutsUi;->shell:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
 
     iget-object v3, v3, Lcom/isaigu/gymapp/widget/XemsUi$Shell;->subtitle:Landroid/widget/TextView;
 
     invoke-virtual {v3, v2}, Landroid/widget/TextView;->setVisibility(I)V
 
-    .line 999
+    .line 1000
     sget-object v3, Lcom/isaigu/gymapp/ai/WorkoutsUi;->shell:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
 
     iget-object v4, v3, Lcom/isaigu/gymapp/widget/XemsUi$Shell;->body:Landroid/widget/LinearLayout;
 
-    .line 1001
+    .line 1002
     new-instance v3, Landroid/widget/EditText;
 
     invoke-direct {v3, p0}, Landroid/widget/EditText;-><init>(Landroid/content/Context;)V
 
-    .line 1002
+    .line 1003
     invoke-virtual {v3, v1}, Landroid/widget/EditText;->setSingleLine(Z)V
 
-    .line 1003
+    .line 1004
     sget-object v5, Lcom/isaigu/gymapp/ai/WorkoutsUi;->query:Ljava/lang/String;
 
     invoke-virtual {v3, v5}, Landroid/widget/EditText;->setText(Ljava/lang/CharSequence;)V
 
-    .line 1004
+    .line 1005
     const-string v5, "\u0422\u044a\u0440\u0441\u0438: \u043a\u043b\u0435\u043a, \u043d\u0430\u043f\u0430\u0434, \u0433\u0440\u044a\u0431\u2026"
 
     const-string v6, "Search: squat, lunge, back\u2026"
@@ -10320,27 +10292,27 @@
 
     invoke-virtual {v3, v5}, Landroid/widget/EditText;->setHint(Ljava/lang/CharSequence;)V
 
-    .line 1005
+    .line 1006
     const/high16 v5, 0x41880000    # 17.0f
 
     invoke-virtual {v3, v5}, Landroid/widget/EditText;->setTextSize(F)V
 
-    .line 1006
+    .line 1007
     sget v5, Lcom/isaigu/gymapp/widget/XemsUi;->TEXT:I
 
     invoke-virtual {v3, v5}, Landroid/widget/EditText;->setTextColor(I)V
 
-    .line 1007
+    .line 1008
     sget v5, Lcom/isaigu/gymapp/widget/XemsUi;->HINT:I
 
     invoke-virtual {v3, v5}, Landroid/widget/EditText;->setHintTextColor(I)V
 
-    .line 1008
+    .line 1009
     const/4 v5, 0x3
 
     invoke-virtual {v3, v5}, Landroid/widget/EditText;->setImeOptions(I)V
 
-    .line 1009
+    .line 1010
     sget v5, Lcom/isaigu/gymapp/widget/XemsUi;->SURFACE:I
 
     const/high16 v6, 0x41600000    # 14.0f
@@ -10363,7 +10335,7 @@
 
     invoke-virtual {v3, v5}, Landroid/widget/EditText;->setBackgroundDrawable(Landroid/graphics/drawable/Drawable;)V
 
-    .line 1010
+    .line 1011
     invoke-static {p0, v11}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
 
     move-result v5
@@ -10382,14 +10354,14 @@
 
     invoke-virtual {v3, v5, v6, v7, v8}, Landroid/widget/EditText;->setPadding(IIII)V
 
-    .line 1011
+    .line 1012
     new-instance v5, Lcom/isaigu/gymapp/ai/WorkoutsUi$SearchWatch;
 
     invoke-direct {v5}, Lcom/isaigu/gymapp/ai/WorkoutsUi$SearchWatch;-><init>()V
 
     invoke-virtual {v3, v5}, Landroid/widget/EditText;->addTextChangedListener(Landroid/text/TextWatcher;)V
 
-    .line 1012
+    .line 1013
     const/4 v5, 0x4
 
     invoke-static {p0, v5}, Lcom/isaigu/gymapp/widget/XemsUi;->matchWrap(Landroid/content/Context;I)Landroid/widget/LinearLayout$LayoutParams;
@@ -10398,17 +10370,17 @@
 
     invoke-virtual {v4, v3, v5}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 1014
+    .line 1015
     new-array v5, v1, [Landroid/widget/LinearLayout;
 
-    .line 1015
+    .line 1016
     invoke-static {p0, v5}, Lcom/isaigu/gymapp/widget/XemsUi;->chipRow(Landroid/content/Context;[Landroid/widget/LinearLayout;)Landroid/widget/HorizontalScrollView;
 
     move-result-object v6
 
     move v3, v2
 
-    .line 1016
+    .line 1017
     :goto_a5
     sget-object v7, Lcom/isaigu/gymapp/ai/WorkoutsUi;->ZONES:[Ljava/lang/String;
 
@@ -10416,7 +10388,7 @@
 
     if-ge v3, v7, :cond_eb
 
-    .line 1017
+    .line 1018
     sget-object v7, Lcom/isaigu/gymapp/ai/WorkoutsUi;->ZONES:[Ljava/lang/String;
 
     aget-object v7, v7, v3
@@ -10441,7 +10413,7 @@
 
     move-result-object v7
 
-    .line 1018
+    .line 1019
     new-instance v8, Lcom/isaigu/gymapp/ai/WorkoutsUi$Act;
 
     const/16 v9, 0xf
@@ -10450,12 +10422,12 @@
 
     invoke-virtual {v7, v8}, Landroid/widget/TextView;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
-    .line 1019
+    .line 1020
     aget-object v8, v5, v2
 
     invoke-static {p0, v8, v7}, Lcom/isaigu/gymapp/widget/XemsUi;->addChip(Landroid/content/Context;Landroid/widget/LinearLayout;Landroid/view/View;)V
 
-    .line 1016
+    .line 1017
     add-int/lit8 v3, v3, 0x1
 
     goto :goto_a5
@@ -10463,10 +10435,10 @@
     :cond_d4
     move v0, v2
 
-    .line 992
+    .line 993
     goto/16 :goto_d
 
-    .line 994
+    .line 995
     :cond_d7
     const-string v3, "\u0414\u043e\u0431\u0430\u0432\u0438 \u0443\u043f\u0440\u0430\u0436\u043d\u0435\u043d\u0438\u044f"
 
@@ -10478,7 +10450,7 @@
 
     goto/16 :goto_1b
 
-    .line 996
+    .line 997
     :cond_e1
     const-string v3, "+ / \u2212 \u0441\u0435\u0440\u0438\u0438 \u00b7 \u043d\u043e\u043c\u0435\u0440\u044a\u0442 \u0435 \u0440\u0435\u0434\u044a\u0442 \u0432 \u043f\u0440\u043e\u0433\u0440\u0430\u043c\u0430\u0442\u0430"
 
@@ -10490,7 +10462,7 @@
 
     goto/16 :goto_2c
 
-    .line 1021
+    .line 1022
     :cond_eb
     const/16 v3, 0xa
 
@@ -10500,7 +10472,7 @@
 
     invoke-virtual {v4, v6, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 1023
+    .line 1024
     sget-object v3, Lcom/isaigu/gymapp/ai/WorkoutsUi;->preview:Ljava/lang/String;
 
     if-eqz v3, :cond_111
@@ -10515,7 +10487,7 @@
 
     if-lez v3, :cond_111
 
-    .line 1024
+    .line 1025
     sget-object v3, Lcom/isaigu/gymapp/ai/WorkoutsUi;->preview:Ljava/lang/String;
 
     invoke-static {p0, v3}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->previewCard(Landroid/content/Context;Ljava/lang/String;)Landroid/view/View;
@@ -10530,7 +10502,7 @@
 
     invoke-virtual {v4, v3, v5}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 1026
+    .line 1027
     :cond_111
     invoke-static {p0}, Lcom/isaigu/gymapp/widget/XemsUi;->vertical(Landroid/content/Context;)Landroid/widget/LinearLayout;
 
@@ -10538,12 +10510,12 @@
 
     sput-object v3, Lcom/isaigu/gymapp/ai/WorkoutsUi;->pickGrid:Landroid/widget/LinearLayout;
 
-    .line 1027
+    .line 1028
     sget-object v3, Lcom/isaigu/gymapp/ai/WorkoutsUi;->pickGrid:Landroid/widget/LinearLayout;
 
     invoke-virtual {v3, v2}, Landroid/widget/LinearLayout;->setClipChildren(Z)V
 
-    .line 1028
+    .line 1029
     sget-object v3, Lcom/isaigu/gymapp/ai/WorkoutsUi;->pickGrid:Landroid/widget/LinearLayout;
 
     const/16 v5, 0xc
@@ -10554,10 +10526,10 @@
 
     invoke-virtual {v4, v3, v5}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 1029
+    .line 1030
     invoke-static {p0}, Lcom/isaigu/gymapp/ai/WorkoutsUi;->fillGrid(Landroid/content/Context;)V
 
-    .line 1031
+    .line 1032
     if-eqz v0, :cond_16c
 
     const-string v0, "\u041d\u0430\u0437\u0430\u0434 \u043a\u044a\u043c \u043a\u0430\u0440\u0442\u0430\u0442\u0430"
@@ -10573,7 +10545,7 @@
 
     move-result-object v0
 
-    .line 1033
+    .line 1034
     new-instance v3, Lcom/isaigu/gymapp/ai/WorkoutsUi$Act;
 
     const/16 v4, 0xa
@@ -10582,7 +10554,7 @@
 
     invoke-virtual {v0, v3}, Landroid/widget/TextView;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
-    .line 1034
+    .line 1035
     sget-object v3, Lcom/isaigu/gymapp/ai/WorkoutsUi;->shell:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
 
     iget-object v3, v3, Lcom/isaigu/gymapp/widget/XemsUi$Shell;->footer:Landroid/widget/LinearLayout;
@@ -10597,7 +10569,7 @@
 
     invoke-virtual {v3, v4, v5}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 1035
+    .line 1036
     sget-object v1, Lcom/isaigu/gymapp/ai/WorkoutsUi;->shell:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
 
     iget-object v1, v1, Lcom/isaigu/gymapp/widget/XemsUi$Shell;->footer:Landroid/widget/LinearLayout;
@@ -10620,10 +10592,10 @@
 
     invoke-virtual {v1, v0, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 1036
+    .line 1037
     return-void
 
-    .line 1032
+    .line 1033
     :cond_16c
     new-instance v0, Ljava/lang/StringBuilder;
 
@@ -10703,7 +10675,7 @@
 
     const/4 v1, 0x0
 
-    .line 1232
+    .line 1233
     if-eqz p2, :cond_72
 
     const-string v0, "+"
@@ -10715,23 +10687,23 @@
 
     move-result-object v5
 
-    .line 1233
+    .line 1234
     const/16 v0, 0x11
 
     invoke-virtual {v5, v0}, Landroid/widget/TextView;->setGravity(I)V
 
-    .line 1234
+    .line 1235
     invoke-virtual {v5, v1}, Landroid/widget/TextView;->setIncludeFontPadding(Z)V
 
-    .line 1235
+    .line 1236
     new-instance v6, Landroid/graphics/drawable/GradientDrawable;
 
     invoke-direct {v6}, Landroid/graphics/drawable/GradientDrawable;-><init>()V
 
-    .line 1236
+    .line 1237
     invoke-virtual {v6, v3}, Landroid/graphics/drawable/GradientDrawable;->setShape(I)V
 
-    .line 1237
+    .line 1238
     if-eqz p2, :cond_75
 
     sget v0, Lcom/isaigu/gymapp/widget/XemsUi;->GO:I
@@ -10745,7 +10717,7 @@
     :goto_29
     invoke-virtual {v6, v0}, Landroid/graphics/drawable/GradientDrawable;->setColor(I)V
 
-    .line 1238
+    .line 1239
     invoke-static {p0, v4}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
 
     move-result v0
@@ -10754,7 +10726,7 @@
 
     invoke-virtual {v6, v0, v7}, Landroid/graphics/drawable/GradientDrawable;->setStroke(II)V
 
-    .line 1239
+    .line 1240
     new-instance v0, Landroid/graphics/drawable/InsetDrawable;
 
     const/high16 v7, 0x40c00000    # 6.0f
@@ -10765,10 +10737,10 @@
 
     invoke-direct {v0, v6, v7}, Landroid/graphics/drawable/InsetDrawable;-><init>(Landroid/graphics/drawable/Drawable;I)V
 
-    .line 1240
+    .line 1241
     invoke-virtual {v5, v0}, Landroid/widget/TextView;->setBackgroundDrawable(Landroid/graphics/drawable/Drawable;)V
 
-    .line 1241
+    .line 1242
     new-instance v6, Lcom/isaigu/gymapp/ai/WorkoutsUi$Act;
 
     const/16 v7, 0x9
@@ -10780,13 +10752,13 @@
     :goto_4b
     invoke-direct {v6, v7, v0}, Lcom/isaigu/gymapp/ai/WorkoutsUi$Act;-><init>(II)V
 
-    .line 1242
+    .line 1243
     iput-object p1, v6, Lcom/isaigu/gymapp/ai/WorkoutsUi$Act;->ex:Ljava/lang/String;
 
-    .line 1243
+    .line 1244
     invoke-virtual {v5, v6}, Landroid/widget/TextView;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
-    .line 1244
+    .line 1245
     if-nez p2, :cond_57
 
     if-eqz p3, :cond_58
@@ -10794,11 +10766,11 @@
     :cond_57
     move v1, v3
 
-    .line 1245
+    .line 1246
     :cond_58
     invoke-virtual {v5, v1}, Landroid/widget/TextView;->setEnabled(Z)V
 
-    .line 1246
+    .line 1247
     if-eqz v1, :cond_7a
 
     move v0, v4
@@ -10806,10 +10778,10 @@
     :goto_5e
     invoke-virtual {v5, v0}, Landroid/widget/TextView;->setAlpha(F)V
 
-    .line 1247
+    .line 1248
     invoke-static {v5}, Lcom/isaigu/gymapp/widget/XemsUi;->pressable(Landroid/view/View;)V
 
-    .line 1248
+    .line 1249
     if-eqz p2, :cond_7e
 
     const-string v0, "\u041e\u0449\u0435 \u0435\u0434\u043d\u0430 \u0441\u0435\u0440\u0438\u044f"
@@ -10823,16 +10795,16 @@
     :goto_6e
     invoke-virtual {v5, v0}, Landroid/widget/TextView;->setContentDescription(Ljava/lang/CharSequence;)V
 
-    .line 1249
+    .line 1250
     return-object v5
 
-    .line 1232
+    .line 1233
     :cond_72
     const-string v0, "\u2212"
 
     goto :goto_9
 
-    .line 1237
+    .line 1238
     :cond_75
     const/high16 v0, -0x4d000000
 
@@ -10841,16 +10813,16 @@
     :cond_78
     move v0, v2
 
-    .line 1241
+    .line 1242
     goto :goto_4b
 
-    .line 1246
+    .line 1247
     :cond_7a
     const v0, 0x3eb33333    # 0.35f
 
     goto :goto_5e
 
-    .line 1248
+    .line 1249
     :cond_7e
     const-string v0, "\u0415\u0434\u043d\u0430 \u0441\u0435\u0440\u0438\u044f \u043f\u043e-\u043c\u0430\u043b\u043a\u043e"
 
@@ -10968,10 +10940,10 @@
     .prologue
     const/high16 v2, 0x42400000    # 48.0f
 
-    .line 1225
+    .line 1226
     new-instance v0, Landroid/widget/FrameLayout$LayoutParams;
 
-    .line 1226
+    .line 1227
     invoke-static {p0, v2}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
 
     move-result v1
@@ -10984,7 +10956,7 @@
 
     invoke-direct {v0, v1, v2, v3}, Landroid/widget/FrameLayout$LayoutParams;-><init>(III)V
 
-    .line 1227
+    .line 1228
     return-object v0
 .end method
 
@@ -10996,10 +10968,10 @@
 
     const/4 v1, 0x1
 
-    .line 894
+    .line 895
     packed-switch p1, :pswitch_data_68
 
-    .line 923
+    .line 924
     :pswitch_5
     iget v0, p0, Lcom/isaigu/gymapp/ai/Workout$Block;->rel:I
 
@@ -11009,14 +10981,14 @@
 
     iput v0, p0, Lcom/isaigu/gymapp/ai/Workout$Block;->rel:I
 
-    .line 926
+    .line 927
     :goto_c
     invoke-virtual {p0}, Lcom/isaigu/gymapp/ai/Workout$Block;->clampAll()V
 
-    .line 927
+    .line 928
     return-void
 
-    .line 896
+    .line 897
     :pswitch_10
     iget v0, p0, Lcom/isaigu/gymapp/ai/Workout$Block;->hz2:I
 
@@ -11026,7 +10998,7 @@
 
     goto :goto_c
 
-    .line 899
+    .line 900
     :pswitch_16
     iget v0, p0, Lcom/isaigu/gymapp/ai/Workout$Block;->str2:I
 
@@ -11038,7 +11010,7 @@
 
     goto :goto_c
 
-    .line 902
+    .line 903
     :pswitch_1e
     iget v0, p0, Lcom/isaigu/gymapp/ai/Workout$Block;->rampIn:I
 
@@ -11050,7 +11022,7 @@
 
     goto :goto_c
 
-    .line 905
+    .line 906
     :pswitch_26
     iget v0, p0, Lcom/isaigu/gymapp/ai/Workout$Block;->rampOut:I
 
@@ -11062,7 +11034,7 @@
 
     goto :goto_c
 
-    .line 908
+    .line 909
     :pswitch_2e
     iget v2, p0, Lcom/isaigu/gymapp/ai/Workout$Block;->reps:I
 
@@ -11086,7 +11058,7 @@
 
     goto :goto_36
 
-    .line 911
+    .line 912
     :pswitch_3d
     iget v3, p0, Lcom/isaigu/gymapp/ai/Workout$Block;->hz:I
 
@@ -11122,7 +11094,7 @@
 
     goto :goto_49
 
-    .line 914
+    .line 915
     :pswitch_53
     iget v0, p0, Lcom/isaigu/gymapp/ai/Workout$Block;->pw:I
 
@@ -11134,7 +11106,7 @@
 
     goto :goto_c
 
-    .line 917
+    .line 918
     :pswitch_5b
     iget v0, p0, Lcom/isaigu/gymapp/ai/Workout$Block;->on:I
 
@@ -11144,7 +11116,7 @@
 
     goto :goto_c
 
-    .line 920
+    .line 921
     :pswitch_61
     iget v0, p0, Lcom/isaigu/gymapp/ai/Workout$Block;->off:I
 
@@ -11154,7 +11126,7 @@
 
     goto :goto_c
 
-    .line 894
+    .line 895
     nop
 
     :pswitch_data_68
@@ -11178,7 +11150,7 @@
     .prologue
     const/4 v0, 0x0
 
-    .line 1628
+    .line 1629
     sget-object v1, Lcom/isaigu/gymapp/ai/WorkoutsUi;->editing:Lcom/isaigu/gymapp/ai/Workout;
 
     if-eqz v1, :cond_f
@@ -11193,12 +11165,12 @@
 
     if-gt v1, v2, :cond_10
 
-    .line 1633
+    .line 1634
     :cond_f
     :goto_f
     return v0
 
-    .line 1631
+    .line 1632
     :cond_10
     const-string v1, "\u041f\u0440\u043e\u0433\u0440\u0430\u043c\u0430\u0442\u0430 \u0441\u0442\u0438\u0433\u0430 25 \u043c\u0438\u043d \u0441 \u043f\u0430\u0443\u0437\u0438\u0442\u0435 \u2014 \u0442\u043e\u0432\u0430 \u0435 \u0442\u0430\u0432\u0430\u043d\u044a\u0442."
 
@@ -11212,10 +11184,10 @@
 
     move-result-object v0
 
-    .line 1632
+    .line 1633
     invoke-virtual {v0}, Landroid/widget/Toast;->show()V
 
-    .line 1633
+    .line 1634
     const/4 v0, 0x1
 
     goto :goto_f
@@ -11225,41 +11197,41 @@
     .registers 3
 
     .prologue
-    .line 930
+    .line 931
     packed-switch p1, :pswitch_data_2a
 
-    .line 940
+    .line 941
     :pswitch_3
     iget v0, p0, Lcom/isaigu/gymapp/ai/Workout$Block;->rel:I
 
     :goto_5
     return v0
 
-    .line 931
+    .line 932
     :pswitch_6
     iget v0, p0, Lcom/isaigu/gymapp/ai/Workout$Block;->reps:I
 
     goto :goto_5
 
-    .line 932
+    .line 933
     :pswitch_9
     iget v0, p0, Lcom/isaigu/gymapp/ai/Workout$Block;->hz:I
 
     goto :goto_5
 
-    .line 933
+    .line 934
     :pswitch_c
     iget v0, p0, Lcom/isaigu/gymapp/ai/Workout$Block;->pw:I
 
     goto :goto_5
 
-    .line 934
+    .line 935
     :pswitch_f
     iget v0, p0, Lcom/isaigu/gymapp/ai/Workout$Block;->on:I
 
     goto :goto_5
 
-    .line 935
+    .line 936
     :pswitch_12
     iget-boolean v0, p0, Lcom/isaigu/gymapp/ai/Workout$Block;->dbl:Z
 
@@ -11276,31 +11248,31 @@
 
     goto :goto_5
 
-    .line 936
+    .line 937
     :pswitch_1e
     iget v0, p0, Lcom/isaigu/gymapp/ai/Workout$Block;->hz2:I
 
     goto :goto_5
 
-    .line 937
+    .line 938
     :pswitch_21
     iget v0, p0, Lcom/isaigu/gymapp/ai/Workout$Block;->str2:I
 
     goto :goto_5
 
-    .line 938
+    .line 939
     :pswitch_24
     iget v0, p0, Lcom/isaigu/gymapp/ai/Workout$Block;->rampIn:I
 
     goto :goto_5
 
-    .line 939
+    .line 940
     :pswitch_27
     iget v0, p0, Lcom/isaigu/gymapp/ai/Workout$Block;->rampOut:I
 
     goto :goto_5
 
-    .line 930
+    .line 931
     :pswitch_data_2a
     .packed-switch 0x0
         :pswitch_6
@@ -11320,7 +11292,7 @@
     .registers 8
 
     .prologue
-    .line 886
+    .line 887
     const/16 v0, 0x8
 
     if-eq p0, v0, :cond_8
@@ -11329,7 +11301,7 @@
 
     if-ne p0, v0, :cond_1f
 
-    .line 887
+    .line 888
     :cond_8
     sget-object v0, Ljava/util/Locale;->US:Ljava/util/Locale;
 
@@ -11357,7 +11329,7 @@
 
     move-result-object v0
 
-    .line 889
+    .line 890
     :goto_1e
     return-object v0
 

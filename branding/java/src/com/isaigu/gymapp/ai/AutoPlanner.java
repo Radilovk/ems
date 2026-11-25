@@ -94,28 +94,19 @@ public final class AutoPlanner {
         // it is that individual. A body program sets the impulse, the pause, the rate, the depth (pulse width), the
         // rhythm and which muscles work, never how strong: it runs at the calibration and every ± of the person
         // goes through. What the evidence says about the dose stays as advice for the trainer (the notes below and
-        // the CR-10 target), not as a cap. The face programs keep their comfort factors (a separate studio).
+        // the CR-10 target), not as a cap. Since 2026-11-25 the face too: no program factor on the strength.
         boolean face = AutoCatalog.isFace(p);
         double phiMax = 1.0;
         if (in.sessions == 0) {
             phiMax = 0.7;
-            plan.note(face ? "Първа сесия: до 70 % от калибрирането"
-                            : "Първа сесия: препоръка — около 70 % от калибрирането, усещане леко (CR-10 ≤ 5)",
-                    face ? "First session: up to 70 % of the calibration"
-                            : "First session: advice — about 70 % of the calibration, a light feel (CR-10 ≤ 5)");
         } else if (in.sessions <= 2) {
             phiMax = 0.8;
-            plan.note(face ? "Сесия " + (in.sessions + 1) + ": до 80 %"
-                            : "Сесия " + (in.sessions + 1) + ": препоръка — около 80 % от калибрирането",
-                    face ? "Session " + (in.sessions + 1) + ": up to 80 %"
-                            : "Session " + (in.sessions + 1) + ": advice — about 80 % of the calibration");
         } else if (in.sessions <= 7) {
             phiMax = 0.9;
         }
         if (in.age >= 60) {
             phiMax -= 0.1;
-            plan.note(face ? "60+ г.: −10 % сила, по-дълги паузи" : "60+ г.: по-дълги паузи; препоръка — малко по-слабо",
-                    face ? "60+: −10 % strength, longer pauses" : "60+: longer pauses; advice — a little softer");
+            plan.note("60+ г.: по-дълги паузи", "60+: longer pauses");
         }
         // little muscle without a weigh-in: the BMI < 18.5 proxy. The scale never moves the strength (owner,
         // 1.1.458: strength is what the person feels) — its little muscle and readiness lengthen the pause below.
@@ -125,10 +116,7 @@ public final class AutoPlanner {
         boolean recent = p.isActive() && in.hoursSinceActive >= 0 && in.hoursSinceActive < 72;
         if (recent) {
             phiMax *= 0.8;
-            plan.note(face ? "Под 72 ч от последната активна: −20 %"
-                            : "Под 72 ч от последната активна: по-кратко; препоръка — по-слабо",
-                    face ? "Under 72 h since the last active: −20 %"
-                            : "Under 72 h since the last active: shorter; advice — softer");
+            plan.note("Под 72 ч от последната активна: по-кратко", "Under 72 h since the last active: shorter");
         }
         // the scale: rest in the pause, not less current — swelling / less water this morning (+1 / +2 s),
         // little muscle (+1 s)
@@ -148,7 +136,7 @@ public final class AutoPlanner {
         // The client's focus zones and state (AiPersonal): ceiling, pauses, onset, zones.
         AiPersonal.Effect pe = AiPersonal.of(in.focus, in.cond, in.today);
         phiMax *= pe.phi;
-        plan.phiMax = face ? Math.max(0.4, Math.min(1.0, phiMax)) : 1.0;
+        plan.phiMax = 1.0;                        // the strength is the person's, face too (owner, 2026-11-25)
 
         // ---- envelope ceiling (how far above the calibration a person may go) — the face only
         double env = p.envMax;
@@ -158,7 +146,7 @@ public final class AutoPlanner {
         if (in.solo()) {
             env = Math.min(env, 1.1);
         }
-        plan.envMax = face ? env : 1.0;
+        plan.envMax = 1.0;
 
         // ---- phases
         List<Phase> phases = AutoCatalog.phases(p, in.goal, in, plan.activeS);
@@ -176,26 +164,16 @@ public final class AutoPlanner {
         double k = in.intensity == Intensity.SOFT ? 0.85 : in.intensity == Intensity.INTENSE ? 1.1 : 1.0;
         int offShift = in.intensity == Intensity.SOFT ? 1 : in.intensity == Intensity.INTENSE ? -1 : 0;
         for (Phase ph : phases) {
-            if (!face) {
-                // the program never moves the strength: every phase at the calibration (the person moves it)
-                ph.phiStart = 1.0;
-                ph.phiEnd = 1.0;
-                ph.envStart = 1.0;
-                ph.envEnd = 1.0;
-            } else if (!ph.isCooldown()) {
-                ph.phiStart *= k;
-                ph.phiEnd *= k;
-            }
+            // no program moves the strength, face included (owner, 2026-11-25): every phase at the person's level
+            ph.phiStart = 1.0;
+            ph.phiEnd = 1.0;
+            ph.envStart = 1.0;
+            ph.envEnd = 1.0;
             if (ph.envEnd == AutoCatalog.ENV_MAX) {
                 ph.envEnd = plan.envMax;
             }
             ph.envStart = Math.min(ph.envStart, plan.envMax);
             ph.envEnd = Math.max(ph.envStart, Math.min(ph.envEnd, plan.envMax));
-            // passive tetanic work stays low (§4.4 of the AI spec) — the face; the body: the trainer's strength
-            if (face && !p.isActive() && ph.hasTetanic() && !ph.wave) {
-                ph.phiStart = Math.min(ph.phiStart, 0.7);
-                ph.phiEnd = Math.min(ph.phiEnd, 0.7);
-            }
             for (int i = 0; i < ph.steps.size(); i++) {
                 Step s = ph.steps.get(i);
                 if (s.isTetanic() && s.sigma > 0 && !ph.wave) {
@@ -209,6 +187,12 @@ public final class AutoPlanner {
                 }
             }
             for (int i = 0; i < ph.steps.size(); i++) {
+                Step st = ph.steps.get(i);
+                if (st.pauseHz > 0 && st.pauseSigma > 0) {
+                    st.pauseSigma = 1.0;        // the 2nd impulse starts at the main strength: its pause counts it so
+                }
+            }
+            for (int i = 0; i < ph.steps.size(); i++) {
                 Step next = ph.steps.get((i + 1) % ph.steps.size());
                 ph.steps.set(i, AutoLimits.clampStep(ph.steps.get(i), ph.steps.size() > 1 ? next : null,
                         plan, ph));
@@ -216,37 +200,33 @@ public final class AutoPlanner {
         }
         plan.phases.addAll(phases);
         if (in.intensity == Intensity.SOFT) {
-            plan.note(face ? "Мек: −15 % сила, +1 s пауза" : "Мек: +1 s пауза", face ? "Soft: −15 % strength, +1 s pause"
-                    : "Soft: +1 s pause");
+            plan.note("Мек: +1 s пауза", "Soft: +1 s pause");
         } else if (in.intensity == Intensity.INTENSE) {
-            plan.note(face ? "Интензивен: +10 % (до тавана), −1 s пауза" : "Интензивен: −1 s пауза",
-                    face ? "Intense: +10 % (to the ceiling), −1 s pause" : "Intense: −1 s pause");
+            plan.note("Интензивен: −1 s пауза",
+                    "Intense: −1 s pause");
         }
 
-        // ---- zones: which muscles the program works (on / off) — how strong each is, the person sets (1.1.526).
-        // The profile's zone ideas (focus, conditions) are advice; the medical bounds below stay.
-        int[] pz = face ? pe.apply(p.zones) : p.zones;
+        // ---- zones (owner, 2026-11-25, every program and procedure): the program says only WHICH channels work —
+        // on (100) or off and locked; never a preset strength or a ratio between channels: that is the person's alone.
         for (int i = 0; i < CHANNELS; i++) {
-            plan.zones[i] = pz[i];
-            plan.zoneMax[i] = face ? pe.zoneMax[i] : 100;
+            boolean on = p.zones[i] > 0;
+            plan.zones[i] = on ? 100 : 0;
+            plan.zoneMax[i] = 100;
+            plan.zoneLocked[i] = !on;
         }
-        if (!face) {
-            plan.zoneDelta = 100;                       // a zone goes up as far as the person wants (to 100)
-            if (pe.zoneMax[ABS] < 100) {
-                plan.zoneMax[ABS] = pe.zoneMax[ABS];    // diastasis: a medical bound, not a choice
-            }
-        }
+        plan.zoneDelta = 100;
         for (int i = 0; i < pe.notesBg.size(); i++) {
             String bg = pe.notesBg.get(i);
             String en = pe.notesEn.get(i);
-            boolean medical = bg.startsWith("Диастаза");
-            plan.note(face || medical ? bg : "Препоръка · " + bg, face || medical ? en : "Advice · " + en);
+            if (!bg.startsWith("Диастаза")) {
+                plan.note(face ? bg : "Препоръка · " + bg, face ? en : "Advice · " + en);
+            }
         }
         if (!face && in.zoneForce != null) {
-            // the AI brief's channel on / off from the trainer's text (1.1.534); the medical bounds below still win
+            // the AI brief's channel on / off from the trainer's text (1.1.534) — on / off only
             for (int i = 0; i < Math.min(CHANNELS, in.zoneForce.length); i++) {
                 if (in.zoneForce[i] >= 0) {
-                    plan.zones[i] = Math.min(plan.zoneMax[i], in.zoneForce[i]);
+                    plan.zones[i] = in.zoneForce[i] > 0 ? 100 : 0;
                 }
             }
         }
@@ -255,24 +235,16 @@ public final class AutoPlanner {
             plan.zoneLocked[CHEST] = true;
             plan.note("Кърмене: гърдите са изключени", "Breastfeeding: chest channel off");
         }
-        if (AutoCatalog.isFace(p)) {
-            // the face connector: each channel is a face site — exactly the program's sites, none of the body's
-            // personal offsets (a "legs" focus must never reach a cheek), every other channel off and locked
-            for (int i = 0; i < CHANNELS; i++) {
-                plan.zones[i] = p.zones[i];
-                plan.zoneMax[i] = 100;
-                plan.zoneLocked[i] = p.zones[i] == 0;
-            }
+        if (face) {
             plan.note("Лице: работят само местата на програмата (букса F1–F10)",
                     "Face: only the program's sites work (connector F1–F10)");
         }
-        if (AutoCatalog.POSTPARTUM.equals(p.id) && in.extra.diastasis) {
-            plan.zones[ABS] = Math.min(plan.zones[ABS], 40);
-            plan.zoneMax[ABS] = 40;
-            plan.zoneLocked[ABS] = in.sessions < 6;
-            if (!in.cond.contains("diastasis")) {
-                plan.note("Диастаза: коремът до 40 %", "Diastasis: abs up to 40 %");
-            }
+        boolean diastasis = !face && (pe.zoneMax[ABS] < 100 || (AutoCatalog.POSTPARTUM.equals(p.id) && in.extra.diastasis));
+        if (diastasis) {
+            // a medical bound as a channel off, not as a share: the abs stay off and locked
+            plan.zones[ABS] = 0;
+            plan.zoneLocked[ABS] = true;
+            plan.note("Диастаза: коремът е изключен", "Diastasis: abs channel off");
         }
 
         for (int i = 0; i < CHANNELS; i++) {

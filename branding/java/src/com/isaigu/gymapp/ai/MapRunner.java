@@ -163,6 +163,7 @@ public final class MapRunner {
     /** Every row's strength to this level now (and as its 100 % from here on). */
     static int setStrength(int to) {
         to = Math.max(0, Math.min(100, to));
+        // a block never sets a strength or a share (owner, 2026-11-25): a work block runs at the person's level
         for (TrainItem it : rows()) {
             ProgramDataBean b = bean(it);
             if (b == null) {
@@ -170,7 +171,7 @@ public final class MapRunner {
             }
             base.put(it, to);
             Workout.Block k = clock != null && !waiting ? clock.block() : null;
-            b.strenth = k != null && k.isRest() ? 0 : k != null ? Math.max(0, Math.min(100, Math.round(to * k.rel / 100f))) : to;
+            b.strenth = k != null && k.isRest() ? 0 : k != null ? Math.max(0, Math.min(100, to)) : to;
             try {
                 it.onParamsChange();
             } catch (Throwable t) {
@@ -575,7 +576,7 @@ public final class MapRunner {
     static AutoModel.Step stepOf(Workout.Block b) {
         AutoModel.Step s = new AutoModel.Step(b.hz, b.pw, Math.max(1, b.on), Math.max(1, b.off));
         s.pauseHz = b.dbl ? b.hz2 : 0;
-        s.pauseSigma = b.dbl ? b.str2 / 100.0 : 0;
+        s.pauseSigma = b.dbl ? 1.0 : 0;                 // the 2nd impulse starts at the main strength
         s.rampUpMs = b.rampIn;
         s.rampDownMs = b.rampOut;
         return s;
@@ -768,7 +769,7 @@ public final class MapRunner {
             boolean work = b != null && !b.isRest() && s != null;
             boolean on = work && now - cycleStartMs < s.onS * 1000L;
             dyn.advance(dt, running && work, on, work ? s.hz : 0, work ? s.pauseHz : 0, work ? s.pauseSigma : 0,
-                    work ? b.rel / 100.0 : 0);
+                    work ? 1.0 : 0);
         }
         if (ai) {
             AiAnnounce.map();
@@ -840,27 +841,27 @@ public final class MapRunner {
                 continue;
             }
             // the trainer's + / − during the last block: read back as the new 100 %
-            if (prev != null && !prev.isRest() && prev.rel > 0) {
-                base.put(it, Math.min(100, Math.round(bean.strenth * 100f / prev.rel)));
+            if (prev != null && !prev.isRest()) {
+                base.put(it, Math.min(100, bean.strenth));
             }
             Integer s = base.get(it);
             int full = s != null ? s : bean.strenth;
             if (b.isRest()) {
                 bean.strenth = 0;
             } else if (dyn != null) {
-                bean.strenth = Math.max(0, Math.min(100, Math.round(full * b.rel / 100f)));
+                bean.strenth = Math.max(0, Math.min(100, full));
             } else {
                 bean.hz = tunedHz(b.hz);
                 bean.pulseWidth = b.pw;
                 bean.pulseWidth = tunePwPct == 0 ? bean.pulseWidth : Math.max(50, (int) Math.round(b.pw * (1 + tunePwPct / 100.0)));
                 bean.pulseContinue = Math.max(1, b.on + (b.hz >= 2 ? tuneOn : 0));
                 bean.pulsePause = Math.max(1, b.off + (b.hz >= 2 ? tuneOff : 0));
-                bean.strenth = Math.max(0, Math.min(100, Math.round(full * b.rel / 100f)));
+                bean.strenth = Math.max(0, Math.min(100, full));
                 // the second impulse rides the suit's active pause (its own Hz, its strength a share of the first)
                 bean.activePause = b.dbl && !noDouble;
                 if (b.dbl && !noDouble) {
                     bean.pauseHz = b.hz2;
-                    bean.pauseStrenthPercent = Math.max(1, (int) Math.round(bean.strenth * b.str2 / 100.0 * secondScale));
+                    bean.pauseStrenthPercent = Math.max(1, (int) Math.round(bean.strenth * secondScale));
                 }
                 bean.inputRamp = b.rampIn;
                 bean.outputRamp = b.rampOut;

@@ -1829,9 +1829,13 @@ public final class AutoSession {
         }
         AutoModel.Plan rp = r.plan != null ? r.plan : plan;
         double f = AutoEngine.rowFrac(c, rp.phiMax);
-        // the body programs: no program ceiling — the strength is the person's (owner, 1.1.526); only the face keeps one
-        double ceil = !AutoCatalog.isFace(rp.program) ? 100.0
-                : engine != null ? engine.rowCeiling(c, rp.phiMax, rp.envMax) : f;
+        // no program ceiling — the strength is the person's (owner, 1.1.526; the face too since 2026-11-25)
+        double ceil = 100.0;
+        if (f <= 0) {
+            // a silent step (a wave's refill, a rest) is no "0" to climb back from: the next impulse is at the
+            // person's level at once, not +5 a cycle (sim, 2026-11-25: every wave came back 5 → 6 → …)
+            return 0;
+        }
         int v = AutoLimits.rowStrength(r.cal, f, r.user, ceil, r.lastStrength);
         r.lastStrength = v;
         return v;
@@ -2352,17 +2356,17 @@ public final class AutoSession {
         }
         int ce = engine.getCorridorExt();
         if (ce > seenCorridorExt) {
-            notice(AiText.t("Пулсът е над зоната (" + engine.getHr(now) + " > " + plan.corridorHiHr()
-                    + ") — паузата става +" + ce + " s", "HR above the zone (" + engine.getHr(now) + " > "
-                    + plan.corridorHiHr() + ") — pause +" + ce + " s"), LIMIT, now);
+            notice(AiText.t("Пулсът е над зоната (" + engine.getHr(now) + " > " + plan.corridorHiHr() + ") — ",
+                    "HR above the zone (" + engine.getHr(now) + " > " + plan.corridorHiHr() + ") — ")
+                    + engine.protectText(), LIMIT, now);
         } else if (ce == 0 && seenCorridorExt > 0) {
-            tip("corridor_ok", AiText.t("Пулсът е в зоната — паузите са отново нормални.", "HR back in the zone — normal pauses again."), now);
+            tip("corridor_ok", AiText.t("Пулсът е в зоната — импулсът е отново по програмата.",
+                    "HR back in the zone — the impulse is the program's again."), now);
         }
         seenCorridorExt = ce;
         int de = engine.getDoseExt();
         if (de > seenDoseExt) {
-            notice(AiText.t("Над плановата доза — паузата става +" + de + " s",
-                    "Above the planned dose — pause +" + de + " s"), LIMIT, now);
+            notice(AiText.t("Над плановата доза — ", "Above the planned dose — ") + engine.protectText(), LIMIT, now);
         }
         seenDoseExt = de;
         boolean rl = engine.isRaiseLocked();

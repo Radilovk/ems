@@ -3882,14 +3882,14 @@
 .end method
 
 .method private static faceWave([I[I)Lcom/isaigu/gymapp/ai/AutoModel$Step;
-    .registers 10
+    .registers 9
 
     .prologue
-    const/16 v1, 0x64
-
     const/4 v2, 0x1
 
     const/4 v0, 0x0
+
+    const/16 v1, 0x64
 
     .line 475
     const/16 v3, 0xa
@@ -3897,7 +3897,7 @@
     new-array v5, v3, [I
 
     .line 476
-    if-eqz p1, :cond_17
+    if-eqz p1, :cond_15
 
     .line 477
     array-length v4, p1
@@ -3905,14 +3905,12 @@
     move v3, v0
 
     :goto_c
-    if-ge v3, v4, :cond_17
+    if-ge v3, v4, :cond_15
 
     aget v6, p1, v3
 
     .line 478
-    const/16 v7, 0x32
-
-    aput v7, v5, v6
+    aput v1, v5, v6
 
     .line 477
     add-int/lit8 v3, v3, 0x1
@@ -3920,11 +3918,11 @@
     goto :goto_c
 
     .line 481
-    :cond_17
+    :cond_15
     array-length v3, p0
 
-    :goto_18
-    if-ge v0, v3, :cond_21
+    :goto_16
+    if-ge v0, v3, :cond_1f
 
     aget v4, p0, v0
 
@@ -3934,10 +3932,10 @@
     .line 481
     add-int/lit8 v0, v0, 0x1
 
-    goto :goto_18
+    goto :goto_16
 
     .line 484
-    :cond_21
+    :cond_1f
     const/16 v0, 0x1e
 
     const/16 v4, 0x12c

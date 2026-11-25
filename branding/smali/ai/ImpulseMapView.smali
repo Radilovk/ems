@@ -2770,7 +2770,7 @@
 .end method
 
 .method protected onDraw(Landroid/graphics/Canvas;)V
-    .registers 16
+    .registers 13
 
     .prologue
     .line 285
@@ -2814,7 +2814,7 @@
 
     move-result v0
 
-    if-ge v2, v0, :cond_13f
+    if-ge v2, v0, :cond_129
 
     .line 293
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/ImpulseMapView;->map:Lcom/isaigu/gymapp/ai/Workout;
@@ -3034,14 +3034,14 @@
     :cond_dc
     iget-boolean v1, p0, Lcom/isaigu/gymapp/ai/ImpulseMapView;->detailed:Z
 
-    if-eqz v1, :cond_294
+    if-eqz v1, :cond_27e
 
     .line 317
-    if-eqz v0, :cond_13d
+    if-eqz v0, :cond_127
 
     iget-boolean v0, p0, Lcom/isaigu/gymapp/ai/ImpulseMapView;->editable:Z
 
-    if-eqz v0, :cond_13d
+    if-eqz v0, :cond_127
 
     const/4 v7, 0x1
 
@@ -3130,45 +3130,21 @@
 
     .line 309
     :cond_124
-    const/high16 v1, 0x42b40000    # 90.0f
+    const/16 v1, 0xf0
 
-    const/high16 v10, 0x43160000    # 150.0f
-
-    const v11, 0x3e4ccccd    # 0.2f
-
-    iget v12, v3, Lcom/isaigu/gymapp/ai/Workout$Block;->rel:I
-
-    int-to-float v12, v12
-
-    const/high16 v13, 0x42c80000    # 100.0f
-
-    div-float/2addr v12, v13
-
-    invoke-static {v11, v12}, Ljava/lang/Math;->max(FF)F
-
-    move-result v11
-
-    mul-float/2addr v10, v11
-
-    add-float/2addr v1, v10
-
-    invoke-static {v1}, Ljava/lang/Math;->round(F)I
-
-    move-result v1
-
-    goto/16 :goto_b6
+    goto :goto_b6
 
     .line 317
-    :cond_13d
+    :cond_127
     const/4 v7, 0x0
 
     goto :goto_e7
 
     .line 320
-    :cond_13f
+    :cond_129
     iget-boolean v0, p0, Lcom/isaigu/gymapp/ai/ImpulseMapView;->detailed:Z
 
-    if-eqz v0, :cond_189
+    if-eqz v0, :cond_173
 
     .line 322
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/ImpulseMapView;->map:Lcom/isaigu/gymapp/ai/Workout;
@@ -3236,10 +3212,10 @@
 
     move v6, v0
 
-    :goto_17a
+    :goto_164
     mul-int/lit8 v0, v6, 0x3c
 
-    if-ge v0, v7, :cond_189
+    if-ge v0, v7, :cond_173
 
     .line 326
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/ImpulseMapView;->map:Lcom/isaigu/gymapp/ai/Workout;
@@ -3253,17 +3229,17 @@
     move-result v0
 
     .line 327
-    if-gez v0, :cond_1d9
+    if-gez v0, :cond_1c3
 
     .line 340
-    :cond_189
+    :cond_173
     iget v0, p0, Lcom/isaigu/gymapp/ai/ImpulseMapView;->playhead:F
 
     const/4 v1, 0x0
 
     cmpl-float v0, v0, v1
 
-    if-ltz v0, :cond_1d0
+    if-ltz v0, :cond_1ba
 
     .line 341
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/ImpulseMapView;->map:Lcom/isaigu/gymapp/ai/Workout;
@@ -3277,13 +3253,13 @@
     move-result v0
 
     .line 342
-    if-gez v0, :cond_268
+    if-gez v0, :cond_252
 
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/ImpulseMapView;->left:[F
 
     array-length v0, v0
 
-    if-lez v0, :cond_265
+    if-lez v0, :cond_24f
 
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/ImpulseMapView;->left:[F
 
@@ -3308,7 +3284,7 @@
     add-float/2addr v1, v0
 
     .line 344
-    :goto_1b3
+    :goto_19d
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/ImpulseMapView;->stroke:Landroid/graphics/Paint;
 
     const/4 v2, -0x1
@@ -3344,7 +3320,7 @@
     invoke-virtual/range {v0 .. v5}, Landroid/graphics/Canvas;->drawLine(FFFFLandroid/graphics/Paint;)V
 
     .line 348
-    :cond_1d0
+    :cond_1ba
     if-eqz v9, :cond_4
 
     .line 349
@@ -3355,7 +3331,7 @@
     goto/16 :goto_4
 
     .line 330
-    :cond_1d9
+    :cond_1c3
     iget-object v1, p0, Lcom/isaigu/gymapp/ai/ImpulseMapView;->left:[F
 
     aget v1, v1, v0
@@ -3436,14 +3412,14 @@
     .line 332
     const/16 v0, 0x4b0
 
-    if-le v7, v0, :cond_263
+    if-le v7, v0, :cond_24d
 
     const/4 v0, 0x5
 
-    :goto_220
+    :goto_20a
     rem-int v0, v6, v0
 
-    if-nez v0, :cond_25e
+    if-nez v0, :cond_248
 
     .line 333
     new-instance v0, Ljava/lang/StringBuilder;
@@ -3506,27 +3482,27 @@
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setColor(I)V
 
     .line 325
-    :cond_25e
+    :cond_248
     add-int/lit8 v0, v6, 0x1
 
     move v6, v0
 
-    goto/16 :goto_17a
+    goto/16 :goto_164
 
     .line 332
-    :cond_263
+    :cond_24d
     const/4 v0, 0x1
 
-    goto :goto_220
+    goto :goto_20a
 
     .line 342
-    :cond_265
+    :cond_24f
     const/4 v1, 0x0
 
-    goto/16 :goto_1b3
+    goto/16 :goto_19d
 
     .line 343
-    :cond_268
+    :cond_252
     iget-object v1, p0, Lcom/isaigu/gymapp/ai/ImpulseMapView;->left:[F
 
     aget v1, v1, v0
@@ -3575,9 +3551,9 @@
 
     add-float/2addr v1, v0
 
-    goto/16 :goto_1b3
+    goto/16 :goto_19d
 
-    :cond_294
+    :cond_27e
     move v0, v9
 
     goto/16 :goto_ee

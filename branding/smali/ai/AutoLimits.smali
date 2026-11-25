@@ -188,13 +188,13 @@
     .line 80
     iget v1, v10, Lcom/isaigu/gymapp/ai/AutoModel$Step;->offS:I
 
-    if-eqz p1, :cond_ee
+    if-eqz p1, :cond_eb
 
     invoke-virtual {p1}, Lcom/isaigu/gymapp/ai/AutoModel$Step;->isTetanic()Z
 
     move-result v0
 
-    if-nez v0, :cond_ee
+    if-nez v0, :cond_eb
 
     invoke-virtual {p1}, Lcom/isaigu/gymapp/ai/AutoModel$Step;->durationS()I
 
@@ -206,7 +206,7 @@
     .line 81
     iget-object v0, p2, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->program:Lcom/isaigu/gymapp/ai/AutoCatalog$Program;
 
-    if-eqz v0, :cond_f1
+    if-eqz v0, :cond_ee
 
     iget-object v0, p2, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->program:Lcom/isaigu/gymapp/ai/AutoCatalog$Program;
 
@@ -214,17 +214,17 @@
 
     move-result v0
 
-    if-nez v0, :cond_f1
+    if-nez v0, :cond_ee
 
     const/4 v0, 0x1
 
     .line 82
     :goto_75
-    if-eqz p3, :cond_f3
+    if-eqz p3, :cond_f0
 
     iget-boolean v2, p3, Lcom/isaigu/gymapp/ai/AutoModel$Phase;->wave:Z
 
-    if-eqz v2, :cond_f3
+    if-eqz v2, :cond_f0
 
     const/4 v0, 0x1
 
@@ -245,7 +245,7 @@
     :cond_84
     iget v0, v10, Lcom/isaigu/gymapp/ai/AutoModel$Step;->pauseHz:I
 
-    if-lez v0, :cond_a6
+    if-lez v0, :cond_a3
 
     .line 89
     iget v0, v10, Lcom/isaigu/gymapp/ai/AutoModel$Step;->pauseHz:I
@@ -263,7 +263,7 @@
     .line 90
     const-wide/16 v0, 0x0
 
-    const-wide v2, 0x3fe3333333333333L    # 0.6
+    const-wide/high16 v2, 0x3ff8000000000000L    # 1.5
 
     iget-wide v4, v10, Lcom/isaigu/gymapp/ai/AutoModel$Step;->pauseSigma:D
 
@@ -278,7 +278,7 @@
     iput-wide v0, v10, Lcom/isaigu/gymapp/ai/AutoModel$Step;->pauseSigma:D
 
     .line 93
-    :cond_a6
+    :cond_a3
     iget v1, v10, Lcom/isaigu/gymapp/ai/AutoModel$Step;->hz:I
 
     iget v2, v10, Lcom/isaigu/gymapp/ai/AutoModel$Step;->pwUs:I
@@ -334,7 +334,7 @@
 
     move-result v0
 
-    if-eqz v0, :cond_108
+    if-eqz v0, :cond_105
 
     iget v0, v10, Lcom/isaigu/gymapp/ai/AutoModel$Step;->rampUpMs:I
 
@@ -346,7 +346,7 @@
 
     move-result v0
 
-    :goto_df
+    :goto_dc
     iput v0, v10, Lcom/isaigu/gymapp/ai/AutoModel$Step;->rampUpMs:I
 
     .line 99
@@ -354,7 +354,7 @@
 
     aget v0, v1, v0
 
-    if-nez v0, :cond_10b
+    if-nez v0, :cond_108
 
     .line 100
     const/4 v0, 0x0
@@ -367,30 +367,30 @@
     iput-wide v0, v10, Lcom/isaigu/gymapp/ai/AutoModel$Step;->pauseSigma:D
 
     .line 105
-    :goto_ed
+    :goto_ea
     return-object v10
 
     .line 80
-    :cond_ee
+    :cond_eb
     const/4 v0, 0x0
 
     goto/16 :goto_67
 
     .line 81
-    :cond_f1
+    :cond_ee
     const/4 v0, 0x0
 
     goto :goto_75
 
     .line 83
-    :cond_f3
-    if-eqz v0, :cond_f8
+    :cond_f0
+    if-eqz v0, :cond_f5
 
     iget v0, v10, Lcom/isaigu/gymapp/ai/AutoModel$Step;->onS:I
 
     goto :goto_7c
 
-    :cond_f8
+    :cond_f5
     const-wide v2, 0x3fe51eb851eb851fL    # 0.66
 
     iget v0, v10, Lcom/isaigu/gymapp/ai/AutoModel$Step;->onS:I
@@ -408,20 +408,20 @@
     goto/16 :goto_7c
 
     .line 98
-    :cond_108
+    :cond_105
     iget v0, v10, Lcom/isaigu/gymapp/ai/AutoModel$Step;->rampUpMs:I
 
-    goto :goto_df
+    goto :goto_dc
 
     .line 103
-    :cond_10b
+    :cond_108
     const/4 v0, 0x5
 
     aget v0, v1, v0
 
     iput v0, v10, Lcom/isaigu/gymapp/ai/AutoModel$Step;->pauseHz:I
 
-    goto :goto_ed
+    goto :goto_ea
 .end method
 
 .method public static clampZones([ILcom/isaigu/gymapp/ai/AutoModel$Plan;)[I

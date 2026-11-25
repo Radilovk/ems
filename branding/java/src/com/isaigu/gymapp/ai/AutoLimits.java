@@ -87,7 +87,7 @@ public final class AutoLimits {
         }
         if (c.pauseHz > 0) {
             c.pauseHz = clamp(c.pauseHz, 1, SafeLimits.PAUSE_HZ_MAX);
-            c.pauseSigma = Math.max(0, Math.min(0.6, c.pauseSigma));
+            c.pauseSigma = Math.max(0, Math.min(1.5, c.pauseSigma));   // ≤ 1.5 × the main (SafeLimits); the person sets it
         }
         // the absolute limits of every mode (SafeLimits, 1.1.323) — what the suit's guard would enforce anyway
         int[] v = SafeLimits.cycle(c.hz, c.pwUs, c.onS, c.offS, c.pauseHz, c.pauseSigma, c.rampUpMs, age(plan));

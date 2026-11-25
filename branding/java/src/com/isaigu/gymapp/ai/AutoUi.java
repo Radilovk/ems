@@ -888,6 +888,7 @@ public final class AutoUi {
         subtitle(p != null ? p.name() : null);
         // landscape: the client on the left, what will happen on the right — no tall stack
         LinearLayout cols = XemsUi.horizontal(c);
+        cols.setGravity(Gravity.TOP);             // both columns from the top (the kit's row centres: a gap on the left)
         LinearLayout body = XemsUi.vertical(c);
         LinearLayout right = XemsUi.vertical(c);
         cols.addView(body, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
@@ -1019,11 +1020,12 @@ public final class AutoUi {
         }
         LinearLayout tiles = XemsUi.horizontal(c);
         // warm-up · main part (together ≤ 20 min of impulses) · the passive recovery (10 min)
-        int[] tm = AutoCatalog.times(plan.program, in.goal, in);
+        // the plan's own phases (the same numbers as "Фази и зони" below), the first one by its name
+        int[] tm = planTimes(plan);
         tile(c, tiles, AiText.t("Трудност", "Level"), levelName(plan.program.level), 0, levelColor(plan.program.level));
-        tile(c, tiles, AiText.t("Загрявка", "Warm-up"), tm[0] / 60 + AiText.t(" мин", " min"), 10);
-        tile(c, tiles, AiText.t("Основна", "Main"), tm[1] / 60 + AiText.t(" мин", " min"), 10);
-        tile(c, tiles, AiText.t("Възстановяване", "Recovery"), tm[2] / 60 + AiText.t(" мин", " min"), 10);
+        tile(c, tiles, firstPhaseName(plan), minText(tm[0]), 10);
+        tile(c, tiles, AiText.t("Основна", "Main"), minText(tm[1]), 10);
+        tile(c, tiles, AiText.t("Възстановяване", "Recovery"), minText(tm[2]), 10);
         boolean band = AutoSession.isBandConfigured(host);
         if (plan.hrUse != AutoModel.HrUse.NONE && band) {
             tile(c, tiles, AiText.t("Пулс до", "HR up to"), plan.hrCap + "", 10);
@@ -1069,22 +1071,28 @@ public final class AutoUi {
         if (details) {
             LinearLayout ph = XemsUi.card(c);
             for (AutoModel.Phase p : plan.phases) {
-                AutoModel.Step s = p.steps.get(0);
                 StringBuilder sb = new StringBuilder();
-                sb.append(Math.round(p.durationS / 60.0)).append(AiText.t(" мин · ", " min · "));
+                sb.append(minText(p.durationS)).append(" · ");
                 if (p.wave) {
-                    sb.append(AiText.t("вълна по зоните · ", "wave through the zones · ")).append(s.hz).append(" Hz");
+                    // every frequency of the wave (the drainage's calf pumps at 8 Hz, the rest at 35)
+                    StringBuilder hz = new StringBuilder();
+                    java.util.Set<Integer> seen = new java.util.TreeSet<Integer>();
+                    for (AutoModel.Step st : p.steps) {
+                        if (st.sigma > 0) {
+                            seen.add(st.hz);
+                        }
+                    }
+                    for (Integer h : seen) {
+                        hz.append(hz.length() > 0 ? " / " : "").append(h);
+                    }
+                    sb.append(AiText.t("вълна по зоните · ", "wave through the zones · ")).append(hz).append(" Hz");
                 } else {
                     for (int i = 0; i < p.steps.size(); i++) {
                         AutoModel.Step st = p.steps.get(i);
                         sb.append(i > 0 ? " ↔ " : "").append(st.hz).append(" Hz ").append(st.onS).append("/").append(st.offS).append(" s");
                     }
                 }
-                sb.append(" · ").append(Math.round(Math.min(plan.phiMax, p.phiStart) * 100));
-                if (Math.abs(p.phiEnd - p.phiStart) > 0.01) {
-                    sb.append("→").append(Math.round(Math.min(plan.phiMax, p.phiEnd) * 100));
-                }
-                sb.append(" %");
+                // no "· 100 %": a phase sets no strength (owner, 2026-11-25) — the person does
                 LinearLayout r = XemsUi.horizontal(c);
                 r.addView(XemsUi.text(c, AiText.t(p.nameBg, p.nameEn), 14, XemsUi.TEXT, true),
                         new LinearLayout.LayoutParams(XemsUi.dp(c, 170), ViewGroup.LayoutParams.WRAP_CONTENT));
@@ -1128,6 +1136,43 @@ public final class AutoUi {
         return null;                                  // contraindications: the registration's, not the session's
     }
 
+    /** The plan's own times, s: the first phase, the rest of the active part, the recovery. */
+    static int[] planTimes(AutoModel.Plan plan) {
+        int warm = 0;
+        int main = 0;
+        int rec = 0;
+        boolean first = true;
+        for (AutoModel.Phase x : plan.phases) {
+            if (x.isCooldown()) {
+                rec += x.durationS;
+            } else if (first && plan.phases.size() > 2) {
+                warm = x.durationS;
+                first = false;
+            } else {
+                main += x.durationS;
+                first = false;
+            }
+        }
+        return new int[] {warm, main, rec};
+    }
+
+    /** The first tile's caption: "Загрявка" for a warm-up, else the phase's own name ("Отваряне", "Отпускане"). */
+    static String firstPhaseName(AutoModel.Plan plan) {
+        AutoModel.Phase f = plan.phases.isEmpty() ? null : plan.phases.get(0);
+        if (f == null || f.isCooldown() || "WARMUP".equals(f.id)) {
+            return AiText.t("Загрявка", "Warm-up");
+        }
+        return AiText.t(f.nameBg, f.nameEn);
+    }
+
+    /** "13 мин", "1:25 мин" — whole minutes when whole, else minutes and seconds (the numbers add up). */
+    static String minText(int s) {
+        if (s % 60 == 0) {
+            return Math.round(s / 60.0) + AiText.t(" мин", " min");
+        }
+        return s / 60 + ":" + (s % 60 < 10 ? "0" : "") + s % 60 + AiText.t(" мин", " min");
+    }
+
     private static View zoneBars(Context c, AutoModel.Plan plan) {
         LinearLayout row = XemsUi.horizontal(c);
         row.setGravity(Gravity.BOTTOM);
@@ -1136,8 +1181,9 @@ public final class AutoUi {
             int ch = AutoModel.DISPLAY_ORDER[k];
             LinearLayout col = XemsUi.vertical(c);
             col.setGravity(Gravity.CENTER_HORIZONTAL | Gravity.BOTTOM);
-            int v = plan.zones[ch];
-            TextView val = XemsUi.text(c, plan.zoneLocked[ch] ? "🔒" + v : "" + v, 12, XemsUi.TEXT, true);
+            // which channels work, not how strong (owner, 2026-11-25): ✓ on, 🔒 not in this program
+            int v = plan.zones[ch] > 0 ? 100 : 0;
+            TextView val = XemsUi.text(c, v > 0 ? "✓" : "🔒", 12, v > 0 ? XemsUi.GO : XemsUi.MUTED, true);
             val.setGravity(Gravity.CENTER);
             col.addView(val);
             View bar = new View(c);
@@ -1149,7 +1195,8 @@ public final class AutoUi {
             bp.topMargin = XemsUi.dp(c, 3);
             col.addView(bar, bp);
             TextView n = XemsUi.text(c, names[ch], 11, XemsUi.MUTED, false);
-            n.setGravity(Gravity.CENTER);
+            n.setGravity(Gravity.CENTER_HORIZONTAL | Gravity.TOP);
+            n.setLines(2);                        // every label two lines high: the bars stand on one line
             col.addView(n);
             row.addView(col, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
         }
@@ -1421,10 +1468,10 @@ public final class AutoUi {
         mid.addView(XemsUi.text(c, plan.program.name() + " · " + goalName(plan.input.goal), 15, XemsUi.MUTED, true),
                 XemsUi.matchWrap(c, 2));
         LinearLayout tiles = XemsUi.horizontal(c);
-        int[] tm = AutoCatalog.times(plan.program, plan.input.goal, plan.input);
-        tile(c, tiles, AiText.t("Загрявка", "Warm-up"), tm[0] / 60 + AiText.t(" мин", " min"), 0);
-        tile(c, tiles, AiText.t("Основна", "Main"), tm[1] / 60 + AiText.t(" мин", " min"), 10);
-        tile(c, tiles, AiText.t("Възстановяване", "Recovery"), tm[2] / 60 + AiText.t(" мин", " min"), 10);
+        int[] tm = planTimes(plan);
+        tile(c, tiles, firstPhaseName(plan), minText(tm[0]), 0);
+        tile(c, tiles, AiText.t("Основна", "Main"), minText(tm[1]), 10);
+        tile(c, tiles, AiText.t("Възстановяване", "Recovery"), minText(tm[2]), 10);
         mid.addView(tiles, XemsUi.matchWrap(c, 8));
         mid.addView(XemsUi.text(c, AiText.t("① Обща сила — плъзгачът на реда   ② Сила на всеки канал — каналите на реда   ③ ▶ Старт",
                 "① Total strength — the row's slider   ② Each channel — the row's channels   ③ ▶ Start"),

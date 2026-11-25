@@ -67,9 +67,77 @@ public final class CloudVoice {
         }
     }
 
-    /** The cloud voice can be asked now (a server and a licence; not switched off). */
-    public static boolean usable() {
-        return !off && XemsLicenseClient.serverConfigured() && System.currentTimeMillis() >= quotaUntil;
+    // ---- the trainer's choice (Settings → "Глас на треньора", 1.1.560)
+    /** The tablet's own engine instead of a cloud voice. */
+    public static final String DEVICE = "device";
+    public static final String DEFAULT_VOICE = "bg-BG-KalinaNeural";
+    /** The voices offered: id, Bulgarian name, English name, female. */
+    public static final String[][] VOICES = {
+            {"bg-BG-KalinaNeural", "Калина", "Kalina", "f"}, {"bg-BG-BorislavNeural", "Борислав", "Borislav", "m"},
+            {"en-US-AvaMultilingualNeural", "Ава", "Ava", "f"}, {"en-US-AndrewMultilingualNeural", "Андрю", "Andrew", "m"},
+            {"de-DE-SeraphinaMultilingualNeural", "Серафина", "Seraphina", "f"},
+            {"de-DE-FlorianMultilingualNeural", "Флориан", "Florian", "m"}};
+    public static final String[] RATES = {"slow", "normal", "fast"};
+
+    public static String voice(Context c) {
+        return prefs(c).getString("pick", DEFAULT_VOICE);
+    }
+
+    public static String rate(Context c) {
+        return prefs(c).getString("rate", "normal");
+    }
+
+    public static void choose(Context c, String voice, String rate) {
+        SharedPreferences.Editor e = prefs(c).edit();
+        if (voice != null) {
+            e.putString("pick", voice);
+        }
+        if (rate != null) {
+            e.putString("rate", rate);
+        }
+        e.apply();
+    }
+
+    /** The month's characters as the server last said (−1 = not known yet), and its stop line. */
+    public static int used(Context c) {
+        return prefs(c).getString("month", "").equals(month()) ? prefs(c).getInt("used", -1) : -1;
+    }
+
+    public static int limit(Context c) {
+        return prefs(c).getInt("limit", 475000);
+    }
+
+    static void noteUsage(Context c, int used, int limit) {
+        if (used >= 0 && limit > 0) {
+            prefs(c).edit().putString("month", month()).putInt("used", used).putInt("limit", limit).apply();
+        }
+    }
+
+    static String month() {
+        java.text.SimpleDateFormat f = new java.text.SimpleDateFormat("yyyy-MM", java.util.Locale.ROOT);
+        f.setTimeZone(java.util.TimeZone.getTimeZone("UTC"));
+        return f.format(new java.util.Date());
+    }
+
+    /** The cloud voice can be asked now (a server and a licence; a cloud voice picked; the month not used up). */
+    public static boolean usable(Context c) {
+        if (c != null && app == null) {
+            app = c.getApplicationContext();
+        }
+        return !off && app != null && XemsLicenseClient.serverConfigured() && System.currentTimeMillis() >= quotaUntil
+                && !DEVICE.equals(voice(app));
+    }
+
+    /** The settings' "how it sounds": one phrase now, in the voice and tempo just picked. */
+    public static void preview(Context c, String text, Fallback fb) {
+        app = c.getApplicationContext();
+        if (DEVICE.equals(voice(app))) {
+            stop();
+            fb.sayLocal(text, "xems-preview", true);
+            return;
+        }
+        quotaUntil = 0;
+        speak(c, text, "xems-preview", true, fb);
     }
 
     /** Off: the tablet's own engine only (the setting; tests). */
@@ -151,8 +219,9 @@ public final class CloudVoice {
 
     /** One phrase: from the tablet's files, else streamed from the server (and kept). False = say it locally. */
     static boolean play(Item it) throws Exception {
-        String voice = app.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getString("voice", "");
-        File f = file(voice, it.text);
+        String voice = voice(app);
+        String rate = rate(app);
+        File f = file(voice + "|" + rate, it.text);
         if (f.length() > 0) {
             InputStream in = new FileInputStream(f);
             try {
@@ -162,11 +231,11 @@ public final class CloudVoice {
                 in.close();
             }
         }
-        if (!usable()) {
+        if (!usable(app)) {
             return false;
         }
         long t0 = System.currentTimeMillis();
-        HttpURLConnection con = XemsLicenseClient.openTts(app, it.text, FIRST_MS);
+        HttpURLConnection con = XemsLicenseClient.openTts(app, it.text, voice, rate, FIRST_MS);
         if (con == null) {
             return false;
         }
@@ -181,10 +250,13 @@ public final class CloudVoice {
                 WearableBleDiagLog.log("voice", "server " + code);
                 return false;
             }
-            String v = con.getHeaderField("X-Voice");
-            if (v != null && !v.equals(voice)) {
-                app.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().putString("voice", v).apply();
-                f = file(v, it.text);
+            try {
+                String u = con.getHeaderField("X-Tts-Used");
+                String l = con.getHeaderField("X-Tts-Limit");
+                if (u != null && l != null) {
+                    noteUsage(app, Integer.parseInt(u.trim()), Integer.parseInt(l.trim()));
+                }
+            } catch (RuntimeException ignored) {
             }
             File part = new File(f.getPath() + ".part");
             FileOutputStream keep = new FileOutputStream(part);

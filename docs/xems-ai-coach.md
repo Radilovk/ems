@@ -385,3 +385,12 @@ it, the warm-up runs softer by design); "s" read aloud as a letter → "секу
   network or answer within 2.5 s → the tablet's own engine for that phrase.
 - The voice is the server's (`TTS_VOICE` in wrangler.toml, default `bg-BG-KalinaNeural`; Borislav and four
   multilingual voices allowed) — changed without a new APK; the tablet's kept phrases follow `X-Voice`.
+
+## 1.1.560 — the coach's voice set on the tablet
+- Settings → "Глас на треньора" (`VoiceSettings.voiceCard`, under the wake-word card): one row of voices (♀ Калина,
+  ♂ Борислав, ♀ Ава, ♂ Андрю, ♀ Серафина, ♂ Флориан — the multilingual ones speak Bulgarian — and "Гласът на
+  таблета · офлайн"); a tap picks it and says a sample at once; the tempo (по-бавно / нормално / по-бързо → SSML
+  prosody ±12 %); ▶ Чуй again; the month's characters small on the right (`/v1/tts` with `usage:true`, and the
+  `X-Tts-Used` / `X-Tts-Limit` headers of every spoken phrase).
+- Kept on the tablet (`xems_voice`: `pick`, `rate`), sent with every phrase; the kept phrases are per voice + tempo.
+- Shot: `tools/ui-shot` `ShotsAi#live` → `ai-voice-pick.png`.

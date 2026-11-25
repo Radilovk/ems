@@ -81,6 +81,9 @@ public class ShotsAi {
         LinearLayout set = com.isaigu.gymapp.widget.XemsUi.vertical(a);
         set.addView(VoiceSettings.card(a));
         Shots.shot(set, 900, 200, "ai-voice-settings");
+        LinearLayout voice = com.isaigu.gymapp.widget.XemsUi.vertical(a);
+        voice.addView(VoiceSettings.voiceCard(a));
+        Shots.shot(voice, 1160, 230, "ai-voice-pick");
     }
 
     static void draw(Activity a, String name) throws Exception {

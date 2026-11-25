@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 115
+    .line 183
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,14 +34,14 @@
     .registers 7
 
     .prologue
-    .line 120
+    .line 188
     :cond_0
     :goto_0
     const-class v1, Lcom/isaigu/gymapp/ai/CloudVoice;
 
     monitor-enter v1
 
-    .line 121
+    .line 189
     :cond_3
     :try_start_3
     # getter for: Lcom/isaigu/gymapp/ai/CloudVoice;->QUEUE:Ljava/util/LinkedList;
@@ -57,7 +57,7 @@
 
     if-eqz v0, :cond_2a
 
-    .line 123
+    .line 191
     :try_start_d
     const-class v0, Lcom/isaigu/gymapp/ai/CloudVoice;
 
@@ -68,7 +68,7 @@
     .catch Ljava/lang/InterruptedException; {:try_start_d .. :try_end_14} :catch_24
     .catchall {:try_start_d .. :try_end_14} :catchall_27
 
-    .line 127
+    .line 195
     :try_start_14
     # getter for: Lcom/isaigu/gymapp/ai/CloudVoice;->QUEUE:Ljava/util/LinkedList;
     invoke-static {}, Lcom/isaigu/gymapp/ai/CloudVoice;->access$000()Ljava/util/LinkedList;
@@ -81,28 +81,28 @@
 
     if-eqz v0, :cond_3
 
-    .line 128
+    .line 196
     const/4 v0, 0x0
 
     # setter for: Lcom/isaigu/gymapp/ai/CloudVoice;->worker:Ljava/lang/Thread;
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/CloudVoice;->access$102(Ljava/lang/Thread;)Ljava/lang/Thread;
 
-    .line 129
+    .line 197
     monitor-exit v1
 
     :goto_23
     return-void
 
-    .line 124
+    .line 192
     :catch_24
     move-exception v0
 
-    .line 125
+    .line 193
     monitor-exit v1
 
     goto :goto_23
 
-    .line 133
+    .line 201
     :catchall_27
     move-exception v0
 
@@ -112,7 +112,7 @@
 
     throw v0
 
-    .line 132
+    .line 200
     :cond_2a
     :try_start_2a
     # getter for: Lcom/isaigu/gymapp/ai/CloudVoice;->QUEUE:Ljava/util/LinkedList;
@@ -126,15 +126,15 @@
 
     check-cast v0, Lcom/isaigu/gymapp/ai/CloudVoice$Item;
 
-    .line 133
+    .line 201
     monitor-exit v1
     :try_end_35
     .catchall {:try_start_2a .. :try_end_35} :catchall_27
 
-    .line 134
+    .line 202
     const/4 v1, 0x0
 
-    .line 136
+    .line 204
     :try_start_36
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/CloudVoice;->play(Lcom/isaigu/gymapp/ai/CloudVoice$Item;)Z
     :try_end_39
@@ -142,7 +142,7 @@
 
     move-result v1
 
-    .line 140
+    .line 208
     :goto_3a
     iget v2, v0, Lcom/isaigu/gymapp/ai/CloudVoice$Item;->gen:I
 
@@ -153,10 +153,10 @@
 
     if-ne v2, v3, :cond_0
 
-    .line 143
+    .line 211
     if-nez v1, :cond_6f
 
-    .line 144
+    .line 212
     # getter for: Lcom/isaigu/gymapp/ai/CloudVoice;->MAIN:Landroid/os/Handler;
     invoke-static {}, Lcom/isaigu/gymapp/ai/CloudVoice;->access$300()Landroid/os/Handler;
 
@@ -174,11 +174,11 @@
 
     goto :goto_0
 
-    .line 137
+    .line 205
     :catch_55
     move-exception v2
 
-    .line 138
+    .line 206
     const-string v3, "voice"
 
     new-instance v4, Ljava/lang/StringBuilder;
@@ -203,7 +203,7 @@
 
     goto :goto_3a
 
-    .line 146
+    .line 214
     :cond_6f
     # getter for: Lcom/isaigu/gymapp/ai/CloudVoice;->MAIN:Landroid/os/Handler;
     invoke-static {}, Lcom/isaigu/gymapp/ai/CloudVoice;->access$300()Landroid/os/Handler;

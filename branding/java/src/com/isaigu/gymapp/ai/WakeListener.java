@@ -762,11 +762,18 @@ public final class WakeListener {
     private static final Runnable FOLLOW = new Follow();
     private static final Runnable SPOTTER_AGAIN = new SpotterAgain();
     static final Spoken SPOKEN = new Spoken();
+
+    /** The settings card speaks before any training started this session. */
+    static void bind(Context c) {
+        if (ctx == null && c != null) {
+            ctx = c.getApplicationContext();
+        }
+    }
     static final VoiceBack VOICE_BACK = new VoiceBack();
 
     /** The cloud voice can speak (or play a kept phrase): the coach's voice is Microsoft's, not the tablet's (1.1.559). */
     static boolean cloud() {
-        return ctx != null && CloudVoice.usable();
+        return ctx != null && CloudVoice.usable(ctx);
     }
 
     /** The cloud voice's end of a phrase (the same as the engine's), and its fallback: the tablet's own engine. */

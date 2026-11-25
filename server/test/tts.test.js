@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { ssml, pickVoice, cleanText, takeChars, azureSpeak, monthKey, TTS_FORMAT } from '../src/tts.js';
+import { ssml, pickVoice, pickRate, cleanText, takeChars, azureSpeak, monthKey, TTS_FORMAT } from '../src/tts.js';
 
 function fakeDb() {
   const rows = new Map();
@@ -56,4 +56,12 @@ test('azure: the region, the key in the header, raw PCM asked', async () => {
   assert.equal(seen.init.headers['Ocp-Apim-Subscription-Key'], 'k');
   assert.equal(seen.init.headers['X-Microsoft-OutputFormat'], TTS_FORMAT);
   await assert.rejects(azureSpeak({}, 'x', 'bg-BG-KalinaNeural', fake), /no_tts_key/);
+});
+
+test('tempo: slow / fast as a prosody rate, anything else normal', () => {
+  assert.match(ssml('Пауза', 'bg-BG-KalinaNeural', 'fast'), /<prosody rate="\+12%">Пауза<\/prosody>/);
+  assert.match(ssml('Пауза', 'bg-BG-KalinaNeural', 'slow'), /rate="-12%"/);
+  assert.ok(!ssml('Пауза', 'bg-BG-KalinaNeural', 'evil').includes('prosody'));
+  assert.equal(pickRate('fast'), 'fast');
+  assert.equal(pickRate('toString'), 'normal');
 });

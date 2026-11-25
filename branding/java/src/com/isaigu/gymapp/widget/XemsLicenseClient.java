@@ -448,11 +448,22 @@ public final class XemsLicenseClient {
 
     static final int AI_TIMEOUT_MS = 30000;
 
+    /** The voice's characters this month (the settings card): {"used":…, "limit":…}; null = no server / licence. */
+    public static String ttsUsage(Context c) throws Exception {
+        String token = XemsLicense.token();
+        if (!serverConfigured() || token == null || token.length() == 0) {
+            return null;
+        }
+        return http("POST", "/v1/tts", "{" + common(c) + ",\"token\":" + XemsLicenseToken.quote(token)
+                + ",\"usage\":true}", TIMEOUT_MS);
+    }
+
     /**
      * The coach's voice (1.1.559, ai/CloudVoice): POST /v1/tts with the licence → the open connection, its body raw
      * 24 kHz PCM as the server makes it. Null = no server or licence. firstMs: connect and each read at most.
      */
-    public static HttpURLConnection openTts(Context c, String text, int firstMs) throws Exception {
+    public static HttpURLConnection openTts(Context c, String text, String voice, String rate, int firstMs)
+            throws Exception {
         String token = XemsLicense.token();
         if (!serverConfigured() || token == null || token.length() == 0) {
             return null;
@@ -462,7 +473,8 @@ public final class XemsLicenseClient {
             base = base.substring(0, base.length() - 1);
         }
         String body = "{" + common(c) + ",\"token\":" + XemsLicenseToken.quote(token) + ",\"text\":"
-                + XemsLicenseToken.quote(text) + "}";
+                + XemsLicenseToken.quote(text) + ",\"voice\":" + XemsLicenseToken.quote(voice)
+                + ",\"rate\":" + XemsLicenseToken.quote(rate) + "}";
         HttpURLConnection con = (HttpURLConnection) new URL(base + "/v1/tts").openConnection();
         con.setRequestMethod("POST");
         con.setConnectTimeout(firstMs);

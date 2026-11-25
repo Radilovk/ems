@@ -16,7 +16,7 @@ import { handleVrlogPut, handleVrlogGet } from './vrlog.js';
 import { handleCertIssue } from './cert.js';
 import { brief, BRIEF_MAX_BYTES } from './aibrief.js';
 import { coach, workout, command, liveTurn } from './aicoach.js';
-import { cleanText, pickVoice, cacheKey, takeChars, azureSpeak } from './tts.js';
+import { cleanText, pickVoice, pickRate, cacheKey, takeChars, usedChars, azureSpeak, FREE_CHARS, STOP_SHARE } from './tts.js';
 import certHtml from '../../branding/certificate/index.html';
 import { handleWiemsUpdate, handleWiemsApk, handleWiemsSeen } from './wiemsapp.js';
 import {
@@ -415,9 +415,15 @@ async function handleTts(request, env, ctx) {
   if (!licId || !deviceId || normDevice(tokenBody.dev) !== deviceId) return err('unknown', 'Invalid token');
   if (!(await verifyToken(env.LICENSE_PRIVATE_KEY, body.token))) return err('unknown', 'Invalid token');
   const text = cleanText(body.text);
-  if (!text) return err('bad_request', 'text');
+  if (!text && body.usage !== true) return err('bad_request', 'text');
   const voice = pickVoice(body.voice, env);
-  const key = new Request(await cacheKey(voice, text));
+  const rate = pickRate(body.rate);
+  // the tablet's settings ask only how much is used this month (no text, nothing spoken)
+  if (body.usage === true) {
+    const limit = Math.floor((Number(env.TTS_FREE_CHARS) || FREE_CHARS) * STOP_SHARE);
+    return json({ ok: true, used: await usedChars(env), limit });
+  }
+  const key = new Request(await cacheKey(voice, text, rate));
   const cache = caches.default;
   const hit = await cache.match(key);
   if (hit) {
@@ -430,7 +436,7 @@ async function handleTts(request, env, ctx) {
   if (!quota.ok) return json({ ok: false, error: 'tts_quota', used: quota.used, limit: quota.limit }, 429);
   let res;
   try {
-    res = await azureSpeak(env, text, voice);
+    res = await azureSpeak(env, text, voice, fetch, rate);
   } catch (e) {
     return json({ ok: false, error: 'tts_unavailable', message: String(e?.message || e).slice(0, 80) }, 503);
   }
@@ -442,7 +448,8 @@ async function handleTts(request, env, ctx) {
   ctx?.waitUntil?.(cache.put(key, new Response(toCache, {
     headers: { 'Content-Type': 'audio/L16; rate=24000', 'Cache-Control': 'public, max-age=31536000' },
   })).catch(() => {}));
-  return new Response(toTablet, { headers: { 'Content-Type': 'audio/L16; rate=24000', 'X-Tts': 'azure', 'X-Voice': voice } });
+  return new Response(toTablet, { headers: { 'Content-Type': 'audio/L16; rate=24000', 'X-Tts': 'azure', 'X-Voice': voice,
+    'X-Tts-Used': String(quota.used), 'X-Tts-Limit': String(quota.limit) } });
 }
 
 /** The AI layer over the planner (docs/xems-ai-brief.md): the trainer's text → a validated patch of its inputs. */

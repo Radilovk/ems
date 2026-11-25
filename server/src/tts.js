@@ -33,9 +33,18 @@ function xml(s) {
     .replace(/'/g, '&apos;');
 }
 
-/** SSML: a multilingual voice is told the text is Bulgarian. */
-export function ssml(text, voice) {
-  const body = voice.startsWith('bg-') ? xml(text) : `<lang xml:lang="bg-BG">${xml(text)}</lang>`;
+/** The tempo the trainer picked on the tablet (1.1.560): slow / normal / fast → SSML prosody rate. */
+export const TTS_RATES = { slow: '-12%', normal: null, fast: '+12%' };
+
+export function pickRate(asked) {
+  return typeof asked === 'string' && Object.prototype.hasOwnProperty.call(TTS_RATES, asked) ? asked : 'normal';
+}
+
+/** SSML: a multilingual voice is told the text is Bulgarian; a tempo other than normal is a prosody rate. */
+export function ssml(text, voice, rate = 'normal') {
+  let body = voice.startsWith('bg-') ? xml(text) : `<lang xml:lang="bg-BG">${xml(text)}</lang>`;
+  const r = TTS_RATES[pickRate(rate)];
+  if (r) body = `<prosody rate="${r}">${body}</prosody>`;
   return `<speak version="1.0" xml:lang="bg-BG" xmlns="http://www.w3.org/2001/10/synthesis"><voice name="${voice}">`
     + `${body}</voice></speak>`;
 }
@@ -46,10 +55,17 @@ export function monthKey(ts = Date.now()) {
 }
 
 /** A stable cache key for a phrase in a voice. */
-export async function cacheKey(voice, text) {
-  const d = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(`${voice}|${TTS_FORMAT}|${text}`));
+export async function cacheKey(voice, text, rate = 'normal') {
+  const d = await crypto.subtle.digest('SHA-256',
+    new TextEncoder().encode(`${voice}|${pickRate(rate)}|${TTS_FORMAT}|${text}`));
   const hex = [...new Uint8Array(d)].map((b) => b.toString(16).padStart(2, '0')).join('');
   return `https://tts.cache.xems/${hex}`;
+}
+
+/** The month's characters so far (the tablet's settings show them). */
+export async function usedChars(env, ts = Date.now()) {
+  const row = await env.DB.prepare('SELECT count FROM rate_limits WHERE key = ?').bind(`tts:chars:${monthKey(ts)}`).first();
+  return row ? Number(row.count) || 0 : 0;
 }
 
 /**
@@ -72,7 +88,7 @@ export async function takeChars(env, n, ts = Date.now()) {
 }
 
 /** Azure's answer for one phrase (a streaming Response). Throws on a missing key. */
-export async function azureSpeak(env, text, voice, fetchImpl = fetch) {
+export async function azureSpeak(env, text, voice, fetchImpl = fetch, rate = 'normal') {
   if (!env.AZURE_SPEECH_KEY) throw new Error('no_tts_key');
   const region = String(env.AZURE_SPEECH_REGION || 'germanywestcentral').replace(/[^a-z0-9]/g, '');
   return fetchImpl(`https://${region}.tts.speech.microsoft.com/cognitiveservices/v1`, {
@@ -83,6 +99,6 @@ export async function azureSpeak(env, text, voice, fetchImpl = fetch) {
       'X-Microsoft-OutputFormat': TTS_FORMAT,
       'User-Agent': 'xems-license',
     },
-    body: ssml(text, voice),
+    body: ssml(text, voice, rate),
   });
 }

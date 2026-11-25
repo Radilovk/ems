@@ -590,10 +590,15 @@ public final class FocusBoard {
         int m1 = b.strenth;
         if (locked && second(it, b) && m1 != m0) {
             float r = ratio(it, m0, p0);
-            int p1 = Math.max(0, Math.min(100, Math.round(m1 * r)));
+            int p1 = Math.max(0, Math.min(PartStrength.secondCap(it, b), Math.round(m1 * r)));
             if (p1 != b.pauseStrenthPercent) {
                 it.addPauseStrenth(p1 - b.pauseStrenthPercent);
             }
+        }
+        // the main went down: the second comes down with it to its top (1.5 × the main) — no message, the ring follows
+        int cap = PartStrength.secondCap(it, b);
+        if (second(it, b) && b.pauseStrenthPercent > cap) {
+            it.addPauseStrenth(cap - b.pauseStrenthPercent);
         }
     }
 
@@ -601,6 +606,16 @@ public final class FocusBoard {
     private static void pause(TrainItem it, ProgramDataBean b, int d) {
         int m0 = b.strenth;
         int p0 = b.pauseStrenthPercent;
+        // a hard top (owner, 2026-11-25): the ring never goes past 1.5 × the main; the message only when pushed there
+        int cap = locked ? 100 : PartStrength.secondCap(it, b);
+        if (d > 0 && p0 + d > cap) {
+            d = Math.max(0, cap - p0);
+            hint(AiText.t("Вторият импулс е най-много 1,5 пъти основния (" + cap + ")",
+                    "The second impulse is at most 1.5 times the main one (" + cap + ")"));
+            if (d == 0) {
+                return;
+            }
+        }
         it.addPauseStrenth(d);
         int p1 = b.pauseStrenthPercent;
         if (locked && p1 != p0) {

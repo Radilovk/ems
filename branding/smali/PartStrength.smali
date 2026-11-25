@@ -2865,7 +2865,7 @@
     goto :goto_6
 .end method
 
-.method static secondCap(Lcom/isaigu/gymapp/train/model/TrainItem;Lcom/isaigu/gymapp/bean/ProgramDataBean;)I
+.method public static secondCap(Lcom/isaigu/gymapp/train/model/TrainItem;Lcom/isaigu/gymapp/bean/ProgramDataBean;)I
     .registers 3
 
     .prologue

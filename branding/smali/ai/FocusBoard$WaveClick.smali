@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 668
+    .line 683
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,31 +34,31 @@
     .registers 3
 
     .prologue
-    .line 671
+    .line 686
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsUi;->haptic(Landroid/view/View;)V
 
-    .line 672
+    .line 687
     # invokes: Lcom/isaigu/gymapp/ai/FocusBoard;->current()Lcom/isaigu/gymapp/train/model/TrainItem;
     invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$900()Lcom/isaigu/gymapp/train/model/TrainItem;
 
     move-result-object v0
 
-    .line 673
+    .line 688
     if-nez v0, :cond_a
 
-    .line 679
+    .line 694
     :goto_9
     return-void
 
-    .line 676
+    .line 691
     :cond_a
     invoke-static {v0, p1}, Lcom/isaigu/gymapp/wearable/DoubleImpulse;->toggle(Lcom/isaigu/gymapp/train/model/TrainItem;Landroid/view/View;)V
 
-    .line 677
+    .line 692
     # invokes: Lcom/isaigu/gymapp/ai/FocusBoard;->later()V
     invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$300()V
 
-    .line 678
+    .line 693
     invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->refresh()V
 
     goto :goto_9

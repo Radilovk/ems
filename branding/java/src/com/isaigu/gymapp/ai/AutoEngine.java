@@ -243,6 +243,23 @@ public final class AutoEngine {
         }
     }
 
+    /**
+     * The one exception to "the program never moves the strength" (owner, 2026-11-25): after a pause of 5 min or
+     * more the muscles and the heart have cooled down — the first impulses softer (×0.8 at 5 min, ×0.6 from 10 min),
+     * +0.1 a cycle back to the person's level. A shorter pause or rest: the person's level at once.
+     */
+    static double reentryAfter(double pauseS) {
+        if (pauseS < REENTRY_FROM_S) {
+            return 1.0;
+        }
+        return clamp(1.0 - pauseS / 1500.0, 0.6, 0.8);
+    }
+
+    static final double REENTRY_FROM_S = 300;
+
+    /** The protection answers the fat-burning corridor only this far over its top (bpm). */
+    public static final int CORRIDOR_MARGIN = 10;
+
     /** A set ended without a rest: the rest the fatigue asked for becomes the next set's easier impulse. */
     private void adaptFor(int restNeedS, long now) {
         int ext = restNeedS >= 60 ? 3 : restNeedS >= 35 ? 2 : restNeedS >= 18 ? 1 : 0;
@@ -415,18 +432,9 @@ public final class AutoEngine {
             if (from == State.REST) {
                 restSumS += pauseS;
                 restCount++;
-                if (pauseS >= REST_SOFT_FROM_S) {
-                    reentry = Math.min(reentry, 0.9);
-                }
-            } else {
-                // Muscles and heart cooled down: first pulses softer, +0.1 per cycle back to 1 (AI §5).
-                reentry = pauseS >= 30 ? clamp(1.0 - pauseS / 600.0, 0.6, 0.9) : Math.min(reentry, 1.0);
-                if (from == State.HR_PAUSE) {
-                    reentry = Math.min(reentry, 0.8);
-                }
             }
+            reentry = Math.min(reentry, reentryAfter(pauseS));
             if (continuous) {
-                reentry = 1.0;                         // the AI training: the strength stays the person's (1.1.561)
                 safeAfterPause(now, pauseS);
             }
             log(now, "go after " + Math.round(pauseS) + "s (" + from + ") r=" + fmt(reentry) + " F=" + fmt(peakF()));
@@ -562,13 +570,8 @@ public final class AutoEngine {
         double pauseS = (now - pauseStartMs) / 1000.0;
         totalPauseS += pauseS;
         imposedS += imposedOf(state, pauseS);
-        // Muscles and heart cooled down: first pulses softer, +0.1 per cycle back to 1 (AI §5).
-        reentry = pauseS >= 30 ? clamp(1.0 - pauseS / 600.0, 0.6, 0.9) : Math.min(reentry, 1.0);
-        if (state == State.HR_PAUSE) {
-            reentry = Math.min(reentry, 0.8);
-        }
+        reentry = Math.min(reentry, reentryAfter(pauseS));
         if (continuous) {
-            reentry = 1.0;                             // the AI training: the strength stays the person's (1.1.561)
             safeAfterPause(now, pauseS);
         }
         state = State.RUN;
@@ -969,8 +972,9 @@ public final class AutoEngine {
             settle(now);
             if (current.base != null && current.frac > 0) {
                 boolean pause = doublePulse && current.pauseHz > 0;
-                qUsed += AutoPlanner.cycleDose(current.base, current.frac * userScale, pause);
-                qPlanned += AutoPlanner.cycleDose(current.base, current.frac / Math.max(0.01, reentry), pause);
+                // the dose counts what ran (a working step, its Hz, width, pauses, 2nd impulse), not how strong it was
+                qUsed += AutoPlanner.cycleDose(current.base, 1.0, pause);
+                qPlanned += AutoPlanner.cycleDose(current.base, 1.0, pause);
                 double ratio = qPlanned > 0 ? qUsed / qPlanned : 0;
                 if (ratio > 1.1) {
                     doseExt = Math.min(doseExt + 1, PROTECT_MAX);
@@ -1029,10 +1033,12 @@ public final class AutoEngine {
         // corridor: above → one rung of the protection up, back below → one down
         if (plan.hrUse == HrUse.CORRIDOR && hr > 0 && now - hrMs <= HR_STALE_MS && !ph.isCooldown()
                 && !"WARMUP".equals(ph.id)) {
+            // liberal (owner, 2026-11-25): a little over the zone is no fault — the protection climbs only well over
+            // it (CORRIDOR_MARGIN bpm), and gives back as soon as the heart is in the zone again
             int hi = plan.corridorHiHr();
-            if (hr > hi) {
+            if (hr > hi + CORRIDOR_MARGIN) {
                 corridorExt = Math.min(corridorExt + 1, PROTECT_MAX);
-            } else if (hr < hi - 5 && corridorExt > 0) {
+            } else if (hr <= hi && corridorExt > 0) {
                 corridorExt--;
             }
         }
@@ -1277,7 +1283,7 @@ public final class AutoEngine {
         if (c == null || c.frac <= 0) {
             return g;
         }
-        double rho = (liveRho >= 0 && c == current ? liveRho : c.frac * Math.max(0.1, userScale)) * pwFactor(c);
+        double rho = (c.frac > 0 ? 1.0 : 0.0) * pwFactor(c);   // the load is the program's, never the strength (owner, 2026-11-25)
         double w = AiPlanner.fatigueWeight(c.hz);
         double wp = doublePulse && c.pauseHz > 0 ? AiPlanner.fatigueWeight(c.pauseHz) * c.pauseSigma : 0;
         int[] z = zonesOf(c);
@@ -1626,7 +1632,7 @@ public final class AutoEngine {
             return 0;
         }
         double[] ref = vo2Ref();
-        double rho = (liveRho >= 0 && c == current ? liveRho : c.frac * Math.max(0.1, userScale)) * pwFactor(c);
+        double rho = (c.frac > 0 ? 1.0 : 0.0) * pwFactor(c);   // the load is the program's, never the strength (owner, 2026-11-25)
         double s = Math.max(1, c.onS) / (double) (Math.max(1, c.onS) + Math.max(1, c.offS));
         boolean dbl = doublePulse && c.pauseHz > 0 && c.pauseSigma > 0;
         int[] z = zonesOf(c);
@@ -1840,7 +1846,7 @@ public final class AutoEngine {
         if (c == null || c.frac <= 0) {
             return 0;
         }
-        double rho = (liveRho >= 0 && c == current ? liveRho : c.frac * Math.max(0.1, userScale)) * pwFactor(c);
+        double rho = (c.frac > 0 ? 1.0 : 0.0) * pwFactor(c);   // the load is the program's, never the strength (owner, 2026-11-25)
         double on = Math.max(1, c.onS);
         double off = Math.max(1, c.offS);
         double p = doublePulse && c.pauseHz > 0 ? AiPlanner.fatigueWeight(c.pauseHz) * c.pauseSigma * off : 0;
@@ -2610,7 +2616,7 @@ public final class AutoEngine {
         c.env = ph.envAt(p);
         // no program moves the strength, the face included (owner, 2026-11-25): the person sets each channel and it
         // stays — a step is on (the person's level) or silent; no softer step, no softer return after a pause
-        double k = s.sigma > 0 ? 1.0 : 0.0;
+        double k = s.sigma > 0 ? reentry : 0.0;      // reentry < 1 only after a pause of 5 min or more
         c.scale = k;
         double phi = Math.min(plan.phiMax, c.phi);
         c.frac = phi * k;

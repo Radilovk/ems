@@ -1548,7 +1548,7 @@ public final class AutoSession {
     static double secondScale = 1.0;
 
     static int secondStep(int dir, boolean small) {
-        secondScale = Math.max(0.3, Math.min(2.0, secondScale + dir * (small ? 0.05 : 0.1)));
+        secondScale = Math.max(0.3, Math.min(1.5, secondScale + dir * (small ? 0.05 : 0.1)));   // hard top: 1.5 × the main
         refreshOutput();
         return (int) Math.round(secondScale * 100);
     }
@@ -1732,8 +1732,13 @@ public final class AutoSession {
                 boolean inImpulse = r.item.data.inStart;
                 if (inImpulse || (b.activePause && b.pauseHz > 0)) {
                     es = new AiEnergy.Stim();
+                    // the work is the program's, never the strength (owner, 2026-11-25): a channel that works counts
+                    // whole at the person's own level, one at 0 does not count
                     if (b.strenthBean != null && b.strenthBean.buwei != null) {
                         es.channels = b.strenthBean.buwei.clone();
+                        for (int k = 0; k < es.channels.length; k++) {
+                            es.channels[k] = es.channels[k] > 0 ? 100 : 0;
+                        }
                     }
                     if (r.item.partsDisabled != null) {
                         es.disabled = r.item.partsDisabled.clone();
@@ -1741,12 +1746,12 @@ public final class AutoSession {
                     es.hz = b.hz;
                     es.pwUs = b.pulseWidth;
                     if (inImpulse) {
-                        es.strengthPct = b.strenth;
+                        es.strengthPct = r.cal;                 // the person's own level: the depth still counts
                         es.onShare = 1.0;
                     } else {
                         es.onShare = 0;
                         es.pauseHz = b.pauseHz;
-                        es.pauseStrengthPct = b.pauseStrenthPercent;
+                        es.pauseStrengthPct = r.cal;
                         es.pauseShare = 1.0;
                     }
                     // tolerated level = the calibration (its strength at its pulse width) on each channel

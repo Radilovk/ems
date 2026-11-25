@@ -303,7 +303,7 @@ public final class AutoPlanner {
             int i = 0;
             while (t < ph.durationS) {
                 Step s = ph.steps.get(i % ph.steps.size());
-                double frac = Math.min(plan.phiMax, ph.phiAt((double) t / ph.durationS)) * s.sigma;
+                double frac = s.sigma > 0 ? 1.0 : 0.0;          // a working step counts whole — never by strength
                 q += cycleDose(s, frac, plan.input.doublePulse && plan.doublePulseAllowed);
                 t += s.durationS();
                 i++;

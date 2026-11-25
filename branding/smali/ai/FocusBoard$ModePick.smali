@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 924
+    .line 939
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 925
+    .line 940
     iput p1, p0, Lcom/isaigu/gymapp/ai/FocusBoard$ModePick;->mode:I
 
-    .line 926
+    .line 941
     return-void
 .end method
 
@@ -42,19 +42,19 @@
     .registers 4
 
     .prologue
-    .line 930
+    .line 945
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsUi;->haptic(Landroid/view/View;)V
 
-    .line 931
+    .line 946
     invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->closeModeMenu()V
 
-    .line 932
+    .line 947
     # invokes: Lcom/isaigu/gymapp/ai/FocusBoard;->current()Lcom/isaigu/gymapp/train/model/TrainItem;
     invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$900()Lcom/isaigu/gymapp/train/model/TrainItem;
 
     move-result-object v0
 
-    .line 933
+    .line 948
     if-eqz v0, :cond_15
 
     # invokes: Lcom/isaigu/gymapp/ai/FocusBoard;->mode(Lcom/isaigu/gymapp/train/model/TrainItem;)I
@@ -66,11 +66,11 @@
 
     if-ne v0, v1, :cond_15
 
-    .line 938
+    .line 953
     :goto_14
     return-void
 
-    .line 936
+    .line 951
     :cond_15
     # getter for: Lcom/isaigu/gymapp/ai/FocusBoard;->MODE_IDS:[Ljava/lang/String;
     invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$1600()[Ljava/lang/String;
@@ -83,7 +83,7 @@
 
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/FocusBoard;->press(Ljava/lang/String;)Z
 
-    .line 937
+    .line 952
     # invokes: Lcom/isaigu/gymapp/ai/FocusBoard;->later()V
     invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$300()V
 

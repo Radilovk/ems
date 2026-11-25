@@ -2331,7 +2331,7 @@
     .line 953
     const-wide v6, 0x3fd3333333333333L    # 0.3
 
-    const-wide/high16 v8, 0x4000000000000000L    # 2.0
+    const-wide/high16 v8, 0x3ff8000000000000L    # 1.5
 
     sget-wide v10, Lcom/isaigu/gymapp/ai/MapRunner;->secondScale:D
 

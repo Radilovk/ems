@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 908
+    .line 923
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,10 +34,10 @@
     .registers 3
 
     .prologue
-    .line 911
+    .line 926
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsUi;->haptic(Landroid/view/View;)V
 
-    .line 912
+    .line 927
     # getter for: Lcom/isaigu/gymapp/ai/FocusBoard;->modePop:Landroid/widget/PopupWindow;
     invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$1300()Landroid/widget/PopupWindow;
 
@@ -56,14 +56,14 @@
 
     if-eqz v0, :cond_17
 
-    .line 913
+    .line 928
     invoke-static {}, Lcom/isaigu/gymapp/ai/FocusBoard;->closeModeMenu()V
 
-    .line 917
+    .line 932
     :goto_16
     return-void
 
-    .line 916
+    .line 931
     :cond_17
     # invokes: Lcom/isaigu/gymapp/ai/FocusBoard;->openModeMenu(Landroid/view/View;)V
     invoke-static {p1}, Lcom/isaigu/gymapp/ai/FocusBoard;->access$1400(Landroid/view/View;)V

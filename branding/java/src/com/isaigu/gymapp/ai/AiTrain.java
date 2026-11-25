@@ -950,7 +950,7 @@ public final class AiTrain {
                 MapRunner.tune(MapRunner.tuneOn, MapRunner.tuneOff, MapRunner.tuneHzPct);
                 b.append(AiText.t("дълбочина ", "depth ")).append(signed(MapRunner.tunePwPct)).append(" % · ");
             } else if ("second".equals(c.target)) {
-                MapRunner.secondScale = Math.max(0.3, Math.min(2.0, MapRunner.secondScale + sign * (c.small ? 0.05 : 0.1)));
+                MapRunner.secondScale = Math.max(0.3, Math.min(1.5, MapRunner.secondScale + sign * (c.small ? 0.05 : 0.1)));
                 MapRunner.tune(MapRunner.tuneOn, MapRunner.tuneOff, MapRunner.tuneHzPct);
                 b.append(AiText.t("втори импулс ", "second impulse ")).append(Math.round(MapRunner.secondScale * 100)).append(" % · ");
             }

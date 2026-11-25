@@ -232,49 +232,49 @@ public final class AutoCatalog {
         p = add(new Program(GENERAL, "Стягане на цялото тяло", "Full-body toning",
                 "Стегнато тяло и по-силни мускули — с упражнения",
                 "A firmer body and stronger muscles — with exercises",
-                Kind.ACTIVE, AutoModel.zones(70, 90, 90, 100, 90, 80, 90, 70, 80, 75)));
+                Kind.ACTIVE, ALL_ON.clone()));
         p.cr10Lo = 6; p.cr10Hi = 7; p.xCap = 0.85; p.envMax = 1.25; p.doublePulse = true; p.impulse = AutoDynamics.STRENGTH;
 
         p = add(new Program(GLUTES_LEGS, "Седалище и бедра", "Glutes & thighs",
                 "Оформено седалище и стегнати бедра",
                 "Shaped glutes and firm thighs",
-                Kind.ACTIVE, AutoModel.zones(60, 85, 95, 100, 70, 75, 60, 40, 40, 40)));
+                Kind.ACTIVE, only(LOWER)));
         p.cr10Lo = 6; p.cr10Hi = 7; p.xCap = 0.85; p.envMax = 1.25; p.doublePulse = true; p.femaleOnly = true; p.impulse = AutoDynamics.STRENGTH;
 
         p = add(new Program(MASS, "Мускулна маса и сила", "Muscle mass & strength",
                 "Повече мускули и сила — бавни, тежки повторения",
                 "More muscle and strength — slow, heavy reps",
-                Kind.ACTIVE, AutoModel.zones(60, 85, 80, 80, 80, 75, 100, 90, 100, 100)));
+                Kind.ACTIVE, ALL_ON.clone()));
         p.cr10Lo = 7; p.cr10Hi = 7; p.xCap = 0.85; p.envMax = 1.3; p.maleOnly = true; p.impulse = AutoDynamics.STRENGTH;
 
         p = add(new Program(UPPER, "Горна част на тялото", "Upper body",
                 "Гърди, гръб, рамене и ръце — сила и релеф",
                 "Chest, back, shoulders and arms — strength and definition",
-                Kind.ACTIVE, AutoModel.zones(40, 60, 55, 60, 80, 70, 100, 100, 100, 100)));
+                Kind.ACTIVE, only(UPPER_BODY)));
         p.cr10Lo = 6; p.cr10Hi = 7; p.xCap = 0.85; p.envMax = 1.25; p.maleOnly = true; p.impulse = AutoDynamics.STRENGTH;
 
         p = add(new Program(CORE, "Талия и корем", "Waist & core",
                 "По-тънка талия и силен корем, защитен гръб",
                 "A slimmer waist and strong core, a protected back",
-                Kind.ACTIVE, AutoModel.zones(40, 60, 60, 70, 100, 90, 75, 45, 55, 40)));
+                Kind.ACTIVE, only(TRUNK)));
         p.cr10Lo = 6; p.cr10Hi = 6; p.xCap = 0.85; p.envMax = 1.25; p.doublePulse = true; p.impulse = AutoDynamics.STRENGTH;
 
         p = add(new Program(POWER, "Сила и експлозивност", "Power & explosiveness",
                 "Експлозивна сила и бързина на движенията",
                 "Explosive strength and fast movement",
-                Kind.ACTIVE, AutoModel.zones(80, 100, 100, 100, 85, 80, 90, 70, 85, 80)));
+                Kind.ACTIVE, ALL_ON.clone()));
         p.cr10Lo = 7; p.cr10Hi = 7; p.xCap = 0.85; p.envMax = 1.15; p.impulse = AutoDynamics.POWER;
 
         p = add(new Program(CARDIO, "Изгаряне на мазнини", "Fat burning",
                 "Ускорено изгаряне на мазнини, пулсът в оптималната зона",
                 "Faster fat burning, heart rate in the optimal zone",
-                Kind.ACTIVE, AutoModel.zones(90, 100, 100, 100, 70, 70, 80, 50, 60, 70)));
+                Kind.ACTIVE, ALL_ON.clone()));
         p.cr10Lo = 5; p.cr10Hi = 6; p.xCap = 0.80; p.envMax = 1.10; p.doublePulse = true; p.impulse = AutoDynamics.CARDIO;
 
         p = add(new Program(BACK_ACTIVE, "Здрав гръб и правилна стойка", "Healthy back & good posture",
                 "Силни мускули на гърба — изправена стойка, по-малко напрежение",
                 "Strong back muscles — upright posture, less strain",
-                Kind.ACTIVE, AutoModel.zones(50, 70, 80, 90, 80, 100, 100, 80, 60, 60)));
+                Kind.ACTIVE, only(ABS, LOWER_BACK, BACK, TRAPS, GLUTES)));
         p.cr10Lo = 5; p.cr10Hi = 6; p.xCap = 0.80; p.envMax = 1.15; p.asksBack = true; p.impulse = AutoDynamics.GENTLE;
 
         // 50+ (owner, 1.1.527 — spec §6.15): strength and power (sarcopenia), bone density, the blood sugar, menopause,
@@ -282,7 +282,7 @@ public final class AutoCatalog {
         p = add(new Program(SENIOR, "50+ · Сила, баланс, здрави кости", "50+ · Strength, balance, strong bones",
                 "Сила на краката, баланс и стабилност, здрави кости, нормална кръвна захар",
                 "Leg strength, balance and stability, strong bones, healthy blood sugar",
-                Kind.ACTIVE, AutoModel.zones(80, 100, 90, 100, 70, 80, 80, 60, 60, 70)));
+                Kind.ACTIVE, ALL_ON.clone()));
         p.cr10Lo = 5; p.cr10Hi = 6; p.xCap = 0.75; p.envMax = 1.0; p.impulse = AutoDynamics.GENTLE;
 
         p = add(new Program(CELLULITE, "Антицелулитна процедура", "Anti-cellulite treatment",
@@ -294,7 +294,7 @@ public final class AutoCatalog {
         p = add(new Program(POSTPARTUM, "Възстановяване след раждане", "Postnatal recovery",
                 "Тазово дъно, корем и кръст — внимателно и постепенно",
                 "Pelvic floor, abs and lower back — gently, step by step",
-                Kind.PASSIVE, AutoModel.zones(50, 70, 80, 100, 60, 90, 60, 50, 40, 50)));
+                Kind.PASSIVE, only(ABS, LOWER_BACK, GLUTES, BACK)));
         p.cr10Lo = 4; p.cr10Hi = 5; p.xCap = 0.45; p.femaleOnly = true; p.asksPostpartum = true; p.impulse = AutoDynamics.GENTLE;
 
         p = add(new Program(DRAIN, "Лимфен дренаж", "Lymphatic drainage",
@@ -307,19 +307,19 @@ public final class AutoCatalog {
         p = add(new Program(PASSIVE_METABOLIC, "Активиране на метаболизма", "Metabolism boost",
                 "Изразходване на енергия в покой, без натоварване",
                 "Energy use at rest, without strain",
-                Kind.PASSIVE, AutoModel.zones(90, 100, 100, 100, 60, 60, 70, 40, 40, 60)));
+                Kind.PASSIVE, only(CALF, FRONT_THIGH, BACK_THIGH, GLUTES, ABS, LOWER_BACK, BACK)));
         p.cr10Lo = 4; p.cr10Hi = 5; p.xCap = 0.60;
 
         p = add(new Program(BACK_PAIN, "Облекчаване на болки в гърба", "Back pain relief",
                 "Отпуска напрежението, укрепва дълбоките мускули, облекчава болката",
                 "Eases tension, strengthens the deep muscles, relieves pain",
-                Kind.PASSIVE, AutoModel.zones(0, 40, 60, 80, 70, 100, 90, 60, 0, 0)));
+                Kind.PASSIVE, only(BACK_THIGH, GLUTES, ABS, LOWER_BACK, BACK, TRAPS)));
         p.cr10Lo = 4; p.cr10Hi = 4; p.xCap = 0.45; p.asksBack = true;
 
         p = add(new Program(RECOVERY, "Възстановяване и релакс", "Recovery & relaxation",
                 "По-бързо възстановяване след натоварване, отпуснати мускули",
                 "Faster recovery after training, relaxed muscles",
-                Kind.PASSIVE, AutoModel.zones(80, 90, 90, 90, 50, 70, 80, 80, 40, 60)));
+                Kind.PASSIVE, ALL_ON.clone()));
         p.cr10Lo = 3; p.cr10Hi = 5; p.xCap = 0.45;
 
         // anti-ageing = longevity (owner, 1.1.527): keeping the body young and its functions — the pathways of ageing,

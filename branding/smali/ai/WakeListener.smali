@@ -9,6 +9,7 @@
         Lcom/isaigu/gymapp/ai/WakeListener$Mic;,
         Lcom/isaigu/gymapp/ai/WakeListener$DialogCommand;,
         Lcom/isaigu/gymapp/ai/WakeListener$Listener;,
+        Lcom/isaigu/gymapp/ai/WakeListener$VoiceBack;,
         Lcom/isaigu/gymapp/ai/WakeListener$MicAgain;,
         Lcom/isaigu/gymapp/ai/WakeListener$TtsInit;,
         Lcom/isaigu/gymapp/ai/WakeListener$Release;,
@@ -39,9 +40,13 @@
 
 .field static final SOURCES:[I
 
+.field static final SPOKEN:Lcom/isaigu/gymapp/ai/WakeListener$Spoken;
+
 .field static final SPOTTER:Lcom/isaigu/gymapp/ai/WakeWord;
 
 .field private static final SPOTTER_AGAIN:Ljava/lang/Runnable;
+
+.field static final VOICE_BACK:Lcom/isaigu/gymapp/ai/WakeListener$VoiceBack;
 
 .field private static armedUntil:J
 
@@ -137,7 +142,7 @@
 
     new-array v0, v0, [I
 
-    fill-array-data v0, :array_3c
+    fill-array-data v0, :array_4a
 
     sput-object v0, Lcom/isaigu/gymapp/ai/WakeListener;->SOURCES:[I
 
@@ -151,26 +156,40 @@
 
     sput-object v0, Lcom/isaigu/gymapp/ai/WakeListener;->RECOGNIZE:Ljava/lang/Runnable;
 
-    .line 758
+    .line 762
     new-instance v0, Lcom/isaigu/gymapp/ai/WakeListener$Follow;
 
     invoke-direct {v0}, Lcom/isaigu/gymapp/ai/WakeListener$Follow;-><init>()V
 
     sput-object v0, Lcom/isaigu/gymapp/ai/WakeListener;->FOLLOW:Ljava/lang/Runnable;
 
-    .line 759
+    .line 763
     new-instance v0, Lcom/isaigu/gymapp/ai/WakeListener$SpotterAgain;
 
     invoke-direct {v0}, Lcom/isaigu/gymapp/ai/WakeListener$SpotterAgain;-><init>()V
 
     sput-object v0, Lcom/isaigu/gymapp/ai/WakeListener;->SPOTTER_AGAIN:Ljava/lang/Runnable;
 
+    .line 764
+    new-instance v0, Lcom/isaigu/gymapp/ai/WakeListener$Spoken;
+
+    invoke-direct {v0}, Lcom/isaigu/gymapp/ai/WakeListener$Spoken;-><init>()V
+
+    sput-object v0, Lcom/isaigu/gymapp/ai/WakeListener;->SPOKEN:Lcom/isaigu/gymapp/ai/WakeListener$Spoken;
+
+    .line 765
+    new-instance v0, Lcom/isaigu/gymapp/ai/WakeListener$VoiceBack;
+
+    invoke-direct {v0}, Lcom/isaigu/gymapp/ai/WakeListener$VoiceBack;-><init>()V
+
+    sput-object v0, Lcom/isaigu/gymapp/ai/WakeListener;->VOICE_BACK:Lcom/isaigu/gymapp/ai/WakeListener$VoiceBack;
+
     return-void
 
     .line 239
     nop
 
-    :array_3c
+    :array_4a
     .array-data 4
         0x6
         0x1
@@ -261,24 +280,34 @@
     return-object p0
 .end method
 
-.method static synthetic access$1300()Ljava/lang/Runnable;
-    .registers 1
+.method static synthetic access$1300()V
+    .registers 0
 
     .prologue
     .line 45
-    sget-object v0, Lcom/isaigu/gymapp/ai/WakeListener;->SPOTTER_AGAIN:Ljava/lang/Runnable;
+    invoke-static {}, Lcom/isaigu/gymapp/ai/WakeListener;->initTts()V
 
-    return-object v0
+    return-void
 .end method
 
-.method static synthetic access$1400()Ljava/lang/Runnable;
+.method static synthetic access$1400()Z
     .registers 1
 
     .prologue
     .line 45
-    sget-object v0, Lcom/isaigu/gymapp/ai/WakeListener;->FOLLOW:Ljava/lang/Runnable;
+    sget-boolean v0, Lcom/isaigu/gymapp/ai/WakeListener;->ttsOk:Z
 
-    return-object v0
+    return v0
+.end method
+
+.method static synthetic access$1402(Z)Z
+    .registers 1
+
+    .prologue
+    .line 45
+    sput-boolean p0, Lcom/isaigu/gymapp/ai/WakeListener;->ttsOk:Z
+
+    return p0
 .end method
 
 .method static synthetic access$1500()Landroid/speech/tts/TextToSpeech;
@@ -291,24 +320,24 @@
     return-object v0
 .end method
 
-.method static synthetic access$1600()Z
+.method static synthetic access$1600()Ljava/lang/Runnable;
     .registers 1
 
     .prologue
     .line 45
-    sget-boolean v0, Lcom/isaigu/gymapp/ai/WakeListener;->ttsOk:Z
+    sget-object v0, Lcom/isaigu/gymapp/ai/WakeListener;->SPOTTER_AGAIN:Ljava/lang/Runnable;
 
-    return v0
+    return-object v0
 .end method
 
-.method static synthetic access$1602(Z)Z
+.method static synthetic access$1700()Ljava/lang/Runnable;
     .registers 1
 
     .prologue
     .line 45
-    sput-boolean p0, Lcom/isaigu/gymapp/ai/WakeListener;->ttsOk:Z
+    sget-object v0, Lcom/isaigu/gymapp/ai/WakeListener;->FOLLOW:Ljava/lang/Runnable;
 
-    return p0
+    return-object v0
 .end method
 
 .method static synthetic access$200()I
@@ -395,26 +424,26 @@
     .registers 3
 
     .prologue
-    .line 855
+    .line 890
     sget-object v0, Lcom/isaigu/gymapp/ai/WakeListener;->ctx:Landroid/content/Context;
 
     invoke-static {v0, p0}, Lcom/isaigu/gymapp/ai/AiTrain;->voice(Landroid/content/Context;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v0
 
-    .line 856
+    .line 891
     if-nez v0, :cond_e
 
-    .line 857
+    .line 892
     const/16 v0, 0x1a
 
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/WakeListener;->tone(I)V
 
-    .line 863
+    .line 898
     :goto_d
     return-void
 
-    .line 858
+    .line 893
     :cond_e
     invoke-virtual {v0}, Ljava/lang/String;->length()I
 
@@ -422,12 +451,12 @@
 
     if-lez v1, :cond_18
 
-    .line 859
+    .line 894
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/WakeListener;->say(Ljava/lang/String;)V
 
     goto :goto_d
 
-    .line 861
+    .line 896
     :cond_18
     const/16 v0, 0x19
 
@@ -442,30 +471,30 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 813
+    .line 848
     sput-boolean v1, Lcom/isaigu/gymapp/ai/WakeListener;->window:Z
 
-    .line 814
+    .line 849
     const-string v0, ""
 
     sput-object v0, Lcom/isaigu/gymapp/ai/WakeListener;->state:Ljava/lang/String;
 
-    .line 815
+    .line 850
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiTrain;->voiceState()V
 
-    .line 816
+    .line 851
     invoke-static {}, Lcom/isaigu/gymapp/ai/WakeListener;->cancelRecognizer()V
 
-    .line 817
+    .line 852
     sget-boolean v0, Lcom/isaigu/gymapp/ai/WakeListener;->on:Z
 
     if-nez v0, :cond_12
 
-    .line 826
+    .line 861
     :goto_11
     return-void
 
-    .line 820
+    .line 855
     :cond_12
     sget-object v0, Lcom/isaigu/gymapp/ai/WakeListener;->SPOTTER:Lcom/isaigu/gymapp/ai/WakeWord;
 
@@ -475,10 +504,10 @@
 
     if-eqz v0, :cond_28
 
-    .line 821
+    .line 856
     invoke-static {v1}, Lcom/isaigu/gymapp/ai/WakeListener;->mute(Z)V
 
-    .line 822
+    .line 857
     sget-object v0, Lcom/isaigu/gymapp/ai/WakeListener;->MAIN:Landroid/os/Handler;
 
     new-instance v1, Lcom/isaigu/gymapp/ai/WakeListener$MicAgain;
@@ -489,7 +518,7 @@
 
     goto :goto_11
 
-    .line 824
+    .line 859
     :cond_28
     invoke-static {p0, p1}, Lcom/isaigu/gymapp/ai/WakeListener;->recognize(J)V
 
@@ -513,7 +542,7 @@
 
     if-nez v0, :cond_d
 
-    .line 756
+    .line 760
     :cond_c
     :goto_c
     return-void
@@ -525,51 +554,66 @@
     .line 744
     sget-boolean v0, Lcom/isaigu/gymapp/ai/WakeListener;->ttsOk:Z
 
-    if-eqz v0, :cond_c
+    if-eqz v0, :cond_18
 
     sget-object v0, Lcom/isaigu/gymapp/ai/WakeListener;->tts:Landroid/speech/tts/TextToSpeech;
+
+    if-nez v0, :cond_1e
+
+    :cond_18
+    invoke-static {}, Lcom/isaigu/gymapp/ai/WakeListener;->cloud()Z
+
+    move-result v0
 
     if-eqz v0, :cond_c
 
     .line 748
-    :try_start_18
+    :cond_1e
+    :try_start_1e
     sget-boolean v0, Lcom/isaigu/gymapp/ai/WakeListener;->on:Z
 
-    if-eqz v0, :cond_23
+    if-eqz v0, :cond_29
 
     sget-boolean v0, Lcom/isaigu/gymapp/ai/WakeListener;->window:Z
 
-    if-nez v0, :cond_23
+    if-nez v0, :cond_29
 
     .line 749
     invoke-static {}, Lcom/isaigu/gymapp/ai/WakeListener;->micStop()V
 
     .line 751
-    :cond_23
+    :cond_29
     invoke-static {p0}, Lcom/isaigu/gymapp/ai/AiSpeak;->clean(Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v0
 
     .line 752
-    sget-object v1, Lcom/isaigu/gymapp/ai/WakeListener;->tts:Landroid/speech/tts/TextToSpeech;
+    invoke-static {}, Lcom/isaigu/gymapp/ai/WakeListener;->cloud()Z
 
-    const/4 v2, 0x1
+    move-result v1
+
+    if-eqz v1, :cond_58
+
+    .line 753
+    sget-object v1, Lcom/isaigu/gymapp/ai/WakeListener;->ctx:Landroid/content/Context;
+
+    const-string v2, "xems-ann"
 
     const/4 v3, 0x0
 
-    const-string v4, "xems-ann"
+    sget-object v4, Lcom/isaigu/gymapp/ai/WakeListener;->VOICE_BACK:Lcom/isaigu/gymapp/ai/WakeListener$VoiceBack;
 
-    invoke-virtual {v1, v0, v2, v3, v4}, Landroid/speech/tts/TextToSpeech;->speak(Ljava/lang/CharSequence;ILandroid/os/Bundle;Ljava/lang/String;)I
-    :try_end_30
-    .catch Ljava/lang/Throwable; {:try_start_18 .. :try_end_30} :catch_31
+    invoke-static {v1, v0, v2, v3, v4}, Lcom/isaigu/gymapp/ai/CloudVoice;->speak(Landroid/content/Context;Ljava/lang/String;Ljava/lang/String;ZLcom/isaigu/gymapp/ai/CloudVoice$Fallback;)V
+    :try_end_3d
+    .catch Ljava/lang/Throwable; {:try_start_1e .. :try_end_3d} :catch_3e
 
     goto :goto_c
 
-    .line 753
-    :catch_31
+    .line 757
+    :catch_3e
     move-exception v0
 
-    .line 754
+    .line 758
     const-string v1, "wake"
 
     new-instance v2, Ljava/lang/StringBuilder;
@@ -591,6 +635,23 @@
     move-result-object v0
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/wearable/WearableBleDiagLog;->log(Ljava/lang/String;Ljava/lang/String;)V
+
+    goto :goto_c
+
+    .line 756
+    :cond_58
+    :try_start_58
+    sget-object v1, Lcom/isaigu/gymapp/ai/WakeListener;->tts:Landroid/speech/tts/TextToSpeech;
+
+    const/4 v2, 0x1
+
+    const/4 v3, 0x0
+
+    const-string v4, "xems-ann"
+
+    invoke-virtual {v1, v0, v2, v3, v4}, Landroid/speech/tts/TextToSpeech;->speak(Ljava/lang/CharSequence;ILandroid/os/Bundle;Ljava/lang/String;)I
+    :try_end_61
+    .catch Ljava/lang/Throwable; {:try_start_58 .. :try_end_61} :catch_3e
 
     goto :goto_c
 .end method
@@ -670,7 +731,7 @@
 
     .line 721
     :cond_2d
-    if-eqz p1, :cond_4d
+    if-eqz p1, :cond_53
 
     sget-object v0, Lcom/isaigu/gymapp/ai/WakeListener;->FOLLOW:Ljava/lang/Runnable;
 
@@ -689,10 +750,16 @@
 
     sget-object v1, Lcom/isaigu/gymapp/ai/WakeListener;->tts:Landroid/speech/tts/TextToSpeech;
 
-    if-nez v1, :cond_50
+    if-nez v1, :cond_56
+
+    :cond_40
+    invoke-static {}, Lcom/isaigu/gymapp/ai/WakeListener;->cloud()Z
+
+    move-result v1
+
+    if-nez v1, :cond_56
 
     .line 724
-    :cond_40
     const/16 v1, 0x19
 
     invoke-static {v1}, Lcom/isaigu/gymapp/ai/WakeListener;->tone(I)V
@@ -707,13 +774,13 @@
     goto :goto_c
 
     .line 721
-    :cond_4d
+    :cond_53
     sget-object v0, Lcom/isaigu/gymapp/ai/WakeListener;->SPOTTER_AGAIN:Ljava/lang/Runnable;
 
     goto :goto_31
 
     .line 728
-    :cond_50
+    :cond_56
     const-string v1, "speaking"
 
     sput-object v1, Lcom/isaigu/gymapp/ai/WakeListener;->state:Ljava/lang/String;
@@ -722,21 +789,21 @@
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiTrain;->voiceState()V
 
     .line 730
-    if-eqz p1, :cond_75
+    if-eqz p1, :cond_7b
 
     const-string v1, "xems-listen"
 
-    :goto_5b
+    :goto_61
     invoke-static {p0, v1}, Lcom/isaigu/gymapp/ai/WakeListener;->say(Ljava/lang/String;Ljava/lang/String;)V
 
     .line 732
     sget-object v1, Lcom/isaigu/gymapp/ai/WakeListener;->MAIN:Landroid/os/Handler;
 
-    const-wide/16 v2, 0x4e20
+    const-wide/16 v2, 0x55f0
 
-    const-wide/16 v4, 0x5dc
+    const-wide/16 v4, 0x9c4
 
-    const-wide/16 v6, 0x46
+    const-wide/16 v6, 0x4b
 
     invoke-virtual {p0}, Ljava/lang/String;->length()I
 
@@ -757,10 +824,10 @@
     goto :goto_c
 
     .line 730
-    :cond_75
+    :cond_7b
     const-string v1, "xems-said"
 
-    goto :goto_5b
+    goto :goto_61
 .end method
 
 .method private static begin()V
@@ -1117,7 +1184,7 @@
     .registers 6
 
     .prologue
-    .line 928
+    .line 963
     :try_start_0
     sget v0, Landroid/os/Build$VERSION;->SDK_INT:I
 
@@ -1137,12 +1204,12 @@
 
     if-nez v0, :cond_13
 
-    .line 954
+    .line 989
     :cond_12
     :goto_12
     return-void
 
-    .line 931
+    .line 966
     :cond_13
     invoke-static {}, Lcom/isaigu/gymapp/ai/WakeListener;->bg()Z
 
@@ -1154,11 +1221,11 @@
 
     move-object v2, v0
 
-    .line 932
+    .line 967
     :goto_1c
     const/4 v1, 0x0
 
-    .line 933
+    .line 968
     sget-object v0, Lcom/isaigu/gymapp/ai/WakeListener;->tts:Landroid/speech/tts/TextToSpeech;
 
     invoke-virtual {v0}, Landroid/speech/tts/TextToSpeech;->getVoices()Ljava/util/Set;
@@ -1183,7 +1250,7 @@
 
     check-cast v0, Landroid/speech/tts/Voice;
 
-    .line 934
+    .line 969
     if-eqz v0, :cond_27
 
     invoke-virtual {v0}, Landroid/speech/tts/Voice;->getLocale()Ljava/util/Locale;
@@ -1206,7 +1273,7 @@
 
     if-eqz v4, :cond_27
 
-    .line 937
+    .line 972
     invoke-virtual {v0}, Landroid/speech/tts/Voice;->getFeatures()Ljava/util/Set;
 
     move-result-object v4
@@ -1225,7 +1292,7 @@
 
     if-nez v4, :cond_27
 
-    .line 940
+    .line 975
     :cond_5b
     if-eqz v1, :cond_7d
 
@@ -1239,7 +1306,7 @@
 
     if-gt v4, v5, :cond_7d
 
-    .line 941
+    .line 976
     invoke-virtual {v0}, Landroid/speech/tts/Voice;->getQuality()I
 
     move-result v4
@@ -1256,7 +1323,7 @@
 
     if-eqz v4, :cond_f2
 
-    .line 942
+    .line 977
     invoke-virtual {v0}, Landroid/speech/tts/Voice;->isNetworkConnectionRequired()Z
 
     move-result v4
@@ -1267,10 +1334,10 @@
     :goto_7d
     move-object v1, v0
 
-    .line 945
+    .line 980
     goto :goto_27
 
-    .line 931
+    .line 966
     :cond_7f
     const-string v0, "en"
 
@@ -1278,16 +1345,16 @@
 
     goto :goto_1c
 
-    .line 946
+    .line 981
     :cond_83
     if-eqz v1, :cond_8a
 
-    .line 947
+    .line 982
     sget-object v0, Lcom/isaigu/gymapp/ai/WakeListener;->tts:Landroid/speech/tts/TextToSpeech;
 
     invoke-virtual {v0, v1}, Landroid/speech/tts/TextToSpeech;->setVoice(Landroid/speech/tts/Voice;)I
 
-    .line 949
+    .line 984
     :cond_8a
     const-string v2, "wake"
 
@@ -1303,12 +1370,12 @@
 
     if-eqz v1, :cond_ef
 
-    .line 950
+    .line 985
     new-instance v0, Ljava/lang/StringBuilder;
 
     invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
 
-    .line 949
+    .line 984
     invoke-virtual {v1}, Landroid/speech/tts/Voice;->getName()Ljava/lang/String;
 
     move-result-object v4
@@ -1331,7 +1398,7 @@
 
     move-result-object v4
 
-    .line 950
+    .line 985
     invoke-virtual {v1}, Landroid/speech/tts/Voice;->isNetworkConnectionRequired()Z
 
     move-result v0
@@ -1358,18 +1425,18 @@
 
     move-result-object v0
 
-    .line 949
+    .line 984
     invoke-static {v2, v0}, Lcom/isaigu/gymapp/wearable/WearableBleDiagLog;->log(Ljava/lang/String;Ljava/lang/String;)V
     :try_end_cf
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_cf} :catch_d1
 
     goto/16 :goto_12
 
-    .line 951
+    .line 986
     :catch_d1
     move-exception v0
 
-    .line 952
+    .line 987
     const-string v1, "wake"
 
     new-instance v2, Ljava/lang/StringBuilder;
@@ -1394,7 +1461,7 @@
 
     goto/16 :goto_12
 
-    .line 950
+    .line 985
     :cond_ec
     :try_start_ec
     const-string v0, " local"
@@ -1418,7 +1485,7 @@
     .registers 2
 
     .prologue
-    .line 890
+    .line 925
     const-string v0, "bg"
 
     const-string v1, "en"
@@ -1440,32 +1507,58 @@
     .registers 1
 
     .prologue
-    .line 868
+    .line 903
     :try_start_0
     sget-object v0, Lcom/isaigu/gymapp/ai/WakeListener;->rec:Landroid/speech/SpeechRecognizer;
 
     if-eqz v0, :cond_9
 
-    .line 869
+    .line 904
     sget-object v0, Lcom/isaigu/gymapp/ai/WakeListener;->rec:Landroid/speech/SpeechRecognizer;
 
     invoke-virtual {v0}, Landroid/speech/SpeechRecognizer;->cancel()V
     :try_end_9
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_9} :catch_a
 
-    .line 874
+    .line 909
     :cond_9
     :goto_9
     return-void
 
-    .line 871
+    .line 906
     :catch_a
     move-exception v0
 
-    .line 872
+    .line 907
     invoke-static {}, Lcom/isaigu/gymapp/ai/WakeListener;->destroyRecognizer()V
 
     goto :goto_9
+.end method
+
+.method static cloud()Z
+    .registers 1
+
+    .prologue
+    .line 769
+    sget-object v0, Lcom/isaigu/gymapp/ai/WakeListener;->ctx:Landroid/content/Context;
+
+    if-eqz v0, :cond_c
+
+    invoke-static {}, Lcom/isaigu/gymapp/ai/CloudVoice;->usable()Z
+
+    move-result v0
+
+    if-eqz v0, :cond_c
+
+    const/4 v0, 0x1
+
+    :goto_b
+    return v0
+
+    :cond_c
+    const/4 v0, 0x0
+
+    goto :goto_b
 .end method
 
 .method static commandHeard(Ljava/util/ArrayList;)V
@@ -1612,35 +1705,35 @@
     .registers 1
 
     .prologue
-    .line 878
+    .line 913
     :try_start_0
     sget-object v0, Lcom/isaigu/gymapp/ai/WakeListener;->rec:Landroid/speech/SpeechRecognizer;
 
     if-eqz v0, :cond_e
 
-    .line 879
+    .line 914
     sget-object v0, Lcom/isaigu/gymapp/ai/WakeListener;->rec:Landroid/speech/SpeechRecognizer;
 
     invoke-virtual {v0}, Landroid/speech/SpeechRecognizer;->cancel()V
 
-    .line 880
+    .line 915
     sget-object v0, Lcom/isaigu/gymapp/ai/WakeListener;->rec:Landroid/speech/SpeechRecognizer;
 
     invoke-virtual {v0}, Landroid/speech/SpeechRecognizer;->destroy()V
     :try_end_e
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_e} :catch_12
 
-    .line 884
+    .line 919
     :cond_e
     :goto_e
     const/4 v0, 0x0
 
     sput-object v0, Lcom/isaigu/gymapp/ai/WakeListener;->rec:Landroid/speech/SpeechRecognizer;
 
-    .line 885
+    .line 920
     return-void
 
-    .line 882
+    .line 917
     :catch_12
     move-exception v0
 
@@ -1763,7 +1856,7 @@
 
     const/4 v4, 0x0
 
-    .line 830
+    .line 865
     if-eqz p0, :cond_b
 
     invoke-virtual {p0}, Ljava/util/ArrayList;->isEmpty()Z
@@ -1772,18 +1865,18 @@
 
     if-eqz v0, :cond_c
 
-    .line 852
+    .line 887
     :cond_b
     :goto_b
     return-void
 
-    .line 833
+    .line 868
     :cond_c
     invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
 
     move-result-wide v2
 
-    .line 834
+    .line 869
     invoke-virtual {p0}, Ljava/util/ArrayList;->iterator()Ljava/util/Iterator;
 
     move-result-object v1
@@ -1801,45 +1894,45 @@
 
     check-cast v0, Ljava/lang/String;
 
-    .line 835
+    .line 870
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/AiVoiceCmd;->afterWake(Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v0
 
-    .line 836
+    .line 871
     if-eqz v0, :cond_14
 
-    .line 839
+    .line 874
     invoke-virtual {v0}, Ljava/lang/String;->length()I
 
     move-result v1
 
     if-nez v1, :cond_37
 
-    .line 840
+    .line 875
     const-wide/16 v0, 0x1770
 
     add-long/2addr v0, v2
 
     sput-wide v0, Lcom/isaigu/gymapp/ai/WakeListener;->armedUntil:J
 
-    .line 841
+    .line 876
     const/16 v0, 0x18
 
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/WakeListener;->tone(I)V
 
     goto :goto_b
 
-    .line 844
+    .line 879
     :cond_37
     sput-wide v6, Lcom/isaigu/gymapp/ai/WakeListener;->armedUntil:J
 
-    .line 845
+    .line 880
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/WakeListener;->act(Ljava/lang/String;)V
 
     goto :goto_b
 
-    .line 848
+    .line 883
     :cond_3d
     sget-wide v0, Lcom/isaigu/gymapp/ai/WakeListener;->armedUntil:J
 
@@ -1869,10 +1962,10 @@
 
     if-lez v0, :cond_b
 
-    .line 849
+    .line 884
     sput-wide v6, Lcom/isaigu/gymapp/ai/WakeListener;->armedUntil:J
 
-    .line 850
+    .line 885
     invoke-virtual {p0, v4}, Ljava/util/ArrayList;->get(I)Ljava/lang/Object;
 
     move-result-object v0
@@ -1894,7 +1987,7 @@
     .prologue
     const/16 v5, 0x10
 
-    .line 1024
+    .line 1064
     new-instance v1, Ljava/lang/StringBuilder;
 
     array-length v0, p0
@@ -1903,7 +1996,7 @@
 
     invoke-direct {v1, v0}, Ljava/lang/StringBuilder;-><init>(I)V
 
-    .line 1025
+    .line 1065
     array-length v2, p0
 
     const/4 v0, 0x0
@@ -1913,7 +2006,7 @@
 
     aget-byte v3, p0, v0
 
-    .line 1026
+    .line 1066
     shr-int/lit8 v4, v3, 0x4
 
     and-int/lit8 v4, v4, 0xf
@@ -1934,12 +2027,12 @@
 
     invoke-virtual {v4, v3}, Ljava/lang/StringBuilder;->append(C)Ljava/lang/StringBuilder;
 
-    .line 1025
+    .line 1065
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_c
 
-    .line 1028
+    .line 1068
     :cond_28
     invoke-virtual {v1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
@@ -1952,7 +2045,7 @@
     .registers 4
 
     .prologue
-    .line 894
+    .line 929
     sget-object v0, Lcom/isaigu/gymapp/ai/WakeListener;->tts:Landroid/speech/tts/TextToSpeech;
 
     if-nez v0, :cond_8
@@ -1961,12 +2054,12 @@
 
     if-nez v0, :cond_9
 
-    .line 902
+    .line 937
     :cond_8
     :goto_8
     return-void
 
-    .line 898
+    .line 933
     :cond_9
     :try_start_9
     new-instance v0, Landroid/speech/tts/TextToSpeech;
@@ -1985,11 +2078,11 @@
 
     goto :goto_8
 
-    .line 899
+    .line 934
     :catch_18
     move-exception v0
 
-    .line 900
+    .line 935
     const-string v1, "wake"
 
     new-instance v2, Ljava/lang/StringBuilder;
@@ -2318,7 +2411,7 @@
     .registers 5
 
     .prologue
-    .line 1002
+    .line 1042
     :try_start_0
     sget-object v0, Lcom/isaigu/gymapp/ai/WakeListener;->ctx:Landroid/content/Context;
 
@@ -2335,30 +2428,30 @@
     :goto_c
     check-cast v0, Landroid/media/AudioManager;
 
-    .line 1003
+    .line 1043
     if-nez v0, :cond_13
 
-    .line 1021
+    .line 1061
     :cond_10
     :goto_10
     return-void
 
-    .line 1002
+    .line 1042
     :cond_11
     const/4 v0, 0x0
 
     goto :goto_c
 
-    .line 1006
+    .line 1046
     :cond_13
     if-eqz p0, :cond_4e
 
-    .line 1007
+    .line 1047
     sget v1, Lcom/isaigu/gymapp/ai/WakeListener;->volSystem:I
 
     if-gez v1, :cond_27
 
-    .line 1008
+    .line 1048
     const/4 v1, 0x1
 
     invoke-virtual {v0, v1}, Landroid/media/AudioManager;->getStreamVolume(I)I
@@ -2367,7 +2460,7 @@
 
     sput v1, Lcom/isaigu/gymapp/ai/WakeListener;->volSystem:I
 
-    .line 1009
+    .line 1049
     const/4 v1, 0x5
 
     invoke-virtual {v0, v1}, Landroid/media/AudioManager;->getStreamVolume(I)I
@@ -2376,7 +2469,7 @@
 
     sput v1, Lcom/isaigu/gymapp/ai/WakeListener;->volNotify:I
 
-    .line 1011
+    .line 1051
     :cond_27
     const/4 v1, 0x1
 
@@ -2386,7 +2479,7 @@
 
     invoke-virtual {v0, v1, v2, v3}, Landroid/media/AudioManager;->setStreamVolume(III)V
 
-    .line 1012
+    .line 1052
     const/4 v1, 0x5
 
     const/4 v2, 0x0
@@ -2399,11 +2492,11 @@
 
     goto :goto_10
 
-    .line 1018
+    .line 1058
     :catch_34
     move-exception v0
 
-    .line 1019
+    .line 1059
     const-string v1, "wake"
 
     new-instance v2, Ljava/lang/StringBuilder;
@@ -2428,14 +2521,14 @@
 
     goto :goto_10
 
-    .line 1013
+    .line 1053
     :cond_4e
     :try_start_4e
     sget v1, Lcom/isaigu/gymapp/ai/WakeListener;->volSystem:I
 
     if-ltz v1, :cond_10
 
-    .line 1014
+    .line 1054
     const/4 v1, 0x1
 
     sget v2, Lcom/isaigu/gymapp/ai/WakeListener;->volSystem:I
@@ -2444,7 +2537,7 @@
 
     invoke-virtual {v0, v1, v2, v3}, Landroid/media/AudioManager;->setStreamVolume(III)V
 
-    .line 1015
+    .line 1055
     const/4 v1, 0x5
 
     sget v2, Lcom/isaigu/gymapp/ai/WakeListener;->volNotify:I
@@ -2453,7 +2546,7 @@
 
     invoke-virtual {v0, v1, v2, v3}, Landroid/media/AudioManager;->setStreamVolume(III)V
 
-    .line 1016
+    .line 1056
     const/4 v0, -0x1
 
     sput v0, Lcom/isaigu/gymapp/ai/WakeListener;->volNotify:I
@@ -3059,55 +3152,92 @@
     .registers 2
 
     .prologue
-    .line 958
+    .line 993
     const-string v0, "xems"
 
     invoke-static {p0, v0}, Lcom/isaigu/gymapp/ai/WakeListener;->say(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 959
+    .line 994
     return-void
 .end method
 
 .method static say(Ljava/lang/String;Ljava/lang/String;)V
-    .registers 7
+    .registers 8
 
     .prologue
+    const/16 v5, 0x19
+
+    const/4 v4, 0x0
+
     const/16 v3, 0x190
 
-    const/16 v4, 0x19
+    .line 997
+    invoke-static {}, Lcom/isaigu/gymapp/ai/WakeListener;->cloud()Z
 
-    .line 962
-    sget-boolean v0, Lcom/isaigu/gymapp/ai/WakeListener;->ttsOk:Z
+    move-result v0
 
-    if-eqz v0, :cond_c
+    if-eqz v0, :cond_22
 
-    sget-object v0, Lcom/isaigu/gymapp/ai/WakeListener;->tts:Landroid/speech/tts/TextToSpeech;
-
-    if-nez v0, :cond_10
-
-    .line 963
-    :cond_c
-    invoke-static {v4}, Lcom/isaigu/gymapp/ai/WakeListener;->tone(I)V
-
-    .line 972
-    :goto_f
-    return-void
-
-    .line 967
-    :cond_10
-    :try_start_10
+    .line 998
     invoke-static {p0}, Lcom/isaigu/gymapp/ai/AiSpeak;->clean(Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v0
 
-    .line 968
+    .line 999
+    sget-object v1, Lcom/isaigu/gymapp/ai/WakeListener;->ctx:Landroid/content/Context;
+
+    invoke-virtual {v0}, Ljava/lang/String;->length()I
+
+    move-result v2
+
+    if-le v2, v3, :cond_1b
+
+    invoke-virtual {v0, v4, v3}, Ljava/lang/String;->substring(II)Ljava/lang/String;
+
+    move-result-object v0
+
+    :cond_1b
+    const/4 v2, 0x1
+
+    sget-object v3, Lcom/isaigu/gymapp/ai/WakeListener;->VOICE_BACK:Lcom/isaigu/gymapp/ai/WakeListener$VoiceBack;
+
+    invoke-static {v1, v0, p1, v2, v3}, Lcom/isaigu/gymapp/ai/CloudVoice;->speak(Landroid/content/Context;Ljava/lang/String;Ljava/lang/String;ZLcom/isaigu/gymapp/ai/CloudVoice$Fallback;)V
+
+    .line 1012
+    :goto_21
+    return-void
+
+    .line 1002
+    :cond_22
+    sget-boolean v0, Lcom/isaigu/gymapp/ai/WakeListener;->ttsOk:Z
+
+    if-eqz v0, :cond_2a
+
+    sget-object v0, Lcom/isaigu/gymapp/ai/WakeListener;->tts:Landroid/speech/tts/TextToSpeech;
+
+    if-nez v0, :cond_2e
+
+    .line 1003
+    :cond_2a
+    invoke-static {v5}, Lcom/isaigu/gymapp/ai/WakeListener;->tone(I)V
+
+    goto :goto_21
+
+    .line 1007
+    :cond_2e
+    :try_start_2e
+    invoke-static {p0}, Lcom/isaigu/gymapp/ai/AiSpeak;->clean(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
+
+    .line 1008
     sget-object v1, Lcom/isaigu/gymapp/ai/WakeListener;->tts:Landroid/speech/tts/TextToSpeech;
 
     invoke-virtual {v0}, Ljava/lang/String;->length()I
 
     move-result v2
 
-    if-le v2, v3, :cond_23
+    if-le v2, v3, :cond_41
 
     const/4 v2, 0x0
 
@@ -3117,25 +3247,25 @@
 
     move-result-object v0
 
-    :cond_23
+    :cond_41
     const/4 v2, 0x0
 
     const/4 v3, 0x0
 
     invoke-virtual {v1, v0, v2, v3, p1}, Landroid/speech/tts/TextToSpeech;->speak(Ljava/lang/CharSequence;ILandroid/os/Bundle;Ljava/lang/String;)I
-    :try_end_28
-    .catch Ljava/lang/Throwable; {:try_start_10 .. :try_end_28} :catch_29
+    :try_end_46
+    .catch Ljava/lang/Throwable; {:try_start_2e .. :try_end_46} :catch_47
 
-    goto :goto_f
+    goto :goto_21
 
-    .line 969
-    :catch_29
+    .line 1009
+    :catch_47
     move-exception v0
 
-    .line 970
-    invoke-static {v4}, Lcom/isaigu/gymapp/ai/WakeListener;->tone(I)V
+    .line 1010
+    invoke-static {v5}, Lcom/isaigu/gymapp/ai/WakeListener;->tone(I)V
 
-    goto :goto_f
+    goto :goto_21
 .end method
 
 .method public static start(Landroid/app/Activity;)Z
@@ -3361,7 +3491,7 @@
     .registers 7
 
     .prologue
-    .line 976
+    .line 1016
     :try_start_0
     new-instance v0, Landroid/media/ToneGenerator;
 
@@ -3371,12 +3501,12 @@
 
     invoke-direct {v0, v1, v2}, Landroid/media/ToneGenerator;-><init>(II)V
 
-    .line 977
+    .line 1017
     const/16 v1, 0xb4
 
     invoke-virtual {v0, p0, v1}, Landroid/media/ToneGenerator;->startTone(II)Z
 
-    .line 978
+    .line 1018
     sget-object v1, Lcom/isaigu/gymapp/ai/WakeListener;->MAIN:Landroid/os/Handler;
 
     new-instance v2, Lcom/isaigu/gymapp/ai/WakeListener$Release;
@@ -3389,11 +3519,11 @@
     :try_end_19
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_19} :catch_1a
 
-    .line 981
+    .line 1021
     :goto_19
     return-void
 
-    .line 979
+    .line 1019
     :catch_1a
     move-exception v0
 
@@ -3404,7 +3534,7 @@
     .registers 5
 
     .prologue
-    .line 1032
+    .line 1072
     invoke-virtual {p0}, Ljava/lang/String;->length()I
 
     move-result v0
@@ -3413,7 +3543,7 @@
 
     new-array v1, v0, [B
 
-    .line 1033
+    .line 1073
     const/4 v0, 0x0
 
     :goto_9
@@ -3421,7 +3551,7 @@
 
     if-ge v0, v2, :cond_22
 
-    .line 1034
+    .line 1074
     mul-int/lit8 v2, v0, 0x2
 
     mul-int/lit8 v3, v0, 0x2
@@ -3442,12 +3572,12 @@
 
     aput-byte v2, v1, v0
 
-    .line 1033
+    .line 1073
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_9
 
-    .line 1036
+    .line 1076
     :cond_22
     return-object v1
 .end method

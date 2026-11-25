@@ -12,6 +12,8 @@ export const LIMITS = {
   // AI brief (Gemini): a trainer types / speaks a few lines per client
   briefPerMinutePerDevice: 12,
   briefPerDayPerLicense: 600,
+  // the coach's voice (src/tts.js): a phrase a few seconds long; the cache answers repeats without counting
+  ttsPerMinutePerDevice: 40,
   cardFindPerMinutePerIp: 20,
   profilePerMinutePerIp: 10,
   inboxPerMinutePerDevice: 6,

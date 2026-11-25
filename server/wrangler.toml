@@ -10,6 +10,9 @@ globs = ["**/*.html"]
 fallthrough = true
 
 [vars]
+# the coach's voice (src/tts.js): the key is the secret AZURE_SPEECH_KEY
+AZURE_SPEECH_REGION = "germanywestcentral"
+TTS_VOICE = "bg-BG-KalinaNeural"
 PUBLIC_URL = "https://license.biocode-bg.com"
 # New tablets (no key) wait here as "pending" until the admin approves them into a studio (Таблети → Одобри).
 OWNER_LICENSE = "L-2026-792848"

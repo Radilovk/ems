@@ -448,6 +448,34 @@ public final class XemsLicenseClient {
 
     static final int AI_TIMEOUT_MS = 30000;
 
+    /**
+     * The coach's voice (1.1.559, ai/CloudVoice): POST /v1/tts with the licence → the open connection, its body raw
+     * 24 kHz PCM as the server makes it. Null = no server or licence. firstMs: connect and each read at most.
+     */
+    public static HttpURLConnection openTts(Context c, String text, int firstMs) throws Exception {
+        String token = XemsLicense.token();
+        if (!serverConfigured() || token == null || token.length() == 0) {
+            return null;
+        }
+        String base = XemsLicense.server();
+        while (base.endsWith("/")) {
+            base = base.substring(0, base.length() - 1);
+        }
+        String body = "{" + common(c) + ",\"token\":" + XemsLicenseToken.quote(token) + ",\"text\":"
+                + XemsLicenseToken.quote(text) + "}";
+        HttpURLConnection con = (HttpURLConnection) new URL(base + "/v1/tts").openConnection();
+        con.setRequestMethod("POST");
+        con.setConnectTimeout(firstMs);
+        con.setReadTimeout(firstMs);
+        con.setRequestProperty("User-Agent", "XEMS-Android");
+        con.setRequestProperty("Content-Type", "application/json; charset=utf-8");
+        con.setDoOutput(true);
+        OutputStream o = con.getOutputStream();
+        o.write(body.getBytes("UTF-8"));
+        o.close();
+        return con;
+    }
+
     // ================================================================ client card
 
     /**

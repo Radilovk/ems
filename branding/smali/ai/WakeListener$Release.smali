@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 986
+    .line 1026
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 987
+    .line 1027
     iput-object p1, p0, Lcom/isaigu/gymapp/ai/WakeListener$Release;->g:Landroid/media/ToneGenerator;
 
-    .line 988
+    .line 1028
     return-void
 .end method
 
@@ -42,7 +42,7 @@
     .registers 2
 
     .prologue
-    .line 993
+    .line 1033
     :try_start_0
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/WakeListener$Release;->g:Landroid/media/ToneGenerator;
 
@@ -50,11 +50,11 @@
     :try_end_5
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_5} :catch_6
 
-    .line 996
+    .line 1036
     :goto_5
     return-void
 
-    .line 994
+    .line 1034
     :catch_6
     move-exception v0
 

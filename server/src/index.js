@@ -16,6 +16,7 @@ import { handleVrlogPut, handleVrlogGet } from './vrlog.js';
 import { handleCertIssue } from './cert.js';
 import { brief, BRIEF_MAX_BYTES } from './aibrief.js';
 import { coach, workout, command, liveTurn } from './aicoach.js';
+import { cleanText, pickVoice, cacheKey, takeChars, azureSpeak } from './tts.js';
 import certHtml from '../../branding/certificate/index.html';
 import { handleWiemsUpdate, handleWiemsApk, handleWiemsSeen } from './wiemsapp.js';
 import {
@@ -93,6 +94,9 @@ export default {
 
       if (path === '/v1/ai/brief' && request.method === 'POST') {
         return handleAiBrief(request, env);
+      }
+      if (path === '/v1/tts' && request.method === 'POST') {
+        return handleTts(request, env, ctx);
       }
       if (path === '/v1/card' && request.method === 'POST') {
         return handleCardPut(request, env);
@@ -397,6 +401,50 @@ async function handleRefresh(request, env) {
 // ─── Client card (a phone page the studio sends to its client) ───────────────
 
 /** POST {token, device_id, client_key, data} → {ok, url}. Same client → same link, new data. */
+/**
+ * The coach's voice (src/tts.js): POST {token, device_id, text, voice?} → raw 24 kHz 16-bit mono PCM, streamed as
+ * Azure makes it; a phrase made before comes from the cache (no characters counted). 429 tts_quota near the month's
+ * free characters: the tablet speaks with its own engine.
+ */
+async function handleTts(request, env, ctx) {
+  const body = await readJsonBody(request, 4096);
+  if (!body) return err('unknown', 'Invalid JSON body');
+  const deviceId = normDevice(body.device_id);
+  const tokenBody = parseTokenBody(body.token);
+  const licId = tokenBody?.lic;
+  if (!licId || !deviceId || normDevice(tokenBody.dev) !== deviceId) return err('unknown', 'Invalid token');
+  if (!(await verifyToken(env.LICENSE_PRIVATE_KEY, body.token))) return err('unknown', 'Invalid token');
+  const text = cleanText(body.text);
+  if (!text) return err('bad_request', 'text');
+  const voice = pickVoice(body.voice, env);
+  const key = new Request(await cacheKey(voice, text));
+  const cache = caches.default;
+  const hit = await cache.match(key);
+  if (hit) {
+    return new Response(hit.body, { headers: { 'Content-Type': 'audio/L16; rate=24000', 'X-Tts': 'cache', 'X-Voice': voice } });
+  }
+  if (!allowHit(`tts:dev:${deviceId}`, LIMITS.ttsPerMinutePerDevice, 60, now())) {
+    return json({ ok: false, error: 'rate_limit', message: 'Too many requests' }, 429);
+  }
+  const quota = await takeChars(env, text.length);
+  if (!quota.ok) return json({ ok: false, error: 'tts_quota', used: quota.used, limit: quota.limit }, 429);
+  let res;
+  try {
+    res = await azureSpeak(env, text, voice);
+  } catch (e) {
+    return json({ ok: false, error: 'tts_unavailable', message: String(e?.message || e).slice(0, 80) }, 503);
+  }
+  if (!res.ok || !res.body) {
+    return json({ ok: false, error: 'tts_unavailable', message: `azure ${res.status}` }, 503);
+  }
+  // to the tablet as it comes, and a copy into the cache (a year: the same words, the same sound)
+  const [toTablet, toCache] = res.body.tee();
+  ctx?.waitUntil?.(cache.put(key, new Response(toCache, {
+    headers: { 'Content-Type': 'audio/L16; rate=24000', 'Cache-Control': 'public, max-age=31536000' },
+  })).catch(() => {}));
+  return new Response(toTablet, { headers: { 'Content-Type': 'audio/L16; rate=24000', 'X-Tts': 'azure', 'X-Voice': voice } });
+}
+
 /** The AI layer over the planner (docs/xems-ai-brief.md): the trainer's text → a validated patch of its inputs. */
 async function handleAiBrief(request, env) {
   const body = await readJsonBody(request, BRIEF_MAX_BYTES);

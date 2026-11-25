@@ -720,7 +720,7 @@ public final class WakeListener {
         }
         Runnable next = dialogue ? FOLLOW : SPOTTER_AGAIN;
         MAIN.removeCallbacks(SPOTTER_AGAIN);
-        if (!ttsOk || tts == null) {
+        if ((!ttsOk || tts == null) && !cloud()) {
             tone(ToneGenerator.TONE_PROP_ACK);
             MAIN.postDelayed(next, 400);
             return;
@@ -729,7 +729,7 @@ public final class WakeListener {
         AiTrain.voiceState();
         say(text, dialogue ? "xems-listen" : "xems-said");
         // a lost "done" never leaves the microphone off: ~70 ms a character at most
-        MAIN.postDelayed(next, Math.min(20000, 1500 + 70L * text.length()));
+        MAIN.postDelayed(next, Math.min(22000, 2500 + 75L * text.length()));
     }
 
     /**
@@ -741,7 +741,7 @@ public final class WakeListener {
             return;
         }
         initTts();
-        if (!ttsOk || tts == null) {
+        if ((!ttsOk || tts == null) && !cloud()) {
             return;
         }
         try {
@@ -749,6 +749,10 @@ public final class WakeListener {
                 micStop();
             }
             String t = AiSpeak.clean(text);
+            if (cloud()) {
+                CloudVoice.speak(ctx, t, "xems-ann", false, VOICE_BACK);
+                return;
+            }
             tts.speak(t, TextToSpeech.QUEUE_ADD, null, "xems-ann");
         } catch (Throwable t) {
             WearableBleDiagLog.log("wake", "announce: " + t);
@@ -757,6 +761,37 @@ public final class WakeListener {
 
     private static final Runnable FOLLOW = new Follow();
     private static final Runnable SPOTTER_AGAIN = new SpotterAgain();
+    static final Spoken SPOKEN = new Spoken();
+    static final VoiceBack VOICE_BACK = new VoiceBack();
+
+    /** The cloud voice can speak (or play a kept phrase): the coach's voice is Microsoft's, not the tablet's (1.1.559). */
+    static boolean cloud() {
+        return ctx != null && CloudVoice.usable();
+    }
+
+    /** The cloud voice's end of a phrase (the same as the engine's), and its fallback: the tablet's own engine. */
+    static final class VoiceBack implements CloudVoice.Fallback {
+        @Override
+        public void sayLocal(String text, String id, boolean flush) {
+            initTts();
+            if (!ttsOk || tts == null) {
+                tone(ToneGenerator.TONE_PROP_ACK);
+                SPOKEN.onDone(id);
+                return;
+            }
+            try {
+                tts.speak(text.length() > 400 ? text.substring(0, 400) : text,
+                        flush ? TextToSpeech.QUEUE_FLUSH : TextToSpeech.QUEUE_ADD, null, id);
+            } catch (Throwable t) {
+                SPOKEN.onDone(id);
+            }
+        }
+
+        @Override
+        public void done(String id) {
+            SPOKEN.onDone(id);
+        }
+    }
 
     /** After a command's confirmation: "тренер" again (or the recognizer, when nothing is recorded). */
     static final class SpotterAgain implements Runnable {
@@ -910,7 +945,7 @@ public final class WakeListener {
                     ttsOk = r != TextToSpeech.LANG_MISSING_DATA && r != TextToSpeech.LANG_NOT_SUPPORTED;
                     tts.setSpeechRate(1.05f);
                     bestVoice();
-                    tts.setOnUtteranceProgressListener(new Spoken());
+                    tts.setOnUtteranceProgressListener(SPOKEN);
                 }
             } catch (Throwable t) {
                 ttsOk = false;
@@ -959,6 +994,11 @@ public final class WakeListener {
     }
 
     static void say(String text, String id) {
+        if (cloud()) {
+            String t = AiSpeak.clean(text);
+            CloudVoice.speak(ctx, t.length() > 400 ? t.substring(0, 400) : t, id, true, VOICE_BACK);
+            return;
+        }
         if (!ttsOk || tts == null) {
             tone(ToneGenerator.TONE_PROP_ACK);
             return;

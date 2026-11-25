@@ -372,3 +372,16 @@ it, the warm-up runs softer by design); "s" read aloud as a letter → "секу
 - **Thinking live**: symptoms (`symptom`) → medium; a physiology "why" → low (planning keeps medium for both). The
   reader is skipped only for symptoms ("увеличи импулса" is a command, not physiology).
 - `generateJson` returns the token usage (in / out / think); ai-smoke prints it per phrase.
+
+## 1.1.559 — the coach's voice: Microsoft neural Bulgarian, streamed
+- **Owner:** least delay, a good voice, free. `ai/CloudVoice`: every phrase the tablet says (the coach's answers, the
+  confirmations, AiAnnounce's steps) goes to `/v1/tts` (`server/src/tts.js`) → Azure AI Speech (Germany West
+  Central, the free F0 tier, key = the secret `AZURE_SPEECH_KEY`), raw 24 kHz 16-bit PCM played by an AudioTrack
+  as it arrives (~0.3–0.5 s to the first word from Bulgaria).
+- **Kept twice:** the server's Cloudflare cache (a year; a repeat counts no characters) and the tablet's
+  `files/voice/` (50 MB, the oldest go): "Пауза", "Сила 46" are fetched once, then play at once, offline.
+- **Never paid, never silent:** the server counts the month's characters (`rate_limits` row `tts:chars:<month>`),
+  stops at 95 % of 500 000 → 429 `tts_quota` → the tablet's own engine for an hour, then asks again. No server,
+  network or answer within 2.5 s → the tablet's own engine for that phrase.
+- The voice is the server's (`TTS_VOICE` in wrangler.toml, default `bg-BG-KalinaNeural`; Borislav and four
+  multilingual voices allowed) — changed without a new APK; the tablet's kept phrases follow `X-Voice`.

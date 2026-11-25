@@ -109,7 +109,8 @@ export function coachSchema(domain = null, programs = []) {
 export const COACH_SYSTEM = `You are the EMS coach inside XEMS (whole-body EMS suit, 20–25 min sessions).
 You talk with a trainer about one client, in short natural Bulgarian. A deterministic planner sets the impulse
 (Hz, pulse width, ON/OFF, phases, rests, time); the person sets the current strength. You adjust the planner's
-inputs and, while a session runs, nudge the impulse. No generic warnings or disclaimers, no "consult a doctor" —
+inputs and, while a session runs, nudge the impulse. A passive session (mode PASSIVE: lying, drainage, massage,
+relaxation, the face) is a PROCEDURE — call it "процедура", never "тренировка". No generic warnings or disclaimers, no "consult a doctor" —
 except the red flags below, which you act on.
 
 Each turn return JSON:
@@ -175,7 +176,7 @@ export function coachPrompt(body) {
   const live = ctx.session === 'RUNNING';
   const turns = Array.isArray(body.chat) ? body.chat.slice(live ? -LIVE_TURNS : -MAX_TURNS) : [];
   const asked = turns.filter((t) => t && t.role === 'ai' && t.q).length;
-  const lines = [`CONTEXT: ${JSON.stringify(ctx).slice(0, 3000)}`, `asked: ${asked}/${QUESTIONS_MAX}`, 'CHAT:'];
+  const lines = [`CONTEXT: ${JSON.stringify(ctx).slice(0, 5000)}`, `asked: ${asked}/${QUESTIONS_MAX}`, 'CHAT:'];
   for (const t of turns) {
     if (!t || typeof t.text !== 'string') continue;
     lines.push(`${t.role === 'ai' ? 'coach' : 'trainer'}: ${t.text.slice(0, live ? LIVE_TURN_CHARS : 400)}`);
@@ -279,7 +280,17 @@ This session runs a READY PROGRAM of the automatic mode (MENU below; CONTEXT.pro
 // The running session (owner, 1.1.545): the trainer talks by voice, the tablet speaks the reply aloud — a real
 // trainer's dialogue, not a form. Questions here don't count toward the planning limit.
 export const LIVE_NOTE = `
-SESSION=RUNNING: the trainer talks to you by voice during the workout, as to a real trainer standing next to them;
+SESSION=RUNNING. CONTEXT.now is what runs this second — use it, never guess: session_kind (procedure = lying,
+relaxing: drainage, massage, the face — call it "процедура", never "тренировка", and give no exercises; training =
+"тренировка"), program / workout, phase, minutes, strength (0–100, the person's), impulse {hz now, hz_planned,
+on_s, pause_s, us, second {hz, pct} or null}, hr and hr_cap, holds_min (how long this mode still holds before the
+tablet lowers the frequency by itself, −5 Hz a minute), reserve_pct, critical_hz (the frequency it holds the whole
+session), hz_max_age, double_allowed, events (what the tablet itself just did and said — a frequency step for fatigue
+or the heart, the frequency back after a rest, the heart over its limit). Asked "why" or "what happens" → explain
+from these, concretely, with the numbers. The tablet checks every raise of the frequency, depth, impulse, a shorter
+pause or the 2nd impulse itself (refuses what is over a limit, warns and asks before a costly one): never promise
+past those limits; if asked whether something is OK, answer from holds_min / hr / limits.
+The trainer talks to you by voice during the workout, as to a real trainer standing next to them;
 the tablet speaks your reply aloud. Answer exactly what was asked, with concrete numbers: reps ("Направи 10
 клякания"), seconds, sets, the next exercise for the body part named (bodyweight or light free weights, fitting the
 client's health, e.g. knees → no jumps or deep squats). Unclear what to change (which body part, stronger or

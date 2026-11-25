@@ -107,6 +107,13 @@ public class WorkoutSim {
         check(v.commands.size() == 1 && v.commands.get(0).target.equals("arms") && v.commands.get(0).dir.equals("down")
                 && v.commands.get(0).value == 10, "намали ръцете с десет = arms −10");
         check(AiVoiceCmd.numbers("направи три клякания").equals("направи три клякания"), "words stay words elsewhere");
+        // 1.1.565: the impulse asked → answered on the tablet; no server reader when it cannot be a command
+        check(AiVoiceCmd.parse("каква е честотата").actions.contains("ask_mode"), "каква е честотата → on the tablet");
+        check(AiVoiceCmd.parse("защо свали честотата").actions.contains("ask_mode"), "защо свали → on the tablet");
+        check(!AiVoiceCmd.mayBeCommand("уморих се") && !AiVoiceCmd.mayBeCommand("какво упражнение да правим"),
+                "dialogue → straight to the coach");
+        check(AiVoiceCmd.mayBeCommand("стига толкова за ръцете") && AiVoiceCmd.mayBeCommand("почини ми малко")
+                && AiVoiceCmd.mayBeCommand("дай още 5"), "a possible command → the reader");
         // owner: "увеличи 1" = "увеличи с 1" = "увеличи с 1 %"; only "на / до N" is a level; synonyms
         String[][] steps = {{"увеличи 1", "strength", "up", "1"}, {"намали 5", "strength", "down", "5"},
                 {"вдигни 10%", "strength", "up", "10"}, {"свали 3 процента", "strength", "down", "3"},

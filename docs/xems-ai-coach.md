@@ -403,3 +403,29 @@ it, the warm-up runs softer by design); "s" read aloud as a letter → "секу
 - The command window uses Google's background recognizer when one exists (no UI; nothing heard → it closes); the
   system dialog only without one (Huawei without Google). No EXTRA_PREFER_OFFLINE (a missing offline Bulgarian pack
   made it fail).
+
+## 1.1.563 — the listening sounds; the bar's chat button
+- `ai/Earcon`: synthesised soft-edged chimes on STREAM_MUSIC (not the system beep, often unheard over music):
+  `ready` (G5→D6, rising) when the recognizer is really ready (`onReadyForSpeech`; as the system dialog opens on a
+  tablet without a background recognizer); `again` (one soft B5) for the dialogue's follow-up window; `closed`
+  (A5→D5, falling, quieter) when the window closes with nothing heard — say "тренер" again.
+- `AiCoachBar`: the ✦ Чат button kept the big button's 13 dp padding in the 38 dp line and was cut: slim padding,
+  15 sp, no font padding (shot `tools/ui-shot` `ShotsAi#live` → `ai-bar.png`).
+
+## 1.1.564 — the coach knows what runs, says what the tablet decided, checks the raises
+- **Owner:** the coach must see the heart and the tablet's own corrections, say and explain them and what to do; a
+  raise of the frequency / depth / the 2nd impulse checked against the session — refused with the reason, or warned
+  and done only after "да"; a procedure is called a procedure; the full data, a real dialogue.
+- `ai/AiLive.json()` = CONTEXT.now for every live coach call (Auto's engine and the AI's own workout — the map sent
+  nothing before): session_kind (procedure / training), program, phase, minutes, strength, the impulse (Hz now /
+  planned, impulse, pause, µs, the 2nd impulse), hr / hr_cap, holds_min, reserve_pct, critical_hz, hz_max_age,
+  double_allowed, the last events. The server's live note tells the coach to use them and to say "процедура".
+- `AiLive.tick()` (the engines' ticks): the engine's events (`AutoEngine.pollEvents` / `MapDynamics.pollEvents`:
+  a −5 Hz step for the time or the heart, the frequency back after a rest) and the heart over its ceiling / back under
+  it → one sentence aloud (what, why, what to do) and an ⓘ bubble in the chat. Made on the tablet, no AI call; never
+  the words "тренер" / "тренировка" aloud.
+- `AiLive.check()` in `AiTrain.commandsDone`: frequency up (over the age limit, or in a procedure → no), depth up
+  (> 400 µs, > 300 µs from 100 Hz → no), impulse longer (> 6 s from 50 Hz, > 10 s → no), pause shorter (under
+  `SafeLimits.minOff` → no), 2nd impulse on (not allowed for the program / in a procedure → no). Allowed but the mode
+  would hold < 5 min, or the heart within 5 of its ceiling → said, "Да го направя ли?", done on "да" within 30 s
+  (voice or chat), "не" keeps it; the window listens on for the answer.

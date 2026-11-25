@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 114
+    .line 121
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,27 +34,27 @@
     .registers 3
 
     .prologue
-    .line 117
+    .line 124
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsUi;->haptic(Landroid/view/View;)V
 
-    .line 118
+    .line 125
     invoke-static {}, Lcom/isaigu/gymapp/ai/WakeListener;->isOn()Z
 
     move-result v0
 
     if-eqz v0, :cond_10
 
-    .line 119
+    .line 126
     invoke-static {}, Lcom/isaigu/gymapp/ai/WakeListener;->stop()V
 
-    .line 123
+    .line 130
     :goto_c
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiCoachBar;->refresh()V
 
-    .line 124
+    .line 131
     return-void
 
-    .line 121
+    .line 128
     :cond_10
     invoke-static {p1}, Lcom/isaigu/gymapp/ai/AiTrain;->activity(Landroid/view/View;)Landroid/app/Activity;
 

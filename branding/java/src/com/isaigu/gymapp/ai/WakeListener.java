@@ -493,7 +493,7 @@ public final class WakeListener {
             warmRecognizer();
         }
         Activity a = host != null ? host.get() : null;
-        if (!Boolean.TRUE.equals(serviceOk) && a != null && !a.isFinishing() && VoiceInput.listen(a, new DialogCommand(),
+        if (!Boolean.TRUE.equals(serviceOk) && a != null && !a.isFinishing() && chime() && VoiceInput.listen(a, new DialogCommand(),
                 followUp ? AiText.t("Слушам…", "Listening…") : AiText.t("Тренер слуша — кажи команда или въпрос",
                         "The trainer listens — a command or a question"))) {
             return;
@@ -627,6 +627,7 @@ public final class WakeListener {
                     WearableBleDiagLog.log("wake", "window error " + error);
                 }
                 followUps = 0;
+                Earcon.closed();                              // it stopped listening: "тренер" again
                 afterWindow(200);
                 return;
             }
@@ -637,8 +638,13 @@ public final class WakeListener {
 
         @Override
         public void onReadyForSpeech(Bundle params) {
-            if (window && !followUp) {
-                tone(ToneGenerator.TONE_PROP_BEEP);          // "speak now": the recognizer really hears from here
+            if (window) {
+                // "speak now": the recognizer really hears from here (1.1.563: a clear chime, not the system beep)
+                if (followUp) {
+                    Earcon.again();
+                } else {
+                    Earcon.ready();
+                }
             }
         }
 
@@ -678,6 +684,9 @@ public final class WakeListener {
         if (after != null) {
             cmd = after;
         }
+        if (cmd.length() == 0) {
+            Earcon.closed();
+        }
         if (cmd.length() > 0) {
             WearableBleDiagLog.log("wake", "command \"" + cmd + "\"");
             String said = AiTrain.voice(ctx, cmd, followUp);
@@ -685,7 +694,7 @@ public final class WakeListener {
                 // a command done on the tablet: say it, then back to "тренер" (owner, 1.1.555: a command is not a
                 // dialogue — the room's noise must not keep it listening)
                 endWindow();
-                answer(said, false);
+                answer(said, AiLive.asking());             // a question back ("Да го направя ли?"): it listens on
                 return;
             }
             if (said == null) {
@@ -790,6 +799,16 @@ public final class WakeListener {
      * The tablet is talking (the cloud voice or its own engine): nothing listens meanwhile — not the spotter, not the
      * command window (owner, 1.1.561: "it started dictating to itself"). Plus a short tail for the room's echo.
      */
+    /** The system dialog has no "ready" moment we can hear: the chime as it opens (always true). */
+    static boolean chime() {
+        if (followUp) {
+            Earcon.again();
+        } else {
+            Earcon.ready();
+        }
+        return true;
+    }
+
     /** The steps that waited for a window to close. */
     static void sayLater() {
         java.util.ArrayList<String> l;

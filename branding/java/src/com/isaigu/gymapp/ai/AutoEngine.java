@@ -183,6 +183,25 @@ public final class AutoEngine {
         return c == null || end.intensity(c.hz, c.onS, c.offS, c.pauseHz, c.pauseSigma, c.pwUs) <= 1;
     }
 
+    // ---- what the engine decided by itself, for the coach to say and explain (owner, 1.1.564: "the trainer must see
+    // it, account for it and say what happens and what to do"): {kind, Hz from, Hz to, hold s} — kinds "step_time",
+    // "step_heart", "back"
+    private final java.util.ArrayList<int[]> events = new java.util.ArrayList<int[]>();
+    public static final int EV_STEP_TIME = 1, EV_STEP_HEART = 2, EV_BACK = 3;
+
+    /** The decisions since the last call (oldest first). */
+    public synchronized java.util.List<int[]> pollEvents() {
+        java.util.List<int[]> out = new java.util.ArrayList<int[]>(events);
+        events.clear();
+        return out;
+    }
+
+    private synchronized void event(int kind, int from, int to, double holdS) {
+        if (events.size() < 20) {
+            events.add(new int[] {kind, from, to, (int) Math.min(99999, Math.max(0, holdS))});
+        }
+    }
+
     /** Before each cycle of the AI training: the last cycle spent (or refilled) the reserve; a step when needed. */
     private void safeDecide(long now) {
         if (!continuous || current == null) {
@@ -195,6 +214,7 @@ public final class AutoEngine {
         safeHzCut = end.cut();
         if (stepped) {
             log(now, "safety: " + end.last());
+            event(end.lastByHeart ? EV_STEP_HEART : EV_STEP_TIME, current.hz, current.hz - Endurance.STEP_HZ, end.lastHoldS);
         }
     }
 
@@ -206,11 +226,15 @@ public final class AutoEngine {
     /** After a pause: the reserve refilled by its length, the frequency back as far as it holds again. */
     private void safeAfterPause(long now, double pauseS) {
         end.rest(pauseS);
+        int was = safeHzCut;
         if (current != null && safeHzCut > 0) {
             end.restart(current.hz, current.onS, current.offS, current.pauseHz, current.pauseSigma, current.pwUs);
             log(now, "safety: " + end.last());
         }
         safeHzCut = end.cut();
+        if (current != null && safeHzCut < was) {
+            event(EV_BACK, current.hz, current.hz + (was - safeHzCut), 0);
+        }
     }
 
     /** A set ended without a rest: the rest the fatigue asked for becomes the next set's easier impulse. */

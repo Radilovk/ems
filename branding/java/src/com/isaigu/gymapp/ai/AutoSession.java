@@ -767,6 +767,7 @@ public final class AutoSession {
         engine.setContinuous(aiMode);
         secondScale = 1.0;
         AiAnnounce.reset();
+        AiLive.reset();
         if (aiMode && (vetoHz > 0 || vetoOn > 0 || vetoOff > 0)) {
             engine.setVeto(vetoHz, vetoOn, vetoOff);
         }
@@ -1326,7 +1327,8 @@ public final class AutoSession {
         AutoEngine.State after = engine.getState();
         engineEvents(now);
         if (aiMode) {
-            AiAnnounce.auto(engine);                 // the steps aloud (owner, 1.1.548)
+            AiAnnounce.auto(engine);
+            AiLive.tick();                           // the engine's decisions, said and explained (1.1.564)                 // the steps aloud (owner, 1.1.548)
         }
         if (before == AutoEngine.State.COUNTDOWN && after == AutoEngine.State.RUN) {
             onGo(now);

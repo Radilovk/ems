@@ -41,6 +41,9 @@ public final class Endurance {
     private int cut;
     private double sinceStep = 1e9;
     private String last = "";
+    /** The last step: for the heart (else the time the mode could still hold, s). */
+    public boolean lastByHeart;
+    public double lastHoldS;
 
     public Endurance(AiModel.Fitness fitness) {
         double[] fp = AiPlanner.fatigueParams(fitness != null ? fitness : AiModel.Fitness.MID);
@@ -117,6 +120,8 @@ public final class Endurance {
         if ((byTime || byHeart) && hz - STEP_HZ >= (byHeart ? FLOOR_HZ : floor)) {
             cut += STEP_HZ;
             sinceStep = 0;
+            lastByHeart = byHeart && !byTime;
+            lastHoldS = hold;
             last = (byHeart ? "heart at its ceiling" : "holds " + Math.round(hold) + " s more") + " at " + hz + " Hz "
                     + onS + "/" + offS + " s (I " + Math.round(i * 100) + " %, reserve " + Math.round(reserve * 100)
                     + " %) → −" + STEP_HZ + " Hz";

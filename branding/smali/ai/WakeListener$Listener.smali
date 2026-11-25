@@ -34,7 +34,7 @@
     .registers 2
 
     .prologue
-    .line 647
+    .line 653
     # getter for: Lcom/isaigu/gymapp/ai/WakeListener;->window:Z
     invoke-static {}, Lcom/isaigu/gymapp/ai/WakeListener;->access$700()Z
 
@@ -42,13 +42,13 @@
 
     if-eqz v0, :cond_b
 
-    .line 648
+    .line 654
     const-string v0, "command"
 
     # setter for: Lcom/isaigu/gymapp/ai/WakeListener;->state:Ljava/lang/String;
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/WakeListener;->access$1202(Ljava/lang/String;)Ljava/lang/String;
 
-    .line 650
+    .line 656
     :cond_b
     return-void
 .end method
@@ -57,7 +57,7 @@
     .registers 2
 
     .prologue
-    .line 658
+    .line 664
     return-void
 .end method
 
@@ -65,7 +65,7 @@
     .registers 1
 
     .prologue
-    .line 662
+    .line 668
     return-void
 .end method
 
@@ -98,7 +98,7 @@
 
     move-result v0
 
-    if-eqz v0, :cond_3e
+    if-eqz v0, :cond_41
 
     .line 625
     # getter for: Lcom/isaigu/gymapp/ai/WakeListener;->followUps:I
@@ -143,51 +143,54 @@
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/WakeListener;->access$1102(I)I
 
     .line 630
+    invoke-static {}, Lcom/isaigu/gymapp/ai/Earcon;->closed()V
+
+    .line 631
     const-wide/16 v0, 0xc8
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/ai/WakeListener;->afterWindow(J)V
 
-    .line 636
-    :goto_3d
+    .line 637
+    :goto_40
     return-void
 
-    .line 633
-    :cond_3e
-    if-eq p1, v2, :cond_42
+    .line 634
+    :cond_41
+    if-eq p1, v2, :cond_45
 
-    if-ne p1, v1, :cond_48
+    if-ne p1, v1, :cond_4b
 
-    :cond_42
+    :cond_45
     const-wide/16 v0, 0x96
 
-    .line 635
-    :goto_44
+    .line 636
+    :goto_47
     # invokes: Lcom/isaigu/gymapp/ai/WakeListener;->recognize(J)V
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/ai/WakeListener;->access$900(J)V
 
-    goto :goto_3d
+    goto :goto_40
 
-    .line 634
-    :cond_48
+    .line 635
+    :cond_4b
     const/16 v0, 0x9
 
-    if-ne p1, v0, :cond_4f
+    if-ne p1, v0, :cond_52
 
     const-wide/16 v0, 0xfa0
 
-    goto :goto_44
+    goto :goto_47
 
-    :cond_4f
+    :cond_52
     const-wide/16 v0, 0x4b0
 
-    goto :goto_44
+    goto :goto_47
 .end method
 
 .method public onEvent(ILandroid/os/Bundle;)V
     .registers 3
 
     .prologue
-    .line 670
+    .line 676
     return-void
 .end method
 
@@ -195,7 +198,7 @@
     .registers 2
 
     .prologue
-    .line 666
+    .line 672
     return-void
 .end method
 
@@ -203,26 +206,32 @@
     .registers 3
 
     .prologue
-    .line 640
+    .line 641
     # getter for: Lcom/isaigu/gymapp/ai/WakeListener;->window:Z
     invoke-static {}, Lcom/isaigu/gymapp/ai/WakeListener;->access$700()Z
 
     move-result v0
 
-    if-eqz v0, :cond_f
-
-    sget-boolean v0, Lcom/isaigu/gymapp/ai/WakeListener;->followUp:Z
-
-    if-nez v0, :cond_f
-
-    .line 641
-    const/16 v0, 0x18
-
-    invoke-static {v0}, Lcom/isaigu/gymapp/ai/WakeListener;->tone(I)V
+    if-eqz v0, :cond_d
 
     .line 643
-    :cond_f
+    sget-boolean v0, Lcom/isaigu/gymapp/ai/WakeListener;->followUp:Z
+
+    if-eqz v0, :cond_e
+
+    .line 644
+    invoke-static {}, Lcom/isaigu/gymapp/ai/Earcon;->again()V
+
+    .line 649
+    :cond_d
+    :goto_d
     return-void
+
+    .line 646
+    :cond_e
+    invoke-static {}, Lcom/isaigu/gymapp/ai/Earcon;->ready()V
+
+    goto :goto_d
 .end method
 
 .method public onResults(Landroid/os/Bundle;)V
@@ -277,6 +286,6 @@
     .registers 2
 
     .prologue
-    .line 654
+    .line 660
     return-void
 .end method

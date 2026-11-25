@@ -71,6 +71,8 @@ public final class AiCoachBar {
                 : hearing ? "🎙  " + AiText.t("Слушам…", "Listening…")
                 : "🎙  " + AiText.t("„Тренер, …“", "“Trainer, …”"), on, hearing || speaking ? XemsUi.AMBER : XemsUi.GO);
         mic.setOnClickListener(new Mic());
+        mic.setPadding(XemsUi.dp(c, 14), 0, XemsUi.dp(c, 14), 0);
+        mic.setIncludeFontPadding(false);
         pill.addView(mic, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, XemsUi.dp(c, 38)));
 
         TextView line = XemsUi.text(c, now(), 14, XemsUi.TEXT, false);
@@ -84,8 +86,13 @@ public final class AiCoachBar {
         pill.addView(line, lp);
 
         TextView chat = XemsUi.button(c, "✦  " + AiText.t("Чат", "Chat"), XemsUi.ACCENT_BTN);
+        // the big button's 13 dp padding cut the label in this 38 dp line (owner, 1.1.563): a slim one, centred
+        chat.setPadding(XemsUi.dp(c, 14), 0, XemsUi.dp(c, 14), 0);
+        chat.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 15);
+        chat.setIncludeFontPadding(false);
+        chat.setGravity(Gravity.CENTER);
         chat.setOnClickListener(new Chat());
-        pill.addView(chat, new LinearLayout.LayoutParams(XemsUi.dp(c, 112), XemsUi.dp(c, 38)));
+        pill.addView(chat, new LinearLayout.LayoutParams(XemsUi.dp(c, 120), XemsUi.dp(c, 38)));
 
         b.addView(pill, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT));

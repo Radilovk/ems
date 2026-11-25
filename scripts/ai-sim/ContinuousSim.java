@@ -23,6 +23,7 @@ public class ContinuousSim {
         java.util.Random rnd = new java.util.Random(548);
         int sessions = 0;
         int adapted = 0;
+        int events = 0;
         for (AutoModel.Goal g : AutoModel.Goal.values()) {
             for (AutoModel.Kind k : AutoModel.Kind.values()) {
                 for (AutoCatalog.Program p : AutoCatalog.menu(g, k)) {
@@ -84,6 +85,12 @@ public class ContinuousSim {
                             check(c.hz >= 1 && (c.base == null || !c.base.isTetanic() || ph == null || ph.isCooldown()
                                     || c.hz >= Endurance.FLOOR_HZ), tag + ": never under 20 Hz (" + c.hz + ")");
                             sawAdapt |= cut > 0;
+                            // every decision reaches the coach (1.1.564): a step −5 Hz, the frequency back up
+                            for (int[] x : e.pollEvents()) {
+                                check(x[0] == AutoEngine.EV_BACK ? x[2] > x[1] : x[2] == x[1] - Endurance.STEP_HZ,
+                                        tag + ": an event says the step (" + x[1] + " → " + x[2] + ")");
+                                events++;
+                            }
                             lastCut = cut;
                             runS += c.durationMs() / 1000.0;
                             // a pause the trainer makes, once, in some sessions: the Hz comes back by the recovery
@@ -126,6 +133,7 @@ public class ContinuousSim {
             }
         }
         check(adapted > 0, "the safety step is used somewhere (" + adapted + " of " + sessions + ")");
+        check(events >= adapted, "each session with a step told the coach (" + events + " events)");
         System.out.println((fails == 0 ? "OK" : "FAILED") + " — AI continuous: " + sessions + " sessions, " + adapted
                 + " adapted, " + checks + " checks, " + fails + " failures");
         if (fails > 0) {

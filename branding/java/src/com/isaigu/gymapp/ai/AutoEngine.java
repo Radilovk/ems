@@ -160,75 +160,57 @@ public final class AutoEngine {
         return adaptHzPct;
     }
 
-    // ---- the AI training's only automatic safety step (owner, 1.1.561): never the strength, never the pause between
-    // impulses — the frequency, step by step, and only when the mode cannot go on: its steady fatigue peak
-    // (SafeLimits.peak: Hz, impulse, pause, 2nd impulse) is over this client's limit AND the live fatigue nears it, or
-    // the heart is at its ceiling. A mode that can run for ever is never touched. A pause the trainer makes lets the
-    // muscle recover; the frequency comes back by how much it recovered (fully at F ≤ F_rec).
+    // ---- the AI training's only automatic safety step (owner, 1.1.561 → 1.1.562): never the strength, never the pause
+    // between impulses — the frequency, −5 Hz, and only when the mode can hold less than 2 more minutes by the
+    // critical-intensity model (ai/Endurance, physiology §3.6); never under the frequency at which it holds. A pause the
+    // trainer makes refills the reserve; the restart frequency is the highest that holds again.
+    private final Endurance end;
     /** Hz taken off the impulse now (0 = as planned). */
     private int safeHzCut;
-    /** The live fatigue (F/F_max) from which a step is taken. */
-    public static final double SAFE_AT = 0.85;
-    public static final int SAFE_STEP_HZ = 10;
-    /** The fused-contraction floor: the steps stop here (then only a pause helps — the trainer is told). */
-    public static final int SAFE_FLOOR_HZ = 20;
-    /** F/F_max when the pause began (the restart Hz follows its recovery). */
-    private double fAtPause;
-    /** The heart reached its ceiling (or near it at a set's end): the next cycle takes a step. */
+    /** The heart reached its ceiling (or near it at a set's end): the next cycle may take a step. */
     private boolean hrStep;
 
     public int getSafeHzCut() {
         return safeHzCut;
     }
 
-    /** Can this cycle go on for ever? Its steady fatigue peak within this client's limit. */
-    public boolean sustainable(Cmd c) {
-        return c == null || c.hz < SafeLimits.TETANIC_HZ
-                || SafeLimits.peak(c.hz, Math.max(1, c.onS), Math.max(1, c.offS), c.pauseHz, c.pauseSigma, tauR) <= fMax;
+    public Endurance getEndurance() {
+        return end;
     }
 
-    /** Before each cycle of the AI training: one step down when needed, else nothing. */
+    /** Can this cycle be held the whole session (under the critical intensity)? */
+    public boolean sustainable(Cmd c) {
+        return c == null || end.intensity(c.hz, c.onS, c.offS, c.pauseHz, c.pauseSigma, c.pwUs) <= 1;
+    }
+
+    /** Before each cycle of the AI training: the last cycle spent (or refilled) the reserve; a step when needed. */
     private void safeDecide(long now) {
-        if (!continuous || current == null || current.hz < SafeLimits.TETANIC_HZ) {
+        if (!continuous || current == null) {
             hrStep = false;
             return;
         }
-        double r = fMax > 0 ? peakF() / fMax : 0;
-        boolean need = hrStep || (r >= SAFE_AT && !sustainable(current));
+        boolean stepped = end.work(current.hz, current.onS, current.offS, current.pauseHz, current.pauseSigma,
+                current.pwUs, current.durationMs() / 1000.0, hrStep);
         hrStep = false;
-        if (!need) {
-            return;
-        }
-        if (current.hz - SAFE_STEP_HZ >= SAFE_FLOOR_HZ) {
-            safeHzCut += SAFE_STEP_HZ;
-            log(now, "safety: F " + fmt(r) + " of the limit, " + current.hz + " Hz " + current.onS + "/" + current.offS
-                    + " s cannot go on → −" + SAFE_STEP_HZ + " Hz (cut " + safeHzCut + ")");
-        } else {
-            safeFloor = true;
-            log(now, "safety: at the " + SAFE_FLOOR_HZ + " Hz floor, F " + fmt(r) + " — a pause is needed");
+        safeHzCut = end.cut();
+        if (stepped) {
+            log(now, "safety: " + end.last());
         }
     }
 
-    /** At the floor and still over the limit: the trainer should pause (AiTrain says it once). */
-    private boolean safeFloor;
-
+    /** The reserve is spent and the frequency at its floor: only a pause helps (the trainer may be told). */
     public boolean needsPause() {
-        return safeFloor;
+        return continuous && end.reserve() < 0;
     }
 
-    /** After a pause: the frequency back by the recovery — all of it at F ≤ F_rec, in 5 Hz steps between. */
+    /** After a pause: the reserve refilled by its length, the frequency back as far as it holds again. */
     private void safeAfterPause(long now, double pauseS) {
-        safeFloor = false;
-        if (safeHzCut <= 0) {
-            return;
+        end.rest(pauseS);
+        if (current != null && safeHzCut > 0) {
+            end.restart(current.hz, current.onS, current.offS, current.pauseHz, current.pauseSigma, current.pwUs);
+            log(now, "safety: " + end.last());
         }
-        double r = fMax > 0 ? peakF() / fMax : 0;
-        double rRec = fMax > 0 ? fRec / fMax : 0.33;
-        double k = clamp((r - rRec) / Math.max(1e-6, Math.max(fAtPause, r) - rRec), 0, 1);
-        int was = safeHzCut;
-        safeHzCut = (int) (Math.round(safeHzCut * k / 5.0) * 5);
-        log(now, "safety: pause " + Math.round(pauseS) + " s, F " + fmt(fAtPause) + " → " + fmt(r) + " → cut " + was
-                + " → " + safeHzCut + " Hz");
+        safeHzCut = end.cut();
     }
 
     /** A set ended without a rest: the rest the fatigue asked for becomes the next set's easier impulse. */
@@ -320,6 +302,7 @@ public final class AutoEngine {
     public AutoEngine(Plan plan) {
         this.plan = plan;
         this.doublePulse = plan.doublePulseAllowed && plan.input.doublePulse;
+        this.end = new Endurance(plan.input.fitness);
         double[] fp = AiPlanner.fatigueParams(plan.input.fitness);
         fMax = fp[0];
         fRec = fp[1];
@@ -530,7 +513,6 @@ public final class AutoEngine {
         if (state == State.RUN) {
             advance(now);
             settle(now);
-            fAtPause = fMax > 0 ? peakF() / fMax : 0;
             state = State.USER_PAUSE;
             pauseStartMs = now;
             traceRest(now);
@@ -2486,7 +2468,7 @@ public final class AutoEngine {
         }
         s.offS += corridorExt + doseExt;
         if (continuous && s.isTetanic() && !ph.isCooldown() && safeHzCut > 0) {
-            s.hz = Math.max(SAFE_FLOOR_HZ, s.hz - safeHzCut);
+            s.hz = Math.max(Endurance.FLOOR_HZ, s.hz - safeHzCut);
         }
         if (s.isTetanic() && !ph.isCooldown() && !"WARMUP".equals(ph.id) && (vetoHz > 0 || vetoOn > 0 || vetoOff > 0)) {
             if (vetoHz > 0) {

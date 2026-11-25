@@ -4,10 +4,9 @@ import com.isaigu.gymapp.ai.*;
  * The AI training never stops by itself (owner, 1.1.548): every program, random people, the heart sometimes at its
  * ceiling — the engine in continuous mode must never REST or HR_PAUSE, the impulse is never zero in the active part,
  * the whole plan runs to DONE in its time. And Auto (not continuous) still rests as before.
- * 1.1.561 (owner): the strength is never cut (not after a pause either), the pause between impulses never extended;
- * the only safety step is the frequency, −10 Hz at a time, never under 20 Hz, and only when the mode cannot go on
- * (its steady peak over the limit and the fatigue near it) or the heart is at its ceiling; after a pause the
- * frequency comes back by the recovery (all of it once recovered).
+ * 1.1.561–562 (owner): the strength is never cut (not after a pause either), the pause between impulses never
+ * extended; the only safety step is the frequency, −5 Hz, at most one a minute (30 s with the heart at its ceiling),
+ * never under 20 Hz, by the critical-intensity model (ai/Endurance); after a pause the frequency comes back.
  */
 public class ContinuousSim {
     static int checks, fails;
@@ -58,7 +57,8 @@ public class ContinuousSim {
                         boolean sawAdapt = false;
                         double quietS = 0;
                         int lastCut = 0;
-                        boolean lastNeed = false;
+                        double lastStepS = -1e9;
+                        double runS = 0;
                         boolean paused = false;
                         while (e.getState() == AutoEngine.State.RUN && cycles < 6000) {
                             AutoEngine.Cmd c = e.getCurrent();
@@ -75,13 +75,17 @@ public class ContinuousSim {
                             check(e.getReentry() == 1.0, tag + ": the strength is never cut (" + e.getReentry() + ")");
                             int cut = e.getSafeHzCut();
                             check(cut >= 0 && cut % 5 == 0, tag + ": the cut in 5 Hz steps (" + cut + ")");
-                            check(cut <= lastCut + AutoEngine.SAFE_STEP_HZ, tag + ": one step at a time");
-                            check(cut <= lastCut || lastNeed || hot, tag + ": a step only when needed");
+                            check(cut <= lastCut + Endurance.STEP_HZ, tag + ": one step at a time");
+                            if (cut > lastCut) {
+                                check(runS - lastStepS >= (hot ? Endurance.HR_DWELL_S : Endurance.DWELL_S) - 12,
+                                        tag + ": steps apart (" + Math.round(runS - lastStepS) + " s)");
+                                lastStepS = runS;
+                            }
                             check(c.hz >= 1 && (c.base == null || !c.base.isTetanic() || ph == null || ph.isCooldown()
-                                    || c.hz >= AutoEngine.SAFE_FLOOR_HZ), tag + ": never under 20 Hz (" + c.hz + ")");
+                                    || c.hz >= Endurance.FLOOR_HZ), tag + ": never under 20 Hz (" + c.hz + ")");
                             sawAdapt |= cut > 0;
                             lastCut = cut;
-                            lastNeed = !e.sustainable(c);
+                            runS += c.durationMs() / 1000.0;
                             // a pause the trainer makes, once, in some sessions: the Hz comes back by the recovery
                             if (!paused && cut > 0 && rnd.nextInt(3) == 0) {
                                 paused = true;

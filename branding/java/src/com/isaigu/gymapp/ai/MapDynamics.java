@@ -24,6 +24,7 @@ import com.isaigu.gymapp.ai.AutoModel.Step;
 public final class MapDynamics {
     public static final int REST_MAX_S = 120;
 
+    private final AiModel.Fitness fitness;
     private final double fMax;
     private final double fRec;
     private final double tau;
@@ -43,22 +44,24 @@ public final class MapDynamics {
     private int lastHz = -1;
     private boolean fresh;
 
-    // ---- the AI's own workout (owner, 1.1.561, as AutoEngine's continuous mode): no glide — the frequency steps down
-    // only when the mode cannot go on (its steady peak over the limit and the live fatigue near it); after a pause or a
-    // rest it comes back by the recovery
+    // ---- the AI's own workout (owner, 1.1.561 → 1.1.562, as AutoEngine's continuous mode): no glide — the frequency
+    // steps −5 Hz only when the mode can hold less than 2 more minutes (ai/Endurance); a pause or a rest block refills
+    // the reserve and the frequency comes back as far as it holds again
     /** Set by MapRunner for the AI's workout. */
     public boolean ai;
-    private int safeHzCut;
-    private double fAtStep;
-    /** Seconds without work since the last impulse (a pause, a rest block). */
+    private Endurance end;
+    /** Seconds worked / without work since the last impulse was sent. */
+    private double workS;
     private double idleS;
+    private Step lastSent;
 
     public int safeHzCut() {
-        return safeHzCut;
+        return end != null ? end.cut() : 0;
     }
 
     /** @param hrMax the leader's HR max (≤ 0 = unknown: the heart rate is not used) */
     public MapDynamics(AiModel.Fitness fitness, int sessions, int age, int hrMax) {
+        this.fitness = fitness;
         double[] fp = AiPlanner.fatigueParams(fitness != null ? fitness : AiModel.Fitness.MID);
         this.fMax = fp[0];
         this.fRec = fp[1];
@@ -83,7 +86,9 @@ public final class MapDynamics {
             return;
         }
         if (!running) {
-            idleS += dtS;                                    // a pause or a rest block: the muscle recovers
+            idleS += dtS;                                    // a pause or a rest block: the reserve comes back
+        } else {
+            workS += dtS;
         }
         double e = Math.exp(-dtS / tau);
         double g = 0;
@@ -178,23 +183,25 @@ public final class MapDynamics {
         return s;
     }
 
-    /** One step down when the mode cannot go on; back by the recovery after ≥ 5 s without work. */
+    /** The last impulse's work spent the reserve (a step when needed); a pause / rest refilled it (back as far as it holds). */
     void safety(Step s) {
-        double r = fatigue();
-        double rRec = fMax > 0 ? fRec / fMax : 0.33;
-        if (idleS >= 5 && safeHzCut > 0) {
-            double k = Math.max(0, Math.min(1, (r - rRec) / Math.max(1e-6, Math.max(fAtStep, r) - rRec)));
-            safeHzCut = (int) (Math.round(safeHzCut * k / 5.0) * 5);
+        if (end == null) {
+            end = new Endurance(fitness);
         }
+        Step p = lastSent;
+        if (idleS >= 5) {
+            end.rest(idleS);
+            if (p != null) {
+                end.restart(p.hz, p.onS, p.offS, p.pauseHz, p.pauseSigma, p.pwUs);
+            }
+        }
+        if (p != null && workS > 0) {
+            end.work(p.hz, p.onS, p.offS, p.pauseHz, p.pauseSigma, p.pwUs, workS, false);
+        }
+        workS = 0;
         idleS = 0;
-        int hz = Math.max(AutoEngine.SAFE_FLOOR_HZ, s.hz - safeHzCut);
-        boolean steady = SafeLimits.peak(hz, Math.max(1, s.onS), Math.max(1, s.offS), s.pauseHz, s.pauseSigma, tau) <= fMax;
-        if (r >= AutoEngine.SAFE_AT && !steady && hz - AutoEngine.SAFE_STEP_HZ >= AutoEngine.SAFE_FLOOR_HZ) {
-            safeHzCut += AutoEngine.SAFE_STEP_HZ;
-            fAtStep = r;
-            hz -= AutoEngine.SAFE_STEP_HZ;
-        }
-        s.hz = hz;
+        s.hz = Math.max(Endurance.FLOOR_HZ, s.hz - end.cut());
+        lastSent = s.copy();
     }
 
     /** A rest block starts: how long it must last (s) — the drawn one, longer when the muscle is not back yet. */

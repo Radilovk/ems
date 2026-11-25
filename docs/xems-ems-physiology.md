@@ -81,17 +81,32 @@ Simulation now (`scripts/ai-sim`, FatProbe): warm-up 12–17 %, main ≤ 100 %, 
 - **Passive recovery in sectors** (massage → pump 2 Hz, tone-massage 8 Hz + 3 Hz, drainage 1 Hz): changing
   frequency keeps the sensation from fading (habituation) and alternates pumping and massage [D].
 
-### 3.6 The AI training: the frequency is the only safety step (owner, 1.1.561)
-In the AI training (Auto's engine in continuous mode, `AutoEngine.safeDecide`; the AI's own workout, `MapDynamics.safety`)
-nothing lowers the strength by itself — not fatigue, not a pause (no re-entry softening) — and the pause between
-impulses is never extended. Before each cycle:
-- the mode's steady fatigue peak (`SafeLimits.peak`: Hz, impulse, pause, the 2nd impulse, this client's τ) within
-  F_max → it can run for ever: nothing changes;
-- over F_max **and** the live fatigue ≥ 0.85·F_max (or the heart at its ceiling) → −10 Hz (`SAFE_STEP_HZ`), one step a
-  cycle, never under 20 Hz (`SAFE_FLOOR_HZ`; there only a pause helps — `needsPause`);
-- after a pause (the trainer's; in a map also a rest block ≥ 5 s) the cut comes back by the recovery:
-  cut × (F − F_rec)/(F_at_pause − F_rec), in 5 Hz steps — all of it once F ≤ F_rec (τ·ln(F/F_rec) of rest).
-Auto (not the AI training) keeps its glide, rests and re-entry (§3.5). Test: `scripts/ai-sim/ContinuousSim.java`.
+### 3.6 The AI training: how long a mode holds; the frequency is the only safety step (owner, 1.1.561–562)
+In the AI training (Auto's engine in continuous mode; the AI's own workout, `MapDynamics`) nothing lowers the
+strength by itself — not fatigue, not a pause (no re-entry softening) — and the pause between impulses is never
+extended. The safety step follows the **critical-intensity model** of muscle work (`ai/Endurance`):
+- Monod & Scherrer 1965 (critical power of local muscle work); Burnley 2009 (critical torque for intermittent
+  isometric contractions — under it a steady state, above it progressive fatigue to the limit in a predictable
+  time); Skiba 2012 (W′ balance: the reserve comes back exponentially, faster at rest). [E, applied — check the exact
+  sources before quoting outside]
+- **Intensity** I of a mode = its steady fatigue peak (`SafeLimits.peak`: Hz, impulse, pause between impulses, the
+  2nd impulse, this client's τ) / F_max × depth (√(µs/350), 0.85–1.15 [D]). I ≤ 1 → held the whole session.
+- I > 1 spends the reserve: dR/dt = −(I − 1)/W′, W′ = 200 s; it can still hold t = R·W′/(I − 1). Under 1 it comes
+  back, R += (1 − R)(1 − e^(−dt/300 s)) while working, e^(−dt/120 s) at rest.
+- **A step**: −5 Hz only when t < 2 min, at most one a minute (30 s with the heart at its ceiling), never under the
+  critical frequency (the highest at which I ≤ 1) nor 20 Hz. **After a pause**: the restart Hz is the highest (up to
+  the planned one) that holds 2 min again.
+- Calibrated on practice [D] — 20 min continuous, no pause (`scripts/ai-sim/EnduranceSim.java`):
+
+| Mode (350 µs) | LOW | MID | HIGH |
+|---|---|---|---|
+| 85 Hz 4/4 s | steps from ~11 min | never | never |
+| 85 Hz 6/4 s (the WB-EMS standard) | from ~4.7 min | from 14.8 min, −5 Hz a minute | never |
+| 85 Hz 6/2 s | from 2.0 min | from 5.2 min | from ~10.7 min |
+
+1.1.561 stepped −10 Hz a cycle whenever the steady peak was over F_max and F ≥ 0.85·F_max: the standard 6/4 fell to
+~47 Hz within a minute for an average client — replaced. Auto (not the AI training) keeps its glide, rests and
+re-entry (§3.5).
 
 ## 4. Energy
 

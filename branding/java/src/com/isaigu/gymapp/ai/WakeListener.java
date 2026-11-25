@@ -100,6 +100,8 @@ public final class WakeListener {
             if (c.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getBoolean("noBgRec", false)) {
                 serviceOk = false;                         // this tablet's background recognizer never worked
             }
+            SPOTTER.sens = Math.max(WakeWord.SENS_MIN, Math.min(1.0f,
+                    c.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getFloat("sens", 1.0f)));
             String hex = c.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getString("tpl", "");
             if (hex.length() > 0) {
                 SPOTTER.load(unhex(hex));
@@ -150,6 +152,8 @@ public final class WakeListener {
     static void reloadExamples(Context c) {
         try {
             SPOTTER.clear();
+            SPOTTER.sens = Math.max(WakeWord.SENS_MIN, Math.min(1.0f,
+                    c.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getFloat("sens", 1.0f)));
             String hex = c.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getString("tpl", "");
             if (hex.length() > 0) {
                 SPOTTER.load(unhex(hex));
@@ -499,7 +503,7 @@ public final class WakeListener {
         Activity a = host != null ? host.get() : null;
         if (!Boolean.TRUE.equals(serviceOk) && a != null && !a.isFinishing() && chime() && VoiceInput.listen(a, new DialogCommand(),
                 followUp ? AiText.t("Слушам…", "Listening…") : AiText.t("Тренер слуша — кажи команда или въпрос",
-                        "The trainer listens — a command or a question"))) {
+                        "The trainer listens — a command or a question"), DIALOG_MS)) {
             return;
         }
         mute(true);
@@ -544,7 +548,7 @@ public final class WakeListener {
                 // takes the command — the same one the chat's 🎤 uses; without recordings nothing can listen
                 Activity a = host != null ? host.get() : null;
                 if (window && a != null && !a.isFinishing()) {
-                    VoiceInput.listen(a, new DialogCommand());
+                    VoiceInput.listen(a, new DialogCommand(), AiText.t("Слушам…", "Listening…"), DIALOG_MS);
                 } else if (window) {
                     afterWindow(1000);
                 } else {
@@ -588,6 +592,41 @@ public final class WakeListener {
      * tablet uses the system's speech dialog from now on (kept), as before 1.1.561.
      */
     static final long READY_MS = 3000;
+    /** The speech dialog (a tablet without a background recognizer) is closed from here after this. */
+    static final long DIALOG_MS = 5000;
+    /** After "тренер" the answer is expected within this; nothing begun → the window closes, "тренер" again. */
+    static final long SPEAK_MS = 3000, SPEAK_FOLLOW_MS = 4500;
+    private static final Runnable NO_SPEECH = new NoSpeech();
+    private static boolean spoke;
+
+    static final class NoSpeech implements Runnable {
+        @Override
+        public void run() {
+            if (window && !spoke) {
+                WearableBleDiagLog.log("wake", "nothing said in the window: closed");
+                windowResult(false);
+                followUps = 0;
+                Earcon.closed();
+                afterWindow(200);
+            }
+        }
+    }
+
+    /** What a window led to (the spotter learns from it): a command, or nothing. */
+    static void windowResult(boolean said) {
+        if (followUp) {
+            return;                                       // a dialogue's silence is normal
+        }
+        float before = SPOTTER.sens;
+        SPOTTER.feedback(said);
+        if (SPOTTER.sens != before && ctx != null) {
+            try {
+                ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().putFloat("sens", SPOTTER.sens).apply();
+            } catch (Throwable ignored) {
+            }
+            WearableBleDiagLog.log("wake", "sensitivity " + SPOTTER.sens);
+        }
+    }
     private static volatile boolean readySeen;
     private static final Runnable NOT_READY = new NotReady();
 
@@ -600,9 +639,21 @@ public final class WakeListener {
         }
     }
 
+    /** Failures in a row (a cold start of Google's recognizer is slow once): the dialog only after the second. */
+    private static int bgFails;
+
     static void giveUpBackground(String why) {
-        WearableBleDiagLog.log("wake", "background recognizer unusable (" + why + "): the system dialog from now on");
         MAIN.removeCallbacks(NOT_READY);
+        if (++bgFails < 2) {
+            // owner, 2026-11-25: Google's dialog ("we did not understand…") must never open — the first failure only
+            // closes the window quietly, the recognizer is rebuilt for the next "тренер"
+            WearableBleDiagLog.log("wake", "background recognizer not ready (" + why + "): window closed, again next time");
+            destroyRecognizer();
+            Earcon.closed();
+            afterWindow(300);
+            return;
+        }
+        WearableBleDiagLog.log("wake", "background recognizer unusable (" + why + "): the system dialog from now on");
         serviceOk = false;
         try {
             if (ctx != null) {
@@ -614,7 +665,7 @@ public final class WakeListener {
         Activity a = host != null ? host.get() : null;
         if (window && a != null && !a.isFinishing() && chime() && VoiceInput.listen(a, new DialogCommand(),
                 followUp ? AiText.t("Слушам…", "Listening…") : AiText.t("Тренер слуша — кажи команда или въпрос",
-                        "The trainer listens — a command or a question"))) {
+                        "The trainer listens — a command or a question"), DIALOG_MS)) {
             return;
         }
         afterWindow(500);
@@ -661,6 +712,7 @@ public final class WakeListener {
         @Override
         public void onResults(Bundle b) {
             MAIN.removeCallbacks(NOT_READY);
+            MAIN.removeCallbacks(NO_SPEECH);
             ArrayList<String> r = b != null ? b.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION) : null;
             if (window) {
                 commandHeard(r);
@@ -673,6 +725,7 @@ public final class WakeListener {
         @Override
         public void onError(int error) {
             MAIN.removeCallbacks(NOT_READY);
+            MAIN.removeCallbacks(NO_SPEECH);
             if (window && !readySeen && serviceError(error)) {
                 giveUpBackground("error " + error);
                 return;
@@ -687,6 +740,7 @@ public final class WakeListener {
                     WearableBleDiagLog.log("wake", "window error " + error);
                 }
                 followUps = 0;
+                windowResult(false);
                 Earcon.closed();                              // it stopped listening: "тренер" again
                 afterWindow(200);
                 return;
@@ -699,8 +753,12 @@ public final class WakeListener {
         @Override
         public void onReadyForSpeech(Bundle params) {
             readySeen = true;
+            bgFails = 0;
             MAIN.removeCallbacks(NOT_READY);
             if (window) {
+                spoke = false;
+                MAIN.removeCallbacks(NO_SPEECH);
+                MAIN.postDelayed(NO_SPEECH, followUp ? SPEAK_FOLLOW_MS : SPEAK_MS);
                 // "speak now": the recognizer really hears from here (1.1.563: a clear chime, not the system beep)
                 if (followUp) {
                     Earcon.again();
@@ -712,6 +770,8 @@ public final class WakeListener {
 
         @Override
         public void onBeginningOfSpeech() {
+            spoke = true;
+            MAIN.removeCallbacks(NO_SPEECH);
             if (window) {
                 state = "command";
             }
@@ -746,6 +806,8 @@ public final class WakeListener {
         if (after != null) {
             cmd = after;
         }
+        MAIN.removeCallbacks(NO_SPEECH);
+        windowResult(cmd.length() > 0);
         if (cmd.length() == 0) {
             Earcon.closed();
         }
@@ -997,6 +1059,7 @@ public final class WakeListener {
     }
 
     static void afterWindow(long delayMs) {
+        MAIN.removeCallbacks(NO_SPEECH);
         window = false;
         state = "";
         sayLater();

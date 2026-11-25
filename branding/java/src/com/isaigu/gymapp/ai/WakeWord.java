@@ -383,8 +383,22 @@ public final class WakeWord {
     final List<Word> neg = new ArrayList<Word>();
     private boolean recordingNeg;
     int thr = DEFAULT_THR;
-    /** > 1 accepts more easily (the setting). */
+    /** > 1 accepts more easily (the setting); the tablet lowers it itself after wakes that led to nothing. */
     public float sens = 1.0f;
+    static final float SENS_MIN = 0.7f;
+    /**
+     * Words that woke it for nothing (the room's noise, a look-alike): the next word closer to one of them than to
+     * "тренер" is not a wake. The assistants' way — the false alarms the user never wanted are learned as negatives.
+     */
+    final List<Word> falseNeg = new ArrayList<Word>();
+    static final int MAXFALSE = 6;
+    /** The word that last woke it, and how close it was (a clean match followed by silence is a hesitation, not noise). */
+    private Word lastWakeWord;
+    private int lastWakeD = INF;
+    /** A word that was only just not close enough: the same word again within NEAR_MS is the trainer repeating it. */
+    private long nearAt;
+    static final long NEAR_MS = 10000;
+    static final float NEAR_FACTOR = 1.35f;
     boolean recording;
     /** The current word already fired (one wake per word). */
     private boolean fired;
@@ -445,6 +459,9 @@ public final class WakeWord {
         tpl.clear();
         neg.clear();
         thr = DEFAULT_THR;
+        falseNeg.clear();
+        sens = 1.0f;
+        nearAt = 0;
         loud = 0;
         loudSum = 0;
         loudN = 0;
@@ -482,9 +499,23 @@ public final class WakeWord {
                 retune();
                 return RECORDED;
             }
-            if (!was && ready() && loudEnough(finder.wPeak) && accept(w)) {
-                wakeFrame = finder.w1;
-                return WAKE;
+            if (!was && ready() && loudEnough(finder.wPeak)) {
+                if (accept(w, 1f)) {
+                    wakeFrame = finder.w1;
+                    woke(w);
+                    return WAKE;
+                }
+                // "I said it ten times and nothing": a word just outside the limit, said again soon, is the trainer
+                if (accept(w, NEAR_FACTOR)) {
+                    long now = System.currentTimeMillis();
+                    if (nearAt > 0 && now - nearAt <= NEAR_MS) {
+                        nearAt = 0;
+                        wakeFrame = finder.w1;
+                        woke(w);
+                        return WAKE;
+                    }
+                    nearAt = now;
+                }
             }
             return NONE;
         }
@@ -495,9 +526,10 @@ public final class WakeWord {
             if (len >= (int) (tl * 0.8f) && len <= (int) (tl * 1.3f)) {
                 Word w = new Word();
                 finder.span(w, front, finder.s0, finder.t, finder.peak);
-                if (loudEnough(finder.peak) && accept(w)) {
+                if (loudEnough(finder.peak) && accept(w, 1f)) {
                     fired = true;
                     wakeFrame = finder.t;
+                    woke(w);
                     return WAKE;
                 }
             }
@@ -514,10 +546,44 @@ public final class WakeWord {
     }
 
     /** Close to "тренер" and, when the look-alike is known, clearly closer to it than to the look-alike. */
+    private void woke(Word w) {
+        lastWakeWord = w;
+        lastWakeD = lastD;
+    }
+
+    /**
+     * What the wake led to: a command (real) or silence (the room). Silence after a loose match teaches it the word as
+     * a false alarm and makes it a little stricter; a command makes it a little more willing again.
+     */
+    public void feedback(boolean real) {
+        if (real) {
+            sens = Math.min(1.0f, sens * 1.04f);
+            return;
+        }
+        if (lastWakeWord == null || lastWakeD == INF || lastWakeD < threshold() * 0.6f) {
+            return;                                   // a clean "тренер" and then a hesitation: not the room
+        }
+        falseNeg.add(lastWakeWord);
+        if (falseNeg.size() > MAXFALSE) {
+            falseNeg.remove(0);
+        }
+        sens = Math.max(SENS_MIN, sens * 0.92f);
+        lastWakeWord = null;
+    }
+
     boolean accept(Word w) {
+        return accept(w, 1f);
+    }
+
+    boolean accept(Word w, float factor) {
         int d = match(w);
-        if (d > threshold()) {
+        if (d > (int) (threshold() * factor)) {
             return false;
+        }
+        for (Word f : falseNeg) {
+            if (dtw(w, f, INF) < d) {
+                return false;                         // closer to a known false alarm than to "тренер"
+            }
         }
         int dn = INF;
         for (Word t : neg) {

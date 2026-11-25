@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.Intent;
+import android.os.Handler;
+import android.os.Looper;
 import android.speech.RecognizerIntent;
 import android.widget.Toast;
 
@@ -38,10 +40,25 @@ public final class VoiceInput {
 
     /** false: no speech dialog on this tablet (the caller falls back). */
     public static boolean listen(Activity a, Result cb, String prompt) {
+        return listen(a, cb, prompt, 0);
+    }
+
+    private static final Handler MAIN = new Handler(Looper.getMainLooper());
+    private static final Runnable CAP = new Cap();
+    private static java.lang.ref.WeakReference<Activity> capHost;
+    private static Fragment capFragment;
+
+    /**
+     * capMs &gt; 0 (the wake word's window — owner, 2026-11-25: "Google's 'we did not understand, try again' asks the
+     * trainer for a tap, there must be none"): the system dialog is closed from here after capMs, whatever it shows,
+     * and the caller gets "" (nothing said) — back to "тренер".
+     */
+    public static boolean listen(Activity a, Result cb, String prompt, long capMs) {
         if (a == null || cb == null) {
             return false;
         }
         pending = cb;
+        MAIN.removeCallbacks(CAP);
         try {
             FragmentManager fm = a.getFragmentManager();
             Fragment f = fm.findFragmentByTag(TAG);
@@ -59,6 +76,11 @@ public final class VoiceInput {
             i.putExtra(RecognizerIntent.EXTRA_PROMPT, prompt);
             i.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1);
             f.startActivityForResult(i, REQ);
+            if (capMs > 0) {
+                capHost = new java.lang.ref.WeakReference<Activity>(a);
+                capFragment = f;
+                MAIN.postDelayed(CAP, capMs);
+            }
             return true;
         } catch (Throwable t) {
             pending = null;
@@ -72,6 +94,55 @@ public final class VoiceInput {
         }
     }
 
+    /** Closes the speech dialog that is still open (finishActivity of the fragment's own request). */
+    static final class Cap implements Runnable {
+        @Override
+        public void run() {
+            Activity a = capHost != null ? capHost.get() : null;
+            Fragment f = capFragment;
+            capHost = null;
+            capFragment = null;
+            if (a == null || f == null || pending == null) {
+                return;
+            }
+            WearableBleDiagLog.log("voice", "the speech dialog closed after the time limit");
+            boolean done = false;
+            try {
+                // a fragment's request is tagged with the fragment's own id (hidden mWho); finishActivity matches the
+                // activity's mEmbeddedID against it — set it for the one call
+                java.lang.reflect.Field w = Fragment.class.getDeclaredField("mWho");
+                w.setAccessible(true);
+                String who = (String) w.get(f);
+                java.lang.reflect.Field e = Activity.class.getDeclaredField("mEmbeddedID");
+                e.setAccessible(true);
+                Object keep = e.get(a);
+                e.set(a, who);
+                try {
+                    a.finishActivity(REQ);
+                } finally {
+                    e.set(a, keep);
+                }
+                done = true;
+            } catch (Throwable t) {
+                WearableBleDiagLog.log("voice", "close: " + t);
+            }
+            if (!done) {
+                try {
+                    // our screen on top again; the dialog below ends by itself and its result is dropped
+                    Intent back = new Intent(a, a.getClass());
+                    back.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                    a.startActivity(back);
+                } catch (Throwable ignored) {
+                }
+                Result cb = pending;
+                pending = null;
+                if (cb instanceof WantsEmpty) {
+                    cb.onText("");
+                }
+            }
+        }
+    }
+
     /** Headless: only starts the recognizer and hands its words on. Public with a no-arg constructor (recreation). */
     public static final class Host extends Fragment {
         public Host() {}
@@ -81,6 +152,7 @@ public final class VoiceInput {
             if (requestCode != REQ) {
                 return;
             }
+            MAIN.removeCallbacks(CAP);
             Result cb = pending;
             pending = null;
             if (cb == null) {

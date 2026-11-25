@@ -23,7 +23,7 @@
     .registers 1
 
     .prologue
-    .line 646
+    .line 697
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -35,17 +35,17 @@
     .registers 3
 
     .prologue
-    .line 649
+    .line 700
     new-instance v0, Ljava/util/ArrayList;
 
     invoke-direct {v0}, Ljava/util/ArrayList;-><init>()V
 
-    .line 650
+    .line 701
     invoke-virtual {v0, p1}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
 
-    .line 651
+    .line 702
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/WakeListener;->commandHeard(Ljava/util/ArrayList;)V
 
-    .line 652
+    .line 703
     return-void
 .end method

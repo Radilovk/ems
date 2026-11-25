@@ -28,16 +28,16 @@
     .registers 3
 
     .prologue
-    .line 1079
+    .line 1084
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 1080
+    .line 1085
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink$OpTimeout;->link:Lcom/isaigu/gymapp/wearable/scale/ScaleLink;
 
-    .line 1081
+    .line 1086
     iput p2, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink$OpTimeout;->token:I
 
-    .line 1082
+    .line 1087
     return-void
 .end method
 
@@ -47,7 +47,7 @@
     .registers 3
 
     .prologue
-    .line 1086
+    .line 1091
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink$OpTimeout;->link:Lcom/isaigu/gymapp/wearable/scale/ScaleLink;
 
     iget-boolean v0, v0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->busy:Z
@@ -62,17 +62,17 @@
 
     if-ne v0, v1, :cond_18
 
-    .line 1087
+    .line 1092
     const-string v0, "op timeout"
 
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->log(Ljava/lang/String;)V
 
-    .line 1088
+    .line 1093
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/scale/ScaleLink$OpTimeout;->link:Lcom/isaigu/gymapp/wearable/scale/ScaleLink;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/scale/ScaleLink;->opDone()V
 
-    .line 1090
+    .line 1095
     :cond_18
     return-void
 .end method

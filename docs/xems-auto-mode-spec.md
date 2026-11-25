@@ -287,13 +287,15 @@ CR10 цел 5–6 · музика: фон · без двоен импулс (з�
 
 ```
 T 20 мин · легнал, краката леко повдигнати
-Фаза 1 „отваряне“ (15 %): корем + кръст → трапец (централните пътища първо)
-Фаза 2 крака (55 %):  прасец → задно+предно бедро → седалище → корем+кръст → пауза 5 s (пълнене)
-Фаза 3 ръце (20 %):   ръце → гърди+гръб → трапец → пауза 5 s
-Фаза 4 (10 %):        всички 3 Hz / 250 µs, E 0.5
+Фаза 1 „отваряне“ (10 %):      корем + кръст → трапец (централните пътища първо)
+Фаза 2 „освобождаване“ (15 %): бедра → седалище → корем+кръст → пауза 3 s (близките части първо, 1.1.568)
+Фаза 3 крака (65 %):  прасец 8 Hz сам → бедра → седалище → корем+кръст → пауза 5 s (пълнене, ~21 s на вълна)
+Фаза 4 ръце (10 %):   ръце → гърди+гръб → трапец → пауза 5 s
+Разпускане:           всички 3 Hz / 250 µs, 4 мин (`DRAIN_RECOVERY_S`; човекът вече лежи)
 Стъпка: 35 Hz / 300 µs / ON 3 s / OFF 1 s, рампа 1.0 s нагоре, 0.5 s надолу   [E:R9]
-(1.1.567: без вариант „Чувствителен“ — един начин; прасците излизат наполовина, §20)
-E ≤ 0.9 · CR10 цел 3–4 (ясно, не болезнено) · двоен импулс ✗ · пулс: само таван · музика: фон
+Прасецът (1.1.568): 8 Hz потрепвания (`CALF_PUMP_HZ`) и не се задържа след своята стъпка — 35 Hz задържане на
+легнал прасец го схваща, а клапите на лимфните съдове сами спират връщането. Нищо не се пита и не се настройва.
+CR10 цел 3–4 (ясно, не болезнено) · двоен импулс ✗ · пулс: само таван · музика: фон
 ```
 
 ### 6.7 Антицелулит (пасивна)
@@ -911,3 +913,36 @@ strong for that person). Fine manual steps over the session cover the fading fee
 - **Drainage**: one way, no "Стандартен / Чувствителен" choice (35 Hz, the calves at half).
 - Off-device: `scripts/ai-sim/AutoSim` (the same strength after an HR pause and a 5 min pause; the wave's previous
   group on at 100).
+
+## 21. No preset strength, no share between channels; the protection's order (owner, 1.1.569)
+
+Owner: "no strength set in advance and no ratio between the channels — in every procedure and Auto program, the face
+included, and in the AI sessions: that is the user's alone. The program decides the rest: which channels work (the
+others locked), the kind of impulse, the pauses, the frequency, the depth, the rhythm and the order. The protection
+never changes the strength or the depth: the frequency first, the pauses only second; the 2nd impulse may be stopped.
+Recommendations only in the plan's list."
+
+- **Channels** (`AutoPlanner`): a program's zone > 0 → on (100), else off and **locked**; no profile, focus or AI
+  brief share (`AiPersonal.Effect.apply` only switches a medically bound channel off). Diastasis: the abs **off and
+  locked** (was a 40 % share). A step's zones are 0 / 100 too (the drainage wave and the face wave: the previous
+  group on at the person's level).
+- **Strength** (`AutoEngine`, `AutoPlanner`, `AutoSession`, `AiEngine`): φ = E = 1 for every program, the face too
+  (its 70 % / 80 % / 60+ / 72 h factors, the soft cool-down and the passive 0.7 are gone); a step is on (1) or silent
+  (0); no softer return after a pause; no program ceiling. The strength advice notes ("около 70 %…") are gone; the
+  plan's list keeps the profile's advice. A silent step (the wave's refill, a rest) no longer resets the row to 0 to
+  climb back +5 a cycle (`AutoSession.rowStrength`, seen in `tools/app-sim` SimDrain: 6 → 5 → 6 every wave).
+- **The 2nd impulse** starts at the main strength (`pauseSigma` = 1; the safe pause counts it so, `AutoLimits`
+  ≤ 1.5 ×); the person sets it. Maps: no "сила %" per block nor "сила % от 1-ви" (`WorkoutsUi`, `MapRunner`).
+- **Protection ladder** (`AutoEngine.protect`, Auto and the AI training alike; strength and µs never):
+  1. the frequency — −5 Hz a rung, at most 3 rungs, never under 20 Hz (the AI training: `Endurance`, as before);
+  2. **the 2nd impulse off** — the pause becomes a real rest while the impulse, its rhythm and the session's time
+     stay (the goal is kept); it is the cheapest relief left once the frequency is at its rungs;
+  3. a longer pause, +1 s a rung, at most +3 s — last, since it changes the rhythm and the work.
+  Auto climbs one rung a cycle on the HR corridor or the dose, one down when fine; the notice says what it did
+  (`protectText`: "честота −10 Hz · без 2-ри импулс · пауза +1 s"). The old Smart Session (`AiEngine`) answers the HR
+  with the pause length only (its strength control is gone).
+- **Plan screen** (`AutoUi`, checked in `tools/app-sim` SimDrain / SimBackProc / SimMaps): the zone chart shows ✓ / 🔒
+  (which channels work), not "100"; the phases show no "· 100 %", a wave its every frequency ("8 / 35 Hz"), times as
+  the plan's own (m:ss, they add up); the first tile is the first phase's name ("Отваряне"); both columns from the top.
+- **No lock on the person's raises** (1.1.570): the dose 20 % over the plan no longer stops "+" (`isRaiseLocked`
+  is always false); over the plan the dose climbs the protection's rungs instead.

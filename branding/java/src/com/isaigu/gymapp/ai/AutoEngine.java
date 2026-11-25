@@ -212,6 +212,12 @@ public final class AutoEngine {
                 current.pwUs, current.durationMs() / 1000.0, hrStep);
         hrStep = false;
         safeHzCut = end.cut();
+        // the frequency at its floor and the reserve still spent: the next rungs (2nd impulse off, then pause)
+        if (end.reserve() < 0 && !stepped) {
+            contNeed = Math.min(PROTECT_MAX - PROTECT_HZ_RUNGS, contNeed + 1);
+        } else if (end.reserve() > 0 && contNeed > 0) {
+            contNeed--;
+        }
         if (stepped) {
             log(now, "safety: " + end.last());
             event(end.lastByHeart ? EV_STEP_HEART : EV_STEP_TIME, current.hz, current.hz - Endurance.STEP_HZ, end.lastHoldS);
@@ -260,7 +266,6 @@ public final class AutoEngine {
     private double qUsed;
     private double qPlanned;
     private int doseExt;
-    private boolean raiseLocked;
     private boolean doseStopped;
     private double userScale = 1.0;
     private double userScaleMax = 1.0;
@@ -689,9 +694,78 @@ public final class AutoEngine {
         return c;
     }
 
-    /** Extra pause the engine adds now (corridor + dose), on top of the program's OFF. */
+    /** Extra pause the engine adds now (the last rung of the protection), on top of the program's OFF. */
     public int getOffExtension() {
-        return corridorExt + doseExt;
+        return lastPauseExt;
+    }
+
+    // ---- the protection (owner, 2026-11-25; Auto and the AI alike): never the strength, never the depth (µs).
+    // 1) the frequency, −5 Hz a rung (at most 3, not under 20 Hz); 2) the 2nd impulse off — the pause is a real rest
+    // again while the impulse, its rhythm and the session's goal stay; 3) only then a longer pause, +1 s a rung (≤ 3).
+    // Auto climbs on the HR corridor / the dose (each cycle one rung up, one down when it is fine again); the AI
+    // training climbs past its frequency steps (Endurance) when the reserve is still spent at the floor.
+    public static final int PROTECT_HZ_RUNGS = 3;
+    public static final int PROTECT_MAX = PROTECT_HZ_RUNGS + 1 + 3;
+    /** The AI training's rungs after its frequency steps: 1 = no 2nd impulse, 2.. = pause +1 s … */
+    private int contNeed;
+    private int lastPauseExt;
+    private boolean lastNoDouble;
+    private int lastHzCut;
+
+    /** The protection's rung now (0 = none). */
+    public int protectLevel() {
+        return continuous ? (contNeed > 0 ? PROTECT_HZ_RUNGS + contNeed : 0) : Math.max(corridorExt, doseExt);
+    }
+
+    /** What the protection does now, in words (for the notice): "честота −10 Hz · без 2-ри импулс · пауза +1 s". */
+    public String protectText() {
+        StringBuilder bg = new StringBuilder();
+        StringBuilder en = new StringBuilder();
+        int hzCut = continuous ? safeHzCut : lastHzCut;
+        if (hzCut > 0) {
+            bg.append("честота −").append(hzCut).append(" Hz");
+            en.append("frequency −").append(hzCut).append(" Hz");
+        }
+        if (lastNoDouble) {
+            bg.append(bg.length() > 0 ? " · " : "").append("без 2-ри импулс");
+            en.append(en.length() > 0 ? " · " : "").append("no 2nd impulse");
+        }
+        if (lastPauseExt > 0) {
+            bg.append(bg.length() > 0 ? " · " : "").append("пауза +").append(lastPauseExt).append(" s");
+            en.append(en.length() > 0 ? " · " : "").append("pause +").append(lastPauseExt).append(" s");
+        }
+        return AiText.t(bg.toString(), en.toString());
+    }
+
+    /** The rungs on this step (the frequency for Auto, the 2nd impulse and the pause for both); returns "2nd off". */
+    private boolean protect(Step s, Phase ph) {
+        lastHzCut = 0;
+        lastPauseExt = 0;
+        if (ph.isCooldown() || "WARMUP".equals(ph.id)) {
+            return false;
+        }
+        int extra;
+        if (continuous) {
+            extra = contNeed;                                  // its frequency rungs: safeHzCut (Endurance)
+        } else {
+            int need = Math.min(PROTECT_MAX, Math.max(corridorExt, doseExt));
+            if (s.isTetanic() && need > 0) {
+                int to = Math.max(Endurance.FLOOR_HZ, s.hz - Endurance.STEP_HZ * Math.min(need, PROTECT_HZ_RUNGS));
+                lastHzCut = s.hz - to;
+                s.hz = to;
+            }
+            extra = need - PROTECT_HZ_RUNGS;
+        }
+        if (extra <= 0) {
+            return false;
+        }
+        boolean dbl = doublePulse && s.pauseHz > 0 && s.pauseSigma > 0;
+        int pause = Math.min(3, dbl ? extra - 1 : extra);
+        if (pause > 0) {
+            s.offS += pause;
+            lastPauseExt = pause;
+        }
+        return dbl;
     }
 
     /** Highest of the rows' own factors (strength / (calibration × plan)) — for the dose. */
@@ -899,11 +973,12 @@ public final class AutoEngine {
                 qPlanned += AutoPlanner.cycleDose(current.base, current.frac / Math.max(0.01, reentry), pause);
                 double ratio = qPlanned > 0 ? qUsed / qPlanned : 0;
                 if (ratio > 1.1) {
-                    doseExt = Math.min(doseExt + 1, Math.max(1, current.base.offS / 2));
+                    doseExt = Math.min(doseExt + 1, PROTECT_MAX);
                 } else if (ratio < 1.05 && doseExt > 0) {
                     doseExt--;
                 }
-                raiseLocked = ratio > 1.2;
+                // no lock on the person's raises (owner, 2026-11-25): the strength is theirs; the dose answers with
+                // the protection's rungs (frequency → 2nd impulse → pause)
             }
         }
         if (qUsed >= plan.qBudget && !ph.isCooldown() && plan.qBudget > 0 && cooldownIndex() > phaseIndex) {
@@ -951,12 +1026,12 @@ public final class AutoEngine {
             }
             ph = phase();
         }
-        // corridor: above → longer pause, back below → shorter again
+        // corridor: above → one rung of the protection up, back below → one down
         if (plan.hrUse == HrUse.CORRIDOR && hr > 0 && now - hrMs <= HR_STALE_MS && !ph.isCooldown()
                 && !"WARMUP".equals(ph.id)) {
             int hi = plan.corridorHiHr();
             if (hr > hi) {
-                corridorExt = Math.min(corridorExt + 1, 3);
+                corridorExt = Math.min(corridorExt + 1, PROTECT_MAX);
             } else if (hr < hi - 5 && corridorExt > 0) {
                 corridorExt--;
             }
@@ -2490,7 +2565,8 @@ public final class AutoEngine {
         if (userPw > 0) {
             s.pwUs = userPw;
         }
-        s.offS += corridorExt + doseExt;
+        boolean noDouble = protect(s, ph);
+        lastNoDouble = noDouble;
         if (continuous && s.isTetanic() && !ph.isCooldown() && safeHzCut > 0) {
             s.hz = Math.max(Endurance.FLOOR_HZ, s.hz - safeHzCut);
         }
@@ -2514,6 +2590,9 @@ public final class AutoEngine {
             s.pwUs = Math.max(50, (int) Math.round(s.pwUs * (1 + tunePwPct / 100.0)));   // the limits clamp it next
         }
         s.rampUpMs = AutoDynamics.ramp(s.rampUpMs, current != null ? current.hz : -1, s.hz, fresh);
+        if (s.pauseHz > 0 && s.pauseSigma > 0) {
+            s.pauseSigma = 1.0;                // the 2nd impulse at the main strength: the safe pause counts it so
+        }
         s = AutoLimits.clampStep(s, next, plan, ph);
         double p = ph.durationS > 0 ? phaseElapsed() / ph.durationS : 0;
         Cmd c = new Cmd();
@@ -2529,19 +2608,18 @@ public final class AutoEngine {
         c.stepIndex = step;
         c.phi = ph.phiAt(p);
         c.env = ph.envAt(p);
-        // the body programs never move the strength (owner, 2026-11-25): the person sets each channel once and it
+        // no program moves the strength, the face included (owner, 2026-11-25): the person sets each channel and it
         // stays — a step is on (the person's level) or silent; no softer step, no softer return after a pause
-        boolean body = !AutoCatalog.isFace(plan.program);
-        double k = body ? (s.sigma > 0 ? 1.0 : 0.0) : s.sigma * reentry;
+        double k = s.sigma > 0 ? 1.0 : 0.0;
         c.scale = k;
         double phi = Math.min(plan.phiMax, c.phi);
         c.frac = phi * k;
         double env = Math.min(plan.envMax, ph.envAt(p)) * plan.phiMax * k;
-        c.ceiling = raiseLocked ? Math.min(Math.max(c.frac, env), c.frac * Math.max(1.0, userScale))
-                : Math.max(c.frac, env);
-        if (doublePulse && s.pauseHz > 0 && s.pauseSigma > 0) {
+        c.ceiling = Math.max(c.frac, env);
+        if (doublePulse && s.pauseHz > 0 && s.pauseSigma > 0 && !noDouble) {
             c.pauseHz = s.pauseHz;
-            c.pauseSigma = s.pauseSigma * (plan.input.solo() ? Math.min(1, 0.40 / s.pauseSigma) : 1);
+            // the 2nd impulse starts at the main strength; the person sets it (owner, 2026-11-25 — no preset share)
+            c.pauseSigma = 1.0;
         }
         return c;
     }
@@ -2557,7 +2635,7 @@ public final class AutoEngine {
         }
         double f = rowFrac(c, rowPhiMax);
         double env = Math.max(f, Math.min(rowEnvMax, c.env) * rowPhiMax * c.scale);
-        return raiseLocked ? Math.min(env, f * Math.max(1.0, userScale)) : env;
+        return env;
     }
 
     private int phaseAt(double t) {
@@ -2657,8 +2735,9 @@ public final class AutoEngine {
         return doseStopped;
     }
 
+    /** Never: the person's raises are not locked (owner, 2026-11-25). */
     public boolean isRaiseLocked() {
-        return raiseLocked;
+        return false;
     }
 
     public double getReentry() {

@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 1306
+    .line 1308
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -38,7 +38,7 @@
 
     const/4 v0, 0x1
 
-    .line 1309
+    .line 1311
     # getter for: Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->overlayDialog:Landroid/support/v7/app/AlertDialog;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->access$100()Landroid/support/v7/app/AlertDialog;
 
@@ -60,13 +60,13 @@
     :cond_12
     move v0, v1
 
-    .line 1344
+    .line 1346
     :cond_13
     :goto_13
     :pswitch_13
     return v0
 
-    .line 1312
+    .line 1314
     :cond_14
     # getter for: Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->overlayDialog:Landroid/support/v7/app/AlertDialog;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->access$100()Landroid/support/v7/app/AlertDialog;
@@ -81,7 +81,7 @@
 
     move-result-object v2
 
-    .line 1313
+    .line 1315
     invoke-virtual {p2}, Landroid/view/MotionEvent;->getActionMasked()I
 
     move-result v3
@@ -90,10 +90,10 @@
 
     move v0, v1
 
-    .line 1344
+    .line 1346
     goto :goto_13
 
-    .line 1315
+    .line 1317
     :pswitch_29
     invoke-virtual {p2}, Landroid/view/MotionEvent;->getRawX()F
 
@@ -108,7 +108,7 @@
     # setter for: Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->overlayTouchDx:F
     invoke-static {v3}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->access$2902(F)F
 
-    .line 1316
+    .line 1318
     invoke-virtual {p2}, Landroid/view/MotionEvent;->getRawY()F
 
     move-result v3
@@ -122,7 +122,7 @@
     # setter for: Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->overlayTouchDy:F
     invoke-static {v2}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->access$3002(F)F
 
-    .line 1317
+    .line 1319
     invoke-virtual {p2}, Landroid/view/MotionEvent;->getRawX()F
 
     move-result v2
@@ -130,7 +130,7 @@
     # setter for: Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->overlayDownRawX:F
     invoke-static {v2}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->access$3102(F)F
 
-    .line 1318
+    .line 1320
     invoke-virtual {p2}, Landroid/view/MotionEvent;->getRawY()F
 
     move-result v2
@@ -138,13 +138,13 @@
     # setter for: Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->overlayDownRawY:F
     invoke-static {v2}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->access$3202(F)F
 
-    .line 1319
+    .line 1321
     # setter for: Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->overlayMoved:Z
     invoke-static {v1}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->access$3302(Z)Z
 
     goto :goto_13
 
-    .line 1322
+    .line 1324
     :pswitch_52
     invoke-virtual {p2}, Landroid/view/MotionEvent;->getRawX()F
 
@@ -157,7 +157,7 @@
 
     sub-float v2, v1, v2
 
-    .line 1323
+    .line 1325
     invoke-virtual {p2}, Landroid/view/MotionEvent;->getRawY()F
 
     move-result v1
@@ -169,7 +169,7 @@
 
     sub-float v3, v1, v3
 
-    .line 1324
+    .line 1326
     const/4 v1, 0x0
 
     # invokes: Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->resolveActivity(Landroid/view/View;)Landroid/app/Activity;
@@ -177,10 +177,10 @@
 
     move-result-object v1
 
-    .line 1325
+    .line 1327
     if-eqz v1, :cond_98
 
-    .line 1326
+    .line 1328
     const/16 v4, 0xa
 
     # invokes: Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->dp(Landroid/app/Activity;I)I
@@ -190,7 +190,7 @@
 
     int-to-float v1, v1
 
-    .line 1328
+    .line 1330
     :goto_74
     mul-float/2addr v2, v2
 
@@ -204,11 +204,11 @@
 
     if-lez v1, :cond_7f
 
-    .line 1329
+    .line 1331
     # setter for: Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->overlayMoved:Z
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->access$3302(Z)Z
 
-    .line 1332
+    .line 1334
     :cond_7f
     invoke-virtual {p2}, Landroid/view/MotionEvent;->getRawX()F
 
@@ -223,7 +223,7 @@
 
     float-to-int v1, v1
 
-    .line 1333
+    .line 1335
     invoke-virtual {p2}, Landroid/view/MotionEvent;->getRawY()F
 
     move-result v2
@@ -237,19 +237,19 @@
 
     float-to-int v2, v2
 
-    .line 1331
+    .line 1333
     # invokes: Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->moveOverlayWindow(II)V
     invoke-static {v1, v2}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->access$3500(II)V
 
     goto/16 :goto_13
 
-    .line 1327
+    .line 1329
     :cond_98
     const/high16 v1, 0x41c00000    # 24.0f
 
     goto :goto_74
 
-    .line 1337
+    .line 1339
     :pswitch_9b
     # getter for: Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->overlayMoved:Z
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->access$3300()Z
@@ -258,13 +258,13 @@
 
     if-nez v1, :cond_13
 
-    .line 1338
+    .line 1340
     # invokes: Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->openOverlaySettings()V
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->access$3600()V
 
     goto/16 :goto_13
 
-    .line 1313
+    .line 1315
     :pswitch_data_a6
     .packed-switch 0x0
         :pswitch_29

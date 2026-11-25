@@ -127,8 +127,8 @@ public final class XemsModuleInfo {
                         "13 ready programs by goal — toning, weight loss and health; active and at rest (anti-cellulite, drainage, back, 50+, postpartum)."),
                 tr("Нагласени по клиента — полът, възрастта, ръстът, теглото и здравето сменят времето, силата и зоните.",
                         "Fitted to the client — sex, age, height, weight and health change the time, strength and zones."),
-                tr("Твърди граници — силата и параметрите се местят само в разрешеното за всеки момент от програмата.",
-                        "Hard limits — strength and parameters move only within what each moment of the program allows."),
+                tr("Силата е само твоя — програмата избира каналите, честотата, паузите и ритъма, никога силата.",
+                        "The strength is yours alone — the program picks the channels, frequency, pauses and rhythm, never the strength."),
                 tr("Групова тренировка — една програма за всички, но границите и силата са за всеки човек поотделно.",
                         "Group training — one program for everyone, with limits and strength per person."),
                 tr("Еднакво качество — нов треньор провежда тренировка като опитен.",
@@ -142,8 +142,8 @@ public final class XemsModuleInfo {
                         "Check the client (the profile is one line) and confirm their health."),
                 tr("Прегледай плана — време, усещане, пулс; при нужда смени продължителността или интензитета.",
                         "Review the plan — time, feel, heart rate; change duration or intensity if needed."),
-                tr("„Пусни импулсите“ → нагласи силата по редове → „Старт“.",
-                        "Start the impulses → set the strength per row → Start."),
+                tr("„Старт“ — програмата тръгва от 0; качи силата на всеки канал с + на реда.",
+                        "Start — the program begins at 0; raise each channel's strength with the row's +."),
                 tr("По време на сесията: сила ±, пауза и „Приключи“.", "During the session: strength ±, pause and Finish."),
             };
         } else if (XemsLicense.AI.equals(id)) {
@@ -153,8 +153,8 @@ public final class XemsModuleInfo {
             e.tagline = tr("Умна сесия, която се нагласява по пулса и умората в реално време",
                     "A smart session that adapts to heart rate and fatigue in real time");
             e.value = new String[] {
-                tr("Води тренировката сама — всяка секунда следи пулса и умората на мускулите и решава сила, паузи и почивки.",
-                        "Leads the session — every second it watches heart rate and muscle fatigue and sets strength, pauses and rests."),
+                tr("Води тренировката сама — всяка секунда следи пулса и умората на мускулите и решава честотата, паузите и почивките; силата е твоя.",
+                        "Leads the session — every second it watches heart rate and muscle fatigue and sets the frequency, pauses and rests; the strength is yours."),
                 tr("Личен план — от целта, профила и пулса в покой се строи план с фази и блокове за този човек.",
                         "A personal plan — goal, profile and resting heart rate build a plan with phases and blocks for this person."),
                 tr("Многопластова безопасност — защитни граници, бутони СТОП и НАМАЛИ, никога увеличение над плана.",

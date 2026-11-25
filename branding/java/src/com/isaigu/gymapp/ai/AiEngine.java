@@ -298,7 +298,7 @@ public final class AiEngine {
         if (current != null) {
             if (on && currentSpec != null && currentSpec.hasActivePause() && current.frac > 0) {
                 current.pauseHz = currentSpec.pauseHz;
-                current.pauseSigma = currentSpec.pauseSigma;
+                current.pauseSigma = 1.0;
             } else if (!on) {
                 current.pauseHz = 0;
                 current.pauseSigma = 0;
@@ -477,11 +477,7 @@ public final class AiEngine {
         c.frac = arbiter(ph, sigma);
         if (pauseOn && spec.hasActivePause()) {
             c.pauseHz = spec.pauseHz;
-            c.pauseSigma = spec.pauseSigma;
-        }
-        if (ph.blockMode == BlockMode.CONTINUOUS && c.frac > 0) {
-            // no blocks, no rests: the output itself keeps the fatigue below the block limit
-            c.frac = Math.min(c.frac, AiPlanner.continuousCap(fMaxEff, plan.tauR, spec, c.offS, c.pauseHz > 0));
+            c.pauseSigma = 1.0;                       // the 2nd impulse starts at the main strength
         }
         if (spec.isTetanic() && (tuneOn != 0 || tuneOff != 0 || tuneHz != 1.0)) {
             int onMax = spec.hz >= 50 ? SafeLimits.ON_MAX_50HZ : SafeLimits.ON_MAX_TETANIC;
@@ -999,19 +995,13 @@ public final class AiEngine {
     }
 
     /** Level C: min(plan, fatigue, HR) with the HR term weighted by c_HR (§0). */
+    /**
+     * The share of the person's strength on this cycle: 1 for a working cycle, 0 for a silent one, × only the
+     * person's own reduce (owner, 2026-11-25: no program sets or moves the strength — not the phase, not the HR,
+     * not a return after a pause; the HR is answered with the pause length, offFactor).
+     */
     private double arbiter(Phase ph, double sigma) {
-        double progress = ph.durationS > 0 ? phaseElapsedS / ph.durationS : 1.0;
-        double phi = Math.min(ph.phiAt(progress) * phiScale, plan.phiMax);   // G4
-        if (isControlPhase(ph)) {
-            phi = Math.min(phi, phiCapBand);                                 // G12
-        }
-        phi *= reentry;                                                      // after a long pause
-        double dPlan = phi * sigma * ceilingScale;
-        double dHr = dPlan * u;
-        double c = cHr();
-        double withHr = dPlan - c * (dPlan - dHr);
-        double out = Math.min(dPlan, withHr) * uUser;                        // B: human reduce
-        return clamp(out, 0, plan.phiMax);
+        return sigma > 0 ? clamp(uUser, 0, 1) : 0;
     }
 
     public double cHr() {

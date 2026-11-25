@@ -146,96 +146,52 @@
 .end method
 
 .method public apply([I)[I
-    .registers 8
+    .registers 7
 
     .prologue
-    .line 61
+    const/4 v2, 0x0
+
+    .line 64
     invoke-virtual {p1}, [I->clone()Ljava/lang/Object;
 
     move-result-object v0
 
     check-cast v0, [I
 
-    .line 62
-    const/4 v1, 0x0
+    move v1, v2
 
-    :goto_7
-    const/16 v2, 0xa
+    .line 65
+    :goto_8
+    const/16 v3, 0xa
 
-    array-length v3, v0
+    array-length v4, v0
 
-    invoke-static {v2, v3}, Ljava/lang/Math;->min(II)I
-
-    move-result v2
-
-    if-ge v1, v2, :cond_43
-
-    .line 63
-    aget v2, v0, v1
-
-    if-gtz v2, :cond_17
-
-    .line 62
-    :goto_14
-    add-int/lit8 v1, v1, 0x1
-
-    goto :goto_7
-
-    .line 66
-    :cond_17
-    aget v2, v0, v1
-
-    iget-object v3, p0, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->zoneDelta:[I
-
-    aget v3, v3, v1
-
-    add-int/2addr v3, v2
-
-    .line 67
-    iget-object v2, p0, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->zoneDelta:[I
-
-    aget v2, v2, v1
-
-    if-gez v2, :cond_41
-
-    aget v2, v0, v1
-
-    const/16 v4, 0x14
-
-    invoke-static {v2, v4}, Ljava/lang/Math;->min(II)I
-
-    move-result v2
-
-    :goto_2c
-    const/16 v4, 0x64
-
-    iget-object v5, p0, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->zoneMax:[I
-
-    aget v5, v5, v1
-
-    invoke-static {v4, v5}, Ljava/lang/Math;->min(II)I
-
-    move-result v4
-
-    invoke-static {v4, v3}, Ljava/lang/Math;->min(II)I
+    invoke-static {v3, v4}, Ljava/lang/Math;->min(II)I
 
     move-result v3
 
-    invoke-static {v2, v3}, Ljava/lang/Math;->max(II)I
+    if-ge v1, v3, :cond_1e
 
-    move-result v2
+    .line 66
+    iget-object v3, p0, Lcom/isaigu/gymapp/ai/AiPersonal$Effect;->zoneMax:[I
 
+    aget v3, v3, v1
+
+    const/16 v4, 0x64
+
+    if-ge v3, v4, :cond_1b
+
+    .line 67
     aput v2, v0, v1
 
-    goto :goto_14
+    .line 65
+    :cond_1b
+    add-int/lit8 v1, v1, 0x1
 
-    :cond_41
-    const/4 v2, 0x1
+    goto :goto_8
 
-    goto :goto_2c
-
-    .line 69
-    :cond_43
+    .line 70
+    :cond_1e
     return-object v0
 .end method
 

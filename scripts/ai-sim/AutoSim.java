@@ -142,17 +142,8 @@ public final class AutoSim {
         check(plan.phases.get(plan.phases.size() - 1).isCooldown(), tag + ": the recovery is last");
         if (plan.program.isActive() && in.sessions == 0) {
             check(plan.activeS <= 720, tag + ": first active session ≤ 12 min");
-            if (AutoCatalog.isFace(plan.program)) {
-                check(plan.phiMax <= 0.7 + 1e-9, tag + ": first session φ ≤ 0.7 (face)");
-            } else {
-                // the body: the strength is the person's (owner, 1.1.526) — the first-session dose is advice
-                check(plan.phiMax == 1.0, tag + ": first session — the program sets no strength");
-                boolean advice = false;
-                for (String n : plan.notesBg) {
-                    advice |= n.startsWith("Първа сесия: препоръка");
-                }
-                check(advice, tag + ": first session — the dose advice is shown");
-            }
+            // every program, the face too (owner, 2026-11-25): the strength is the person's — no dose, no advice on it
+            check(plan.phiMax == 1.0, tag + ": first session — the program sets no strength");
         }
         if (in.extra.breastfeeding && !AutoCatalog.isFace(plan.program)) {
             check(plan.zones[AutoModel.CHEST] == 0 && plan.zoneLocked[AutoModel.CHEST], tag + ": chest off");
@@ -338,29 +329,26 @@ public final class AutoSim {
         check(c.frac <= plan.phiMax + 1e-9, at + ": frac ≤ φmax");
         check(c.ceiling >= c.frac - 1e-9, at + ": ceiling ≥ frac");
         check(c.ceiling <= plan.envMax * plan.phiMax + 1e-9, at + ": ceiling ≤ E·φmax");
-        boolean face = AutoCatalog.isFace(plan.program);
-        if (ph.isCooldown() && face) {
-            check(c.ceiling <= 0.5 + 1e-9, at + ": cool-down ceiling ≤ 0.5 (face)");
+        // every program and procedure, the face too (owner, 2026-11-25): no preset strength, no share between channels —
+        // a channel is on (100) or off; a step is on (1) or silent (0)
+        check(Math.abs(c.phi - 1.0) < 1e-9 && plan.phiMax == 1.0 && plan.envMax == 1.0,
+                at + ": the program sets no strength (φ = 1, E = 1)");
+        check(c.frac == 0 || Math.abs(c.frac - 1.0) < 1e-9, at + ": a step is on or silent, never softer");
+        check(plan.zoneDelta >= 100, at + ": a zone goes up as far as the person wants");
+        for (int z = 0; z < AutoModel.CHANNELS; z++) {
+            check(plan.zones[z] == 0 || plan.zones[z] == 100, at + ": a zone is on or off, never a share");
+            check(plan.zones[z] > 0 || plan.zoneLocked[z], at + ": a channel off is locked");
         }
-        if (!face) {
-            // owner, 1.1.526: a body program never sets the strength — every phase at the calibration (σ is only the
-            // step's shape inside the cycle, e.g. the 7 Hz twitch next to the 85 Hz hold)
-            check(Math.abs(c.phi - 1.0) < 1e-9 && plan.phiMax == 1.0 && plan.envMax == 1.0,
-                    at + ": the program sets no strength (φ = 1, E = 1)");
-            check(plan.zoneDelta >= 100, at + ": a zone goes up as far as the person wants");
-            for (int z = 0; z < AutoModel.CHANNELS; z++) {
-                check(plan.zones[z] == 0 || plan.zones[z] == 100 || plan.zones[z] == plan.zoneMax[z],
-                        at + ": a zone is on or off, never a share (a medical bound — diastasis — aside)");
+        if (c.zones != null) {
+            for (int z = 0; z < c.zones.length; z++) {
+                check(c.zones[z] == 0 || c.zones[z] == 100, at + ": a step's channel is on or off, never a share");
             }
         }
         if (c.pauseHz > 0) {
             check(plan.doublePulseAllowed, at + ": L12 double pulse only where allowed");
             check(!AutoCatalog.DRAIN.equals(plan.program.id) && !AutoCatalog.POWER.equals(plan.program.id),
                     at + ": L12 no double pulse in drain / power");
-            check(!plan.input.solo() || c.pauseSigma <= 0.40 + 1e-9, at + ": SOLO pause ≤ 40 %");
-        }
-        if (face && !plan.program.isActive() && ph.hasTetanic() && !ph.wave) {
-            check(c.frac <= 0.7 + 1e-9, at + ": passive tetanic φ ≤ 0.7 (face)");
+            check(Math.abs(c.pauseSigma - 1.0) < 1e-9, at + ": the 2nd impulse starts at the main strength");
         }
     }
 
@@ -581,6 +569,8 @@ public final class AutoSim {
         e.start(t);
         int hi = plan.corridorHiHr();
         int maxExt = 0;
+        int maxPause = 0;
+        boolean hzFirst = true;
         for (int i = 0; i < 200 && e.getState() == AutoEngine.State.RUN; i++) {
             AutoEngine.Cmd c = e.getCurrent();
             t += c.durationMs();
@@ -588,8 +578,13 @@ public final class AutoSim {
             e.tick(t - 1);
             e.onCycle(t);
             maxExt = Math.max(maxExt, e.getCorridorExt());
+            maxPause = Math.max(maxPause, e.getOffExtension());
+            // the protection's order (owner, 2026-11-25): the frequency first, the pause only past its rungs
+            hzFirst &= e.getOffExtension() == 0 || e.getCorridorExt() > AutoEngine.PROTECT_HZ_RUNGS;
         }
-        check(maxExt == 3, "corridor: pause +1 s per cycle up to +3 (" + maxExt + ")");
+        check(maxExt == AutoEngine.PROTECT_MAX, "corridor: one rung per cycle up to the top (" + maxExt + ")");
+        check(hzFirst, "corridor: the frequency first, a longer pause only after it");
+        check(maxPause > 0 && maxPause <= 3, "corridor: the pause at most +3 s (" + maxPause + ")");
     }
 
     static void dose() {
@@ -610,8 +605,8 @@ public final class AutoSim {
             ext |= e.getDoseExt() > 0;
             lock |= e.isRaiseLocked();
         }
-        check(ext, "dose: over plan → longer pause");
-        check(lock, "dose: far over plan → no more raising");
+        check(ext, "dose: over plan → the protection's rungs");
+        check(!lock, "dose: the person's raises are never locked (owner, 2026-11-25)");
         check(e.getDoseRatio() <= 1.0 + 0.05, "dose: budget kept (" + e.getDoseRatio() + ")");
     }
 
@@ -655,7 +650,11 @@ public final class AutoSim {
         for (int i = 0; i < order.length; i++) {
             AutoEngine.Cmd c = e.getCurrent();
             check(c.zones != null && c.zones[order[i]] == 100, "drain: wave step " + i + " at the right zone");
-            if (i > 0) {
+            if (i == 0) {
+                check(c.hz == 8, "drain: the calf pumps at 8 Hz");
+            } else if (i == 1) {
+                check(c.zones[AutoModel.CALF] == 0, "drain: the calf not held at 35 Hz after its step");
+            } else {
                 check(c.zones[order[i - 1]] == 100, "drain: previous zone still on, at the person's level");
             }
             check(c.zones[AutoModel.ARMS] == 0, "drain: arms silent in the leg wave");
@@ -2059,7 +2058,7 @@ public final class AutoSim {
         // weaker → shorter rests; stronger → longer rests, but the dose budget (§3.4) may end the work earlier
         // real clock (1.1.494): the strength changes the load and the rests inside the plan, never its end
         check(Math.abs(f07.totalS - f1.totalS) < 20 && Math.abs(f12.totalS - f1.totalS) < 20
-                && f12.maxLoad > f1.maxLoad, "S1 forecast: load follows the strength, the end stays on the clock ("
+                && f07.maxLoad < f1.maxLoad, "S1 forecast: load follows the strength, the end stays on the clock ("
                 + Math.round(f07.totalS / 60) + " / " + Math.round(f1.totalS / 60) + " / " + Math.round(f12.totalS / 60) + " min)");
         if (verbose) {
             System.out.println("  S1 rest " + a.getRestMinS() + " vs " + b.getRestMinS() + " s; forecast 0.7/1/1.2 = "
@@ -2211,7 +2210,7 @@ public final class AutoSim {
         checks++;
         if (!ok) {
             fails++;
-            if (fails <= 40) {
+            if (fails <= 40 || System.getenv("ALLFAIL") != null) {
                 System.out.println("FAIL " + what);
             }
         }

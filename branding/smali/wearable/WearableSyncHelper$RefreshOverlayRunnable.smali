@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 1156
+    .line 1158
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -32,7 +32,7 @@
     .registers 2
 
     .prologue
-    .line 1156
+    .line 1158
     invoke-direct {p0}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper$RefreshOverlayRunnable;-><init>()V
 
     return-void
@@ -44,22 +44,22 @@
     .registers 3
 
     .prologue
-    .line 1160
+    .line 1162
     :try_start_0
     # invokes: Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->refreshOverlayDisplay()V
     invoke-static {}, Lcom/isaigu/gymapp/wearable/WearableSyncHelper;->access$800()V
     :try_end_3
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_3} :catch_4
 
-    .line 1164
+    .line 1166
     :goto_3
     return-void
 
-    .line 1161
+    .line 1163
     :catch_4
     move-exception v0
 
-    .line 1162
+    .line 1164
     const-string v1, "WearableSyncHelper.refresh"
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V

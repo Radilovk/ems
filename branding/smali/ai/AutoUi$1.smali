@@ -23,7 +23,7 @@
     .registers 3
 
     .prologue
-    .line 2229
+    .line 2276
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoModel$Goal;->values()[Lcom/isaigu/gymapp/ai/AutoModel$Goal;
 
     move-result-object v0

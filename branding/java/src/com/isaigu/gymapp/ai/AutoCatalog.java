@@ -448,7 +448,7 @@ public final class AutoCatalog {
 
     /** The passive recovery after the active part, s: 10 min for the body, 2 min for the face. */
     public static int recoveryS(Program p) {
-        return isFace(p) ? FACE_RECOVERY_S : AutoPlanner.RECOVERY_S;
+        return isFace(p) ? FACE_RECOVERY_S : DRAIN.equals(p.id) ? DRAIN_RECOVERY_S : AutoPlanner.RECOVERY_S;
     }
 
     /** One face step: narrow pulse, soft 0.5 s rise and fall (no jolt on the face). */
@@ -470,12 +470,12 @@ public final class AutoCatalog {
         return s;
     }
 
-    /** A wave step of the lymph pump: {@code on} at 100 %, {@code prev} at 50 % (they still press), 1 s : 1 s. */
+    /** A wave step of the lymph pump: {@code on} and {@code prev} on (they still press), each at the person's level. */
     private static Step faceWave(int[] on, int[] prev) {
         int[] z = new int[CHANNELS];
         if (prev != null) {
             for (int c : prev) {
-                z[c] = 50;
+                z[c] = 100;
             }
         }
         for (int c : on) {
@@ -1018,16 +1018,24 @@ public final class AutoCatalog {
                 break;
             }
             case DRAIN: {
-                int hz = 35;                          // the muscle pump; the calves go out at half (CALF_FACTOR)
-                Phase o = phase(out, "OPEN", "Отваряне", "Opening", 0.15, total, 0.9, 0.9);
+                // owner 2026-11-25: built in, nothing asked — proximal first, the calf without cramps, short let-go
+                int hz = 35;
+                Phase o = phase(out, "OPEN", "Отваряне", "Opening", 0.10, total, 0.9, 0.9);
                 o.wave = true;
                 o.steps.add(waveStep(hz, 300, ch(ABS, LOWER_BACK), null));
                 o.steps.add(waveStep(hz, 300, ch(TRAPS), ch(ABS, LOWER_BACK)));
                 o.steps.add(rest(3));
-                Phase legs = phase(out, "LEGS", "Крака", "Legs", 0.55, total, 0.9, 0.9);
+                // the near segments emptied before the calf pushes into them (manual drainage's order)
+                Phase cl = phase(out, "CLEAR", "Освобождаване", "Clearing", 0.15, total, 0.9, 0.9);
+                cl.wave = true;
+                cl.steps.add(waveStep(hz, 300, ch(BACK_THIGH, FRONT_THIGH), null));
+                cl.steps.add(waveStep(hz, 300, ch(GLUTES), ch(BACK_THIGH, FRONT_THIGH)));
+                cl.steps.add(waveStep(hz, 300, ch(ABS, LOWER_BACK), ch(GLUTES)));
+                cl.steps.add(rest(3));
+                Phase legs = phase(out, "LEGS", "Крака", "Legs", 0.65, total, 0.9, 0.9);
                 legs.wave = true;
                 legWave(legs, hz, 300);
-                Phase arms = phase(out, "ARMS", "Ръце и гръб", "Arms and back", 0.20, total, 0.9, 0.9);
+                Phase arms = phase(out, "ARMS", "Ръце и гръб", "Arms and back", 0.10, total, 0.9, 0.9);
                 arms.wave = true;
                 arms.steps.add(waveStep(hz, 300, ch(ARMS), null));
                 arms.steps.add(waveStep(hz, 300, ch(CHEST, BACK), ch(ARMS)));
@@ -1227,24 +1235,34 @@ public final class AutoCatalog {
             }
         }
         fixDurations(out, total);
-        if (isFace(p)) {
+        if (isFace(p) || DRAIN.equals(p.id)) {
             for (Phase ph : out) {
                 if (ph.isCooldown()) {
-                    ph.durationS = FACE_RECOVERY_S;
+                    ph.durationS = recoveryS(p);
                 }
             }
         }
         return out;
     }
 
-    /** DRAIN legs: calf → thighs → glutes → abs + lower back, the previous group at 50 %, then refill. */
+    /**
+     * The leg wave: calf → thighs → glutes → abs + lower back, the previous group still on, then refill (~21 s, the
+     * calf's venous refill time). The calf pumps with {@link #CALF_PUMP_HZ} twitches, alone and not held after its
+     * step: a 35 Hz hold of a lying calf cramps it, and the lymph vessels' own valves stop the backflow.
+     */
     private static void legWave(Phase ph, int hz, int pw) {
-        ph.steps.add(waveStep(hz, pw, ch(CALF), null));
-        ph.steps.add(waveStep(hz, pw, ch(BACK_THIGH, FRONT_THIGH), ch(CALF)));
+        ph.steps.add(waveStep(CALF_PUMP_HZ, pw, ch(CALF), null));
+        ph.steps.add(waveStep(hz, pw, ch(BACK_THIGH, FRONT_THIGH), null));
         ph.steps.add(waveStep(hz, pw, ch(GLUTES), ch(BACK_THIGH, FRONT_THIGH)));
         ph.steps.add(waveStep(hz, pw, ch(ABS, LOWER_BACK), ch(GLUTES)));
         ph.steps.add(rest(5));
     }
+
+    /** The calf's pump frequency in a leg wave (owner, 2026-11-25: the calves far too strong, cramping). */
+    static final int CALF_PUMP_HZ = 8;
+
+    /** The drainage's let-go: the person is lying already — a short one. */
+    public static final int DRAIN_RECOVERY_S = 240;
 
     private static Phase phase(List<Phase> out, String id, String bg, String en, double share,
                                int total, double phi0, double phi1) {

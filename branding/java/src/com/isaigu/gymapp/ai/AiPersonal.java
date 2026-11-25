@@ -56,15 +56,16 @@ public final class AiPersonal {
             }
         }
 
-        /** Trainer / program zones → the person's zones (a zone that is off stays off). */
+        /**
+         * Trainer / program zones → the person's zones: unchanged, only a medical bound switches a channel off
+         * (owner, 2026-11-25: no profile sets a share between channels — the person does).
+         */
         public int[] apply(int[] zones) {
             int[] z = zones.clone();
             for (int i = 0; i < Math.min(CH, z.length); i++) {
-                if (z[i] <= 0) {
-                    continue;
+                if (zoneMax[i] < 100) {
+                    z[i] = 0;
                 }
-                int v = z[i] + zoneDelta[i];
-                z[i] = Math.max(zoneDelta[i] < 0 ? Math.min(z[i], 20) : 1, Math.min(Math.min(100, zoneMax[i]), v));
             }
             return z;
         }

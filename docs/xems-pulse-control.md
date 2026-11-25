@@ -195,3 +195,11 @@ Hz, двоен импулс), −s импулс, +s пауза, начало н�
 
 **Прасци (1.1.566):** след баланса прасецът се умножава по `CALF_FACTOR` = 0.5 — една точка на плъзгача е половин
 единица на костюма (по-фина стъпка, малко по-слабо). Плъзгачът показва същия %. Виж `docs/xems-auto-mode-spec.md` §20.
+
+## 1.1.570 — the ladder without the strength (owner, 2026-11-25)
+
+`HrGuardCore.ladder` is one order for every program (no TETANIC / TWITCH split any more): the frequency (×0.8, then
+×0.7; a fused program stays ≥ 20 Hz, twitches ≥ 2 Hz) → **the 2nd impulse off** (one step, its strength is never
+trimmed) → a longer pause (×1.5, ×2). The strength, the width (µs) and a shorter impulse are never levers; when the
+rungs are spent the cap (+12) stops the output as before. Given back in the reverse order. Same order as Auto and
+the AI training (`docs/xems-auto-mode-spec.md` §21). Test: `scripts/ai-sim/run.sh` (PULSE …: first lever freq_down).

@@ -751,10 +751,10 @@ public final class WorkoutsUi {
         TextView sub = XemsUi.text(c, b.isRest()
                 ? AiText.t("Без ток. Дължината е времето за почивка.", "No current. Its length is the rest time.")
                 : b.seconds() + AiText.t(" сек · ", " s · ") + b.hz + " Hz · " + b.pw + " µs · "
-                + (b.dbl ? b.on + "/" + b.off2() + AiText.t(" сек, 2-ри ", " s, 2nd ") + b.hz2 + " Hz " + b.str2 + "%"
+                + (b.dbl ? b.on + "/" + b.off2() + AiText.t(" сек, 2-ри ", " s, 2nd ") + b.hz2 + " Hz"
                         : b.on + ":" + b.off + AiText.t(" сек", " s"))
                 + AiText.t(" · рампа ", " · ramp ") + valueText(P_RIN, b.rampIn) + "/" + valueText(P_ROUT, b.rampOut)
-                + AiText.t(" сек · сила ", " s · strength ") + b.rel + "%", 13, XemsUi.MUTED, false);
+                + AiText.t(" сек", " s"), 13, XemsUi.MUTED, false);
         sub.setPadding(0, XemsUi.dp(c, 2), 0, XemsUi.dp(c, 8));
         col.addView(sub);
 
@@ -800,7 +800,8 @@ public final class WorkoutsUi {
                 param(c, row2, "Hz", ImpulseGlyph.HZ, b.hz, P_HZ);
                 param(c, row2, AiText.t("сек", "s"), ImpulseGlyph.TIME, b.on, P_ON);
                 param(c, row2, "µs", ImpulseGlyph.DEPTH, b.pw, P_PW);
-                param(c, row2, AiText.t("сила %", "strength %"), ImpulseGlyph.STRENGTH, b.rel, P_REL);
+                // no strength here (owner, 2026-11-25): the person sets it during the run
+                row2.addView(new View(c), new LinearLayout.LayoutParams(0, 1, 1f));
                 col.addView(row2, XemsUi.matchWrap(c, 4));
                 col.addView(group(c, b.dbl ? AiText.t("Импулс 2 — вместо паузата", "Impulse 2 — in place of the pause")
                         : AiText.t("Пауза", "Pause")), XemsUi.matchWrap(c, 10));
@@ -808,11 +809,11 @@ public final class WorkoutsUi {
                 if (b.dbl) {
                     param(c, row3, "Hz", ImpulseGlyph.HZ, b.hz2, P_HZ2);
                     param(c, row3, AiText.t("сек", "s"), ImpulseGlyph.TIME, b.off2(), P_OFF);
-                    param(c, row3, AiText.t("сила % от 1-ви", "strength % of 1st"), ImpulseGlyph.STRENGTH, b.str2, P_STR2);
-                    // the suit has one pulse width for both impulses: say it where it is asked
+                    // the suit has one pulse width for both impulses: say it where it is asked — under impulse 1's µs
                     TextView same = XemsUi.text(c, AiText.t("µs — като импулс 1", "µs — as impulse 1"), 11, XemsUi.HINT, false);
                     same.setGravity(Gravity.CENTER);
                     row3.addView(same, new LinearLayout.LayoutParams(0, XemsUi.dp(c, 46), 1f));
+                    row3.addView(new View(c), new LinearLayout.LayoutParams(0, 1, 1f));   // no share of the 1st
                 } else {
                     param(c, row3, AiText.t("сек", "s"), ImpulseGlyph.TIME, b.off, P_OFF);
                     row3.addView(new View(c), new LinearLayout.LayoutParams(0, 1, 3f));

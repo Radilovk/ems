@@ -43,7 +43,8 @@ public class AiSim {
                 nextCycle = t + (cmd.onS + cmd.offS) * 1000L;
                 if (cmd.frac > 0) {
                     hzSeen.add(cmd.hz);
-                    check(cmd.frac <= plan.phiMax + 1e-9, name + " frac " + cmd.frac + " > phiMax");
+                    // owner, 2026-11-25: the program sets no strength — a cycle is at the person's level (1) or silent
+                    check(cmd.frac <= 1.0 + 1e-9, name + " frac " + cmd.frac + " > 1");
                     check(cmd.offS >= 1, name + " offS < 1");
                     if (cmd.hz >= 20) {
                         if (mode == Mode.ACTIVE && cmd.offS > 4) longOffActive++;
@@ -184,8 +185,8 @@ public class AiSim {
             lateMax, firstLever, firstHr, minS, downs, ups, holds, levers, g.getKcal());
         if (firstLever != null) {
             check(firstHr < g.getUpper(), name + " control starts before the upper limit (" + firstHr + ")");
-            check(twitch ? firstLever.startsWith("freq") : firstLever.startsWith("strength"),
-                    name + " first lever: " + (twitch ? "frequency (twitch)" : "strength (tetanic)") + ", got " + firstLever);
+            // owner, 2026-11-25: the frequency first for every program — never the strength or the width
+            check(firstLever.startsWith("freq"), name + " first lever: frequency, got " + firstLever);
         }
         check(maxHr <= g.getCap() + 10, name + " HR far above cap");
         check(holds == 0 || gain >= 200, name + " no stop at the cap below extreme load");
@@ -449,7 +450,8 @@ public class AiSim {
         double kHalf = channels("all, 30 % (half of tolerated)", all, 30, 85, 350);
         double kLow = channels("all, 60 %, 5 Hz (massage)", all, 60, 5, 250);
         check(kAll > kLegs && kLegs > kArms, "more / bigger muscles must cost more");
-        check(kLegs > 0.5 * kAll, "legs + glutes hold most of the muscle mass");
+        // the calves go out at half (ChannelStrengthScale.CALF_FACTOR, 1.1.566): the legs' share is a little lower
+        check(kLegs > 0.4 * kAll, "legs + glutes hold the biggest share of the muscle mass");
         check(kHalf < kAll && kLow < kHalf, "lower strength / frequency must cost less");
         pauseChecks();
         System.out.println(failures == 0 ? "ALL CHECKS PASSED" : failures + " CHECK(S) FAILED");

@@ -1034,8 +1034,7 @@ public final class AutoCatalog {
                 arms.steps.add(waveStep(hz, 300, ch(CHEST, BACK), ch(ARMS)));
                 arms.steps.add(waveStep(hz, 300, ch(TRAPS), ch(CHEST, BACK)));
                 arms.steps.add(rest(5));
-                Phase c = cooldown(out, total, 0.10, 3);
-                c.steps.get(0).zones = uniform(60);
+                cooldown(out, total, 0.10, 3);
                 break;
             }
             case PASSIVE_METABOLIC: {
@@ -1322,7 +1321,10 @@ public final class AutoCatalog {
         return s;
     }
 
-    /** One wave step: {@code on} channels at 100 %, {@code prev} at 50 %, the rest silent. */
+    /**
+     * One wave step: {@code on} and {@code prev} channels on (each at the person's own level — the program never
+     * lowers a channel, owner 2026-11-25), the rest silent: the previous group still presses while the next starts.
+     */
     private static Step waveStep(int hz, int pw, int[] on, int[] prev) {
         Step s = new Step(hz, pw, 3, 1);
         s.rampUpMs = 1000;
@@ -1330,7 +1332,7 @@ public final class AutoCatalog {
         int[] z = new int[CHANNELS];
         if (prev != null) {
             for (int c : prev) {
-                z[c] = 50;
+                z[c] = 100;
             }
         }
         for (int c : on) {
@@ -1350,14 +1352,6 @@ public final class AutoCatalog {
 
     private static int[] ch(int... c) {
         return c;
-    }
-
-    private static int[] uniform(int v) {
-        int[] z = new int[CHANNELS];
-        for (int i = 0; i < CHANNELS; i++) {
-            z[i] = v;
-        }
-        return z;
     }
 
     /** Heart-rate use of a program for a goal (spec §7). */

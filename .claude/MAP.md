@@ -10,7 +10,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/add-builtin-exercise.py` (64L) — Make library exercises built-in: their figures ship in the APK (branding/exercises/exercises.json), so the ready progra…
 - `scripts/ai-sim/AiExSim.java` (332L) — Offline test of the Smart Session's exercises (AiExercises over AiEngine): whole sessions, synthetic pulse.
 - `scripts/ai-sim/AiSim.java` (459L) — Offline scenarios for the Smart Session engine.
-- `scripts/ai-sim/AutoSim.java` (2219L) — Offline checks of the automatic mode (docs/xems-auto-mode-spec.md): every program × goal × client profile is planned an…
+- `scripts/ai-sim/AutoSim.java` (2220L) — Offline checks of the automatic mode (docs/xems-auto-mode-spec.md): every program × goal × client profile is planned an…
 - `scripts/ai-sim/BriefSim.java` (142L) — The AI brief (ai/AiBrief, docs/xems-ai-brief.md) on the JVM: the local reader, the server answer's parsing, and 20 000 …
 - `scripts/ai-sim/CoachSim.java` (118L) — The AI coach (ai/AiCoach, docs/xems-ai-coach.md) on the JVM: the answer's parsing, the input patch, and random replies …
 - `scripts/ai-sim/ContinuousSim.java` (144L) — The AI training never stops by itself (owner, 1.1.548): every program, random people, the heart sometimes at its ceilin…
@@ -250,7 +250,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `AiCoach.java` (756L, compile:music-sync*,wearable) — The AI coach of the Smart Session (owner, 1.1.535 — docs/xems-ai-coach.md).
 - `AiCoachBar.java` (142L, compile:music-sync*,wearable) — The AI during the session (owner, 1.1.543 — docs/xems-ai-coach.md): one thin line above the dock, the training screen s…
 - `AiCoachUi.java` (645L, compile:music-sync*,wearable) — The AI coach on screen (owner, 1.1.535 — docs/xems-ai-coach.md).
-- `AiEnergy.java` (426L, compile:music-sync*,wearable) — Energy expenditure (kcal) — oxygen uptake, personalised with the user's data and the stimulation actually delivered to …
+- `AiEnergy.java` (427L, compile:music-sync*,wearable) — Energy expenditure (kcal) — oxygen uptake, personalised with the user's data and the stimulation actually delivered to …
 - `AiEngine.java` (1418L, compile:music-sync*,wearable) — XEMS Smart Session runtime (spec §5–§10).
 - `AiExercises.java` (335L, compile:music-sync*,wearable) — The exercises of a Smart Session (pure Java; the stations come from {@link AutoTemplates}).
 - `AiHrFilter.java` (129L, compile:music-sync*,wearable) — §7 — realtime HR validation, EMA smoothing, stimulation-artifact rejection, c_valid.
@@ -276,10 +276,10 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `AiWorkout.java` (252L, compile:music-sync*,wearable) — The AI's own workout (owner, 1.1.538 — docs/xems-ai-coach.md): not a template — the model writes the exercises (dumbbel…
 - `AutoBeep.java` (149L, compile:music-sync*,wearable) — The start signal of an automatic session (owner, 1.1.270): every start waits 3 s — three short beeps, one per second, a…
 - `AutoBoard.java` (253L, compile:music-sync*,wearable) — The Auto live board built into the training screen (owner, 1.1.278): while an automatic session runs, the training list…
-- `AutoCatalog.java` (1382L, compile:music-sync*,wearable) — The ready programs of the automatic mode (spec §5, §6): menu per goal × kind, what each program is, its zones, its phas…
+- `AutoCatalog.java` (1376L, compile:music-sync*,wearable) — The ready programs of the automatic mode (spec §5, §6): menu per goal × kind, what each program is, its zones, its phas…
 - `AutoCues.java` (369L, compile:music-sync*,wearable) — What the hint card on the training screen says during an automatic session (pure Java): the cue for the pulse / the pau…
 - `AutoDynamics.java` (432L, compile:music-sync*,wearable) — The impulse of the automatic mode changes while it runs (owner, 1.1.322 — docs/xems-auto-mode-spec.md §13, docs/xems-em…
-- `AutoEngine.java` (2704L, compile:music-sync*,wearable) — Automatic mode runtime (spec §4, §7, §8): walks the plan cycle by cycle and gives each cycle's parameters, planned stre…
+- `AutoEngine.java` (2708L, compile:music-sync*,wearable) — Automatic mode runtime (spec §4, §7, §8): walks the plan cycle by cycle and gives each cycle's parameters, planned stre…
 - `AutoHints.java` (349L, compile:music-sync*,wearable) — Hint card on the training screen during an automatic session: a small floating card at the top (not modal — the screen …
 - `AutoHistory.java` (197L, compile:music-sync*,wearable) — How many sessions a client has had and when the last active one was — for the adaptation and recovery limits of the aut…
 - `AutoLimits.java` (188L, compile:music-sync*,wearable) — Hard limits of the automatic mode (spec §4.1 L1–L10, §4.2 windows).
@@ -358,7 +358,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `SoftRamp.java` (531L, compile:music-sync*,softramp) — Soft rise / fall of the impulse, done by the tablet: the suit ignores the ramp bytes of the work-params PDU, so the str…
 
 **train/utils/** (`branding/java/src/com/isaigu/gymapp/train/utils/`)
-- `ChannelStrengthScale.java` (168L, compile:channel-scale,music-sync*) — Encode-time correction for per-channel impulse strength sent over BLE.
+- `ChannelStrengthScale.java` (187L, compile:channel-scale,music-sync*) — Encode-time correction for per-channel impulse strength sent over BLE.
 - `MasterStrengthControl.java` (346L, compile:music-sync*) — External control channel for master impulse strength (MA / circle slider).
 - `MusicAutoTune.java` (348L, compile:music-sync*) — Picks music-sync settings from a track's own envelope so the impulse follows how the body reads it: separate hits versu…
 - `MusicDiagLog.java` (151L, compile:music-sync*) — Persistent diagnostic log for music player and uncaught crashes.
@@ -1023,7 +1023,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L47 ## Speed (1.1.548)
   - L52 ## Limits
 
-`docs/xems-auto-mode-spec.md` (891L)
+`docs/xems-auto-mode-spec.md` (912L)
   - L1 # XEMS Автоматичен режим — спецификация v1.0 (реализирано в 1.1.156-ai, опростено в 1.1.162-ai)
   - L24 ## 1. Място в менюто
   - L32 ## 2. Стъпки (3 + на живо; отчетът е в клиентския картон) — 1.1.257
@@ -1044,29 +1044,30 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L260 ### 6.4 Талия и корем (активна)
   - L271 ### 6.5 Кардио-метаболитна (активна, само Отслабване)
   - L282 ### 6.6 Дренаж (пасивна) — вълна по канали
-  - L298 ### 6.7 Антицелулит (пасивна)
-  - L310 ### 6.8 Болки в гърба и кръста (пасивна)
-  - L326 ### 6.9 Следродилно възстановяване (пасивна)
-  - L339 ### 6.10 Регенерация и релакс · Пасивен метаболизъм (пасивни)
-  - L348 ### 6.11 Здрав гръб и стойка · Здрави мускули 50+ (активни, Здраве)
-  - L367 ### 6.12 Антиейджинг (активна с упражнения · пасивна процедура; Тонус, Отслабване, Здраве) — 1.1.514-ai
-  - L409 ### 6.13 Пасивната версия на всяка активна програма (собственик, 1.1.526)
-  - L434 ### 6.14 Преглед на всички програми — намерени грешки (1.1.526)
-  - L448 ### 6.15 Антиейджинг (longevity) ≠ 50+ — собственик, 1.1.527
-  - L480 ## 7. Опции по програма
-  - L502 ## 8. Какво човекът може по време на сесия
-  - L514 ## 9. Реализация
-  - L557 ## 11. Време, серии, почивки, старт и стоп (собственик, 1.1.270-ai)
-  - L592 ## 12. Таблото „на живо“ (собственик, 1.1.271-ai; вградено в тренировъчния екран от 1.1.278-ai)
-  - L713 ## 10. Подсказки (1.1.157-ai)
-  - L737 ## 13. Импулсът в движение (собственик, 1.1.322-ai — `ai/AutoDynamics`, физиология §3.5)
-  - L760 ## 14. „Само шаблон“ / „С упражнения“ (собственик, 1.1.325-ai)
-  - L770 ## 15. Менюто, цветовете и настройването (собственик, 1.1.336)
-  - L794 ## 16. Тялото, каналите, кръгът (собственик, 1.1.338)
-  - L803 ## 17. «Модулация» — пасивни процедури на bodytech костюм (собственик, 1.1.372)
-  - L812 ## 18. The plan clock is the real clock (owner, 1.1.494)
-  - L845 ## 19. Safe start and the 25 min ceiling (owner, 1.1.531)
-  - L869 ### 19.1 Where 50 min came from, and what stops it (owner, 1.1.532)
+  - L299 ### 6.7 Антицелулит (пасивна)
+  - L311 ### 6.8 Болки в гърба и кръста (пасивна)
+  - L327 ### 6.9 Следродилно възстановяване (пасивна)
+  - L340 ### 6.10 Регенерация и релакс · Пасивен метаболизъм (пасивни)
+  - L349 ### 6.11 Здрав гръб и стойка · Здрави мускули 50+ (активни, Здраве)
+  - L368 ### 6.12 Антиейджинг (активна с упражнения · пасивна процедура; Тонус, Отслабване, Здраве) — 1.1.514-ai
+  - L410 ### 6.13 Пасивната версия на всяка активна програма (собственик, 1.1.526)
+  - L435 ### 6.14 Преглед на всички програми — намерени грешки (1.1.526)
+  - L449 ### 6.15 Антиейджинг (longevity) ≠ 50+ — собственик, 1.1.527
+  - L481 ## 7. Опции по програма
+  - L503 ## 8. Какво човекът може по време на сесия
+  - L515 ## 9. Реализация
+  - L558 ## 11. Време, серии, почивки, старт и стоп (собственик, 1.1.270-ai)
+  - L593 ## 12. Таблото „на живо“ (собственик, 1.1.271-ai; вградено в тренировъчния екран от 1.1.278-ai)
+  - L714 ## 10. Подсказки (1.1.157-ai)
+  - L738 ## 13. Импулсът в движение (собственик, 1.1.322-ai — `ai/AutoDynamics`, физиология §3.5)
+  - L761 ## 14. „Само шаблон“ / „С упражнения“ (собственик, 1.1.325-ai)
+  - L771 ## 15. Менюто, цветовете и настройването (собственик, 1.1.336)
+  - L795 ## 16. Тялото, каналите, кръгът (собственик, 1.1.338)
+  - L804 ## 17. «Модулация» — пасивни процедури на bodytech костюм (собственик, 1.1.372)
+  - L813 ## 18. The plan clock is the real clock (owner, 1.1.494)
+  - L846 ## 19. Safe start and the 25 min ceiling (owner, 1.1.531)
+  - L870 ### 19.1 Where 50 min came from, and what stops it (owner, 1.1.532)
+  - L892 ## 20. The program never moves the strength; calves at half a unit per point (owner, 1.1.566)
 
 `docs/xems-bluetens.md` (124L)
   - L1 # Bluetens — protocol and the XEMS module plan
@@ -1383,7 +1384,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L204 ## Сила и експлозивност · процедура
   - L213 ## 50+ · процедура
 
-`docs/xems-pulse-control.md` (195L)
+`docs/xems-pulse-control.md` (198L)
   - L1 # Пулс модул: управление на импулсите по пулса (v1.1.59, задържане в зона от 1.1.270)
   - L8 ## Граници
   - L18 ## Решение (всяка секунда) — задържане в зона (1.1.270)

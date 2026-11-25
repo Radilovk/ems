@@ -139,7 +139,7 @@
     .registers 12
 
     .prologue
-    .line 148
+    .line 149
     const/16 v2, 0x46
 
     const/16 v3, 0xb4
@@ -156,7 +156,7 @@
 
     invoke-direct/range {v1 .. v10}, Lcom/isaigu/gymapp/ai/AiEnergy;-><init>(IIDDDZ)V
 
-    .line 149
+    .line 150
     return-void
 .end method
 
@@ -164,7 +164,7 @@
     .registers 14
 
     .prologue
-    .line 152
+    .line 153
     const-wide v4, 0x4052c00000000000L    # 75.0
 
     const-wide/high16 v6, 0x400c000000000000L    # 3.5
@@ -181,7 +181,7 @@
 
     invoke-direct/range {v1 .. v10}, Lcom/isaigu/gymapp/ai/AiEnergy;-><init>(IIDDDZ)V
 
-    .line 153
+    .line 154
     return-void
 .end method
 
@@ -189,25 +189,25 @@
     .registers 15
 
     .prologue
-    .line 156
+    .line 157
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 119
+    .line 120
     const-wide/high16 v0, 0x3ff0000000000000L    # 1.0
 
     iput-wide v0, p0, Lcom/isaigu/gymapp/ai/AiEnergy;->muscleScale:D
 
-    .line 143
+    .line 144
     const-wide/high16 v0, -0x4010000000000000L    # -1.0
 
     iput-wide v0, p0, Lcom/isaigu/gymapp/ai/AiEnergy;->lastVo2:D
 
-    .line 144
+    .line 145
     const-wide/16 v0, -0x1
 
     iput-wide v0, p0, Lcom/isaigu/gymapp/ai/AiEnergy;->lastMs:J
 
-    .line 157
+    .line 158
     const-wide/high16 v0, 0x403e000000000000L    # 30.0
 
     cmpl-double v0, p3, v0
@@ -223,16 +223,16 @@
     :goto_1e
     iput-wide p3, p0, Lcom/isaigu/gymapp/ai/AiEnergy;->weightKg:D
 
-    .line 158
+    .line 159
     iput-wide p5, p0, Lcom/isaigu/gymapp/ai/AiEnergy;->vo2rest:D
 
-    .line 159
+    .line 160
     iput-wide p7, p0, Lcom/isaigu/gymapp/ai/AiEnergy;->vo2maxPopulation:D
 
-    .line 160
+    .line 161
     iput-boolean p9, p0, Lcom/isaigu/gymapp/ai/AiEnergy;->hrRatioValid:Z
 
-    .line 161
+    .line 162
     const-wide v0, 0x3fd6147ae147ae14L    # 0.345
 
     iget-wide v2, p0, Lcom/isaigu/gymapp/ai/AiEnergy;->weightKg:D
@@ -245,13 +245,13 @@
 
     iput-wide v0, p0, Lcom/isaigu/gymapp/ai/AiEnergy;->muscleScale:D
 
-    .line 162
+    .line 163
     invoke-virtual {p0, p1, p2}, Lcom/isaigu/gymapp/ai/AiEnergy;->setHeart(II)V
 
-    .line 163
+    .line 164
     return-void
 
-    .line 157
+    .line 158
     :cond_3a
     const-wide p3, 0x4052c00000000000L    # 75.0
 
@@ -293,32 +293,39 @@
     .line 77
     :try_start_0
     invoke-static {p0, p1}, Lcom/isaigu/gymapp/train/utils/ChannelStrengthScale;->balance(II)F
-    :try_end_3
-    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_3} :catch_6
 
     move-result v0
 
+    .line 78
+    invoke-static {p0}, Lcom/isaigu/gymapp/train/utils/ChannelStrengthScale;->sentShare(I)F
+    :try_end_7
+    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_7} :catch_b
+
+    move-result v1
+
+    mul-float/2addr v0, v1
+
     float-to-double v0, v0
 
-    .line 79
-    :goto_5
+    .line 80
+    :goto_a
     return-wide v0
 
-    .line 78
-    :catch_6
+    .line 79
+    :catch_b
     move-exception v0
 
-    .line 79
+    .line 80
     const-wide/high16 v0, 0x3ff0000000000000L    # 1.0
 
-    goto :goto_5
+    goto :goto_a
 .end method
 
 .method public static evokedVo2(Lcom/isaigu/gymapp/ai/AiEnergy$Stim;D)D
     .registers 6
 
     .prologue
-    .line 312
+    .line 313
     const/4 v0, 0x0
 
     invoke-static {p0, p1, p2, v0}, Lcom/isaigu/gymapp/ai/AiEnergy;->evokedVo2(Lcom/isaigu/gymapp/ai/AiEnergy$Stim;D[D)D
@@ -332,21 +339,21 @@
     .registers 23
 
     .prologue
-    .line 317
+    .line 318
     if-nez p0, :cond_5
 
-    .line 318
+    .line 319
     const-wide/16 v2, 0x0
 
-    .line 340
+    .line 341
     :goto_4
     return-wide v2
 
-    .line 320
+    .line 321
     :cond_5
     const-wide/16 v4, 0x0
 
-    .line 321
+    .line 322
     const/4 v2, 0x0
 
     :goto_8
@@ -356,7 +363,7 @@
 
     if-ge v2, v3, :cond_10d
 
-    .line 322
+    .line 323
     move-object/from16 v0, p0
 
     iget-object v3, v0, Lcom/isaigu/gymapp/ai/AiEnergy$Stim;->disabled:[Z
@@ -379,13 +386,13 @@
 
     if-eqz v3, :cond_25
 
-    .line 321
+    .line 322
     :goto_22
     add-int/lit8 v2, v2, 0x1
 
     goto :goto_8
 
-    .line 325
+    .line 326
     :cond_25
     move-object/from16 v0, p0
 
@@ -410,7 +417,7 @@
     :goto_38
     int-to-double v6, v3
 
-    .line 326
+    .line 327
     :goto_39
     const-wide/high16 v8, 0x4059000000000000L    # 100.0
 
@@ -431,7 +438,7 @@
     :goto_48
     mul-double v10, v8, v6
 
-    .line 327
+    .line 328
     move-object/from16 v0, p0
 
     iget-object v3, v0, Lcom/isaigu/gymapp/ai/AiEnergy$Stim;->toleratedCharge:[D
@@ -452,11 +459,11 @@
 
     aget-wide v6, v3, v2
 
-    .line 328
+    .line 329
     :goto_5d
     const-wide/16 v8, 0x0
 
-    .line 329
+    .line 330
     move-object/from16 v0, p0
 
     iget-wide v12, v0, Lcom/isaigu/gymapp/ai/AiEnergy$Stim;->onShare:D
@@ -473,7 +480,7 @@
 
     if-lez v3, :cond_97
 
-    .line 330
+    .line 331
     move-object/from16 v0, p0
 
     iget-wide v12, v0, Lcom/isaigu/gymapp/ai/AiEnergy$Stim;->strengthPct:D
@@ -496,7 +503,7 @@
 
     mul-double/2addr v12, v14
 
-    .line 331
+    .line 332
     move-object/from16 v0, p0
 
     iget-wide v14, v0, Lcom/isaigu/gymapp/ai/AiEnergy$Stim;->onShare:D
@@ -519,7 +526,7 @@
 
     add-double/2addr v8, v12
 
-    .line 333
+    .line 334
     :cond_97
     move-object/from16 v0, p0
 
@@ -537,7 +544,7 @@
 
     if-lez v3, :cond_ce
 
-    .line 334
+    .line 335
     move-object/from16 v0, p0
 
     iget-wide v12, v0, Lcom/isaigu/gymapp/ai/AiEnergy$Stim;->pauseStrengthPct:D
@@ -560,7 +567,7 @@
 
     mul-double/2addr v10, v12
 
-    .line 335
+    .line 336
     move-object/from16 v0, p0
 
     iget-wide v12, v0, Lcom/isaigu/gymapp/ai/AiEnergy$Stim;->pauseShare:D
@@ -583,7 +590,7 @@
 
     add-double/2addr v8, v6
 
-    .line 337
+    .line 338
     :cond_ce
     if-eqz p3, :cond_10a
 
@@ -603,7 +610,7 @@
 
     aget-wide v6, p3, v2
 
-    .line 338
+    .line 339
     :goto_df
     sget-object v3, Lcom/isaigu/gymapp/ai/AiEnergy;->CH_MASS:[D
 
@@ -629,7 +636,7 @@
 
     goto/16 :goto_22
 
-    .line 325
+    .line 326
     :cond_f5
     const/4 v3, 0x0
 
@@ -640,7 +647,7 @@
 
     goto/16 :goto_39
 
-    .line 326
+    .line 327
     :cond_fc
     move-object/from16 v0, p0
 
@@ -652,19 +659,19 @@
 
     goto/16 :goto_48
 
-    .line 327
+    .line 328
     :cond_106
     const-wide/16 v6, 0x0
 
     goto/16 :goto_5d
 
-    .line 337
+    .line 338
     :cond_10a
     const-wide/high16 v6, 0x3ff0000000000000L    # 1.0
 
     goto :goto_df
 
-    .line 340
+    .line 341
     :cond_10d
     const-wide v2, 0x408f400000000000L    # 1000.0
 
@@ -681,16 +688,16 @@
 
     const-wide/high16 v6, 0x3ff0000000000000L    # 1.0
 
-    .line 112
+    .line 113
     cmpg-double v2, p0, v6
 
     if-gtz v2, :cond_9
 
-    .line 116
+    .line 117
     :goto_8
     return-wide v0
 
-    .line 115
+    .line 116
     :cond_9
     invoke-static {v6, v7, p4, p5}, Ljava/lang/Math;->min(DD)D
 
@@ -700,7 +707,7 @@
 
     move-result-wide v0
 
-    .line 116
+    .line 117
     sub-double v2, p0, v6
 
     const-wide/high16 v4, 0x400c000000000000L    # 3.5
@@ -730,25 +737,25 @@
     .registers 11
 
     .prologue
-    .line 231
+    .line 232
     sget-object v0, Lcom/isaigu/gymapp/ai/AiModel$Fitness;->LOW:Lcom/isaigu/gymapp/ai/AiModel$Fitness;
 
     if-ne p0, v0, :cond_29
 
     const-wide/high16 v0, 0x4041000000000000L    # 34.0
 
-    .line 232
+    .line 233
     :goto_6
     sget-object v2, Lcom/isaigu/gymapp/ai/AiModel$Sex;->FEMALE:Lcom/isaigu/gymapp/ai/AiModel$Sex;
 
     if-ne p1, v2, :cond_10
 
-    .line 233
+    .line 234
     const-wide v2, 0x3fea8f5c28f5c28fL    # 0.83
 
     mul-double/2addr v0, v2
 
-    .line 235
+    .line 236
     :cond_10
     const-wide/high16 v2, 0x3ff0000000000000L    # 1.0
 
@@ -770,7 +777,7 @@
 
     mul-double/2addr v0, v2
 
-    .line 236
+    .line 237
     const-wide/high16 v2, 0x4030000000000000L    # 16.0
 
     invoke-static {v2, v3, v0, v1}, Ljava/lang/Math;->max(DD)D
@@ -779,7 +786,7 @@
 
     return-wide v0
 
-    .line 231
+    .line 232
     :cond_29
     sget-object v0, Lcom/isaigu/gymapp/ai/AiModel$Fitness;->HIGH:Lcom/isaigu/gymapp/ai/AiModel$Fitness;
 
@@ -799,7 +806,7 @@
     .registers 33
 
     .prologue
-    .line 173
+    .line 174
     const-wide/high16 v4, 0x403e000000000000L    # 30.0
 
     cmpl-double v4, p2, v4
@@ -814,13 +821,13 @@
 
     move-wide/from16 v6, p2
 
-    .line 174
+    .line 175
     :goto_11
     if-lez p1, :cond_4e
 
     move/from16 v5, p1
 
-    .line 175
+    .line 176
     :goto_15
     new-instance v19, Lcom/isaigu/gymapp/ai/AiEnergy;
 
@@ -855,7 +862,7 @@
 
     invoke-direct/range {v9 .. v18}, Lcom/isaigu/gymapp/ai/AiEnergy;-><init>(IIDDDZ)V
 
-    .line 177
+    .line 178
     move-object/from16 v0, p0
 
     move-wide/from16 v1, p7
@@ -868,29 +875,29 @@
 
     iput-wide v4, v0, Lcom/isaigu/gymapp/ai/AiEnergy;->muscleScale:D
 
-    .line 178
+    .line 179
     move-object/from16 v0, p9
 
     move-object/from16 v1, v19
 
     iput-object v0, v1, Lcom/isaigu/gymapp/ai/AiEnergy;->chMuscle:[D
 
-    .line 179
+    .line 180
     return-object v19
 
-    .line 173
+    .line 174
     :cond_48
     const-wide v6, 0x4052c00000000000L    # 75.0
 
     goto :goto_11
 
-    .line 174
+    .line 175
     :cond_4e
     const/16 v5, 0x23
 
     goto :goto_15
 
-    .line 175
+    .line 176
     :cond_51
     const/16 v18, 0x0
 
@@ -901,7 +908,7 @@
     .registers 20
 
     .prologue
-    .line 183
+    .line 184
     move-object/from16 v0, p0
 
     iget-wide v2, v0, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->weightKg:D
@@ -926,7 +933,7 @@
 
     iget-wide v4, v0, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->weightKg:D
 
-    .line 184
+    .line 185
     :goto_1b
     move-object/from16 v0, p0
 
@@ -946,7 +953,7 @@
 
     move v10, v2
 
-    .line 185
+    .line 186
     :goto_2b
     if-eqz p1, :cond_91
 
@@ -960,7 +967,7 @@
 
     iget v8, v0, Lcom/isaigu/gymapp/ai/AiModel$Profile;->hrRest:I
 
-    .line 186
+    .line 187
     :goto_37
     if-eqz p1, :cond_93
 
@@ -974,7 +981,7 @@
 
     iget v9, v0, Lcom/isaigu/gymapp/ai/AiModel$Profile;->hrMax:I
 
-    .line 187
+    .line 188
     :goto_43
     new-instance v17, Lcom/isaigu/gymapp/ai/AiEnergy;
 
@@ -1006,7 +1013,7 @@
 
     iget v6, v0, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->age:I
 
-    .line 188
+    .line 189
     invoke-static {v2, v3, v6}, Lcom/isaigu/gymapp/ai/AiEnergy;->fitnessVo2max(Lcom/isaigu/gymapp/ai/AiModel$Fitness;Lcom/isaigu/gymapp/ai/AiModel$Sex;I)D
 
     move-result-wide v14
@@ -1022,7 +1029,7 @@
 
     invoke-direct/range {v7 .. v16}, Lcom/isaigu/gymapp/ai/AiEnergy;-><init>(IIDDDZ)V
 
-    .line 189
+    .line 190
     move-object/from16 v0, p0
 
     iget-object v2, v0, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->sex:Lcom/isaigu/gymapp/ai/AiModel$Sex;
@@ -1039,7 +1046,7 @@
 
     iput-wide v2, v0, Lcom/isaigu/gymapp/ai/AiEnergy;->muscleScale:D
 
-    .line 190
+    .line 191
     move-object/from16 v0, p0
 
     iget-object v2, v0, Lcom/isaigu/gymapp/ai/AiModel$SessionInput;->chMuscle:[D
@@ -1048,16 +1055,16 @@
 
     iput-object v2, v0, Lcom/isaigu/gymapp/ai/AiEnergy;->chMuscle:[D
 
-    .line 191
+    .line 192
     return-object v17
 
-    .line 183
+    .line 184
     :cond_88
     const-wide v4, 0x4052c00000000000L    # 75.0
 
     goto :goto_1b
 
-    .line 184
+    .line 185
     :cond_8e
     const/4 v2, 0x0
 
@@ -1065,13 +1072,13 @@
 
     goto :goto_2b
 
-    .line 185
+    .line 186
     :cond_91
     const/4 v8, -0x1
 
     goto :goto_37
 
-    .line 186
+    .line 187
     :cond_93
     move-object/from16 v0, p0
 
@@ -1087,7 +1094,7 @@
 
     goto :goto_43
 
-    .line 188
+    .line 189
     :cond_a0
     const/16 v16, 0x0
 
@@ -1098,7 +1105,7 @@
     .registers 7
 
     .prologue
-    .line 364
+    .line 365
     int-to-double v0, p0
 
     int-to-double v2, p0
@@ -1122,7 +1129,7 @@
     .prologue
     const-wide v6, 0x3fc3333333333333L    # 0.15
 
-    .line 359
+    .line 360
     const-wide/16 v0, 0x0
 
     const-wide/high16 v2, 0x3ff0000000000000L    # 1.0
@@ -1156,7 +1163,7 @@
     .registers 8
 
     .prologue
-    .line 369
+    .line 370
     const-wide/high16 v0, 0x3fe8000000000000L    # 0.75
 
     const-wide/high16 v2, 0x3fd0000000000000L    # 0.25
@@ -1165,7 +1172,7 @@
 
     add-double/2addr v0, v2
 
-    .line 370
+    .line 371
     const-wide v2, 0x4012be76c8b43958L    # 4.686
 
     const-wide v4, 0x3fe6666666666666L    # 0.7
@@ -1191,7 +1198,7 @@
     .prologue
     const-wide v2, 0x403c800000000000L    # 28.5
 
-    .line 199
+    .line 200
     const-wide/high16 v0, 0x4024000000000000L    # 10.0
 
     cmpl-double v0, p3, v0
@@ -1204,10 +1211,10 @@
 
     if-gtz v0, :cond_14
 
-    .line 200
+    .line 201
     div-double v0, p3, v2
 
-    .line 202
+    .line 203
     :goto_13
     return-wide v0
 
@@ -1237,28 +1244,28 @@
     .prologue
     const-wide/16 v0, 0x0
 
-    .line 348
+    .line 349
     cmpg-double v2, p0, v0
 
     if-gtz v2, :cond_7
 
-    .line 354
+    .line 355
     :goto_6
     return-wide v0
 
-    .line 351
+    .line 352
     :cond_7
     cmpl-double v2, p2, v0
 
     if-lez v2, :cond_31
 
-    .line 352
+    .line 353
     :goto_b
     const-wide v2, 0x3fa999999999999aL    # 0.05
 
     mul-double/2addr v2, p2
 
-    .line 353
+    .line 354
     const-wide v4, 0x3fe6666666666666L    # 0.7
 
     sub-double v6, p0, v2
@@ -1275,7 +1282,7 @@
 
     div-double v2, v4, v2
 
-    .line 354
+    .line 355
     const-wide/high16 v4, 0x3ff0000000000000L    # 1.0
 
     invoke-static {v4, v5, v2, v3}, Ljava/lang/Math;->min(DD)D
@@ -1291,7 +1298,7 @@
     :cond_31
     move-wide p2, p0
 
-    .line 351
+    .line 352
     goto :goto_b
 .end method
 
@@ -1303,12 +1310,12 @@
 
     const/16 v1, 0x1e
 
-    .line 220
+    .line 221
     sget-object v0, Lcom/isaigu/gymapp/ai/AiModel$Sex;->FEMALE:Lcom/isaigu/gymapp/ai/AiModel$Sex;
 
     if-ne p0, v0, :cond_55
 
-    .line 221
+    .line 222
     if-ge p1, v1, :cond_39
 
     const-wide v0, 0x402da2d0e5604189L    # 14.818
@@ -1319,7 +1326,7 @@
 
     add-double/2addr v0, v2
 
-    .line 225
+    .line 226
     :goto_16
     const-wide v2, 0x4096800000000000L    # 1440.0
 
@@ -1329,7 +1336,7 @@
 
     div-double/2addr v0, v2
 
-    .line 226
+    .line 227
     const-wide v2, 0x4002666666666666L    # 2.3
 
     const-wide/high16 v4, 0x4012000000000000L    # 4.5
@@ -1350,7 +1357,7 @@
 
     return-wide v0
 
-    .line 221
+    .line 222
     :cond_39
     if-ge p1, v2, :cond_48
 
@@ -1375,7 +1382,7 @@
 
     goto :goto_16
 
-    .line 223
+    .line 224
     :cond_55
     if-ge p1, v1, :cond_64
 
@@ -1418,7 +1425,7 @@
     .registers 14
 
     .prologue
-    .line 210
+    .line 211
     const-wide/high16 v0, 0x4034000000000000L    # 20.0
 
     cmpl-double v0, p4, v0
@@ -1437,7 +1444,7 @@
 
     if-ltz v0, :cond_41
 
-    .line 211
+    .line 212
     const-wide v0, 0x4077200000000000L    # 370.0
 
     const-wide v2, 0x403599999999999aL    # 21.6
@@ -1446,7 +1453,7 @@
 
     add-double/2addr v0, v2
 
-    .line 212
+    .line 213
     const-wide v2, 0x4002666666666666L    # 2.3
 
     const-wide/high16 v4, 0x4012000000000000L    # 4.5
@@ -1473,7 +1480,7 @@
 
     move-result-wide v0
 
-    .line 214
+    .line 215
     :goto_40
     return-wide v0
 
@@ -1491,7 +1498,7 @@
     .registers 7
 
     .prologue
-    .line 378
+    .line 379
     iget-wide v0, p0, Lcom/isaigu/gymapp/ai/AiEnergy;->lastVo2:D
 
     iget-wide v2, p0, Lcom/isaigu/gymapp/ai/AiEnergy;->vo2rest:D
@@ -1500,7 +1507,7 @@
 
     if-lez v0, :cond_27
 
-    .line 379
+    .line 380
     iget-wide v0, p0, Lcom/isaigu/gymapp/ai/AiEnergy;->kcal:D
 
     iget-wide v2, p0, Lcom/isaigu/gymapp/ai/AiEnergy;->lastVo2:D
@@ -1533,13 +1540,13 @@
 
     iput-wide v0, p0, Lcom/isaigu/gymapp/ai/AiEnergy;->kcal:D
 
-    .line 381
+    .line 382
     :cond_27
     const-wide/high16 v0, -0x4010000000000000L    # -1.0
 
     iput-wide v0, p0, Lcom/isaigu/gymapp/ai/AiEnergy;->lastVo2:D
 
-    .line 382
+    .line 383
     iget-wide v0, p0, Lcom/isaigu/gymapp/ai/AiEnergy;->kcal:D
 
     iget-wide v2, p0, Lcom/isaigu/gymapp/ai/AiEnergy;->glyDebtL:D
@@ -1552,12 +1559,12 @@
 
     iput-wide v0, p0, Lcom/isaigu/gymapp/ai/AiEnergy;->kcal:D
 
-    .line 383
+    .line 384
     const-wide/16 v0, 0x0
 
     iput-wide v0, p0, Lcom/isaigu/gymapp/ai/AiEnergy;->glyDebtL:D
 
-    .line 384
+    .line 385
     return-void
 .end method
 
@@ -1565,7 +1572,7 @@
     .registers 7
 
     .prologue
-    .line 393
+    .line 394
     const-wide/16 v0, 0x0
 
     invoke-virtual {p0}, Lcom/isaigu/gymapp/ai/AiEnergy;->getKcal()D
@@ -1587,7 +1594,7 @@
     .registers 5
 
     .prologue
-    .line 388
+    .line 389
     iget-wide v0, p0, Lcom/isaigu/gymapp/ai/AiEnergy;->glyDebtL:D
 
     const-wide/high16 v2, 0x4014000000000000L    # 5.0
@@ -1601,7 +1608,7 @@
     .registers 7
 
     .prologue
-    .line 401
+    .line 402
     iget-wide v0, p0, Lcom/isaigu/gymapp/ai/AiEnergy;->kcal:D
 
     iget-wide v2, p0, Lcom/isaigu/gymapp/ai/AiEnergy;->glyDebtL:D
@@ -1619,7 +1626,7 @@
     .registers 3
 
     .prologue
-    .line 406
+    .line 407
     iget-wide v0, p0, Lcom/isaigu/gymapp/ai/AiEnergy;->kcalEms:D
 
     return-wide v0
@@ -1629,7 +1636,7 @@
     .registers 3
 
     .prologue
-    .line 411
+    .line 412
     iget-wide v0, p0, Lcom/isaigu/gymapp/ai/AiEnergy;->kcalEmsModel:D
 
     return-wide v0
@@ -1639,7 +1646,7 @@
     .registers 3
 
     .prologue
-    .line 415
+    .line 416
     iget-wide v0, p0, Lcom/isaigu/gymapp/ai/AiEnergy;->muscleScale:D
 
     return-wide v0
@@ -1649,7 +1656,7 @@
     .registers 3
 
     .prologue
-    .line 419
+    .line 420
     iget-wide v0, p0, Lcom/isaigu/gymapp/ai/AiEnergy;->vo2max:D
 
     return-wide v0
@@ -1659,7 +1666,7 @@
     .registers 3
 
     .prologue
-    .line 397
+    .line 398
     iget-wide v0, p0, Lcom/isaigu/gymapp/ai/AiEnergy;->vo2rest:D
 
     return-wide v0
@@ -1669,7 +1676,7 @@
     .registers 3
 
     .prologue
-    .line 423
+    .line 424
     iget-wide v0, p0, Lcom/isaigu/gymapp/ai/AiEnergy;->weightKg:D
 
     return-wide v0
@@ -1681,32 +1688,32 @@
     .prologue
     const-wide/16 v0, 0x0
 
-    .line 253
+    .line 254
     iput-wide v0, p0, Lcom/isaigu/gymapp/ai/AiEnergy;->kcal:D
 
-    .line 254
+    .line 255
     iput-wide v0, p0, Lcom/isaigu/gymapp/ai/AiEnergy;->kcalRest:D
 
-    .line 255
+    .line 256
     iput-wide v0, p0, Lcom/isaigu/gymapp/ai/AiEnergy;->kcalEms:D
 
-    .line 256
+    .line 257
     iput-wide v0, p0, Lcom/isaigu/gymapp/ai/AiEnergy;->kcalEmsModel:D
 
-    .line 257
+    .line 258
     iput-wide v0, p0, Lcom/isaigu/gymapp/ai/AiEnergy;->glyDebtL:D
 
-    .line 258
+    .line 259
     const-wide/high16 v0, -0x4010000000000000L    # -1.0
 
     iput-wide v0, p0, Lcom/isaigu/gymapp/ai/AiEnergy;->lastVo2:D
 
-    .line 259
+    .line 260
     const-wide/16 v0, -0x1
 
     iput-wide v0, p0, Lcom/isaigu/gymapp/ai/AiEnergy;->lastMs:J
 
-    .line 260
+    .line 261
     return-void
 .end method
 
@@ -1716,7 +1723,7 @@
     .prologue
     const-wide/high16 v8, 0x3fe0000000000000L    # 0.5
 
-    .line 240
+    .line 241
     const/16 v0, 0x23
 
     if-lt p1, v0, :cond_4e
@@ -1727,14 +1734,14 @@
 
     const/4 v0, 0x1
 
-    .line 241
+    .line 242
     :goto_b
     if-eqz v0, :cond_50
 
     :goto_d
     iput p1, p0, Lcom/isaigu/gymapp/ai/AiEnergy;->hrRest:I
 
-    .line 242
+    .line 243
     iget v1, p0, Lcom/isaigu/gymapp/ai/AiEnergy;->hrRest:I
 
     add-int/lit8 v1, v1, 0x14
@@ -1744,14 +1751,14 @@
     :goto_15
     iput p2, p0, Lcom/isaigu/gymapp/ai/AiEnergy;->hrMax:I
 
-    .line 243
+    .line 244
     if-eqz v0, :cond_56
 
     iget-boolean v0, p0, Lcom/isaigu/gymapp/ai/AiEnergy;->hrRatioValid:Z
 
     if-eqz v0, :cond_56
 
-    .line 244
+    .line 245
     const-wide/high16 v0, 0x4032000000000000L    # 18.0
 
     const-wide v2, 0x4052c00000000000L    # 75.0
@@ -1778,7 +1785,7 @@
 
     move-result-wide v0
 
-    .line 245
+    .line 246
     mul-double/2addr v0, v8
 
     iget-wide v2, p0, Lcom/isaigu/gymapp/ai/AiEnergy;->vo2maxPopulation:D
@@ -1789,7 +1796,7 @@
 
     iput-wide v0, p0, Lcom/isaigu/gymapp/ai/AiEnergy;->vo2max:D
 
-    .line 249
+    .line 250
     :goto_40
     iget-wide v0, p0, Lcom/isaigu/gymapp/ai/AiEnergy;->vo2max:D
 
@@ -1805,28 +1812,28 @@
 
     iput-wide v0, p0, Lcom/isaigu/gymapp/ai/AiEnergy;->vo2max:D
 
-    .line 250
+    .line 251
     return-void
 
-    .line 240
+    .line 241
     :cond_4e
     const/4 v0, 0x0
 
     goto :goto_b
 
-    .line 241
+    .line 242
     :cond_50
     const/16 p1, 0x46
 
     goto :goto_d
 
-    .line 242
+    .line 243
     :cond_53
     const/16 p2, 0xb4
 
     goto :goto_15
 
-    .line 247
+    .line 248
     :cond_56
     iget-wide v0, p0, Lcom/isaigu/gymapp/ai/AiEnergy;->vo2maxPopulation:D
 
@@ -1839,7 +1846,7 @@
     .registers 12
 
     .prologue
-    .line 264
+    .line 265
     const/4 v6, 0x0
 
     move-object v1, p0
@@ -1850,7 +1857,7 @@
 
     invoke-virtual/range {v1 .. v6}, Lcom/isaigu/gymapp/ai/AiEnergy;->tick(JDLcom/isaigu/gymapp/ai/AiEnergy$Stim;)V
 
-    .line 265
+    .line 266
     return-void
 .end method
 
@@ -1858,7 +1865,7 @@
     .registers 31
 
     .prologue
-    .line 274
+    .line 275
     move-object/from16 v0, p0
 
     iget-wide v4, v0, Lcom/isaigu/gymapp/ai/AiEnergy;->lastMs:J
@@ -1869,19 +1876,19 @@
 
     if-gez v4, :cond_11
 
-    .line 275
+    .line 276
     move-wide/from16 v0, p1
 
     move-object/from16 v2, p0
 
     iput-wide v0, v2, Lcom/isaigu/gymapp/ai/AiEnergy;->lastMs:J
 
-    .line 304
+    .line 305
     :cond_10
     :goto_10
     return-void
 
-    .line 278
+    .line 279
     :cond_11
     const-wide/16 v4, 0x0
 
@@ -1907,14 +1914,14 @@
 
     div-double v10, v4, v6
 
-    .line 279
+    .line 280
     move-wide/from16 v0, p1
 
     move-object/from16 v2, p0
 
     iput-wide v0, v2, Lcom/isaigu/gymapp/ai/AiEnergy;->lastMs:J
 
-    .line 280
+    .line 281
     const-wide/16 v4, 0x0
 
     cmpl-double v4, p3, v4
@@ -1943,7 +1950,7 @@
 
     div-double/2addr v4, v6
 
-    .line 281
+    .line 282
     :goto_49
     const-wide/16 v6, 0x0
 
@@ -1957,7 +1964,7 @@
 
     move-result-wide v12
 
-    .line 282
+    .line 283
     move-object/from16 v0, p0
 
     iget-wide v4, v0, Lcom/isaigu/gymapp/ai/AiEnergy;->vo2rest:D
@@ -1972,7 +1979,7 @@
 
     div-double v14, v4, v6
 
-    .line 283
+    .line 284
     move-object/from16 v0, p0
 
     iget-wide v4, v0, Lcom/isaigu/gymapp/ai/AiEnergy;->vo2rest:D
@@ -2001,10 +2008,10 @@
 
     div-double v16, v4, v6
 
-    .line 284
+    .line 285
     if-eqz p5, :cond_181
 
-    .line 285
+    .line 286
     move-object/from16 v0, p0
 
     iget-wide v4, v0, Lcom/isaigu/gymapp/ai/AiEnergy;->muscleScale:D
@@ -2013,7 +2020,7 @@
 
     iget-object v6, v0, Lcom/isaigu/gymapp/ai/AiEnergy;->chMuscle:[D
 
-    .line 284
+    .line 285
     move-object/from16 v0, p5
 
     invoke-static {v0, v4, v5, v6}, Lcom/isaigu/gymapp/ai/AiEnergy;->evokedVo2(Lcom/isaigu/gymapp/ai/AiEnergy$Stim;D[D)D
@@ -2030,14 +2037,14 @@
 
     iget-wide v8, v0, Lcom/isaigu/gymapp/ai/AiEnergy$Stim;->onShare:D
 
-    .line 285
+    .line 286
     invoke-static/range {v4 .. v9}, Lcom/isaigu/gymapp/ai/AiEnergy;->exerciseVo2(DDD)D
 
     move-result-wide v4
 
     add-double v4, v4, v18
 
-    .line 286
+    .line 287
     :goto_a0
     add-double v6, v14, v4
 
@@ -2047,7 +2054,7 @@
 
     move-result-wide v6
 
-    .line 288
+    .line 289
     sub-double v8, v6, v14
 
     const-wide v18, 0x3eb0c6f7a0b5ed8dL    # 1.0E-6
@@ -2088,7 +2095,7 @@
 
     move-result-wide v8
 
-    .line 289
+    .line 290
     const-wide/16 v12, 0x0
 
     const-wide/high16 v18, 0x3ff0000000000000L    # 1.0
@@ -2111,7 +2118,7 @@
 
     div-double/2addr v8, v12
 
-    .line 290
+    .line 291
     const-wide v12, 0x408f400000000000L    # 1000.0
 
     mul-double/2addr v12, v6
@@ -2128,7 +2135,7 @@
 
     iput-wide v12, v0, Lcom/isaigu/gymapp/ai/AiEnergy;->lastVo2:D
 
-    .line 291
+    .line 292
     move-object/from16 v0, p0
 
     iget-wide v12, v0, Lcom/isaigu/gymapp/ai/AiEnergy;->kcal:D
@@ -2143,7 +2150,7 @@
 
     iput-wide v6, v0, Lcom/isaigu/gymapp/ai/AiEnergy;->kcal:D
 
-    .line 292
+    .line 293
     move-object/from16 v0, p0
 
     iget-wide v6, v0, Lcom/isaigu/gymapp/ai/AiEnergy;->kcalRest:D
@@ -2164,7 +2171,7 @@
 
     iput-wide v6, v0, Lcom/isaigu/gymapp/ai/AiEnergy;->kcalRest:D
 
-    .line 293
+    .line 294
     move-object/from16 v0, p0
 
     iget-wide v6, v0, Lcom/isaigu/gymapp/ai/AiEnergy;->kcalEmsModel:D
@@ -2179,10 +2186,10 @@
 
     iput-wide v6, v0, Lcom/isaigu/gymapp/ai/AiEnergy;->kcalEmsModel:D
 
-    .line 294
+    .line 295
     if-eqz p5, :cond_167
 
-    .line 296
+    .line 297
     move-object/from16 v0, p5
 
     iget-wide v6, v0, Lcom/isaigu/gymapp/ai/AiEnergy$Stim;->onShare:D
@@ -2203,7 +2210,7 @@
 
     iget v6, v0, Lcom/isaigu/gymapp/ai/AiEnergy$Stim;->hz:I
 
-    .line 297
+    .line 298
     :goto_13e
     move-object/from16 v0, p0
 
@@ -2219,12 +2226,12 @@
 
     move-result-wide v12
 
-    .line 298
+    .line 299
     invoke-static {v6}, Lcom/isaigu/gymapp/ai/AiEnergy;->glycolyticShare(I)D
 
     move-result-wide v6
 
-    .line 299
+    .line 300
     move-object/from16 v0, p0
 
     iget-wide v0, v0, Lcom/isaigu/gymapp/ai/AiEnergy;->glyDebtL:D
@@ -2251,7 +2258,7 @@
 
     iput-wide v6, v0, Lcom/isaigu/gymapp/ai/AiEnergy;->glyDebtL:D
 
-    .line 301
+    .line 302
     :cond_167
     add-double v6, v14, v4
 
@@ -2259,7 +2266,7 @@
 
     if-lez v6, :cond_10
 
-    .line 302
+    .line 303
     move-object/from16 v0, p0
 
     iget-wide v6, v0, Lcom/isaigu/gymapp/ai/AiEnergy;->kcalEms:D
@@ -2280,19 +2287,19 @@
 
     goto/16 :goto_10
 
-    .line 280
+    .line 281
     :cond_17d
     const-wide/16 v4, 0x0
 
     goto/16 :goto_49
 
-    .line 285
+    .line 286
     :cond_181
     const-wide/16 v4, 0x0
 
     goto/16 :goto_a0
 
-    .line 296
+    .line 297
     :cond_185
     move-object/from16 v0, p5
 

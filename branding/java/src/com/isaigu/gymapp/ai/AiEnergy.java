@@ -74,7 +74,8 @@ public final class AiEnergy {
     /** Balance correction a non-arms channel gets at this pulse width (ChannelStrengthScale.balance). */
     public static double channelSent(int ch, int pwUs) {
         try {
-            return com.isaigu.gymapp.train.utils.ChannelStrengthScale.balance(ch, pwUs);
+            return com.isaigu.gymapp.train.utils.ChannelStrengthScale.balance(ch, pwUs)
+                    * com.isaigu.gymapp.train.utils.ChannelStrengthScale.sentShare(ch);
         } catch (Throwable t) {
             return 1.0;
         }

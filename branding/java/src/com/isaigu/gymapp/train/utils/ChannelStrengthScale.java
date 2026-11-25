@@ -10,6 +10,7 @@ package com.isaigu.gymapp.train.utils;
  * threshold ∝ 1 + c/PW, c = the zone's effective chronaxie = 100 + 500·(type I fibre share) + 300·(tissue depth);
  * slow-fibre, deep zones fade more as the pulse narrows. The corrections are normalised to the zone that
  * fades most, so a channel is only ever lowered, never raised above what the trainer set.
+ * Calves: × {@link #CALF_FACTOR} on top of the balance (a finer step, like the arms' divider).
  */
 public final class ChannelStrengthScale {
 
@@ -21,6 +22,16 @@ public final class ChannelStrengthScale {
     private static final int ARMS_PW_HIGH = 400;
     private static final float ARMS_DIV_LOW = 5f;
     private static final float ARMS_DIV_HIGH = 10f;
+
+    /** buwei4 (calves) — index 3 in PartStrenthBean.buwei */
+    private static final int CALF_CHANNEL_INDEX = 3;
+
+    /**
+     * Calves (owner, 2026-11-25: "the calves and the arms feel a 1 % step many times stronger than the body"):
+     * the calf goes out at this share of its slider, so one point on the slider is half a suit unit — a finer
+     * step and a little lower overall. Not in face mode (there every channel is a face site).
+     */
+    public static final float CALF_FACTOR = 0.5f;
 
     /** Balance reference: the width at which the trainer's proportions are set (training 350–400 µs). */
     private static final int BAL_REF_PW = 375;
@@ -75,7 +86,15 @@ public final class ChannelStrengthScale {
             rememberArms(sent, exact, currentPulseWidth);
             return sent;
         }
+        if (channelIndex == CALF_CHANNEL_INDEX) {
+            return Math.round(encodedValue * balance(channelIndex, currentPulseWidth) * CALF_FACTOR);
+        }
         return encodedValue * balance(channelIndex, currentPulseWidth);
+    }
+
+    /** What the suit gets from one point of this channel's slider beyond the balance: the calves' share, else 1. */
+    public static float sentShare(int channelIndex) {
+        return !face && channelIndex == CALF_CHANNEL_INDEX ? CALF_FACTOR : 1f;
     }
 
     /**

@@ -7,12 +7,16 @@ import collections, gzip, json, sys, urllib.request
 BASE = "https://license.biocode-bg.com/v1/vrlog"
 
 
+def get(url):
+    return urllib.request.urlopen(urllib.request.Request(url, headers={"User-Agent": "curl/8"}))   # the edge refuses urllib's
+
+
 def load(arg):
     if arg.endswith(".gz"):
         raw = open(arg, "rb").read()
     else:
-        meta = json.load(urllib.request.urlopen(f"{BASE}/{arg}"))
-        raw = b"".join(urllib.request.urlopen(f"{BASE}/{arg}/{i}").read() for i in range(meta["parts"]))
+        meta = json.load(get(f"{BASE}/{arg}"))
+        raw = b"".join(get(f"{BASE}/{arg}/{i}").read() for i in range(meta["parts"]))
     return [json.loads(l) for l in gzip.decompress(raw).decode("utf-8").splitlines() if l.strip()]
 
 

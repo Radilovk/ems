@@ -440,3 +440,21 @@ it, the warm-up runs softer by design); "s" read aloud as a letter → "секу
   opens the system's speech dialog at once, as before 1.1.561. Diag log: "background recognizer unusable (…)".
 - Off-device: `tools/app-sim` `SimWakeHuawei` (a listed service that never answers: before — stuck "listening", no
   dialog; now — given up, kept, the dialog opens).
+
+## 1.1.574 — "тренер": no "try again" window, a 3 s answer, self-correcting sensitivity
+- **Owner:** Google's "Не разбрахме това. Опитайте отново" (a tap the trainer cannot make) must never show — nothing
+  heard → the window just closes and "тренер" waits again. The answer is expected within 3 s; one tablet fires on every
+  noise, another never, whatever the repeats; the voice's loudness should decide.
+- **Window** (`WakeListener.NoSpeech`): background recognizer ready, no speech begun in 3 s (4.5 s for a dialogue's
+  follow-up) → cancelled, closed, back to the spotter. The system dialog (tablets without a background recognizer) is
+  closed from outside after 5 s (`VoiceInput.listen(…, capMs)` → `Cap`: finishActivity via the fragment's request id,
+  fallback: our screen to the front, result dropped — best effort, device-untested).
+- **Cold start:** one recognizer "not ready" no longer switches the tablet to the dialog for good: the first failure
+  closes the window quietly, only the second in a row does (`bgFails`).
+- **Too sensitive** (`WakeWord.feedback`): a wake that led to silence, loosely matched (d ≥ 60 % of the limit), is kept
+  as a false-alarm word (`falseNeg`, ≤ 6) — later words closer to it than to "тренер" are refused — and sensitivity
+  falls ×0.92 (min 0.7, saved as `sens`); a wake that led to a command lifts it ×1.04 (max 1.0). A clean "тренер" then
+  a hesitation changes nothing. Loudness gate (examples' level − 10 dB over the noise floor) unchanged.
+- **Never recognised** (`NEAR_FACTOR`): a word within 1.35 × the limit (loud enough, not the look-alike) said twice
+  within 10 s wakes — the trainer repeating it.
+- Not run off-device: `WakeSim` needs espeak-ng (absent here); `SimWakeHuawei` updated for the two-strike rule.

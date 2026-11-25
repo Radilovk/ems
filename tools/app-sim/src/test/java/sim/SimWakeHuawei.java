@@ -47,9 +47,15 @@ public class SimWakeHuawei {
         Voice.wake();
         System.out.println("SIM huawei after wake: state=" + Voice.state() + " serviceOk=" + so.get(null));
         Ui.idle(3500);                                         // the recognizer never gets ready
+        // 1.1.574: the first failure only closes the window quietly — no dialog, the recognizer is tried again
+        org.junit.Assert.assertNull("no speech dialog after the first failure", Shadows.shadowOf(a).peekNextStartedActivity());
+        org.junit.Assert.assertNotEquals("not given up on the first failure", Boolean.FALSE, so.get(null));
+        Ui.idle(1000);
+        Voice.wake();                                          // the second "тренер", the same silence
+        Ui.idle(3500);
         boolean kept = a.getSharedPreferences("xems_wake", Context.MODE_PRIVATE).getBoolean("noBgRec", false);
         Intent started = Shadows.shadowOf(a).peekNextStartedActivity();
-        System.out.println("SIM huawei after 3.5 s: state=" + Voice.state() + " serviceOk=" + so.get(null)
+        System.out.println("SIM huawei after the 2nd wake: state=" + Voice.state() + " serviceOk=" + so.get(null)
                 + " kept=" + kept + " dialog=" + (started != null ? started.getAction() : null));
         org.junit.Assert.assertEquals("the background recognizer given up", Boolean.FALSE, so.get(null));
         org.junit.Assert.assertTrue("the system's speech dialog opens",

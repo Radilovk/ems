@@ -3,8 +3,11 @@ import com.isaigu.gymapp.ai.*;
 /**
  * The AI training never stops by itself (owner, 1.1.548): every program, random people, the heart sometimes at its
  * ceiling — the engine in continuous mode must never REST or HR_PAUSE, the impulse is never zero in the active part,
- * the adaptation stays in its bounds (pause +0…3 s, Hz −0…15 %, never under 20 Hz for a tetanic impulse), the whole
- * plan runs to DONE in its time. And Auto (not continuous) still rests as before.
+ * the whole plan runs to DONE in its time. And Auto (not continuous) still rests as before.
+ * 1.1.561 (owner): the strength is never cut (not after a pause either), the pause between impulses never extended;
+ * the only safety step is the frequency, −10 Hz at a time, never under 20 Hz, and only when the mode cannot go on
+ * (its steady peak over the limit and the fatigue near it) or the heart is at its ceiling; after a pause the
+ * frequency comes back by the recovery (all of it once recovered).
  */
 public class ContinuousSim {
     static int checks, fails;
@@ -54,6 +57,9 @@ public class ContinuousSim {
                         boolean hot = rnd.nextBoolean();
                         boolean sawAdapt = false;
                         double quietS = 0;
+                        int lastCut = 0;
+                        boolean lastNeed = false;
+                        boolean paused = false;
                         while (e.getState() == AutoEngine.State.RUN && cycles < 6000) {
                             AutoEngine.Cmd c = e.getCurrent();
                             check(c != null, tag + ": a cycle every time (no gap)");
@@ -65,10 +71,36 @@ public class ContinuousSim {
                             // a program's own zero step (a passive wave's trough, ~5 s) is its pattern, not a stop
                             quietS = active && c.frac <= 0 ? quietS + c.durationMs() / 1000.0 : 0;
                             check(quietS <= 15, tag + ": the active part never goes quiet for long (" + quietS + " s)");
-                            check(e.getAdaptOff() >= 0 && e.getAdaptOff() <= 3, tag + ": pause +0…3 s");
-                            check(e.getAdaptHzPct() >= 0 && e.getAdaptHzPct() <= 15, tag + ": Hz −0…15 %");
-                            check(c.hz >= 1, tag + ": Hz sane");
-                            sawAdapt |= e.getAdaptOff() > 0 || e.getAdaptHzPct() > 0;
+                            check(e.getAdaptOff() == 0 && e.getAdaptHzPct() == 0, tag + ": no set-wise pause / Hz adaptation");
+                            check(e.getReentry() == 1.0, tag + ": the strength is never cut (" + e.getReentry() + ")");
+                            int cut = e.getSafeHzCut();
+                            check(cut >= 0 && cut % 5 == 0, tag + ": the cut in 5 Hz steps (" + cut + ")");
+                            check(cut <= lastCut + AutoEngine.SAFE_STEP_HZ, tag + ": one step at a time");
+                            check(cut <= lastCut || lastNeed || hot, tag + ": a step only when needed");
+                            check(c.hz >= 1 && (c.base == null || !c.base.isTetanic() || ph == null || ph.isCooldown()
+                                    || c.hz >= AutoEngine.SAFE_FLOOR_HZ), tag + ": never under 20 Hz (" + c.hz + ")");
+                            sawAdapt |= cut > 0;
+                            lastCut = cut;
+                            lastNeed = !e.sustainable(c);
+                            // a pause the trainer makes, once, in some sessions: the Hz comes back by the recovery
+                            if (!paused && cut > 0 && rnd.nextInt(3) == 0) {
+                                paused = true;
+                                int before = cut;
+                                e.userPause(t);
+                                long pauseMs = rnd.nextBoolean() ? 240000L : 20000L;
+                                t += pauseMs;
+                                e.resume(t);
+                                check(e.getReentry() == 1.0, tag + ": the strength stays after a pause");
+                                check(e.getSafeHzCut() <= before, tag + ": the Hz never lower after a pause");
+                                if (pauseMs >= 240000L) {
+                                    check(e.getSafeHzCut() == 0, tag + ": a long pause → the full Hz (" + e.getSafeHzCut() + ")");
+                                }
+                                lastCut = e.getSafeHzCut();
+                                c = e.getCurrent();
+                                if (c == null || e.getState() != AutoEngine.State.RUN) {
+                                    break;
+                                }
+                            }
                             if (hot && cycles % 9 == 0) {
                                 e.onHr(t, plan.hrCap + 5);       // the heart at its ceiling: adapt, never stop
                             } else if (cycles % 9 == 0) {
@@ -89,7 +121,7 @@ public class ContinuousSim {
                 }
             }
         }
-        check(adapted > 0, "the adaptation is used somewhere (" + adapted + " of " + sessions + ")");
+        check(adapted > 0, "the safety step is used somewhere (" + adapted + " of " + sessions + ")");
         System.out.println((fails == 0 ? "OK" : "FAILED") + " — AI continuous: " + sessions + " sessions, " + adapted
                 + " adapted, " + checks + " checks, " + fails + " failures");
         if (fails > 0) {

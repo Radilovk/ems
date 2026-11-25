@@ -43,6 +43,20 @@ public final class MapDynamics {
     private int lastHz = -1;
     private boolean fresh;
 
+    // ---- the AI's own workout (owner, 1.1.561, as AutoEngine's continuous mode): no glide — the frequency steps down
+    // only when the mode cannot go on (its steady peak over the limit and the live fatigue near it); after a pause or a
+    // rest it comes back by the recovery
+    /** Set by MapRunner for the AI's workout. */
+    public boolean ai;
+    private int safeHzCut;
+    private double fAtStep;
+    /** Seconds without work since the last impulse (a pause, a rest block). */
+    private double idleS;
+
+    public int safeHzCut() {
+        return safeHzCut;
+    }
+
     /** @param hrMax the leader's HR max (≤ 0 = unknown: the heart rate is not used) */
     public MapDynamics(AiModel.Fitness fitness, int sessions, int age, int hrMax) {
         double[] fp = AiPlanner.fatigueParams(fitness != null ? fitness : AiModel.Fitness.MID);
@@ -67,6 +81,9 @@ public final class MapDynamics {
     public void advance(double dtS, boolean running, boolean on, int hz, int pauseHz, double pauseSigma, double rho) {
         if (dtS <= 0) {
             return;
+        }
+        if (!running) {
+            idleS += dtS;                                    // a pause or a rest block: the muscle recovers
         }
         double e = Math.exp(-dtS / tau);
         double g = 0;
@@ -151,11 +168,33 @@ public final class MapDynamics {
             return null;
         }
         Step s = idx >= 0 && list != null
-                ? AutoDynamics.apply(drawn, list[idx], AutoDynamics.glide(fatigue()), pauseOk) : drawn.copy();
+                ? AutoDynamics.apply(drawn, list[idx], ai ? 0 : AutoDynamics.glide(fatigue()), pauseOk) : drawn.copy();
+        if (ai && s.isTetanic()) {
+            safety(s);
+        }
         s.rampUpMs = AutoDynamics.ramp(s.rampUpMs, lastHz, s.hz, fresh);
         fresh = false;
         lastHz = s.hz;
         return s;
+    }
+
+    /** One step down when the mode cannot go on; back by the recovery after ≥ 5 s without work. */
+    void safety(Step s) {
+        double r = fatigue();
+        double rRec = fMax > 0 ? fRec / fMax : 0.33;
+        if (idleS >= 5 && safeHzCut > 0) {
+            double k = Math.max(0, Math.min(1, (r - rRec) / Math.max(1e-6, Math.max(fAtStep, r) - rRec)));
+            safeHzCut = (int) (Math.round(safeHzCut * k / 5.0) * 5);
+        }
+        idleS = 0;
+        int hz = Math.max(AutoEngine.SAFE_FLOOR_HZ, s.hz - safeHzCut);
+        boolean steady = SafeLimits.peak(hz, Math.max(1, s.onS), Math.max(1, s.offS), s.pauseHz, s.pauseSigma, tau) <= fMax;
+        if (r >= AutoEngine.SAFE_AT && !steady && hz - AutoEngine.SAFE_STEP_HZ >= AutoEngine.SAFE_FLOOR_HZ) {
+            safeHzCut += AutoEngine.SAFE_STEP_HZ;
+            fAtStep = r;
+            hz -= AutoEngine.SAFE_STEP_HZ;
+        }
+        s.hz = hz;
     }
 
     /** A rest block starts: how long it must last (s) — the drawn one, longer when the muscle is not back yet. */

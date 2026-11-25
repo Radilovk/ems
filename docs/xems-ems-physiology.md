@@ -81,6 +81,18 @@ Simulation now (`scripts/ai-sim`, FatProbe): warm-up 12–17 %, main ≤ 100 %, 
 - **Passive recovery in sectors** (massage → pump 2 Hz, tone-massage 8 Hz + 3 Hz, drainage 1 Hz): changing
   frequency keeps the sensation from fading (habituation) and alternates pumping and massage [D].
 
+### 3.6 The AI training: the frequency is the only safety step (owner, 1.1.561)
+In the AI training (Auto's engine in continuous mode, `AutoEngine.safeDecide`; the AI's own workout, `MapDynamics.safety`)
+nothing lowers the strength by itself — not fatigue, not a pause (no re-entry softening) — and the pause between
+impulses is never extended. Before each cycle:
+- the mode's steady fatigue peak (`SafeLimits.peak`: Hz, impulse, pause, the 2nd impulse, this client's τ) within
+  F_max → it can run for ever: nothing changes;
+- over F_max **and** the live fatigue ≥ 0.85·F_max (or the heart at its ceiling) → −10 Hz (`SAFE_STEP_HZ`), one step a
+  cycle, never under 20 Hz (`SAFE_FLOOR_HZ`; there only a pause helps — `needsPause`);
+- after a pause (the trainer's; in a map also a rest block ≥ 5 s) the cut comes back by the recovery:
+  cut × (F − F_rec)/(F_at_pause − F_rec), in 5 Hz steps — all of it once F ≤ F_rec (τ·ln(F/F_rec) of rest).
+Auto (not the AI training) keeps its glide, rests and re-entry (§3.5). Test: `scripts/ai-sim/ContinuousSim.java`.
+
 ## 4. Energy
 
 Three layers: what the muscle spends **while** the impulses run, what is paid **after**, and what is still unknown.

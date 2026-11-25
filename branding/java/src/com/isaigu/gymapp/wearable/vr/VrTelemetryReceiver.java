@@ -45,6 +45,7 @@ public final class VrTelemetryReceiver implements Runnable {
     private final ByteBuffer stxb = ByteBuffer.wrap(stx).order(ByteOrder.LITTLE_ENDIAN);
     private final DatagramPacket stxp = new DatagramPacket(stx, stx.length);
     private volatile VrControlSink control;
+    private volatile VrZoneSink zones;
 
     private volatile boolean running;
     private volatile DatagramSocket socket;
@@ -84,6 +85,11 @@ public final class VrTelemetryReceiver implements Runnable {
     }
 
     /** The game's impulse dock (null = T_CTRL ignored). Set before {@link #start}. */
+    /** Zone hits (the bHaptics listener on the headset); optional. */
+    public void setZoneSink(VrZoneSink z) {
+        zones = z;
+    }
+
     public void setControl(VrControlSink c) {
         control = c;
     }
@@ -229,6 +235,10 @@ public final class VrTelemetryReceiver implements Runnable {
                 if (len < VrWire.LEN_HAPTIC || !inOrder(seq)) return;
                 onHaptic(seq, tNs, t3);
                 return;
+            case VrWire.T_ZHIT:
+                if (len < VrWire.LEN_ZHIT || !inOrder(seq)) return;
+                onZoneHit(seq, tNs, t3);
+                return;
             case VrWire.T_STOP:
                 if (len < VrWire.LEN_STOP || !inOrder(seq)) return;
                 // Never dropped as stale: a late stop is still a stop.
@@ -265,6 +275,22 @@ public final class VrTelemetryReceiver implements Runnable {
         statLastLatencyNs = latency;
         statHaptics++;
         sink.onVrHaptic(new VrHapticEvent(hand, amp, durUs, hz, flags, seq, eventNs, latency, peerApp));
+    }
+
+    private void onZoneHit(int seq, long tNs, long t3) {
+        VrZoneSink z = zones;
+        if (z == null) return;
+        long eventNs = clock.synced() ? clock.toTablet(tNs) : t3;
+        if (clock.synced() && t3 - eventNs > maxStaleNs) {
+            statStale++;
+            return;
+        }
+        int n = Math.min(rx[28] & 0xFF, VrWire.ZHIT_LEVELS);
+        int[] lv = new int[n];
+        for (int i = 0; i < n; i++) {
+            lv[i] = Math.min(100, rx[32 + i] & 0xFF);
+        }
+        z.onVrZoneHit(new VrZoneHit(rx[24] & 0xFF, rxb.getShort(26) & 0xFFFF, lv, eventNs, seq));
     }
 
     /** Wrap-safe: rejects duplicates and anything older than the newest packet seen. */

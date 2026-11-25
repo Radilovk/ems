@@ -7,7 +7,9 @@ What it does: a Quest game that supports a bHaptics vest binds the Player's serv
 `com.bhaptics.player.BhapticsHapticService`). This app is that service. It tells the game that a vest, arms, visor and
 hands are connected, then **records every call** (event patterns the game registers, motor arrays, paths, positions,
 timing, caller) and uploads the recording by itself to the licence server's vrlog store (`/v1/vrlog`, 14 days).
-The game developer's API key is masked. It drives nothing yet (no suit output) — phase 1 is "what do the games send".
+The game developer's API key is masked. **Since 1.1 it also forwards every hit on a body region** (`hapticEventDot` / `playMotors`)
+to the XEMS tablet over the layer's UDP protocol (`TabletLink`, T_ZHIT; broadcast discovery on the same Wi-Fi) — the tablet
+maps zones to suit channels and the Mastogo unit (docs/xems-bhaptics-research.md).
 
 ## Use (the owner: install once, then only play)
 1. Quest: the real bHaptics Player must not be installed (same package; our install replaces it — pairing is lost).

@@ -29,10 +29,10 @@
     .registers 5
 
     .prologue
-    .line 2030
+    .line 2057
     invoke-direct {p0}, Landroid/graphics/drawable/Drawable;-><init>()V
 
-    .line 2028
+    .line 2055
     new-instance v0, Landroid/graphics/Paint;
 
     const/4 v1, 0x1
@@ -41,19 +41,19 @@
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$WaveDrawable;->paint:Landroid/graphics/Paint;
 
-    .line 2031
+    .line 2058
     invoke-static {p1}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoModes;->wave(I)Ljava/lang/String;
 
     move-result-object v0
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$WaveDrawable;->bars:Ljava/lang/String;
 
-    .line 2032
+    .line 2059
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$WaveDrawable;->paint:Landroid/graphics/Paint;
 
     invoke-virtual {v0, p2}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 2033
+    .line 2060
     return-void
 .end method
 
@@ -65,12 +65,12 @@
     .prologue
     const/high16 v10, 0x42100000    # 36.0f
 
-    .line 2037
+    .line 2064
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$WaveDrawable;->getBounds()Landroid/graphics/Rect;
 
     move-result-object v7
 
-    .line 2038
+    .line 2065
     invoke-virtual {v7}, Landroid/graphics/Rect;->width()I
 
     move-result v0
@@ -83,7 +83,7 @@
 
     int-to-float v9, v0
 
-    .line 2039
+    .line 2066
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$WaveDrawable;->paint:Landroid/graphics/Paint;
 
     const/high16 v1, 0x3f800000    # 1.0f
@@ -98,7 +98,7 @@
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setStrokeWidth(F)V
 
-    .line 2040
+    .line 2067
     const/4 v0, 0x0
 
     move v6, v0
@@ -114,7 +114,7 @@
 
     if-ge v0, v1, :cond_7b
 
-    .line 2041
+    .line 2068
     iget v0, v7, Landroid/graphics/Rect;->left:I
 
     int-to-float v0, v0
@@ -145,7 +145,7 @@
 
     add-float/2addr v1, v0
 
-    .line 2042
+    .line 2069
     iget v0, v7, Landroid/graphics/Rect;->top:I
 
     int-to-float v0, v0
@@ -172,7 +172,7 @@
 
     add-float/2addr v2, v0
 
-    .line 2043
+    .line 2070
     iget v0, v7, Landroid/graphics/Rect;->top:I
 
     int-to-float v0, v0
@@ -201,7 +201,7 @@
 
     add-float v4, v0, v3
 
-    .line 2044
+    .line 2071
     iget-object v5, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$WaveDrawable;->paint:Landroid/graphics/Paint;
 
     move-object v0, p1
@@ -210,14 +210,14 @@
 
     invoke-virtual/range {v0 .. v5}, Landroid/graphics/Canvas;->drawLine(FFFFLandroid/graphics/Paint;)V
 
-    .line 2040
+    .line 2067
     add-int/lit8 v0, v6, 0x3
 
     move v6, v0
 
     goto :goto_21
 
-    .line 2046
+    .line 2073
     :cond_7b
     return-void
 .end method
@@ -226,7 +226,7 @@
     .registers 2
 
     .prologue
-    .line 2060
+    .line 2087
     const/4 v0, -0x3
 
     return v0
@@ -236,12 +236,12 @@
     .registers 3
 
     .prologue
-    .line 2050
+    .line 2077
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$WaveDrawable;->paint:Landroid/graphics/Paint;
 
     invoke-virtual {v0, p1}, Landroid/graphics/Paint;->setAlpha(I)V
 
-    .line 2051
+    .line 2078
     return-void
 .end method
 
@@ -249,11 +249,11 @@
     .registers 3
 
     .prologue
-    .line 2055
+    .line 2082
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$WaveDrawable;->paint:Landroid/graphics/Paint;
 
     invoke-virtual {v0, p1}, Landroid/graphics/Paint;->setColorFilter(Landroid/graphics/ColorFilter;)Landroid/graphics/ColorFilter;
 
-    .line 2056
+    .line 2083
     return-void
 .end method

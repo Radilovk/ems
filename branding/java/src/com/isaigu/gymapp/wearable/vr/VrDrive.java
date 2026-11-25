@@ -149,6 +149,7 @@ public final class VrDrive {
         if (!driving) {
             engage(item);
         }
+        VrZones.setFocus(VrZoneRouter.focusAt(nowNs));     // a zone hit: only its channels carry the impulse
         int level = Math.round(VrHapticRouter.PULSES.level(nowNs) * 100f);
         int applied = MasterStrengthControl.scaleFromSound(limitRise(level));
         liveLevel = level;

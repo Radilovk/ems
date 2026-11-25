@@ -10,7 +10,7 @@ sdkInfo:
 packageInfo:
   forcedPackageId: '127'
 versionInfo:
-  versionCode: '1'
-  versionName: 1.0-xems-spy
+  versionCode: '2'
+  versionName: 1.1-xems-spy
 doNotCompress:
 - resources.arsc

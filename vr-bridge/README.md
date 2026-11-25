@@ -113,3 +113,9 @@ sheet on the tablet, which refreshes when a game changes them (`VrControl`, `VrC
 (`VrPulsesHostTest`: min pulse, two hands, append, infinite, stops) + the game's CTRL / STATE (`VrControlHostTest`:
 nothing before pairing, the paired address answered, a stranger ignored) + the layer → receiver run.
 Host loopback: hook cost ≈ 50–80 µs worst case, call → tablet dispatch ≈ 0.4 ms.
+
+## Zone hits (T_ZHIT, 1.1.579-ai)
+`xems_wire.h` has no T_ZHIT: it is sent only by the bHaptics listener (`bhaptics-spy/`, docs/xems-bhaptics-research.md),
+never by the OpenXR layer. 64 bytes: header · region u8 (ZR_*: 1/2 hands, 3 vest front, 4 vest back, 5 head, 6/7 forearms,
+8/9 feet, 10/11 gloves) · flags u8 · durationMs u16 · count u8 · res · res u16 · levels[32] (0..100). Java: `VrWire`,
+`VrZoneHit`, `VrZoneMap`, `VrZoneRouter`.

@@ -29,6 +29,7 @@ final class Spy {
     private final Responder responder = new Responder();
     private final AtomicBoolean busy = new AtomicBoolean(false);
     private CallLog log;
+    private TabletLink tablet;
     private String code;
     private volatile boolean dirty;
     private volatile String status = "ждам играта";
@@ -39,6 +40,12 @@ final class Spy {
         prefs = ctx.getSharedPreferences("spy", Context.MODE_PRIVATE);
         leftover();
         newSession();
+        try {
+            tablet = new TabletLink(java.net.InetAddress.getByName("255.255.255.255"), TabletLink.PORT);
+            tablet.start();
+        } catch (IOException e) {
+            tablet = null;
+        }
     }
 
     static synchronized Spy get(Context c) {
@@ -80,11 +87,28 @@ final class Spy {
         if (log != null) {
             log.record(SystemClock.elapsedRealtimeNanos(), who, index, args, Responder.show(ret));
         }
+        forward(index, args);
         dirty = true;
         status = "записвам · " + (log == null ? 0 : log.calls) + " обаждания";
         main.removeCallbacks(idle);
         main.postDelayed(idle, IDLE_UPLOAD_MS);
         return ret;
+    }
+
+    /** A call that carries a hit on a body region goes to the tablet too. */
+    private void forward(int index, Object[] args) {
+        TabletLink t = tablet;
+        if (t == null) return;
+        Object[] z = Regions.fromCall(Sig.name(index), args);
+        if (z != null) {
+            t.hit(((Integer) z[0]).intValue(), ((Integer) z[1]).intValue(), (int[]) z[2]);
+        }
+    }
+
+    String tabletStatus() {
+        TabletLink t = tablet;
+        if (t == null) return "няма мрежа";
+        return (t.linked() ? "свързан" : "търся таблета…") + " · изпратени удари: " + t.sent();
     }
 
     String code() {

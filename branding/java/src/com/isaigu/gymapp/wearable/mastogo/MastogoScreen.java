@@ -84,6 +84,33 @@ public final class MastogoScreen {
         }
     }
 
+    /**
+     * One hit taken in a game with zones (wearable/vr/VrZoneRouter): the panel's УДАР, if the panel is open with a unit
+     * ready (owner, 2026-11-25: test — the unit on the shoulder gives an impulse for every hit to the player).
+     */
+    public static void vrHit() {
+        Page p = current;
+        if (p == null || p.closed) {
+            return;
+        }
+        p.main.post(new VrHitRun(p));
+    }
+
+    static final class VrHitRun implements Runnable {
+        final Page p;
+
+        VrHitRun(Page p) {
+            this.p = p;
+        }
+
+        @Override
+        public void run() {
+            if (!p.closed) {
+                p.fxDown(Page.FX_HIT);
+            }
+        }
+    }
+
     /** A voice command (wearable/voice/VoiceRemote): true when this page is open with a unit and took it. */
     public static boolean voice(String cmd) {
         Page p = current;

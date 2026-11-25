@@ -71,7 +71,7 @@ public class MainActivity extends Activity {
         @Override
         public void run() {
             Spy s = Spy.get(MainActivity.this);
-            info.setText("Състояние: " + s.status() + "\nОбаждания: " + s.calls() + "\nОт: " + s.callers()
+            info.setText("Състояние: " + s.status() + "\nТаблет: " + s.tabletStatus() + "\nОбаждания: " + s.calls() + "\nОт: " + s.callers()
                 + "\nКод на записа: " + s.code());
             h.postDelayed(this, 1000);
         }

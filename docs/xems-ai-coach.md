@@ -494,3 +494,13 @@ it, the warm-up runs softer by design); "s" read aloud as a letter → "секу
   (404 / 400) falls back to the main one. `npm test` 144/144. The model name was not called from here (no key) — run
   `server/scripts/ai-smoke.mjs` once after the deploy.
 - Fixed on the way: `AiVoiceCmd.onlyWakeFragment` leaned on `AiVoiceGate`, which the ai-sim does not compile.
+
+## 1.1.577 — server cost check (Cloudflare / Azure / Gemini)
+- **Cloudflare** (Workers + D1 + KV): already event-driven (docs/xems-client-sync.md "Разходи"): no timers, one daily cron,
+  D1 writes only on change. An AI call = 1 request + ≈ 2–3 D1 rows; a non-cached voice phrase = 1 D1 read + 1 write.
+- **Found and fixed (server, not yet deployed):** the voice's month counter `tts:chars:<month>` lives in `rate_limits`
+  with `window_start` = its creation; the nightly sweep deletes rate rows older than 7 days → the counter restarted
+  about weekly, so the Azure free 500 000 characters could be used ~4× over. The sweep now keeps `tts:chars:*` for 70 days
+  (`test/sweep.test.js`).
+- **Where real money can go:** Gemini tokens (per-device 12 / min and per-licence 600 / day limits, no money cap and
+  the tokens used are not logged) and Azure characters past the free tier. Not done: a token log + a daily ceiling.

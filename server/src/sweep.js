@@ -11,6 +11,10 @@ export async function sweep(env, ts = Math.floor(Date.now() / 1000)) {
     env.DB.prepare("DELETE FROM activations WHERE status = 'pending' AND last_seen < ?").bind(ts - 30 * DAY),
     env.DB.prepare('DELETE FROM unit_logs WHERE ts < ?').bind(ts - UNIT_LOG_KEEP_DAYS * DAY),
     env.DB.prepare('DELETE FROM vr_logs WHERE ts < ?').bind(ts - VRLOG_KEEP_DAYS * DAY),
-    env.DB.prepare('DELETE FROM rate_limits WHERE window_start < ?').bind(ts - LIMITS.rateLimitRetentionSec),
+    // the coach voice's month counter (tts:chars:<month>) lives in rate_limits too, created on the month's first phrase:
+    // the 7-day sweep used to delete it, so the free-characters line restarted every week (up to ~4x the Azure free tier)
+    env.DB.prepare("DELETE FROM rate_limits WHERE window_start < ? AND key NOT LIKE 'tts:chars:%'")
+      .bind(ts - LIMITS.rateLimitRetentionSec),
+    env.DB.prepare("DELETE FROM rate_limits WHERE window_start < ? AND key LIKE 'tts:chars:%'").bind(ts - 70 * DAY),
   ]);
 }

@@ -394,3 +394,12 @@ it, the warm-up runs softer by design); "s" read aloud as a letter → "секу
   `X-Tts-Used` / `X-Tts-Limit` headers of every spoken phrase).
 - Kept on the tablet (`xems_voice`: `pick`, `rate`), sent with every phrase; the kept phrases are per voice + tempo.
 - Shot: `tools/ui-shot` `ShotsAi#live` → `ai-voice-pick.png`.
+
+## 1.1.561 — never listening to itself; no "try again" window
+- **Owner:** "it started dictating to itself"; "a window asking to try again needs a tap the trainer cannot make".
+- `WakeListener.speaking()`: the cloud voice busy (`CloudVoice.busy`: playing or queued) or the engine speaking, plus
+  a 450 ms echo tail. While it holds: the spotter's wake is ignored, `MicAgain` / the follow-up window / the fallback
+  recognizer wait; a step said by AiAnnounce while a window listens waits for the window to close (`LATER`).
+- The command window uses Google's background recognizer when one exists (no UI; nothing heard → it closes); the
+  system dialog only without one (Huawei without Google). No EXTRA_PREFER_OFFLINE (a missing offline Bulgarian pack
+  made it fail).

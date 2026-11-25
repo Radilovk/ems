@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 589
+    .line 606
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,7 +34,7 @@
     .registers 2
 
     .prologue
-    .line 630
+    .line 647
     # getter for: Lcom/isaigu/gymapp/ai/WakeListener;->window:Z
     invoke-static {}, Lcom/isaigu/gymapp/ai/WakeListener;->access$700()Z
 
@@ -42,13 +42,13 @@
 
     if-eqz v0, :cond_b
 
-    .line 631
+    .line 648
     const-string v0, "command"
 
     # setter for: Lcom/isaigu/gymapp/ai/WakeListener;->state:Ljava/lang/String;
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/WakeListener;->access$1202(Ljava/lang/String;)Ljava/lang/String;
 
-    .line 633
+    .line 650
     :cond_b
     return-void
 .end method
@@ -57,7 +57,7 @@
     .registers 2
 
     .prologue
-    .line 641
+    .line 658
     return-void
 .end method
 
@@ -65,7 +65,7 @@
     .registers 1
 
     .prologue
-    .line 645
+    .line 662
     return-void
 .end method
 
@@ -77,7 +77,7 @@
 
     const/4 v1, 0x6
 
-    .line 603
+    .line 620
     const/16 v0, 0x8
 
     if-eq p1, v0, :cond_9
@@ -86,12 +86,12 @@
 
     if-ne p1, v0, :cond_c
 
-    .line 604
+    .line 621
     :cond_9
     # invokes: Lcom/isaigu/gymapp/ai/WakeListener;->destroyRecognizer()V
     invoke-static {}, Lcom/isaigu/gymapp/ai/WakeListener;->access$1000()V
 
-    .line 606
+    .line 623
     :cond_c
     # getter for: Lcom/isaigu/gymapp/ai/WakeListener;->window:Z
     invoke-static {}, Lcom/isaigu/gymapp/ai/WakeListener;->access$700()Z
@@ -100,7 +100,7 @@
 
     if-eqz v0, :cond_3e
 
-    .line 608
+    .line 625
     # getter for: Lcom/isaigu/gymapp/ai/WakeListener;->followUps:I
     invoke-static {}, Lcom/isaigu/gymapp/ai/WakeListener;->access$1100()I
 
@@ -112,7 +112,7 @@
 
     if-eq p1, v1, :cond_34
 
-    .line 610
+    .line 627
     const-string v0, "wake"
 
     new-instance v1, Ljava/lang/StringBuilder;
@@ -135,23 +135,23 @@
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/WearableBleDiagLog;->log(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 612
+    .line 629
     :cond_34
     const/4 v0, 0x0
 
     # setter for: Lcom/isaigu/gymapp/ai/WakeListener;->followUps:I
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/WakeListener;->access$1102(I)I
 
-    .line 613
+    .line 630
     const-wide/16 v0, 0xc8
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/ai/WakeListener;->afterWindow(J)V
 
-    .line 619
+    .line 636
     :goto_3d
     return-void
 
-    .line 616
+    .line 633
     :cond_3e
     if-eq p1, v2, :cond_42
 
@@ -160,14 +160,14 @@
     :cond_42
     const-wide/16 v0, 0x96
 
-    .line 618
+    .line 635
     :goto_44
     # invokes: Lcom/isaigu/gymapp/ai/WakeListener;->recognize(J)V
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/ai/WakeListener;->access$900(J)V
 
     goto :goto_3d
 
-    .line 617
+    .line 634
     :cond_48
     const/16 v0, 0x9
 
@@ -187,7 +187,7 @@
     .registers 3
 
     .prologue
-    .line 653
+    .line 670
     return-void
 .end method
 
@@ -195,7 +195,7 @@
     .registers 2
 
     .prologue
-    .line 649
+    .line 666
     return-void
 .end method
 
@@ -203,7 +203,7 @@
     .registers 3
 
     .prologue
-    .line 623
+    .line 640
     # getter for: Lcom/isaigu/gymapp/ai/WakeListener;->window:Z
     invoke-static {}, Lcom/isaigu/gymapp/ai/WakeListener;->access$700()Z
 
@@ -215,12 +215,12 @@
 
     if-nez v0, :cond_f
 
-    .line 624
+    .line 641
     const/16 v0, 0x18
 
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/WakeListener;->tone(I)V
 
-    .line 626
+    .line 643
     :cond_f
     return-void
 .end method
@@ -229,7 +229,7 @@
     .registers 4
 
     .prologue
-    .line 592
+    .line 609
     if-eqz p1, :cond_12
 
     const-string v0, "results_recognition"
@@ -238,7 +238,7 @@
 
     move-result-object v0
 
-    .line 593
+    .line 610
     :goto_8
     # getter for: Lcom/isaigu/gymapp/ai/WakeListener;->window:Z
     invoke-static {}, Lcom/isaigu/gymapp/ai/WakeListener;->access$700()Z
@@ -247,24 +247,24 @@
 
     if-eqz v1, :cond_14
 
-    .line 594
+    .line 611
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/WakeListener;->commandHeard(Ljava/util/ArrayList;)V
 
-    .line 599
+    .line 616
     :goto_11
     return-void
 
-    .line 592
+    .line 609
     :cond_12
     const/4 v0, 0x0
 
     goto :goto_8
 
-    .line 596
+    .line 613
     :cond_14
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/WakeListener;->heardFallback(Ljava/util/ArrayList;)V
 
-    .line 597
+    .line 614
     const-wide/16 v0, 0x96
 
     # invokes: Lcom/isaigu/gymapp/ai/WakeListener;->recognize(J)V
@@ -277,6 +277,6 @@
     .registers 2
 
     .prologue
-    .line 637
+    .line 654
     return-void
 .end method

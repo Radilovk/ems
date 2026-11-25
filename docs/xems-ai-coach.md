@@ -429,3 +429,14 @@ it, the warm-up runs softer by design); "s" read aloud as a letter → "секу
   `SafeLimits.minOff` → no), 2nd impulse on (not allowed for the program / in a procedure → no). Allowed but the mode
   would hold < 5 min, or the heart within 5 of its ceiling → said, "Да го направя ли?", done on "да" within 30 s
   (voice or chat), "не" keeps it; the window listens on for the answer.
+
+## 1.1.573 — "тренер" on Huawei: a recognizer that never gets ready
+- **Owner:** "the setup records 'тренер', but in a session it opens nothing (it did before)". Since 1.1.561 the window
+  after "тренер" uses the background recognizer whenever the system lists one; the system dialog only without one. On
+  Huawei a service is listed but never gets ready → the window stayed open for good and every later "тренер" was
+  ignored ("wake ignored": `window`).
+- **Now** (`WakeListener.NotReady`, `giveUpBackground`): not ready in 3 s, or a service / client / busy / language
+  error before it was ready → the tablet gives the background recognizer up **for good** (`xems_wake` → `noBgRec`) and
+  opens the system's speech dialog at once, as before 1.1.561. Diag log: "background recognizer unusable (…)".
+- Off-device: `tools/app-sim` `SimWakeHuawei` (a listed service that never answers: before — stuck "listening", no
+  dialog; now — given up, kept, the dialog opens).

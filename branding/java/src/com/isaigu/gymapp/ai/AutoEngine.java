@@ -257,6 +257,9 @@ public final class AutoEngine {
 
     static final double REENTRY_FROM_S = 300;
 
+    /** The protection answers the fat-burning corridor only this far over its top (bpm). */
+    public static final int CORRIDOR_MARGIN = 10;
+
     /** A set ended without a rest: the rest the fatigue asked for becomes the next set's easier impulse. */
     private void adaptFor(int restNeedS, long now) {
         int ext = restNeedS >= 60 ? 3 : restNeedS >= 35 ? 2 : restNeedS >= 18 ? 1 : 0;
@@ -1030,10 +1033,12 @@ public final class AutoEngine {
         // corridor: above → one rung of the protection up, back below → one down
         if (plan.hrUse == HrUse.CORRIDOR && hr > 0 && now - hrMs <= HR_STALE_MS && !ph.isCooldown()
                 && !"WARMUP".equals(ph.id)) {
+            // liberal (owner, 2026-11-25): a little over the zone is no fault — the protection climbs only well over
+            // it (CORRIDOR_MARGIN bpm), and gives back as soon as the heart is in the zone again
             int hi = plan.corridorHiHr();
-            if (hr > hi) {
+            if (hr > hi + CORRIDOR_MARGIN) {
                 corridorExt = Math.min(corridorExt + 1, PROTECT_MAX);
-            } else if (hr < hi - 5 && corridorExt > 0) {
+            } else if (hr <= hi && corridorExt > 0) {
                 corridorExt--;
             }
         }

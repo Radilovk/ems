@@ -578,7 +578,7 @@ public final class AutoSim {
         for (int i = 0; i < 200 && e.getState() == AutoEngine.State.RUN; i++) {
             AutoEngine.Cmd c = e.getCurrent();
             t += c.durationMs();
-            e.onHr(t - 500, Math.min(plan.hrCap - 3, hi + 8));
+            e.onHr(t - 500, Math.min(plan.hrCap - 3, hi + 8 + AutoEngine.CORRIDOR_MARGIN));
             e.tick(t - 1);
             e.onCycle(t);
             maxExt = Math.max(maxExt, e.getCorridorExt());
@@ -589,6 +589,20 @@ public final class AutoSim {
         check(maxExt == AutoEngine.PROTECT_MAX, "corridor: one rung per cycle up to the top (" + maxExt + ")");
         check(hzFirst, "corridor: the frequency first, a longer pause only after it");
         check(maxPause > 0 && maxPause <= 3, "corridor: the pause at most +3 s (" + maxPause + ")");
+        // liberal (owner, 2026-11-25): a little over the zone is no fault — no rung at +5 bpm
+        AutoEngine e2 = new AutoEngine(plan);
+        long t2 = 0;
+        e2.start(t2);
+        int ext2 = 0;
+        for (int i = 0; i < 100 && e2.getState() == AutoEngine.State.RUN; i++) {
+            AutoEngine.Cmd c = e2.getCurrent();
+            t2 += c.durationMs();
+            e2.onHr(t2 - 500, hi + 5);
+            e2.tick(t2 - 1);
+            e2.onCycle(t2);
+            ext2 = Math.max(ext2, e2.getCorridorExt());
+        }
+        check(ext2 == 0, "corridor: +5 bpm over the zone → no protection (" + ext2 + ")");
     }
 
     static void dose() {

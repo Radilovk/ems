@@ -611,11 +611,11 @@ function tr(bg,en){return LANG==="en"?en:bg;}
 
 /* ---------------- "i": what a number means, in a modal ---------------- */
 const INFO={
- eff:[["Ефективност","Efficiency"],["Оценка от 0 до 100 % колко добре тренировката е изпълнила <b>личната цел</b> на клиента (тонус, отслабване, дренаж…).","A 0–100 % score of how well the training met the client's <b>personal target</b> (tone, fat loss, drainage…)."],["Сбор от четири части: <b>време в целевата зона</b> 40 %, <b>EMS доза</b> 30 %, <b>без прекъсвания</b> 15 %, <b>напредък</b> 15 %.","Four parts: <b>time in the target zone</b> 40 %, <b>EMS dose</b> 30 %, <b>continuity</b> 15 %, <b>progress</b> 15 %."],["Над 80 % — много добра, 60–80 % — добра, под 60 % — слаба. EMS доза над 140 % от целта сваля оценката: повече не значи по-добре.","Over 80 % very good, 60–80 % good, under 60 % weak. An EMS dose over 140 % of the target lowers the score: more is not better."]],
+ eff:[["Ефективност","Efficiency"],["Оценка от 0 до 100 % колко добре тренировката е изпълнила <b>личната цел</b> на клиента (тонус, отслабване, дренаж…).","A 0–100 % score of how well the training met the client's <b>personal target</b> (tone, fat loss, drainage…)."],["Сбор от четири части: <b>време в целевата зона</b> 40 %, <b>EMS доза</b> 30 %, <b>без прекъсвания</b> 15 %, <b>напредък</b> 15 %.","Four parts: <b>time in the target zone</b> 40 %, <b>EMS dose</b> 30 %, <b>continuity</b> 15 %, <b>progress</b> 15 %."],["Над 80 % — много добра, 60–80 % — добра, под 60 % — слаба. Високото натоварване не сваля оценката — само драстично претоварване (пулс близо до личния максимум или мускулите много над поносимото) за повече от 3 мин (6 мин при добро възстановяване).","Over 80 % very good, 60–80 % good, under 60 % weak. A high load does not lower the score — only a drastic overload (heart rate near the personal maximum or the muscles far over the tolerated) for more than 3 min (6 min with a good recovery)."]],
  T:[["Време в целевата зона","Time in target zone"],["Каква част от основната част на тренировката е минала в зоната за целта на клиента.","How much of the main part ran in the zone for the client's goal."],["Зоната се определя от <b>EMS натоварването</b> и — ако има гривна — от <b>пулса</b>. Тя е лична: по-ниска за начинаещ, по-възрастен или по-тежък човек.","The zone is set by the <b>EMS load</b> and — with a band — the <b>heart rate</b>. It is personal: lower for a beginner, an older or a heavier person."]],
- D:[["EMS доза","EMS dose"],["Колко електрическа стимулация са получили мускулите за цялата тренировка: <b>сила спрямо личния максимум × време под импулс × размер на мускула</b>.","How much electrical stimulation the muscles got over the whole training: <b>strength vs. personal max × time under impulse × muscle size</b>."],["100 % = точно личната цел. Под 70 % — малко за целта, над 140 % — прекалено.","100 % = exactly the personal target. Under 70 % too little, over 140 % too much."]],
- Q:[["Без прекъсвания","Continuity"],["Колко от планираното време импулсите са текли без непланирано спиране (стоп, наместване на електроди, прекъсната връзка).","How much of the planned time the impulses ran without an unplanned stop (stop, fixing electrodes, lost link)."],["Планираните паузи между импулсите не се броят като прекъсване.","Planned pauses between impulses do not count."]],
- P:[["Напредък","Progress"],["EMS дозата на тази тренировка спрямо средното от последните 3.","This training's EMS dose vs. the average of the last 3."],["Около 60 % = същото ниво, над 70 % — расте, под 50 % — по-леко от обичайното. Първата тренировка няма с какво да се сравни.","About 60 % = the same level, over 70 % rising, under 50 % lighter than usual. The first training has nothing to compare with."]],
+ D:[["EMS доза","EMS dose"],["Колко електрическа стимулация са получили мускулите за цялата тренировка: <b>работещи мускули × честота × дълбочина × време под импулс</b> — силата не влиза: включеният мускул се брои изцяло.","How much electrical stimulation the muscles got over the whole training: <b>working muscles × frequency × depth × time under impulse</b> — the strength does not count: a muscle that works counts whole."],["100 % = точно личната цел. Под 70 % — малко за целта; повече не сваля оценката.","100 % = exactly the personal target. Under 70 % too little; more does not lower the score."]],
+ Q:[["Без прекъсвания","Continuity"],["Колко от планираното време импулсите са текли без непланирано спиране (стоп, наместване на електроди, прекъсната връзка).","How much of the planned time the impulses ran without an unplanned stop (stop, fixing electrodes, lost link)."],["Планираните паузи между импулсите и паузите при висок пулс (защитата или разумна почивка) не се броят като прекъсване.","Planned pauses between impulses and pauses at a high heart rate (the protection or a sensible rest) do not count."]],
+ P:[["Напредък","Progress"],["Постоянство: EMS дозата на тази тренировка спрямо средното от последните 3.","Consistency: this training's EMS dose vs. the average of the last 3."],["100 % = обичайното ниво или повече; по-малко — само при доста по-лека тренировка. Повече доза не носи точки: целта е редовност, не ескалация.","100 % = the usual level or more; less only for a much lighter training. More dose earns no points: the aim is regularity, not escalation."]],
  persona:[["Лична цел","Personal target"],["Целевата EMS доза и зона на клиента спрямо стандарта (100 %).","The client's target EMS dose and zone vs. the standard (100 %)."],["Намалява за начинаещ (×0,75), при ИТМ над 25 и с възрастта над 30; расте за напреднал (×1,2).","Lower for a beginner (×0.75), with BMI over 25 and with age over 30; higher for an advanced client (×1.2)."]],
  act:[["Активно време","Active time"],["Времето с пуснат костюм, без паузите.","Time with the suit running, pauses excluded."]],
  kcal:[["Калории","Calories"],["Оценка по модела на XEMS — от пулса, задействаната мускулна маса и честотата (високата честота плаща и без кислород — лактат и гликоген след тренировката). Не е лабораторно измерване.","An XEMS model estimate — from heart rate, the muscle mass worked and the frequency (high frequency also pays without oxygen — lactate and glycogen after the session). Not a lab measurement."],["<b>MET</b> — колко пъти повече енергия от покой (покой = 1).","<b>MET</b> — how many times the resting energy use (rest = 1)."],["<b>Над покоя</b> — колкото е добавила тренировката; общите калории включват и покоя за същото време.","<b>Above rest</b> — what the training added; the total also holds the resting burn of the same time."]],
@@ -753,9 +753,12 @@ function blocks(r,T){
 // The exercise's own work on its muscles: a main muscle counts like a channel at EX_LOAD of full current
 // (SessionRec.EXERCISE_LOAD / 100), EX_PAUSE of it in the pause (AiEnergy.EXERCISE_PAUSE_SHARE). Estimates.
 const EX_LOAD=.25,EX_PAUSE=.3;
-function fromRec(r){
+function fromRec(r,peak){
   const T=r.run.length,pers=r.person||{};
-  const rest=pers.restHr||CLIENT.restHr||65,age=pers.age||CLIENT.age||35,max=Math.round((pers.sex||CLIENT.sex)==="F"?206-.88*age:208-.7*age);
+  // the client's own maximum (owner, 2026-11-25): the highest HR seen in their earlier trainings when it is over the
+  // age formula — a trained heart is often above it, and the formula then shows "maximum" without one
+  const rest=pers.restHr||CLIENT.restHr||65,age=pers.age||CLIENT.age||35;
+  const max=Math.max(Math.round((pers.sex||CLIENT.sex)==="F"?206-.88*age:208-.7*age),peak|0);
   const hasHr=r.hr.some(v=>v>0);const PHs=blocks(r,T);
   const s=[];let last=0,hrN=0,act=0,apOn=false,hasEx=false;
   for(let t=0;t<T;t++){
@@ -812,15 +815,23 @@ function analyse(sim,prevDoses,goal0,weight,pers,nBefore){
       if(w){p.C=clamp(e,0,1);p.I=Math.max(p.I,.55*p.S+.45*p.C);}}}
   const act=s.filter(x=>!x.paused&&!x.pas);const T=s.length;const n=Math.max(1,act.length);   // the passive phase is not training
   const G=p=>goal.basis==="M"?p.M:p.S;   // the stimulus the goal is judged by
-  const inGoal=p=>{const ds=Math.max(0,goal.s[0]-G(p),G(p)-goal.s[1]);const dc=sim.hasHr?Math.max(0,goal.c[0]-p.C,p.C-goal.c[1]):0;return clamp(1-Math.hypot(ds,dc)/.15,0,1);};
+  // Liberal (owner, 2026-11-25): over the zone is no fault — only far over it. The heart may run OVER_C of its reserve
+  // above the zone (more with a good recovery); the stimulus is the program's (no strength), its upper side free.
+  const OVER_C=.20+(sim.recDrop!=null&&sim.recDrop>=25?.10:0);
+  const inGoal=p=>{const ds=Math.max(0,goal.s[0]-G(p));const dc=sim.hasHr?Math.max(0,goal.c[0]-p.C,p.C-goal.c[1]-OVER_C):0;return clamp(1-Math.hypot(ds,dc)/.15,0,1);};
   let main=act.filter(p=>p.t>=T*.15&&p.t<=T*.9);if(main.length<30)main=act;
   const Tg=main.reduce((a,p)=>a+inGoal(p),0)/Math.max(1,main.length);
   const over=main.filter(p=>G(p)>goal.s[1]+.05).length/Math.max(1,main.length),under=main.filter(p=>G(p)<goal.s[0]-.05).length/Math.max(1,main.length);
-  const dose=act.reduce((a,p)=>a+G(p),0)/60;const dr=dose/(goal.dose*Math.min(20,Math.max(1,act.length/60)));const D=dr<=1.4?clamp(dr,0,1):clamp(1-(dr-1.4)*.5,.5,1);
-  const pasS=s.filter(x=>x.pas).length;const pauseS=T-pasS-act.length;const Q=clamp(1-pauseS/(Math.max(1,T-pasS)*.25),0,1);   // phase 2 is not a pause
+  const dose=act.reduce((a,p)=>a+G(p),0)/60;const dr=dose/(goal.dose*Math.min(20,Math.max(1,act.length/60)));const D=clamp(dr,0,1);   // more is no fault: only a drastic overload lowers the score (below)
+  const pasS=s.filter(x=>x.pas).length;
+  // a pause that begins with the heart over the zone is the protection's (or a sensible rest), not an interruption
+  let guardS=0;{let inGuard=false,lastC=0,was=false;
+    for(const p of s){if(p.paused){if(!was)inGuard=sim.hasHr&&lastC>=goal.c[1]-.02;if(inGuard)guardS++;}else lastC=p.C;was=p.paused;}}
+  const pauseS=Math.max(0,T-pasS-act.length-guardS);const Q=clamp(1-pauseS/(Math.max(1,T-pasS)*.25),0,1);   // phase 2 is not a pause
   const avgPrev=prevDoses.length?prevDoses.reduce((a,b)=>a+b,0)/prevDoses.length:dose;
-  const P=avgPrev>0?clamp(.6+(dose-avgPrev)/avgPrev*2,0,1):.6;
-  const eff=Math.round(100*(.40*Tg+.30*D+.15*Q+.15*P));
+  // consistency, not escalation (owner, 2026-11-25): the usual work or more = full; only much lighter counts down
+  const P=avgPrev>0?clamp(1-Math.max(0,(avgPrev-dose)/avgPrev)*2,0,1):1;
+  let eff=Math.round(100*(.40*Tg+.30*D+.15*Q+.15*P));
   // Load = the client's own strain, second by second (owner, 1.1.386). The stimulus S (frequency, pulse width,
   // impulse / pause, double impulse, working channels — no strength) runs the fatigue model of the AI (§3.1):
   // F' = X − F/τ, recovery all the time, the rests included; R = F / F_max of the client's fitness. The same
@@ -832,6 +843,14 @@ function analyse(sim,prevDoses,goal0,weight,pers,nBefore){
     const E=p.paused?0:clamp(p.S/P0.k*(.5+.5*R),0,1.5);
     p.L=sim.hasHr?.55*E+.45*p.C:sim.hasEx&&!p.paused?Math.max(E,.55*E+.45*p.C):E;   // the heart, or its stand-in
     if(!p.paused&&!p.pas){Rsum+=R;Rn++;if(R>Rmax)Rmax=R;}}
+  // Efficiency falls with the load only on a DRASTIC overload (owner, 2026-11-25): the heart at ≥ 95 % of its reserve
+  // (the client's own maximum) or the muscles at ≥ 1.4 × their tolerated fatigue, for longer than OVER_MIN minutes
+  // (3, 6 with a good recovery: ≥ 25 bpm down in 60 s) — then −4 % a minute past it, at most −35 %. Under that, a
+  // high load is no fault: a well-trained client on the edge is training well.
+  const OVER_MIN=3+(sim.recDrop!=null&&sim.recDrop>=25?3:0);
+  const overS=act.filter(p=>(sim.hasHr&&p.C>=.95)||p.R>=1.4).length;
+  const overPen=clamp((overS/60-OVER_MIN)*.04,0,.35);
+  eff=Math.round(eff*(1-overPen));
   const load=Math.round(s.reduce((a,p)=>a+p.L,0)/60*10);
   const Wkg=weight||70,musc=female?.31/.38:1;
   // the client's own resting and maximal uptake, as in AiEnergy: Schofield from sex, age, weight (not a flat 3.5);
@@ -872,7 +891,7 @@ function analyse(sim,prevDoses,goal0,weight,pers,nBefore){
   const phases=sim.PH.map(ph=>{const xs=s.slice(ph.a,Math.min(ph.b,T));const a=xs.filter(p=>!p.paused);const hh=a.filter(p=>p.hr>0);
     return{...ph,dur:xs.length,act:a.length,S:a.reduce((q,p)=>q+p.S,0)/Math.max(1,a.length),hr:hh.length?Math.round(hh.reduce((q,p)=>q+p.hr,0)/hh.length):0,hrMax:hh.length?Math.max(...hh.map(p=>p.hr)):0,ma:xs.length?Math.max(...xs.map(p=>p.ma)):0};});
   const met=Wkg>0&&T>0?kcal/(Wkg*T/3600):0;
-  return{met,over,under,persona:P0,goalP:goal,strain:Rn?Rsum/Rn:0,strainMax:Rmax,onSec:s.filter(p=>p.on&&!p.paused).length,eff,T:Tg,D,Q,P,dose,load,kcal:Math.round(kcal),kcalGly:Math.round(kcalGly),kcalAct:Math.max(0,Math.round(kcal-vr*4.83*T/60)),pauseS,act:act.length,
+  return{overMin:Math.round(overS/60*10)/10,overPen,met,over,under,persona:P0,goalP:goal,strain:Rn?Rsum/Rn:0,strainMax:Rmax,onSec:s.filter(p=>p.on&&!p.paused).length,eff,T:Tg,D,Q,P,dose,load,kcal:Math.round(kcal),kcalGly:Math.round(kcalGly),kcalAct:Math.max(0,Math.round(kcal-vr*4.83*T/60)),pauseS,act:act.length,
     hrAvg:hrs.length?Math.round(hrs.reduce((a,b)=>a+b,0)/hrs.length):0,hrMax:hrs.length?Math.max(...hrs):0,modes,chDose,exDose,phases,maMax:Math.max(0,...s.map(p=>p.ma))};
 }
 function typeLabel(m){if(m.type==="ai")return "Smart Session";if(m.type==="auto")return tr("Авто · ","Auto · ")+(m.program||"");const md=m.modes|0,massage=(md&8)!==0,work=(md&7)!==0;
@@ -883,12 +902,13 @@ function typeLabel(m){if(m.type==="ai")return "Smart Session";if(m.type==="auto"
 function loadReal(){
   CLIENT=JSON.parse(BR.client()||"{}");
   const L=(JSON.parse(BR.sessions()||"[]")||[]).sort((a,b)=>a.start-b.start);
-  const doses=[];sessions=[];
+  const doses=[];sessions=[];let peak=0;
   L.forEach(m=>{let r=null;try{r=JSON.parse(BR.session(String(m.id)));}catch(e){}
     if(!r||!r.run||r.run.length<10)return;
     const md=m.modes|0,passive=(md&8)!==0&&(md&7)===0;   // a massage alone: a passive procedure, not a training
     const goalKey=passive?"massage":(r.person&&r.person.goal)||CLIENT.goal||"tone";const goal=GOALS[goalKey]||GOALS.tone;
-    const sim=fromRec(r);const pr=Object.assign({},CLIENT,r.person||{});const a=analyse(sim,doses.slice(-3),goal,pr.weight,pr,sessions.length);doses.push(a.dose);
+    const sim=fromRec(r,peak);const pr=Object.assign({},CLIENT,r.person||{});const a=analyse(sim,doses.slice(-3),goal,pr.weight,pr,sessions.length);doses.push(a.dose);
+    peak=Math.max(peak,...r.hr.filter(v=>v>0&&v<230));
     sessions.push({i:sessions.length,id:m.id,date:new Date(m.start),type:typeLabel(m),sim,a,goal:goalKey,meta:m});
     const sc=m.scores||{};if(sc.eff!==a.eff||sc.load!==a.load||sc.kcal!==a.kcal){try{BR.putScores(String(m.id),JSON.stringify({eff:a.eff,load:a.load,kcal:a.kcal,dose:Math.round(a.dose*100)/100}));}catch(e){}}});
 }
@@ -1039,7 +1059,8 @@ function draw(){
   const dEff=p?a.eff-p.eff:0;$("#rEffD").className="delta "+(dEff>=0?"up":"down");$("#rEffD").textContent=compare&&p?(dEff>=0?"▲ ":"▼ ")+Math.abs(dEff)+tr(" спрямо предишната"," vs. previous"):"";
   const F=[[tr("Време в целевата зона","Time in target zone"),tr("40 % от оценката","40 % of the score"),a.T,"--go",p&&p.T,"T"],[tr("EMS доза","EMS dose"),tr("30 % · спрямо личната цел","30 % · vs. personal target"),a.D,"--stim",p&&p.D,"D"],[tr("Без прекъсвания","Continuity"),tr("15 % · без непланирани паузи","15 % · no unplanned pauses"),a.Q,"--amber",p&&p.Q,"Q"],[tr("Напредък","Progress"),tr("15 % · спрямо последните 3","15 % · vs. last 3"),a.P,"--accent",p&&p.P,"P"]];
   $("#factors").innerHTML=F.map(f=>`<div class="factor"><div class="lbl">${f[0]}${info(f[5])}</div><div class="bar"><i style="width:${(f[2]*100).toFixed(0)}%;background:var(${f[3]})"></i>${compare&&f[4]!=null?`<i style="width:2px;left:${(f[4]*100).toFixed(0)}%;background:var(--text);opacity:.6"></i>`:""}</div><div class="num" style="text-align:right;font-size:18px">${Math.round(f[2]*100)}%</div></div>`).join("");
-  const zoneTip=a.over>.4?`${tr("<b>EMS натоварването е над личната зона</b> ","<b>EMS load above the personal zone</b> ")}${Math.round(a.over*100)}${tr(" % от времето: за този клиент силата може да се намали. "," % of the time: for this client the strength can be lowered. ")}`:a.under>.4?`${tr("<b>EMS натоварването е под личната зона</b> ","<b>EMS load below the personal zone</b> ")}${Math.round(a.under*100)}${tr(" % от времето: силата може да се вдигне. "," % of the time: the strength can be raised. ")}`:"";
+  // over the zone is no fault (owner, 2026-11-25): a tip only for a drastic overload; under it, the program, not the strength
+  const zoneTip=a.overPen>0?`${tr("<b>Драстично претоварване</b> ","<b>Drastic overload</b> ")}${a.overMin}${tr(" мин: следващия път — по-ниска честота или по-дълги паузи. "," min: next time a lower frequency or longer pauses. ")}`:a.under>.4?`${tr("<b>EMS натоварването е под личната зона</b> ","<b>EMS load below the personal zone</b> ")}${Math.round(a.under*100)}${tr(" % от времето: повече работещи зони или по-интензивна програма. "," % of the time: more working zones or a more intense program. ")}`:"";
   $("#verdict").innerHTML=`<span class="lead">${leadText(a)}</span><b>${Math.round(a.T*100)} %</b>${tr(" в зоната за целта · EMS доза "," in the target zone · EMS dose ")}<b>${Math.round(a.D*100)} %</b>${tr(" от целта."," of the target.")} ${zoneTip}${s.sim.hasHr?"":tr(" <span class='nohr'>Без гривна: оценката е само по тока.</span>"," <span class='nohr'>No band: scored on the current only.</span>")}`;
   const d=(v,pv,unit,inv)=>{if(!compare||pv==null)return"";const x=v-pv;if(!Math.round(x))return`${tr("<span class=\"delta hint\">без промяна</span>","<span class=\"delta hint\">no change</span>")}`;const good=inv?x<0:x>0;return`<span class="delta ${good?"up":"down"}">${x>0?"▲":"▼"} ${Math.abs(Math.round(x))}${unit}</span>`;};
   const K=[

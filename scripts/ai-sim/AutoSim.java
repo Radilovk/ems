@@ -655,7 +655,11 @@ public final class AutoSim {
         for (int i = 0; i < order.length; i++) {
             AutoEngine.Cmd c = e.getCurrent();
             check(c.zones != null && c.zones[order[i]] == 100, "drain: wave step " + i + " at the right zone");
-            if (i > 0) {
+            if (i == 0) {
+                check(c.hz == 8, "drain: the calf pumps at 8 Hz");
+            } else if (i == 1) {
+                check(c.zones[AutoModel.CALF] == 0, "drain: the calf not held at 35 Hz after its step");
+            } else {
                 check(c.zones[order[i - 1]] == 100, "drain: previous zone still on, at the person's level");
             }
             check(c.zones[AutoModel.ARMS] == 0, "drain: arms silent in the leg wave");

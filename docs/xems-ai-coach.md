@@ -481,3 +481,16 @@ it, the warm-up runs softer by design); "s" read aloud as a letter → "секу
   recognizer fallback works with "… тренер" in the text).
 - Commands: `afterWake` already cuts everything up to "тренер"; "окей" / "окей тренер" alone is no command
   (`AiVoiceCmd.onlyWakeFragment`) — the closed sound, not the "not understood" one.
+
+## 1.1.577 — what was useful in two older branches
+- From `ccr-8986d4e4-4xosu5` (1.1.558): **the coach does what it says** — `AiVoiceCmd.fromReply`: a reply with no
+  command but its own first-person verb ("намалям / усилвам…") is done on the suit. Checked off-device against real
+  phrases and **tightened**: a negation, an offer, a condition or a future ("не намалявам", "мога да увелича", "ще
+  увелича", "нямам нужда да намалявам") is never a command, and a bare strength needs the word for it ("вдигам
+  темпото" is not strength). Tests in `WorkoutSim`. The prompt line (words without the change are a lie; an example
+  question for a vague complaint) and `Voice.say` for the speech dialog came with it.
+- From `ccr-980ed7ef-u7ur27` (1.1.565), **server only** (publish the Worker, no APK needed): a plain live reply goes to
+  `GEMINI_FAST_MODEL` (`gemini-3.5-flash`, 2–3 s in its ai-smoke; health keeps the newest Flash); a gone fast model
+  (404 / 400) falls back to the main one. `npm test` 144/144. The model name was not called from here (no key) — run
+  `server/scripts/ai-smoke.mjs` once after the deploy.
+- Fixed on the way: `AiVoiceCmd.onlyWakeFragment` leaned on `AiVoiceGate`, which the ai-sim does not compile.

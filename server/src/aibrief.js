@@ -321,7 +321,8 @@ export async function generateJson(env, system, userText, schema, maxTokens, fet
   if (!env.GEMINI_API_KEY) throw new Error('no_key');
   // lite: true/false, or a route ({ lite, think } from airoute.js): the model tier and the thinking level
   const route = lite && typeof lite === 'object' ? lite : { lite: !!lite, think: null };
-  const model = forceModel || await currentModel(env, fetchImpl, ts, route.lite);
+  const fast = route.fast && !route.lite && env.GEMINI_FAST_MODEL ? String(env.GEMINI_FAST_MODEL) : null;
+  const model = forceModel || fast || await currentModel(env, fetchImpl, ts, route.lite);
   const ladder = thinkingLadder(model, route.think);
   // some models (the Flash-Lite one) take no system instruction ("Developer instruction is not enabled"): then it
   // goes in front of the user text
@@ -365,6 +366,10 @@ export async function generateJson(env, system, userText, schema, maxTokens, fet
         continue;
       }
       if (res.status === 404) resetModelCache();
+      // the fast model gone (renamed, retired): the main one answers, never an error to the trainer
+      if (fast && model === fast && (res.status === 404 || res.status === 400)) {
+        return generateJson(env, system, userText, schema, maxTokens, fetchImpl, ts, { ...route, fast: false }, temperature);
+      }
       // overloaded (503 / 429 / 500, "high demand"): once more after a moment, then an older Flash — the trainer
       // gets an answer, not "no connection" (2026-11-24 smoke: two of four calls refused by Google)
       if (res.status === 503 || res.status === 429 || res.status === 500) {

@@ -84,5 +84,7 @@ export function route(kind, body = {}) {
   // the coach: live answers short, the planning chat longer
   const max = live ? 1200 : 3000;
   if (risky || (!live && hasConditions(body))) return { lite: false, think: 'medium', max, why: 'careful' };
-  return { lite: false, think: 'low', max, why: 'coach' };
+  // a plain live reply (an exercise, "уморих се", a "why"): the fast Flash (GEMINI_FAST_MODEL) — ai-smoke 1.1.565:
+  // 2–3 s and steady, the newest Flash 3–10 s; health keeps the newest one, thinking more
+  return { lite: false, fast: live, think: 'low', max, why: live ? 'fast' : 'coach' };
 }

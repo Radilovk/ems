@@ -306,3 +306,24 @@ test('a live phrase in one request: a plain command back from the reader, else t
   assert.equal(seen.length, 4);
   assert.equal(seen[3].lite, false);
 });
+
+test('a plain live reply goes to the fast Flash; health keeps the newest one; a gone fast model falls back', async () => {
+  resetModelCache();
+  const urls = [];
+  const fake = async (url) => {
+    urls.push(url);
+    if (/gone-flash/.test(url)) return new Response(JSON.stringify({ error: { message: 'not found' } }), { status: 404 });
+    return new Response(JSON.stringify({ candidates: [{ content: { parts: [{ text: JSON.stringify({ reply: 'Добре.' }) }] } }] }));
+  };
+  const env = { GEMINI_API_KEY: 'k', GEMINI_MODEL: 'gemini-3.8-flash', GEMINI_FAST_MODEL: 'gemini-3.5-flash' };
+  const ctx = { session: 'RUNNING' };
+  const a = await coach(env, { text: 'какво упражнение сега', context: ctx }, fake);
+  assert.match(urls[0], /gemini-3.5-flash:generateContent/);
+  assert.equal(a.route, 'fast');
+  const b = await coach(env, { text: 'замая ми се', context: ctx }, fake);
+  assert.match(urls[1], /gemini-3.8-flash:generateContent/);
+  assert.equal(b.route, 'careful');
+  urls.length = 0;
+  await coach({ ...env, GEMINI_FAST_MODEL: 'gone-flash' }, { text: 'какво упражнение сега', context: ctx }, fake);
+  assert.match(urls[urls.length - 1], /gemini-3.8-flash:generateContent/);
+});

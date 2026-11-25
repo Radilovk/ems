@@ -56,6 +56,19 @@ public final class Voice {
 
     /** The recognizer heard this phrase in the open window. */
     public static boolean say(String phrase) throws Exception {
+        // 1.1.555+: "тренер" opens the system's speech dialog (VoiceInput) — its words come back as the dialog's result
+        Class<?> vi = Class.forName("com.isaigu.gymapp.ai.VoiceInput");
+        java.lang.reflect.Field pf = vi.getDeclaredField("pending");
+        pf.setAccessible(true);
+        Object cb = pf.get(null);
+        if (cb != null) {
+            pf.set(null, null);
+            java.lang.reflect.Method on = Class.forName("com.isaigu.gymapp.ai.VoiceInput$Result").getMethod("onText", String.class);
+            on.invoke(cb, phrase);
+            System.out.println("SIM say \"" + phrase + "\" (speech dialog)");
+            Ui.idle(300);
+            return true;
+        }
         SpeechRecognizer r = ShadowSpeechRecognizer.getLatestSpeechRecognizer();
         if (r == null) {
             System.out.println("SIM say \"" + phrase + "\" — no recognizer listening");

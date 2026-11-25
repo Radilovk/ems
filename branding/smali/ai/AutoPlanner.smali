@@ -2048,29 +2048,31 @@
 .end method
 
 .method public static simulateDose(Lcom/isaigu/gymapp/ai/AutoModel$Plan;)D
-    .registers 15
+    .registers 14
 
     .prologue
+    const/4 v7, 0x0
+
+    const-wide/16 v4, 0x0
+
     .line 297
-    const-wide/16 v0, 0x0
-
     .line 298
-    iget-object v2, p0, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->phases:Ljava/util/List;
+    iget-object v0, p0, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->phases:Ljava/util/List;
 
-    invoke-interface {v2}, Ljava/util/List;->iterator()Ljava/util/Iterator;
+    invoke-interface {v0}, Ljava/util/List;->iterator()Ljava/util/Iterator;
 
-    move-result-object v7
+    move-result-object v12
 
-    move-wide v2, v0
+    move-wide v2, v4
 
-    :cond_9
-    invoke-interface {v7}, Ljava/util/Iterator;->hasNext()Z
+    :cond_a
+    invoke-interface {v12}, Ljava/util/Iterator;->hasNext()Z
 
     move-result v0
 
-    if-eqz v0, :cond_61
+    if-eqz v0, :cond_59
 
-    invoke-interface {v7}, Ljava/util/Iterator;->next()Ljava/lang/Object;
+    invoke-interface {v12}, Ljava/util/Iterator;->next()Ljava/lang/Object;
 
     move-result-object v0
 
@@ -2083,105 +2085,94 @@
 
     move-result v1
 
-    if-nez v1, :cond_9
+    if-nez v1, :cond_a
 
-    .line 302
-    const/4 v5, 0x0
+    move v6, v7
 
-    .line 303
-    const/4 v1, 0x0
-
-    move v4, v1
+    move v8, v7
 
     .line 304
     :goto_20
     iget v1, v0, Lcom/isaigu/gymapp/ai/AutoModel$Phase;->durationS:I
 
-    if-ge v5, v1, :cond_9
+    if-ge v8, v1, :cond_a
 
     .line 305
     iget-object v1, v0, Lcom/isaigu/gymapp/ai/AutoModel$Phase;->steps:Ljava/util/List;
 
-    iget-object v6, v0, Lcom/isaigu/gymapp/ai/AutoModel$Phase;->steps:Ljava/util/List;
+    iget-object v9, v0, Lcom/isaigu/gymapp/ai/AutoModel$Phase;->steps:Ljava/util/List;
 
-    invoke-interface {v6}, Ljava/util/List;->size()I
+    invoke-interface {v9}, Ljava/util/List;->size()I
 
-    move-result v6
+    move-result v9
 
-    rem-int v6, v4, v6
+    rem-int v9, v6, v9
 
-    invoke-interface {v1, v6}, Ljava/util/List;->get(I)Ljava/lang/Object;
+    invoke-interface {v1, v9}, Ljava/util/List;->get(I)Ljava/lang/Object;
 
     move-result-object v1
 
     check-cast v1, Lcom/isaigu/gymapp/ai/AutoModel$Step;
 
     .line 306
-    iget-wide v8, p0, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->phiMax:D
+    iget-wide v10, v1, Lcom/isaigu/gymapp/ai/AutoModel$Step;->sigma:D
 
-    int-to-double v10, v5
+    cmpl-double v9, v10, v4
 
-    iget v6, v0, Lcom/isaigu/gymapp/ai/AutoModel$Phase;->durationS:I
+    if-lez v9, :cond_55
 
-    int-to-double v12, v6
+    const-wide/high16 v10, 0x3ff0000000000000L    # 1.0
 
-    div-double/2addr v10, v12
+    .line 307
+    :goto_3c
+    iget-object v9, p0, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->input:Lcom/isaigu/gymapp/ai/AutoModel$Input;
 
-    invoke-virtual {v0, v10, v11}, Lcom/isaigu/gymapp/ai/AutoModel$Phase;->phiAt(D)D
+    iget-boolean v9, v9, Lcom/isaigu/gymapp/ai/AutoModel$Input;->doublePulse:Z
+
+    if-eqz v9, :cond_57
+
+    iget-boolean v9, p0, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->doublePulseAllowed:Z
+
+    if-eqz v9, :cond_57
+
+    const/4 v9, 0x1
+
+    :goto_47
+    invoke-static {v1, v10, v11, v9}, Lcom/isaigu/gymapp/ai/AutoPlanner;->cycleDose(Lcom/isaigu/gymapp/ai/AutoModel$Step;DZ)D
 
     move-result-wide v10
 
-    invoke-static {v8, v9, v10, v11}, Ljava/lang/Math;->min(DD)D
-
-    move-result-wide v8
-
-    iget-wide v10, v1, Lcom/isaigu/gymapp/ai/AutoModel$Step;->sigma:D
-
-    mul-double/2addr v8, v10
-
-    .line 307
-    iget-object v6, p0, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->input:Lcom/isaigu/gymapp/ai/AutoModel$Input;
-
-    iget-boolean v6, v6, Lcom/isaigu/gymapp/ai/AutoModel$Input;->doublePulse:Z
-
-    if-eqz v6, :cond_5f
-
-    iget-boolean v6, p0, Lcom/isaigu/gymapp/ai/AutoModel$Plan;->doublePulseAllowed:Z
-
-    if-eqz v6, :cond_5f
-
-    const/4 v6, 0x1
-
-    :goto_51
-    invoke-static {v1, v8, v9, v6}, Lcom/isaigu/gymapp/ai/AutoPlanner;->cycleDose(Lcom/isaigu/gymapp/ai/AutoModel$Step;DZ)D
-
-    move-result-wide v8
-
-    add-double/2addr v2, v8
+    add-double/2addr v2, v10
 
     .line 308
     invoke-virtual {v1}, Lcom/isaigu/gymapp/ai/AutoModel$Step;->durationS()I
 
     move-result v1
 
-    add-int/2addr v5, v1
+    add-int/2addr v8, v1
 
     .line 309
-    add-int/lit8 v1, v4, 0x1
+    add-int/lit8 v1, v6, 0x1
 
-    move v4, v1
+    move v6, v1
 
     .line 310
     goto :goto_20
 
-    .line 307
-    :cond_5f
-    const/4 v6, 0x0
+    :cond_55
+    move-wide v10, v4
 
-    goto :goto_51
+    .line 306
+    goto :goto_3c
+
+    :cond_57
+    move v9, v7
+
+    .line 307
+    goto :goto_47
 
     .line 312
-    :cond_61
+    :cond_59
     return-wide v2
 .end method
 

@@ -392,7 +392,8 @@ public final class AutoSim {
 
     static void zones() {
         AutoModel.Input in = input(AiModel.Sex.FEMALE, 30, 60, 165, AiModel.Fitness.MID, 5, -1);
-        in.programId = AutoCatalog.CORE;
+        // a full-body program: every channel is on, so each one's own move can be checked (CORE locks the legs now)
+        in.programId = AutoCatalog.GENERAL;
         AutoModel.Plan plan = AutoPlanner.build(in, 70);
         int[] want = plan.zones.clone();
         want[AutoModel.ABS] = 100;
@@ -554,7 +555,10 @@ public final class AutoSim {
             }
             check(e.getState() == AutoEngine.State.RUN, op + ": resumed");
             // the body programs never move the strength (owner, 2026-11-25): the same level after the HR pause
-            check(Math.abs(e.getCurrent().frac - plan.phiMax) < 1e-9, op + ": the person's strength after the HR pause");
+            // owner, 2026-11-25: after a pause of 5 min or more the first impulses are softer (×0.8 … ×0.6), else not;
+            // here the heart kept the pause over 15 min
+            check(e.getCurrent().frac >= 0.6 - 1e-9 && e.getCurrent().frac <= 0.8 + 1e-9,
+                    op + ": softer after an HR pause of 15 min (" + e.getCurrent().frac + ")");
         }
     }
 
@@ -605,7 +609,7 @@ public final class AutoSim {
             ext |= e.getDoseExt() > 0;
             lock |= e.isRaiseLocked();
         }
-        check(ext, "dose: over plan → the protection's rungs");
+        check(!ext, "dose: the person's strength over the plan is no dose (owner, 2026-11-25: the load is the program's (Hz, width, 2nd impulse, pauses, rests), never the strength)");
         check(!lock, "dose: the person's raises are never locked (owner, 2026-11-25)");
         check(e.getDoseRatio() <= 1.0 + 0.05, "dose: budget kept (" + e.getDoseRatio() + ")");
     }
@@ -628,7 +632,8 @@ public final class AutoSim {
         t += 300000;
         e.tick(t);
         e.resume(t);
-        check(Math.abs(e.getCurrent().frac - before) < 1e-9, "pause 5 min → the same strength as before ("
+        check(e.getCurrent().frac <= 0.8 * before + 1e-9 && e.getCurrent().frac >= 0.6 * before - 1e-9,
+                "pause 5 min → softer first impulses, ×0.8 (owner, 2026-11-25) ("
                 + e.getCurrent().frac + " vs " + before + ")");
     }
 
@@ -1327,8 +1332,10 @@ public final class AutoSim {
             check(hi > 0.95 && hi < 1.06, "the session's main zone reaches full colour at the end (" + hi + ")");
             // owner (1.1.338): a channel that is on counts in full whatever its strength — the zones of the program
             // end alike; only the exercises (and a channel at 0) make a difference
-            check(Math.abs(endP[AutoModel.GLUTES] - endP[AutoModel.CHEST]) < 0.1, "zones on end alike (glutes "
-                    + endP[AutoModel.GLUTES] + " vs chest " + endP[AutoModel.CHEST] + ")");
+            // the glutes program locks the chest now (owner, 2026-11-25: focus = the others locked): compare two on
+            check(Math.abs(endP[AutoModel.GLUTES] - endP[AutoModel.FRONT_THIGH]) < 0.1, "zones on end alike (glutes "
+                    + endP[AutoModel.GLUTES] + " vs front thigh " + endP[AutoModel.FRONT_THIGH] + ")");
+            check(endP[AutoModel.CHEST] < 0, "the glutes program: the chest is locked off (" + endP[AutoModel.CHEST] + ")");
             check(halfSeen && halfMax < 0.9, "half way no zone is at its target yet (" + halfMax + ")");
             // owner (1.1.313): every zone the program is for ends at its optimum (1), the others below it
             double topB = 0;
@@ -1429,8 +1436,10 @@ public final class AutoSim {
         e0.setLive(0.6, null, t[0]);
         e1.setLive(0.9, null, t[0]);
         long ts = t[0] + 3000;
-        check(e1.getMetabolicLoad(ts) > e0.getMetabolicLoad(ts) && e1.getMuscularLoad(ts) > e0.getMuscularLoad(ts)
-                && e1.getSystemLoad(ts) > e0.getSystemLoad(ts), "+strength → more muscle load, oxygen and total");
+        // owner, 2026-11-25: the load is the program's (Hz, width, 2nd impulse, pauses, rests), never the strength
+        check(Math.abs(e1.getMetabolicLoad(ts) - e0.getMetabolicLoad(ts)) < 1e-9
+                && Math.abs(e1.getMuscularLoad(ts) - e0.getMuscularLoad(ts)) < 1e-9,
+                "the strength does not change the muscle load or the oxygen");
         // in the rest the oxygen part decays (τ 40 s) and the dose holds
         AutoEngine r = mainSet(base, sc, t, f.dose);
         int guard = 0;
@@ -1766,7 +1775,8 @@ public final class AutoSim {
         s2.setLive(1.0, null, t[0]);
         AutoEngine.Forecast fs1 = s1.forecastFrom(t[0] + 1000);
         AutoEngine.Forecast fs2 = s2.forecastFrom(t[0] + 1000);
-        check(peakOf(fs2) > peakOf(fs1), "+strength → higher peaks on the timeline (" + peakOf(fs1) + " → " + peakOf(fs2) + ")");
+        check(Math.abs(peakOf(fs2) - peakOf(fs1)) < 1e-6, "the strength does not move the timeline's peaks ("
+                + peakOf(fs1) + " → " + peakOf(fs2) + ")");
         check(fs2.totalS >= fs1.totalS - 1, "+strength → the end does not come earlier (longer rests)");
 
         // a high pulse now → this set ends early in the forecast, the HR ahead is higher; a pulse that stays high
@@ -2050,15 +2060,16 @@ public final class AutoSim {
             step(b, tb, 0);
         }
         check(a.getState() == AutoEngine.State.REST && b.getState() == AutoEngine.State.REST, "S1 both sets ended");
-        check(a.getPeakLoad(t[0]) < b.getPeakLoad(tb[0]), "S1 −30 % strength → lower zone load");
-        check(a.getRestMinS() <= b.getRestMinS(), "S1 −30 % strength → rest not longer");
+        check(Math.abs(a.getPeakLoad(t[0]) - b.getPeakLoad(tb[0])) < 1e-6, "S1 −30 % strength → the same zone load");
+        check(a.getRestMinS() == b.getRestMinS(), "S1 −30 % strength → the same rest");
         AutoEngine.Forecast f1 = AutoEngine.forecast(plan, sc, false, 1.0);
         AutoEngine.Forecast f07 = AutoEngine.forecast(plan, sc, false, 0.7);
         AutoEngine.Forecast f12 = AutoEngine.forecast(plan, sc, false, 1.2);
         // weaker → shorter rests; stronger → longer rests, but the dose budget (§3.4) may end the work earlier
         // real clock (1.1.494): the strength changes the load and the rests inside the plan, never its end
         check(Math.abs(f07.totalS - f1.totalS) < 20 && Math.abs(f12.totalS - f1.totalS) < 20
-                && f07.maxLoad < f1.maxLoad, "S1 forecast: load follows the strength, the end stays on the clock ("
+                && Math.abs(f07.maxLoad - f1.maxLoad) < 1e-6 && Math.abs(f12.maxLoad - f1.maxLoad) < 1e-6,
+                "S1 forecast: the strength moves neither the load nor the end ("
                 + Math.round(f07.totalS / 60) + " / " + Math.round(f1.totalS / 60) + " / " + Math.round(f12.totalS / 60) + " min)");
         if (verbose) {
             System.out.println("  S1 rest " + a.getRestMinS() + " vs " + b.getRestMinS() + " s; forecast 0.7/1/1.2 = "

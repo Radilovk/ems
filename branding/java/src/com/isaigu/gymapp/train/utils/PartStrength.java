@@ -151,7 +151,7 @@ public final class PartStrength {
     }
 
     /** Highest second impulse strength the row sends (at most 1.5 × the main one, SafeLimits; a bodytech suit is free). */
-    static int secondCap(TrainItem item, ProgramDataBean b) {
+    public static int secondCap(TrainItem item, ProgramDataBean b) {
         try {
             if (SafeGuard.free2(item)) {
                 return 150;

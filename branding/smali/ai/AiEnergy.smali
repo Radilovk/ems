@@ -290,35 +290,28 @@
     .registers 4
 
     .prologue
-    .line 77
+    .line 78
     :try_start_0
     invoke-static {p0, p1}, Lcom/isaigu/gymapp/train/utils/ChannelStrengthScale;->balance(II)F
+    :try_end_3
+    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_3} :catch_6
 
     move-result v0
-
-    .line 78
-    invoke-static {p0}, Lcom/isaigu/gymapp/train/utils/ChannelStrengthScale;->sentShare(I)F
-    :try_end_7
-    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_7} :catch_b
-
-    move-result v1
-
-    mul-float/2addr v0, v1
 
     float-to-double v0, v0
 
     .line 80
-    :goto_a
+    :goto_5
     return-wide v0
 
     .line 79
-    :catch_b
+    :catch_6
     move-exception v0
 
     .line 80
     const-wide/high16 v0, 0x3ff0000000000000L    # 1.0
 
-    goto :goto_a
+    goto :goto_5
 .end method
 
 .method public static evokedVo2(Lcom/isaigu/gymapp/ai/AiEnergy$Stim;D)D

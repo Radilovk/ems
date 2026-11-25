@@ -74,8 +74,8 @@ public final class AiEnergy {
     /** Balance correction a non-arms channel gets at this pulse width (ChannelStrengthScale.balance). */
     public static double channelSent(int ch, int pwUs) {
         try {
-            return com.isaigu.gymapp.train.utils.ChannelStrengthScale.balance(ch, pwUs)
-                    * com.isaigu.gymapp.train.utils.ChannelStrengthScale.sentShare(ch);
+            // the calves' finer slider (CALF_FACTOR) is not less work: a calf that works counts whole (owner, 2026-11-25)
+            return com.isaigu.gymapp.train.utils.ChannelStrengthScale.balance(ch, pwUs);
         } catch (Throwable t) {
             return 1.0;
         }

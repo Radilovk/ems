@@ -413,11 +413,12 @@ public class AiSim {
         continueAfterS = 180;
         e = run("TONE wait 3 min/rest", Goal.TONE, Mode.ACTIVE, Operator.TRAINER, 60, -1, -1, v);
         check(e.getState() == AiEngine.State.DONE, "long waits still finish");
-        check(minReentry < 0.9 && e.getTotalIdleS() > 0, "long wait → re-entry ramp");
+        // owner, 2026-11-25: softer only after a pause of 5 min or more — a 3 min wait comes back at the same level
+        check(minReentry >= 1.0 - 1e-9, "3 min wait → the same strength (" + minReentry + ")");
         continueAfterS = 5;
         pauseAtS = 400; pauseLenS = 300;
         e = run("TONE user pause 5 min", Goal.TONE, Mode.ACTIVE, Operator.TRAINER, 60, -1, -1, v);
-        check(minReentry <= 0.6 + 1e-9, "5 min pause → re-entry 0.6");
+        check(minReentry <= 0.8 + 1e-9 && minReentry >= 0.6 - 1e-9, "5 min pause → softer re-entry (" + minReentry + ")");
         pauseAtS = -1;
         // §2 resting HR: 30 s window.
         // Adaptive rest HR: calm and dense → 10 s; noisy → longer; still falling after activity → waits for the trend.
@@ -450,8 +451,7 @@ public class AiSim {
         double kHalf = channels("all, 30 % (half of tolerated)", all, 30, 85, 350);
         double kLow = channels("all, 60 %, 5 Hz (massage)", all, 60, 5, 250);
         check(kAll > kLegs && kLegs > kArms, "more / bigger muscles must cost more");
-        // the calves go out at half (ChannelStrengthScale.CALF_FACTOR, 1.1.566): the legs' share is a little lower
-        check(kLegs > 0.4 * kAll, "legs + glutes hold the biggest share of the muscle mass");
+        check(kLegs > 0.5 * kAll, "legs + glutes hold most of the muscle mass");
         check(kHalf < kAll && kLow < kHalf, "lower strength / frequency must cost less");
         pauseChecks();
         System.out.println(failures == 0 ? "ALL CHECKS PASSED" : failures + " CHECK(S) FAILED");

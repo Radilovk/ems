@@ -73,7 +73,7 @@ public final class AiEngine {
     public static final double U_MIN = 0.6;
     public static final double REDUCE_STEP = 0.10;           // G13
     /** [D] Idle beyond the rest threshold (or a user pause) that counts as a "long pause". */
-    public static final double LONG_PAUSE_S = 30.0;
+    public static final double LONG_PAUSE_S = 300.0;        // owner, 2026-11-25: softer only after ≥ 5 min
     /** [D] Re-entry after a long pause: φ × reentry, reentry = clamp(1 − idle/600, 0.6, 0.9), +0.1 per cycle. */
     public static final double REENTRY_MIN = 0.6;
     public static final double REENTRY_STEP = 0.1;
@@ -346,7 +346,7 @@ public final class AiEngine {
             return;
         }
         totalIdleS += idleS;
-        double r = clamp(1.0 - idleS / 600.0, REENTRY_MIN, 0.9);
+        double r = clamp(1.0 - idleS / 1500.0, REENTRY_MIN, 0.8);
         reentry = Math.min(reentry, r);
         action("reentry", nowMs);
     }
@@ -491,8 +491,9 @@ public final class AiEngine {
         applyRamps(c, spec);
 
         // G6 dose budget: never start a cycle that would exceed it; go to cool-down instead.
-        double dose = AiPlanner.cycleDose(spec, c.frac)
-                + (c.pauseHz > 0 ? AiPlanner.pauseDose(spec, c.frac, c.offS) : 0);
+        double on1 = c.frac > 0 ? 1.0 : 0.0;           // the dose and the load never by strength (owner, 2026-11-25)
+        double dose = AiPlanner.cycleDose(spec, on1)
+                + (c.pauseHz > 0 ? AiPlanner.pauseDose(spec, on1, c.offS) : 0);
         if (ph.id != PhaseId.COOLDOWN && qUsed + dose + plan.qCool > qBudget) {
             flags.add("BUDGET");
             action("budget_cooldown", nowMs);
@@ -580,7 +581,7 @@ public final class AiEngine {
         double load = 0;
         boolean on = state == State.RUN && isStimOnAt(nowMs) && currentSpec != null;
         if (on) {
-            double rho = current.frac;
+            double rho = current.frac > 0 ? 1.0 : 0.0;
             load = AiPlanner.fatigueWeight(currentSpec.hz) * rho;
             double dq = 2.0 * rho * currentSpec.pwUs * currentSpec.hz * dtS;
             qUsed += dq;
@@ -589,7 +590,7 @@ public final class AiEngine {
             }
         } else if (state == State.RUN && isActivePauseAt(nowMs)) {
             // Active pause: the muscle keeps working lightly — less recovery, more dose.
-            double rhoP = current.frac * current.pauseSigma;
+            double rhoP = (current.frac > 0 ? 1.0 : 0.0) * current.pauseSigma;
             load = AiPlanner.fatigueWeight(current.pauseHz) * rhoP;
             double dq = 2.0 * rhoP * currentSpec.pwUs * current.pauseHz * dtS;
             qUsed += dq;
@@ -661,7 +662,7 @@ public final class AiEngine {
      */
     private double nextPeak(Phase ph) {
         CycleSpec spec = (ph.b != null && useB) ? ph.b : ph.a;
-        double rho = current != null && current.frac > 0 ? current.frac : Math.min(ph.phiStart, plan.phiMax);
+        double rho = 1.0;                              // a working cycle counts whole, never by strength
         double peak = AiPlanner.afterOn(fatigue, spec, rho, plan.tauR);
         double end = AiPlanner.afterOff(peak, spec, rho, AiPlanner.deviceOffS(spec.offS), pauseOn, plan.tauR);
         return Math.max(peak, end);
@@ -1001,7 +1002,7 @@ public final class AiEngine {
      * not a return after a pause; the HR is answered with the pause length, offFactor).
      */
     private double arbiter(Phase ph, double sigma) {
-        return sigma > 0 ? clamp(uUser, 0, 1) : 0;
+        return sigma > 0 ? clamp(uUser * reentry, 0, 1) : 0;   // reentry < 1 only after ≥ 5 min of pause
     }
 
     public double cHr() {

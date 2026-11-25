@@ -946,3 +946,23 @@ Recommendations only in the plan's list."
   the plan's own (m:ss, they add up); the first tile is the first phase's name ("Отваряне"); both columns from the top.
 - **No lock on the person's raises** (1.1.570): the dose 20 % over the plan no longer stops "+" (`isRaiseLocked`
   is always false); over the plan the dose climbs the protection's rungs instead.
+
+## 22. Owner's answers on the tests (1.1.571)
+
+- **Softer after a long pause only** (`AutoEngine.reentryAfter`, `AiEngine.applyIdle`, Auto, the AI training and the
+  Smart Session alike): a pause / rest / HR pause of **5 min or more** → the first impulses ×0.8 (5 min) … ×0.6
+  (10 min and more), +0.1 a cycle back; under 5 min the person's level at once.
+- **The 2nd impulse: a hard top of 1.5 × the main** (everyone, SOLO too; a bodytech suit stays free). The ring of
+  Интензитет 2 never goes past it — a push past it stops there and only then says so (`FocusBoard.pause`); when the
+  main goes down the 2nd comes down to 1.5 × with it, silently (`FocusBoard.main`, `SafeGuard.enforce`). Voice / the
+  coach: `secondScale` ≤ 1.5.
+- **The face**: as the body — no program factor on the strength (decided: one rule everywhere).
+- **The load is never the strength** (`AutoEngine.rates / metaDemand / cycleLoad`, the dose, `AutoPlanner` forecast,
+  `AiEngine`, the kcal in `AutoSession`): a channel that works counts whole, one at 0 does not; the frequency, the
+  width, the 2nd impulse, the pauses and the rests make the load. The calves' half unit (`CALF_FACTOR`) is not less
+  work (`AiEnergy.channelSent` without it). The dose therefore never climbs the protection because of a raise.
+- **Focus = the others locked** (`AutoCatalog`): full body — General, Mass, Power, Fat burning, 50+, Recovery,
+  Drainage, Anti-ageing; Glutes & thighs = calf, thighs, glutes, abs, lower back; Upper body = abs, lower back, back,
+  traps, chest, arms; Waist & core = abs, lower back, back, glutes; Healthy back = abs, lower back, back, traps,
+  glutes; Postnatal = abs, lower back, glutes, back; Metabolism = legs, glutes, abs, lower back, back; Back pain =
+  back thigh, glutes, abs, lower back, back, traps; Anti-cellulite as before (no back, traps, chest).

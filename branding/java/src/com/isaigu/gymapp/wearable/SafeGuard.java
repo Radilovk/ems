@@ -105,16 +105,22 @@ public final class SafeGuard {
     }
 
     static boolean enforce(ProgramDataBean b, int age, StringBuilder bg, StringBuilder en, boolean free2) {
+        // a hard top (owner, 2026-11-25): the second impulse never stands above 1.5 × the main — it comes down to it,
+        // silently (the message is only for a hand that pushes past it, FocusBoard.pause)
+        boolean capped = false;
+        if (!free2 && b.activePause && b.strenth > 0 && b.pauseStrenthPercent > SafeLimits.pauseCap(b.strenth)) {
+            b.pauseStrenthPercent = SafeLimits.pauseCap(b.strenth);
+            capped = true;
+        }
         // the second impulse's strength is absolute on the row: as a share of the main one for the limits
         int ps = b.strenth > 0 ? (int) Math.round(b.pauseStrenthPercent * 100.0 / b.strenth) : 0;
         int[] v = {b.hz, b.pulseWidth, b.pulseContinue, b.pulsePause, b.activePause ? 1 : 0, b.pauseHz, ps,
             b.inputRamp};
         int[] s = SafeLimits.apply(v, age, bg, en, free2);
         if (java.util.Arrays.equals(v, s)) {
-            return false;
+            return capped;
         }
-        // the 2nd impulse's strength is not rewritten: a main impulse lowered for a while (a block, the pulse module)
-        // would wipe it for good; the cap is applied at the pause send (pause())
+        // the 2nd impulse's strength: brought to its top above (1.5 × the main), the rest at the pause send (pause())
         b.hz = s[SafeLimits.HZ];
         b.pulseWidth = s[SafeLimits.PW];
         b.pulseContinue = s[SafeLimits.ON];

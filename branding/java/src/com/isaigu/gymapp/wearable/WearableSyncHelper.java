@@ -553,8 +553,9 @@ public final class WearableSyncHelper {
                                 + " жълто 70–80%, оранжево 80–90%, червено ≥90%.\n"
                                 + "6. ↻ = калибриране 30 s в покой → долна граница. „Праг пулс“ се предлага"
                                 + " сам (зелено); стойност на треньора е с приоритет (0 = пак автоматично).\n"
-                                + "7. Авто-управление: при покачване към прага логиката сваля първо силата,"
-                                + " после ширината на импулса, после честотата; над тавана (+12) спира изхода."
+                                + "7. Авто-управление: при покачване към прага сваля първо честотата, после"
+                                + " спира 2-рия импулс, после удължава паузата; силата и ширината не се пипат."
+                                + " Над тавана (+12) спира изхода."
                                 + " Връща плавно, никога над зададеното. На кръга: зона, граници, kcal.\n"
                                 + "8. Бутон i на кръга → „Данни от гривната“: всички сурови стойности и"
                                 + " споделяне на записа.",
@@ -566,8 +567,9 @@ public final class WearableSyncHelper {
                                 + " 70–80%, orange 80–90%, red ≥90%.\n"
                                 + "6. ↻ = 30 s resting calibration → lower limit. The HR limit is suggested"
                                 + " (green); a trainer value has priority (0 = automatic again).\n"
-                                + "7. Auto control: when HR heads for the limit it lowers strength first, then"
-                                + " pulse width, then frequency; above the ceiling (+12) output stops. It"
+                                + "7. Auto control: when HR heads for the limit it lowers the frequency first,"
+                                + " then stops the 2nd impulse, then lengthens the pause; strength and width"
+                                + " are never touched. Above the ceiling (+12) output stops. It"
                                 + " gives back gradually, never above the set values. Dial: zone, limits, kcal.\n"
                                 + "8. Dial i button → Band data: every raw value and share recording."));
     }

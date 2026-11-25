@@ -102,7 +102,6 @@ public final class AutoSession {
     // engine events already announced
     private static int seenCorridorExt;
     private static int seenDoseExt;
-    private static boolean seenRaiseLocked;
     private static boolean seenDoseStop;
     private static long hrNearMs;
     // first-use tips (info hints): on / off and the ones already shown (prefs "auto_tips")
@@ -797,7 +796,6 @@ public final class AutoSession {
         }
         seenCorridorExt = 0;
         seenDoseExt = 0;
-        seenRaiseLocked = false;
         seenDoseStop = false;
         hrNearMs = 0;
         lastNotice = "";
@@ -2264,9 +2262,6 @@ public final class AutoSession {
                             "strength ceiling now " + allowed + " (calibration " + r.cal + " × "
                             + Math.round(100 * engine.rowCeiling(written, rpl.phiMax, rpl.envMax)) + " % in "
                             + (cur != null ? cur.nameEn : "") + ")");
-                    if (engine.isRaiseLocked()) {
-                        msg += AiText.t(" · дозата е над плана", " · dose above plan");
-                    }
                 } else {
                     msg = who(r) + AiText.t("сила 100 — максимумът на уреда", "strength 100 — the device maximum");
                 }
@@ -2369,12 +2364,6 @@ public final class AutoSession {
             notice(AiText.t("Над плановата доза — ", "Above the planned dose — ") + engine.protectText(), LIMIT, now);
         }
         seenDoseExt = de;
-        boolean rl = engine.isRaiseLocked();
-        if (rl && !seenRaiseLocked) {
-            notice(AiText.t("Дозата е 20 % над плана — силата не се качва повече в тази сесия",
-                    "Dose 20 % above plan — no more raising this session"), LIMIT, now);
-        }
-        seenRaiseLocked = rl;
         if (engine.isDoseStopped() && !seenDoseStop) {
             seenDoseStop = true;
             notice(AiText.t("Бюджетът на дозата е изчерпан — към охлаждане", "Dose budget used up — to the cool-down"),

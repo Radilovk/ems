@@ -266,7 +266,6 @@ public final class AutoEngine {
     private double qUsed;
     private double qPlanned;
     private int doseExt;
-    private boolean raiseLocked;
     private boolean doseStopped;
     private double userScale = 1.0;
     private double userScaleMax = 1.0;
@@ -978,7 +977,8 @@ public final class AutoEngine {
                 } else if (ratio < 1.05 && doseExt > 0) {
                     doseExt--;
                 }
-                raiseLocked = ratio > 1.2;
+                // no lock on the person's raises (owner, 2026-11-25): the strength is theirs; the dose answers with
+                // the protection's rungs (frequency → 2nd impulse → pause)
             }
         }
         if (qUsed >= plan.qBudget && !ph.isCooldown() && plan.qBudget > 0 && cooldownIndex() > phaseIndex) {
@@ -2615,8 +2615,7 @@ public final class AutoEngine {
         double phi = Math.min(plan.phiMax, c.phi);
         c.frac = phi * k;
         double env = Math.min(plan.envMax, ph.envAt(p)) * plan.phiMax * k;
-        c.ceiling = raiseLocked ? Math.min(Math.max(c.frac, env), c.frac * Math.max(1.0, userScale))
-                : Math.max(c.frac, env);
+        c.ceiling = Math.max(c.frac, env);
         if (doublePulse && s.pauseHz > 0 && s.pauseSigma > 0 && !noDouble) {
             c.pauseHz = s.pauseHz;
             // the 2nd impulse starts at the main strength; the person sets it (owner, 2026-11-25 — no preset share)
@@ -2636,7 +2635,7 @@ public final class AutoEngine {
         }
         double f = rowFrac(c, rowPhiMax);
         double env = Math.max(f, Math.min(rowEnvMax, c.env) * rowPhiMax * c.scale);
-        return raiseLocked ? Math.min(env, f * Math.max(1.0, userScale)) : env;
+        return env;
     }
 
     private int phaseAt(double t) {
@@ -2736,8 +2735,9 @@ public final class AutoEngine {
         return doseStopped;
     }
 
+    /** Never: the person's raises are not locked (owner, 2026-11-25). */
     public boolean isRaiseLocked() {
-        return raiseLocked;
+        return false;
     }
 
     public double getReentry() {

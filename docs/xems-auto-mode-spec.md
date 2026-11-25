@@ -944,3 +944,5 @@ Recommendations only in the plan's list."
 - **Plan screen** (`AutoUi`, checked in `tools/app-sim` SimDrain / SimBackProc / SimMaps): the zone chart shows ✓ / 🔒
   (which channels work), not "100"; the phases show no "· 100 %", a wave its every frequency ("8 / 35 Hz"), times as
   the plan's own (m:ss, they add up); the first tile is the first phase's name ("Отваряне"); both columns from the top.
+- **No lock on the person's raises** (1.1.570): the dose 20 % over the plan no longer stops "+" (`isRaiseLocked`
+  is always false); over the plan the dose climbs the protection's rungs instead.

@@ -403,35 +403,16 @@ public final class HrGuardCore {
     }
 
     /**
-     * The order of the levers (docs/xems-pulse-control.md, docs/xems-ems-physiology.md):
-     * <ul>
-     *   <li>TETANIC (strength work): above fusion the oxygen cost hardly depends on the frequency, the HR follows
-     *     force × time under tension (pressor reflex) → a light strength trim, then the double impulse (it takes
-     *     away the recovery between contractions), then a longer pause and a shorter impulse; width and
-     *     frequency (kept fused) late; deep strength cuts last.</li>
-     *   <li>FUSED / TWITCH (endurance, metabolic, massage): the cost per second rises with the frequency
-     *     (f/(f+25)) → the frequency first (never across 20 Hz / under 2 Hz), then the same order.</li>
-     * </ul>
+     * The order of the levers (owner, 2026-11-25 — the same for every kind of program, as in Auto and the AI):
+     * never the strength, never the width (µs), never a shorter impulse. 1) the frequency (a fused program stays
+     * ≥ 20 Hz, twitches ≥ 2 Hz), 2) the 2nd impulse off — the pause becomes a real rest while the impulse, its rhythm
+     * and the session's time stay, 3) only then a longer pause.
      */
     public static Rung[] ladder(Kind kind) {
-        Rung[] rest = {
-                new Rung(Lever.PAUSE, 0.5), new Rung(Lever.PAUSE, 0.0),
-                new Rung(Lever.OFF, 1.5), new Rung(Lever.ON, 0.75), new Rung(Lever.WIDTH, 0.8)};
-        java.util.List<Rung> l = new java.util.ArrayList<Rung>();
-        if (kind == Kind.TETANIC) {
-            l.add(new Rung(Lever.STRENGTH, 0.85));
-            java.util.Collections.addAll(l, rest);
-            l.add(new Rung(Lever.FREQ, 0.75));
-        } else {
-            l.add(new Rung(Lever.FREQ, 0.8));
-            l.add(new Rung(Lever.STRENGTH, 0.85));
-            java.util.Collections.addAll(l, rest);
-            l.add(new Rung(Lever.FREQ, HZ_FLOOR));
-        }
-        l.add(new Rung(Lever.STRENGTH, S_SOFT_FLOOR - 0.1));
-        l.add(new Rung(Lever.OFF, 2.0));
-        l.add(new Rung(Lever.STRENGTH, S_FLOOR));
-        return l.toArray(new Rung[0]);
+        return new Rung[] {
+                new Rung(Lever.FREQ, 0.8), new Rung(Lever.FREQ, HZ_FLOOR),
+                new Rung(Lever.PAUSE, 0.0),
+                new Rung(Lever.OFF, 1.5), new Rung(Lever.OFF, 2.0)};
     }
 
     private boolean stepDown(long nowMs, Stim stim, double urgency) {
@@ -471,11 +452,6 @@ public final class HrGuardCore {
     private Rung nextRung(Stim stim) {
         for (Rung r : ladder(kindOf(stim))) {
             if (noEffect[r.lever.ordinal()] < 2 && room(r, stim) > 1e-9) {
-                return r;
-            }
-        }
-        for (Rung r : ladder(kindOf(stim))) {          // every lever failed: strength still works on the output
-            if (r.lever == Lever.STRENGTH && room(r, stim) > 1e-9) {
                 return r;
             }
         }
@@ -527,13 +503,9 @@ public final class HrGuardCore {
                 action("freq_down", nowMs);
                 break;
             case PAUSE:
-                d = Math.min(PAUSE_STEP, room);
-                pauseF -= d;
-                if (pauseF < 0.2) {
-                    d += pauseF;
-                    pauseF = 0;
-                }
-                action(pauseF <= 0 ? "pause_off" : "pause_down", nowMs);
+                d = room;                                  // the 2nd impulse stops — its strength is never trimmed
+                pauseF = 0;
+                action("pause_off", nowMs);
                 break;
             case OFF:
                 d = Math.min(1, room);

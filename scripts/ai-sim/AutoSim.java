@@ -605,8 +605,8 @@ public final class AutoSim {
             ext |= e.getDoseExt() > 0;
             lock |= e.isRaiseLocked();
         }
-        check(ext, "dose: over plan → longer pause");
-        check(lock, "dose: far over plan → no more raising");
+        check(ext, "dose: over plan → the protection's rungs");
+        check(!lock, "dose: the person's raises are never locked (owner, 2026-11-25)");
         check(e.getDoseRatio() <= 1.0 + 0.05, "dose: budget kept (" + e.getDoseRatio() + ")");
     }
 

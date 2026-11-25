@@ -46,6 +46,8 @@ public final class WakeListener {
     private WakeListener() {}
 
     static final String PREFS = "xems_wake";
+    /** The taught phrase (owner, 2026-11-25: "окей тренер"); recordings of another phrase are not loaded. */
+    static final String PHRASE = "ok-trener";
     private static final Handler MAIN = new Handler(Looper.getMainLooper());
     private static Context ctx;
     private static boolean on;
@@ -103,7 +105,8 @@ public final class WakeListener {
             SPOTTER.sens = Math.max(WakeWord.SENS_MIN, Math.min(WakeWord.SENS_MAX,
                     c.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getFloat("sens", 1.0f)));
             String hex = c.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getString("tpl", "");
-            if (hex.length() > 0) {
+            // recordings of the old wake word ("тренер" alone) do not fit "окей тренер": taught again
+            if (hex.length() > 0 && PHRASE.equals(c.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getString("phrase", ""))) {
                 SPOTTER.load(unhex(hex));
             }
         } catch (Throwable t) {
@@ -113,7 +116,8 @@ public final class WakeListener {
 
     static void saveExamples(Context c) {
         try {
-            c.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().putString("tpl", hex(SPOTTER.save())).apply();
+            c.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().putString("tpl", hex(SPOTTER.save()))
+                    .putString("phrase", PHRASE).apply();
         } catch (Throwable t) {
             WearableBleDiagLog.log("wake", "save: " + t);
         }
@@ -155,7 +159,8 @@ public final class WakeListener {
             SPOTTER.sens = Math.max(WakeWord.SENS_MIN, Math.min(WakeWord.SENS_MAX,
                     c.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getFloat("sens", 1.0f)));
             String hex = c.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getString("tpl", "");
-            if (hex.length() > 0) {
+            // recordings of the old wake word ("тренер" alone) do not fit "окей тренер": taught again
+            if (hex.length() > 0 && PHRASE.equals(c.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getString("phrase", ""))) {
                 SPOTTER.load(unhex(hex));
             }
         } catch (Throwable t) {
@@ -821,6 +826,9 @@ public final class WakeListener {
         }
         MAIN.removeCallbacks(NO_SPEECH);
         windowResult(cmd.length() > 0);
+        if (AiVoiceCmd.onlyWakeFragment(cmd)) {
+            cmd = "";                                      // "окей" alone: the wake phrase's own head
+        }
         if (cmd.length() == 0) {
             Earcon.closed();
         }

@@ -5765,9 +5765,9 @@
 
     move-result-object v0
 
-    const-string v1, "\u201e\u0422\u0440\u0435\u043d\u0435\u0440\u201c \u2713 \u00b7 \u0437\u0430\u043f\u0438\u0448\u0438 \u043f\u0430\u043a"
+    const-string v1, "\u201e\u041e\u043a\u0435\u0439 \u0442\u0440\u0435\u043d\u0435\u0440\u201c \u2713 \u00b7 \u0437\u0430\u043f\u0438\u0448\u0438 \u043f\u0430\u043a"
 
-    const-string v6, "\u201cTrainer\u201d \u2713 \u00b7 record again"
+    const-string v6, "\u201cOkay trainer\u201d \u2713 \u00b7 record again"
 
     invoke-static {v1, v6}, Lcom/isaigu/gymapp/ai/AiText;->t(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
@@ -5866,9 +5866,9 @@
 
     move-result-object v0
 
-    const-string v1, "\u041d\u0430\u0443\u0447\u0438 \u201e\u0422\u0440\u0435\u043d\u0435\u0440\u201c (30 s)"
+    const-string v1, "\u041d\u0430\u0443\u0447\u0438 \u201e\u041e\u043a\u0435\u0439 \u0442\u0440\u0435\u043d\u0435\u0440\u201c (30 s)"
 
-    const-string v6, "Teach \u201cTrainer\u201d (30 s)"
+    const-string v6, "Teach \u201cOkay trainer\u201d (30 s)"
 
     invoke-static {v1, v6}, Lcom/isaigu/gymapp/ai/AiText;->t(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 

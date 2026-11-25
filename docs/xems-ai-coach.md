@@ -472,3 +472,12 @@ it, the warm-up runs softer by design); "s" read aloud as a letter → "секу
 - **Wake:** a near-miss (≤ 1.6 × the limit, or just too quiet) said twice within 10 s wakes; a command after such a
   wake raises sensitivity ×1.08 (max 1.4, also widens the loudness margin by up to 12 dB); false alarms still lower it.
   Every word heard and not taken is written to the diag log ("word not taken: d / limit / loud / need / sens").
+
+## 1.1.576 — the wake phrase is "окей тренер"
+- **Owner:** the phrase is "окей тренер" (longer than "тренер" alone: fewer false wakes, easier to catch).
+- The spotter learns any phrase from the 3 recordings, so only the teaching changed: `WakeSetup` asks for "Окей тренер"
+  (and "Окей тренировка" as the look-alike), every hint / chip says "Окей тренер, …". Recordings made for "тренер"
+  alone are not loaded (`WakeListener.PHRASE`, prefs `phrase`) — each tablet is taught once more (until then the
+  recognizer fallback works with "… тренер" in the text).
+- Commands: `afterWake` already cuts everything up to "тренер"; "окей" / "окей тренер" alone is no command
+  (`AiVoiceCmd.onlyWakeFragment`) — the closed sound, not the "not understood" one.

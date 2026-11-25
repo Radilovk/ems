@@ -74,6 +74,13 @@ public final class AiVoiceCmd {
     /** How the recognizer may write the wake word (owner: "тренер"; the dictionary form is "треньор"). */
     static final String[] WAKE = {"тренер", "треньор", "трениор", "трейнър", "trainer", "trener"};
 
+    /** "окей" / "okay" alone, with or without a wake word: the head of the wake phrase "окей тренер", no command. */
+    public static boolean onlyWakeFragment(String text) {
+        String n = AiVoiceGate.norm(text);
+        return n.equals("окей") || n.equals("окай") || n.equals("ок") || n.equals("okay") || n.equals("ok")
+                || n.equals("окей тренер") || n.equals("окай тренер");
+    }
+
     /**
      * The words after the wake word ("Тренер, увеличи краката" → "увеличи краката"), "" = the wake word alone,
      * null = no wake word in the phrase.

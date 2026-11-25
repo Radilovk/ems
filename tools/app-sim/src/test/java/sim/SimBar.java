@@ -29,7 +29,7 @@ public class SimBar {
         Ui.tap(Ui.windows().get(Ui.windows().size() - 1), "Старт");
         Ui.idle(3000);
         System.out.println("SIM wake on at start: " + wakeOn());
-        Ui.tap(Ui.root(a), "„Тренер, …“");
+        Ui.tap(Ui.root(a), "„Окей тренер, …“");
         Ui.idle(500);
         System.out.println("SIM after 1st mic tap: on=" + wakeOn());
         Ui.dump(Ui.root(a), "bar-off");

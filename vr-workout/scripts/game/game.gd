@@ -1443,7 +1443,7 @@ func _hit_food(e: Elem, limb: String) -> void:
 		_remove(e)
 		return
 	var f: Dictionary = Defs.FOODS[e.food]
-	if e.hp > tier + 1:                                   # not enough for this one (the MEGA burger): it flies on
+	if e.hp > tier + 1:                                   # not enough for this one (the cake): it flies on
 		e.crack(e.hp - tier - 1)
 		e.set_meta("cool", clock + 0.25)
 		suit.strike(Defs.Zone.ARMS, side, tier)

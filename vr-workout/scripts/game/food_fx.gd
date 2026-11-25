@@ -9,7 +9,7 @@ extends Node3D
 
 const BITS := preload("res://assets/chef/burger_bits.glb")
 const SPLAT := preload("res://shaders/splat.gdshader")
-const BURGERS := ["burger", "cheeseburger", "mega"]
+const BURGERS := ["burger"]
 
 var comfort := false
 var _bits: Array[Mesh] = []

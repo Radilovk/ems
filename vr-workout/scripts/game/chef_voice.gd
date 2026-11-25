@@ -16,7 +16,6 @@ const LINES := {
 	"weak": [["weak_sauce", "That is what we call some weak sauce! Boooo!"], ["weak_snooze", "What a snooze fest!"], ["weak_tissue", "I've seen more resistance from a used tissue!"]],
 	"apple": [["apple_snooze", "What a snooze fest!"], ["apple_unfortunate", "Well… that's unfortunate."]],
 	"apple_hit": [["apple_hit_haha", "Ha ha ha!"], ["apple_hit_embarrassing", "How embarrassing!"]],
-	"mega": [["mega_bonus", "BONUS ROUND!"]],
 	"cake": [["cake_final", "FINAL ROUND!"]],
 	"boss_down": [["boss_down_12", ""], ["boss_down_15", ""], ["boss_down_23", ""], ["boss_down_uh_oh", "Uh-oh…"], ["boss_down_oh_no", "Oh no!"]],
 	"lost": [["lost_unfortunate", "Well… that's unfortunate."], ["lost_bummer", "Bummer, man!"], ["lost_down", "This is bringing me down, man."], ["lost_groan", ""]],

@@ -555,6 +555,8 @@ def main() -> int:
         if not internet:
             fail(f"{pkg} няма разрешение INTERNET — слоят не може да праща към таблета")
         say(f"✓ {a.install.name} → {pkg}")
+        if pkg == "com.bhaptics.player":          # the XEMS bHaptics listener (bhaptics-spy/): no OpenXR loader to patch
+            a.ready = True
         if a.ready:
             orig = [a.install]                    # used as it is: no 250 MB copies on the tablet
         else:

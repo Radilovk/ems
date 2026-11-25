@@ -403,3 +403,11 @@ it, the warm-up runs softer by design); "s" read aloud as a letter → "секу
 - The command window uses Google's background recognizer when one exists (no UI; nothing heard → it closes); the
   system dialog only without one (Huawei without Google). No EXTRA_PREFER_OFFLINE (a missing offline Bulgarian pack
   made it fail).
+
+## 1.1.563 — the listening sounds; the bar's chat button
+- `ai/Earcon`: synthesised soft-edged chimes on STREAM_MUSIC (not the system beep, often unheard over music):
+  `ready` (G5→D6, rising) when the recognizer is really ready (`onReadyForSpeech`; as the system dialog opens on a
+  tablet without a background recognizer); `again` (one soft B5) for the dialogue's follow-up window; `closed`
+  (A5→D5, falling, quieter) when the window closes with nothing heard — say "тренер" again.
+- `AiCoachBar`: the ✦ Чат button kept the big button's 13 dp padding in the 38 dp line and was cut: slim padding,
+  15 sp, no font padding (shot `tools/ui-shot` `ShotsAi#live` → `ai-bar.png`).

@@ -198,9 +198,13 @@ public final class WakeSetup {
             head.setText(AiText.t("Сега кажи „Окей тренировка“", "Now say “Окей тренировка”"));
             sub.setText(AiText.t("Друга дума — за да не я бърка с „Окей тренер“", "Another word — so it never takes it for “Окей тренер”"));
         } else {
-            WakeListener.saveExamples(host);
             int spread = WakeListener.SPOTTER.spreadOfExamples();
-            boolean wide = spread > WakeListener.SPOTTER.threshold();
+            boolean wide = spread > WakeWord.WIDE_SPREAD;     // not one phrase (a cough, a noise, another word): not kept
+            if (wide) {
+                WakeListener.reloadExamples(host);            // the earlier recordings, if any, stay
+            } else {
+                WakeListener.saveExamples(host);
+            }
             head.setText(wide ? AiText.t("Записите се различават", "The recordings differ") : "✓  " + AiText.t("Готово", "Done"));
             sub.setText(wide ? AiText.t("Кажи фразата по-еднакво — „Отначало“.", "Say the phrase more alike — “Start over”.")
                     : AiText.t("Казвай „Окей тренер, …“ — напр. „Окей тренер, увеличи краката“, „Окей тренер, пауза“.",

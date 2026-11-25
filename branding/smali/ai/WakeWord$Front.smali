@@ -47,10 +47,10 @@
     .registers 11
 
     .prologue
-    .line 63
+    .line 67
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 55
+    .line 59
     const/16 v0, 0x190
 
     new-array v0, v0, [F
@@ -69,7 +69,7 @@
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/WakeWord$Front;->win:[F
 
-    .line 56
+    .line 60
     const/16 v0, 0x200
 
     new-array v0, v0, [F
@@ -94,21 +94,21 @@
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/WakeWord$Front;->sinT:[F
 
-    .line 57
+    .line 61
     const/16 v0, 0x101
 
     new-array v0, v0, [F
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/WakeWord$Front;->binW:[F
 
-    .line 58
+    .line 62
     const/16 v0, 0x101
 
     new-array v0, v0, [I
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/WakeWord$Front;->binIdx:[I
 
-    .line 59
+    .line 63
     const/16 v0, 0xc
 
     const/16 v1, 0x1a
@@ -127,7 +127,7 @@
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/WakeWord$Front;->dct:[[F
 
-    .line 64
+    .line 68
     const/4 v0, 0x0
 
     :goto_4c
@@ -135,7 +135,7 @@
 
     if-ge v0, v1, :cond_75
 
-    .line 65
+    .line 69
     iget-object v1, p0, Lcom/isaigu/gymapp/ai/WakeWord$Front;->win:[F
 
     const-wide v2, 0x3fe147ae147ae148L    # 0.54
@@ -164,12 +164,12 @@
 
     aput v2, v1, v0
 
-    .line 64
+    .line 68
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_4c
 
-    .line 67
+    .line 71
     :cond_75
     const/4 v0, 0x0
 
@@ -178,7 +178,7 @@
 
     if-ge v0, v1, :cond_a3
 
-    .line 68
+    .line 72
     iget-object v1, p0, Lcom/isaigu/gymapp/ai/WakeWord$Front;->cosT:[F
 
     const-wide v2, 0x401921fb54442d18L    # 6.283185307179586
@@ -199,7 +199,7 @@
 
     aput v2, v1, v0
 
-    .line 69
+    .line 73
     iget-object v1, p0, Lcom/isaigu/gymapp/ai/WakeWord$Front;->sinT:[F
 
     const-wide v2, 0x401921fb54442d18L    # 6.283185307179586
@@ -220,12 +220,12 @@
 
     aput v2, v1, v0
 
-    .line 67
+    .line 71
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_76
 
-    .line 71
+    .line 75
     :cond_a3
     const/high16 v0, 0x42c80000    # 100.0f
 
@@ -239,12 +239,12 @@
 
     move-result v2
 
-    .line 72
+    .line 76
     const/16 v0, 0x1c
 
     new-array v3, v0, [F
 
-    .line 73
+    .line 77
     const/4 v0, 0x0
 
     :goto_b5
@@ -252,7 +252,7 @@
 
     if-ge v0, v4, :cond_c6
 
-    .line 74
+    .line 78
     sub-float v4, v2, v1
 
     int-to-float v5, v0
@@ -267,12 +267,12 @@
 
     aput v4, v3, v0
 
-    .line 73
+    .line 77
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_b5
 
-    .line 76
+    .line 80
     :cond_c6
     const/4 v0, 0x0
 
@@ -283,7 +283,7 @@
 
     if-ge v1, v0, :cond_10a
 
-    .line 77
+    .line 81
     int-to-float v0, v1
 
     const/high16 v2, 0x467a0000    # 16000.0f
@@ -298,14 +298,14 @@
 
     move-result v2
 
-    .line 78
+    .line 82
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/WakeWord$Front;->binIdx:[I
 
     const/4 v4, -0x1
 
     aput v4, v0, v1
 
-    .line 79
+    .line 83
     const/4 v0, 0x0
 
     :goto_dd
@@ -313,7 +313,7 @@
 
     if-gt v0, v4, :cond_106
 
-    .line 80
+    .line 84
     aget v4, v3, v0
 
     cmpl-float v4, v2, v4
@@ -328,12 +328,12 @@
 
     if-gez v4, :cond_103
 
-    .line 81
+    .line 85
     iget-object v4, p0, Lcom/isaigu/gymapp/ai/WakeWord$Front;->binIdx:[I
 
     aput v0, v4, v1
 
-    .line 82
+    .line 86
     iget-object v4, p0, Lcom/isaigu/gymapp/ai/WakeWord$Front;->binW:[F
 
     aget v5, v3, v0
@@ -352,13 +352,13 @@
 
     aput v5, v4, v1
 
-    .line 79
+    .line 83
     :cond_103
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_dd
 
-    .line 76
+    .line 80
     :cond_106
     add-int/lit8 v0, v1, 0x1
 
@@ -366,7 +366,7 @@
 
     goto :goto_c8
 
-    .line 86
+    .line 90
     :cond_10a
     const/4 v0, 0x0
 
@@ -377,7 +377,7 @@
 
     if-ge v1, v0, :cond_138
 
-    .line 87
+    .line 91
     const/4 v0, 0x0
 
     :goto_111
@@ -385,7 +385,7 @@
 
     if-ge v0, v2, :cond_134
 
-    .line 88
+    .line 92
     iget-object v2, p0, Lcom/isaigu/gymapp/ai/WakeWord$Front;->dct:[[F
 
     aget-object v2, v2, v1
@@ -418,12 +418,12 @@
 
     aput v3, v2, v0
 
-    .line 87
+    .line 91
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_111
 
-    .line 86
+    .line 90
     :cond_134
     add-int/lit8 v0, v1, 0x1
 
@@ -431,7 +431,7 @@
 
     goto :goto_10c
 
-    .line 91
+    .line 95
     :cond_138
     return-void
 .end method
@@ -440,7 +440,7 @@
     .registers 9
 
     .prologue
-    .line 94
+    .line 98
     const-wide v0, 0x40919c0000000000L    # 1127.0
 
     const-wide/high16 v2, 0x3ff0000000000000L    # 1.0
@@ -474,7 +474,7 @@
 
     const/16 v11, 0x200
 
-    .line 146
+    .line 150
     const/4 v0, 0x1
 
     move v2, v1
@@ -484,31 +484,31 @@
     :goto_6
     if-ge v3, v11, :cond_39
 
-    .line 147
+    .line 151
     const/16 v0, 0x100
 
-    .line 148
+    .line 152
     :goto_a
     and-int v4, v2, v0
 
     if-eqz v4, :cond_12
 
-    .line 149
+    .line 153
     xor-int/2addr v2, v0
 
-    .line 148
+    .line 152
     shr-int/lit8 v0, v0, 0x1
 
     goto :goto_a
 
-    .line 151
+    .line 155
     :cond_12
     xor-int/2addr v2, v0
 
-    .line 152
+    .line 156
     if-ge v3, v2, :cond_35
 
-    .line 153
+    .line 157
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/WakeWord$Front;->re:[F
 
     aget v0, v0, v3
@@ -525,7 +525,7 @@
 
     aput v0, v4, v2
 
-    .line 154
+    .line 158
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/WakeWord$Front;->im:[F
 
     aget v0, v0, v3
@@ -542,7 +542,7 @@
 
     aput v0, v4, v2
 
-    .line 146
+    .line 150
     :cond_35
     add-int/lit8 v0, v3, 0x1
 
@@ -550,7 +550,7 @@
 
     goto :goto_6
 
-    .line 157
+    .line 161
     :cond_39
     const/4 v0, 0x2
 
@@ -559,24 +559,24 @@
     :goto_3b
     if-gt v3, v11, :cond_9a
 
-    .line 158
+    .line 162
     div-int v4, v11, v3
 
     move v2, v1
 
-    .line 159
+    .line 163
     :goto_40
     if-ge v2, v11, :cond_96
 
     move v0, v1
 
-    .line 160
+    .line 164
     :goto_43
     div-int/lit8 v5, v3, 0x2
 
     if-ge v0, v5, :cond_92
 
-    .line 161
+    .line 165
     iget-object v5, p0, Lcom/isaigu/gymapp/ai/WakeWord$Front;->cosT:[F
 
     mul-int v6, v0, v4
@@ -591,14 +591,14 @@
 
     neg-float v6, v6
 
-    .line 162
+    .line 166
     add-int v7, v2, v0
 
     div-int/lit8 v8, v3, 0x2
 
     add-int/2addr v8, v7
 
-    .line 163
+    .line 167
     iget-object v9, p0, Lcom/isaigu/gymapp/ai/WakeWord$Front;->re:[F
 
     aget v9, v9, v8
@@ -627,7 +627,7 @@
 
     add-float/2addr v5, v6
 
-    .line 164
+    .line 168
     iget-object v6, p0, Lcom/isaigu/gymapp/ai/WakeWord$Front;->re:[F
 
     iget-object v10, p0, Lcom/isaigu/gymapp/ai/WakeWord$Front;->re:[F
@@ -638,7 +638,7 @@
 
     aput v10, v6, v8
 
-    .line 165
+    .line 169
     iget-object v6, p0, Lcom/isaigu/gymapp/ai/WakeWord$Front;->im:[F
 
     iget-object v10, p0, Lcom/isaigu/gymapp/ai/WakeWord$Front;->im:[F
@@ -649,7 +649,7 @@
 
     aput v10, v6, v8
 
-    .line 166
+    .line 170
     iget-object v6, p0, Lcom/isaigu/gymapp/ai/WakeWord$Front;->re:[F
 
     aget v8, v6, v7
@@ -658,7 +658,7 @@
 
     aput v8, v6, v7
 
-    .line 167
+    .line 171
     iget-object v6, p0, Lcom/isaigu/gymapp/ai/WakeWord$Front;->im:[F
 
     aget v8, v6, v7
@@ -667,12 +667,12 @@
 
     aput v5, v6, v7
 
-    .line 160
+    .line 164
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_43
 
-    .line 159
+    .line 163
     :cond_92
     add-int v0, v2, v3
 
@@ -680,7 +680,7 @@
 
     goto :goto_40
 
-    .line 157
+    .line 161
     :cond_96
     shl-int/lit8 v0, v3, 0x1
 
@@ -688,7 +688,7 @@
 
     goto :goto_3b
 
-    .line 171
+    .line 175
     :cond_9a
     return-void
 .end method
@@ -707,7 +707,7 @@
 
     const/4 v0, 0x0
 
-    .line 99
+    .line 103
     int-to-float v2, p1
 
     const v3, 0x3f7851ec    # 0.97f
@@ -718,19 +718,19 @@
 
     sub-float/2addr v2, v3
 
-    .line 100
+    .line 104
     int-to-float v3, p1
 
     iput v3, p0, Lcom/isaigu/gymapp/ai/WakeWord$Front;->prev:F
 
-    .line 101
+    .line 105
     iget-object v3, p0, Lcom/isaigu/gymapp/ai/WakeWord$Front;->hist:[F
 
     iget v5, p0, Lcom/isaigu/gymapp/ai/WakeWord$Front;->fill:I
 
     aput v2, v3, v5
 
-    .line 102
+    .line 106
     iget-object v2, p0, Lcom/isaigu/gymapp/ai/WakeWord$Front;->raw:[F
 
     iget v3, p0, Lcom/isaigu/gymapp/ai/WakeWord$Front;->fill:I
@@ -739,7 +739,7 @@
 
     aput v5, v2, v3
 
-    .line 103
+    .line 107
     iget v2, p0, Lcom/isaigu/gymapp/ai/WakeWord$Front;->fill:I
 
     add-int/lit8 v2, v2, 0x1
@@ -748,7 +748,7 @@
 
     iput v2, p0, Lcom/isaigu/gymapp/ai/WakeWord$Front;->fill:I
 
-    .line 104
+    .line 108
     iget v2, p0, Lcom/isaigu/gymapp/ai/WakeWord$Front;->since:I
 
     add-int/lit8 v2, v2, 0x1
@@ -759,11 +759,11 @@
 
     if-ge v2, v3, :cond_33
 
-    .line 142
+    .line 146
     :goto_32
     return v0
 
-    .line 107
+    .line 111
     :cond_33
     iput v0, p0, Lcom/isaigu/gymapp/ai/WakeWord$Front;->since:I
 
@@ -771,23 +771,23 @@
 
     move v3, v4
 
-    .line 109
+    .line 113
     :goto_37
     if-ge v2, v1, :cond_41
 
-    .line 110
+    .line 114
     iget-object v5, p0, Lcom/isaigu/gymapp/ai/WakeWord$Front;->raw:[F
 
     aget v5, v5, v2
 
     add-float/2addr v3, v5
 
-    .line 109
+    .line 113
     add-int/lit8 v2, v2, 0x1
 
     goto :goto_37
 
-    .line 112
+    .line 116
     :cond_41
     div-float v5, v3, v10
 
@@ -795,18 +795,18 @@
 
     move v3, v4
 
-    .line 113
+    .line 117
     :goto_45
     if-ge v2, v1, :cond_6c
 
-    .line 114
+    .line 118
     iget v6, p0, Lcom/isaigu/gymapp/ai/WakeWord$Front;->fill:I
 
     add-int/2addr v6, v2
 
     rem-int/lit16 v6, v6, 0x190
 
-    .line 115
+    .line 119
     iget-object v7, p0, Lcom/isaigu/gymapp/ai/WakeWord$Front;->raw:[F
 
     aget v7, v7, v6
@@ -819,12 +819,12 @@
 
     mul-float/2addr v7, v8
 
-    .line 116
+    .line 120
     mul-float/2addr v7, v7
 
     add-float/2addr v3, v7
 
-    .line 117
+    .line 121
     iget-object v7, p0, Lcom/isaigu/gymapp/ai/WakeWord$Front;->re:[F
 
     iget-object v8, p0, Lcom/isaigu/gymapp/ai/WakeWord$Front;->hist:[F
@@ -839,39 +839,39 @@
 
     aput v6, v7, v2
 
-    .line 118
+    .line 122
     iget-object v6, p0, Lcom/isaigu/gymapp/ai/WakeWord$Front;->im:[F
 
     aput v4, v6, v2
 
-    .line 113
+    .line 117
     add-int/lit8 v2, v2, 0x1
 
     goto :goto_45
 
-    .line 120
+    .line 124
     :cond_6c
     :goto_6c
     const/16 v2, 0x200
 
     if-ge v1, v2, :cond_7b
 
-    .line 121
+    .line 125
     iget-object v2, p0, Lcom/isaigu/gymapp/ai/WakeWord$Front;->re:[F
 
     aput v4, v2, v1
 
-    .line 122
+    .line 126
     iget-object v2, p0, Lcom/isaigu/gymapp/ai/WakeWord$Front;->im:[F
 
     aput v4, v2, v1
 
-    .line 120
+    .line 124
     add-int/lit8 v1, v1, 0x1
 
     goto :goto_6c
 
-    .line 124
+    .line 128
     :cond_7b
     const-wide/high16 v6, 0x4024000000000000L    # 10.0
 
@@ -891,48 +891,48 @@
 
     aput v1, p3, v0
 
-    .line 125
+    .line 129
     invoke-virtual {p0}, Lcom/isaigu/gymapp/ai/WakeWord$Front;->fft()V
 
     move v1, v0
 
-    .line 126
+    .line 130
     :goto_8d
     const/16 v2, 0x1a
 
     if-ge v1, v2, :cond_96
 
-    .line 127
+    .line 131
     aput v4, p2, v1
 
-    .line 126
+    .line 130
     add-int/lit8 v1, v1, 0x1
 
     goto :goto_8d
 
-    .line 129
+    .line 133
     :cond_96
     :goto_96
     const/16 v1, 0x101
 
     if-ge v0, v1, :cond_d5
 
-    .line 130
+    .line 134
     iget-object v1, p0, Lcom/isaigu/gymapp/ai/WakeWord$Front;->binIdx:[I
 
     aget v1, v1, v0
 
-    .line 131
+    .line 135
     if-gez v1, :cond_a3
 
-    .line 129
+    .line 133
     :cond_a0
     :goto_a0
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_96
 
-    .line 134
+    .line 138
     :cond_a3
     iget-object v2, p0, Lcom/isaigu/gymapp/ai/WakeWord$Front;->re:[F
 
@@ -956,12 +956,12 @@
 
     add-float/2addr v2, v3
 
-    .line 135
+    .line 139
     const/16 v3, 0x1a
 
     if-ge v1, v3, :cond_c4
 
-    .line 136
+    .line 140
     aget v3, p2, v1
 
     iget-object v4, p0, Lcom/isaigu/gymapp/ai/WakeWord$Front;->binW:[F
@@ -974,11 +974,11 @@
 
     aput v3, p2, v1
 
-    .line 138
+    .line 142
     :cond_c4
     if-lez v1, :cond_a0
 
-    .line 139
+    .line 143
     add-int/lit8 v1, v1, -0x1
 
     aget v3, p2, v1
@@ -997,7 +997,7 @@
 
     goto :goto_a0
 
-    .line 142
+    .line 146
     :cond_d5
     const/4 v0, 0x1
 

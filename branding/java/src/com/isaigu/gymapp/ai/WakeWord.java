@@ -22,6 +22,10 @@ public final class WakeWord {
     /** The wake word must be clearly closer than the look-alike ("тренировка"): ≤ 75 % of its distance (kws MARGIN). */
     static final int MARGIN = 75;
     static final int DEFAULT_THR = 1400;
+    /** The widest limit ever (WakeSim: the wake phrase 700–1500, the closest ordinary words 1480+; speech 'добре тренер' 1165). */
+    public static final int THR_CAP = 1700;
+    /** Examples further apart than this (worst pair) are not one phrase: the setup asks again (WakeSim's own: ~550). */
+    public static final int WIDE_SPREAD = 1000;
 
     public static final int NONE = 0, WAKE = 1, RECORDED = 2, SKIPPED = 3;
 
@@ -385,7 +389,7 @@ public final class WakeWord {
     int thr = DEFAULT_THR;
     /** > 1 accepts more easily (the setting); the tablet lowers it itself after wakes that led to nothing. */
     public float sens = 1.0f;
-    static final float SENS_MIN = 0.7f, SENS_MAX = 1.4f;
+    static final float SENS_MIN = 0.7f, SENS_MAX = 1.0f;
     /**
      * Words that woke it for nothing (the room's noise, a look-alike): the next word closer to one of them than to
      * "тренер" is not a wake. The assistants' way — the false alarms the user never wanted are learned as negatives.
@@ -395,14 +399,8 @@ public final class WakeWord {
     /** The word that last woke it, and how close it was (a clean match followed by silence is a hesitation, not noise). */
     private Word lastWakeWord;
     private int lastWakeD = INF;
-    /** A word that was only just not close enough: the same word again within NEAR_MS is the trainer repeating it. */
-    private long nearAt;
-    static final long NEAR_MS = 10000;
-    static final float NEAR_FACTOR = 1.6f;
     /** Set when a word was heard and not taken (the diag log: why "тренер" needed a second try), read once. */
     public String miss;
-    /** The last wake came from a repeated near-miss. */
-    private boolean lastNear;
     boolean recording;
     /** The current word already fired (one wake per word). */
     private boolean fired;
@@ -470,7 +468,6 @@ public final class WakeWord {
         thr = DEFAULT_THR;
         falseNeg.clear();
         sens = 1.0f;
-        nearAt = 0;
         loud = 0;
         loudSum = 0;
         loudN = 0;
@@ -512,22 +509,8 @@ public final class WakeWord {
                 boolean loudOk = loudEnough(finder.wPeak);
                 if (loudOk && accept(w, 1f)) {
                     wakeFrame = finder.w1;
-                    lastNear = false;
                     woke(w);
                     return WAKE;
-                }
-                // "I said it ten times and nothing": a word just outside the limit (or a little quiet), said again
-                // soon, is the trainer repeating it — the repeat decides, not the first try's loudness
-                if (accept(w, NEAR_FACTOR)) {
-                    long now = System.currentTimeMillis();
-                    if (nearAt > 0 && now - nearAt <= NEAR_MS) {
-                        nearAt = 0;
-                        wakeFrame = finder.w1;
-                        lastNear = true;
-                        woke(w);
-                        return WAKE;
-                    }
-                    nearAt = now;
                 }
                 miss = "word not taken: d=" + lastD + " limit=" + threshold() + " loud=" + Math.round(finder.wPeak)
                         + " need>=" + Math.round(loud - loudMargin()) + " sens=" + sens;
@@ -571,11 +554,8 @@ public final class WakeWord {
      * a false alarm and makes it a little stricter; a command makes it a little more willing again.
      */
     public void feedback(boolean real) {
-        boolean near = lastNear;
-        lastNear = false;
         if (real) {
-            // a command after a repeated near-miss: this tablet / room needs a more willing ear
-            sens = near ? Math.min(SENS_MAX, sens * 1.08f) : sens < 1f ? Math.min(1.0f, sens * 1.04f) : sens;
+            sens = sens < 1f ? Math.min(1.0f, sens * 1.04f) : sens;
             return;
         }
         if (lastWakeWord == null || lastWakeD == INF || lastWakeD < threshold() * 0.6f) {
@@ -649,7 +629,9 @@ public final class WakeWord {
                 base = 2.5f * sum / k;
             }
         }
-        thr = (int) (base * SAFETY);
+        // never looser than THR_CAP: examples that differ a lot (a noisy recording, two different words) would make
+        // the limit so wide that ordinary words pass (owner, 2026-11-25: "it reacts to random words")
+        thr = Math.min(THR_CAP, (int) (base * SAFETY));
     }
 
     /** How alike the 3 examples are (0 = not computed): the learning page warns when they differ too much. */

@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 220
+    .line 224
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -36,7 +36,7 @@
     .prologue
     const/4 v3, 0x3
 
-    .line 223
+    .line 227
     # getter for: Lcom/isaigu/gymapp/ai/WakeSetup;->dialog:Landroid/app/Dialog;
     invoke-static {}, Lcom/isaigu/gymapp/ai/WakeSetup;->access$000()Landroid/app/Dialog;
 
@@ -53,37 +53,37 @@
 
     if-lt v0, v1, :cond_f
 
-    .line 239
+    .line 243
     :cond_e
     :goto_e
     return-void
 
-    .line 226
+    .line 230
     :cond_f
     const/4 v0, 0x2
 
     if-ne p1, v0, :cond_1e
 
-    .line 227
+    .line 231
     # operator++ for: Lcom/isaigu/gymapp/ai/WakeSetup;->step:I
     invoke-static {}, Lcom/isaigu/gymapp/ai/WakeSetup;->access$508()I
 
-    .line 228
+    .line 232
     const/16 v0, 0x19
 
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/WakeListener;->tone(I)V
 
-    .line 229
+    .line 233
     # invokes: Lcom/isaigu/gymapp/ai/WakeSetup;->ask()V
     invoke-static {}, Lcom/isaigu/gymapp/ai/WakeSetup;->access$600()V
 
     goto :goto_e
 
-    .line 230
+    .line 234
     :cond_1e
     if-ne p1, v3, :cond_e
 
-    .line 231
+    .line 235
     # getter for: Lcom/isaigu/gymapp/ai/WakeSetup;->sub:Landroid/widget/TextView;
     invoke-static {}, Lcom/isaigu/gymapp/ai/WakeSetup;->access$700()Landroid/widget/TextView;
 
@@ -99,7 +99,7 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 233
+    .line 237
     # getter for: Lcom/isaigu/gymapp/ai/WakeSetup;->step:I
     invoke-static {}, Lcom/isaigu/gymapp/ai/WakeSetup;->access$500()I
 
@@ -107,14 +107,14 @@
 
     if-ge v0, v3, :cond_3b
 
-    .line 234
+    .line 238
     sget-object v0, Lcom/isaigu/gymapp/ai/WakeListener;->SPOTTER:Lcom/isaigu/gymapp/ai/WakeWord;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/ai/WakeWord;->record()V
 
     goto :goto_e
 
-    .line 236
+    .line 240
     :cond_3b
     sget-object v0, Lcom/isaigu/gymapp/ai/WakeListener;->SPOTTER:Lcom/isaigu/gymapp/ai/WakeWord;
 

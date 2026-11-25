@@ -149,7 +149,7 @@ public final class AiMapBoard {
         line.setPlayhead((float) k.position());
         if (waiting) {
             name.setText(AiText.t("Качи силата", "Raise the strength"));
-            how.setText(AiText.t("С + до силно, но приятно усещане (6–7 от 10) — после ▶ Старт. Или кажи „Тренер, старт“.",
+            how.setText(AiText.t("С + до силно, но приятно усещане (6–7 от 10) — после ▶ Старт. Или кажи „Окей тренер, старт“.",
                     "With + to strong but pleasant (6–7 of 10) — then ▶ Start. Or say “Trainer, start”."));
             clock.setText("—");
             setLine.setText("");

@@ -66,7 +66,7 @@ public final class WakeSetup {
         d.requestWindowFeature(Window.FEATURE_NO_TITLE);
         LinearLayout box = XemsUi.vertical(a);
         box.setPadding(XemsUi.dp(a, 28), XemsUi.dp(a, 24), XemsUi.dp(a, 28), XemsUi.dp(a, 18));
-        box.addView(XemsUi.text(a, "🎙  " + AiText.t("Научи таблета на „Тренер“", "Teach the tablet “Trainer”"), 20,
+        box.addView(XemsUi.text(a, "🎙  " + AiText.t("Научи таблета на „Окей тренер“", "Teach the tablet “Okay trainer”"), 20,
                 XemsUi.TEXT, true));
         box.addView(XemsUi.text(a, AiText.t("Говори както ще говориш в залата: с нормален глас, от мястото, където стоиш.",
                 "Speak as you will in the studio: a normal voice, from where you stand."), 13, XemsUi.MUTED, false),
@@ -190,21 +190,21 @@ public final class WakeSetup {
     private static void ask() {
         if (step < 3) {
             WakeListener.SPOTTER.record();
-            head.setText(AiText.t("Кажи „Тренер“", "Say “Тренер”"));
-            sub.setText(AiText.t("Пауза, после думата сама — " + (step + 1) + " от 3",
-                    "A pause, then the word alone — " + (step + 1) + " of 3"));
+            head.setText(AiText.t("Кажи „Окей тренер“", "Say “Окей тренер”"));
+            sub.setText(AiText.t("Пауза, после фразата сама — " + (step + 1) + " от 3",
+                    "A pause, then the phrase alone — " + (step + 1) + " of 3"));
         } else if (step == 3) {
             WakeListener.SPOTTER.recordContrast();
-            head.setText(AiText.t("Сега кажи „Тренировка“", "Now say “Тренировка”"));
-            sub.setText(AiText.t("Друга дума — за да не я бърка с „Тренер“", "Another word — so it never takes it for “Тренер”"));
+            head.setText(AiText.t("Сега кажи „Окей тренировка“", "Now say “Окей тренировка”"));
+            sub.setText(AiText.t("Друга дума — за да не я бърка с „Окей тренер“", "Another word — so it never takes it for “Окей тренер”"));
         } else {
             WakeListener.saveExamples(host);
             int spread = WakeListener.SPOTTER.spreadOfExamples();
             boolean wide = spread > WakeListener.SPOTTER.threshold();
             head.setText(wide ? AiText.t("Записите се различават", "The recordings differ") : "✓  " + AiText.t("Готово", "Done"));
-            sub.setText(wide ? AiText.t("Кажи думата по-еднакво — „Отначало“.", "Say the word more alike — “Start over”.")
-                    : AiText.t("Казвай „Тренер, …“ — напр. „Тренер, увеличи краката“, „Тренер, пауза“.",
-                    "Say “Trainer, …” — e.g. “Trainer, raise the legs”, “Trainer, pause”."));
+            sub.setText(wide ? AiText.t("Кажи фразата по-еднакво — „Отначало“.", "Say the phrase more alike — “Start over”.")
+                    : AiText.t("Казвай „Окей тренер, …“ — напр. „Окей тренер, увеличи краката“, „Окей тренер, пауза“.",
+                    "Say “Okay trainer, …” — e.g. “Okay trainer, raise the legs”, “Okay trainer, pause”."));
         }
         dots.removeAllViews();
         for (int i = 0; i < STEPS; i++) {

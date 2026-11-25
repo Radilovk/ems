@@ -458,3 +458,26 @@ it, the warm-up runs softer by design); "s" read aloud as a letter → "секу
 - **Never recognised** (`NEAR_FACTOR`): a word within 1.35 × the limit (loud enough, not the look-alike) said twice
   within 10 s wakes — the trainer repeating it.
 - Not run off-device: `WakeSim` needs espeak-ng (absent here); `SimWakeHuawei` updated for the two-strike rule.
+
+## 1.1.575 — signals, one pause, an ear that learns both ways
+- **Owner:** still repeated "тренер" several times; the chat does not always show what was said; wanted a sound for
+  "taken" and a sound for "not taken" (no spoken answer); the voice pause lit the main ❚❚ but not the client's own.
+- **Sounds** (`Earcon`): `accepted` (bright rising pair, a command text arrived) and `rejected` (two low falling
+  notes: heard but not understood — the gate kept it, nothing parsed, or the recognizer said "no match" after speech).
+  Silence is still `closed`. No spoken "не разбрах".
+- **Chat:** a command the gate dropped after an explicit "тренер" (noise / filler / stray) now still shows its 🎙 bubble
+  and plays `rejected` (`AiTrain.dropped`); a dialogue's stray word and repeats stay quiet.
+- **One pause:** pause from voice, the main ❚❚ or ■ now also stops the rows (`stopDevice`) in Auto/AI (`AutoSession`,
+  `AiSession`), so the row's own ❚❚ shows paused; resume already restarts the rows (`ensureDeviceRunning`).
+- **Wake:** a near-miss (≤ 1.6 × the limit, or just too quiet) said twice within 10 s wakes; a command after such a
+  wake raises sensitivity ×1.08 (max 1.4, also widens the loudness margin by up to 12 dB); false alarms still lower it.
+  Every word heard and not taken is written to the diag log ("word not taken: d / limit / loud / need / sens").
+
+## 1.1.576 — the wake phrase is "окей тренер"
+- **Owner:** the phrase is "окей тренер" (longer than "тренер" alone: fewer false wakes, easier to catch).
+- The spotter learns any phrase from the 3 recordings, so only the teaching changed: `WakeSetup` asks for "Окей тренер"
+  (and "Окей тренировка" as the look-alike), every hint / chip says "Окей тренер, …". Recordings made for "тренер"
+  alone are not loaded (`WakeListener.PHRASE`, prefs `phrase`) — each tablet is taught once more (until then the
+  recognizer fallback works with "… тренер" in the text).
+- Commands: `afterWake` already cuts everything up to "тренер"; "окей" / "окей тренер" alone is no command
+  (`AiVoiceCmd.onlyWakeFragment`) — the closed sound, not the "not understood" one.

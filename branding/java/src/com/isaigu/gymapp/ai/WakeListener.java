@@ -46,6 +46,8 @@ public final class WakeListener {
     private WakeListener() {}
 
     static final String PREFS = "xems_wake";
+    /** The taught phrase (owner, 2026-11-25: "окей тренер"); recordings of another phrase are not loaded. */
+    static final String PHRASE = "ok-trener";
     private static final Handler MAIN = new Handler(Looper.getMainLooper());
     private static Context ctx;
     private static boolean on;
@@ -100,10 +102,11 @@ public final class WakeListener {
             if (c.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getBoolean("noBgRec", false)) {
                 serviceOk = false;                         // this tablet's background recognizer never worked
             }
-            SPOTTER.sens = Math.max(WakeWord.SENS_MIN, Math.min(1.0f,
+            SPOTTER.sens = Math.max(WakeWord.SENS_MIN, Math.min(WakeWord.SENS_MAX,
                     c.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getFloat("sens", 1.0f)));
             String hex = c.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getString("tpl", "");
-            if (hex.length() > 0) {
+            // recordings of the old wake word ("тренер" alone) do not fit "окей тренер": taught again
+            if (hex.length() > 0 && PHRASE.equals(c.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getString("phrase", ""))) {
                 SPOTTER.load(unhex(hex));
             }
         } catch (Throwable t) {
@@ -113,7 +116,8 @@ public final class WakeListener {
 
     static void saveExamples(Context c) {
         try {
-            c.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().putString("tpl", hex(SPOTTER.save())).apply();
+            c.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().putString("tpl", hex(SPOTTER.save()))
+                    .putString("phrase", PHRASE).apply();
         } catch (Throwable t) {
             WearableBleDiagLog.log("wake", "save: " + t);
         }
@@ -152,10 +156,11 @@ public final class WakeListener {
     static void reloadExamples(Context c) {
         try {
             SPOTTER.clear();
-            SPOTTER.sens = Math.max(WakeWord.SENS_MIN, Math.min(1.0f,
+            SPOTTER.sens = Math.max(WakeWord.SENS_MIN, Math.min(WakeWord.SENS_MAX,
                     c.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getFloat("sens", 1.0f)));
             String hex = c.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getString("tpl", "");
-            if (hex.length() > 0) {
+            // recordings of the old wake word ("тренер" alone) do not fit "окей тренер": taught again
+            if (hex.length() > 0 && PHRASE.equals(c.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getString("phrase", ""))) {
                 SPOTTER.load(unhex(hex));
             }
         } catch (Throwable t) {
@@ -366,6 +371,11 @@ public final class WakeListener {
                             }
                             int ev = SPOTTER.push(buf[i]);
                             if (ev == WakeWord.NONE) {
+                                String miss = SPOTTER.miss;
+                                if (miss != null) {
+                                    SPOTTER.miss = null;
+                                    WearableBleDiagLog.log("wake", miss);
+                                }
                                 continue;
                             }
                             WakeSetup.Sink sink = setup;
@@ -740,6 +750,14 @@ public final class WakeListener {
                     WearableBleDiagLog.log("wake", "window error " + error);
                 }
                 followUps = 0;
+                if (!followUp && error == SpeechRecognizer.ERROR_NO_MATCH && spoke) {
+                    // something was said but not recognised (not silence): the "not understood" sound
+                    WearableBleDiagLog.log("wake", "window: not recognised");
+                    windowResult(false);
+                    Earcon.rejected();
+                    afterWindow(200);
+                    return;
+                }
                 windowResult(false);
                 Earcon.closed();                              // it stopped listening: "тренер" again
                 afterWindow(200);
@@ -808,11 +826,15 @@ public final class WakeListener {
         }
         MAIN.removeCallbacks(NO_SPEECH);
         windowResult(cmd.length() > 0);
+        if (AiVoiceCmd.onlyWakeFragment(cmd)) {
+            cmd = "";                                      // "окей" alone: the wake phrase's own head
+        }
         if (cmd.length() == 0) {
             Earcon.closed();
         }
         if (cmd.length() > 0) {
             WearableBleDiagLog.log("wake", "command \"" + cmd + "\"");
+            Earcon.accepted();                            // heard: a quick rising pair, whatever happens next
             String said = AiTrain.voice(ctx, cmd, followUp);
             if (said != null && said.length() > 0) {
                 // a command done on the tablet: say it, then back to "тренер" (owner, 1.1.555: a command is not a
@@ -822,7 +844,10 @@ public final class WakeListener {
                 return;
             }
             if (said == null) {
-                tone(ToneGenerator.TONE_PROP_NACK);
+                // heard, not understood: a low falling sound (owner: signals, no spoken answer)
+                Earcon.rejected();
+                afterWindow(300);
+                return;
             }
             // "" = it went to the AI: back to the spotter; the answer is spoken when it comes (answer)
         }

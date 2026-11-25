@@ -46,6 +46,24 @@ public final class Earcon {
 
     private static short[] thinking;
 
+    private static short[] accepted, rejected;
+
+    /** The command was taken: a quick bright rising pair (clearly not the "speak now" chime, not a tick). */
+    public static void accepted() {
+        if (accepted == null) {
+            accepted = notes(new double[] {1047, 1397}, new int[] {70, 110}, 0.4);
+        }
+        play(accepted);
+    }
+
+    /** The command was not taken: two low falling notes — "no". */
+    public static void rejected() {
+        if (rejected == null) {
+            rejected = notes(new double[] {330, 247}, new int[] {130, 220}, 0.45);
+        }
+        play(rejected);
+    }
+
     public static void closed() {
         if (closed == null) {
             closed = notes(new double[] {880, 587}, new int[] {100, 160}, 0.3);    // A5 → D5

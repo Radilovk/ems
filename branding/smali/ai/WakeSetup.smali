@@ -240,9 +240,9 @@
     .line 193
     sget-object v0, Lcom/isaigu/gymapp/ai/WakeSetup;->head:Landroid/widget/TextView;
 
-    const-string v2, "\u041a\u0430\u0436\u0438 \u201e\u0422\u0440\u0435\u043d\u0435\u0440\u201c"
+    const-string v2, "\u041a\u0430\u0436\u0438 \u201e\u041e\u043a\u0435\u0439 \u0442\u0440\u0435\u043d\u0435\u0440\u201c"
 
-    const-string v3, "Say \u201c\u0422\u0440\u0435\u043d\u0435\u0440\u201d"
+    const-string v3, "Say \u201c\u041e\u043a\u0435\u0439 \u0442\u0440\u0435\u043d\u0435\u0440\u201d"
 
     invoke-static {v2, v3}, Lcom/isaigu/gymapp/ai/AiText;->t(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
@@ -257,7 +257,7 @@
 
     invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
 
-    const-string v3, "\u041f\u0430\u0443\u0437\u0430, \u043f\u043e\u0441\u043b\u0435 \u0434\u0443\u043c\u0430\u0442\u0430 \u0441\u0430\u043c\u0430 \u2014 "
+    const-string v3, "\u041f\u0430\u0443\u0437\u0430, \u043f\u043e\u0441\u043b\u0435 \u0444\u0440\u0430\u0437\u0430\u0442\u0430 \u0441\u0430\u043c\u0430 \u2014 "
 
     invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
@@ -285,7 +285,7 @@
 
     invoke-direct {v3}, Ljava/lang/StringBuilder;-><init>()V
 
-    const-string v4, "A pause, then the word alone \u2014 "
+    const-string v4, "A pause, then the phrase alone \u2014 "
 
     invoke-virtual {v3, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
@@ -421,9 +421,9 @@
     .line 198
     sget-object v0, Lcom/isaigu/gymapp/ai/WakeSetup;->head:Landroid/widget/TextView;
 
-    const-string v2, "\u0421\u0435\u0433\u0430 \u043a\u0430\u0436\u0438 \u201e\u0422\u0440\u0435\u043d\u0438\u0440\u043e\u0432\u043a\u0430\u201c"
+    const-string v2, "\u0421\u0435\u0433\u0430 \u043a\u0430\u0436\u0438 \u201e\u041e\u043a\u0435\u0439 \u0442\u0440\u0435\u043d\u0438\u0440\u043e\u0432\u043a\u0430\u201c"
 
-    const-string v3, "Now say \u201c\u0422\u0440\u0435\u043d\u0438\u0440\u043e\u0432\u043a\u0430\u201d"
+    const-string v3, "Now say \u201c\u041e\u043a\u0435\u0439 \u0442\u0440\u0435\u043d\u0438\u0440\u043e\u0432\u043a\u0430\u201d"
 
     invoke-static {v2, v3}, Lcom/isaigu/gymapp/ai/AiText;->t(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
@@ -434,9 +434,9 @@
     .line 199
     sget-object v0, Lcom/isaigu/gymapp/ai/WakeSetup;->sub:Landroid/widget/TextView;
 
-    const-string v2, "\u0414\u0440\u0443\u0433\u0430 \u0434\u0443\u043c\u0430 \u2014 \u0437\u0430 \u0434\u0430 \u043d\u0435 \u044f \u0431\u044a\u0440\u043a\u0430 \u0441 \u201e\u0422\u0440\u0435\u043d\u0435\u0440\u201c"
+    const-string v2, "\u0414\u0440\u0443\u0433\u0430 \u0434\u0443\u043c\u0430 \u2014 \u0437\u0430 \u0434\u0430 \u043d\u0435 \u044f \u0431\u044a\u0440\u043a\u0430 \u0441 \u201e\u041e\u043a\u0435\u0439 \u0442\u0440\u0435\u043d\u0435\u0440\u201c"
 
-    const-string v3, "Another word \u2014 so it never takes it for \u201c\u0422\u0440\u0435\u043d\u0435\u0440\u201d"
+    const-string v3, "Another word \u2014 so it never takes it for \u201c\u041e\u043a\u0435\u0439 \u0442\u0440\u0435\u043d\u0435\u0440\u201d"
 
     invoke-static {v2, v3}, Lcom/isaigu/gymapp/ai/AiText;->t(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
@@ -492,9 +492,9 @@
 
     if-eqz v0, :cond_123
 
-    const-string v0, "\u041a\u0430\u0436\u0438 \u0434\u0443\u043c\u0430\u0442\u0430 \u043f\u043e-\u0435\u0434\u043d\u0430\u043a\u0432\u043e \u2014 \u201e\u041e\u0442\u043d\u0430\u0447\u0430\u043b\u043e\u201c."
+    const-string v0, "\u041a\u0430\u0436\u0438 \u0444\u0440\u0430\u0437\u0430\u0442\u0430 \u043f\u043e-\u0435\u0434\u043d\u0430\u043a\u0432\u043e \u2014 \u201e\u041e\u0442\u043d\u0430\u0447\u0430\u043b\u043e\u201c."
 
-    const-string v3, "Say the word more alike \u2014 \u201cStart over\u201d."
+    const-string v3, "Say the phrase more alike \u2014 \u201cStart over\u201d."
 
     invoke-static {v0, v3}, Lcom/isaigu/gymapp/ai/AiText;->t(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
@@ -543,9 +543,9 @@
 
     .line 206
     :cond_123
-    const-string v0, "\u041a\u0430\u0437\u0432\u0430\u0439 \u201e\u0422\u0440\u0435\u043d\u0435\u0440, \u2026\u201c \u2014 \u043d\u0430\u043f\u0440. \u201e\u0422\u0440\u0435\u043d\u0435\u0440, \u0443\u0432\u0435\u043b\u0438\u0447\u0438 \u043a\u0440\u0430\u043a\u0430\u0442\u0430\u201c, \u201e\u0422\u0440\u0435\u043d\u0435\u0440, \u043f\u0430\u0443\u0437\u0430\u201c."
+    const-string v0, "\u041a\u0430\u0437\u0432\u0430\u0439 \u201e\u041e\u043a\u0435\u0439 \u0442\u0440\u0435\u043d\u0435\u0440, \u2026\u201c \u2014 \u043d\u0430\u043f\u0440. \u201e\u041e\u043a\u0435\u0439 \u0442\u0440\u0435\u043d\u0435\u0440, \u0443\u0432\u0435\u043b\u0438\u0447\u0438 \u043a\u0440\u0430\u043a\u0430\u0442\u0430\u201c, \u201e\u041e\u043a\u0435\u0439 \u0442\u0440\u0435\u043d\u0435\u0440, \u043f\u0430\u0443\u0437\u0430\u201c."
 
-    const-string v3, "Say \u201cTrainer, \u2026\u201d \u2014 e.g. \u201cTrainer, raise the legs\u201d, \u201cTrainer, pause\u201d."
+    const-string v3, "Say \u201cOkay trainer, \u2026\u201d \u2014 e.g. \u201cOkay trainer, raise the legs\u201d, \u201cOkay trainer, pause\u201d."
 
     invoke-static {v0, v3}, Lcom/isaigu/gymapp/ai/AiText;->t(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
@@ -818,9 +818,9 @@
 
     move-result-object v4
 
-    const-string v5, "\u041d\u0430\u0443\u0447\u0438 \u0442\u0430\u0431\u043b\u0435\u0442\u0430 \u043d\u0430 \u201e\u0422\u0440\u0435\u043d\u0435\u0440\u201c"
+    const-string v5, "\u041d\u0430\u0443\u0447\u0438 \u0442\u0430\u0431\u043b\u0435\u0442\u0430 \u043d\u0430 \u201e\u041e\u043a\u0435\u0439 \u0442\u0440\u0435\u043d\u0435\u0440\u201c"
 
-    const-string v6, "Teach the tablet \u201cTrainer\u201d"
+    const-string v6, "Teach the tablet \u201cOkay trainer\u201d"
 
     invoke-static {v5, v6}, Lcom/isaigu/gymapp/ai/AiText;->t(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 

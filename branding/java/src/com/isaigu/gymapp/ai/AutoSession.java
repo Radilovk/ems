@@ -921,6 +921,7 @@ public final class AutoSession {
         } else if (st == AutoEngine.State.RUN) {
             engine.userPause(now);
             zeroOutput();
+            stopDevice();                      // the rows' own ❚❚ shows paused too: one pause, however it was asked
         }
     }
 
@@ -981,6 +982,7 @@ public final class AutoSession {
         if (st == AutoEngine.State.RUN) {
             engine.userPause(now);
             zeroOutput();
+            stopDevice();
             notice(AiText.t("Пауза. ▶ продължава, ■ — към възстановяване.", "Paused. ▶ resumes, ■ — to the recovery."),
                     INFO, now);
         } else if (st == AutoEngine.State.HR_PAUSE && !engine.canResume()) {
@@ -1011,6 +1013,7 @@ public final class AutoSession {
             }
             if (engine.getState() == AutoEngine.State.RUN) {
                 engine.userPause(now);
+                stopDevice();
             }
             zeroOutput();
             notice(AiText.t("Пауза. ■ още веднъж — " + (engine.phase() != null && engine.phase().isCooldown()

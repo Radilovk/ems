@@ -240,10 +240,10 @@ public final class VoiceSettings {
         LinearLayout card = XemsUi.card(a);
         boolean taught = WakeListener.enrolled(a);
         card.addView(XemsUi.text(a, "🎙  " + AiText.t("Гласово управление", "Voice control"), 18, XemsUi.TEXT, true));
-        card.addView(XemsUi.text(a, AiText.t("В AI тренировка таблетът слуша за „Тренер, …“ — „Тренер, по-силно краката“, "
-                        + "„Тренер, пауза“, „Тренер, стоп“. Думата „тренировка“ не го буди.",
-                "In an AI training the tablet listens for “Тренер, …” — “raise the legs”, “pause”, “stop”. "
-                        + "The word “тренировка” never wakes it."), 13, XemsUi.MUTED, false), XemsUi.matchWrap(a, 4));
+        card.addView(XemsUi.text(a, AiText.t("В AI тренировка таблетът слуша за „Окей тренер, …“ — „Окей тренер, по-силно краката“, "
+                        + "„Окей тренер, пауза“, „Окей тренер, стоп“. „Окей тренировка“ не го буди.",
+                "In an AI training the tablet listens for “Okay trainer, …” — “raise the legs”, “pause”, “stop”. "
+                        + "“Okay тренировка” never wakes it."), 13, XemsUi.MUTED, false), XemsUi.matchWrap(a, 4));
         LinearLayout row = XemsUi.horizontal(a);
         row.setGravity(android.view.Gravity.CENTER_VERTICAL);
         TextView st = XemsUi.text(a, taught ? "✓  " + AiText.t("Научен на твоя глас", "Taught your voice")
@@ -252,7 +252,7 @@ public final class VoiceSettings {
                 taught ? XemsUi.GO_TEXT : XemsUi.AMBER, true);
         row.addView(st, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
         TextView b = XemsUi.button(a, taught ? AiText.t("Научи отново", "Teach again")
-                : AiText.t("Научи „Тренер“  ·  30 с", "Teach “Тренер”  ·  30 s"), taught ? XemsUi.SECONDARY : XemsUi.PRIMARY);
+                : AiText.t("Научи „Окей тренер“  ·  30 с", "Teach “Okay trainer”  ·  30 s"), taught ? XemsUi.SECONDARY : XemsUi.PRIMARY);
         b.setOnClickListener(new Teach());
         LinearLayout.LayoutParams bp = new LinearLayout.LayoutParams(XemsUi.dp(a, 240), XemsUi.dp(a, 52));
         bp.leftMargin = XemsUi.dp(a, 14);

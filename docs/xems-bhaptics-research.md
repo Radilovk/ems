@@ -40,3 +40,23 @@ channel mask + a tablet-side per-channel boost over `PartStrength`; `suit.gd` al
 APK is built locally (`bhaptics-spy/build.sh`), not published. `xems_vr_patch.py --install` installs it as-is
 (package `com.bhaptics.player` → ready path). Next: read the first recording (Thrill of the Fight), then decide the
 zone → channel mapping and the tablet link.
+
+## First recording — The Thrill of the Fight (Quest 3, 2026-11-25, code 5YFKJNHUHH, `com.fyian.TheThrillOfTheFight`)
+The look-alike worked first time: the game's own pairing screen (options → bHaptics → Pair) listed our six fake devices
+(`getDeviceList` polled every second, a `ping`), then it played. 1589 calls: `hapticEventDot` 720 (all the haptics),
+`isPlaying` 721, `getDeviceList` 139, `refreshPairing` 5, `ping` 4. No `play`/`playMotors`/patterns — only **dots**:
+`hapticEventDot(appId, eventId(GUID), position, byte[20] motor levels 0..100, durationMs=100)`.
+- `HandL/HandR` (658): all 20 levels equal = how hard MY punch landed (glove). Dominant hand ~55 %.
+- Hits TAKEN (62 in ~4 min, ~every 2.5 s): `VestFront` 12, `VestBack` 10, `Head` 20, `ForearmL/R` 20.
+  - Vest face = 4 columns x 5 rows, index = row*4+col; a hit is a blob: 100 on the centre, 50 on a neighbour
+    (front seen: [12,13,16,17] low-left, [2,3,6,7] upper, [10,11,14,15,18,19] right/low; back only [0,4] and [3,7]
+    = upper left / upper right).
+  - `Head`: six motors, a hit lights five contiguous ones (0-4 or 1-5), level up to 100.
+  - `ForearmL/R`: motors 6-19 at one level 3..100 (a block — strength varies) and/or 0-2 at 100.
+- Orientation (row 0 = top? column 0 = player's left or the viewer's?) is NOT proven — calibrate (docs.bhaptics.com motor page image).
+- Suit channels (partsDisabled order): calf, front thigh, back thigh, glutes, abs, lower back, back, traps, chest, arms.
+  Proposed: vest front rows 0-1 → chest, rows 2-4 → abs (cols → left/right of the channel pair where the suit has sides);
+  back rows 0-1 → traps/back, lower rows → lower back; head → traps (+ a short chest pulse); forearm → arms;
+  hands → arms, weak (own effort). Left/right: the vendor suit channels are shared L/R per name — check `PartStrength`.
+`bhaptics-spy/analyze.py <code>` prints any recording this way. The listener is the only bHaptics-specific code; the
+tablet would get a generic "zone hit" message (channel mask + level + ms).

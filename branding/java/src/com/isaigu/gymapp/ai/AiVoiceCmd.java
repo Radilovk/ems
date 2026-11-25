@@ -76,7 +76,7 @@ public final class AiVoiceCmd {
 
     /** "окей" / "okay" alone, with or without a wake word: the head of the wake phrase "окей тренер", no command. */
     public static boolean onlyWakeFragment(String text) {
-        String n = AiVoiceGate.norm(text);
+        String n = text == null ? "" : text.toLowerCase(Locale.ROOT).replaceAll("[^\\p{L}\\p{N}]+", " ").trim();
         return n.equals("окей") || n.equals("окай") || n.equals("ок") || n.equals("okay") || n.equals("ok")
                 || n.equals("окей тренер") || n.equals("окай тренер");
     }
@@ -488,6 +488,59 @@ public final class AiVoiceCmd {
             r.coach = true;
         }
         return r;
+    }
+
+    /**
+     * What the coach SAID it does, when it sent nothing (the real model, 1.1.552: "Намалям краката…" with no command —
+     * the words and the suit disagreed). Only its own first-person verbs count ("намалявам", "увеличавам",
+     * "усилвам"…), sentence by sentence — "вдигни ръцете над главата" is an exercise, never a command.
+     */
+    public static Result fromReply(String reply) {
+        Result out = new Result();
+        if (reply == null) {
+            return out;
+        }
+        for (String sentence : reply.toLowerCase(Locale.ROOT).split("[.!?;]")) {
+            String v = null;
+            if (hedged(sentence)) {
+                continue;                                         // "не намалявам", "мога да увелича", "ще увелича…"
+            }
+            for (String w : sentence.split("[\\s,]+")) {
+                if (w.matches("намал(ям|явам|яваме|яме)|свал(ям|яме)|отслаб(вам|ваме)")) {
+                    v = "намали";
+                } else if (w.matches("увелич(авам|а|аваме|им)|усил(вам|ваме|я)|вдиг(ам|аме|на)|кач(вам|ваме)|засил(вам|ваме)")) {
+                    v = "увеличи";
+                }
+                if (v != null) {
+                    sentence = sentence.replace(w, v);
+                    break;
+                }
+            }
+            if (v == null) {
+                continue;
+            }
+            Result r = parse(sentence);
+            for (Cmd c : r.commands) {
+                // a bare "strength" is only the strength when the sentence says so ("вдигам темпото" is not)
+                if ("strength".equals(c.target) && !sentence.matches(".*(сил|тока|интензитет|импулс).*")) {
+                    continue;
+                }
+                if (!contains(out, c.target) && out.commands.size() < 6) {
+                    out.commands.add(c);
+                }
+            }
+        }
+        return out;
+    }
+
+    /** A negation, an offer, a condition or a future: what the coach does not do (yet) by saying it. */
+    private static boolean hedged(String sentence) {
+        for (String w : sentence.split("[\\s,]+")) {
+            if (w.matches("не|няма|ако|мога|може|можем|бих|искаш|ще|нека|дали|когато|щом")) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /** The coach's own {@code commands} (a channel, the impulse…; 1.1.552): the answer to its question, done. */

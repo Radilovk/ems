@@ -13,6 +13,8 @@ fallthrough = true
 # the coach's voice (src/tts.js): the key is the secret AZURE_SPEECH_KEY
 AZURE_SPEECH_REGION = "germanywestcentral"
 TTS_VOICE = "bg-BG-KalinaNeural"
+# plain live replies (src/airoute.js "fast"): steady 2–3 s in ai-smoke 1.1.565; health and planning keep the newest Flash
+GEMINI_FAST_MODEL = "gemini-3.5-flash"
 PUBLIC_URL = "https://license.biocode-bg.com"
 # New tablets (no key) wait here as "pending" until the admin approves them into a studio (Таблети → Одобри).
 OWNER_LICENSE = "L-2026-792848"

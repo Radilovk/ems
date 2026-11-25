@@ -39,4 +39,15 @@ describe('nightly sweep', () => {
     assert.deepEqual(devs, ['new-pending', 'old-active']);
     assert.deepEqual(DB.db.prepare('SELECT action FROM audit').all().map((r) => r.action), ['new']);
   });
+
+  it('keeps the voice month counter (the free-characters line) for the whole month', async () => {
+    const DB = d1();
+    const ts = 2_000_000_000;
+    const put = (k, w) => DB.db.prepare('INSERT INTO rate_limits (key, count, window_start) VALUES (?, 5, ?)').run(k, w);
+    put('tts:chars:2033-05', ts - 20 * 86400);     // the month's counter, created 20 days ago: stays
+    put('tts:chars:2033-01', ts - 100 * 86400);    // an old month: goes
+    put('brief:lic:L1', ts - 20 * 86400);           // an ordinary 7-day window: goes
+    await sweep({ DB }, ts);
+    assert.deepEqual(DB.db.prepare('SELECT key FROM rate_limits').all().map((r) => r.key), ['tts:chars:2033-05']);
+  });
 });

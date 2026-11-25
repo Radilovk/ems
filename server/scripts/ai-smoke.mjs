@@ -4,7 +4,7 @@ import { coach, workout, command, liveTurn } from '../src/aicoach.js';
 import { brief } from '../src/aibrief.js';
 import * as ab from '../src/aibrief.js';
 
-const env = { GEMINI_API_KEY: process.env.GEMINI_API_KEY };
+const env = { GEMINI_API_KEY: process.env.GEMINI_API_KEY, GEMINI_FAST_MODEL: 'gemini-3.5-flash' };   // as wrangler.toml
 if (!env.GEMINI_API_KEY) { console.log('no GEMINI_API_KEY secret'); process.exit(1); }
 const menu = [{ id: 'general', name: 'Общо стягане', goal: 'TONE', kind: 'ACTIVE' },
   { id: 'back_pain', name: 'Болки в гърба', goal: 'HEALTH', kind: 'PASSIVE' }];

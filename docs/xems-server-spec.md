@@ -21,7 +21,7 @@
 | Мрежа | `widget/XemsLicenseClient` | активиране, ежедневно опресняване, проверка за версия, изтегляне + SHA-256 + инсталатор |
 | Настройки | `widget/XemsLicenseSection` | „Достъп и лиценз“: състояние, модули, ключ, ID на устройството, обновяване, адрес на сървъра |
 | Заключване | `XemsNav`, `WearableSettingsSection`, `HrGuard`, `BandRemote`, `BandAppInstall`, `NotifyWearableBridge` | заключени плочки с 🔒 и „Нямате достъп до този модул“; гривна само при нужда |
-| Функция „ръце 1:1“ | `ChannelStrengthScale.armsFactor()`, `AiEnergy.armsSent()` | ръцете се пращат ÷D при 400 µs … ÷D/2 при 150 µs (D = Настройки → Ръце, по подразбиране 10), или 1:1 според `arms_full` |
+| Функция „ръце 1:1“ | `ChannelStrengthScale.armsFactor()`, `AiEnergy.armsSent()` | ръцете се пращат ÷D при 400 µs … ÷D/2 при 150 µs (D = Настройки → Ръце, по подразбиране 10), или 1:1 според `arms_full` **От 1.1.567 таблетът не я прилага: ръцете винаги са намалени (`docs/xems-auto-mode-spec.md` §20).** |
 
 **Сървърът е live (2026-09-24):**
 - `XemsLicense.DEFAULT_SERVER` = `https://license.biocode-bg.com`

@@ -12,4 +12,9 @@ public final class ChannelStrengthScale {
     public static float balance(int ch, int pwUs) {
         return 1f;
     }
+
+    /** The calves go out at half of their slider (the real class's CALF_FACTOR). */
+    public static float sentShare(int ch) {
+        return ch == 3 ? 0.5f : 1f;
+    }
 }

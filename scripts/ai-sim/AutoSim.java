@@ -565,7 +565,8 @@ public final class AutoSim {
                 e.resume(t);
             }
             check(e.getState() == AutoEngine.State.RUN, op + ": resumed");
-            check(e.getCurrent().frac <= 0.9 * plan.phiMax + 1e-9, op + ": softer after the HR pause");
+            // the body programs never move the strength (owner, 2026-11-25): the same level after the HR pause
+            check(Math.abs(e.getCurrent().frac - plan.phiMax) < 1e-9, op + ": the person's strength after the HR pause");
         }
     }
 
@@ -632,7 +633,7 @@ public final class AutoSim {
         t += 300000;
         e.tick(t);
         e.resume(t);
-        check(e.getCurrent().frac <= before * 0.6 + 1e-9, "pause 5 min → first pulses at 60 % ("
+        check(Math.abs(e.getCurrent().frac - before) < 1e-9, "pause 5 min → the same strength as before ("
                 + e.getCurrent().frac + " vs " + before + ")");
     }
 
@@ -655,7 +656,7 @@ public final class AutoSim {
             AutoEngine.Cmd c = e.getCurrent();
             check(c.zones != null && c.zones[order[i]] == 100, "drain: wave step " + i + " at the right zone");
             if (i > 0) {
-                check(c.zones[order[i - 1]] == 50, "drain: previous zone at 50 %");
+                check(c.zones[order[i - 1]] == 100, "drain: previous zone still on, at the person's level");
             }
             check(c.zones[AutoModel.ARMS] == 0, "drain: arms silent in the leg wave");
             t += c.durationMs();

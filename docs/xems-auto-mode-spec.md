@@ -282,7 +282,8 @@ CR10 цел 5–6 · музика: фон · без двоен импулс (з�
 ### 6.6 Дренаж (пасивна) — вълна по канали
 
 Уредът сменя каналите на границата на цикъла (цели секунди, пауза ≥ 1 s). Вълната е **стъпка = един цикъл**:
-текущата група 100 %, предишната 50 % (градиент като при пневмо-компресия), останалите 0.
+текущата група и предишната работят (предишната още притиска), останалите 0. **1.1.566:** предишната вече не е на
+50 % и разпускането не е на 60 % — всеки работещ канал е на силата, която човекът му е дал (§20).
 
 ```
 T 20 мин · легнал, краката леко повдигнати
@@ -291,7 +292,7 @@ T 20 мин · легнал, краката леко повдигнати
 Фаза 3 ръце (20 %):   ръце → гърди+гръб → трапец → пауза 5 s
 Фаза 4 (10 %):        всички 3 Hz / 250 µs, E 0.5
 Стъпка: 35 Hz / 300 µs / ON 3 s / OFF 1 s, рампа 1.0 s нагоре, 0.5 s надолу   [E:R9]
-Вариант „Чувствителен“: 8 Hz на стъпката
+(1.1.567: без вариант „Чувствителен“ — един начин; прасците излизат наполовина, §20)
 E ≤ 0.9 · CR10 цел 3–4 (ясно, не болезнено) · двоен импулс ✗ · пулс: само таван · музика: фон
 ```
 
@@ -888,3 +889,25 @@ can exceed 25 min, or a ready map exceeds 25 min.
 **Channels:** the setting-up board names the program's channels ("✓ Канали на програмата: …") — they are on, the
 current is 0; the others switch on from the row.
 
+## 20. The program never moves the strength; calves at half a unit per point (owner, 1.1.566)
+
+Feedback (a studio, drainage): the calves far too strong; the arms "1 % — nothing, 2 % — very strong". Owner: the
+trainer starts the program and sets every channel during it; that level stays — the program may change Hz, width,
+on / off and which channels work, never how strong a working channel is (a changed level is either not felt or too
+strong for that person). Fine manual steps over the session cover the fading feel (accommodation).
+
+- **No automatic strength in the body programs** (`AutoEngine` cycle: `k` = 1 for a working step, 0 for a silent
+  one): no softer step (σ 0.7 twitches), no softer return after a pause / HR pause / long rest (reentry 0.6–0.9), the
+  drainage wave's previous group on at the person's level (was 50 %), its cool-down at 100 % (was 60 %). The face
+  keeps its own factors (§3.3). The start was already at 0 with no setting-up step (1.1.537, `startDirect`).
+- **Calves** (`ChannelStrengthScale.CALF_FACTOR` = 0.5, encode-time like the arms; `sentShare` for `AiEnergy`): one
+  point of the calf slider is half a suit unit — a finer step, a little lower overall. The slider shows the same %.
+- **Arms** (1.1.567, owner: "no extra settings — make it right, 1:1 or a tablet back to factory alike"): always
+  ÷10 at 400 µs … ÷5 at 150 µs (÷8 at the drainage's 300 µs) — one point ≈ 0.1–0.2 of a suit unit. The cause of
+  "1 % nothing, 2 % very strong": the arms went out 1:1 (a whole unit per point) on a tablet in admin setup
+  (`XemsLicense.hasFeature` gave every feature then), with the licence's `arms_full` or the Settings "1:1". The
+  Settings arms block (reduced / 1:1, the divider) is gone; `arms_full` no longer changes the output. Below one unit
+  the XEMS suit has no finer register (`CommandUtil`: one byte per channel): a few taps, then one unit.
+- **Drainage**: one way, no "Стандартен / Чувствителен" choice (35 Hz, the calves at half).
+- Off-device: `scripts/ai-sim/AutoSim` (the same strength after an HR pause and a 5 min pause; the wave's previous
+  group on at 100).

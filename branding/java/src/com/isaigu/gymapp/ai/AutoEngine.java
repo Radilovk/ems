@@ -2529,10 +2529,14 @@ public final class AutoEngine {
         c.stepIndex = step;
         c.phi = ph.phiAt(p);
         c.env = ph.envAt(p);
-        c.scale = s.sigma * reentry;
+        // the body programs never move the strength (owner, 2026-11-25): the person sets each channel once and it
+        // stays — a step is on (the person's level) or silent; no softer step, no softer return after a pause
+        boolean body = !AutoCatalog.isFace(plan.program);
+        double k = body ? (s.sigma > 0 ? 1.0 : 0.0) : s.sigma * reentry;
+        c.scale = k;
         double phi = Math.min(plan.phiMax, c.phi);
-        c.frac = phi * s.sigma * reentry;
-        double env = Math.min(plan.envMax, ph.envAt(p)) * plan.phiMax * s.sigma * reentry;
+        c.frac = phi * k;
+        double env = Math.min(plan.envMax, ph.envAt(p)) * plan.phiMax * k;
         c.ceiling = raiseLocked ? Math.min(Math.max(c.frac, env), c.frac * Math.max(1.0, userScale))
                 : Math.max(c.frac, env);
         if (doublePulse && s.pauseHz > 0 && s.pauseSigma > 0) {

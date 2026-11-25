@@ -429,3 +429,15 @@ it, the warm-up runs softer by design); "s" read aloud as a letter → "секу
   `SafeLimits.minOff` → no), 2nd impulse on (not allowed for the program / in a procedure → no). Allowed but the mode
   would hold < 5 min, or the heart within 5 of its ceiling → said, "Да го направя ли?", done on "да" within 30 s
   (voice or chat), "не" keeps it; the window listens on for the answer.
+
+## 1.1.565 — fast when it can be, thinking when it must
+- **Measured** (ai-smoke 1.1.565, the same three live phrases): gemini-3.8-flash 3.3–10 s and unsteady,
+  gemini-3.5-flash 2.1–3.4 s steady and concrete, 2.5-flash weaker, Flash-Lite fast but cheap (not for decisions).
+- **Server**: a plain live reply (`airoute` "fast": no health in it) → `GEMINI_FAST_MODEL` (wrangler.toml:
+  gemini-3.5-flash, thinking low); health → the newest Flash thinking medium; planning unchanged. A gone fast model
+  (404 / 400) → the main one answers.
+- **Tablet**: no server command reader when the phrase cannot be a command (`AiVoiceCmd.mayBeCommand`: no verb of
+  direction or of the controls, no body part, no setting, no number) — ~0.7 s saved on dialogue; "каква е честотата /
+  колко издържа / защо свали" answered on the tablet (`ask_mode` → `AiLive.describe`); a red flag ("замая ми се",
+  "не мога да дишам", "силна болка"…, `AiLive.redFlag`) pauses at once and says "Спирам. Момент…", the coach (thinking
+  medium) advises after; `Earcon.thinking` (two soft ticks) the moment a phrase goes to the AI.

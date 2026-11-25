@@ -4,7 +4,7 @@ import { coach, workout, command, liveTurn } from '../src/aicoach.js';
 import { brief } from '../src/aibrief.js';
 import * as ab from '../src/aibrief.js';
 
-const env = { GEMINI_API_KEY: process.env.GEMINI_API_KEY };
+const env = { GEMINI_API_KEY: process.env.GEMINI_API_KEY, GEMINI_FAST_MODEL: 'gemini-3.5-flash' };   // as wrangler.toml
 if (!env.GEMINI_API_KEY) { console.log('no GEMINI_API_KEY secret'); process.exit(1); }
 const menu = [{ id: 'general', name: 'Общо стягане', goal: 'TONE', kind: 'ACTIVE' },
   { id: 'back_pain', name: 'Болки в гърба', goal: 'HEALTH', kind: 'PASSIVE' }];
@@ -83,32 +83,6 @@ for (const text of free) {
   } catch (e) {
     console.log(`DIALOG · error ${e && e.message}`);
   }
-}
-
-// ---- speed of the candidate models for a live answer (1.1.565: "fast when possible, think when needed")
-// the same phrase, the same prompt, each Flash the key can call — the time and the answer, printed, not judged
-try {
-  const lr = await fetch('https://generativelanguage.googleapis.com/v1beta/models?pageSize=200',
-    { headers: { 'x-goog-api-key': env.GEMINI_API_KEY.trim() } });
-  const all = ((await lr.json()).models || []).map((m) => String(m.name).replace(/^models\//, ''))
-    .filter((n) => /^gemini-\d+(\.\d+)?-flash(-lite)?(-preview[-\d]*)?$/.test(n));
-  console.log(`SPEED models: ${all.join(', ')}`);
-  const phrases = ['какво упражнение за ръцете сега', 'уморих се', 'защо 85 херца'];
-  for (const m of all.slice(0, 6)) {
-    for (const text of phrases) {
-      const t = Date.now();
-      try {
-        const r = await coach({ ...env, GEMINI_MODEL: m, GEMINI_LITE_MODEL: m }, { kind: 'coach', domain: 'auto', menu,
-          context: { ...live, session: 'RUNNING' }, text, chat: [] });
-        const u = r.usage || {};
-        console.log(`SPEED ${m} · ${Date.now() - t} ms · out ${u.out} think ${u.think} · "${r.coach.reply}"`);
-      } catch (e) {
-        console.log(`SPEED ${m} · error ${String(e && e.message).slice(0, 120)}`);
-      }
-    }
-  }
-} catch (e) {
-  console.log(`SPEED · error ${e && e.message}`);
 }
 
 process.exit(failed ? 1 : 0);

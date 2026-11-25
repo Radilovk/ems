@@ -302,8 +302,7 @@ public final class AutoCatalog {
                 "Less swelling and fluid retention, light legs",
                 Kind.PASSIVE, AutoModel.zones(100, 100, 100, 100, 100, 100, 100, 100, 100, 100)));
         p.cr10Lo = 3; p.cr10Hi = 4; p.xCap = 0.45; p.envMax = 1.0;
-        p.variantsBg = new String[] {"Стандартен (35 Hz)", "Чувствителен (8 Hz)"};
-        p.variantsEn = new String[] {"Standard (35 Hz)", "Sensitive (8 Hz)"};
+        // one way, no choice (owner, 2026-11-25: no "sensitive" / extra settings) — the person sets each channel
 
         p = add(new Program(PASSIVE_METABOLIC, "Активиране на метаболизма", "Metabolism boost",
                 "Изразходване на енергия в покой, без натоварване",
@@ -1019,7 +1018,7 @@ public final class AutoCatalog {
                 break;
             }
             case DRAIN: {
-                int hz = in.variant == 1 ? 8 : 35;
+                int hz = 35;                          // the muscle pump; the calves go out at half (CALF_FACTOR)
                 Phase o = phase(out, "OPEN", "Отваряне", "Opening", 0.15, total, 0.9, 0.9);
                 o.wave = true;
                 o.steps.add(waveStep(hz, 300, ch(ABS, LOWER_BACK), null));

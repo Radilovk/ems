@@ -3,8 +3,8 @@ package com.isaigu.gymapp.train.utils;
 /**
  * Encode-time correction for per-channel impulse strength sent over BLE.
  * UI and stored program values stay unchanged; only the PDU byte is scaled.
- * Arms: divided by a factor that follows the pulse width (a wider pulse carries more charge): the divider D set
- * in Settings (default 10) applies at 400 µs, D/2 at 150 µs, linear in between and beyond (never below ÷1).
+ * Arms: divided by a factor that follows the pulse width (a wider pulse carries more charge): ÷10 at 400 µs,
+ * ÷5 at 150 µs, linear in between and beyond (never below ÷1); fixed — no setting, no 1:1.
  * Other channels: a balance correction that keeps the felt proportions set at 350–400 µs when the pulse
  * narrows (e.g. training → massage at 150 µs). Strength–duration curve per zone:
  * threshold ∝ 1 + c/PW, c = the zone's effective chronaxie = 100 + 500·(type I fibre share) + 300·(tissue depth);
@@ -155,26 +155,18 @@ public final class ChannelStrengthScale {
         return armsFactor(currentPulseWidth);
     }
 
-    /** 1/divider for this pulse width, or 1 (normal strength) when the licence turns on "arms_full". */
+    /**
+     * 1/divider for this pulse width — always (owner, 2026-11-25: "no extra settings — make it right"): a tablet with
+     * the arms 1:1 (the licence's arms_full, the Settings choice, or a tablet back in admin setup) sent 1 % of the
+     * arms as a whole suit unit — "1 % nothing, 2 % very strong". The arms are now never 1:1 and the divider is fixed.
+     */
     public static float armsFactor(int pwUs) {
-        try {
-            if (com.isaigu.gymapp.widget.XemsLicense.hasFeature(
-                    com.isaigu.gymapp.widget.XemsLicense.FEAT_ARMS_FULL)) {
-                return 1f;
-            }
-        } catch (Throwable ignored) {
-        }
         return 1f / armsDivider(pwUs);
     }
 
-    /** D at 400 µs, D/2 at 150 µs, linear; at least 1 (D = Settings → Arms, default 10). */
+    /** ÷10 at 400 µs, ÷5 at 150 µs, linear (one point of the arms slider ≈ 0.1–0.2 of a suit unit). */
     public static float armsDivider(int pwUs) {
-        float top = ARMS_DIV_HIGH;
-        try {
-            top = com.isaigu.gymapp.widget.XemsLicense.armsDivider();
-        } catch (Throwable ignored) {
-        }
-        return armsDivider(pwUs, top);
+        return armsDivider(pwUs, ARMS_DIV_HIGH);
     }
 
     /** The same for a given divider at 400 µs. */

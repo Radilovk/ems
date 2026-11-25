@@ -92,33 +92,17 @@
 .end method
 
 .method public static armsDivider(I)F
-    .registers 3
+    .registers 2
 
     .prologue
-    .line 172
+    .line 169
     const/high16 v0, 0x41200000    # 10.0f
 
-    .line 174
-    :try_start_2
-    invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLicense;->armsDivider()F
-    :try_end_5
-    .catch Ljava/lang/Throwable; {:try_start_2 .. :try_end_5} :catch_b
-
-    move-result v0
-
-    .line 177
-    :goto_6
     invoke-static {p0, v0}, Lcom/isaigu/gymapp/train/utils/ChannelStrengthScale;->armsDivider(IF)F
 
     move-result v0
 
     return v0
-
-    .line 175
-    :catch_b
-    move-exception v1
-
-    goto :goto_6
 .end method
 
 .method public static armsDivider(IF)F
@@ -127,7 +111,7 @@
     .prologue
     const/high16 v0, 0x3f800000    # 1.0f
 
-    .line 182
+    .line 174
     const/high16 v1, 0x40a00000    # 5.0f
 
     mul-float/2addr v1, p1
@@ -136,7 +120,7 @@
 
     div-float/2addr v1, v2
 
-    .line 183
+    .line 175
     add-int/lit16 v2, p0, -0x96
 
     int-to-float v2, v2
@@ -151,7 +135,7 @@
 
     add-float/2addr v1, v2
 
-    .line 184
+    .line 176
     cmpg-float v2, v1, v0
 
     if-gez v2, :cond_17
@@ -244,37 +228,16 @@
     .registers 3
 
     .prologue
+    .line 164
     const/high16 v0, 0x3f800000    # 1.0f
 
-    .line 161
-    :try_start_2
-    const-string v1, "arms_full"
-
-    invoke-static {v1}, Lcom/isaigu/gymapp/widget/XemsLicense;->hasFeature(Ljava/lang/String;)Z
-    :try_end_7
-    .catch Ljava/lang/Throwable; {:try_start_2 .. :try_end_7} :catch_b
-
-    move-result v1
-
-    if-eqz v1, :cond_c
-
-    .line 167
-    :goto_a
-    return v0
-
-    .line 165
-    :catch_b
-    move-exception v1
-
-    .line 167
-    :cond_c
     invoke-static {p0}, Lcom/isaigu/gymapp/train/utils/ChannelStrengthScale;->armsDivider(I)F
 
     move-result v1
 
     div-float/2addr v0, v1
 
-    goto :goto_a
+    return v0
 .end method
 
 .method public static balance(II)F

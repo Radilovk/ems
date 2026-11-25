@@ -292,7 +292,7 @@ T 20 мин · легнал, краката леко повдигнати
 Фаза 3 ръце (20 %):   ръце → гърди+гръб → трапец → пауза 5 s
 Фаза 4 (10 %):        всички 3 Hz / 250 µs, E 0.5
 Стъпка: 35 Hz / 300 µs / ON 3 s / OFF 1 s, рампа 1.0 s нагоре, 0.5 s надолу   [E:R9]
-Вариант „Чувствителен“: 8 Hz на стъпката
+(1.1.567: без вариант „Чувствителен“ — един начин; прасците излизат наполовина, §20)
 E ≤ 0.9 · CR10 цел 3–4 (ясно, не болезнено) · двоен импулс ✗ · пулс: само таван · музика: фон
 ```
 
@@ -902,10 +902,12 @@ strong for that person). Fine manual steps over the session cover the fading fee
   keeps its own factors (§3.3). The start was already at 0 with no setting-up step (1.1.537, `startDirect`).
 - **Calves** (`ChannelStrengthScale.CALF_FACTOR` = 0.5, encode-time like the arms; `sentShare` for `AiEnergy`): one
   point of the calf slider is half a suit unit — a finer step, a little lower overall. The slider shows the same %.
-- **Arms**: the reduced arms already do "1 % ≈ 0.1–0.2 of a unit" (÷5 at 150 µs … ÷10 at 400 µs; ÷8 at the drainage's
-  300 µs). "1 % nothing, 2 % very strong" means a tablet with the arms 1:1 (Settings → Ръце "full", the licence
-  feature `arms_full`, or a tablet still in admin setup): there 1 % is a whole unit. Below one unit the XEMS suit has
-  no finer register (`CommandUtil`: one byte per channel), so on reduced arms a few taps change nothing, then one
-  unit — the smallest real step.
+- **Arms** (1.1.567, owner: "no extra settings — make it right, 1:1 or a tablet back to factory alike"): always
+  ÷10 at 400 µs … ÷5 at 150 µs (÷8 at the drainage's 300 µs) — one point ≈ 0.1–0.2 of a suit unit. The cause of
+  "1 % nothing, 2 % very strong": the arms went out 1:1 (a whole unit per point) on a tablet in admin setup
+  (`XemsLicense.hasFeature` gave every feature then), with the licence's `arms_full` or the Settings "1:1". The
+  Settings arms block (reduced / 1:1, the divider) is gone; `arms_full` no longer changes the output. Below one unit
+  the XEMS suit has no finer register (`CommandUtil`: one byte per channel): a few taps, then one unit.
+- **Drainage**: one way, no "Стандартен / Чувствителен" choice (35 Hz, the calves at half).
 - Off-device: `scripts/ai-sim/AutoSim` (the same strength after an HR pause and a 5 min pause; the wave's previous
   group on at 100).

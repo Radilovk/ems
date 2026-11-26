@@ -18,8 +18,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 /**
- * Settings card "Tablet and data": the mode (admin setup / user), the profile key, the suits (the arms channel is
- * no setting: ChannelStrengthScale fixes it, owner 2026-11-25), export / import of the tablet's data and the one-way
+ * Settings card "Tablet and data": the mode (admin setup / user), the profile key, the suits, the arms channel
+ * (the arms and calves strength sliders, 5 … 100 % of the other channels — in user mode too), export / import of the tablet's data and the one-way
  * "Finish setup".
  */
 public final class XemsLocalSection {
@@ -127,6 +127,22 @@ public final class XemsLocalSection {
         }
         card.addView(row, matchWrap(a, 0));
 
+        {
+            // Arms and calves: how strong they are next to every other channel (owner, 2026-11-26). Right = the same.
+            card.addView(text(a, tr("Ръце и прасци — сила спрямо другите канали", "Arms and calves — strength next to the other channels"),
+                    15, true), matchWrap(a, 16));
+            TextView explain = text(a, tr("Плъзгач вдясно = 100%: ръцете и прасците получават колкото всички други канали. "
+                    + "По-наляво = по-слабо: на 50% същото число на плъзгача им дава половината от силата, която "
+                    + "получават другите. Ръцете са много чувствителни — затова са на 20%.",
+                    "Slider at the right = 100%: the arms and calves get what every other channel gets. Further "
+                    + "left = weaker: at 50% the same number on the slider gives them half of what the others get. "
+                    + "The arms are very sensitive — hence 20%."), 12, false);
+            explain.setTextColor(0xFFB0B0B0);
+            card.addView(explain, matchWrap(a, 2));
+            addDivider(a, card, DivSlider.ARMS);
+            addDivider(a, card, DivSlider.CALF);
+        }
+
         if (setup) {
             Button lock = button(a, tr("Край на настройката", "Finish setup"), 0xFFE53935);
             lock.setOnClickListener(new View.OnClickListener() {
@@ -141,6 +157,93 @@ public final class XemsLocalSection {
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         cardLp.topMargin = dp(a, 16);
         parent.addView(card, cardLp);
+    }
+
+    static String fmt(float v) {
+        float r = Math.round(v * 10f) / 10f;
+        return r == (int) r ? String.valueOf((int) r) : String.valueOf(r).replace('.', ',');
+    }
+
+    /** The slider's stops, % of what the other channels get; weakest first, the last is 100% = 1:1. */
+    static final int[] ARMS_PCT = {5, 8, 10, 12, 15, 20, 25, 30, 40, 50, 60, 75, 100};
+    static final int[] CALF_PCT = {20, 25, 33, 40, 50, 60, 75, 100};
+
+    private static void addDivider(Activity a, LinearLayout card, int kind) {
+        int[] pcts = kind == DivSlider.ARMS ? ARMS_PCT : CALF_PCT;
+        float cur = kind == DivSlider.ARMS ? XemsLicense.armsDivider() : XemsLicense.calfDivider();
+        float curPct = 100f / Math.max(1f, cur);
+        int at = 0;
+        for (int i = 0; i < pcts.length; i++) {
+            if (Math.abs(pcts[i] - curPct) < Math.abs(pcts[at] - curPct)) {
+                at = i;
+            }
+        }
+        card.addView(text(a, kind == DivSlider.ARMS ? tr("Ръце", "Arms") : tr("Прасци", "Calves"), 14, true), matchWrap(a, 12));
+        TextView readout = text(a, "", 13, false);
+        readout.setTextColor(0xFFFFFFFF);
+        android.widget.SeekBar bar = new android.widget.SeekBar(a);
+        bar.setMax(pcts.length - 1);
+        bar.setProgress(at);
+        card.addView(bar, matchWrap(a, 4));
+        card.addView(readout, matchWrap(a, 2));
+        DivSlider ds = new DivSlider(kind, pcts, readout);
+        ds.show(at);
+        bar.setOnSeekBarChangeListener(ds);
+    }
+
+    /** Slider → saved divider (100 / %) + the line under it: the share of the others' strength, and by width. */
+    static final class DivSlider implements android.widget.SeekBar.OnSeekBarChangeListener {
+        static final int ARMS = 0, CALF = 1;
+        private final int kind;
+        private final int[] pcts;
+        private final TextView readout;
+
+        DivSlider(int kind, int[] pcts, TextView readout) {
+            this.kind = kind;
+            this.pcts = pcts;
+            this.readout = readout;
+        }
+
+        void show(int i) {
+            int p = pcts[Math.max(0, Math.min(pcts.length - 1, i))];
+            if (p >= 100) {
+                readout.setText(tr("100% — колкото всички други канали", "100% — the same as every other channel"));
+                return;
+            }
+            String line = p + tr("% от силата на другите канали", "% of the strength the other channels get");
+            if (kind == ARMS) {
+                int[] pws = {400, 250, 150, 100};
+                StringBuilder b = new StringBuilder(tr("широк импулс 400 µs: ", "wide pulse 400 µs: ")).append(p).append('%');
+                for (int k = 1; k < pws.length; k++) {
+                    float share = 100f / com.isaigu.gymapp.train.utils.ChannelStrengthScale.armsDivider(pws[k], 100f / p);
+                    b.append(" · ").append(pws[k]).append(" µs: ").append(Math.min(100, Math.round(share))).append('%');
+                }
+                line += "\n" + b + tr("\nПо-тесният импулс носи по-малко заряд, затова ръцете получават по-голям дял.",
+                        "\nA narrower pulse carries less charge, so the arms get a bigger share.");
+            }
+            readout.setText(line);
+        }
+
+        @Override
+        public void onProgressChanged(android.widget.SeekBar bar, int progress, boolean fromUser) {
+            show(progress);
+            if (fromUser) {
+                float d = 100f / pcts[progress];
+                if (kind == ARMS) {
+                    XemsLicense.setArmsDivider(d);
+                } else {
+                    XemsLicense.setCalfDivider(d);
+                }
+            }
+        }
+
+        @Override
+        public void onStartTrackingTouch(android.widget.SeekBar bar) {
+        }
+
+        @Override
+        public void onStopTrackingTouch(android.widget.SeekBar bar) {
+        }
     }
 
     private static void confirmFinish(final Activity a, final View root) {

@@ -203,3 +203,25 @@ Hz, двоен импулс), −s импулс, +s пауза, начало н�
 trimmed) → a longer pause (×1.5, ×2). The strength, the width (µs) and a shorter impulse are never levers; when the
 rungs are spent the cap (+12) stops the output as before. Given back in the reverse order. Same order as Auto and
 the AI training (`docs/xems-auto-mode-spec.md` §21). Test: `scripts/ai-sim/run.sh` (PULSE …: first lever freq_down).
+
+## 1.1.586–587 — arms and calves: one strength slider each, 5 … 100 % of the other channels (owner, 2026-11-26)
+**Settings → "Tablet and data" → "Ръце и прасци — сила спрямо другите канали"**: two sliders (1.1.587: shown as a share of
+what the other channels get, not as a divider — "5 % … 100 %"; stored as D = 100 / %). The right end is **100 % = 1:1** (a
+slider point = a whole suit unit, like every other channel); at 50 % the same number gives half of what the others get.
+The line under the arms slider shows the share per width (400 / 250 / 150 / 100 µs: a narrower pulse gives the arms a
+bigger share — "a narrower pulse carries less charge"). Stops, arms: 5 · 8 · 10 · 12 · 15 · **20** · 25 · 30 · 40 · 50 ·
+60 · 75 · 100 %; calves: 20 · 25 · 33 · 40 · 50 · 60 · 75 · **100** %. Below: D = ÷D, the same thing.
+- **Arms:** D is the divider **at 400 µs**; the same gradient as before for other widths: ÷D at 400 µs, ÷D/2 at 150 µs,
+  linear and beyond, never below ÷1. D = 5 (default): ÷5 at 400 µs, ÷3.5 at 250 µs, ÷2.5 at 150 µs, ÷2 at 100 µs.
+  Slider stops: ÷20 · 15 · 12 · 10 · 9 · 8 · 7 · 6 · **5** · 4 · 3 · 2 · 1.5 · **1:1**. The line under it shows the
+  share of a normal step and what each width gets. Prefs `arms_div_v2` (default 5).
+- **Calves:** one divider for the whole slider (no width gradient): ÷5 · 4 · 3 · 2.5 · 2 · 1.5 · **1:1** (default ÷1:
+  one point = one unit; before 1.1.585 it was ÷2). Pref `calf_div`.
+- The old "Намален импулс / 1:1" buttons and the typed divider are gone: 1:1 is just the slider's right end (a tablet that had
+  chosen "1:1" is moved to ÷1 on the first start). A tablet in admin setup / with `arms_full` is no longer 1:1 by itself.
+- **Face mode keeps its own gentle ÷10 scale** (`ChannelStrengthScale.faceFactor`: ÷4 at 100 µs, ÷5 at 150 µs, ÷10 at
+  400 µs), whatever the arms slider says.
+- A bug found on the way and fixed before release: the first 1.1.585 build had the arms ratio 5/5 — no gradient, a flat ÷5
+  (and a flat ÷10 for the face). `bash scripts/arms-sim/run.sh` now checks the REAL class against these numbers.
+- AI energy model: the arms count what they are sent; the sim's "legs + glutes hold most of the muscle mass" check is
+  `> 0.45` (was `> 0.5`).

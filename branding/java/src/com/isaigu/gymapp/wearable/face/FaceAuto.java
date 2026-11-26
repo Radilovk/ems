@@ -99,7 +99,7 @@ public final class FaceAuto implements FaceDevice {
      * ({@link ChannelStrengthScale#armsFactor}, ÷4 at 100 µs) and the suit takes whole units per channel only.
      */
     static int units(int master) {
-        return Math.round(master * ChannelStrengthScale.armsFactor(AutoSession.facePw()));
+        return Math.round(master * ChannelStrengthScale.faceFactor(AutoSession.facePw()));
     }
 
     public int maxStrength() {

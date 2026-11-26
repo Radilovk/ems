@@ -98,6 +98,11 @@ public class HostTest {
         byte[] z64 = TabletLink.zhit(7, 9, TabletLink.ZR_HEAD, 100, new int[]{100, 50});
         ok(z64.length == 64 && z64[5] == 6 && z64[24] == 5 && z64[28] == 2 && z64[32] == 100 && z64[33] == 50, "wire layout of T_ZHIT");
 
+        // the /24 sweep: every host but the device itself, the network and the broadcast address
+        List<byte[]> sw = TabletLink.sweep(new byte[]{(byte) 192, (byte) 168, 1, 20});
+        ok(sw.size() == 253 && (sw.get(0)[3] & 0xFF) == 1 && (sw.get(sw.size() - 1)[3] & 0xFF) == 254, "sweep covers .1-.254 minus self: " + sw.size());
+        ok(sw.stream().noneMatch(x -> (x[3] & 0xFF) == 20), "sweep skips self");
+
         // thinning: a big file keeps writing, hot methods every 10th
         File fl2 = File.createTempFile("spy2", ".jsonl");
         try (java.io.RandomAccessFile raf = new java.io.RandomAccessFile(fl2, "rw")) {

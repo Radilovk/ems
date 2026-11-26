@@ -3,11 +3,17 @@ package com.xems.bhspy;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.Inet4Address;
 import java.net.InetAddress;
+import java.net.InterfaceAddress;
+import java.net.NetworkInterface;
 import java.net.SocketTimeoutException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.List;
 
 /**
  * The listener's line to the XEMS tablet: the same UDP protocol the OpenXR layer speaks (vr-bridge/quest-layer/src/
@@ -34,10 +40,21 @@ final class TabletLink implements Runnable {
     private volatile long lastAckMs;
     private int seq;
     private long sent;
+    private volatile String manualIp = "";
+    // diagnostics (what the log and the screen say when "looking for the tablet" never ends)
+    private volatile long helloSent;
+    private volatile long acks;
+    private volatile String lastAckFrom = "";
+    private volatile String lastError = "";
+    private volatile String nets = "";
 
     TabletLink(InetAddress target, int port) throws IOException {
         this.socket = new DatagramSocket();
         this.socket.setBroadcast(true);
+        try {
+            this.socket.setTrafficClass(0xB8);       // DSCP EF: the Wi-Fi voice queue, no waiting behind other traffic
+        } catch (java.net.SocketException ignored) {
+        }
         this.target = target;
         this.port = port;
         this.session = new java.util.Random().nextInt();
@@ -52,6 +69,17 @@ final class TabletLink implements Runnable {
     void stop() {
         running = false;
         socket.close();
+    }
+
+    /** The tablet's address typed by hand (empty = discover). */
+    void setManualIp(String ip) {
+        manualIp = ip == null ? "" : ip.trim();
+    }
+
+    String diag() {
+        return "local " + nets + " · hello " + helloSent + " · ack " + acks
+            + (lastAckFrom.isEmpty() ? "" : " from " + lastAckFrom) + (manualIp.isEmpty() ? "" : " · hand " + manualIp)
+            + (lastError.isEmpty() ? "" : " · err " + lastError);
     }
 
     boolean linked() {
@@ -105,7 +133,72 @@ final class TabletLink implements Runnable {
         try {
             socket.send(new DatagramPacket(d, d.length, to, port));
         } catch (IOException e) {
-            // Wi-Fi blinked: the next heartbeat tries again
+            lastError = e.getClass().getSimpleName() + " " + to.getHostAddress();   // Wi-Fi blinked: next heartbeat
+        }
+    }
+
+    /** Every host of the /24 around {@code ip} except the network, broadcast and the device itself. Pure. */
+    static List<byte[]> sweep(byte[] ip) {
+        List<byte[]> out = new ArrayList<byte[]>();
+        for (int h = 1; h < 255; h++) {
+            if (h == (ip[3] & 0xFF)) continue;
+            out.add(new byte[] {ip[0], ip[1], ip[2], (byte) h});
+        }
+        return out;
+    }
+
+    /** The device's Wi-Fi style IPv4 addresses: {address, directed broadcast or null}. */
+    private List<InetAddress[]> localNets() {
+        List<InetAddress[]> out = new ArrayList<InetAddress[]>();
+        StringBuilder sb = new StringBuilder();
+        try {
+            Enumeration<NetworkInterface> e = NetworkInterface.getNetworkInterfaces();
+            while (e != null && e.hasMoreElements()) {
+                NetworkInterface ni = e.nextElement();
+                if (!ni.isUp() || ni.isLoopback()) continue;
+                for (InterfaceAddress ia : ni.getInterfaceAddresses()) {
+                    if (!(ia.getAddress() instanceof Inet4Address)) continue;
+                    out.add(new InetAddress[] {ia.getAddress(), ia.getBroadcast()});
+                    sb.append(ni.getName()).append(' ').append(ia.getAddress().getHostAddress()).append('/')
+                        .append(ia.getNetworkPrefixLength()).append(' ');
+                }
+            }
+        } catch (IOException ex) {
+            lastError = "nets " + ex.getClass().getSimpleName();
+        }
+        nets = sb.toString().trim();
+        return out;
+    }
+
+    /** One round of looking for the tablet: limited + directed broadcast, the typed address, every 3rd round a sweep. */
+    private void discover(int round) {
+        byte[] h = hello(session, ++seq, "xems-bhaptics-spy");
+        send(h, target);
+        helloSent++;
+        List<InetAddress[]> ls = localNets();
+        for (InetAddress[] a : ls) {
+            if (a[1] != null) send(h, a[1]);
+        }
+        String m = manualIp;
+        if (!m.isEmpty()) {
+            try {
+                send(h, InetAddress.getByName(m));
+            } catch (IOException e) {
+                lastError = "bad ip " + m;
+            }
+        }
+        if (round % 3 == 0) {                         // broadcast filtered by the router: ask every host of the /24
+            for (InetAddress[] a : ls) {
+                byte[] ip = a[0].getAddress();
+                if (ip[0] == (byte) 127 || (ip[0] == (byte) 169 && ip[1] == (byte) 254)) continue;
+                for (byte[] t : sweep(ip)) {
+                    try {
+                        send(h, InetAddress.getByAddress(t));
+                    } catch (IOException e) {
+                        // skip
+                    }
+                }
+            }
         }
     }
 
@@ -113,11 +206,16 @@ final class TabletLink implements Runnable {
     public void run() {
         byte[] rx = new byte[256];
         long nextHello = 0;
+        int round = 0;
         while (running) {
             long now = System.currentTimeMillis();
             if (now >= nextHello) {
-                InetAddress to = peer != null ? peer : target;
-                send(hello(session, ++seq, "xems-bhaptics-spy"), to);
+                if (peer != null && linked()) {
+                    send(hello(session, ++seq, "xems-bhaptics-spy"), peer);     // heartbeat to the paired tablet
+                    helloSent++;
+                } else {
+                    discover(round++);
+                }
                 nextHello = now + 1000;
             }
             try {
@@ -130,6 +228,8 @@ final class TabletLink implements Runnable {
                 if (type == T_ACK) {
                     peer = p.getAddress();
                     lastAckMs = System.currentTimeMillis();
+                    acks++;
+                    lastAckFrom = p.getAddress().getHostAddress();
                 } else if (type == T_PING) {
                     long t1 = System.nanoTime();
                     long t0 = b.getLong(16);

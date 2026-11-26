@@ -283,7 +283,16 @@ public final class SoftRamp {
      * (Settings → Костюм bodytech, 1.1.460): there each step costs a strength frame per channel and keeps the link
      * full, and the double impulse's switches then come late.
      */
+    /**
+     * VR drives a row (wearable/vr/VrDrive.engage / release; owner, 2026-11-26: "in VR the ramp is out, mandatory"):
+     * no rise, no fall and no soft start — a hit taken is felt at once. The absolute limits (SafeGuard) stay.
+     */
+    public static volatile boolean vrNoRamp;
+
     static int[] rampMs(TrainItem item, ProgramDataBean b) {
+        if (vrNoRamp) {
+            return new int[] {0, 0};
+        }
         try {
             if (com.isaigu.gymapp.wearable.SafeGuard.free2(item)) {
                 if (cycleOk(item, b)) {

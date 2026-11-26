@@ -35,7 +35,7 @@ CALLS = {
     ),
     "wearable/vr/VrZoneRouter.smali": (             # zone hits (bHaptics listener) → suit channels + the Mastogo unit
         "Lcom/isaigu/gymapp/wearable/vr/VrPulses;->pulse(IFJZZJ)V",
-        "Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen;->vrHit()V",
+        "Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen;->vrHit(J)V",
     ),
     "wearable/vr/VrZones.smali": (
         "Lcom/isaigu/gymapp/train/model/TrainItem;->partsDisabled:[Z",

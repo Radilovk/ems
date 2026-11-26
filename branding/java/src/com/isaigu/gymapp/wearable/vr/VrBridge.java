@@ -11,10 +11,27 @@ import com.isaigu.gymapp.widget.XemsGuard;
  */
 public final class VrBridge {
     private static VrTelemetryReceiver receiver;
+    /** The Mastogo panel is open: the receiver stays up even when the training screen closes (owner's test). */
+    private static boolean held;
+    private static boolean trainingOpen;
 
     private VrBridge() {}
 
+    /** Mastogo panel open: listen for the headset (zone hits) even without a training screen. */
+    public static synchronized void hold(Context context) {
+        held = true;
+        attach(context);
+    }
+
+    public static synchronized void unhold() {
+        held = false;
+        if (!trainingOpen) {
+            detach();
+        }
+    }
+
     public static synchronized void attach(Context context) {
+        trainingOpen = trainingOpen || !held;
         if (receiver != null || context == null) {
             return;
         }
@@ -32,6 +49,10 @@ public final class VrBridge {
     }
 
     public static synchronized void detach() {
+        trainingOpen = false;
+        if (held) {
+            return;
+        }
         VrTelemetryReceiver r = receiver;
         receiver = null;
         if (r == null) {

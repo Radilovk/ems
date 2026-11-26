@@ -34,6 +34,9 @@ final class Spy {
     private volatile boolean dirty;
     private volatile String status = "ждам играта";
     private final Runnable idle = new IdleUpload();
+    private final Runnable linkLog = new LinkLog();
+    private String lastDiag = "";
+    private long lastDiagMs;
 
     private Spy(Context c) {
         ctx = c.getApplicationContext();
@@ -42,7 +45,9 @@ final class Spy {
         newSession();
         try {
             tablet = new TabletLink(java.net.InetAddress.getByName("255.255.255.255"), TabletLink.PORT);
+            tablet.setManualIp(prefs.getString("tablet_ip", ""));
             tablet.start();
+            main.postDelayed(linkLog, 5000);
         } catch (IOException e) {
             tablet = null;
         }
@@ -103,6 +108,21 @@ final class Spy {
         if (z != null) {
             t.hit(((Integer) z[0]).intValue(), ((Integer) z[1]).intValue(), (int[]) z[2]);
         }
+    }
+
+    /** The link's own account of itself (looking for the tablet that never ends): into the log and the screen. */
+    String tabletDiag() {
+        TabletLink t = tablet;
+        return t == null ? "no link" : t.diag();
+    }
+
+    void setTabletIp(String ip) {
+        prefs.edit().putString("tablet_ip", ip == null ? "" : ip.trim()).apply();
+        if (tablet != null) tablet.setManualIp(ip);
+    }
+
+    String tabletIp() {
+        return prefs.getString("tablet_ip", "");
     }
 
     String tabletStatus() {
@@ -180,6 +200,25 @@ final class Spy {
                 status = note + "не стана: " + r + " (ще опитам пак)";
             }
             busy.set(false);
+        }
+    }
+
+    /** Every 5 s: if the link's account changed (or 30 s passed), one line into the recording. */
+    private final class LinkLog implements Runnable {
+        @Override
+        public void run() {
+            String d = tabletDiag();
+            long now = SystemClock.elapsedRealtime();
+            CallLog l = log;
+            if (l != null && (!d.equals(lastDiag) || now - lastDiagMs > 30000)) {
+                StringBuilder b = new StringBuilder("{\"link\":");
+                CallLog.str(b, d + (tablet != null && tablet.linked() ? " · LINKED" : " · not linked"));
+                l.header(b.append('}').toString());
+                lastDiag = d;
+                lastDiagMs = now;
+                dirty = true;
+            }
+            main.postDelayed(this, 5000);
         }
     }
 

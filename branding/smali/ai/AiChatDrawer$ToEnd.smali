@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 319
+    .line 320
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 320
+    .line 321
     iput-object p1, p0, Lcom/isaigu/gymapp/ai/AiChatDrawer$ToEnd;->sc:Landroid/widget/ScrollView;
 
-    .line 321
+    .line 322
     return-void
 .end method
 
@@ -42,13 +42,13 @@
     .registers 3
 
     .prologue
-    .line 325
+    .line 326
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiChatDrawer$ToEnd;->sc:Landroid/widget/ScrollView;
 
     const/16 v1, 0x82
 
     invoke-virtual {v0, v1}, Landroid/widget/ScrollView;->fullScroll(I)Z
 
-    .line 326
+    .line 327
     return-void
 .end method

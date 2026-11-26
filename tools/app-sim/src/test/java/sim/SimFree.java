@@ -48,6 +48,8 @@ public class SimFree {
         App.addClient(a, "C0:00:00:00:00:01", "XEMS-SIM1");
         Ui.tap(Ui.root(a), "AI тренировка");
         Ui.real(1000);
+        Ui.tap(Ui.windows().get(Ui.windows().size() - 1), "Напред");          // step 2: goal / kind / program
+        Ui.idle(300);
         Ui.tap(Ui.windows().get(Ui.windows().size() - 1), "AI я съставя");
         Ui.real(500);
         // the AI's answer, as it comes from the server
@@ -67,6 +69,13 @@ public class SimFree {
         rb.invoke(null);
         Ui.idle(300);
         Ui.shot(Ui.root(a), "free-1-plan");
+        // the answer is in: on to the result page (the AI is asked only at "Създай" — here the answer is injected)
+        Class<?> aw2 = Class.forName("com.isaigu.gymapp.ai.AiWizard");
+        java.lang.reflect.Field pg = aw2.getDeclaredField("page");
+        pg.setAccessible(true);
+        pg.setInt(null, 3);
+        rb.invoke(null);
+        Ui.idle(300);
         Ui.tap(Ui.windows().get(Ui.windows().size() - 1), "Старт");
         Ui.idle(3000);
         Ui.shot(Ui.root(a), "free-2-run");

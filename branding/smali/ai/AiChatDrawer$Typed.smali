@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 381
+    .line 382
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,24 +34,24 @@
     .registers 4
 
     .prologue
-    .line 392
+    .line 393
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiChatDrawer;->touched()V
 
-    .line 393
-    # getter for: Lcom/isaigu/gymapp/ai/AiChatDrawer;->sendBtn:Landroid/widget/TextView;
-    invoke-static {}, Lcom/isaigu/gymapp/ai/AiChatDrawer;->access$400()Landroid/widget/TextView;
+    .line 394
+    # getter for: Lcom/isaigu/gymapp/ai/AiChatDrawer;->sendBtn:Lcom/isaigu/gymapp/ai/TalkButton;
+    invoke-static {}, Lcom/isaigu/gymapp/ai/AiChatDrawer;->access$400()Lcom/isaigu/gymapp/ai/TalkButton;
 
     move-result-object v0
 
-    if-eqz v0, :cond_22
+    if-eqz v0, :cond_21
 
-    .line 394
-    # getter for: Lcom/isaigu/gymapp/ai/AiChatDrawer;->sendBtn:Landroid/widget/TextView;
-    invoke-static {}, Lcom/isaigu/gymapp/ai/AiChatDrawer;->access$400()Landroid/widget/TextView;
+    .line 395
+    # getter for: Lcom/isaigu/gymapp/ai/AiChatDrawer;->sendBtn:Lcom/isaigu/gymapp/ai/TalkButton;
+    invoke-static {}, Lcom/isaigu/gymapp/ai/AiChatDrawer;->access$400()Lcom/isaigu/gymapp/ai/TalkButton;
 
     move-result-object v1
 
-    if-eqz p1, :cond_23
+    if-eqz p1, :cond_22
 
     invoke-interface {p1}, Landroid/text/Editable;->toString()Ljava/lang/String;
 
@@ -65,29 +65,29 @@
 
     move-result v0
 
-    if-lez v0, :cond_23
+    if-lez v0, :cond_22
 
-    const-string v0, "\u27a4"
+    const/4 v0, 0x1
 
-    :goto_1f
-    invoke-virtual {v1, v0}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
+    :goto_1e
+    invoke-virtual {v1, v0}, Lcom/isaigu/gymapp/ai/TalkButton;->setSend(Z)V
 
-    .line 396
-    :cond_22
+    .line 397
+    :cond_21
     return-void
 
-    .line 394
-    :cond_23
-    const-string v0, "\ud83c\udfa4"
+    .line 395
+    :cond_22
+    const/4 v0, 0x0
 
-    goto :goto_1f
+    goto :goto_1e
 .end method
 
 .method public beforeTextChanged(Ljava/lang/CharSequence;III)V
     .registers 5
 
     .prologue
-    .line 384
+    .line 385
     return-void
 .end method
 
@@ -95,6 +95,6 @@
     .registers 5
 
     .prologue
-    .line 388
+    .line 389
     return-void
 .end method

@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 407
+    .line 408
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -36,7 +36,7 @@
     .prologue
     const/4 v2, 0x0
 
-    .line 410
+    .line 411
     # getter for: Lcom/isaigu/gymapp/ai/AiChatDrawer;->MAIN:Landroid/os/Handler;
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiChatDrawer;->access$200()Landroid/os/Handler;
 
@@ -49,22 +49,22 @@
 
     invoke-virtual {v0, v1}, Landroid/os/Handler;->removeCallbacks(Ljava/lang/Runnable;)V
 
-    .line 411
+    .line 412
     # setter for: Lcom/isaigu/gymapp/ai/AiChatDrawer;->dialog:Landroid/app/Dialog;
     invoke-static {v2}, Lcom/isaigu/gymapp/ai/AiChatDrawer;->access$502(Landroid/app/Dialog;)Landroid/app/Dialog;
 
-    .line 412
+    .line 413
     # setter for: Lcom/isaigu/gymapp/ai/AiChatDrawer;->content:Landroid/widget/LinearLayout;
     invoke-static {v2}, Lcom/isaigu/gymapp/ai/AiChatDrawer;->access$602(Landroid/widget/LinearLayout;)Landroid/widget/LinearLayout;
 
-    .line 413
+    .line 414
     # setter for: Lcom/isaigu/gymapp/ai/AiChatDrawer;->field:Landroid/widget/EditText;
     invoke-static {v2}, Lcom/isaigu/gymapp/ai/AiChatDrawer;->access$002(Landroid/widget/EditText;)Landroid/widget/EditText;
 
-    .line 414
-    # setter for: Lcom/isaigu/gymapp/ai/AiChatDrawer;->sendBtn:Landroid/widget/TextView;
-    invoke-static {v2}, Lcom/isaigu/gymapp/ai/AiChatDrawer;->access$402(Landroid/widget/TextView;)Landroid/widget/TextView;
-
     .line 415
+    # setter for: Lcom/isaigu/gymapp/ai/AiChatDrawer;->sendBtn:Lcom/isaigu/gymapp/ai/TalkButton;
+    invoke-static {v2}, Lcom/isaigu/gymapp/ai/AiChatDrawer;->access$402(Lcom/isaigu/gymapp/ai/TalkButton;)Lcom/isaigu/gymapp/ai/TalkButton;
+
+    .line 416
     return-void
 .end method

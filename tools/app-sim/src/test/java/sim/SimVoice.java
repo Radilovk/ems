@@ -22,6 +22,7 @@ public class SimVoice {
         App.addClient(a, "C0:00:00:00:00:01", "XEMS-SIM1");
         Ui.tap(Ui.root(a), "AI тренировка");
         Ui.real(1000);
+        Ui.createAi();
         Ui.tap(Ui.windows().get(Ui.windows().size() - 1), "Старт");
         Ui.idle(2000);
         Voice.ttsReady();

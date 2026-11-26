@@ -23,6 +23,16 @@ import org.robolectric.annotation.GraphicsMode;
 @Config(sdk = 30, qualifiers = "w1280dp-h800dp-land-mdpi", instrumentedPackages = {"com.isaigu"})
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 public class SimWakeHuawei {
+    /** Any started activity that is the system's speech dialog (the permission activity etc. do not count). */
+    static boolean speechDialog(Activity a) {
+        Intent i;
+        boolean found = false;
+        while ((i = Shadows.shadowOf(a).getNextStartedActivity()) != null) {
+            found |= android.speech.RecognizerIntent.ACTION_RECOGNIZE_SPEECH.equals(i.getAction());
+        }
+        return found;
+    }
+
     @Test
     public void notReady() throws Exception {
         Suit.enableBluetooth();
@@ -37,6 +47,7 @@ public class SimWakeHuawei {
         App.addClient(a, "C0:00:00:00:00:01", "XEMS-SIM1");
         Ui.tap(Ui.root(a), "AI тренировка");
         Ui.real(1000);
+        Ui.createAi();
         Ui.tap(Ui.windows().get(Ui.windows().size() - 1), "Старт");
         Voice.ttsReady();
         Ui.idle(2000);
@@ -48,17 +59,16 @@ public class SimWakeHuawei {
         System.out.println("SIM huawei after wake: state=" + Voice.state() + " serviceOk=" + so.get(null));
         Ui.idle(3500);                                         // the recognizer never gets ready
         // 1.1.574: the first failure only closes the window quietly — no dialog, the recognizer is tried again
-        org.junit.Assert.assertNull("no speech dialog after the first failure", Shadows.shadowOf(a).peekNextStartedActivity());
+        org.junit.Assert.assertFalse("no speech dialog after the first failure", speechDialog(a));
         org.junit.Assert.assertNotEquals("not given up on the first failure", Boolean.FALSE, so.get(null));
         Ui.idle(1000);
         Voice.wake();                                          // the second "тренер", the same silence
         Ui.idle(3500);
         boolean kept = a.getSharedPreferences("xems_wake", Context.MODE_PRIVATE).getBoolean("noBgRec", false);
-        Intent started = Shadows.shadowOf(a).peekNextStartedActivity();
+        boolean dialog = speechDialog(a);
         System.out.println("SIM huawei after the 2nd wake: state=" + Voice.state() + " serviceOk=" + so.get(null)
-                + " kept=" + kept + " dialog=" + (started != null ? started.getAction() : null));
+                + " kept=" + kept + " dialog=" + dialog);
         org.junit.Assert.assertEquals("the background recognizer given up", Boolean.FALSE, so.get(null));
-        org.junit.Assert.assertTrue("the system's speech dialog opens",
-                started != null && android.speech.RecognizerIntent.ACTION_RECOGNIZE_SPEECH.equals(started.getAction()));
+        org.junit.Assert.assertTrue("the system's speech dialog opens", dialog);
     }
 }

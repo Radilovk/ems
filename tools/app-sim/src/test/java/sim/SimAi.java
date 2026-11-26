@@ -26,6 +26,7 @@ public class SimAi {
         Ui.shot(Ui.root(a), "ai-1-open");
         View top = Ui.windows().get(Ui.windows().size() - 1);
         Ui.dump(top, "ai-1-open");
+        Ui.createAi();
         Ui.tap(top, "Старт");
         Voice.ttsReady();
         Ui.idle(2000);

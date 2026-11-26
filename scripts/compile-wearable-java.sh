@@ -216,6 +216,7 @@ WEARABLE_JAVA=(
   "${JAVA_SRC}/com/isaigu/gymapp/ai/AiSetupSheet.java"
   "${JAVA_SRC}/com/isaigu/gymapp/ai/AiCoachBar.java"
   "${JAVA_SRC}/com/isaigu/gymapp/ai/AiChatDrawer.java"
+  "${JAVA_SRC}/com/isaigu/gymapp/ai/TalkButton.java"
   "${JAVA_SRC}/com/isaigu/gymapp/ai/VoiceSettings.java"
   "${JAVA_SRC}/com/isaigu/gymapp/ai/AiMapBoard.java"
   "${JAVA_SRC}/com/isaigu/gymapp/ai/AiAnnounce.java"

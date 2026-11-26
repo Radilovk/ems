@@ -3,6 +3,8 @@ package com.isaigu.gymapp.ai;
 import android.app.Activity;
 import android.widget.LinearLayout;
 
+import android.widget.ScrollView;
+import android.widget.TextView;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.Robolectric;
@@ -28,9 +30,17 @@ public class ShotsAi {
         in.weightKg = 98;
         in.programId = AutoCatalog.recommended(in.goal, in.kind, in).id;
         AutoSession.buildPlan();
-        draw(a, "ai-guest");                                   // a guest, nothing from the AI yet
+        AiWizard.page = AiWizard.STEP_CLIENT;
+        draw(a, "ai-step1");                                   // a guest: who trains
+        AiWizard.page = AiWizard.STEP_PROGRAM;
+        draw(a, "ai-step2");                                   // goal / kind / program, the plan beside it
+        AiWizard.page = AiWizard.STEP_TODAY;
+        AiTrain.draft = "уморена е";
+        draw(a, "ai-step3");                                   // words for today, then "Създай"
+        AiTrain.draft = "";
+        AiWizard.page = AiWizard.RESULT;
         AiTrain.busy = true;
-        draw(a, "ai-guest-busy");
+        draw(a, "ai-result-busy");                             // the AI is writing
         AiTrain.busy = false;
         // a known client from the card, the AI's answer in
         java.lang.reflect.Field f = AutoSession.class.getDeclaredField("rows");
@@ -46,9 +56,58 @@ public class ShotsAi {
                 + "\"during\":\"Вода на малки глътки.\",\"after\":\"Белтък и зеленчуци до 2 часа.\"}}}");
         AiCoach.aiSaid(rep);
         AiTrain.lastChanges = "Hz −10 % · почивки +15 %";
-        draw(a, "ai-client");
+        AiWizard.page = AiWizard.RESULT;
+        draw(a, "ai-client");                                  // the result: the chat and the plan with the AI's guidance
         Shots.shot(wrap(a, AiWizard.padView(a, AiTrain.S_AGE)), 340, 420, "ai-pad");
         Shots.shot(wrap(a, AiWizard.healthView(a)), 860, 330, "ai-health");
+    }
+
+    /** The AI's info sheet (the module's "i"): the science lines, then the folded "Прочети още" opened. */
+    @Test
+    public void info() throws Exception {
+        Activity a = Robolectric.buildActivity(Activity.class).setup().get();
+        com.isaigu.gymapp.widget.XemsUi.init(a);
+        com.isaigu.gymapp.widget.XemsModuleInfo.show(a, com.isaigu.gymapp.widget.XemsLicense.AI, null);
+        android.app.Dialog d = org.robolectric.shadows.ShadowDialog.getLatestDialog();
+        android.view.View root = d.getWindow().getDecorView();
+        ScrollView sc = find(root, ScrollView.class);
+        android.view.View body = sc.getChildAt(0);
+        full(body, "ai-info");
+        for (TextView t : all(root, TextView.class)) {
+            if (t.getText().toString().startsWith("Прочети още")) {
+                t.performClick();
+            }
+        }
+        full(body, "ai-info-more");
+    }
+
+    static void full(android.view.View body, String name) throws Exception {
+        for (android.view.View v : all(body, android.view.View.class)) {        // the entrance animation's start state
+            v.setAlpha(1f);
+            v.setTranslationY(0f);
+        }
+        body.measure(android.view.View.MeasureSpec.makeMeasureSpec(640, android.view.View.MeasureSpec.EXACTLY),
+                android.view.View.MeasureSpec.makeMeasureSpec(0, android.view.View.MeasureSpec.UNSPECIFIED));
+        xems.Shots.shot(body, 640, body.getMeasuredHeight(), name);
+    }
+
+    static <T extends android.view.View> T find(android.view.View v, Class<T> k) {
+        java.util.List<T> l = all(v, k);
+        return l.isEmpty() ? null : l.get(0);
+    }
+
+    static <T extends android.view.View> java.util.List<T> all(android.view.View v, Class<T> k) {
+        java.util.List<T> out = new java.util.ArrayList<T>();
+        if (k.isInstance(v)) {
+            out.add(k.cast(v));
+        }
+        if (v instanceof android.view.ViewGroup) {
+            android.view.ViewGroup g = (android.view.ViewGroup) v;
+            for (int i = 0; i < g.getChildCount(); i++) {
+                out.addAll(all(g.getChildAt(i), k));
+            }
+        }
+        return out;
     }
 
     static LinearLayout wrap(Activity a, android.view.View v) {

@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 748
+    .line 939
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -31,33 +31,35 @@
 
 # virtual methods
 .method public onEditorAction(Landroid/widget/TextView;ILandroid/view/KeyEvent;)Z
-    .registers 7
+    .registers 9
 
     .prologue
+    const/4 v2, 0x1
+
     const/4 v1, 0x0
 
-    .line 751
+    .line 942
     const/4 v0, 0x4
 
-    if-eq p2, v0, :cond_e
+    if-eq p2, v0, :cond_f
 
-    if-eqz p3, :cond_36
+    if-eqz p3, :cond_47
 
     invoke-virtual {p3}, Landroid/view/KeyEvent;->getKeyCode()I
 
     move-result v0
 
-    const/16 v2, 0x42
+    const/16 v3, 0x42
 
-    if-ne v0, v2, :cond_36
+    if-ne v0, v3, :cond_47
 
-    .line 752
-    :cond_e
+    .line 943
+    :cond_f
     invoke-virtual {p1}, Landroid/widget/TextView;->getText()Ljava/lang/CharSequence;
 
     move-result-object v0
 
-    if-eqz v0, :cond_33
+    if-eqz v0, :cond_37
 
     invoke-virtual {p1}, Landroid/widget/TextView;->getText()Ljava/lang/CharSequence;
 
@@ -71,43 +73,65 @@
 
     move-result-object v0
 
-    .line 753
-    :goto_20
+    .line 944
+    :goto_21
     invoke-virtual {v0}, Ljava/lang/String;->length()I
 
-    move-result v2
+    move-result v3
 
-    if-lez v2, :cond_31
+    if-lez v3, :cond_45
 
-    .line 754
-    const-string v2, ""
+    .line 945
+    sget v3, Lcom/isaigu/gymapp/ai/AiWizard;->page:I
 
-    sput-object v2, Lcom/isaigu/gymapp/ai/AiTrain;->draft:Ljava/lang/String;
+    const/4 v4, 0x3
 
-    .line 755
+    if-ge v3, v4, :cond_3a
+
+    .line 946
+    sput-object v0, Lcom/isaigu/gymapp/ai/AiTrain;->draft:Ljava/lang/String;
+
+    .line 947
     invoke-virtual {p1}, Landroid/widget/TextView;->getContext()Landroid/content/Context;
 
-    move-result-object v2
+    move-result-object v0
 
-    invoke-static {v2, v0, v1}, Lcom/isaigu/gymapp/ai/AiTrain;->say(Landroid/content/Context;Ljava/lang/String;Z)V
+    invoke-static {v0}, Lcom/isaigu/gymapp/ai/AiTrain;->create(Landroid/content/Context;)V
 
-    .line 757
-    :cond_31
-    const/4 v0, 0x1
+    move v0, v2
 
-    .line 759
-    :goto_32
+    .line 955
+    :goto_36
     return v0
 
-    .line 752
-    :cond_33
+    .line 943
+    :cond_37
     const-string v0, ""
 
-    goto :goto_20
+    goto :goto_21
 
-    :cond_36
+    .line 950
+    :cond_3a
+    const-string v3, ""
+
+    sput-object v3, Lcom/isaigu/gymapp/ai/AiTrain;->draft:Ljava/lang/String;
+
+    .line 951
+    invoke-virtual {p1}, Landroid/widget/TextView;->getContext()Landroid/content/Context;
+
+    move-result-object v3
+
+    invoke-static {v3, v0, v1}, Lcom/isaigu/gymapp/ai/AiTrain;->say(Landroid/content/Context;Ljava/lang/String;Z)V
+
+    :cond_45
+    move v0, v2
+
+    .line 953
+    goto :goto_36
+
+    :cond_47
     move v0, v1
 
-    .line 759
-    goto :goto_32
+    .line 955
+    goto :goto_36
 .end method

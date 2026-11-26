@@ -355,7 +355,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `TimerPresetStorage.java` (89L, compile:interval-timer,music-sync*) — Local named timer presets (interval + block program).
 
 **train/model/** (`branding/java/src/com/isaigu/gymapp/train/model/`)
-- `SoftRamp.java` (531L, compile:music-sync*,softramp) — Soft rise / fall of the impulse, done by the tablet: the suit ignores the ramp bytes of the work-params PDU, so the str…
+- `SoftRamp.java` (540L, compile:music-sync*,softramp) — Soft rise / fall of the impulse, done by the tablet: the suit ignores the ramp bytes of the work-params PDU, so the str…
 
 **train/utils/** (`branding/java/src/com/isaigu/gymapp/train/utils/`)
 - `ChannelStrengthScale.java` (179L, compile:channel-scale,music-sync*) — Encode-time correction for per-channel impulse strength sent over BLE.
@@ -483,7 +483,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `VrClockSync.java` (61L, compile:music-sync*,wearable) — Quest ↔ tablet monotonic clock offset from PING/PONG.
 - `VrControl.java` (125L, compile:music-sync*,wearable) — The impulse dock of XEMS Studio (owner, 2026-10: "a dock for the impulses, channels, strength"): the game's "Костюм" pa…
 - `VrControlSink.java` (16L, compile:music-sync*,wearable) — Where a game's own impulse controls leave the network layer (XEMS Studio's "Костюм" page and wrist dock, vr-workout/scr…
-- `VrDrive.java` (274L, compile:music-sync*,wearable) — The game's haptic level ({@link VrPulses}) → the XEMS controller, the way MusicSync drives it: the trainer's strength o…
+- `VrDrive.java` (276L, compile:music-sync*,wearable) — The game's haptic level ({@link VrPulses}) → the XEMS controller, the way MusicSync drives it: the trainer's strength o…
 - `VrHapticEvent.java` (56L, compile:music-sync*,wearable) — One xrApplyHapticFeedback call from the game, already time-mapped to this tablet's clock.
 - `VrHapticRouter.java` (42L, compile:music-sync*,wearable) — The one {@link VrHapticSink}: VrTelemetryReceiver → {@link VrNoiseGate} → {@link VrPulses} → {@link VrDrive} (MusicSync…
 - `VrHapticSink.java` (17L, compile:music-sync*,wearable) — Where VR telemetry leaves the network layer (implementation: {@link VrHapticRouter}).
@@ -1091,7 +1091,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L950 ## 22. Owner's answers on the tests (1.1.571)
   - L970 ## 23. Efficiency ≠ load: liberal (owner, 1.1.572)
 
-`docs/xems-bhaptics-research.md` (93L)
+`docs/xems-bhaptics-research.md` (98L)
   - L1 # bHaptics ecosystem as a source of hit ZONES (research, 2026-11-25 — nothing built yet)
   - L6 ## How a Quest game talks to bHaptics (read from `bhaptics/tact-android`, `libs/bhaptics_manager.aar`)
   - L22 ## Idea (NOT built)
@@ -1102,6 +1102,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L64 ## 1.1.579-ai — zone hits reach the tablet (owner's spec, 2026-11-25)
   - L77 ## 1.1.580-ai — the Mastogo panel shows and tests the VR hits (owner: "I feel nothing, nothing moves")
   - L86 ## No added delay (owner, 2026-11-26: "we cannot wait — that is absurd") — 1.1.581-ai
+  - L94 ### In VR the ramp is out (owner, 2026-11-26, 1.1.582-ai)
 
 `docs/xems-bluetens.md` (124L)
   - L1 # Bluetens — protocol and the XEMS module plan

@@ -90,3 +90,8 @@ safety ramp); the Mastogo unit is armed as soon as the headset is linked (not by
 socket uses DSCP EF. Measured and shown on the Mastogo card / VR sheet: "Wi-Fi N ms" (clock-synced headset → tablet) and
 "до Mastogo N ms" (tablet receipt → the unit's write). What remains by design: the suit's BLE write queue
 (`isSenderBusy`), Mastogo's ≤ 4 hits/s link, the unit's own soft start, ≥ 120 ms minimum suit pulse (a contraction).
+
+### In VR the ramp is out (owner, 2026-11-26, 1.1.582-ai)
+While VR drives a row (`VrDrive.engage` → `SoftRamp.vrNoRamp = true`, released with the drive) `SoftRamp.rampMs` returns
+{0,0}: no rise, no fall and no bodytech soft start (the 1.5 s first-impulse rise) — a hit is felt at once. The absolute
+limits (`SafeGuard.enforce`, `ai/SafeLimits`) are NOT bypassed.

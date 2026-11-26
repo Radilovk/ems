@@ -178,6 +178,7 @@ public final class VrDrive {
         slewLevel = 0f;
         slewLastMs = 0L;
         driving = true;
+        com.isaigu.gymapp.train.model.SoftRamp.vrNoRamp = true;     // in VR the ramp is out (the limits are not)
         VrZones.engage(item);
     }
 
@@ -187,6 +188,7 @@ public final class VrDrive {
             return;
         }
         driving = false;
+        com.isaigu.gymapp.train.model.SoftRamp.vrNoRamp = false;
         VrZones.release();
         if (savedFloor >= 0) {
             MasterStrengthControl.setFloorPercent(savedFloor);

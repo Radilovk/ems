@@ -28,6 +28,17 @@ public final class MainActivity extends Activity implements Ble.Listener, Host, 
     static final int VIEW_NO_BT = 0, VIEW_PERMISSION = 1, VIEW_BT_OFF = 2, VIEW_PICK = 3, VIEW_LINKING = 4, VIEW_TRAIN = 5;
 
     Ble ble;
+    /** Signs the trainer's own WiemsPro account in at start (owner's request), credentials from a build secret. */
+    Account account;
+
+    /** Account's log → the unit trace. */
+    final class AcctLog implements Account.Log {
+        @Override
+        public void log(String s) {
+            trace(s);
+        }
+    }
+
     Session session;
     /** A session whose link dropped: kept (zones, strength, program, time done) until its unit is back. */
     Session held;
@@ -320,6 +331,8 @@ public final class MainActivity extends Activity implements Ble.Listener, Host, 
             // no prefs: nothing to say
         }
         load();
+        account = new Account(this, new AcctLog());
+        account.ensureSignedIn();
         ble = new Ble(this, this);
         view = new XView(this, this);
         setContentView(view);

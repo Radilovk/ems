@@ -114,7 +114,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/bluetens/run.sh` (17L) — Offline test of the Bluetens module: the real BluetensShell / BluetensLok / BluetensPrograms / BluetensProgram
 - `scripts/body_deltoid.py` (58L) — The deltoid (shoulder cap) on the body figures' zone maps — one cut for every figure: the report and the client card (s…
 - `scripts/build-motion-app.sh` (84L) — "XEMS Движение" — the XEMS Motion app for Android phones / tablets (motion/app, docs/xems-motion.md "The app"): the
-- `scripts/build-wiems-app.sh` (67L) — "XEMS WiEMS" — the light tablet app for one WiEMS unit (wiems/app, docs/xems-wiems-app.md): XBody's training
+- `scripts/build-wiems-app.sh` (86L) — "XEMS WiEMS" — the light tablet app for one WiEMS unit (wiems/app, docs/xems-wiems-app.md): XBody's training
 - `scripts/compile-avatar-cluster-java.sh` (49L, build:L81[SKIP_JAVA_RECOMPILE]) — Compile AvatarClusterLayout.java to smali (prebuilt fallback when SDK missing).
 - `scripts/compile-bodytech-java.sh` (47L, build:L84[SKIP_JAVA_RECOMPILE]) — Compile the bodytech suit driver (com.isaigu.gymapp.bodytech: BtProto, BtSettings, BtTranslator, BtBridge)
 - `scripts/compile-channel-scale-java.sh` (57L, build:L82[SKIP_JAVA_RECOMPILE]) — Compile ChannelStrengthScale.java to smali (prebuilt fallback when SDK missing).

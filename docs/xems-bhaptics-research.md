@@ -82,3 +82,11 @@ Tests: `bash bhaptics-spy/run-test.sh` — real `TabletLink` → real receiver o
   pads off) and a **ТЕСТ** button = one hit as from the game (no headset needed). VR sheet shows the same line.
 - Zone hits are never dropped as "stale" (a hit 100 ms late is still a hit; the clock sync does not apply to them).
 - The hit's strength is the Mastogo panel's right-card strength (`live.hi`) — if it is low nothing is felt.
+
+## No added delay (owner, 2026-11-26: "we cannot wait — that is absurd") — 1.1.581-ai
+Nothing waits for a zone hit. The old "60 ms stale" rule was a DROP rule of the controller-haptic path; zone hits ignore
+it. Also: a zone hit bypasses the smoothness rise limit in `VrDrive.limitRise` (the suit's SoftRamp stays — it is the
+safety ramp); the Mastogo unit is armed as soon as the headset is linked (not by the first hit, ~0.5 s); the listener's
+socket uses DSCP EF. Measured and shown on the Mastogo card / VR sheet: "Wi-Fi N ms" (clock-synced headset → tablet) and
+"до Mastogo N ms" (tablet receipt → the unit's write). What remains by design: the suit's BLE write queue
+(`isSenderBusy`), Mastogo's ≤ 4 hits/s link, the unit's own soft start, ≥ 120 ms minimum suit pulse (a contraction).

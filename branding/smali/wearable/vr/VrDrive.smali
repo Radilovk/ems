@@ -99,7 +99,7 @@
     .registers 1
 
     .prologue
-    .line 231
+    .line 234
     sget-boolean v0, Lcom/isaigu/gymapp/wearable/vr/VrDrive;->linked:Z
 
     if-eqz v0, :cond_7
@@ -186,7 +186,7 @@
     .registers 1
 
     .prologue
-    .line 256
+    .line 259
     sget v0, Lcom/isaigu/gymapp/wearable/vr/VrHapticRouter;->dropped:I
 
     return v0
@@ -196,7 +196,7 @@
     .registers 1
 
     .prologue
-    .line 252
+    .line 255
     sget v0, Lcom/isaigu/gymapp/wearable/vr/VrHapticRouter;->passed:I
 
     return v0
@@ -206,7 +206,7 @@
     .registers 1
 
     .prologue
-    .line 226
+    .line 229
     sget-boolean v0, Lcom/isaigu/gymapp/wearable/vr/VrDrive;->driving:Z
 
     return v0
@@ -216,7 +216,7 @@
     .registers 1
 
     .prologue
-    .line 222
+    .line 225
     sget-boolean v0, Lcom/isaigu/gymapp/wearable/vr/VrDrive;->linked:Z
 
     return v0
@@ -226,7 +226,7 @@
     .registers 1
 
     .prologue
-    .line 248
+    .line 251
     sget-boolean v0, Lcom/isaigu/gymapp/wearable/vr/VrDrive;->linked:Z
 
     if-eqz v0, :cond_a
@@ -264,7 +264,7 @@
 
     cmp-long v0, v0, v6
 
-    if-nez v0, :cond_44
+    if-nez v0, :cond_4f
 
     const-wide/16 v0, 0xa
 
@@ -282,7 +282,22 @@
     div-int/lit8 v3, v3, 0x64
 
     .line 212
-    if-lez v3, :cond_49
+    invoke-static {}, Ljava/lang/System;->nanoTime()J
+
+    move-result-wide v4
+
+    invoke-static {v4, v5}, Lcom/isaigu/gymapp/wearable/vr/VrZoneRouter;->focusAt(J)I
+
+    move-result v4
+
+    if-eqz v4, :cond_24
+
+    .line 213
+    const/4 v3, 0x0
+
+    .line 215
+    :cond_24
+    if-lez v3, :cond_54
 
     int-to-float v4, p0
 
@@ -290,9 +305,9 @@
 
     cmpl-float v4, v4, v5
 
-    if-lez v4, :cond_49
+    if-lez v4, :cond_54
 
-    .line 213
+    .line 216
     int-to-float v4, p0
 
     sget v5, Lcom/isaigu/gymapp/wearable/vr/VrDrive;->slewLevel:F
@@ -321,39 +336,39 @@
 
     sput v0, Lcom/isaigu/gymapp/wearable/vr/VrDrive;->slewLevel:F
 
-    .line 217
-    :goto_38
+    .line 220
+    :goto_43
     sget v0, Lcom/isaigu/gymapp/wearable/vr/VrDrive;->slewLevel:F
 
     invoke-static {v0}, Ljava/lang/Math;->round(F)I
 
     move-result v0
 
-    .line 218
-    if-lez p0, :cond_43
+    .line 221
+    if-lez p0, :cond_4e
 
-    if-ge v0, v2, :cond_43
+    if-ge v0, v2, :cond_4e
 
     move v0, v2
 
-    :cond_43
+    :cond_4e
     return v0
 
     .line 209
-    :cond_44
+    :cond_4f
     sget-wide v0, Lcom/isaigu/gymapp/wearable/vr/VrDrive;->slewLastMs:J
 
     sub-long v0, v4, v0
 
     goto :goto_f
 
-    .line 215
-    :cond_49
+    .line 218
+    :cond_54
     int-to-float v0, p0
 
     sput v0, Lcom/isaigu/gymapp/wearable/vr/VrDrive;->slewLevel:F
 
-    goto :goto_38
+    goto :goto_43
 .end method
 
 .method static link(ZLjava/lang/String;)V
@@ -520,7 +535,7 @@
     .registers 1
 
     .prologue
-    .line 243
+    .line 246
     sget v0, Lcom/isaigu/gymapp/wearable/vr/VrDrive;->liveApplied:I
 
     return v0
@@ -530,7 +545,7 @@
     .registers 1
 
     .prologue
-    .line 239
+    .line 242
     sget-boolean v0, Lcom/isaigu/gymapp/wearable/vr/VrDrive;->driving:Z
 
     if-eqz v0, :cond_7
@@ -780,7 +795,7 @@
     .registers 1
 
     .prologue
-    .line 235
+    .line 238
     invoke-static {}, Lcom/isaigu/gymapp/wearable/vr/VrDrive;->appName()Ljava/lang/String;
 
     move-result-object v0
@@ -796,14 +811,14 @@
     .registers 3
 
     .prologue
-    .line 260
+    .line 263
     const/16 v0, 0x2e
 
     invoke-virtual {p0, v0}, Ljava/lang/String;->lastIndexOf(I)I
 
     move-result v0
 
-    .line 261
+    .line 264
     if-ltz v0, :cond_16
 
     invoke-virtual {p0}, Ljava/lang/String;->length()I
@@ -1057,13 +1072,13 @@
     .registers 3
 
     .prologue
-    .line 265
+    .line 268
     sget-object v0, Lcom/isaigu/gymapp/wearable/vr/VrDrive;->context:Landroid/content/Context;
 
-    .line 266
+    .line 269
     if-eqz v0, :cond_c
 
-    .line 267
+    .line 270
     const/4 v1, 0x0
 
     invoke-static {v0, p0, v1}, Landroid/widget/Toast;->makeText(Landroid/content/Context;Ljava/lang/CharSequence;I)Landroid/widget/Toast;
@@ -1072,7 +1087,7 @@
 
     invoke-virtual {v0}, Landroid/widget/Toast;->show()V
 
-    .line 269
+    .line 272
     :cond_c
     return-void
 .end method

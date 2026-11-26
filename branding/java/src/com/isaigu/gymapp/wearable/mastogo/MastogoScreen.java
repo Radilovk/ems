@@ -29,6 +29,7 @@ import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import com.isaigu.gymapp.wearable.vr.VrBridge;
+import com.isaigu.gymapp.wearable.vr.VrDrive;
 import com.isaigu.gymapp.wearable.vr.VrZoneRouter;
 
 import com.isaigu.gymapp.bodytech.SuitStandard;
@@ -91,12 +92,12 @@ public final class MastogoScreen {
      * One hit taken in a game with zones (wearable/vr/VrZoneRouter): the panel's УДАР, if the panel is open with a unit
      * ready (owner, 2026-11-25: test — the unit on the shoulder gives an impulse for every hit to the player).
      */
-    public static void vrHit() {
+    public static void vrHit(long recvNs) {
         Page p = current;
         if (p == null || p.closed) {
             return;
         }
-        p.main.post(new VrHitRun(p));
+        p.main.post(new VrHitRun(p, recvNs));
     }
 
     static final class VrTest implements View.OnClickListener {
@@ -108,15 +109,18 @@ public final class MastogoScreen {
 
     static final class VrHitRun implements Runnable {
         final Page p;
+        final long recvNs;
 
-        VrHitRun(Page p) {
+        VrHitRun(Page p, long recvNs) {
             this.p = p;
+            this.recvNs = recvNs;
         }
 
         @Override
         public void run() {
             if (!p.closed) {
                 p.fxDown(Page.FX_HIT);
+                VrZoneRouter.setUnitMs((System.nanoTime() - recvNs) / 1000000L);
             }
         }
     }
@@ -753,6 +757,10 @@ public final class MastogoScreen {
                 return;
             }
             MastogoShell sh = sh();
+            if (sh != null && !sh.probing && !sh.running && sh.hitArmed < 0 && VrDrive.isLinked()) {
+                // the headset is there: get the unit ready now, so the first hit is not the one that waits ~0.5 s
+                sh.armHit(MastogoShell.HIT_LEVEL, FX_CARRIER[FX_HIT], live.hi, fxBase, minutes * 60);
+            }
             String unit = sh == null ? tr("Mastogo: не е свързан — свържи го горе", "Mastogo: not connected — connect it above")
                     : sh.hitArmed < 0 ? tr("Mastogo: свързан · първият удар го включва (~0,5 с)", "Mastogo: connected · the first hit arms it (~0.5 s)")
                     : tr("Mastogo: готов · удари дадени: ", "Mastogo: ready · hits given: ") + sh.hitCount

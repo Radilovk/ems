@@ -209,6 +209,9 @@ public final class VrDrive {
         long dt = slewLastMs == 0L ? TICK_MS : now - slewLastMs;
         slewLastMs = now;
         int riseMs = VrSettings.smoothness() * RISE_TIME_MAX_MS / 100;
+        if (VrZoneRouter.focusAt(System.nanoTime()) != 0) {
+            riseMs = 0;                                 // a hit taken is felt at once, not ramped over the smoothness
+        }
         if (riseMs > 0 && level > slewLevel) {
             slewLevel = Math.min(level, slewLevel + 100f * Math.max(1L, dt) / riseMs);
         } else {

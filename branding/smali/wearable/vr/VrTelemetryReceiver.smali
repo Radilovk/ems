@@ -277,17 +277,17 @@
     .registers 4
 
     .prologue
-    .line 357
+    .line 358
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/vr/VrTelemetryReceiver;->context:Landroid/content/Context;
 
     if-nez v0, :cond_5
 
-    .line 372
+    .line 373
     :cond_4
     :goto_4
     return-void
 
-    .line 359
+    .line 360
     :cond_5
     :try_start_5
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/vr/VrTelemetryReceiver;->context:Landroid/content/Context;
@@ -300,10 +300,10 @@
 
     check-cast v0, Landroid/net/wifi/WifiManager;
 
-    .line 360
+    .line 361
     if-eqz v0, :cond_4
 
-    .line 361
+    .line 362
     sget v1, Landroid/os/Build$VERSION;->SDK_INT:I
 
     const/16 v2, 0x1d
@@ -312,7 +312,7 @@
 
     const/4 v1, 0x4
 
-    .line 363
+    .line 364
     :goto_18
     const-string v2, "xems-vr"
 
@@ -322,19 +322,19 @@
 
     iput-object v1, p0, Lcom/isaigu/gymapp/wearable/vr/VrTelemetryReceiver;->wifiLock:Landroid/net/wifi/WifiManager$WifiLock;
 
-    .line 364
+    .line 365
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/vr/VrTelemetryReceiver;->wifiLock:Landroid/net/wifi/WifiManager$WifiLock;
 
     const/4 v2, 0x0
 
     invoke-virtual {v1, v2}, Landroid/net/wifi/WifiManager$WifiLock;->setReferenceCounted(Z)V
 
-    .line 365
+    .line 366
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/vr/VrTelemetryReceiver;->wifiLock:Landroid/net/wifi/WifiManager$WifiLock;
 
     invoke-virtual {v1}, Landroid/net/wifi/WifiManager$WifiLock;->acquire()V
 
-    .line 366
+    .line 367
     const-string v1, "xems-vr"
 
     invoke-virtual {v0, v1}, Landroid/net/wifi/WifiManager;->createMulticastLock(Ljava/lang/String;)Landroid/net/wifi/WifiManager$MulticastLock;
@@ -343,14 +343,14 @@
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/vr/VrTelemetryReceiver;->mcLock:Landroid/net/wifi/WifiManager$MulticastLock;
 
-    .line 367
+    .line 368
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/vr/VrTelemetryReceiver;->mcLock:Landroid/net/wifi/WifiManager$MulticastLock;
 
     const/4 v1, 0x0
 
     invoke-virtual {v0, v1}, Landroid/net/wifi/WifiManager$MulticastLock;->setReferenceCounted(Z)V
 
-    .line 368
+    .line 369
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/vr/VrTelemetryReceiver;->mcLock:Landroid/net/wifi/WifiManager$MulticastLock;
 
     invoke-virtual {v0}, Landroid/net/wifi/WifiManager$MulticastLock;->acquire()V
@@ -359,11 +359,11 @@
 
     goto :goto_4
 
-    .line 369
+    .line 370
     :catch_3f
     move-exception v0
 
-    .line 370
+    .line 371
     const-string v1, "XemsVr"
 
     const-string v2, "wifi locks"
@@ -372,7 +372,7 @@
 
     goto :goto_4
 
-    .line 362
+    .line 363
     :cond_48
     const/4 v1, 0x3
 
@@ -385,40 +385,40 @@
     .prologue
     const-wide/16 v2, -0x1
 
-    .line 304
+    .line 305
     iget-boolean v0, p0, Lcom/isaigu/gymapp/wearable/vr/VrTelemetryReceiver;->peerUp:Z
 
     if-eqz v0, :cond_9
 
     invoke-direct {p0}, Lcom/isaigu/gymapp/wearable/vr/VrTelemetryReceiver;->linkDown()V
 
-    .line 305
+    .line 306
     :cond_9
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/vr/VrTelemetryReceiver;->peerAddr:Ljava/net/InetAddress;
 
-    .line 306
+    .line 307
     iput p2, p0, Lcom/isaigu/gymapp/wearable/vr/VrTelemetryReceiver;->peerPort:I
 
-    .line 307
+    .line 308
     iput p3, p0, Lcom/isaigu/gymapp/wearable/vr/VrTelemetryReceiver;->peerSession:I
 
-    .line 308
+    .line 309
     const/4 v0, 0x0
 
     iput-boolean v0, p0, Lcom/isaigu/gymapp/wearable/vr/VrTelemetryReceiver;->haveSeq:Z
 
-    .line 309
+    .line 310
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/vr/VrTelemetryReceiver;->clock:Lcom/isaigu/gymapp/wearable/vr/VrClockSync;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/vr/VrClockSync;->reset()V
 
-    .line 310
+    .line 311
     iput-wide v2, p0, Lcom/isaigu/gymapp/wearable/vr/VrTelemetryReceiver;->statRttNs:J
 
-    .line 311
+    .line 312
     iput-wide v2, p0, Lcom/isaigu/gymapp/wearable/vr/VrTelemetryReceiver;->statLastLatencyNs:J
 
-    .line 312
+    .line 313
     return-void
 .end method
 
@@ -967,7 +967,7 @@
     .prologue
     const/4 v0, 0x1
 
-    .line 294
+    .line 295
     iget-boolean v1, p0, Lcom/isaigu/gymapp/wearable/vr/VrTelemetryReceiver;->haveSeq:Z
 
     if-eqz v1, :cond_14
@@ -978,7 +978,7 @@
 
     if-gtz v1, :cond_14
 
-    .line 295
+    .line 296
     iget-wide v0, p0, Lcom/isaigu/gymapp/wearable/vr/VrTelemetryReceiver;->statReordered:J
 
     const-wide/16 v2, 0x1
@@ -987,18 +987,18 @@
 
     iput-wide v0, p0, Lcom/isaigu/gymapp/wearable/vr/VrTelemetryReceiver;->statReordered:J
 
-    .line 296
+    .line 297
     const/4 v0, 0x0
 
-    .line 300
+    .line 301
     :goto_13
     return v0
 
-    .line 298
+    .line 299
     :cond_14
     iput-boolean v0, p0, Lcom/isaigu/gymapp/wearable/vr/VrTelemetryReceiver;->haveSeq:Z
 
-    .line 299
+    .line 300
     iput p1, p0, Lcom/isaigu/gymapp/wearable/vr/VrTelemetryReceiver;->lastSeq:I
 
     goto :goto_13
@@ -1010,10 +1010,10 @@
     .prologue
     const/4 v3, 0x0
 
-    .line 315
+    .line 316
     iput-boolean v3, p0, Lcom/isaigu/gymapp/wearable/vr/VrTelemetryReceiver;->peerUp:Z
 
-    .line 316
+    .line 317
     const-string v0, "XemsVr"
 
     new-instance v1, Ljava/lang/StringBuilder;
@@ -1038,7 +1038,7 @@
 
     invoke-static {v0, v1}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
 
-    .line 317
+    .line 318
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/vr/VrTelemetryReceiver;->sink:Lcom/isaigu/gymapp/wearable/vr/VrHapticSink;
 
     const/4 v1, 0x3
@@ -1051,14 +1051,14 @@
 
     invoke-interface {v0, v1, v2, v4, v5}, Lcom/isaigu/gymapp/wearable/vr/VrHapticSink;->onVrStop(IIJ)V
 
-    .line 318
+    .line 319
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/vr/VrTelemetryReceiver;->sink:Lcom/isaigu/gymapp/wearable/vr/VrHapticSink;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/vr/VrTelemetryReceiver;->peerApp:Ljava/lang/String;
 
     invoke-interface {v0, v3, v1}, Lcom/isaigu/gymapp/wearable/vr/VrHapticSink;->onVrLink(ZLjava/lang/String;)V
 
-    .line 319
+    .line 320
     return-void
 .end method
 
@@ -1254,16 +1254,16 @@
 .end method
 
 .method private onZoneHit(IJJ)V
-    .registers 14
+    .registers 16
 
     .prologue
     .line 281
-    iget-object v7, p0, Lcom/isaigu/gymapp/wearable/vr/VrTelemetryReceiver;->zones:Lcom/isaigu/gymapp/wearable/vr/VrZoneSink;
+    iget-object v9, p0, Lcom/isaigu/gymapp/wearable/vr/VrTelemetryReceiver;->zones:Lcom/isaigu/gymapp/wearable/vr/VrZoneSink;
 
     .line 282
-    if-nez v7, :cond_5
+    if-nez v9, :cond_5
 
-    .line 290
+    .line 291
     :goto_4
     return-void
 
@@ -1316,6 +1316,30 @@
 
     .line 289
     :cond_2b
+    iget-object v0, p0, Lcom/isaigu/gymapp/wearable/vr/VrTelemetryReceiver;->clock:Lcom/isaigu/gymapp/wearable/vr/VrClockSync;
+
+    invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/vr/VrClockSync;->synced()Z
+
+    move-result v0
+
+    if-eqz v0, :cond_60
+
+    const-wide/16 v0, 0x0
+
+    iget-object v2, p0, Lcom/isaigu/gymapp/wearable/vr/VrTelemetryReceiver;->clock:Lcom/isaigu/gymapp/wearable/vr/VrClockSync;
+
+    invoke-virtual {v2, p2, p3}, Lcom/isaigu/gymapp/wearable/vr/VrClockSync;->toTablet(J)J
+
+    move-result-wide v4
+
+    sub-long v4, p4, v4
+
+    invoke-static {v0, v1, v4, v5}, Ljava/lang/Math;->max(JJ)J
+
+    move-result-wide v7
+
+    .line 290
+    :goto_41
     new-instance v0, Lcom/isaigu/gymapp/wearable/vr/VrZoneHit;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/vr/VrTelemetryReceiver;->rx:[B
@@ -1342,11 +1366,17 @@
 
     move v6, p1
 
-    invoke-direct/range {v0 .. v6}, Lcom/isaigu/gymapp/wearable/vr/VrZoneHit;-><init>(II[IJI)V
+    invoke-direct/range {v0 .. v8}, Lcom/isaigu/gymapp/wearable/vr/VrZoneHit;-><init>(II[IJIJ)V
 
-    invoke-interface {v7, v0}, Lcom/isaigu/gymapp/wearable/vr/VrZoneSink;->onVrZoneHit(Lcom/isaigu/gymapp/wearable/vr/VrZoneHit;)V
+    invoke-interface {v9, v0}, Lcom/isaigu/gymapp/wearable/vr/VrZoneSink;->onVrZoneHit(Lcom/isaigu/gymapp/wearable/vr/VrZoneHit;)V
 
     goto :goto_4
+
+    .line 289
+    :cond_60
+    const-wide/16 v7, -0x1
+
+    goto :goto_41
 .end method
 
 .method private releaseWifi()V
@@ -1355,7 +1385,7 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 376
+    .line 377
     :try_start_1
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/vr/VrTelemetryReceiver;->wifiLock:Landroid/net/wifi/WifiManager$WifiLock;
 
@@ -1373,7 +1403,7 @@
 
     invoke-virtual {v0}, Landroid/net/wifi/WifiManager$WifiLock;->release()V
 
-    .line 377
+    .line 378
     :cond_12
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/vr/VrTelemetryReceiver;->mcLock:Landroid/net/wifi/WifiManager$MulticastLock;
 
@@ -1393,18 +1423,18 @@
     :try_end_23
     .catch Ljava/lang/Throwable; {:try_start_1 .. :try_end_23} :catch_28
 
-    .line 380
+    .line 381
     :cond_23
     :goto_23
     iput-object v1, p0, Lcom/isaigu/gymapp/wearable/vr/VrTelemetryReceiver;->wifiLock:Landroid/net/wifi/WifiManager$WifiLock;
 
-    .line 381
+    .line 382
     iput-object v1, p0, Lcom/isaigu/gymapp/wearable/vr/VrTelemetryReceiver;->mcLock:Landroid/net/wifi/WifiManager$MulticastLock;
 
-    .line 382
+    .line 383
     return-void
 
-    .line 378
+    .line 379
     :catch_28
     move-exception v0
 
@@ -1417,14 +1447,14 @@
     .prologue
     const/4 v3, 0x0
 
-    .line 322
+    .line 323
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/vr/VrTelemetryReceiver;->txb:Ljava/nio/ByteBuffer;
 
     const v1, 0x48525658    # 215385.38f
 
     invoke-virtual {v0, v3, v1}, Ljava/nio/ByteBuffer;->putInt(II)Ljava/nio/ByteBuffer;
 
-    .line 323
+    .line 324
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/vr/VrTelemetryReceiver;->tx:[B
 
     const/4 v1, 0x4
@@ -1433,7 +1463,7 @@
 
     aput-byte v2, v0, v1
 
-    .line 324
+    .line 325
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/vr/VrTelemetryReceiver;->tx:[B
 
     const/4 v1, 0x5
@@ -1442,14 +1472,14 @@
 
     aput-byte v2, v0, v1
 
-    .line 325
+    .line 326
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/vr/VrTelemetryReceiver;->txb:Ljava/nio/ByteBuffer;
 
     const/4 v1, 0x6
 
     invoke-virtual {v0, v1, v3}, Ljava/nio/ByteBuffer;->putShort(IS)Ljava/nio/ByteBuffer;
 
-    .line 326
+    .line 327
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/vr/VrTelemetryReceiver;->txb:Ljava/nio/ByteBuffer;
 
     const/16 v1, 0x8
@@ -1458,7 +1488,7 @@
 
     invoke-virtual {v0, v1, v2}, Ljava/nio/ByteBuffer;->putInt(II)Ljava/nio/ByteBuffer;
 
-    .line 327
+    .line 328
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/vr/VrTelemetryReceiver;->txb:Ljava/nio/ByteBuffer;
 
     const/16 v1, 0xc
@@ -1471,28 +1501,28 @@
 
     invoke-virtual {v0, v1, v2}, Ljava/nio/ByteBuffer;->putInt(II)Ljava/nio/ByteBuffer;
 
-    .line 328
+    .line 329
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/vr/VrTelemetryReceiver;->txb:Ljava/nio/ByteBuffer;
 
     const/16 v1, 0x10
 
     invoke-virtual {v0, v1, p3, p4}, Ljava/nio/ByteBuffer;->putLong(IJ)Ljava/nio/ByteBuffer;
 
-    .line 329
+    .line 330
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/vr/VrTelemetryReceiver;->txp:Ljava/net/DatagramPacket;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/vr/VrTelemetryReceiver;->peerAddr:Ljava/net/InetAddress;
 
     invoke-virtual {v0, v1}, Ljava/net/DatagramPacket;->setAddress(Ljava/net/InetAddress;)V
 
-    .line 330
+    .line 331
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/vr/VrTelemetryReceiver;->txp:Ljava/net/DatagramPacket;
 
     iget v1, p0, Lcom/isaigu/gymapp/wearable/vr/VrTelemetryReceiver;->peerPort:I
 
     invoke-virtual {v0, v1}, Ljava/net/DatagramPacket;->setPort(I)V
 
-    .line 332
+    .line 333
     :try_start_46
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/vr/VrTelemetryReceiver;->txp:Ljava/net/DatagramPacket;
 
@@ -1500,16 +1530,16 @@
     :try_end_4b
     .catch Ljava/lang/Exception; {:try_start_46 .. :try_end_4b} :catch_4c
 
-    .line 336
+    .line 337
     :cond_4b
     :goto_4b
     return-void
 
-    .line 333
+    .line 334
     :catch_4c
     move-exception v0
 
-    .line 334
+    .line 335
     iget-boolean v1, p0, Lcom/isaigu/gymapp/wearable/vr/VrTelemetryReceiver;->running:Z
 
     if-eqz v1, :cond_4b
@@ -1529,14 +1559,14 @@
     .prologue
     const/4 v3, 0x0
 
-    .line 339
+    .line 340
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/vr/VrTelemetryReceiver;->stxb:Ljava/nio/ByteBuffer;
 
     const v1, 0x48525658    # 215385.38f
 
     invoke-virtual {v0, v3, v1}, Ljava/nio/ByteBuffer;->putInt(II)Ljava/nio/ByteBuffer;
 
-    .line 340
+    .line 341
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/vr/VrTelemetryReceiver;->stx:[B
 
     const/4 v1, 0x4
@@ -1545,7 +1575,7 @@
 
     aput-byte v2, v0, v1
 
-    .line 341
+    .line 342
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/vr/VrTelemetryReceiver;->stx:[B
 
     const/4 v1, 0x5
@@ -1554,21 +1584,21 @@
 
     aput-byte v2, v0, v1
 
-    .line 342
+    .line 343
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/vr/VrTelemetryReceiver;->stxb:Ljava/nio/ByteBuffer;
 
     const/4 v1, 0x6
 
     invoke-virtual {v0, v1, v3}, Ljava/nio/ByteBuffer;->putShort(IS)Ljava/nio/ByteBuffer;
 
-    .line 343
+    .line 344
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/vr/VrTelemetryReceiver;->stxb:Ljava/nio/ByteBuffer;
 
     const/16 v1, 0x8
 
     invoke-virtual {v0, v1, p5}, Ljava/nio/ByteBuffer;->putInt(II)Ljava/nio/ByteBuffer;
 
-    .line 344
+    .line 345
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/vr/VrTelemetryReceiver;->stxb:Ljava/nio/ByteBuffer;
 
     const/16 v1, 0xc
@@ -1581,31 +1611,31 @@
 
     invoke-virtual {v0, v1, v2}, Ljava/nio/ByteBuffer;->putInt(II)Ljava/nio/ByteBuffer;
 
-    .line 345
+    .line 346
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/vr/VrTelemetryReceiver;->stxb:Ljava/nio/ByteBuffer;
 
     const/16 v1, 0x10
 
     invoke-virtual {v0, v1, p6, p7}, Ljava/nio/ByteBuffer;->putLong(IJ)Ljava/nio/ByteBuffer;
 
-    .line 346
+    .line 347
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/vr/VrTelemetryReceiver;->stxb:Ljava/nio/ByteBuffer;
 
     const/16 v1, 0x18
 
     invoke-interface {p2, v0, v1}, Lcom/isaigu/gymapp/wearable/vr/VrControlSink;->fillState(Ljava/nio/ByteBuffer;I)V
 
-    .line 347
+    .line 348
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/vr/VrTelemetryReceiver;->stxp:Ljava/net/DatagramPacket;
 
     invoke-virtual {v0, p3}, Ljava/net/DatagramPacket;->setAddress(Ljava/net/InetAddress;)V
 
-    .line 348
+    .line 349
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/vr/VrTelemetryReceiver;->stxp:Ljava/net/DatagramPacket;
 
     invoke-virtual {v0, p4}, Ljava/net/DatagramPacket;->setPort(I)V
 
-    .line 350
+    .line 351
     :try_start_48
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/vr/VrTelemetryReceiver;->stxp:Ljava/net/DatagramPacket;
 
@@ -1613,16 +1643,16 @@
     :try_end_4d
     .catch Ljava/lang/Exception; {:try_start_48 .. :try_end_4d} :catch_4e
 
-    .line 354
+    .line 355
     :cond_4d
     :goto_4d
     return-void
 
-    .line 351
+    .line 352
     :catch_4e
     move-exception v0
 
-    .line 352
+    .line 353
     iget-boolean v1, p0, Lcom/isaigu/gymapp/wearable/vr/VrTelemetryReceiver;->running:Z
 
     if-eqz v1, :cond_4d

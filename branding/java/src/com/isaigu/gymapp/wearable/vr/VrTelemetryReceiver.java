@@ -286,7 +286,8 @@ public final class VrTelemetryReceiver implements Runnable {
         for (int i = 0; i < n; i++) {
             lv[i] = Math.min(100, rx[32 + i] & 0xFF);
         }
-        z.onVrZoneHit(new VrZoneHit(rx[24] & 0xFF, rxb.getShort(26) & 0xFFFF, lv, eventNs, seq));
+        long lat = clock.synced() ? Math.max(0L, t3 - clock.toTablet(tNs)) : -1L;     // measured, never waited for
+        z.onVrZoneHit(new VrZoneHit(rx[24] & 0xFF, rxb.getShort(26) & 0xFFFF, lv, eventNs, seq, lat));
     }
 
     /** Wrap-safe: rejects duplicates and anything older than the newest packet seen. */

@@ -51,6 +51,10 @@ final class TabletLink implements Runnable {
     TabletLink(InetAddress target, int port) throws IOException {
         this.socket = new DatagramSocket();
         this.socket.setBroadcast(true);
+        try {
+            this.socket.setTrafficClass(0xB8);       // DSCP EF: the Wi-Fi voice queue, no waiting behind other traffic
+        } catch (java.net.SocketException ignored) {
+        }
         this.target = target;
         this.port = port;
         this.session = new java.util.Random().nextInt();

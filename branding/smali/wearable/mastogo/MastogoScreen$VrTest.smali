@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 102
+    .line 103
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,9 +34,9 @@
     .registers 2
 
     .prologue
-    .line 105
+    .line 106
     invoke-static {}, Lcom/isaigu/gymapp/wearable/vr/VrZoneRouter;->test()V
 
-    .line 106
+    .line 107
     return-void
 .end method

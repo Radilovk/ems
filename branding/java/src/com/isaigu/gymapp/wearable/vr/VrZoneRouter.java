@@ -23,6 +23,9 @@ public final class VrZoneRouter implements VrZoneSink {
     static volatile int received;
     static volatile long lastNs;
     static volatile String lastText = "";
+    /** Headset → tablet (clock-synced) and tablet → the Mastogo write, ms; −1 = unknown. */
+    static volatile long wifiMs = -1;
+    static volatile long unitMs = -1;
 
     static String regionName(int r) {
         switch (r) {
@@ -64,7 +67,13 @@ public final class VrZoneRouter implements VrZoneSink {
         String last = lastText.isEmpty() ? XemsLang.tr("още няма удар", "no hit yet")
                 : lastText + XemsLang.tr(" · преди ", " · ") + Math.max(0, (System.nanoTime() - lastNs) / 1000000000L) + " s";
         return link + XemsLang.tr(" · удари по теб: ", " · hits taken: ") + taken + XemsLang.tr(" (всичко: ", " (all: ")
-                + received + ")\n" + last;
+                + received + ")\n" + last
+                + (wifiMs >= 0 ? XemsLang.tr(" · Wi-Fi ", " · Wi-Fi ") + wifiMs + " ms" : "")
+                + (unitMs >= 0 ? XemsLang.tr(" · до Mastogo ", " · to Mastogo ") + unitMs + " ms" : "");
+    }
+
+    public static void setUnitMs(long ms) {
+        unitMs = ms;
     }
 
     /** A hit as the game would send it (the panels' test button): lower belly, so abs + Mastogo. */
@@ -79,6 +88,7 @@ public final class VrZoneRouter implements VrZoneSink {
     @Override
     public void onVrZoneHit(VrZoneHit h) {
         received++;
+        wifiMs = h.latencyNs >= 0 ? h.latencyNs / 1000000L : -1;
         if (!VrZoneMap.taken(h.region)) {
             lastText = regionName(h.region);
             lastNs = System.nanoTime();
@@ -100,7 +110,7 @@ public final class VrZoneRouter implements VrZoneSink {
         }
         if (now - lastMastogoNs >= MASTOGO_GAP_NS) {
             lastMastogoNs = now;
-            MastogoScreen.vrHit();
+            MastogoScreen.vrHit(now);
         }
     }
 

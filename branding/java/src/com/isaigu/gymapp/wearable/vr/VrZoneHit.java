@@ -8,8 +8,15 @@ public final class VrZoneHit {
     public final int[] levels;
     public final long eventTimeNs;
     public final int seq;
+    /** Headset → tablet, ns, when the clock sync knows it; −1 otherwise. */
+    public final long latencyNs;
 
     public VrZoneHit(int region, int durationMs, int[] levels, long eventTimeNs, int seq) {
+        this(region, durationMs, levels, eventTimeNs, seq, -1L);
+    }
+
+    public VrZoneHit(int region, int durationMs, int[] levels, long eventTimeNs, int seq, long latencyNs) {
+        this.latencyNs = latencyNs;
         this.region = region;
         this.durationMs = durationMs;
         this.levels = levels;

@@ -280,11 +280,7 @@ public final class VrTelemetryReceiver implements Runnable {
     private void onZoneHit(int seq, long tNs, long t3) {
         VrZoneSink z = zones;
         if (z == null) return;
-        long eventNs = clock.synced() ? clock.toTablet(tNs) : t3;
-        if (clock.synced() && t3 - eventNs > maxStaleNs) {
-            statStale++;
-            return;
-        }
+        long eventNs = t3;                    // a hit 100 ms late is still a hit: no clock, no staleness for zones
         int n = Math.min(rx[28] & 0xFF, VrWire.ZHIT_LEVELS);
         int[] lv = new int[n];
         for (int i = 0; i < n; i++) {

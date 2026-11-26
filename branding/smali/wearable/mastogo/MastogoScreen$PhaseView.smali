@@ -27,10 +27,10 @@
     .registers 5
 
     .prologue
-    .line 2011
+    .line 2048
     invoke-direct {p0, p1}, Landroid/view/View;-><init>(Landroid/content/Context;)V
 
-    .line 2007
+    .line 2044
     new-instance v0, Landroid/graphics/Paint;
 
     const/4 v1, 0x1
@@ -39,17 +39,17 @@
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$PhaseView;->paint:Landroid/graphics/Paint;
 
-    .line 2008
+    .line 2045
     new-instance v0, Landroid/graphics/RectF;
 
     invoke-direct {v0}, Landroid/graphics/RectF;-><init>()V
 
     iput-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$PhaseView;->r:Landroid/graphics/RectF;
 
-    .line 2012
+    .line 2049
     iput-object p2, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$PhaseView;->p:Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;
 
-    .line 2013
+    .line 2050
     return-void
 .end method
 
@@ -59,12 +59,12 @@
     .registers 15
 
     .prologue
-    .line 2017
+    .line 2054
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$PhaseView;->p:Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->live:Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;
 
-    .line 2018
+    .line 2055
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$PhaseView;->getWidth()I
 
     move-result v1
@@ -81,7 +81,7 @@
 
     div-float v5, v4, v1
 
-    .line 2019
+    .line 2056
     const/4 v1, 0x1
 
     iget v2, v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell$Mod;->upMs:I
@@ -104,10 +104,10 @@
 
     int-to-float v6, v1
 
-    .line 2020
+    .line 2057
     const/4 v1, 0x0
 
-    .line 2021
+    .line 2058
     const/4 v2, 0x4
 
     new-array v7, v2, [I
@@ -136,7 +136,7 @@
 
     aput v0, v7, v2
 
-    .line 2022
+    .line 2059
     const/4 v0, 0x4
 
     new-array v8, v0, [I
@@ -177,14 +177,14 @@
 
     const/16 v9, 0x55
 
-    .line 2023
+    .line 2060
     invoke-static {v2, v9}, Lcom/isaigu/gymapp/widget/XemsUi;->alpha(II)I
 
     move-result v2
 
     aput v2, v8, v0
 
-    .line 2024
+    .line 2061
     const/4 v0, 0x0
 
     move v2, v0
@@ -194,7 +194,7 @@
 
     if-ge v2, v0, :cond_a3
 
-    .line 2025
+    .line 2062
     aget v0, v7, v2
 
     int-to-float v0, v0
@@ -203,7 +203,7 @@
 
     div-float v9, v0, v6
 
-    .line 2026
+    .line 2063
     const/4 v0, 0x0
 
     cmpg-float v0, v9, v0
@@ -212,7 +212,7 @@
 
     move v0, v1
 
-    .line 2024
+    .line 2061
     :goto_75
     add-int/lit8 v2, v2, 0x1
 
@@ -220,7 +220,7 @@
 
     goto :goto_66
 
-    .line 2029
+    .line 2066
     :cond_79
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$PhaseView;->paint:Landroid/graphics/Paint;
 
@@ -228,7 +228,7 @@
 
     invoke-virtual {v0, v10}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 2030
+    .line 2067
     iget-object v10, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$PhaseView;->r:Landroid/graphics/RectF;
 
     const v0, 0x3e4ccccd    # 0.2f
@@ -254,25 +254,25 @@
 
     invoke-virtual {v10, v1, v11, v0, v12}, Landroid/graphics/RectF;->set(FFFF)V
 
-    .line 2031
+    .line 2068
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$PhaseView;->r:Landroid/graphics/RectF;
 
     iget-object v10, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$PhaseView;->paint:Landroid/graphics/Paint;
 
     invoke-virtual {p1, v0, v5, v5, v10}, Landroid/graphics/Canvas;->drawRoundRect(Landroid/graphics/RectF;FFLandroid/graphics/Paint;)V
 
-    .line 2032
+    .line 2069
     add-float v0, v1, v9
 
     goto :goto_75
 
-    .line 2030
+    .line 2067
     :cond_a1
     const/4 v0, 0x0
 
     goto :goto_8d
 
-    .line 2034
+    .line 2071
     :cond_a3
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$PhaseView;->p:Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;
 
@@ -280,7 +280,7 @@
 
     move-result-object v0
 
-    .line 2035
+    .line 2072
     if-eqz v0, :cond_f1
 
     iget-boolean v1, v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->running:Z
@@ -299,7 +299,7 @@
 
     if-eqz v1, :cond_f1
 
-    .line 2036
+    .line 2073
     invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoShell;->modElapsed()J
 
     move-result-wide v0
@@ -314,14 +314,14 @@
 
     div-float/2addr v0, v6
 
-    .line 2037
+    .line 2074
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$PhaseView;->paint:Landroid/graphics/Paint;
 
     sget v2, Lcom/isaigu/gymapp/widget/XemsUi;->TEXT:I
 
     invoke-virtual {v1, v2}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 2038
+    .line 2075
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$PhaseView;->r:Landroid/graphics/RectF;
 
     invoke-virtual {p0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$PhaseView;->getContext()Landroid/content/Context;
@@ -356,14 +356,14 @@
 
     invoke-virtual {v1, v2, v3, v0, v4}, Landroid/graphics/RectF;->set(FFFF)V
 
-    .line 2039
+    .line 2076
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$PhaseView;->r:Landroid/graphics/RectF;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$PhaseView;->paint:Landroid/graphics/Paint;
 
     invoke-virtual {p1, v0, v5, v5, v1}, Landroid/graphics/Canvas;->drawRoundRect(Landroid/graphics/RectF;FFLandroid/graphics/Paint;)V
 
-    .line 2041
+    .line 2078
     :cond_f1
     return-void
 .end method

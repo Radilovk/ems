@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 2329
+    .line 2366
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 2330
+    .line 2367
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$ScrollDown;->v:Landroid/widget/ScrollView;
 
-    .line 2331
+    .line 2368
     return-void
 .end method
 
@@ -42,13 +42,13 @@
     .registers 3
 
     .prologue
-    .line 2335
+    .line 2372
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$ScrollDown;->v:Landroid/widget/ScrollView;
 
     const/16 v1, 0x82
 
     invoke-virtual {v0, v1}, Landroid/widget/ScrollView;->fullScroll(I)Z
 
-    .line 2336
+    .line 2373
     return-void
 .end method

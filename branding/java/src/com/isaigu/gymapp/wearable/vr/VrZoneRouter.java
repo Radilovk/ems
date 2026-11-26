@@ -1,5 +1,6 @@
 package com.isaigu.gymapp.wearable.vr;
 
+import com.isaigu.gymapp.widget.XemsLang;
 import com.isaigu.gymapp.wearable.mastogo.MastogoScreen;
 
 /**
@@ -17,11 +18,70 @@ public final class VrZoneRouter implements VrZoneSink {
     private static final VrZoneFocus FOCUS = new VrZoneFocus(VrSettings.CHANNELS);
     /** Hits taken since the link came up (VrPanel / the log read them). */
     static volatile int taken;
-    private long lastMastogoNs;
+    private static volatile long lastMastogoNs;
+    /** For the panels: every zone hit that arrived, the last one in words, when. */
+    static volatile int received;
+    static volatile long lastNs;
+    static volatile String lastText = "";
+
+    static String regionName(int r) {
+        switch (r) {
+            case VrWire.ZR_HAND_L: return XemsLang.tr("лява ръка (твой удар)", "left hand (your punch)");
+            case VrWire.ZR_HAND_R: return XemsLang.tr("дясна ръка (твой удар)", "right hand (your punch)");
+            case VrWire.ZR_VEST_FRONT: return XemsLang.tr("тяло отпред", "body front");
+            case VrWire.ZR_VEST_BACK: return XemsLang.tr("гръб", "back");
+            case VrWire.ZR_HEAD: return XemsLang.tr("глава", "head");
+            case VrWire.ZR_FOREARM_L: return XemsLang.tr("лява предмишница", "left forearm");
+            case VrWire.ZR_FOREARM_R: return XemsLang.tr("дясна предмишница", "right forearm");
+            default: return XemsLang.tr("друго", "other");
+        }
+    }
+
+    static String channelNames(int mask) {
+        if (mask == 0) {
+            return XemsLang.tr("без канал", "no channel");
+        }
+        String[] n = {XemsLang.tr("гърди", "chest"), XemsLang.tr("корем", "abs"), XemsLang.tr("пред. бедро", "front thigh"),
+            XemsLang.tr("прасец", "calf"), XemsLang.tr("ръце", "arms"), XemsLang.tr("трапец", "traps"),
+            XemsLang.tr("гръб", "back"), XemsLang.tr("кръст", "lower back"), XemsLang.tr("седалище", "glutes"),
+            XemsLang.tr("зад. бедро", "back thigh")};
+        StringBuilder b = new StringBuilder();
+        for (int c = 0; c < n.length; c++) {
+            if ((mask & (1 << c)) != 0) {
+                b.append(b.length() > 0 ? " + " : "").append(n[c]);
+            }
+        }
+        return b.toString();
+    }
+
+    /** One line for the panels: is the headset there, what arrived, what it did. */
+    public static String status() {
+        String link = VrDrive.isLinked()
+                ? XemsLang.tr("Шлем: свързан", "Headset: linked")
+                : VrBridge.isListening()
+                        ? XemsLang.tr("Шлем: няма връзка (слушателят още не ме е намерил)", "Headset: not linked yet")
+                        : XemsLang.tr("Шлем: не слушам (отвори тренировъчен или Mastogo екран)", "Headset: not listening");
+        String last = lastText.isEmpty() ? XemsLang.tr("още няма удар", "no hit yet")
+                : lastText + XemsLang.tr(" · преди ", " · ") + Math.max(0, (System.nanoTime() - lastNs) / 1000000000L) + " s";
+        return link + XemsLang.tr(" · удари по теб: ", " · hits taken: ") + taken + XemsLang.tr(" (всичко: ", " (all: ")
+                + received + ")\n" + last;
+    }
+
+    /** A hit as the game would send it (the panels' test button): lower belly, so abs + Mastogo. */
+    public static void test() {
+        int[] lv = new int[20];
+        lv[13] = 100;
+        lv[16] = 100;
+        lv[17] = 100;
+        new VrZoneRouter().onVrZoneHit(new VrZoneHit(VrWire.ZR_VEST_FRONT, 100, lv, System.nanoTime(), 0));
+    }
 
     @Override
     public void onVrZoneHit(VrZoneHit h) {
+        received++;
         if (!VrZoneMap.taken(h.region)) {
+            lastText = regionName(h.region);
+            lastNs = System.nanoTime();
             return;
         }
         int level = h.maxLevel();
@@ -31,6 +91,8 @@ public final class VrZoneRouter implements VrZoneSink {
         taken++;
         long now = System.nanoTime();
         int mask = VrZoneMap.channels(h.region, h.levels);
+        lastText = regionName(h.region) + " → " + channelNames(mask) + " + Mastogo";
+        lastNs = now;
         if (mask != 0) {
             long dur = Math.max(VrPulses.MIN_PULSE_NS, h.durationMs * 1000000L);
             FOCUS.add(mask, now + dur);
@@ -50,5 +112,6 @@ public final class VrZoneRouter implements VrZoneSink {
     static void reset() {
         FOCUS.clear();
         taken = 0;
+        received = 0;
     }
 }

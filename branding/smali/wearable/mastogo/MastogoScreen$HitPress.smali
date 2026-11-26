@@ -28,16 +28,16 @@
     .registers 3
 
     .prologue
-    .line 2174
+    .line 2211
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 2175
+    .line 2212
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$HitPress;->p:Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;
 
-    .line 2176
+    .line 2213
     iput p2, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$HitPress;->i:I
 
-    .line 2177
+    .line 2214
     return-void
 .end method
 
@@ -53,36 +53,36 @@
 
     const/4 v2, 0x1
 
-    .line 2181
+    .line 2218
     invoke-virtual {p2}, Landroid/view/MotionEvent;->getActionMasked()I
 
     move-result v0
 
-    .line 2182
+    .line 2219
     if-nez v0, :cond_1d
 
-    .line 2183
+    .line 2220
     invoke-virtual {p1, v2}, Landroid/view/View;->setPressed(Z)V
 
-    .line 2184
+    .line 2221
     invoke-virtual {p1, v1}, Landroid/view/View;->setScaleX(F)V
 
-    .line 2185
+    .line 2222
     invoke-virtual {p1, v1}, Landroid/view/View;->setScaleY(F)V
 
-    .line 2186
+    .line 2223
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$HitPress;->p:Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;
 
     iget v1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$HitPress;->i:I
 
     invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->fxDown(I)V
 
-    .line 2193
+    .line 2230
     :cond_1c
     :goto_1c
     return v2
 
-    .line 2187
+    .line 2224
     :cond_1d
     if-eq v0, v2, :cond_22
 
@@ -90,7 +90,7 @@
 
     if-ne v0, v1, :cond_1c
 
-    .line 2188
+    .line 2225
     :cond_22
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$HitPress;->p:Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;
 
@@ -98,15 +98,15 @@
 
     invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->fxUp(I)V
 
-    .line 2189
+    .line 2226
     const/4 v0, 0x0
 
     invoke-virtual {p1, v0}, Landroid/view/View;->setPressed(Z)V
 
-    .line 2190
+    .line 2227
     invoke-virtual {p1, v3}, Landroid/view/View;->setScaleX(F)V
 
-    .line 2191
+    .line 2228
     invoke-virtual {p1, v3}, Landroid/view/View;->setScaleY(F)V
 
     goto :goto_1c

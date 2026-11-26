@@ -1797,7 +1797,7 @@
 
     move-result v0
 
-    if-eqz v0, :cond_119
+    if-eqz v0, :cond_14b
 
     .line 286
     const-string v0, "\u23f8 \u041f\u0430\u0443\u0437\u0430"
@@ -1834,7 +1834,7 @@
 
     move-result v0
 
-    if-eqz v0, :cond_149
+    if-eqz v0, :cond_17b
 
     invoke-static {}, Lcom/isaigu/gymapp/wearable/vr/VrDrive;->shortAppName()Ljava/lang/String;
 
@@ -1849,9 +1849,9 @@
     move-result v1
 
     .line 304
-    if-ne v6, v2, :cond_153
+    if-ne v6, v2, :cond_185
 
-    if-ltz v1, :cond_153
+    if-ltz v1, :cond_185
 
     move v0, v2
 
@@ -1859,7 +1859,7 @@
     :goto_4c
     sget-object v2, Lcom/isaigu/gymapp/wearable/vr/VrPanel;->hero:Landroid/widget/TextView;
 
-    if-eqz v0, :cond_156
+    if-eqz v0, :cond_188
 
     new-instance v5, Ljava/lang/StringBuilder;
 
@@ -1885,7 +1885,7 @@
     .line 306
     sget-object v2, Lcom/isaigu/gymapp/wearable/vr/VrPanel;->heroUnit:Landroid/widget/TextView;
 
-    if-eqz v0, :cond_15a
+    if-eqz v0, :cond_18c
 
     const-string v1, "\u0432 \u043a\u043e\u0441\u0442\u044e\u043c\u0430"
 
@@ -1901,7 +1901,7 @@
     .line 307
     sget-object v2, Lcom/isaigu/gymapp/wearable/vr/VrPanel;->heroRow:Landroid/view/View;
 
-    if-eqz v0, :cond_15e
+    if-eqz v0, :cond_190
 
     move v1, v3
 
@@ -1930,7 +1930,7 @@
     .line 310
     sget-object v2, Lcom/isaigu/gymapp/wearable/vr/VrPanel;->next:Landroid/widget/TextView;
 
-    if-eqz v0, :cond_161
+    if-eqz v0, :cond_193
 
     sget v1, Lcom/isaigu/gymapp/widget/XemsUi;->MUTED:I
 
@@ -1942,7 +1942,7 @@
 
     const/4 v2, 0x2
 
-    if-eqz v0, :cond_165
+    if-eqz v0, :cond_197
 
     const/high16 v0, 0x41500000    # 13.0f
 
@@ -2005,68 +2005,120 @@
     :cond_cf
     sget-object v1, Lcom/isaigu/gymapp/wearable/vr/VrPanel;->counts:Landroid/widget/TextView;
 
+    new-instance v2, Ljava/lang/StringBuilder;
+
+    invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
+
     invoke-static {}, Lcom/isaigu/gymapp/wearable/vr/VrDrive;->isLinked()Z
 
     move-result v0
 
-    if-eqz v0, :cond_169
+    if-eqz v0, :cond_19b
 
     .line 321
     new-instance v0, Ljava/lang/StringBuilder;
 
     invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
 
-    const-string v2, "\u2713 "
+    const-string v3, "\u2713 "
 
-    invoke-virtual {v0, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    invoke-virtual {v0, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     move-result-object v0
 
     .line 320
     invoke-static {}, Lcom/isaigu/gymapp/wearable/vr/VrDrive;->hitsPassed()I
 
-    move-result v2
+    move-result v3
 
-    invoke-virtual {v0, v2}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
-
-    move-result-object v0
-
-    const-string v2, " \u0443\u0434\u0430\u0440\u0430 \u043c\u0438\u043d\u0430\u0445\u0430"
-
-    const-string v3, " hits passed"
-
-    invoke-static {v2, v3}, Lcom/isaigu/gymapp/wearable/vr/VrPanel;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object v2
-
-    invoke-virtual {v0, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    invoke-virtual {v0, v3}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
 
     move-result-object v0
 
-    const-string v2, "   \u2298 "
+    const-string v3, " \u0443\u0434\u0430\u0440\u0430 \u043c\u0438\u043d\u0430\u0445\u0430"
 
-    invoke-virtual {v0, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    const-string v4, " hits passed"
+
+    invoke-static {v3, v4}, Lcom/isaigu/gymapp/wearable/vr/VrPanel;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v3
+
+    invoke-virtual {v0, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    const-string v3, "   \u2298 "
+
+    invoke-virtual {v0, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     move-result-object v0
 
     invoke-static {}, Lcom/isaigu/gymapp/wearable/vr/VrDrive;->hitsDropped()I
 
-    move-result v2
+    move-result v3
 
-    invoke-virtual {v0, v2}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+    invoke-virtual {v0, v3}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
 
     move-result-object v0
 
-    const-string v2, " \u043e\u0442\u0440\u044f\u0437\u0430\u043d\u0438"
+    const-string v3, " \u043e\u0442\u0440\u044f\u0437\u0430\u043d\u0438"
 
-    const-string v3, " dropped"
+    const-string v4, " dropped"
 
     .line 321
-    invoke-static {v2, v3}, Lcom/isaigu/gymapp/wearable/vr/VrPanel;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+    invoke-static {v3, v4}, Lcom/isaigu/gymapp/wearable/vr/VrPanel;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v3
+
+    invoke-virtual {v0, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v0
+
+    .line 322
+    :goto_119
+    invoke-virtual {v2, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     move-result-object v2
 
-    invoke-virtual {v0, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    invoke-static {}, Lcom/isaigu/gymapp/wearable/vr/VrDrive;->isLinked()Z
+
+    move-result v0
+
+    if-nez v0, :cond_127
+
+    sget v0, Lcom/isaigu/gymapp/wearable/vr/VrZoneRouter;->taken:I
+
+    if-lez v0, :cond_19f
+
+    :cond_127
+    new-instance v0, Ljava/lang/StringBuilder;
+
+    invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v3, "\n"
+
+    invoke-virtual {v0, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    invoke-static {}, Lcom/isaigu/gymapp/wearable/vr/VrZoneRouter;->status()Ljava/lang/String;
+
+    move-result-object v3
+
+    invoke-virtual {v0, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v0
+
+    :goto_13e
+    invoke-virtual {v2, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     move-result-object v0
 
@@ -2075,18 +2127,17 @@
     move-result-object v0
 
     .line 319
-    :goto_114
     invoke-virtual {v1, v0}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
     goto/16 :goto_10
 
     .line 288
-    :cond_119
+    :cond_14b
     invoke-static {}, Lcom/isaigu/gymapp/wearable/vr/VrDrive;->isDriving()Z
 
     move-result v0
 
-    if-eqz v0, :cond_12b
+    if-eqz v0, :cond_15d
 
     .line 289
     const-string v0, "\u25cf \u0412\u043e\u0434\u0438 \u0441\u0438\u043b\u0430\u0442\u0430"
@@ -2103,12 +2154,12 @@
     goto/16 :goto_25
 
     .line 291
-    :cond_12b
+    :cond_15d
     invoke-static {}, Lcom/isaigu/gymapp/wearable/vr/VrDrive;->isLinked()Z
 
     move-result v0
 
-    if-eqz v0, :cond_13d
+    if-eqz v0, :cond_16f
 
     .line 292
     const-string v0, "\u0421\u0432\u044a\u0440\u0437\u0430\u043d"
@@ -2125,7 +2176,7 @@
     goto/16 :goto_25
 
     .line 295
-    :cond_13d
+    :cond_16f
     const-string v0, "\u041d\u044f\u043c\u0430 \u0432\u0440\u044a\u0437\u043a\u0430"
 
     const-string v1, "Not linked"
@@ -2140,7 +2191,7 @@
     goto/16 :goto_25
 
     .line 302
-    :cond_149
+    :cond_17b
     const-string v0, "\u041d\u044f\u043c\u0430 \u0438\u0433\u0440\u0430"
 
     const-string v5, "No game"
@@ -2151,47 +2202,52 @@
 
     goto/16 :goto_40
 
-    :cond_153
+    :cond_185
     move v0, v3
 
     .line 304
     goto/16 :goto_4c
 
     .line 305
-    :cond_156
+    :cond_188
     const-string v1, ""
 
     goto/16 :goto_63
 
     .line 306
-    :cond_15a
+    :cond_18c
     const-string v1, ""
 
     goto/16 :goto_72
 
-    :cond_15e
+    :cond_190
     move v1, v4
 
     .line 307
     goto/16 :goto_7a
 
     .line 310
-    :cond_161
+    :cond_193
     sget v1, Lcom/isaigu/gymapp/widget/XemsUi;->TEXT:I
 
     goto/16 :goto_94
 
     .line 311
-    :cond_165
+    :cond_197
     const/high16 v0, 0x41800000    # 16.0f
 
     goto/16 :goto_9e
 
     .line 322
-    :cond_169
+    :cond_19b
     const-string v0, ""
 
-    goto :goto_114
+    goto/16 :goto_119
+
+    :cond_19f
+    const-string v0, ""
+
+    goto :goto_13e
 .end method
 
 .method public static status()Ljava/lang/String;

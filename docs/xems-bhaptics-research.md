@@ -73,3 +73,12 @@ PONG) plus **T_ZHIT** (0x06, 64 B: region u8, durationMs u16, count u8, levels[3
   Mastogo panel is open with a unit ready (first hit arms it, ~0.5 s); ≤ 4 hits/s.
 Needs a running row with VR driving (VR not paused). Orientation of the vest grid is unproven (row 0 top?).
 Tests: `bash bhaptics-spy/run-test.sh` — real `TabletLink` → real receiver on loopback, mapping, focus.
+
+## 1.1.580-ai — the Mastogo panel shows and tests the VR hits (owner: "I feel nothing, nothing moves")
+- The Mastogo panel now holds the headset receiver (`VrBridge.hold/unhold`): zone hits reach the unit even with no
+  training screen open.
+- Hit tab → card "УДАРИ ОТ ИГРАТА (VR)": headset linked?, hits taken / all, the last hit in words
+  ("тяло отпред → корем + Mastogo, преди 2 s"), the unit's state (not connected / armed / hits given / strength /
+  pads off) and a **ТЕСТ** button = one hit as from the game (no headset needed). VR sheet shows the same line.
+- Zone hits are never dropped as "stale" (a hit 100 ms late is still a hit; the clock sync does not apply to them).
+- The hit's strength is the Mastogo panel's right-card strength (`live.hi`) — if it is low nothing is felt.

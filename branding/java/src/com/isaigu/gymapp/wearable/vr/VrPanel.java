@@ -212,6 +212,10 @@ public final class VrPanel {
             return;
         }
         f.removeAllViews();
+        TextView hitBtn = XemsUi.button(a, tr("Параметри на удара: сила, честота, дълбочина, Mastogo ›",
+                "Hit parameters: strength, frequency, depth, Mastogo ›"), XemsUi.SECONDARY);
+        hitBtn.setOnClickListener(new OpenHit());
+        f.addView(hitBtn, XemsUi.matchWrap(a, 14));
         f.addView(XemsUi.label(a, tr("Кои удари минават", "Which hits pass")));
         f.addView(XemsUi.segmented(a, new String[] {
                 tr("Само силни", "Strong only"), tr("Нормално", "Normal"), tr("Всички", "All")},
@@ -227,7 +231,7 @@ public final class VrPanel {
         floorStepper = st;
         two.addView(floorCol, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
         LinearLayout riseCol = XemsUi.vertical(a);
-        riseCol.addView(XemsUi.label(a, tr("Нарастване", "Rise")));
+        riseCol.addView(XemsUi.label(a, tr("Спадане", "Fall")));
         riseCol.addView(XemsUi.segmented(a, new String[] {
                 tr("Рязко", "Sharp"), tr("Средно", "Medium"), tr("Меко", "Soft")},
                 VrSettings.smoothIndex(), new Pick(Pick.SMOOTH)));
@@ -433,6 +437,13 @@ public final class VrPanel {
                 VrSettings.setSmoothIndex(a, index);
             }
             fillFeel();
+        }
+    }
+
+    static final class OpenHit implements View.OnClickListener {
+        @Override
+        public void onClick(View v) {
+            VrHitPanel.open(activity);
         }
     }
 

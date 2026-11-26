@@ -28,16 +28,16 @@
     .registers 4
 
     .prologue
-    .line 114
+    .line 129
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 115
+    .line 130
     iput-object p1, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$VrHitRun;->p:Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;
 
-    .line 116
+    .line 131
     iput-wide p2, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$VrHitRun;->recvNs:J
 
-    .line 117
+    .line 132
     return-void
 .end method
 
@@ -47,21 +47,19 @@
     .registers 5
 
     .prologue
-    .line 121
+    .line 136
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$VrHitRun;->p:Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;
 
     iget-boolean v0, v0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->closed:Z
 
-    if-nez v0, :cond_1a
+    if-nez v0, :cond_19
 
-    .line 122
+    .line 137
     iget-object v0, p0, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$VrHitRun;->p:Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;
 
-    const/4 v1, 0x0
+    invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->vrFire()V
 
-    invoke-virtual {v0, v1}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen$Page;->fxDown(I)V
-
-    .line 123
+    .line 138
     invoke-static {}, Ljava/lang/System;->nanoTime()J
 
     move-result-wide v0
@@ -76,7 +74,7 @@
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/vr/VrZoneRouter;->setUnitMs(J)V
 
-    .line 125
-    :cond_1a
+    .line 140
+    :cond_19
     return-void
 .end method

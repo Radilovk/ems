@@ -34,13 +34,13 @@
     .registers 2
 
     .prologue
-    .line 394
+    .line 398
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 395
+    .line 399
     iput p1, p0, Lcom/isaigu/gymapp/wearable/vr/VrPanel$Click;->what:I
 
-    .line 396
+    .line 400
     return-void
 .end method
 
@@ -50,16 +50,16 @@
     .registers 5
 
     .prologue
-    .line 401
+    .line 405
     :try_start_0
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsUi;->haptic(Landroid/view/View;)V
 
-    .line 402
+    .line 406
     iget v0, p0, Lcom/isaigu/gymapp/wearable/vr/VrPanel$Click;->what:I
 
     if-nez v0, :cond_17
 
-    .line 403
+    .line 407
     # getter for: Lcom/isaigu/gymapp/wearable/vr/VrPanel;->shell:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/vr/VrPanel;->access$300()Lcom/isaigu/gymapp/widget/XemsUi$Shell;
 
@@ -67,7 +67,7 @@
 
     if-eqz v0, :cond_16
 
-    .line 404
+    .line 408
     # getter for: Lcom/isaigu/gymapp/wearable/vr/VrPanel;->shell:Lcom/isaigu/gymapp/widget/XemsUi$Shell;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/vr/VrPanel;->access$300()Lcom/isaigu/gymapp/widget/XemsUi$Shell;
 
@@ -77,12 +77,12 @@
 
     invoke-virtual {v0}, Landroid/app/Dialog;->dismiss()V
 
-    .line 415
+    .line 419
     :cond_16
     :goto_16
     return-void
 
-    .line 406
+    .line 410
     :cond_17
     iget v0, p0, Lcom/isaigu/gymapp/wearable/vr/VrPanel$Click;->what:I
 
@@ -90,14 +90,14 @@
 
     if-ne v0, v1, :cond_2e
 
-    .line 407
+    .line 411
     invoke-virtual {p1}, Landroid/view/View;->getContext()Landroid/content/Context;
 
     move-result-object v0
 
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/vr/VrSettings;->reset(Landroid/content/Context;)V
 
-    .line 408
+    .line 412
     # invokes: Lcom/isaigu/gymapp/wearable/vr/VrPanel;->fillFeel()V
     invoke-static {}, Lcom/isaigu/gymapp/wearable/vr/VrPanel;->access$900()V
     :try_end_26
@@ -105,18 +105,18 @@
 
     goto :goto_16
 
-    .line 412
+    .line 416
     :catch_27
     move-exception v0
 
-    .line 413
+    .line 417
     const-string v1, "VrPanel.click"
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V
 
     goto :goto_16
 
-    .line 410
+    .line 414
     :cond_2e
     :try_start_2e
     # getter for: Lcom/isaigu/gymapp/wearable/vr/VrPanel;->activity:Landroid/app/Activity;

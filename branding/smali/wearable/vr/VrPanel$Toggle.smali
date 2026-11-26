@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 466
+    .line 477
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,7 +34,7 @@
     .registers 4
 
     .prologue
-    .line 469
+    .line 480
     # getter for: Lcom/isaigu/gymapp/wearable/vr/VrPanel;->activity:Landroid/app/Activity;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/vr/VrPanel;->access$800()Landroid/app/Activity;
 
@@ -47,10 +47,10 @@
     :goto_7
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/wearable/vr/VrSettings;->setPaused(Landroid/content/Context;Z)V
 
-    .line 470
+    .line 481
     return-void
 
-    .line 469
+    .line 480
     :cond_b
     const/4 v0, 0x0
 

@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 351
+    .line 355
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,7 +34,7 @@
     .registers 5
 
     .prologue
-    .line 354
+    .line 358
     # getter for: Lcom/isaigu/gymapp/wearable/vr/VrPanel;->refresh:Lcom/isaigu/gymapp/wearable/vr/VrPanel$Refresh;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/vr/VrPanel;->access$000()Lcom/isaigu/gymapp/wearable/vr/VrPanel$Refresh;
 
@@ -42,11 +42,11 @@
 
     if-eq v0, p0, :cond_7
 
-    .line 364
+    .line 368
     :goto_6
     return-void
 
-    .line 358
+    .line 362
     :cond_7
     :try_start_7
     # invokes: Lcom/isaigu/gymapp/wearable/vr/VrPanel;->refreshNow()V
@@ -54,7 +54,7 @@
     :try_end_a
     .catch Ljava/lang/Throwable; {:try_start_7 .. :try_end_a} :catch_14
 
-    .line 363
+    .line 367
     # getter for: Lcom/isaigu/gymapp/wearable/vr/VrPanel;->MAIN:Landroid/os/Handler;
     invoke-static {}, Lcom/isaigu/gymapp/wearable/vr/VrPanel;->access$200()Landroid/os/Handler;
 
@@ -66,11 +66,11 @@
 
     goto :goto_6
 
-    .line 359
+    .line 363
     :catch_14
     move-exception v0
 
-    .line 360
+    .line 364
     const-string v1, "VrPanel.refresh"
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V

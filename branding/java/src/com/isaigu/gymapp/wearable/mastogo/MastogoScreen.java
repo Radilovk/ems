@@ -30,6 +30,8 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import com.isaigu.gymapp.wearable.vr.VrBridge;
 import com.isaigu.gymapp.wearable.vr.VrDrive;
+import com.isaigu.gymapp.wearable.vr.VrHitPanel;
+import com.isaigu.gymapp.wearable.vr.VrHitSettings;
 import com.isaigu.gymapp.wearable.vr.VrZoneRouter;
 
 import com.isaigu.gymapp.bodytech.SuitStandard;
@@ -100,6 +102,19 @@ public final class MastogoScreen {
         p.main.post(new VrHitRun(p, recvNs));
     }
 
+    static final class VrSettingsOpen implements View.OnClickListener {
+        final Page p;
+
+        VrSettingsOpen(Page p) {
+            this.p = p;
+        }
+
+        @Override
+        public void onClick(View v) {
+            VrHitPanel.open(p.a);
+        }
+    }
+
     static final class VrTest implements View.OnClickListener {
         @Override
         public void onClick(View v) {
@@ -119,7 +134,7 @@ public final class MastogoScreen {
         @Override
         public void run() {
             if (!p.closed) {
-                p.fxDown(Page.FX_HIT);
+                p.vrFire();
                 VrZoneRouter.setUnitMs((System.nanoTime() - recvNs) / 1000000L);
             }
         }
@@ -746,6 +761,10 @@ public final class MastogoScreen {
                     XemsUi.SECONDARY);
             vrTest.setOnClickListener(new VrTest());
             card.addView(vrTest, XemsUi.matchWrap(a, 8));
+            TextView vrSet = XemsUi.button(a, tr("Настройки на удара: сила, усещане, дължина ›",
+                    "Hit settings: strength, feel, length ›"), XemsUi.GHOST);
+            vrSet.setOnClickListener(new VrSettingsOpen(this));
+            card.addView(vrSet, XemsUi.matchWrap(a, 6));
             renderVr();
             tabBody.addView(card, XemsUi.matchWrap(a, 12));
             renderHit();
@@ -759,12 +778,12 @@ public final class MastogoScreen {
             MastogoShell sh = sh();
             if (sh != null && !sh.probing && !sh.running && sh.hitArmed < 0 && VrDrive.isLinked()) {
                 // the headset is there: get the unit ready now, so the first hit is not the one that waits ~0.5 s
-                sh.armHit(MastogoShell.HIT_LEVEL, FX_CARRIER[FX_HIT], live.hi, fxBase, minutes * 60);
+                sh.armHit(MastogoShell.HIT_LEVEL, FX_CARRIER[FX_HIT], VrHitSettings.mastogoLevel(), fxBase, minutes * 60);
             }
             String unit = sh == null ? tr("Mastogo: не е свързан — свържи го горе", "Mastogo: not connected — connect it above")
                     : sh.hitArmed < 0 ? tr("Mastogo: свързан · първият удар го включва (~0,5 с)", "Mastogo: connected · the first hit arms it (~0.5 s)")
                     : tr("Mastogo: готов · удари дадени: ", "Mastogo: ready · hits given: ") + sh.hitCount
-                            + tr(" · сила ", " · strength ") + sh.hitLevel
+                            + tr(" · сила ", " · strength ") + sh.hitLevel + "/25"
                             + (sh.contact == 0 ? tr(" · ⚠ електродите не допират", " · ⚠ pads not touching") : "");
             vrInfo.setText(VrZoneRouter.status() + "\n" + unit);
         }
@@ -782,6 +801,26 @@ public final class MastogoScreen {
                     + "stronger but is felt all the time). Another kind = another program: its first time ~0.5 s. "
                     + "■ stops everything. ") + (sh != null && sh.hitArmed >= 0 ? tr("Готово · събития: ", "Ready · events: ")
                     + sh.hitCount + tr(" · апаратчето се държи будно.", " · the unit is kept awake.") : ""));
+        }
+
+        /** One hit taken in the game, with the owner's own settings (VrHitSettings): strength, kind, length. */
+        void vrFire() {
+            MastogoShell sh = sh();
+            if (sh == null || sh.probing) {
+                return;
+            }
+            int fx = VrHitSettings.mastogoFeel() == VrHitSettings.FEEL_CLICK ? FX_CLICK
+                    : VrHitSettings.mastogoFeel() == VrHitSettings.FEEL_STAB ? FX_STAB : FX_HIT;
+            int carrier = FX_CARRIER[fx];
+            int lvl = VrHitSettings.mastogoLevel();
+            if (sh.hitArmed != MastogoShell.HIT_LEVEL || sh.mode != carrier) {
+                liveRun = false;
+                sh.armHit(MastogoShell.HIT_LEVEL, carrier, lvl, fxBase, minutes * 60);
+            } else if (sh.hitLevel != lvl) {
+                sh.setHitLevel(lvl);
+            }
+            sh.hit(VrHitSettings.mastogoMs());
+            renderVr();
         }
 
         void fxDown(int i) {

@@ -95,3 +95,18 @@ socket uses DSCP EF. Measured and shown on the Mastogo card / VR sheet: "Wi-Fi N
 While VR drives a row (`VrDrive.engage` → `SoftRamp.vrNoRamp = true`, released with the drive) `SoftRamp.rampMs` returns
 {0,0}: no rise, no fall and no bodytech soft start (the 1.5 s first-impulse rise) — a hit is felt at once. The absolute
 limits (`SafeGuard.enforce`, `ai/SafeLimits`) are NOT bypassed.
+
+## 1.1.583-ai — "Удар във VR": the hit's own settings (owner, 2026-11-26)
+- **No ramp up in VR, ever** (`VrDrive.limitRise` has no rise any more; `SoftRamp.vrNoRamp`); the **fall** stays
+  (VR sheet, "Спадане": sharp / medium 120 ms / soft 300 ms). NB: the "soft rise ≥ 0.3 s" line of
+  docs/xems-safety-limits.md does not apply while VR drives a row — the owner's order; the other limits (Hz, depth,
+  pause, 2nd impulse) still do (`SafeGuard.enforce`, also on the hit's own frequency / depth).
+- **No cap on hits per second / minute:** every zone hit fires (the Mastogo throttle is gone).
+- **Modal "Удар във VR"** (`VrHitPanel`; button in the VR sheet and in the Mastogo panel's VR card; `VrHitSettings`,
+  prefs `xems_vr_hit`, one set for every client): XEMS suit — strength % of the trainer's (10–100), frequency (0 = the
+  row's own, 5–120 Hz), depth = pulse width (0 = the row's own, 50–400 µs in 50s); Mastogo — strength 1–25 (default 24),
+  feel (Удар = 14 Пеперуда / Клик = 19 Непрекъснат 77 Hz / Убождане = 25 Женски 1200 Hz), length 10–500 ms (40).
+  A TEST button fires one hit.
+- The suit's hit frequency / depth: `SoftRamp.vrHit` swaps them into a copy of the row's bean for the ON-phase sends while
+  a zone hit runs (`VrHitParams`, + the fall), then the row's own go out again.
+Tests: `bash bhaptics-spy/run-test.sh` (limits, steppers, the hit window).

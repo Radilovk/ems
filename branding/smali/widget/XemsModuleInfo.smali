@@ -34,17 +34,17 @@
     .registers 12
 
     .prologue
-    .line 306
+    .line 300
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsModuleInfo;->entry(Ljava/lang/String;)Lcom/isaigu/gymapp/widget/XemsModuleInfo$Entry;
 
     move-result-object v2
 
-    .line 307
+    .line 301
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsModuleInfo;->open(Ljava/lang/String;)Z
 
     move-result v3
 
-    .line 308
+    .line 302
     iget-object v0, v2, Lcom/isaigu/gymapp/widget/XemsModuleInfo$Entry;->name:Ljava/lang/String;
 
     const/4 v1, 0x0
@@ -55,17 +55,17 @@
 
     move-result-object v4
 
-    .line 311
+    .line 305
     invoke-static {p0}, Lcom/isaigu/gymapp/widget/XemsUi;->horizontal(Landroid/content/Context;)Landroid/widget/LinearLayout;
 
     move-result-object v5
 
-    .line 312
+    .line 306
     const/16 v0, 0x10
 
     invoke-virtual {v5, v0}, Landroid/widget/LinearLayout;->setGravity(I)V
 
-    .line 313
+    .line 307
     iget-object v1, v2, Lcom/isaigu/gymapp/widget/XemsModuleInfo$Entry;->glyph:Ljava/lang/String;
 
     iget-object v0, v2, Lcom/isaigu/gymapp/widget/XemsModuleInfo$Entry;->glyph:Ljava/lang/String;
@@ -89,22 +89,22 @@
 
     move-result-object v0
 
-    .line 314
+    .line 308
     const/16 v1, 0x11
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setGravity(I)V
 
-    .line 315
+    .line 309
     new-instance v1, Landroid/graphics/drawable/GradientDrawable;
 
     invoke-direct {v1}, Landroid/graphics/drawable/GradientDrawable;-><init>()V
 
-    .line 316
+    .line 310
     const/4 v6, 0x1
 
     invoke-virtual {v1, v6}, Landroid/graphics/drawable/GradientDrawable;->setShape(I)V
 
-    .line 317
+    .line 311
     iget v6, v2, Lcom/isaigu/gymapp/widget/XemsModuleInfo$Entry;->tint:I
 
     const/16 v7, 0x2e
@@ -115,7 +115,7 @@
 
     invoke-virtual {v1, v6}, Landroid/graphics/drawable/GradientDrawable;->setColor(I)V
 
-    .line 318
+    .line 312
     const/high16 v6, 0x40000000    # 2.0f
 
     invoke-static {p0, v6}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
@@ -132,29 +132,29 @@
 
     invoke-virtual {v1, v6, v7}, Landroid/graphics/drawable/GradientDrawable;->setStroke(II)V
 
-    .line 319
+    .line 313
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setBackgroundDrawable(Landroid/graphics/drawable/Drawable;)V
 
-    .line 320
+    .line 314
     const/high16 v1, 0x42800000    # 64.0f
 
     invoke-static {p0, v1}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
 
     move-result v1
 
-    .line 321
+    .line 315
     new-instance v6, Landroid/widget/LinearLayout$LayoutParams;
 
     invoke-direct {v6, v1, v1}, Landroid/widget/LinearLayout$LayoutParams;-><init>(II)V
 
     invoke-virtual {v5, v0, v6}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 322
+    .line 316
     invoke-static {p0}, Lcom/isaigu/gymapp/widget/XemsUi;->vertical(Landroid/content/Context;)Landroid/widget/LinearLayout;
 
     move-result-object v6
 
-    .line 323
+    .line 317
     iget-object v0, v2, Lcom/isaigu/gymapp/widget/XemsModuleInfo$Entry;->tagline:Ljava/lang/String;
 
     const/high16 v1, 0x41880000    # 17.0f
@@ -167,17 +167,17 @@
 
     move-result-object v0
 
-    .line 324
+    .line 318
     const/4 v1, 0x0
 
     const v7, 0x3f933333    # 1.15f
 
     invoke-virtual {v0, v1, v7}, Landroid/widget/TextView;->setLineSpacing(FF)V
 
-    .line 325
+    .line 319
     invoke-virtual {v6, v0}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
-    .line 326
+    .line 320
     const-string v0, "vr"
 
     invoke-virtual {v0, p1}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
@@ -196,7 +196,7 @@
 
     move-object v1, v0
 
-    .line 328
+    .line 322
     :goto_93
     const/high16 v7, 0x41500000    # 13.0f
 
@@ -207,12 +207,12 @@
     :goto_99
     const/4 v8, 0x1
 
-    .line 326
+    .line 320
     invoke-static {p0, v1, v7, v0, v8}, Lcom/isaigu/gymapp/widget/XemsUi;->text(Landroid/content/Context;Ljava/lang/String;FIZ)Landroid/widget/TextView;
 
     move-result-object v0
 
-    .line 329
+    .line 323
     const/4 v1, 0x6
 
     invoke-static {p0, v1}, Lcom/isaigu/gymapp/widget/XemsUi;->matchWrap(Landroid/content/Context;I)Landroid/widget/LinearLayout$LayoutParams;
@@ -221,7 +221,7 @@
 
     invoke-virtual {v6, v0, v1}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 330
+    .line 324
     new-instance v0, Landroid/widget/LinearLayout$LayoutParams;
 
     const/4 v1, 0x0
@@ -232,7 +232,7 @@
 
     invoke-direct {v0, v1, v7, v8}, Landroid/widget/LinearLayout$LayoutParams;-><init>(IIF)V
 
-    .line 331
+    .line 325
     const/high16 v1, 0x41800000    # 16.0f
 
     invoke-static {p0, v1}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
@@ -241,10 +241,10 @@
 
     iput v1, v0, Landroid/widget/LinearLayout$LayoutParams;->leftMargin:I
 
-    .line 332
+    .line 326
     invoke-virtual {v5, v6, v0}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 333
+    .line 327
     iget-object v0, v4, Lcom/isaigu/gymapp/widget/XemsUi$Shell;->body:Landroid/widget/LinearLayout;
 
     const/4 v1, 0x6
@@ -255,7 +255,7 @@
 
     invoke-virtual {v0, v5, v1}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 336
+    .line 330
     iget-object v0, v4, Lcom/isaigu/gymapp/widget/XemsUi$Shell;->body:Landroid/widget/LinearLayout;
 
     const-string v1, "\u041a\u0430\u043a\u0432\u043e \u0442\u0438 \u0434\u0430\u0432\u0430"
@@ -278,12 +278,12 @@
 
     invoke-virtual {v0, v1, v5}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 337
+    .line 331
     invoke-static {p0}, Lcom/isaigu/gymapp/widget/XemsUi;->vertical(Landroid/content/Context;)Landroid/widget/LinearLayout;
 
     move-result-object v5
 
-    .line 338
+    .line 332
     const/4 v0, 0x0
 
     :goto_e0
@@ -293,7 +293,7 @@
 
     if-ge v0, v1, :cond_11d
 
-    .line 339
+    .line 333
     iget-object v1, v2, Lcom/isaigu/gymapp/widget/XemsModuleInfo$Entry;->value:[Ljava/lang/String;
 
     aget-object v1, v1, v0
@@ -315,18 +315,18 @@
 
     invoke-virtual {v5, v6, v1}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 338
+    .line 332
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_e0
 
-    .line 313
+    .line 307
     :cond_fc
     const/high16 v0, 0x41e00000    # 28.0f
 
     goto/16 :goto_27
 
-    .line 327
+    .line 321
     :cond_100
     if-eqz v3, :cond_10c
 
@@ -342,7 +342,7 @@
 
     goto :goto_93
 
-    .line 328
+    .line 322
     :cond_10c
     const-string v0, "\ud83d\udd12 \u041d\u0435 \u0435 \u0432\u043a\u043b\u044e\u0447\u0435\u043d\u043e \u0432 \u0430\u0431\u043e\u043d\u0430\u043c\u0435\u043d\u0442\u0430 \u0442\u0438"
 
@@ -361,24 +361,24 @@
 
     goto :goto_99
 
-    .line 339
+    .line 333
     :cond_11a
     const/16 v1, 0x8
 
     goto :goto_f2
 
-    .line 341
+    .line 335
     :cond_11d
     iget-object v0, v4, Lcom/isaigu/gymapp/widget/XemsUi$Shell;->body:Landroid/widget/LinearLayout;
 
     invoke-virtual {v0, v5}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
-    .line 343
+    .line 337
     iget-object v0, v2, Lcom/isaigu/gymapp/widget/XemsModuleInfo$Entry;->science:[Ljava/lang/String;
 
     if-eqz v0, :cond_19f
 
-    .line 344
+    .line 338
     iget-object v0, v4, Lcom/isaigu/gymapp/widget/XemsUi$Shell;->body:Landroid/widget/LinearLayout;
 
     const-string v1, "\u041d\u0430 \u043a\u0430\u043a\u0432\u043e \u0441\u0435 \u043e\u0441\u043d\u043e\u0432\u0430\u0432\u0430"
@@ -401,12 +401,12 @@
 
     invoke-virtual {v0, v1, v5}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 345
+    .line 339
     invoke-static {p0}, Lcom/isaigu/gymapp/widget/XemsUi;->vertical(Landroid/content/Context;)Landroid/widget/LinearLayout;
 
     move-result-object v5
 
-    .line 346
+    .line 340
     const/4 v0, 0x0
 
     :goto_142
@@ -416,7 +416,7 @@
 
     if-ge v0, v1, :cond_161
 
-    .line 347
+    .line 341
     iget-object v1, v2, Lcom/isaigu/gymapp/widget/XemsModuleInfo$Entry;->science:[Ljava/lang/String;
 
     aget-object v1, v1, v0
@@ -438,41 +438,41 @@
 
     invoke-virtual {v5, v6, v1}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 346
+    .line 340
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_142
 
-    .line 347
+    .line 341
     :cond_15e
     const/16 v1, 0x8
 
     goto :goto_154
 
-    .line 349
+    .line 343
     :cond_161
     iget-object v0, v4, Lcom/isaigu/gymapp/widget/XemsUi$Shell;->body:Landroid/widget/LinearLayout;
 
     invoke-virtual {v0, v5}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
-    .line 350
+    .line 344
     iget-object v0, v2, Lcom/isaigu/gymapp/widget/XemsModuleInfo$Entry;->more:[[Ljava/lang/String;
 
     if-eqz v0, :cond_19f
 
-    .line 351
+    .line 345
     iget-object v0, v2, Lcom/isaigu/gymapp/widget/XemsModuleInfo$Entry;->more:[[Ljava/lang/String;
 
     invoke-static {p0, v0}, Lcom/isaigu/gymapp/widget/XemsModuleInfo;->moreBlock(Landroid/app/Activity;[[Ljava/lang/String;)Landroid/widget/LinearLayout;
 
     move-result-object v0
 
-    .line 352
+    .line 346
     const/16 v1, 0x8
 
     invoke-virtual {v0, v1}, Landroid/widget/LinearLayout;->setVisibility(I)V
 
-    .line 353
+    .line 347
     const-string v1, "\u041f\u0440\u043e\u0447\u0435\u0442\u0438 \u043e\u0449\u0435  \u25be"
 
     const-string v5, "Read more  \u25be"
@@ -487,14 +487,14 @@
 
     move-result-object v1
 
-    .line 354
+    .line 348
     new-instance v5, Lcom/isaigu/gymapp/widget/XemsModuleInfo$Toggle;
 
     invoke-direct {v5, v0}, Lcom/isaigu/gymapp/widget/XemsModuleInfo$Toggle;-><init>(Landroid/view/View;)V
 
     invoke-virtual {v1, v5}, Landroid/widget/TextView;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
-    .line 355
+    .line 349
     iget-object v5, v4, Lcom/isaigu/gymapp/widget/XemsUi$Shell;->body:Landroid/widget/LinearLayout;
 
     const/16 v6, 0xc
@@ -505,7 +505,7 @@
 
     invoke-virtual {v5, v1, v6}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 356
+    .line 350
     iget-object v1, v4, Lcom/isaigu/gymapp/widget/XemsUi$Shell;->body:Landroid/widget/LinearLayout;
 
     const/4 v5, 0x4
@@ -516,11 +516,11 @@
 
     invoke-virtual {v1, v0, v5}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 360
+    .line 354
     :cond_19f
     if-eqz v3, :cond_24b
 
-    .line 362
+    .line 356
     iget-object v0, v4, Lcom/isaigu/gymapp/widget/XemsUi$Shell;->body:Landroid/widget/LinearLayout;
 
     const-string v1, "\u041a\u0430\u043a \u0441\u0435 \u0440\u0430\u0431\u043e\u0442\u0438"
@@ -543,7 +543,7 @@
 
     invoke-virtual {v0, v1, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 363
+    .line 357
     const/4 v0, 0x0
 
     :goto_1b9
@@ -553,7 +553,7 @@
 
     if-ge v0, v1, :cond_1dc
 
-    .line 364
+    .line 358
     iget-object v3, v4, Lcom/isaigu/gymapp/widget/XemsUi$Shell;->body:Landroid/widget/LinearLayout;
 
     add-int/lit8 v1, v0, 0x1
@@ -579,18 +579,18 @@
 
     invoke-virtual {v3, v5, v1}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 363
+    .line 357
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_1b9
 
-    .line 364
+    .line 358
     :cond_1d9
     const/16 v1, 0xa
 
     goto :goto_1cf
 
-    .line 366
+    .line 360
     :cond_1dc
     const-string v0, "\u0420\u0430\u0437\u0431\u0440\u0430\u0445"
 
@@ -609,7 +609,7 @@
 
     move-result-object v0
 
-    .line 367
+    .line 361
     new-instance v1, Lcom/isaigu/gymapp/widget/XemsModuleInfo$Close;
 
     const/4 v3, 0x0
@@ -618,7 +618,7 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
-    .line 368
+    .line 362
     iget-object v1, v4, Lcom/isaigu/gymapp/widget/XemsUi$Shell;->footer:Landroid/widget/LinearLayout;
 
     const/high16 v3, 0x3f800000    # 1.0f
@@ -631,10 +631,10 @@
 
     invoke-virtual {v1, v0, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 369
+    .line 363
     if-eqz p2, :cond_238
 
-    .line 370
+    .line 364
     new-instance v0, Ljava/lang/StringBuilder;
 
     invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
@@ -667,14 +667,14 @@
 
     move-result-object v0
 
-    .line 371
+    .line 365
     new-instance v1, Lcom/isaigu/gymapp/widget/XemsModuleInfo$Close;
 
     invoke-direct {v1, v4, p2}, Lcom/isaigu/gymapp/widget/XemsModuleInfo$Close;-><init>(Lcom/isaigu/gymapp/widget/XemsUi$Shell;Ljava/lang/Runnable;)V
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
-    .line 372
+    .line 366
     iget-object v1, v4, Lcom/isaigu/gymapp/widget/XemsUi$Shell;->footer:Landroid/widget/LinearLayout;
 
     const v2, 0x3fb33333    # 1.4f
@@ -687,33 +687,33 @@
 
     invoke-virtual {v1, v0, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 383
+    .line 377
     :cond_238
     :goto_238
     iget-object v0, v4, Lcom/isaigu/gymapp/widget/XemsUi$Shell;->dialog:Landroid/app/Dialog;
 
     invoke-virtual {v0}, Landroid/app/Dialog;->show()V
 
-    .line 384
+    .line 378
     const v0, 0x3f666666    # 0.9f
 
     invoke-static {p0, v4, v0}, Lcom/isaigu/gymapp/widget/XemsUi;->fitHeight(Landroid/app/Activity;Lcom/isaigu/gymapp/widget/XemsUi$Shell;F)V
 
-    .line 385
+    .line 379
     iget-object v0, v4, Lcom/isaigu/gymapp/widget/XemsUi$Shell;->body:Landroid/widget/LinearLayout;
 
     invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsModuleInfo;->stagger(Landroid/widget/LinearLayout;)V
 
-    .line 386
+    .line 380
     return-void
 
-    .line 366
+    .line 360
     :cond_249
     const/4 v0, 0x0
 
     goto :goto_1e7
 
-    .line 375
+    .line 369
     :cond_24b
     const-string v0, "\u041d\u0435 \u0441\u0435\u0433\u0430"
 
@@ -729,7 +729,7 @@
 
     move-result-object v0
 
-    .line 376
+    .line 370
     new-instance v1, Lcom/isaigu/gymapp/widget/XemsModuleInfo$Close;
 
     const/4 v2, 0x0
@@ -738,7 +738,7 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
-    .line 377
+    .line 371
     iget-object v1, v4, Lcom/isaigu/gymapp/widget/XemsUi$Shell;->footer:Landroid/widget/LinearLayout;
 
     const/high16 v2, 0x3f800000    # 1.0f
@@ -751,7 +751,7 @@
 
     invoke-virtual {v1, v0, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 378
+    .line 372
     const-string v0, "\u0410\u0431\u043e\u043d\u0438\u0440\u0430\u0439 \u0441\u0435"
 
     const-string v1, "Subscribe"
@@ -766,7 +766,7 @@
 
     move-result-object v0
 
-    .line 379
+    .line 373
     new-instance v1, Lcom/isaigu/gymapp/widget/XemsModuleInfo$Close;
 
     new-instance v2, Lcom/isaigu/gymapp/widget/XemsModuleInfo$Subscribe;
@@ -777,7 +777,7 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
-    .line 380
+    .line 374
     iget-object v1, v4, Lcom/isaigu/gymapp/widget/XemsUi$Shell;->footer:Landroid/widget/LinearLayout;
 
     const v2, 0x3fb33333    # 1.4f
@@ -794,10 +794,10 @@
 .end method
 
 .method static entry(Ljava/lang/String;)Lcom/isaigu/gymapp/widget/XemsModuleInfo$Entry;
-    .registers 12
+    .registers 11
 
     .prologue
-    const/4 v10, 0x4
+    const/4 v5, 0x4
 
     const/4 v9, 0x3
 
@@ -911,7 +911,7 @@
 
     move-result-object v2
 
-    aput-object v2, v1, v10
+    aput-object v2, v1, v5
 
     iput-object v1, v0, Lcom/isaigu/gymapp/widget/XemsModuleInfo$Entry;->value:[Ljava/lang/String;
 
@@ -973,11 +973,11 @@
 
     move-result-object v2
 
-    aput-object v2, v1, v10
+    aput-object v2, v1, v5
 
     iput-object v1, v0, Lcom/isaigu/gymapp/widget/XemsModuleInfo$Entry;->how:[Ljava/lang/String;
 
-    .line 290
+    .line 284
     :goto_9c
     return-object v0
 
@@ -1081,7 +1081,7 @@
 
     move-result-object v2
 
-    aput-object v2, v1, v10
+    aput-object v2, v1, v5
 
     iput-object v1, v0, Lcom/isaigu/gymapp/widget/XemsModuleInfo$Entry;->value:[Ljava/lang/String;
 
@@ -1143,7 +1143,7 @@
 
     move-result-object v2
 
-    aput-object v2, v1, v10
+    aput-object v2, v1, v5
 
     iput-object v1, v0, Lcom/isaigu/gymapp/widget/XemsModuleInfo$Entry;->how:[Ljava/lang/String;
 
@@ -1249,7 +1249,7 @@
 
     move-result-object v2
 
-    aput-object v2, v1, v10
+    aput-object v2, v1, v5
 
     iput-object v1, v0, Lcom/isaigu/gymapp/widget/XemsModuleInfo$Entry;->value:[Ljava/lang/String;
 
@@ -1311,7 +1311,7 @@
 
     move-result-object v2
 
-    aput-object v2, v1, v10
+    aput-object v2, v1, v5
 
     iput-object v1, v0, Lcom/isaigu/gymapp/widget/XemsModuleInfo$Entry;->how:[Ljava/lang/String;
 
@@ -1417,7 +1417,7 @@
 
     move-result-object v2
 
-    aput-object v2, v1, v10
+    aput-object v2, v1, v5
 
     const/4 v2, 0x5
 
@@ -1492,7 +1492,7 @@
 
     move-result-object v2
 
-    aput-object v2, v1, v10
+    aput-object v2, v1, v5
 
     iput-object v1, v0, Lcom/isaigu/gymapp/widget/XemsModuleInfo$Entry;->how:[Ljava/lang/String;
 
@@ -1506,7 +1506,7 @@
 
     move-result v1
 
-    if-eqz v1, :cond_46a
+    if-eqz v1, :cond_44c
 
     .line 154
     const-string v1, "AI"
@@ -1598,7 +1598,7 @@
 
     move-result-object v2
 
-    aput-object v2, v1, v10
+    aput-object v2, v1, v5
 
     const/4 v2, 0x5
 
@@ -1673,7 +1673,7 @@
 
     move-result-object v2
 
-    aput-object v2, v1, v10
+    aput-object v2, v1, v5
 
     const/4 v2, 0x5
 
@@ -1695,9 +1695,9 @@
 
     new-array v1, v1, [Ljava/lang/String;
 
-    const-string v2, "\u0424\u0438\u0437\u0438\u043e\u043b\u043e\u0433\u0438\u044f \u043d\u0430 \u0447\u0435\u0441\u0442\u043e\u0442\u0430\u0442\u0430 \u2014 1\u201310 Hz \u0434\u0430\u0432\u0430\u0442 \u0435\u0434\u0438\u043d\u0438\u0447\u043d\u0438 \u043f\u043e\u0442\u0440\u0435\u043f\u0432\u0430\u043d\u0438\u044f (\u0437\u0430\u0433\u0440\u044f\u0432\u0430\u043d\u0435, \u0434\u0440\u0435\u043d\u0438\u0440\u0430\u043d\u0435, \u0440\u0430\u0437\u043f\u0443\u0441\u043a\u0430\u043d\u0435), 20\u201330 Hz \u2014 \u0441\u043b\u044f\u0442\u0430 \u0443\u0441\u0442\u043e\u0439\u0447\u0438\u0432\u0430 \u043a\u043e\u043d\u0442\u0440\u0430\u043a\u0446\u0438\u044f, 50\u2013100 Hz \u2014 \u043f\u043e\u0447\u0442\u0438 \u043f\u044a\u043b\u043d\u0430 \u0441\u0438\u043b\u0430. \u0412\u0441\u0435\u043a\u0438 \u043f\u043b\u0430\u043d \u0438\u0437\u0431\u0438\u0440\u0430 \u0447\u0435\u0441\u0442\u043e\u0442\u0430 \u043f\u043e \u0442\u0430\u0437\u0438 \u043a\u0440\u0438\u0432\u0430, \u043d\u0435 \u043d\u0430 \u043e\u043a\u043e."
+    const-string v2, "\u0424\u0438\u0437\u0438\u043e\u043b\u043e\u0433\u0438\u044f \u043d\u0430 \u043c\u0443\u0441\u043a\u0443\u043b\u043d\u0430\u0442\u0430 \u043a\u043e\u043d\u0442\u0440\u0430\u043a\u0446\u0438\u044f \u2014 \u0447\u0435\u0441\u0442\u043e\u0442\u0430\u0442\u0430 \u043e\u043f\u0440\u0435\u0434\u0435\u043b\u044f \u043a\u0430\u043a \u043e\u0442\u0433\u043e\u0432\u0430\u0440\u044f \u043c\u0443\u0441\u043a\u0443\u043b\u044a\u0442: \u043e\u0442 \u0435\u0434\u0438\u043d\u0438\u0447\u043d\u0438 \u043f\u043e\u0442\u0440\u0435\u043f\u0432\u0430\u043d\u0438\u044f \u0434\u043e \u0441\u043b\u044f\u0442\u0430 \u0443\u0441\u0442\u043e\u0439\u0447\u0438\u0432\u0430 \u043a\u043e\u043d\u0442\u0440\u0430\u043a\u0446\u0438\u044f. \u0412\u0440\u044a\u0437\u043a\u0430\u0442\u0430 \u043c\u0435\u0436\u0434\u0443 \u0447\u0435\u0441\u0442\u043e\u0442\u0430, \u0441\u0438\u043b\u0430 \u0438 \u0443\u043c\u043e\u0440\u0430 \u0435 \u043e\u043f\u0438\u0441\u0430\u043d\u0430 \u0432 \u043d\u0430\u0443\u0447\u043d\u0430\u0442\u0430 \u043b\u0438\u0442\u0435\u0440\u0430\u0442\u0443\u0440\u0430 (Kesar & Binder-Macleod 2006; Gregory \u0438 \u0434\u0440. 2007)."
 
-    const-string v3, "Frequency physiology \u2014 1\u201310 Hz give single twitches (warm-up, drainage, cool-down), 20\u201330 Hz a fused steady contraction, 50\u2013100 Hz near-full force. Every plan picks its frequency from this curve, not by eye."
+    const-string v3, "Muscle physiology \u2014 the frequency decides how the muscle answers: from single twitches to a fused steady contraction. The relation between frequency, force and fatigue is described in the literature (Kesar & Binder-Macleod 2006; Gregory et al. 2007)."
 
     .line 187
     invoke-static {v2, v3}, Lcom/isaigu/gymapp/widget/XemsModuleInfo;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
@@ -1706,9 +1706,9 @@
 
     aput-object v2, v1, v6
 
-    const-string v2, "\u041c\u043e\u0434\u0435\u043b \u043d\u0430 \u0443\u043c\u043e\u0440\u0430\u0442\u0430 \u2014 \u0432\u0441\u044f\u043a\u0430 \u0441\u0435\u043a\u0443\u043d\u0434\u0430 \u0441\u0435 \u0441\u043c\u044f\u0442\u0430 \u0443\u043c\u043e\u0440\u0430\u0442\u0430 \u043d\u0430 \u043c\u0443\u0441\u043a\u0443\u043b\u0430 \u0441 \u0443\u0440\u0430\u0432\u043d\u0435\u043d\u0438\u0435 \u0437\u0430 \u043d\u0430\u0442\u0440\u0443\u043f\u0432\u0430\u043d\u0435 \u0438 \u0432\u044a\u0437\u0441\u0442\u0430\u043d\u043e\u0432\u044f\u0432\u0430\u043d\u0435 (\u0444\u043e\u0441\u0444\u043e\u043a\u0440\u0435\u0430\u0442\u0438\u043d, \u03c4 30\u201350 s \u0441\u043f\u043e\u0440\u0435\u0434 \u043f\u043e\u0434\u0433\u043e\u0442\u043e\u0432\u043a\u0430\u0442\u0430). \u041f\u0430\u0443\u0437\u0438\u0442\u0435 \u0441\u0430 \u043d\u0430\u0439-\u043a\u044a\u0441\u0438\u0442\u0435, \u043f\u0440\u0438 \u043a\u043e\u0438\u0442\u043e \u0432\u044a\u0440\u0445\u044a\u0442 \u043d\u0430 \u0443\u043c\u043e\u0440\u0430\u0442\u0430 \u043e\u0441\u0442\u0430\u0432\u0430 \u0432 \u0433\u0440\u0430\u043d\u0438\u0446\u0430\u0442\u0430 \u0437\u0430 \u0442\u0440\u0435\u043d\u0438\u0440\u0430\u043d\u0438\u044f \u0447\u043e\u0432\u0435\u043a."
+    const-string v2, "\u0423\u043c\u043e\u0440\u0430 \u043f\u0440\u0438 \u0435\u043b\u0435\u043a\u0442\u0440\u043e\u0441\u0442\u0438\u043c\u0443\u043b\u0430\u0446\u0438\u044f \u2014 \u0442\u043e\u043a\u044a\u0442 \u0437\u0430\u0434\u0435\u0439\u0441\u0442\u0432\u0430 \u0435\u0434\u043d\u0438 \u0438 \u0441\u044a\u0449\u0438 \u0434\u0432\u0438\u0433\u0430\u0442\u0435\u043b\u043d\u0438 \u0435\u0434\u0438\u043d\u0438\u0446\u0438, \u0435\u0434\u043d\u043e\u0432\u0440\u0435\u043c\u0435\u043d\u043d\u043e \u0438 \u0431\u0435\u0437 \u0440\u043e\u0442\u0430\u0446\u0438\u044f, \u0437\u0430\u0442\u043e\u0432\u0430 \u0443\u043c\u043e\u0440\u044f\u0432\u0430 \u043f\u043e-\u0431\u044a\u0440\u0437\u043e \u043e\u0442 \u0432\u043e\u043b\u0435\u0432\u043e\u0442\u043e \u0443\u0441\u0438\u043b\u0438\u0435 (Gregory & Bickel 2005; Bickel \u0438 \u0434\u0440. 2011)."
 
-    const-string v3, "Fatigue model \u2014 every second the muscle\'s fatigue is computed with a build-up and recovery equation (phosphocreatine, \u03c4 30\u201350 s by fitness). Pauses are the shortest ones that keep the fatigue peak inside a trained person\'s limit."
+    const-string v3, "Fatigue in electrical stimulation \u2014 the current fires the same motor units, together and without rotation, so it tires sooner than voluntary effort (Gregory & Bickel 2005; Bickel et al. 2011)."
 
     .line 189
     invoke-static {v2, v3}, Lcom/isaigu/gymapp/widget/XemsModuleInfo;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
@@ -1717,9 +1717,9 @@
 
     aput-object v2, v1, v7
 
-    const-string v2, "\u0417\u0430\u0449\u043e EMS \u0443\u043c\u043e\u0440\u044f\u0432\u0430 \u043f\u043e-\u0431\u044a\u0440\u0437\u043e \u2014 \u0442\u043e\u043a\u044a\u0442 \u0437\u0430\u0434\u0435\u0439\u0441\u0442\u0432\u0430 \u0435\u0434\u043d\u0438 \u0438 \u0441\u044a\u0449\u0438 \u0434\u0432\u0438\u0433\u0430\u0442\u0435\u043b\u043d\u0438 \u0435\u0434\u0438\u043d\u0438\u0446\u0438, \u0435\u0434\u043d\u043e\u0432\u0440\u0435\u043c\u0435\u043d\u043d\u043e \u0438 \u0431\u0435\u0437 \u0440\u043e\u0442\u0430\u0446\u0438\u044f; \u0441\u044a\u0449\u0430\u0442\u0430 \u0441\u0438\u043b\u0430 \u0443\u043c\u043e\u0440\u044f\u0432\u0430 \u043f\u043e\u0432\u0435\u0447\u0435 \u043e\u0442 \u0432\u043e\u043b\u0435\u0432\u043e\u0442\u043e \u0443\u0441\u0438\u043b\u0438\u0435. \u0417\u0430\u0442\u043e\u0432\u0430 \u043f\u043b\u0430\u043d\u044a\u0442 \u0435 \u043f\u043e-\u043f\u0440\u0435\u0434\u043f\u0430\u0437\u043b\u0438\u0432, \u043e\u0442\u043a\u043e\u043b\u043a\u043e\u0442\u043e \u043f\u0440\u0438 \u0432\u0434\u0438\u0433\u0430\u043d\u0435 \u043d\u0430 \u0442\u0435\u0436\u0435\u0441\u0442\u0438."
+    const-string v2, "\u0415\u043d\u0435\u0440\u0433\u0435\u0442\u0438\u043a\u0430 \u0438 \u0432\u044a\u0437\u0441\u0442\u0430\u043d\u043e\u0432\u044f\u0432\u0430\u043d\u0435 \u2014 \u0444\u043e\u0441\u0444\u043e\u043a\u0440\u0435\u0430\u0442\u0438\u043d, \u0433\u043b\u0438\u043a\u043e\u043b\u0438\u0437\u0430 \u0438 \u043a\u0438\u0441\u043b\u043e\u0440\u043e\u0434\u0435\u043d \u0434\u044a\u043b\u0433 \u0441\u043b\u0435\u0434 \u0442\u0440\u0435\u043d\u0438\u0440\u043e\u0432\u043a\u0430\u0442\u0430 (Haseler \u0438 \u0434\u0440. 1999; Gondin \u0438 \u0434\u0440. 2010)."
 
-    const-string v3, "Why EMS tires sooner \u2014 the current fires the same motor units, together and without rotation; the same force tires more than voluntary effort. So the plan is more careful than in weight training."
+    const-string v3, "Energetics and recovery \u2014 phosphocreatine, glycolysis and the oxygen debt after the session (Haseler et al. 1999; Gondin et al. 2010)."
 
     .line 191
     invoke-static {v2, v3}, Lcom/isaigu/gymapp/widget/XemsModuleInfo;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
@@ -1728,9 +1728,9 @@
 
     aput-object v2, v1, v8
 
-    const-string v2, "\u0410\u0431\u0441\u043e\u043b\u044e\u0442\u043d\u0438 \u0433\u0440\u0430\u043d\u0438\u0446\u0438 \u2014 \u0447\u0435\u0441\u0442\u043e\u0442\u0430 1\u2013120 Hz (\u043e\u0442 60 \u0433\u043e\u0434\u0438\u043d\u0438 \u2014 \u043d\u0430\u0439-\u043c\u043d\u043e\u0433\u043e 85 Hz), \u043e\u0442 100 Hz \u043d\u0430\u0439-\u043c\u043d\u043e\u0433\u043e 300 \u00b5s, \u0441\u043b\u044f\u0442 \u0438\u043c\u043f\u0443\u043b\u0441 \u0434\u043e 6 s, \u0432\u0442\u043e\u0440\u0438 \u0438\u043c\u043f\u0443\u043b\u0441 \u0434\u043e 10 Hz. \u0417\u0430\u0449\u0438\u0442\u0430\u0442\u0430 \u0432\u044a\u0440\u0432\u0438 \u043f\u043e \u0440\u0435\u0434: \u0447\u0435\u0441\u0442\u043e\u0442\u0430 \u2192 \u0432\u0442\u043e\u0440\u0438 \u0438\u043c\u043f\u0443\u043b\u0441 \u2192 \u043f\u0430\u0443\u0437\u0430. AI \u043d\u0438\u043a\u043e\u0433\u0430 \u043d\u0435 \u0432\u0434\u0438\u0433\u0430 \u0441\u0438\u043b\u0430\u0442\u0430 \u043d\u0430\u0434 \u043f\u043b\u0430\u043d\u0430."
+    const-string v2, "\u0428\u0438\u0440\u0438\u043d\u0430 \u043d\u0430 \u0438\u043c\u043f\u0443\u043b\u0441\u0430 \u0438 \u0434\u044a\u043b\u0431\u043e\u0447\u0438\u043d\u0430 \u043d\u0430 \u0432\u044a\u0437\u0434\u0435\u0439\u0441\u0442\u0432\u0438\u0435\u0442\u043e \u2014 \u043a\u0430\u043a \u043f\u0430\u0440\u0430\u043c\u0435\u0442\u0440\u0438\u0442\u0435 \u043d\u0430 \u0442\u043e\u043a\u0430 \u0441\u0442\u0438\u0433\u0430\u0442 \u0434\u043e \u043f\u043e-\u0434\u044a\u043b\u0431\u043e\u043a\u0438\u0442\u0435 \u0432\u043b\u0430\u043a\u043d\u0430 \u043f\u0440\u0438 \u043f\u043e\u043d\u043e\u0441\u0438\u043c \u0442\u043e\u043a (Maffiuletti 2010)."
 
-    const-string v3, "Absolute limits \u2014 1\u2013120 Hz (from age 60 at most 85 Hz), from 100 Hz at most 300 \u00b5s, a fused impulse up to 6 s, a second impulse up to 10 Hz. Protection goes in order: frequency \u2192 second impulse \u2192 pause. The AI never raises strength above the plan."
+    const-string v3, "Pulse width and depth \u2014 how the current\'s parameters reach the deeper fibres at a tolerable current (Maffiuletti 2010)."
 
     .line 193
     invoke-static {v2, v3}, Lcom/isaigu/gymapp/widget/XemsModuleInfo;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
@@ -1739,22 +1739,22 @@
 
     aput-object v2, v1, v9
 
-    const-string v2, "\u041f\u043e\u0447\u0438\u0432\u043a\u0430 \u043c\u0435\u0436\u0434\u0443 \u0442\u0440\u0435\u043d\u0438\u0440\u043e\u0432\u043a\u0438\u0442\u0435 \u2014 \u043f\u043e\u043d\u0435 4 \u0434\u043d\u0438, \u043f\u044a\u0440\u0432\u0438\u0442\u0435 \u0442\u0440\u0435\u043d\u0438\u0440\u043e\u0432\u043a\u0438 \u043f\u043e-\u043b\u0435\u043a\u0438, \u043e\u043a\u043e\u043b\u043e 20 \u043c\u0438\u043d\u0443\u0442\u0438: \u043a\u0440\u0435\u0430\u0442\u0438\u043d\u043a\u0438\u043d\u0430\u0437\u0430\u0442\u0430 \u0441\u0435 \u043a\u0430\u0447\u0432\u0430 \u043d\u0430 2\u20134 \u0434\u0435\u043d \u0441\u043b\u0435\u0434 \u0442\u0435\u0436\u043a\u0430 \u0442\u0440\u0435\u043d\u0438\u0440\u043e\u0432\u043a\u0430. \u041f\u043b\u0430\u043d\u044a\u0442 \u043e\u0442\u0447\u0438\u0442\u0430 \u0438 \u0438\u0437\u043c\u0435\u0440\u0435\u043d\u043e \u0432\u044a\u0437\u0441\u0442\u0430\u043d\u043e\u0432\u044f\u0432\u0430\u043d\u0435 (\u043a\u0430\u043d\u0442\u0430\u0440, \u043f\u0443\u043b\u0441)."
+    const-string v2, "\u041f\u0440\u0430\u043a\u0442\u0438\u043a\u0430 \u0438 \u0431\u0435\u0437\u043e\u043f\u0430\u0441\u043d\u043e\u0441\u0442 \u043d\u0430 WB-EMS \u2014 \u043c\u0435\u0436\u0434\u0443\u043d\u0430\u0440\u043e\u0434\u043d\u0438 \u043f\u0440\u0435\u043f\u043e\u0440\u044a\u043a\u0438 \u0437\u0430 \u0435\u0444\u0435\u043a\u0442\u0438\u0432\u043d\u0430 \u0438 \u0431\u0435\u0437\u043e\u043f\u0430\u0441\u043d\u0430 \u0442\u0440\u0435\u043d\u0438\u0440\u043e\u0432\u043a\u0430 \u0438 \u0437\u0430 \u043f\u043e\u0447\u0438\u0432\u043a\u0430\u0442\u0430 \u043c\u0435\u0436\u0434\u0443 \u0442\u0440\u0435\u043d\u0438\u0440\u043e\u0432\u043a\u0438\u0442\u0435 (Kemmler \u0438 \u0434\u0440. 2016, 2023; Teschler \u0438 \u0434\u0440. 2016)."
 
-    const-string v3, "Rest between sessions \u2014 at least 4 days, the first sessions lighter, about 20 minutes: creatine kinase peaks on day 2\u20134 after a hard session. The plan also uses measured recovery (scale, heart rate)."
+    const-string v3, "WB-EMS practice and safety \u2014 international recommendations for effective and safe training and for the rest between sessions (Kemmler et al. 2016, 2023; Teschler et al. 2016)."
 
     .line 195
     invoke-static {v2, v3}, Lcom/isaigu/gymapp/widget/XemsModuleInfo;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v2
 
-    aput-object v2, v1, v10
+    aput-object v2, v1, v5
 
     const/4 v2, 0x5
 
-    const-string v3, "\u041e\u043f\u0438\u0442 \u043d\u0430 \u043f\u0440\u0430\u043a\u0442\u0438\u043a\u0430 \u2014 \u0437\u0430\u0433\u0440\u044f\u0432\u043a\u0430, \u0434\u0440\u0435\u043d\u0438\u0440\u0430\u043d\u0435, \u0440\u0430\u0437\u043f\u0443\u0441\u043a\u0430\u043d\u0435 \u0438 \u0440\u0435\u0434\u044a\u0442 \u043d\u0430 \u043c\u0443\u0441\u043a\u0443\u043b\u043d\u0438\u0442\u0435 \u0433\u0440\u0443\u043f\u0438 \u0438\u0434\u0432\u0430\u0442 \u043e\u0442 \u0442\u0440\u0435\u043d\u044c\u043e\u0440\u0441\u043a\u0430\u0442\u0430 \u043f\u0440\u0430\u043a\u0442\u0438\u043a\u0430 \u043d\u0430 \u0430\u0432\u0442\u043e\u0440\u0430 \u043d\u0430 XEMS, \u0437\u0430\u043f\u0438\u0441\u0430\u043d\u0438 \u0441\u0430 \u043a\u0430\u0442\u043e \u043f\u0430\u0440\u0430\u043c\u0435\u0442\u0440\u0438 \u0438 \u0441\u0435 \u043f\u0440\u043e\u0432\u0435\u0440\u044f\u0432\u0430\u0442 \u0432\u044a\u0440\u0445\u0443 \u0437\u0430\u043f\u0438\u0441\u0430\u043d\u0438 \u0442\u0440\u0435\u043d\u0438\u0440\u043e\u0432\u043a\u0438."
+    const-string v3, "\u041d\u0430\u0448\u0438\u044f\u0442 \u0430\u043b\u0433\u043e\u0440\u0438\u0442\u044a\u043c \u0438 \u043e\u043f\u0438\u0442 \u2014 \u0432\u044a\u0440\u0445\u0443 \u0442\u0430\u0437\u0438 \u043e\u0441\u043d\u043e\u0432\u0430 \u0435 \u0438\u0437\u0433\u0440\u0430\u0434\u0435\u043d \u0441\u043e\u0431\u0441\u0442\u0432\u0435\u043d \u043f\u0440\u0435\u0446\u0438\u0437\u0435\u043d \u0430\u043b\u0433\u043e\u0440\u0438\u0442\u044a\u043c, \u043e\u0431\u043e\u0433\u0430\u0442\u0435\u043d \u0441 \u0442\u0440\u0435\u043d\u044c\u043e\u0440\u0441\u043a\u0430\u0442\u0430 \u043f\u0440\u0430\u043a\u0442\u0438\u043a\u0430 \u043d\u0430 \u0430\u0432\u0442\u043e\u0440\u0430 \u043d\u0430 XEMS \u0438 \u043f\u0440\u043e\u0432\u0435\u0440\u044f\u0432\u0430\u043d \u0432\u044a\u0440\u0445\u0443 \u0437\u0430\u043f\u0438\u0441\u0430\u043d\u0438 \u0442\u0440\u0435\u043d\u0438\u0440\u043e\u0432\u043a\u0438. AI \u0435 \u043f\u043e\u043c\u043e\u0449\u043d\u0438\u043a \u043d\u0430 \u0442\u0440\u0435\u043d\u044c\u043e\u0440\u0430 \u2014 \u043f\u0440\u0435\u0446\u0435\u043d\u043a\u0430\u0442\u0430 \u0438 \u043e\u0442\u0433\u043e\u0432\u043e\u0440\u043d\u043e\u0441\u0442\u0442\u0430 \u043e\u0441\u0442\u0430\u0432\u0430\u0442 \u043d\u0435\u0433\u043e\u0432\u0438."
 
-    const-string v4, "Practice \u2014 warm-up, drainage, cool-down and the order of muscle groups come from the XEMS author\'s coaching practice, written down as parameters and checked on recorded sessions."
+    const-string v4, "Our algorithm and experience \u2014 on this basis we built our own precise algorithm, enriched by the XEMS author\'s coaching practice and checked on recorded sessions. The AI is the trainer\'s assistant \u2014 the judgement and the responsibility stay with the trainer."
 
     .line 197
     invoke-static {v3, v4}, Lcom/isaigu/gymapp/widget/XemsModuleInfo;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
@@ -1770,11 +1770,11 @@
 
     new-array v1, v1, [[Ljava/lang/String;
 
-    new-array v2, v10, [Ljava/lang/String;
+    new-array v2, v9, [Ljava/lang/String;
 
-    const-string v3, "\u0427\u0435\u0441\u0442\u043e\u0442\u0430 \u0438 \u0441\u0438\u043b\u0430"
+    const-string v3, "\u0427\u0435\u0441\u0442\u043e\u0442\u0430 \u0438 \u043c\u0443\u0441\u043a\u0443\u043b\u043d\u0430 \u0441\u0438\u043b\u0430"
 
-    const-string v4, "Frequency and force"
+    const-string v4, "Frequency and muscle force"
 
     .line 201
     invoke-static {v3, v4}, Lcom/isaigu/gymapp/widget/XemsModuleInfo;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
@@ -1783,9 +1783,9 @@
 
     aput-object v3, v2, v6
 
-    const-string v3, "1\u201310 Hz: \u0435\u0434\u0438\u043d\u0438\u0447\u043d\u0438 \u043f\u043e\u0442\u0440\u0435\u043f\u0432\u0430\u043d\u0438\u044f \u0441 \u043f\u044a\u043b\u043d\u043e \u043e\u0442\u043f\u0443\u0441\u043a\u0430\u043d\u0435 \u043c\u0435\u0436\u0434\u0443 \u0442\u044f\u0445 \u2014 \u0437\u0430\u0433\u0440\u044f\u0432\u0430\u043d\u0435 (7 Hz), \u0434\u0440\u0435\u043d\u0438\u0440\u0430\u043d\u0435 (1 Hz), \u043c\u0430\u0441\u0430\u0436 \u0438 \u043e\u0431\u043b\u0435\u043a\u0447\u0430\u0432\u0430\u043d\u0435 (2\u20138 Hz), \u0440\u0430\u0437\u043f\u0443\u0441\u043a\u0430\u043d\u0435 (4\u20135 Hz); \u0443\u043c\u043e\u0440\u0430\u0442\u0430 \u0435 \u043c\u043d\u043e\u0433\u043e \u043d\u0438\u0441\u043a\u0430."
+    const-string v3, "\u041f\u0440\u0438 \u043d\u0438\u0441\u043a\u0438 \u0447\u0435\u0441\u0442\u043e\u0442\u0438 \u043c\u0443\u0441\u043a\u0443\u043b\u044a\u0442 \u043e\u0442\u0433\u043e\u0432\u0430\u0440\u044f \u0441 \u0435\u0434\u0438\u043d\u0438\u0447\u043d\u0438 \u043f\u043e\u0442\u0440\u0435\u043f\u0432\u0430\u043d\u0438\u044f \u0438 \u0441\u0435 \u043e\u0442\u043f\u0443\u0441\u043a\u0430 \u043c\u0435\u0436\u0434\u0443 \u0442\u044f\u0445; \u0441 \u043f\u043e\u0432\u0438\u0448\u0430\u0432\u0430\u043d\u0435 \u043d\u0430 \u0447\u0435\u0441\u0442\u043e\u0442\u0430\u0442\u0430 \u043f\u043e\u0442\u0440\u0435\u043f\u0432\u0430\u043d\u0438\u044f\u0442\u0430 \u0441\u0435 \u0441\u0443\u043c\u0438\u0440\u0430\u0442, \u043f\u043e\u0441\u043b\u0435 \u0441\u0435 \u0441\u043b\u0438\u0432\u0430\u0442 \u0432 \u0443\u0441\u0442\u043e\u0439\u0447\u0438\u0432\u0430 \u043a\u043e\u043d\u0442\u0440\u0430\u043a\u0446\u0438\u044f, \u0430 \u043f\u0440\u0438 \u0432\u0438\u0441\u043e\u043a\u0438 \u0447\u0435\u0441\u0442\u043e\u0442\u0438 \u0441\u0438\u043b\u0430\u0442\u0430 \u0434\u043e\u0441\u0442\u0438\u0433\u0430 \u043f\u043e\u0447\u0442\u0438 \u043c\u0430\u043a\u0441\u0438\u043c\u0443\u043c\u0430 \u0441\u0438. \u0417\u0430\u0442\u043e\u0432\u0430 \u0437\u0430\u0433\u0440\u044f\u0432\u0430\u043d\u0435\u0442\u043e, \u0434\u0440\u0435\u043d\u0438\u0440\u0430\u043d\u0435\u0442\u043e, \u0440\u0430\u0437\u043f\u0443\u0441\u043a\u0430\u043d\u0435\u0442\u043e \u0438 \u0441\u0438\u043b\u043e\u0432\u0430\u0442\u0430 \u0440\u0430\u0431\u043e\u0442\u0430 \u0438\u0437\u043f\u043e\u043b\u0437\u0432\u0430\u0442 \u0440\u0430\u0437\u043b\u0438\u0447\u043d\u0438 \u0447\u0435\u0441\u0442\u043e\u0442\u043d\u0438 \u043e\u0431\u043b\u0430\u0441\u0442\u0438."
 
-    const-string v4, "1\u201310 Hz: single twitches with full relaxation between them \u2014 warm-up (7 Hz), drainage (1 Hz), massage and relief (2\u20138 Hz), cool-down (4\u20135 Hz); fatigue is very low."
+    const-string v4, "At low frequencies the muscle answers with single twitches and relaxes between them; as the frequency rises the twitches sum, then fuse into a steady contraction, and at high frequencies the force approaches its maximum. So warm-up, drainage, cool-down and strength work use different frequency ranges."
 
     .line 202
     invoke-static {v3, v4}, Lcom/isaigu/gymapp/widget/XemsModuleInfo;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
@@ -1794,9 +1794,9 @@
 
     aput-object v3, v2, v7
 
-    const-string v3, "10\u201320 Hz: \u043f\u043e\u0442\u0440\u0435\u043f\u0432\u0430\u043d\u0438\u044f\u0442\u0430 \u0437\u0430\u043f\u043e\u0447\u0432\u0430\u0442 \u0434\u0430 \u0441\u0435 \u0441\u0443\u043c\u0438\u0440\u0430\u0442. 20\u201330 Hz: \u0441\u043b\u0438\u0432\u0430\u043d\u0435 \u2014 \u0443\u0441\u0442\u043e\u0439\u0447\u0438\u0432\u0430 \u043a\u043e\u043d\u0442\u0440\u0430\u043a\u0446\u0438\u044f, \u043f\u043e\u0434\u0445\u043e\u0434\u044f\u0449\u0430 \u0437\u0430 \u0438\u0437\u0434\u0440\u044a\u0436\u043b\u0438\u0432\u043e\u0441\u0442. 50\u2013100 Hz: \u0441\u043b\u044f\u0442 \u0442\u0435\u0442\u0430\u043d\u0443\u0441, \u043f\u043e\u0447\u0442\u0438 \u043f\u044a\u043b\u043d\u0430 \u0441\u0438\u043b\u0430 (\u0441\u0438\u043b\u0430 85 Hz, \u043c\u043e\u0449 100 Hz), \u0443\u043c\u043e\u0440\u0430\u0442\u0430 \u0435 \u043d\u0430\u0439-\u0432\u0438\u0441\u043e\u043a\u0430 \u0438 \u043d\u0430\u0439-\u0431\u044a\u0440\u0437\u0430."
+    const-string v3, "\u0412\u0438\u0441\u043e\u043a\u0430\u0442\u0430 \u0447\u0435\u0441\u0442\u043e\u0442\u0430 \u0434\u0430\u0432\u0430 \u043f\u043e-\u0433\u043e\u043b\u044f\u043c\u0430 \u0441\u0438\u043b\u0430, \u043d\u043e \u0438 \u043f\u043e-\u0431\u044a\u0440\u0437\u0430 \u0443\u043c\u043e\u0440\u0430 \u2014 \u043f\u0440\u043e\u0432\u043e\u0434\u0438\u043c\u043e\u0441\u0442\u0442\u0430 \u043e\u0442\u0441\u043b\u0430\u0431\u0432\u0430 \u0438 \u043c\u0435\u0442\u0430\u0431\u043e\u043b\u0438\u0442\u0438\u0442\u0435 \u0441\u0435 \u043d\u0430\u0442\u0440\u0443\u043f\u0432\u0430\u0442 \u043f\u043e-\u0431\u044a\u0440\u0437\u043e. \u0422\u0435\u0437\u0438 \u0437\u0430\u0432\u0438\u0441\u0438\u043c\u043e\u0441\u0442\u0438 \u0441\u0430 \u0438\u0437\u0441\u043b\u0435\u0434\u0432\u0430\u043d\u0438 \u0438 \u043e\u043f\u0438\u0441\u0430\u043d\u0438 \u0432 \u043b\u0438\u0442\u0435\u0440\u0430\u0442\u0443\u0440\u0430\u0442\u0430 \u0438 \u0441\u0430 \u043e\u0441\u043d\u043e\u0432\u0430\u0442\u0430 \u043d\u0430 \u0438\u0437\u0431\u043e\u0440\u0430 \u043d\u0430 \u0447\u0435\u0441\u0442\u043e\u0442\u0430 \u0432\u044a\u0432 \u0432\u0441\u0435\u043a\u0438 \u043f\u043b\u0430\u043d."
 
-    const-string v4, "10\u201320 Hz: twitches start to sum. 20\u201330 Hz: fusion \u2014 a steady contraction, fit for endurance. 50\u2013100 Hz: fused tetanus, near-full force (strength 85 Hz, power 100 Hz), fatigue is highest and fastest."
+    const-string v4, "A higher frequency gives more force but also faster fatigue \u2014 conduction weakens and metabolites build up sooner. These relations are studied and described in the literature and are the basis for the frequency choice in every plan."
 
     .line 204
     invoke-static {v3, v4}, Lcom/isaigu/gymapp/widget/XemsModuleInfo;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
@@ -1805,48 +1805,37 @@
 
     aput-object v3, v2, v8
 
-    const-string v3, "\u0415\u0434\u043d\u0430 \u043a\u0440\u0438\u0432\u0430 \u0437\u0430 \u0432\u0441\u0438\u0447\u043a\u043e: \u0441\u0438\u043b\u0430\u0442\u0430 \u0440\u0430\u0441\u0442\u0435 \u0441 \u0447\u0435\u0441\u0442\u043e\u0442\u0430\u0442\u0430 \u043a\u0430\u0442\u043e S(f) = f^2,5 / (f^2,5 + 15^2,5) \u2014 \u043f\u043e\u043b\u043e\u0432\u0438\u043d\u0430\u0442\u0430 \u043e\u0442 \u043f\u044a\u043b\u043d\u0430\u0442\u0430 \u0441\u0438\u043b\u0430 \u043e\u043a\u043e\u043b\u043e 15 Hz. \u0421\u043f\u0440\u044f\u043c\u043e 85 Hz: 7 Hz \u2248 13 %, 10 Hz \u2248 27 %, 20 Hz \u2248 68 %, 50 Hz \u2248 97 %. \u0421\u044a\u0449\u0430\u0442\u0430 \u0444\u0443\u043d\u043a\u0446\u0438\u044f \u0441\u043c\u044f\u0442\u0430 \u043d\u0430\u0442\u043e\u0432\u0430\u0440\u0432\u0430\u043d\u0435\u0442\u043e \u0438 \u0432 \u043e\u0442\u0447\u0435\u0442\u0430."
+    aput-object v2, v1, v6
 
-    const-string v4, "One curve for everything: force grows with frequency as S(f) = f^2.5 / (f^2.5 + 15^2.5) \u2014 half the full force near 15 Hz. Against 85 Hz: 7 Hz \u2248 13 %, 10 Hz \u2248 27 %, 20 Hz \u2248 68 %, 50 Hz \u2248 97 %. The same function counts the load in the report."
+    new-array v2, v9, [Ljava/lang/String;
+
+    const-string v3, "\u0423\u043c\u043e\u0440\u0430 \u0438 \u0432\u044a\u0437\u0441\u0442\u0430\u043d\u043e\u0432\u044f\u0432\u0430\u043d\u0435"
+
+    const-string v4, "Fatigue and recovery"
 
     .line 206
     invoke-static {v3, v4}, Lcom/isaigu/gymapp/widget/XemsModuleInfo;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v3
 
-    aput-object v3, v2, v9
-
-    aput-object v2, v1, v6
-
-    new-array v2, v9, [Ljava/lang/String;
-
-    const-string v3, "\u0423\u043c\u043e\u0440\u0430: \u043a\u0430\u043a \u0441\u0435 \u0441\u043c\u044f\u0442\u0430"
-
-    const-string v4, "Fatigue: how it is computed"
-
-    .line 208
-    invoke-static {v3, v4}, Lcom/isaigu/gymapp/widget/XemsModuleInfo;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object v3
-
     aput-object v3, v2, v6
 
-    const-string v3, "dF/dt = w(f)\u00b7\u03c1 \u2212 F/\u03c4. \u041d\u0430\u0442\u0440\u0443\u043f\u0432\u0430\u043d\u0435\u0442\u043e \u0437\u0430\u0432\u0438\u0441\u0438 \u043e\u0442 \u0447\u0435\u0441\u0442\u043e\u0442\u0430\u0442\u0430 \u0438 \u043e\u0442 \u0442\u043e\u043a\u0430 \u0441\u043f\u0440\u044f\u043c\u043e \u043a\u0430\u043b\u0438\u0431\u0440\u0438\u0440\u0430\u043d\u0438\u044f; \u0432\u044a\u0437\u0441\u0442\u0430\u043d\u043e\u0432\u044f\u0432\u0430\u043d\u0435\u0442\u043e \u0432\u044a\u0440\u0432\u0438 \u043d\u0435\u043f\u0440\u0435\u043a\u044a\u0441\u043d\u0430\u0442\u043e, \u0438 \u043f\u043e \u0432\u0440\u0435\u043c\u0435 \u043d\u0430 \u0438\u043c\u043f\u0443\u043b\u0441\u0430. \u0424\u043e\u0441\u0444\u043e\u043a\u0440\u0435\u0430\u0442\u0438\u043d\u044a\u0442 \u0441\u0435 \u0432\u044a\u0437\u0441\u0442\u0430\u043d\u043e\u0432\u044f\u0432\u0430 \u0441 \u043f\u043e\u043b\u0443\u0432\u0440\u0435\u043c\u0435 \u043e\u043a\u043e\u043b\u043e 20\u201335 s, \u043f\u043e-\u0431\u044a\u0440\u0437\u043e \u043f\u0440\u0438 \u0442\u0440\u0435\u043d\u0438\u0440\u0430\u043d\u0438; \u0437\u0430\u0442\u043e\u0432\u0430 \u03c4 \u0435 50 s (\u043d\u0430\u0447\u0438\u043d\u0430\u0435\u0449), 40 s (\u0441\u0440\u0435\u0434\u0435\u043d) \u0438 30 s (\u0442\u0440\u0435\u043d\u0438\u0440\u0430\u043d\u0438)."
+    const-string v3, "\u041f\u0440\u0438 \u0432\u043e\u043b\u0435\u0432\u043e \u0434\u0432\u0438\u0436\u0435\u043d\u0438\u0435 \u0442\u044f\u043b\u043e\u0442\u043e \u0440\u0435\u0434\u0443\u0432\u0430 \u0434\u0432\u0438\u0433\u0430\u0442\u0435\u043b\u043d\u0438\u0442\u0435 \u0435\u0434\u0438\u043d\u0438\u0446\u0438; \u043f\u0440\u0438 \u0435\u043b\u0435\u043a\u0442\u0440\u043e\u0441\u0442\u0438\u043c\u0443\u043b\u0430\u0446\u0438\u044f \u0440\u0430\u0431\u043e\u0442\u044f\u0442 \u0435\u0434\u043d\u0438 \u0438 \u0441\u044a\u0449\u0438, \u0432 \u0435\u0434\u043d\u0438 \u0438 \u0441\u044a\u0449\u0438 \u043c\u0435\u0441\u0442\u0430 \u0438 \u0435\u0434\u043d\u043e\u0432\u0440\u0435\u043c\u0435\u043d\u043d\u043e. \u0417\u0430\u0442\u043e\u0432\u0430 \u0441\u044a\u0449\u0430\u0442\u0430 \u0441\u0438\u043b\u0430 \u0443\u043c\u043e\u0440\u044f\u0432\u0430 \u043f\u043e\u0432\u0435\u0447\u0435 \u0438 \u043c\u0443\u0441\u043a\u0443\u043b\u044a\u0442 \u0438\u043c\u0430 \u043d\u0443\u0436\u0434\u0430 \u043e\u0442 \u043f\u0430\u0443\u0437\u0438, \u0432 \u043a\u043e\u0438\u0442\u043e \u0441\u0435 \u0432\u044a\u0437\u0441\u0442\u0430\u043d\u043e\u0432\u044f\u0432\u0430 \u0437\u0430\u043f\u0430\u0441\u044a\u0442 \u043c\u0443 \u043e\u0442 \u0444\u043e\u0441\u0444\u043e\u043a\u0440\u0435\u0430\u0442\u0438\u043d \u2014 \u043f\u0440\u043e\u0446\u0435\u0441 \u0441 \u0438\u0437\u0432\u0435\u0441\u0442\u043d\u043e \u0432\u0440\u0435\u043c\u0435 \u043d\u0430 \u0432\u044a\u0437\u0441\u0442\u0430\u043d\u043e\u0432\u044f\u0432\u0430\u043d\u0435, \u043f\u043e-\u043a\u0440\u0430\u0442\u043a\u043e \u043f\u0440\u0438 \u0442\u0440\u0435\u043d\u0438\u0440\u0430\u043d\u0438 \u0445\u043e\u0440\u0430."
 
-    const-string v4, "dF/dt = w(f)\u00b7\u03c1 \u2212 F/\u03c4. Build-up depends on the frequency and on the current against the calibrated one; recovery runs all the time, during the impulse too. Phosphocreatine recovers with a half-time of about 20\u201335 s, faster in trained people; so \u03c4 is 50 s (beginner), 40 s (average) and 30 s (trained)."
+    const-string v4, "In voluntary movement the body rotates its motor units; in electrical stimulation the same ones work, in the same places, at the same time. So the same force tires more and the muscle needs pauses in which its phosphocreatine store recovers \u2014 a process with a known recovery time, shorter in trained people."
 
-    .line 209
+    .line 207
     invoke-static {v3, v4}, Lcom/isaigu/gymapp/widget/XemsModuleInfo;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v3
 
     aput-object v3, v2, v7
 
-    const-string v3, "\u0413\u0440\u0430\u043d\u0438\u0446\u0430\u0442\u0430 F_max \u0435 \u0432\u044a\u0440\u0437\u0430\u043d\u0430 \u043a\u044a\u043c \u0443\u0442\u0432\u044a\u0440\u0434\u0435\u043d\u0430\u0442\u0430 \u043f\u0440\u0430\u043a\u0442\u0438\u043a\u0430: \u0441\u0442\u0430\u043d\u0434\u0430\u0440\u0442\u043d\u0430 WB-EMS \u0441\u0435\u0441\u0438\u044f (20 \u043c\u0438\u043d\u0443\u0442\u0438, 85 Hz, 4 s \u0438\u043c\u043f\u0443\u043b\u0441 / 4 s \u043f\u0430\u0443\u0437\u0430, \u0441\u0438\u043b\u0430 \u201e\u0442\u0435\u0436\u043a\u043e\u201c \u043f\u043e \u0443\u0441\u0435\u0449\u0430\u043d\u0435) \u0435 \u043f\u043e\u043d\u043e\u0441\u0438\u043c\u0430 \u0437\u0430 \u0441\u0440\u0435\u0434\u043d\u0438\u044f \u043a\u043b\u0438\u0435\u043d\u0442. \u0411\u043b\u043e\u043a\u043e\u0432\u0435\u0442\u0435 \u0441\u0432\u044a\u0440\u0448\u0432\u0430\u0442 \u043f\u0440\u0435\u0434\u0438 \u0446\u0438\u043a\u044a\u043b\u0430, \u0447\u0438\u0439\u0442\u043e \u0432\u0440\u044a\u0445 \u0431\u0438 \u043d\u0430\u0434\u0445\u0432\u044a\u0440\u043b\u0438\u043b F_max; \u043d\u0435\u043f\u0440\u0435\u043a\u044a\u0441\u043d\u0430\u0442\u0438\u0442\u0435 \u0444\u0430\u0437\u0438 \u0434\u044a\u0440\u0436\u0430\u0442 \u0432\u044a\u0440\u0445\u0430 \u043f\u043e\u0434 0,75\u00b7F_max."
+    const-string v3, "\u041f\u043b\u0430\u043d\u044a\u0442 \u0432\u0437\u0435\u043c\u0430 \u043f\u0440\u0435\u0434\u0432\u0438\u0434 \u043f\u043e\u0434\u0433\u043e\u0442\u043e\u0432\u043a\u0430\u0442\u0430 \u043d\u0430 \u0447\u043e\u0432\u0435\u043a\u0430 \u0438 \u0438\u0437\u0431\u0438\u0440\u0430 \u043f\u043e\u0447\u0438\u0432\u043a\u0438\u0442\u0435 \u0442\u0430\u043a\u0430, \u0447\u0435 \u0443\u043c\u043e\u0440\u0430\u0442\u0430 \u0434\u0430 \u043e\u0441\u0442\u0430\u0432\u0430 \u0432 \u043f\u043e\u043d\u043e\u0441\u0438\u043c\u0438 \u0437\u0430 \u043d\u0435\u0433\u043e \u0433\u0440\u0430\u043d\u0438\u0446\u0438."
 
-    const-string v4, "The limit F_max is tied to established practice: a standard WB-EMS session (20 minutes, 85 Hz, 4 s on / 4 s off, strength \"hard\" by feel) is sustainable for the average client. Blocks end before the cycle whose peak would cross F_max; continuous phases keep the peak under 0.75\u00b7F_max."
+    const-string v4, "The plan takes the person\'s fitness into account and chooses the rests so that fatigue stays within limits he or she can bear."
 
-    .line 211
+    .line 209
     invoke-static {v3, v4}, Lcom/isaigu/gymapp/widget/XemsModuleInfo;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v3
@@ -1857,22 +1846,22 @@
 
     new-array v2, v8, [Ljava/lang/String;
 
-    const-string v3, "\u0428\u0438\u0440\u0438\u043d\u0430 \u043d\u0430 \u0438\u043c\u043f\u0443\u043b\u0441\u0430 \u0438 \u0434\u043e\u0437\u0430"
+    const-string v3, "\u0428\u0438\u0440\u0438\u043d\u0430 \u043d\u0430 \u0438\u043c\u043f\u0443\u043b\u0441\u0430"
 
-    const-string v4, "Pulse width and dose"
+    const-string v4, "Pulse width"
 
-    .line 213
+    .line 211
     invoke-static {v3, v4}, Lcom/isaigu/gymapp/widget/XemsModuleInfo;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v3
 
     aput-object v3, v2, v6
 
-    const-string v3, "350 \u00b5s (300\u2013400) \u0434\u043e\u0441\u0442\u0438\u0433\u0430 \u043f\u043e-\u0434\u044a\u043b\u0431\u043e\u043a\u0438 \u0432\u043b\u0430\u043a\u043d\u0430 \u043f\u0440\u0438 \u043f\u043e\u043d\u043e\u0441\u0438\u043c \u0442\u043e\u043a. \u0414\u043e\u0437\u0430\u0442\u0430 (\u0447\u0435\u0441\u0442\u043e\u0442\u0430 \u00d7 \u0448\u0438\u0440\u0438\u043d\u0430 \u00d7 \u0432\u0440\u0435\u043c\u0435) \u0435 \u0431\u044e\u0434\u0436\u0435\u0442\u044a\u0442; \u0443\u043c\u043e\u0440\u0430\u0442\u0430 \u0440\u0435\u0448\u0430\u0432\u0430 \u0431\u043b\u043e\u043a\u043e\u0432\u0435\u0442\u0435. \u041e\u0442 100 Hz \u0448\u0438\u0440\u0438\u043d\u0430\u0442\u0430 \u0435 \u043d\u0430\u0439-\u043c\u043d\u043e\u0433\u043e 300 \u00b5s \u2014 \u0432\u0438\u0441\u043e\u043a\u0430 \u0447\u0435\u0441\u0442\u043e\u0442\u0430 \u0441 \u0448\u0438\u0440\u043e\u043a \u0438\u043c\u043f\u0443\u043b\u0441 \u0431\u043e\u043b\u0438 \u0438 \u043f\u0430\u0440\u0438."
+    const-string v3, "\u041f\u043e-\u0448\u0438\u0440\u043e\u043a\u0438\u044f\u0442 \u0438\u043c\u043f\u0443\u043b\u0441 \u0434\u043e\u0441\u0442\u0438\u0433\u0430 \u043f\u043e-\u0434\u044a\u043b\u0431\u043e\u043a\u0438 \u0432\u043b\u0430\u043a\u043d\u0430 \u043f\u0440\u0438 \u043f\u043e-\u043d\u0438\u0441\u044a\u043a \u0442\u043e\u043a, \u043d\u043e \u0432\u0438\u0441\u043e\u043a\u0430 \u0447\u0435\u0441\u0442\u043e\u0442\u0430 \u0441 \u0448\u0438\u0440\u043e\u043a \u0438\u043c\u043f\u0443\u043b\u0441 \u0435 \u043d\u0435\u043f\u0440\u0438\u044f\u0442\u043d\u0430 \u0438 \u043c\u043e\u0436\u0435 \u0434\u0430 \u0431\u043e\u043b\u0438. \u0417\u0430\u0442\u043e\u0432\u0430 \u0448\u0438\u0440\u043e\u0447\u0438\u043d\u0430\u0442\u0430 \u0438 \u0447\u0435\u0441\u0442\u043e\u0442\u0430\u0442\u0430 \u0441\u0435 \u043f\u043e\u0434\u0431\u0438\u0440\u0430\u0442 \u0437\u0430\u0435\u0434\u043d\u043e \u0438 \u0441\u0435 \u043f\u0430\u0437\u044f\u0442 \u0432 \u0431\u0435\u0437\u043e\u043f\u0430\u0441\u043d\u0438 \u0433\u0440\u0430\u043d\u0438\u0446\u0438."
 
-    const-string v4, "350 \u00b5s (300\u2013400) reaches deeper fibres at a tolerable current. The dose (frequency \u00d7 width \u00d7 time) is the budget; fatigue decides the blocks. From 100 Hz the width is at most 300 \u00b5s \u2014 high rate with a wide pulse hurts and burns."
+    const-string v4, "A wider pulse reaches deeper fibres at a lower current, but a high rate with a wide pulse is unpleasant and can hurt. So width and frequency are chosen together and kept within safe limits."
 
-    .line 214
+    .line 212
     invoke-static {v3, v4}, Lcom/isaigu/gymapp/widget/XemsModuleInfo;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v3
@@ -1883,33 +1872,33 @@
 
     new-array v2, v9, [Ljava/lang/String;
 
-    const-string v3, "\u0415\u043d\u0435\u0440\u0433\u0438\u044f: \u043f\u043e \u0432\u0440\u0435\u043c\u0435 \u0438 \u0441\u043b\u0435\u0434"
+    const-string v3, "\u0415\u043d\u0435\u0440\u0433\u0438\u044f \u0438 \u043a\u0430\u043b\u043e\u0440\u0438\u0438"
 
-    const-string v4, "Energy: during and after"
+    const-string v4, "Energy and calories"
 
-    .line 216
+    .line 214
     invoke-static {v3, v4}, Lcom/isaigu/gymapp/widget/XemsModuleInfo;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v3
 
     aput-object v3, v2, v6
 
-    const-string v3, "\u041f\u043e\u0434 ~10 Hz \u0435\u043d\u0435\u0440\u0433\u0438\u044f\u0442\u0430 \u043d\u0430 \u0441\u0435\u043a\u0443\u043d\u0434\u0430 \u0440\u0430\u0441\u0442\u0435 \u043f\u043e\u0447\u0442\u0438 \u043f\u0440\u0430\u0432\u043e \u0441 \u0447\u0435\u0441\u0442\u043e\u0442\u0430\u0442\u0430; \u043d\u0430\u0434 ~30 Hz \u0441\u0438\u043b\u0430\u0442\u0430 \u0441\u0435 \u043d\u0430\u0441\u0438\u0449\u0430 \u0438 \u0446\u0435\u043d\u0430\u0442\u0430 \u0441\u0435 \u043e\u043f\u0440\u0435\u0434\u0435\u043b\u044f \u043e\u0442 \u0441\u0438\u043b\u0430\u0442\u0430 \u0438 \u043e\u0442 \u0442\u043e\u0432\u0430 \u043a\u043e\u043b\u043a\u043e \u043c\u0443\u0441\u043a\u0443\u043b \u0435 \u0437\u0430\u0434\u0435\u0439\u0441\u0442\u0432\u0430\u043d. \u0427\u0430\u0441\u0442 \u043e\u0442 \u0410\u0422\u0424 \u0441\u0435 \u043f\u043e\u043a\u0440\u0438\u0432\u0430 \u0431\u0435\u0437 \u043a\u0438\u0441\u043b\u043e\u0440\u043e\u0434 (\u0444\u043e\u0441\u0444\u043e\u043a\u0440\u0435\u0430\u0442\u0438\u043d, \u0433\u043b\u0438\u043a\u043e\u043b\u0438\u0437\u0430) \u2014 \u0442\u044f\u043b\u043e\u0442\u043e \u044f \u0432\u0440\u044a\u0449\u0430 \u0441\u043b\u0435\u0434 \u0442\u0440\u0435\u043d\u0438\u0440\u043e\u0432\u043a\u0430\u0442\u0430."
+    const-string v3, "\u041c\u0443\u0441\u043a\u0443\u043b\u044a\u0442 \u0445\u0430\u0440\u0447\u0438 \u0435\u043d\u0435\u0440\u0433\u0438\u044f \u043f\u043e \u0432\u0440\u0435\u043c\u0435 \u043d\u0430 \u0441\u0442\u0438\u043c\u0443\u043b\u0430\u0446\u0438\u044f\u0442\u0430 \u0438 \u201e\u0432\u0440\u044a\u0449\u0430 \u0434\u044a\u043b\u0433\u0430\u201c \u0441\u043b\u0435\u0434 \u043d\u0435\u044f: \u0431\u044a\u0440\u0437\u0430 \u0447\u0430\u0441\u0442 (\u0444\u043e\u0441\u0444\u043e\u043a\u0440\u0435\u0430\u0442\u0438\u043d \u0438 \u043a\u0438\u0441\u043b\u043e\u0440\u043e\u0434\u0435\u043d \u0434\u0435\u0444\u0438\u0446\u0438\u0442 \u2014 \u043c\u0438\u043d\u0443\u0442\u0438) \u0438 \u043f\u043e-\u0431\u0430\u0432\u043d\u0430 \u0433\u043b\u0438\u043a\u043e\u043b\u0438\u0442\u0438\u0447\u043d\u0430 \u0447\u0430\u0441\u0442 (\u043b\u0430\u043a\u0442\u0430\u0442, \u0433\u043b\u0438\u043a\u043e\u0433\u0435\u043d \u2014 \u0434\u0435\u0441\u0435\u0442\u043a\u0438 \u043c\u0438\u043d\u0443\u0442\u0438). \u0421\u0438\u043b\u043d\u0430\u0442\u0430 \u0440\u0430\u0431\u043e\u0442\u0430 \u043e\u0441\u0442\u0430\u0432\u044f \u0442\u0440\u0430\u0435\u043d \u0435\u0444\u0435\u043a\u0442; \u0441\u043b\u0430\u0431\u0430\u0442\u0430 \u0438 \u043a\u0440\u0430\u0442\u043a\u0430\u0442\u0430 \u2014 \u043f\u043e\u0447\u0442\u0438 \u043d\u0435."
 
-    const-string v4, "Below ~10 Hz the energy per second rises almost linearly with the frequency; above ~30 Hz the force saturates and the cost is set by the force and by how much muscle is fired. Part of the ATP is covered without oxygen (phosphocreatine, glycolysis) \u2014 the body pays it back after the session."
+    const-string v4, "The muscle spends energy during stimulation and pays the debt back after it: a fast part (phosphocreatine and the oxygen deficit \u2014 minutes) and a slower glycolytic part (lactate, glycogen \u2014 tens of minutes). Hard work leaves a lasting effect; light and short work hardly any."
 
-    .line 217
+    .line 215
     invoke-static {v3, v4}, Lcom/isaigu/gymapp/widget/XemsModuleInfo;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v3
 
     aput-object v3, v2, v7
 
-    const-string v3, "\u0417\u0430\u0442\u043e\u0432\u0430 \u043a\u0430\u043b\u043e\u0440\u0438\u0438\u0442\u0435 \u0432\u043a\u043b\u044e\u0447\u0432\u0430\u0442 \u0438 \u201e\u043b\u0438\u0445\u0432\u0430\u0442\u0430\u201c \u0441\u043b\u0435\u0434 \u0442\u0440\u0435\u043d\u0438\u0440\u043e\u0432\u043a\u0430\u0442\u0430: \u0431\u044a\u0440\u0437\u0430 \u0447\u0430\u0441\u0442 (\u0444\u043e\u0441\u0444\u043e\u043a\u0440\u0435\u0430\u0442\u0438\u043d \u0438 \u043a\u0438\u0441\u043b\u043e\u0440\u043e\u0434\u043d\u0438\u044f\u0442 \u0434\u0435\u0444\u0438\u0446\u0438\u0442 \u2014 \u043c\u0438\u043d\u0443\u0442\u0438) \u0438 \u0431\u0430\u0432\u043d\u0430 \u0433\u043b\u0438\u043a\u043e\u043b\u0438\u0442\u0438\u0447\u043d\u0430 \u0447\u0430\u0441\u0442 (\u043b\u0430\u043a\u0442\u0430\u0442, \u0433\u043b\u0438\u043a\u043e\u0433\u0435\u043d \u2014 10\u201360 \u043c\u0438\u043d\u0443\u0442\u0438). \u041f\u0440\u0438 \u0441\u043b\u0430\u0431\u0430 \u0441\u0438\u043b\u0430 \u0438 \u043a\u0440\u0430\u0442\u043a\u0430 \u0440\u0430\u0431\u043e\u0442\u0430 \u043d\u044f\u043c\u0430 \u0442\u0440\u0430\u0435\u043d \u0435\u0444\u0435\u043a\u0442; \u043f\u0440\u0438 85\u2013100 Hz \u0435 \u0433\u043e\u043b\u044f\u043c, \u043f\u0440\u0438 \u0437\u0430\u0433\u0440\u044f\u0432\u043a\u0430 \u0438 \u043c\u0430\u0441\u0430\u0436 \u0435 \u043c\u0430\u043b\u044a\u043a."
+    const-string v3, "\u0417\u0430\u0442\u043e\u0432\u0430 \u0438\u0437\u0447\u0438\u0441\u043b\u044f\u0432\u0430\u043c\u0435 \u0438 \u0435\u043d\u0435\u0440\u0433\u0438\u044f\u0442\u0430 \u0441\u043b\u0435\u0434 \u0442\u0440\u0435\u043d\u0438\u0440\u043e\u0432\u043a\u0430\u0442\u0430, \u043d\u0435 \u0441\u0430\u043c\u043e \u043f\u043e \u0432\u0440\u0435\u043c\u0435 \u043d\u0430 \u043d\u0435\u044f."
 
-    const-string v4, "So the calories include the \"interest\" after the session: a fast part (phosphocreatine and the oxygen deficit \u2014 minutes) and a slow glycolytic part (lactate, glycogen \u2014 10\u201360 minutes). Low strength and short work leave no lasting effect; it is large at 85\u2013100 Hz and small in a warm-up or a massage."
+    const-string v4, "So we count the energy after the session too, not only during it."
 
-    .line 219
+    .line 217
     invoke-static {v3, v4}, Lcom/isaigu/gymapp/widget/XemsModuleInfo;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v3
@@ -1918,42 +1907,31 @@
 
     aput-object v2, v1, v9
 
-    new-array v2, v9, [Ljava/lang/String;
+    new-array v2, v8, [Ljava/lang/String;
 
     const-string v3, "\u041c\u0435\u0436\u0434\u0443 \u0442\u0440\u0435\u043d\u0438\u0440\u043e\u0432\u043a\u0438\u0442\u0435"
 
     const-string v4, "Between sessions"
 
-    .line 221
+    .line 219
     invoke-static {v3, v4}, Lcom/isaigu/gymapp/widget/XemsModuleInfo;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v3
 
     aput-object v3, v2, v6
 
-    const-string v3, "WB-EMS \u043d\u0430\u0442\u043e\u0432\u0430\u0440\u0432\u0430 \u0435\u0434\u043d\u0438 \u0438 \u0441\u044a\u0449\u0438 \u0434\u0432\u0438\u0433\u0430\u0442\u0435\u043b\u043d\u0438 \u0435\u0434\u0438\u043d\u0438\u0446\u0438 \u043f\u0440\u0438 \u0432\u0441\u0435\u043a\u0438 \u0438\u043c\u043f\u0443\u043b\u0441; \u0441\u043b\u0435\u0434 \u0442\u0435\u0436\u043a\u0430 \u0442\u0440\u0435\u043d\u0438\u0440\u043e\u0432\u043a\u0430 \u043a\u0440\u0435\u0430\u0442\u0438\u043d\u043a\u0438\u043d\u0430\u0437\u0430\u0442\u0430 \u0434\u043e\u0441\u0442\u0438\u0433\u0430 \u0432\u0440\u044a\u0445 \u043d\u0430 2\u20134 \u0434\u0435\u043d \u0438 \u043f\u0440\u0438 \u043d\u0435\u043f\u0440\u0438\u0432\u0438\u043a\u043d\u0430\u043b\u0438 \u043c\u043e\u0436\u0435 \u0434\u0430 \u0435 \u043c\u043d\u043e\u0433\u043e \u0432\u0438\u0441\u043e\u043a\u0430. \u041f\u0440\u0435\u043f\u043e\u0440\u044a\u043a\u0438: \u043f\u043e\u043d\u0435 4 \u0434\u043d\u0438 \u043f\u043e\u0447\u0438\u0432\u043a\u0430, \u043f\u044a\u0440\u0432\u0438\u0442\u0435 \u0442\u0440\u0435\u043d\u0438\u0440\u043e\u0432\u043a\u0438 \u044f\u0441\u043d\u043e \u043f\u043e-\u043b\u0435\u043a\u0438, \u043e\u043a\u043e\u043b\u043e 20 \u043c\u0438\u043d\u0443\u0442\u0438, \u0441\u0438\u043b\u0430 \u043f\u043e \u0443\u0441\u0435\u0449\u0430\u043d\u0435, \u0434\u043e\u0441\u0442\u0430\u0442\u044a\u0447\u043d\u043e \u0432\u043e\u0434\u0430."
+    const-string v3, "\u0421\u043b\u0435\u0434 \u0442\u0435\u0436\u043a\u0430 WB-EMS \u0442\u0440\u0435\u043d\u0438\u0440\u043e\u0432\u043a\u0430 \u043a\u0440\u0435\u0430\u0442\u0438\u043d\u043a\u0438\u043d\u0430\u0437\u0430\u0442\u0430 \u0432 \u043a\u0440\u044a\u0432\u0442\u0430 \u0434\u043e\u0441\u0442\u0438\u0433\u0430 \u0432\u0440\u044a\u0445 \u043d\u0430 2\u20134 \u0434\u0435\u043d \u0438 \u043f\u0440\u0438 \u043d\u0435\u043f\u0440\u0438\u0432\u0438\u043a\u043d\u0430\u043b\u0438 \u043c\u043e\u0436\u0435 \u0434\u0430 \u0435 \u043c\u043d\u043e\u0433\u043e \u0432\u0438\u0441\u043e\u043a\u0430. \u041c\u0435\u0436\u0434\u0443\u043d\u0430\u0440\u043e\u0434\u043d\u0438\u0442\u0435 \u043f\u0440\u0435\u043f\u043e\u0440\u044a\u043a\u0438 \u0441\u0430 \u043f\u043e\u0447\u0438\u0432\u043a\u0430 \u043c\u0435\u0436\u0434\u0443 \u0442\u0440\u0435\u043d\u0438\u0440\u043e\u0432\u043a\u0438\u0442\u0435, \u044f\u0441\u043d\u043e \u043f\u043e-\u043b\u0435\u043a\u0438 \u043f\u044a\u0440\u0432\u0438 \u0442\u0440\u0435\u043d\u0438\u0440\u043e\u0432\u043a\u0438, \u0443\u043c\u0435\u0440\u0435\u043d\u0430 \u043f\u0440\u043e\u0434\u044a\u043b\u0436\u0438\u0442\u0435\u043b\u043d\u043e\u0441\u0442, \u0441\u0438\u043b\u0430 \u043f\u043e \u0443\u0441\u0435\u0449\u0430\u043d\u0435 \u0438 \u0434\u043e\u0441\u0442\u0430\u0442\u044a\u0447\u043d\u043e \u0432\u043e\u0434\u0430. \u041f\u043b\u0430\u043d\u044a\u0442 \u0433\u0438 \u0441\u043f\u0430\u0437\u0432\u0430 \u0438 \u043e\u0442\u0447\u0438\u0442\u0430 \u0438 \u0438\u0437\u043c\u0435\u0440\u0435\u043d\u043e\u0442\u043e \u0432\u044a\u0437\u0441\u0442\u0430\u043d\u043e\u0432\u044f\u0432\u0430\u043d\u0435 \u043d\u0430 \u043a\u043b\u0438\u0435\u043d\u0442\u0430."
 
-    const-string v4, "WB-EMS loads the same motor units on every impulse; after a hard session creatine kinase peaks on day 2\u20134 and can be very high in the unaccustomed. Guidelines: at least 4 days of rest, the first sessions clearly lighter, about 20 minutes, strength by feel, plenty of fluid."
+    const-string v4, "After a hard WB-EMS session blood creatine kinase peaks on day 2\u20134 and can be very high in the unaccustomed. The international recommendations are rest between sessions, clearly lighter first sessions, a moderate duration, strength by feel and plenty of fluid. The plan follows them and also uses the client\'s measured recovery."
 
-    .line 222
+    .line 220
     invoke-static {v3, v4}, Lcom/isaigu/gymapp/widget/XemsModuleInfo;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v3
 
     aput-object v3, v2, v7
 
-    const-string v3, "\u0418\u0437\u043c\u0435\u0440\u0435\u043d\u043e \u0432\u044a\u0437\u0441\u0442\u0430\u043d\u043e\u0432\u044f\u0432\u0430\u043d\u0435 (\u043d\u0430\u0448\u0430 \u043e\u0446\u0435\u043d\u043a\u0430, \u043d\u0430\u0441\u0442\u0440\u043e\u0439\u0432\u0430\u0435\u043c\u0430): \u043f\u043e\u0434\u0443\u0432\u0430\u043d\u0435 (\u0438\u043c\u043f\u0435\u0434\u0430\u043d\u0441 \u043d\u0430 \u043a\u0430\u043d\u0442\u0430\u0440\u0430 \u043d\u0430\u0434 \u0441\u043e\u0431\u0441\u0442\u0432\u0435\u043d\u0430\u0442\u0430 \u0431\u0430\u0437\u0430 \u043d\u0430 \u043a\u043b\u0438\u0435\u043d\u0442\u0430), \u043f\u043e-\u0441\u0443\u0445\u0438 \u043a\u0440\u0430\u043a\u0430 \u0438\u043b\u0438 \u0441\u043f\u0430\u0434 \u043d\u0430 \u0442\u0435\u0433\u043b\u043e\u0442\u043e \u0441 \u043d\u0430\u0434 2 % \u2192 \u043f\u043e-\u0434\u044a\u043b\u0433\u0430 \u043f\u0430\u0443\u0437\u0430 \u0432 \u0442\u0435\u0442\u0430\u043d\u0438\u0447\u043d\u0430\u0442\u0430 \u0440\u0430\u0431\u043e\u0442\u0430 \u0438 \u0431\u0435\u0437 \u0432\u0442\u043e\u0440\u0438 \u0438\u043c\u043f\u0443\u043b\u0441 \u2014 \u0441\u0438\u043b\u0430\u0442\u0430 \u043d\u0435 \u0441\u0435 \u0440\u0435\u0436\u0435, \u0440\u0435\u0448\u0430\u0432\u0430 \u0443\u0441\u0435\u0449\u0430\u043d\u0435\u0442\u043e."
-
-    const-string v4, "Measured recovery (our estimate, tunable): swelling (scale impedance above the client\'s own baseline), drier legs or a weight drop over 2 % \u2192 a longer pause in tetanic work and no second impulse \u2014 the strength is not cut, the feel decides."
-
-    .line 224
-    invoke-static {v3, v4}, Lcom/isaigu/gymapp/widget/XemsModuleInfo;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object v3
-
-    aput-object v3, v2, v8
-
-    aput-object v2, v1, v10
+    aput-object v2, v1, v5
 
     const/4 v2, 0x5
 
@@ -1963,18 +1941,18 @@
 
     const-string v5, "Heart rate"
 
-    .line 226
+    .line 222
     invoke-static {v4, v5}, Lcom/isaigu/gymapp/widget/XemsModuleInfo;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v4
 
     aput-object v4, v3, v6
 
-    const-string v4, "\u041f\u0443\u043b\u0441\u044a\u0442 \u0432 \u043f\u043e\u043a\u043e\u0439 \u0441\u0435 \u043c\u0435\u0440\u0438 \u0442\u043e\u043b\u043a\u043e\u0432\u0430 \u0434\u044a\u043b\u0433\u043e, \u043a\u043e\u043b\u043a\u043e\u0442\u043e \u0438\u0441\u043a\u0430 \u043d\u0430\u0434\u0435\u0436\u0434\u043d\u043e\u0441\u0442\u0442\u0430 \u043c\u0443 \u2014 10\u201345 s; \u043c\u0435\u0434\u0438\u0430\u043d\u0430 \u043d\u0430 n \u043e\u0442\u0447\u0435\u0442\u0430 \u0441 \u0440\u0430\u0437\u0431\u0440\u043e\u0441 \u03c3 \u0435 \u0442\u043e\u0447\u043d\u0430 \u0434\u043e \u00b11 \u0443\u0434\u0430\u0440 \u043f\u0440\u0438 n \u2265 (1,25\u03c3)\u00b2. \u041d\u0430\u0442\u043e\u0432\u0430\u0440\u0432\u0430\u043d\u0435\u0442\u043e \u0441\u0435 \u043c\u0435\u0440\u0438 \u0432 % \u043e\u0442 \u0440\u0435\u0437\u0435\u0440\u0432\u043d\u0438\u044f \u043f\u0443\u043b\u0441. \u0418\u0437\u043e\u043c\u0435\u0442\u0440\u0438\u0447\u043d\u0438\u0442\u0435 \u043a\u043e\u043d\u0442\u0440\u0430\u043a\u0446\u0438\u0438 \u0432\u0434\u0438\u0433\u0430\u0442 \u043f\u0443\u043b\u0441\u0430 \u0438 \u043f\u0440\u0435\u0437 \u043f\u0440\u0435\u0441\u043e\u0440\u043d\u0438\u044f \u0440\u0435\u0444\u043b\u0435\u043a\u0441, \u0437\u0430\u0442\u043e\u0432\u0430 \u043f\u0440\u0438 \u0432\u0438\u0441\u043e\u043a\u0430 \u0441\u0438\u043b\u0430 \u043f\u0443\u043b\u0441\u044a\u0442 \u043b\u0435\u043a\u043e \u0437\u0430\u0432\u0438\u0448\u0430\u0432\u0430 \u2014 \u043c\u043e\u0434\u0435\u043b\u044a\u0442 \u0433\u043e \u043e\u0442\u0447\u0438\u0442\u0430."
+    const-string v4, "\u041d\u0430\u0442\u043e\u0432\u0430\u0440\u0432\u0430\u043d\u0435\u0442\u043e \u0441\u0435 \u043e\u0446\u0435\u043d\u044f\u0432\u0430 \u043f\u043e \u043f\u0443\u043b\u0441\u0430 \u0441\u043f\u0440\u044f\u043c\u043e \u0440\u0435\u0437\u0435\u0440\u0432\u043d\u0438\u044f \u043f\u0443\u043b\u0441 \u043d\u0430 \u0447\u043e\u0432\u0435\u043a\u0430. \u041f\u0443\u043b\u0441\u044a\u0442 \u0432 \u043f\u043e\u043a\u043e\u0439 \u0441\u0435 \u0438\u0437\u043c\u0435\u0440\u0432\u0430 \u0434\u043e\u0441\u0442\u0430\u0442\u044a\u0447\u043d\u043e \u0434\u044a\u043b\u0433\u043e \u0437\u0430 \u043d\u0430\u0434\u0435\u0436\u0434\u043d\u043e\u0441\u0442. \u0418\u0437\u043e\u043c\u0435\u0442\u0440\u0438\u0447\u043d\u0438\u0442\u0435 \u043a\u043e\u043d\u0442\u0440\u0430\u043a\u0446\u0438\u0438 \u0432\u0434\u0438\u0433\u0430\u0442 \u043f\u0443\u043b\u0441\u0430 \u0438 \u043f\u0440\u0435\u0437 \u043f\u0440\u0435\u0441\u043e\u0440\u043d\u0438\u044f \u0440\u0435\u0444\u043b\u0435\u043a\u0441, \u0437\u0430\u0442\u043e\u0432\u0430 \u043f\u0440\u0438 \u0432\u0438\u0441\u043e\u043a\u0430 \u0441\u0438\u043b\u0430 \u0442\u043e\u0439 \u043b\u0435\u043a\u043e \u0437\u0430\u0432\u0438\u0448\u0430\u0432\u0430 \u2014 \u0442\u043e\u0432\u0430 \u0435 \u0438\u0437\u0432\u0435\u0441\u0442\u043d\u043e \u0438 \u0441\u0435 \u043e\u0442\u0447\u0438\u0442\u0430."
 
-    const-string v5, "Resting heart rate is measured as long as its reliability needs \u2014 10\u201345 s; the median of n readings with spread \u03c3 is good to \u00b11 beat when n \u2265 (1.25\u03c3)\u00b2. Load is measured in % of heart-rate reserve. Isometric contractions raise the pulse through the pressor reflex too, so at high strength the pulse reads a little high \u2014 the model accounts for it."
+    const-string v5, "Load is judged by the pulse against the person\'s heart-rate reserve. The resting pulse is measured long enough to be reliable. Isometric contractions raise the pulse through the pressor reflex too, so at high strength it reads a little high \u2014 this is known and accounted for."
 
-    .line 227
+    .line 223
     invoke-static {v4, v5}, Lcom/isaigu/gymapp/widget/XemsModuleInfo;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v4
@@ -1987,33 +1965,33 @@
 
     new-array v3, v9, [Ljava/lang/String;
 
-    const-string v4, "\u041a\u0430\u043a AI \u0438 \u0430\u043b\u0433\u043e\u0440\u0438\u0442\u044a\u043c\u044a\u0442 \u0441\u0438 \u0434\u0435\u043b\u044f\u0442 \u0440\u0430\u0431\u043e\u0442\u0430\u0442\u0430"
+    const-string v4, "\u041a\u0430\u043a \u0440\u0430\u0431\u043e\u0442\u044f\u0442 AI \u0438 \u0430\u043b\u0433\u043e\u0440\u0438\u0442\u044a\u043c\u044a\u0442"
 
-    const-string v5, "How the AI and the algorithm share the work"
+    const-string v5, "How the AI and the algorithm work together"
 
-    .line 229
+    .line 225
     invoke-static {v4, v5}, Lcom/isaigu/gymapp/widget/XemsModuleInfo;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v4
 
     aput-object v4, v3, v6
 
-    const-string v4, "\u0415\u0437\u0438\u043a\u043e\u0432\u0438\u044f\u0442 \u043c\u043e\u0434\u0435\u043b \u0447\u0435\u0442\u0435 \u043a\u0430\u043a\u0432\u043e \u043a\u0430\u0437\u0432\u0430\u0448 \u0438\u043b\u0438 \u043f\u0438\u0448\u0435\u0448 (\u0437\u0434\u0440\u0430\u0432\u0435, \u043e\u043f\u043b\u0430\u043a\u0432\u0430\u043d\u0438\u044f, \u043f\u0440\u0435\u0434\u043f\u043e\u0447\u0438\u0442\u0430\u043d\u0438\u044f), \u043e\u0431\u044f\u0441\u043d\u044f\u0432\u0430 \u0438 \u0438\u0437\u0431\u0438\u0440\u0430 \u0438\u0437\u043c\u0435\u0436\u0434\u0443 \u0431\u0435\u0437\u043e\u043f\u0430\u0441\u043d\u0438 \u0432\u0430\u0440\u0438\u0430\u043d\u0442\u0438. \u041f\u043b\u0430\u043d\u044a\u0442, \u0433\u0440\u0430\u043d\u0438\u0446\u0438\u0442\u0435, \u0443\u043c\u043e\u0440\u0430\u0442\u0430 \u0438 \u0441\u0442\u044a\u043f\u043a\u0438\u0442\u0435 \u043d\u0430 \u0441\u0438\u043b\u0430\u0442\u0430 \u0441\u0435 \u0441\u043c\u044f\u0442\u0430\u0442 \u043d\u0430 \u0442\u0430\u0431\u043b\u0435\u0442\u0430 \u043e\u0442 \u0430\u043b\u0433\u043e\u0440\u0438\u0442\u044a\u043c \u2014 \u043e\u0442\u0433\u043e\u0432\u043e\u0440\u044a\u0442 \u043d\u0430 \u043c\u043e\u0434\u0435\u043b\u0430 \u0441\u0435 \u043f\u0440\u043e\u0432\u0435\u0440\u044f\u0432\u0430 \u0438 \u0441\u0435 \u0441\u0432\u0435\u0436\u0434\u0430 \u0434\u043e \u0434\u043e\u043f\u0443\u0441\u0442\u0438\u043c\u043e\u0442\u043e."
+    const-string v4, "\u041f\u043b\u0430\u043d\u044a\u0442, \u0433\u0440\u0430\u043d\u0438\u0446\u0438\u0442\u0435 \u0437\u0430 \u0431\u0435\u0437\u043e\u043f\u0430\u0441\u043d\u043e\u0441\u0442, \u0443\u043c\u043e\u0440\u0430\u0442\u0430 \u0438 \u0441\u0442\u044a\u043f\u043a\u0438\u0442\u0435 \u043d\u0430 \u0441\u0438\u043b\u0430\u0442\u0430 \u0441\u0435 \u0441\u043c\u044f\u0442\u0430\u0442 \u043d\u0430 \u0442\u0430\u0431\u043b\u0435\u0442\u0430 \u043e\u0442 \u043d\u0430\u0448\u0438\u044f \u0441\u043e\u0431\u0441\u0442\u0432\u0435\u043d \u0430\u043b\u0433\u043e\u0440\u0438\u0442\u044a\u043c. \u0415\u0437\u0438\u043a\u043e\u0432\u0438\u044f\u0442 \u043c\u043e\u0434\u0435\u043b \u0447\u0435\u0442\u0435 \u043a\u0430\u043a\u0432\u043e \u043a\u0430\u0437\u0432\u0430\u0448 \u0438\u043b\u0438 \u043f\u0438\u0448\u0435\u0448 (\u0437\u0434\u0440\u0430\u0432\u0435, \u043e\u043f\u043b\u0430\u043a\u0432\u0430\u043d\u0438\u044f, \u043f\u0440\u0435\u0434\u043f\u043e\u0447\u0438\u0442\u0430\u043d\u0438\u044f), \u043e\u0431\u044f\u0441\u043d\u044f\u0432\u0430 \u0438 \u0438\u0437\u0431\u0438\u0440\u0430 \u0438\u0437\u043c\u0435\u0436\u0434\u0443 \u0431\u0435\u0437\u043e\u043f\u0430\u0441\u043d\u0438 \u0432\u0430\u0440\u0438\u0430\u043d\u0442\u0438 \u2014 \u043e\u0442\u0433\u043e\u0432\u043e\u0440\u044a\u0442 \u043c\u0443 \u0441\u0435 \u043f\u0440\u043e\u0432\u0435\u0440\u044f\u0432\u0430 \u0438 \u043d\u0438\u043a\u043e\u0433\u0430 \u043d\u0435 \u0438\u0437\u043b\u0438\u0437\u0430 \u043e\u0442 \u0434\u043e\u043f\u0443\u0441\u0442\u0438\u043c\u043e\u0442\u043e."
 
-    const-string v5, "The language model reads what you say or write (health, complaints, preferences), explains and chooses among safe options. The plan, the limits, the fatigue and the strength steps are computed on the tablet by an algorithm \u2014 the model\'s answer is checked and brought within what is allowed."
+    const-string v5, "The plan, the safety limits, the fatigue and the strength steps are computed on the tablet by our own algorithm. The language model reads what you say or write (health, complaints, preferences), explains and chooses among safe options \u2014 its answer is checked and never leaves what is allowed."
 
-    .line 230
+    .line 226
     invoke-static {v4, v5}, Lcom/isaigu/gymapp/widget/XemsModuleInfo;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v4
 
     aput-object v4, v3, v7
 
-    const-string v4, "\u041f\u0430\u0443\u0437\u0430, \u0441\u0442\u043e\u043f, \u201e\u043f\u043e-\u0441\u0438\u043b\u043d\u043e\u201c \u0438 \u201e\u043f\u043e-\u043b\u0435\u043a\u043e\u201c \u0441\u0435 \u0438\u0437\u043f\u044a\u043b\u043d\u044f\u0432\u0430\u0442 \u043d\u0430 \u0442\u0430\u0431\u043b\u0435\u0442\u0430 \u0432\u0435\u0434\u043d\u0430\u0433\u0430, \u0431\u0435\u0437 \u0432\u0440\u044a\u0437\u043a\u0430. \u041f\u0440\u0438 \u0442\u0440\u0435\u0432\u043e\u0436\u0435\u043d \u0437\u043d\u0430\u043a (\u201e\u043d\u0435 \u043c\u0438 \u0435 \u0434\u043e\u0431\u0440\u0435\u201c) \u0442\u0430\u0431\u043b\u0435\u0442\u044a\u0442 \u0441\u043f\u0438\u0440\u0430 \u043f\u044a\u0440\u0432\u043e, \u043f\u043e\u0441\u043b\u0435 \u0442\u0440\u0435\u043d\u044c\u043e\u0440\u044a\u0442 \u043f\u0438\u0442\u0430. AI \u0435 \u043f\u043e\u043c\u043e\u0449\u043d\u0438\u043a \u043d\u0430 \u0442\u0440\u0435\u043d\u044c\u043e\u0440\u0430 \u2014 \u043f\u0440\u0435\u0446\u0435\u043d\u043a\u0430\u0442\u0430 \u0438 \u043e\u0442\u0433\u043e\u0432\u043e\u0440\u043d\u043e\u0441\u0442\u0442\u0430 \u043e\u0441\u0442\u0430\u0432\u0430\u0442 \u043d\u0435\u0433\u043e\u0432\u0438."
+    const-string v4, "\u041f\u0430\u0443\u0437\u0430 \u0438 \u0441\u0442\u043e\u043f \u0440\u0430\u0431\u043e\u0442\u044f\u0442 \u0432\u0435\u0434\u043d\u0430\u0433\u0430 \u043d\u0430 \u0442\u0430\u0431\u043b\u0435\u0442\u0430, \u0431\u0435\u0437 \u0432\u0440\u044a\u0437\u043a\u0430. \u041a\u044a\u0434\u0435\u0442\u043e \u043d\u044f\u043c\u0430 \u043f\u0443\u0431\u043b\u0438\u043a\u0443\u0432\u0430\u043d\u0438 \u0434\u0430\u043d\u043d\u0438, \u0438\u0437\u043f\u043e\u043b\u0437\u0432\u0430\u043c\u0435 \u0441\u043e\u0431\u0441\u0442\u0432\u0435\u043d\u0438 \u043e\u0446\u0435\u043d\u043a\u0438, \u043f\u0440\u043e\u0432\u0435\u0440\u044f\u0432\u0430\u043d\u0438 \u0432\u044a\u0440\u0445\u0443 \u0437\u0430\u043f\u0438\u0441\u0430\u043d\u0438 \u0442\u0440\u0435\u043d\u0438\u0440\u043e\u0432\u043a\u0438."
 
-    const-string v5, "Pause, stop, \"stronger\" and \"softer\" run on the tablet at once, with no connection. On a warning sign (\"I feel unwell\") the tablet stops first, then the coach asks. The AI is the trainer\'s assistant \u2014 the judgement and the responsibility stay with the trainer."
+    const-string v5, "Pause and stop work at once on the tablet, with no connection. Where there is no published data we use our own estimates, checked on recorded sessions."
 
-    .line 232
+    .line 228
     invoke-static {v4, v5}, Lcom/isaigu/gymapp/widget/XemsModuleInfo;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v4
@@ -2024,13 +2002,13 @@
 
     const/4 v2, 0x7
 
-    new-array v3, v10, [Ljava/lang/String;
+    new-array v3, v9, [Ljava/lang/String;
 
     const-string v4, "\u041b\u0438\u0442\u0435\u0440\u0430\u0442\u0443\u0440\u0430"
 
     const-string v5, "References"
 
-    .line 234
+    .line 230
     invoke-static {v4, v5}, Lcom/isaigu/gymapp/widget/XemsModuleInfo;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v4
@@ -2041,7 +2019,7 @@
 
     const-string v5, "Kemmler W. et al. (2016, updated 2023) \u2014 recommendations for effective and safe WB-EMS. Maffiuletti N.A. (2010) \u2014 physiological and methodological considerations for NMES. Teschler M., Kemmler W. et al. (2016) \u2014 very high creatine kinase after WB-EMS."
 
-    .line 235
+    .line 231
     invoke-static {v4, v5}, Lcom/isaigu/gymapp/widget/XemsModuleInfo;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v4
@@ -2052,23 +2030,12 @@
 
     const-string v5, "Kesar & Binder-Macleod (2006) and Gregory et al. (2007) \u2014 frequency, pulse width, torque and fatigue. Gregory & Bickel (2005); Bickel, Gregory, Dean (2011) \u2014 motor-unit recruitment in electrical stimulation. Haseler, Hogan, Richardson (1999) \u2014 phosphocreatine recovery. Gondin et al. (2010) \u2014 frequency, width and metabolic cost."
 
-    .line 237
+    .line 233
     invoke-static {v4, v5}, Lcom/isaigu/gymapp/widget/XemsModuleInfo;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v4
 
     aput-object v4, v3, v8
-
-    const-string v4, "\u041a\u044a\u0434\u0435\u0442\u043e \u043d\u044f\u043c\u0430 \u043f\u0443\u0431\u043b\u0438\u043a\u0443\u0432\u0430\u043d\u0438 \u0434\u0430\u043d\u043d\u0438, \u0447\u0438\u0441\u043b\u0430\u0442\u0430 \u0441\u0430 \u043d\u0430\u0448\u0430 \u043e\u0446\u0435\u043d\u043a\u0430 \u2014 \u0431\u0435\u043b\u044f\u0437\u0430\u043d\u0438 \u0438 \u043d\u0430\u0441\u0442\u0440\u043e\u0439\u0432\u0430\u0435\u043c\u0438, \u043f\u0440\u043e\u0432\u0435\u0440\u044f\u0432\u0430\u043d\u0438 \u0432\u044a\u0440\u0445\u0443 \u0437\u0430\u043f\u0438\u0441\u0430\u043d\u0438 \u0442\u0440\u0435\u043d\u0438\u0440\u043e\u0432\u043a\u0438."
-
-    const-string v5, "Where there is no published data the numbers are our own estimate \u2014 marked, tunable, and checked on recorded sessions."
-
-    .line 239
-    invoke-static {v4, v5}, Lcom/isaigu/gymapp/widget/XemsModuleInfo;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object v4
-
-    aput-object v4, v3, v9
 
     aput-object v3, v1, v2
 
@@ -2076,27 +2043,27 @@
 
     goto/16 :goto_9c
 
-    .line 242
-    :cond_46a
+    .line 236
+    :cond_44c
     const-string v1, "vr"
 
     invoke-virtual {v1, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v1
 
-    if-eqz v1, :cond_4ff
+    if-eqz v1, :cond_4e1
 
-    .line 243
+    .line 237
     const-string v1, "VR"
 
     iput-object v1, v0, Lcom/isaigu/gymapp/widget/XemsModuleInfo$Entry;->glyph:Ljava/lang/String;
 
-    .line 244
+    .line 238
     const v1, -0xa39440
 
     iput v1, v0, Lcom/isaigu/gymapp/widget/XemsModuleInfo$Entry;->tint:I
 
-    .line 245
+    .line 239
     const-string v1, "VR \u0445\u0430\u043f\u0442\u0438\u043a\u0430"
 
     const-string v2, "VR haptics"
@@ -2107,7 +2074,7 @@
 
     iput-object v1, v0, Lcom/isaigu/gymapp/widget/XemsModuleInfo$Entry;->name:Ljava/lang/String;
 
-    .line 246
+    .line 240
     const-string v1, "\u0423\u0434\u0430\u0440\u0438\u0442\u0435 \u0432 \u0438\u0433\u0440\u0430\u0442\u0430 \u043d\u0430 Quest 3 \u0441\u0442\u0430\u0432\u0430\u0442 \u0438\u043c\u043f\u0443\u043b\u0441\u0438 \u0432 \u043a\u043e\u0441\u0442\u044e\u043c\u0430"
 
     const-string v2, "Hits in a Quest 3 game become impulses in the suit"
@@ -2118,14 +2085,14 @@
 
     iput-object v1, v0, Lcom/isaigu/gymapp/widget/XemsModuleInfo$Entry;->tagline:Ljava/lang/String;
 
-    .line 247
-    new-array v1, v10, [Ljava/lang/String;
+    .line 241
+    new-array v1, v5, [Ljava/lang/String;
 
     const-string v2, "\u0422\u0440\u0435\u043d\u0438\u0440\u043e\u0432\u043a\u0430-\u0438\u0433\u0440\u0430 \u2014 \u043a\u043b\u0438\u0435\u043d\u0442\u044a\u0442 \u0431\u043e\u043a\u0441\u0438\u0440\u0430, \u0441\u0435\u0447\u0435 \u0438\u043b\u0438 \u0441\u0442\u0440\u0435\u043b\u044f \u0432\u044a\u0432 VR \u0438 \u0443\u0441\u0435\u0449\u0430 \u0432\u0441\u0435\u043a\u0438 \u0443\u0434\u0430\u0440 \u0441 \u043c\u0443\u0441\u043a\u0443\u043b\u0438\u0442\u0435."
 
     const-string v3, "A training game \u2014 the client boxes, slices or shoots in VR and feels every hit in the muscles."
 
-    .line 248
+    .line 242
     invoke-static {v2, v3}, Lcom/isaigu/gymapp/widget/XemsModuleInfo;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v2
@@ -2136,7 +2103,7 @@
 
     const-string v3, "Safe \u2014 the strength never goes above the trainer\'s ceiling and the suit\'s absolute limits."
 
-    .line 250
+    .line 244
     invoke-static {v2, v3}, Lcom/isaigu/gymapp/widget/XemsModuleInfo;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v2
@@ -2147,7 +2114,7 @@
 
     const-string v3, "Only the real hits \u2014 menu clicks and background rumble are dropped; you decide how strictly."
 
-    .line 252
+    .line 246
     invoke-static {v2, v3}, Lcom/isaigu/gymapp/widget/XemsModuleInfo;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v2
@@ -2158,7 +2125,7 @@
 
     const-string v3, "Less fatigue \u2014 the chosen muscle groups rest while the game drives the strength."
 
-    .line 254
+    .line 248
     invoke-static {v2, v3}, Lcom/isaigu/gymapp/widget/XemsModuleInfo;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v2
@@ -2167,7 +2134,7 @@
 
     iput-object v1, v0, Lcom/isaigu/gymapp/widget/XemsModuleInfo$Entry;->value:[Ljava/lang/String;
 
-    .line 257
+    .line 251
     const/4 v1, 0x6
 
     new-array v1, v1, [Ljava/lang/String;
@@ -2176,7 +2143,7 @@
 
     const-string v3, "Once: prepare the game with the XEMS VR app (Termux) on the tablet."
 
-    .line 258
+    .line 252
     invoke-static {v2, v3}, Lcom/isaigu/gymapp/widget/XemsModuleInfo;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v2
@@ -2187,7 +2154,7 @@
 
     const-string v3, "Open Training, add the client and set the strength \u2014 it is the ceiling."
 
-    .line 260
+    .line 254
     invoke-static {v2, v3}, Lcom/isaigu/gymapp/widget/XemsModuleInfo;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v2
@@ -2198,7 +2165,7 @@
 
     const-string v3, "Start the game on the headset \u2014 the VR tile shows \"\u25cf game\"."
 
-    .line 262
+    .line 256
     invoke-static {v2, v3}, Lcom/isaigu/gymapp/widget/XemsModuleInfo;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v2
@@ -2209,7 +2176,7 @@
 
     const-string v3, "Start the row \u2014 hits in the game move the strength."
 
-    .line 263
+    .line 257
     invoke-static {v2, v3}, Lcom/isaigu/gymapp/widget/XemsModuleInfo;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v2
@@ -2220,12 +2187,12 @@
 
     const-string v3, "Which hits pass: Strong only for noisy games, All for quiet ones."
 
-    .line 264
+    .line 258
     invoke-static {v2, v3}, Lcom/isaigu/gymapp/widget/XemsModuleInfo;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v2
 
-    aput-object v2, v1, v10
+    aput-object v2, v1, v5
 
     const/4 v2, 0x5
 
@@ -2233,7 +2200,7 @@
 
     const-string v4, "Weakest hit lifts the faint hits; Rise softens them."
 
-    .line 266
+    .line 260
     invoke-static {v3, v4}, Lcom/isaigu/gymapp/widget/XemsModuleInfo;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v3
@@ -2244,18 +2211,18 @@
 
     goto/16 :goto_9c
 
-    .line 270
-    :cond_4ff
+    .line 264
+    :cond_4e1
     const-string v1, "\u231a"
 
     iput-object v1, v0, Lcom/isaigu/gymapp/widget/XemsModuleInfo$Entry;->glyph:Ljava/lang/String;
 
-    .line 271
+    .line 265
     const v1, -0xbd5a0b
 
     iput v1, v0, Lcom/isaigu/gymapp/widget/XemsModuleInfo$Entry;->tint:I
 
-    .line 272
+    .line 266
     const-string v1, "\u0413\u0440\u0438\u0432\u043d\u0430"
 
     const-string v2, "Band"
@@ -2266,7 +2233,7 @@
 
     iput-object v1, v0, Lcom/isaigu/gymapp/widget/XemsModuleInfo$Entry;->name:Ljava/lang/String;
 
-    .line 273
+    .line 267
     const-string v1, "\u0422\u0440\u0435\u043d\u0438\u0440\u043e\u0432\u043a\u0430\u0442\u0430 \u0432 \u0440\u044a\u043a\u0430\u0442\u0430 \u0442\u0438"
 
     const-string v2, "The training on your wrist"
@@ -2277,14 +2244,14 @@
 
     iput-object v1, v0, Lcom/isaigu/gymapp/widget/XemsModuleInfo$Entry;->tagline:Ljava/lang/String;
 
-    .line 274
-    new-array v1, v10, [Ljava/lang/String;
+    .line 268
+    new-array v1, v5, [Ljava/lang/String;
 
     const-string v2, "\u0421\u0432\u043e\u0431\u043e\u0434\u0430 \u043e\u0442 \u0442\u0430\u0431\u043b\u0435\u0442\u0430 \u2014 \u0441\u0442\u0430\u0440\u0442, \u043f\u0430\u0443\u0437\u0430 \u0438 \u0441\u0438\u043b\u0430 \u043e\u0442 \u0433\u0440\u0438\u0432\u043d\u0430\u0442\u0430, \u0434\u043e\u043a\u0430\u0442\u043e \u0441\u0438 \u0434\u043e \u043a\u043b\u0438\u0435\u043d\u0442\u0430."
 
     const-string v3, "Free from the tablet \u2014 start, pause and strength from the band while you are next to the client."
 
-    .line 275
+    .line 269
     invoke-static {v2, v3}, Lcom/isaigu/gymapp/widget/XemsModuleInfo;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v2
@@ -2295,7 +2262,7 @@
 
     const-string v3, "The XEMS app on the band \u2014 heart rate, timer, music, AI and the session summary on the wrist."
 
-    .line 277
+    .line 271
     invoke-static {v2, v3}, Lcom/isaigu/gymapp/widget/XemsModuleInfo;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v2
@@ -2306,7 +2273,7 @@
 
     const-string v3, "Works without installing too \u2014 the band\'s music screen becomes the training remote."
 
-    .line 279
+    .line 273
     invoke-static {v2, v3}, Lcom/isaigu/gymapp/widget/XemsModuleInfo;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v2
@@ -2317,7 +2284,7 @@
 
     const-string v3, "Xiaomi Smart Band 8, 9 and 10."
 
-    .line 281
+    .line 275
     invoke-static {v2, v3}, Lcom/isaigu/gymapp/widget/XemsModuleInfo;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v2
@@ -2326,14 +2293,14 @@
 
     iput-object v1, v0, Lcom/isaigu/gymapp/widget/XemsModuleInfo$Entry;->value:[Ljava/lang/String;
 
-    .line 283
-    new-array v1, v10, [Ljava/lang/String;
+    .line 277
+    new-array v1, v5, [Ljava/lang/String;
 
     const-string v2, "\u041d\u0430\u0441\u0442\u0440\u043e\u0439\u043a\u0438 \u2192 \u0413\u0440\u0438\u0432\u043d\u0430: \u0438\u0437\u0431\u0435\u0440\u0438 \u0433\u0440\u0438\u0432\u043d\u0430\u0442\u0430 \u0438 \u0432\u044a\u0432\u0435\u0434\u0438 \u043a\u043b\u044e\u0447\u0430 \u045d \u0432\u0435\u0434\u043d\u044a\u0436."
 
     const-string v3, "Settings \u2192 Band: pick the band and enter its key once."
 
-    .line 284
+    .line 278
     invoke-static {v2, v3}, Lcom/isaigu/gymapp/widget/XemsModuleInfo;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v2
@@ -2344,7 +2311,7 @@
 
     const-string v3, "Install the XEMS app on the band from the same screen."
 
-    .line 285
+    .line 279
     invoke-static {v2, v3}, Lcom/isaigu/gymapp/widget/XemsModuleInfo;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v2
@@ -2355,7 +2322,7 @@
 
     const-string v3, "At the start of a session the band app opens by itself."
 
-    .line 286
+    .line 280
     invoke-static {v2, v3}, Lcom/isaigu/gymapp/widget/XemsModuleInfo;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v2
@@ -2366,7 +2333,7 @@
 
     const-string v3, "On the band: start and pause, strength + and \u2212."
 
-    .line 287
+    .line 281
     invoke-static {v2, v3}, Lcom/isaigu/gymapp/widget/XemsModuleInfo;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v2
@@ -2388,30 +2355,30 @@
 
     const/4 v1, 0x0
 
-    .line 390
+    .line 384
     invoke-static {p0}, Lcom/isaigu/gymapp/widget/XemsUi;->vertical(Landroid/content/Context;)Landroid/widget/LinearLayout;
 
     move-result-object v5
 
     move v0, v1
 
-    .line 391
+    .line 385
     :goto_9
     array-length v2, p1
 
     if-ge v0, v2, :cond_79
 
-    .line 392
+    .line 386
     invoke-static {p0}, Lcom/isaigu/gymapp/widget/XemsUi;->vertical(Landroid/content/Context;)Landroid/widget/LinearLayout;
 
     move-result-object v6
 
-    .line 393
+    .line 387
     invoke-static {p0, v9}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
 
     move-result v2
 
-    .line 394
+    .line 388
     const/high16 v4, 0x41400000    # 12.0f
 
     invoke-static {p0, v4}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
@@ -2420,7 +2387,7 @@
 
     invoke-virtual {v6, v2, v2, v2, v4}, Landroid/widget/LinearLayout;->setPadding(IIII)V
 
-    .line 395
+    .line 389
     sget v2, Lcom/isaigu/gymapp/widget/XemsUi;->SURFACE:I
 
     invoke-static {p0, v9}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
@@ -2443,7 +2410,7 @@
 
     invoke-virtual {v6, v2}, Landroid/widget/LinearLayout;->setBackgroundDrawable(Landroid/graphics/drawable/Drawable;)V
 
-    .line 396
+    .line 390
     aget-object v2, p1, v0
 
     aget-object v2, v2, v1
@@ -2460,7 +2427,7 @@
 
     move v2, v3
 
-    .line 397
+    .line 391
     :goto_43
     aget-object v4, p1, v0
 
@@ -2468,7 +2435,7 @@
 
     if-ge v2, v4, :cond_69
 
-    .line 398
+    .line 392
     aget-object v4, p1, v0
 
     aget-object v4, v4, v2
@@ -2479,14 +2446,14 @@
 
     move-result-object v7
 
-    .line 399
+    .line 393
     const/4 v4, 0x0
 
     const v8, 0x3f99999a    # 1.2f
 
     invoke-virtual {v7, v4, v8}, Landroid/widget/TextView;->setLineSpacing(FF)V
 
-    .line 400
+    .line 394
     if-ne v2, v3, :cond_66
 
     const/4 v4, 0x6
@@ -2498,18 +2465,18 @@
 
     invoke-virtual {v6, v7, v4}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 397
+    .line 391
     add-int/lit8 v2, v2, 0x1
 
     goto :goto_43
 
-    .line 400
+    .line 394
     :cond_66
     const/16 v4, 0x8
 
     goto :goto_5c
 
-    .line 402
+    .line 396
     :cond_69
     if-nez v0, :cond_76
 
@@ -2522,18 +2489,18 @@
 
     invoke-virtual {v5, v6, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 391
+    .line 385
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_9
 
-    .line 402
+    .line 396
     :cond_76
     const/16 v2, 0xa
 
     goto :goto_6c
 
-    .line 404
+    .line 398
     :cond_79
     return-object v5
 .end method
@@ -2575,10 +2542,10 @@
     .prologue
     const/4 v2, 0x0
 
-    .line 493
+    .line 487
     invoke-virtual {p0, v2}, Landroid/view/View;->setAlpha(F)V
 
-    .line 494
+    .line 488
     invoke-virtual {p0}, Landroid/view/View;->getContext()Landroid/content/Context;
 
     move-result-object v0
@@ -2593,7 +2560,7 @@
 
     invoke-virtual {p0, v0}, Landroid/view/View;->setTranslationY(F)V
 
-    .line 495
+    .line 489
     invoke-virtual {p0}, Landroid/view/View;->animate()Landroid/view/ViewPropertyAnimator;
 
     move-result-object v0
@@ -2632,7 +2599,7 @@
 
     invoke-virtual {v0}, Landroid/view/ViewPropertyAnimator;->start()V
 
-    .line 496
+    .line 490
     return-void
 .end method
 
@@ -2640,17 +2607,17 @@
     .registers 5
 
     .prologue
-    .line 295
+    .line 289
     if-eqz p0, :cond_4
 
     if-nez p1, :cond_5
 
-    .line 303
+    .line 297
     :cond_4
     :goto_4
     return-void
 
-    .line 299
+    .line 293
     :cond_5
     :try_start_5
     invoke-static {p0, p1, p2}, Lcom/isaigu/gymapp/widget/XemsModuleInfo;->build(Landroid/app/Activity;Ljava/lang/String;Ljava/lang/Runnable;)V
@@ -2659,11 +2626,11 @@
 
     goto :goto_4
 
-    .line 300
+    .line 294
     :catch_9
     move-exception v0
 
-    .line 301
+    .line 295
     const-string v1, "XemsModuleInfo.show"
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V
@@ -2677,12 +2644,12 @@
     .prologue
     const/4 v3, 0x0
 
-    .line 478
+    .line 472
     move v2, v3
 
     move v4, v3
 
-    .line 479
+    .line 473
     :goto_3
     invoke-virtual {p0}, Landroid/widget/LinearLayout;->getChildCount()I
 
@@ -2690,12 +2657,12 @@
 
     if-ge v2, v0, :cond_3e
 
-    .line 480
+    .line 474
     invoke-virtual {p0, v2}, Landroid/widget/LinearLayout;->getChildAt(I)Landroid/view/View;
 
     move-result-object v1
 
-    .line 481
+    .line 475
     instance-of v0, v1, Landroid/widget/LinearLayout;
 
     if-eqz v0, :cond_37
@@ -2712,12 +2679,12 @@
 
     if-ne v0, v5, :cond_37
 
-    .line 482
+    .line 476
     check-cast v1, Landroid/widget/LinearLayout;
 
     move v0, v3
 
-    .line 483
+    .line 477
     :goto_1e
     invoke-virtual {v1}, Landroid/widget/LinearLayout;->getChildCount()I
 
@@ -2725,7 +2692,7 @@
 
     if-ge v0, v5, :cond_31
 
-    .line 484
+    .line 478
     invoke-virtual {v1, v0}, Landroid/widget/LinearLayout;->getChildAt(I)Landroid/view/View;
 
     move-result-object v6
@@ -2734,7 +2701,7 @@
 
     invoke-static {v6, v4}, Lcom/isaigu/gymapp/widget/XemsModuleInfo;->rise(Landroid/view/View;I)V
 
-    .line 483
+    .line 477
     add-int/lit8 v0, v0, 0x1
 
     move v4, v5
@@ -2744,7 +2711,7 @@
     :cond_31
     move v1, v4
 
-    .line 479
+    .line 473
     :goto_32
     add-int/lit8 v0, v2, 0x1
 
@@ -2754,7 +2721,7 @@
 
     goto :goto_3
 
-    .line 487
+    .line 481
     :cond_37
     add-int/lit8 v0, v4, 0x1
 
@@ -2764,7 +2731,7 @@
 
     goto :goto_32
 
-    .line 490
+    .line 484
     :cond_3e
     return-void
 .end method
@@ -2777,17 +2744,17 @@
 
     const/4 v5, 0x0
 
-    .line 457
+    .line 451
     invoke-static {p0}, Lcom/isaigu/gymapp/widget/XemsUi;->horizontal(Landroid/content/Context;)Landroid/widget/LinearLayout;
 
     move-result-object v0
 
-    .line 458
+    .line 452
     const/16 v1, 0x30
 
     invoke-virtual {v0, v1}, Landroid/widget/LinearLayout;->setGravity(I)V
 
-    .line 459
+    .line 453
     invoke-static {p1}, Ljava/lang/String;->valueOf(I)Ljava/lang/String;
 
     move-result-object v1
@@ -2800,40 +2767,40 @@
 
     move-result-object v1
 
-    .line 460
+    .line 454
     const/16 v2, 0x11
 
     invoke-virtual {v1, v2}, Landroid/widget/TextView;->setGravity(I)V
 
-    .line 461
+    .line 455
     new-instance v2, Landroid/graphics/drawable/GradientDrawable;
 
     invoke-direct {v2}, Landroid/graphics/drawable/GradientDrawable;-><init>()V
 
-    .line 462
+    .line 456
     invoke-virtual {v2, v4}, Landroid/graphics/drawable/GradientDrawable;->setShape(I)V
 
-    .line 463
+    .line 457
     invoke-virtual {v2, p3}, Landroid/graphics/drawable/GradientDrawable;->setColor(I)V
 
-    .line 464
+    .line 458
     invoke-virtual {v1, v2}, Landroid/widget/TextView;->setBackgroundDrawable(Landroid/graphics/drawable/Drawable;)V
 
-    .line 465
+    .line 459
     const/high16 v2, 0x41d00000    # 26.0f
 
     invoke-static {p0, v2}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
 
     move-result v2
 
-    .line 466
+    .line 460
     new-instance v3, Landroid/widget/LinearLayout$LayoutParams;
 
     invoke-direct {v3, v2, v2}, Landroid/widget/LinearLayout$LayoutParams;-><init>(II)V
 
     invoke-virtual {v0, v1, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 467
+    .line 461
     const/high16 v1, 0x41700000    # 15.0f
 
     sget v2, Lcom/isaigu/gymapp/widget/XemsUi;->TEXT:I
@@ -2842,14 +2809,14 @@
 
     move-result-object v1
 
-    .line 468
+    .line 462
     const/4 v2, 0x0
 
     const v3, 0x3f99999a    # 1.2f
 
     invoke-virtual {v1, v2, v3}, Landroid/widget/TextView;->setLineSpacing(FF)V
 
-    .line 469
+    .line 463
     new-instance v2, Landroid/widget/LinearLayout$LayoutParams;
 
     const/4 v3, -0x2
@@ -2858,7 +2825,7 @@
 
     invoke-direct {v2, v5, v3, v4}, Landroid/widget/LinearLayout$LayoutParams;-><init>(IIF)V
 
-    .line 470
+    .line 464
     const/high16 v3, 0x41400000    # 12.0f
 
     invoke-static {p0, v3}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
@@ -2867,7 +2834,7 @@
 
     iput v3, v2, Landroid/widget/LinearLayout$LayoutParams;->leftMargin:I
 
-    .line 471
+    .line 465
     const/high16 v3, 0x40800000    # 4.0f
 
     invoke-static {p0, v3}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
@@ -2876,10 +2843,10 @@
 
     iput v3, v2, Landroid/widget/LinearLayout$LayoutParams;->topMargin:I
 
-    .line 472
+    .line 466
     invoke-virtual {v0, v1, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 473
+    .line 467
     return-object v0
 .end method
 
@@ -2887,21 +2854,21 @@
     .registers 7
 
     .prologue
-    .line 503
+    .line 497
     if-nez p0, :cond_3
 
-    .line 528
+    .line 522
     :goto_2
     return-void
 
-    .line 507
+    .line 501
     :cond_3
     :try_start_3
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsModuleInfo;->entry(Ljava/lang/String;)Lcom/isaigu/gymapp/widget/XemsModuleInfo$Entry;
 
     move-result-object v0
 
-    .line 508
+    .line 502
     new-instance v1, Ljava/lang/StringBuilder;
 
     invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
@@ -2936,7 +2903,7 @@
 
     move-result-object v0
 
-    .line 509
+    .line 503
     const-string v1, "\u0426\u0435\u043d\u0438\u0442\u0435 \u0438 \u043f\u043b\u0430\u0449\u0430\u043d\u0435\u0442\u043e \u0438\u0434\u0432\u0430\u0442 \u0441\u044a\u0432\u0441\u0435\u043c \u0441\u043a\u043e\u0440\u043e \u2014 \u0442\u0443\u043a, \u0441 \u0435\u0434\u043d\u043e \u0434\u043e\u043a\u043e\u0441\u0432\u0430\u043d\u0435."
 
     const-string v2, "Prices and payment are coming very soon \u2014 right here, in one tap."
@@ -2955,14 +2922,14 @@
 
     move-result-object v1
 
-    .line 511
+    .line 505
     const/4 v2, 0x0
 
     const v3, 0x3f99999a    # 1.2f
 
     invoke-virtual {v1, v2, v3}, Landroid/widget/TextView;->setLineSpacing(FF)V
 
-    .line 512
+    .line 506
     iget-object v2, v0, Lcom/isaigu/gymapp/widget/XemsUi$Shell;->body:Landroid/widget/LinearLayout;
 
     const/4 v3, 0x4
@@ -2973,7 +2940,7 @@
 
     invoke-virtual {v2, v1, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 513
+    .line 507
     const-string v1, "\u0418\u043c\u0430\u0448 \u043a\u043b\u044e\u0447 \u0437\u0430 \u0434\u043e\u0441\u0442\u044a\u043f? \u0412\u044a\u0432\u0435\u0434\u0438 \u0433\u043e \u0432 \u041d\u0430\u0441\u0442\u0440\u043e\u0439\u043a\u0438 \u2192 \u0414\u043e\u0441\u0442\u044a\u043f \u0438 \u043b\u0438\u0446\u0435\u043d\u0437 \u0438 \u043c\u043e\u0434\u0443\u043b\u044a\u0442 \u0441\u0435 \u043e\u0442\u043a\u043b\u044e\u0447\u0432\u0430 \u0432\u0435\u0434\u043d\u0430\u0433\u0430."
 
     const-string v2, "Have an access key? Enter it in Settings \u2192 Access & license and the module unlocks at once."
@@ -2992,14 +2959,14 @@
 
     move-result-object v1
 
-    .line 515
+    .line 509
     const/4 v2, 0x0
 
     const v3, 0x3f99999a    # 1.2f
 
     invoke-virtual {v1, v2, v3}, Landroid/widget/TextView;->setLineSpacing(FF)V
 
-    .line 516
+    .line 510
     iget-object v2, v0, Lcom/isaigu/gymapp/widget/XemsUi$Shell;->body:Landroid/widget/LinearLayout;
 
     const/16 v3, 0xc
@@ -3010,7 +2977,7 @@
 
     invoke-virtual {v2, v1, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 517
+    .line 511
     new-instance v1, Ljava/lang/StringBuilder;
 
     invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
@@ -3049,7 +3016,7 @@
 
     move-result-object v1
 
-    .line 518
+    .line 512
     iget-object v2, v0, Lcom/isaigu/gymapp/widget/XemsUi$Shell;->body:Landroid/widget/LinearLayout;
 
     const/16 v3, 0xe
@@ -3060,7 +3027,7 @@
 
     invoke-virtual {v2, v1, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 519
+    .line 513
     const-string v1, "\u0420\u0430\u0437\u0431\u0440\u0430\u0445"
 
     const-string v2, "Got it"
@@ -3075,7 +3042,7 @@
 
     move-result-object v1
 
-    .line 520
+    .line 514
     new-instance v2, Lcom/isaigu/gymapp/widget/XemsModuleInfo$Close;
 
     const/4 v3, 0x0
@@ -3084,7 +3051,7 @@
 
     invoke-virtual {v1, v2}, Landroid/widget/TextView;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
-    .line 521
+    .line 515
     iget-object v2, v0, Lcom/isaigu/gymapp/widget/XemsUi$Shell;->footer:Landroid/widget/LinearLayout;
 
     const/high16 v3, 0x3f800000    # 1.0f
@@ -3097,17 +3064,17 @@
 
     invoke-virtual {v2, v1, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 522
+    .line 516
     iget-object v1, v0, Lcom/isaigu/gymapp/widget/XemsUi$Shell;->dialog:Landroid/app/Dialog;
 
     invoke-virtual {v1}, Landroid/app/Dialog;->show()V
 
-    .line 523
+    .line 517
     const v1, 0x3f666666    # 0.9f
 
     invoke-static {p0, v0, v1}, Lcom/isaigu/gymapp/widget/XemsUi;->fitHeight(Landroid/app/Activity;Lcom/isaigu/gymapp/widget/XemsUi$Shell;F)V
 
-    .line 524
+    .line 518
     iget-object v0, v0, Lcom/isaigu/gymapp/widget/XemsUi$Shell;->body:Landroid/widget/LinearLayout;
 
     invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsModuleInfo;->stagger(Landroid/widget/LinearLayout;)V
@@ -3116,11 +3083,11 @@
 
     goto/16 :goto_2
 
-    .line 525
+    .line 519
     :catch_d4
     move-exception v0
 
-    .line 526
+    .line 520
     const-string v1, "XemsModuleInfo.subscribe"
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/widget/XemsGuard;->report(Ljava/lang/String;Ljava/lang/Throwable;)V
@@ -3132,7 +3099,7 @@
     .registers 3
 
     .prologue
-    .line 532
+    .line 526
     :try_start_0
     invoke-static {p0, p1}, Lcom/isaigu/gymapp/widget/XemsLang;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
     :try_end_3
@@ -3140,11 +3107,11 @@
 
     move-result-object p0
 
-    .line 534
+    .line 528
     :goto_4
     return-object p0
 
-    .line 533
+    .line 527
     :catch_5
     move-exception v0
 
@@ -3165,29 +3132,29 @@
 
     const/4 v6, 0x0
 
-    .line 428
+    .line 422
     invoke-static {p0}, Lcom/isaigu/gymapp/widget/XemsUi;->horizontal(Landroid/content/Context;)Landroid/widget/LinearLayout;
 
     move-result-object v0
 
-    .line 429
+    .line 423
     const/16 v1, 0x30
 
     invoke-virtual {v0, v1}, Landroid/widget/LinearLayout;->setGravity(I)V
 
-    .line 430
+    .line 424
     invoke-static {p0, v8}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
 
     move-result v1
 
-    .line 431
+    .line 425
     invoke-static {p0, v3}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
 
     move-result v2
 
     invoke-virtual {v0, v1, v1, v2, v1}, Landroid/widget/LinearLayout;->setPadding(IIII)V
 
-    .line 432
+    .line 426
     sget v1, Lcom/isaigu/gymapp/widget/XemsUi;->SURFACE:I
 
     invoke-static {p0, v3}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
@@ -3208,7 +3175,7 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/LinearLayout;->setBackgroundDrawable(Landroid/graphics/drawable/Drawable;)V
 
-    .line 433
+    .line 427
     const-string v1, "\u2713"
 
     const/high16 v2, 0x41500000    # 13.0f
@@ -3217,20 +3184,20 @@
 
     move-result-object v1
 
-    .line 434
+    .line 428
     const/16 v2, 0x11
 
     invoke-virtual {v1, v2}, Landroid/widget/TextView;->setGravity(I)V
 
-    .line 435
+    .line 429
     new-instance v2, Landroid/graphics/drawable/GradientDrawable;
 
     invoke-direct {v2}, Landroid/graphics/drawable/GradientDrawable;-><init>()V
 
-    .line 436
+    .line 430
     invoke-virtual {v2, v5}, Landroid/graphics/drawable/GradientDrawable;->setShape(I)V
 
-    .line 437
+    .line 431
     const/16 v3, 0x2e
 
     invoke-static {p2, v3}, Lcom/isaigu/gymapp/widget/XemsUi;->alpha(II)I
@@ -3239,24 +3206,24 @@
 
     invoke-virtual {v2, v3}, Landroid/graphics/drawable/GradientDrawable;->setColor(I)V
 
-    .line 438
+    .line 432
     invoke-virtual {v1, v2}, Landroid/widget/TextView;->setBackgroundDrawable(Landroid/graphics/drawable/Drawable;)V
 
-    .line 439
+    .line 433
     const/high16 v2, 0x41c00000    # 24.0f
 
     invoke-static {p0, v2}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
 
     move-result v2
 
-    .line 440
+    .line 434
     new-instance v3, Landroid/widget/LinearLayout$LayoutParams;
 
     invoke-direct {v3, v2, v2}, Landroid/widget/LinearLayout$LayoutParams;-><init>(II)V
 
     invoke-virtual {v0, v1, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 441
+    .line 435
     const-string v1, ""
 
     const/high16 v2, 0x41700000    # 15.0f
@@ -3267,29 +3234,29 @@
 
     move-result-object v1
 
-    .line 442
+    .line 436
     const/4 v2, 0x0
 
     const v3, 0x3f99999a    # 1.2f
 
     invoke-virtual {v1, v2, v3}, Landroid/widget/TextView;->setLineSpacing(FF)V
 
-    .line 443
+    .line 437
     const-string v2, " \u2014 "
 
     invoke-virtual {p1, v2}, Ljava/lang/String;->indexOf(Ljava/lang/String;)I
 
     move-result v2
 
-    .line 444
+    .line 438
     new-instance v3, Landroid/text/SpannableString;
 
     invoke-direct {v3, p1}, Landroid/text/SpannableString;-><init>(Ljava/lang/CharSequence;)V
 
-    .line 445
+    .line 439
     if-lez v2, :cond_87
 
-    .line 446
+    .line 440
     new-instance v4, Landroid/text/style/StyleSpan;
 
     invoke-direct {v4, v5}, Landroid/text/style/StyleSpan;-><init>(I)V
@@ -3298,25 +3265,25 @@
 
     invoke-virtual {v3, v4, v6, v2, v5}, Landroid/text/SpannableString;->setSpan(Ljava/lang/Object;III)V
 
-    .line 448
+    .line 442
     :cond_87
     invoke-virtual {v1, v3}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 449
+    .line 443
     new-instance v2, Landroid/widget/LinearLayout$LayoutParams;
 
     const/4 v3, -0x2
 
     invoke-direct {v2, v6, v3, v7}, Landroid/widget/LinearLayout$LayoutParams;-><init>(IIF)V
 
-    .line 450
+    .line 444
     invoke-static {p0, v8}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
 
     move-result v3
 
     iput v3, v2, Landroid/widget/LinearLayout$LayoutParams;->leftMargin:I
 
-    .line 451
+    .line 445
     const/high16 v3, 0x40000000    # 2.0f
 
     invoke-static {p0, v3}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
@@ -3325,9 +3292,9 @@
 
     iput v3, v2, Landroid/widget/LinearLayout$LayoutParams;->topMargin:I
 
-    .line 452
+    .line 446
     invoke-virtual {v0, v1, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 453
+    .line 447
     return-object v0
 .end method

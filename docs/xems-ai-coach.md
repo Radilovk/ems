@@ -546,3 +546,9 @@ it, the warm-up runs softer by design); "s" read aloud as a letter → "секу
   `docs/xems-safety-limits.md`; own estimates are said to be own.
 - Tests: `tools/ui-shot` `ShotsAi` (steps, result, busy, the info sheet); `tools/app-sim` taps the wizard (`Ui.createAi`);
   `SimCoachAll` "ready" has 4 FAILs that were there before this change (locked ready programs, 1.1.569–571 vs the test).
+
+## 1.1.582 — the AI's "i": sources, not our algorithm (owner)
+- The info sheet names **what the AI stands on** — the physiology, electrostimulation and WB-EMS literature
+  (Kemmler, Maffiuletti, Teschler, Kesar & Binder-Macleod, Gregory, Bickel, Haseler, Gondin) — and says only that on this
+  basis we built **our own precise algorithm**, with the author's coaching practice. No equations, constants or limits
+  are shown. The numeric detail stays in `docs/xems-ems-physiology.md` / `xems-safety-limits.md` (not in the app).

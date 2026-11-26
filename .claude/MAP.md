@@ -556,7 +556,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `XemsLocalSection.java` (241L, compile:xems-local) — Settings card "Tablet and data": the mode (admin setup / user), the profile key, the suits (the arms channel is no sett…
 - `XemsLocalStore.java` (1218L, compile:xems-local) — Local-only data layer: users, programs, training history and suits stay on the tablet.
 - `XemsLocalUserForm.java` (1046L, compile:xems-local) — New / edit client form — one screen, mostly taps: name, sex, age / height / weight wheels, phone; goal, fitness and con…
-- `XemsModuleInfo.java` (605L, compile:music-sync*) — The "i" of every XEMS module: what it is, what it gives (value first), how to work with it.
+- `XemsModuleInfo.java` (599L, compile:music-sync*) — The "i" of every XEMS module: what it is, what it gives (value first), how to work with it.
 - `XemsNav.java` (1569L, compile:music-sync*) — Main navigation (v1.1.64).
 - `XemsPanel.java` (394L, compile:music-sync*) — The right control panel, redrawn: ■ Stop — square, top ▶ Start / ❚❚ — tall + — tall − — tall ⚙ Master — square, bottom …
 - `XemsSearch.java` (225L, compile:music-sync*,xems-local) — Client-list search (Потребители tab, the training picker).
@@ -982,7 +982,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L36 ## Server
   - L45 ## Tests
 
-`docs/xems-ai-coach.md` (549L)
+`docs/xems-ai-coach.md` (555L)
   - L1 # AI coach — the Smart Session with a dialogue (owner, 1.1.535)
   - L86 ## Flow (Smart Session tile)
   - L107 ## Who decides what
@@ -1018,6 +1018,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L498 ## 1.1.577 — server cost check (Cloudflare / Azure / Gemini)
   - L508 ## 1.1.578 — "it reacts to random words": found with the offline sim, fixed
   - L523 ## 1.1.581 — the AI setup: a wizard, a button, a chat under the answer, the science in the "i"
+  - L550 ## 1.1.582 — the AI's "i": sources, not our algorithm (owner)
 
 `docs/xems-ai-session-implementation.md` (230L)
   - L1 # XEMS AI (Smart Session) — реализация v1.1.58-ai

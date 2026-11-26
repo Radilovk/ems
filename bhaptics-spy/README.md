@@ -29,3 +29,9 @@ the Binder is decoded by hand).
 `src/com/xems/bhspy/`: `Sig` (57-method table + decoder) · `SpyBinder` (Binder, Parcel) · `SpyService` · `Spy`
 (session, idle upload) · `CallLog` (JSONL, masking, thinning) · `Responder` (what we answer) · `Uploader` (gzip, parts)
 · `MainActivity` (status screen). `skeleton/` = manifest for apktool; `build.sh`.
+
+## Finding the tablet (1.2)
+Not linked? The screen and the recording (`{"link":…}` lines) say why: the device's own addresses, HELLOs sent, ACKs
+received and from whom, the last error. Discovery: limited broadcast + each interface's directed broadcast + (every 3rd
+second) a unicast sweep of the /24 + an IP typed on the screen ("Запиши IP"). Needs: tablet and headset on the same
+Wi-Fi (no client isolation), the tablet's XEMS **training screen open** (the receiver only listens there).

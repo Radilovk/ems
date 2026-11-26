@@ -355,7 +355,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `TimerPresetStorage.java` (89L, compile:interval-timer,music-sync*) — Local named timer presets (interval + block program).
 
 **train/model/** (`branding/java/src/com/isaigu/gymapp/train/model/`)
-- `SoftRamp.java` (531L, compile:music-sync*,softramp) — Soft rise / fall of the impulse, done by the tablet: the suit ignores the ramp bytes of the work-params PDU, so the str…
+- `SoftRamp.java` (540L, compile:music-sync*,softramp) — Soft rise / fall of the impulse, done by the tablet: the suit ignores the ramp bytes of the work-params PDU, so the str…
 
 **train/utils/** (`branding/java/src/com/isaigu/gymapp/train/utils/`)
 - `ChannelStrengthScale.java` (179L, compile:channel-scale,music-sync*) — Encode-time correction for per-channel impulse strength sent over BLE.
@@ -455,7 +455,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `MastogoLink.java` (371L, compile:music-sync*,wearable) — One MASTOGO H-024B over BLE for as long as its page is open: service FFF0, notify on FFF4, write on FFF5 (the vendor ap…
 - `MastogoModes.java` (189L, compile:music-sync*,wearable) — The 26 firmware programs of the MASTOGO H- unit as the vendor's own DOMAS app (com.roblink.domas 3.1.1, device "Hawk TE…
 - `MastogoScan.java` (124L, compile:music-sync*,wearable) — Finds MASTOGO H- units (the vendor app's name prefix) while the page is open; results on the main thread.
-- `MastogoScreen.java` (2408L, compile:music-sync*,wearable) — The MASTOGO page (menu → "Mastogo"): the H-024B TENS / EMS unit, apart from the suit — owner, 2026-10-27 ("I want the m…
+- `MastogoScreen.java` (2453L, compile:music-sync*,wearable) — The MASTOGO page (menu → "Mastogo"): the H-024B TENS / EMS unit, apart from the suit — owner, 2026-10-27 ("I want the m…
 - `MastogoShell.java` (1630L, compile:music-sync*,wearable) — The conversation with one MASTOGO H-024B (DOMAS "Candy TENS 3S", board ZX-571C, SYD8811) — pure Java, no Android: the B…
 - `MastogoStore.java` (141L, compile:music-sync*) — The trainer's own MASTOGO combinations and program notes (owner, 2026-10-27: "combinations and notes") — pure Java, the…
 
@@ -479,11 +479,11 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `ScaleViews.java` (2037L, compile:music-sync*,wearable) — The drawn parts of the scale's result page: the body figure painted by segment, the radar of the five segments against …
 
 **wearable/vr/** (`branding/java/src/com/isaigu/gymapp/wearable/vr/`)
-- `VrBridge.java` (59L, compile:music-sync*,wearable) — Lifecycle of the Quest 3 haptic bridge (vr-bridge/): listening while the training screen is open (wearable/NotifyWearab…
+- `VrBridge.java` (80L, compile:music-sync*,wearable) — Lifecycle of the Quest 3 haptic bridge (vr-bridge/): listening while the training screen is open (wearable/NotifyWearab…
 - `VrClockSync.java` (61L, compile:music-sync*,wearable) — Quest ↔ tablet monotonic clock offset from PING/PONG.
 - `VrControl.java` (125L, compile:music-sync*,wearable) — The impulse dock of XEMS Studio (owner, 2026-10: "a dock for the impulses, channels, strength"): the game's "Костюм" pa…
 - `VrControlSink.java` (16L, compile:music-sync*,wearable) — Where a game's own impulse controls leave the network layer (XEMS Studio's "Костюм" page and wrist dock, vr-workout/scr…
-- `VrDrive.java` (271L, compile:music-sync*,wearable) — The game's haptic level ({@link VrPulses}) → the XEMS controller, the way MusicSync drives it: the trainer's strength o…
+- `VrDrive.java` (276L, compile:music-sync*,wearable) — The game's haptic level ({@link VrPulses}) → the XEMS controller, the way MusicSync drives it: the trainer's strength o…
 - `VrHapticEvent.java` (56L, compile:music-sync*,wearable) — One xrApplyHapticFeedback call from the game, already time-mapped to this tablet's clock.
 - `VrHapticRouter.java` (42L, compile:music-sync*,wearable) — The one {@link VrHapticSink}: VrTelemetryReceiver → {@link VrNoiseGate} → {@link VrPulses} → {@link VrDrive} (MusicSync…
 - `VrHapticSink.java` (17L, compile:music-sync*,wearable) — Where VR telemetry leaves the network layer (implementation: {@link VrHapticRouter}).
@@ -492,12 +492,12 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `VrPanel.java` (473L, compile:music-sync*,wearable) — VR haptics sheet (owner, 1.1.402), opened from the "VR" tile of the module bar.
 - `VrPulses.java` (73L, compile:music-sync*,wearable) — The game's haptics as one level 0..1 (share of the trainer's strength): per hand, the pulse's amplitude until it ends.
 - `VrSettings.java` (152L, compile:music-sync*,wearable) — The trainer's VR settings (owner, 1.1.402): one set for the tablet, the same for every client (prefs "xems_vr").
-- `VrTelemetryReceiver.java` (388L, compile:music-sync*,wearable) — UDP gateway for the Quest 3 OpenXR haptic layer (vr-bridge/quest-layer).
+- `VrTelemetryReceiver.java` (385L, compile:music-sync*,wearable) — UDP gateway for the Quest 3 OpenXR haptic layer (vr-bridge/quest-layer).
 - `VrWire.java` (66L, compile:music-sync*,wearable) — Wire constants — mirror of vr-bridge/quest-layer/src/xems_wire.h (little-endian, packed).
 - `VrZoneFocus.java` (46L, compile:music-sync*,wearable) — Which suit channels a zone hit still holds at a moment: per channel the time its last hit ends.
-- `VrZoneHit.java` (30L, compile:music-sync*,wearable) — One hit on a body region as a zone-aware game sent it: region ({@link VrWire#ZR_VEST_FRONT}…), levels per motor.
+- `VrZoneHit.java` (37L, compile:music-sync*,wearable) — One hit on a body region as a zone-aware game sent it: region ({@link VrWire#ZR_VEST_FRONT}…), levels per motor.
 - `VrZoneMap.java` (54L, compile:music-sync*,wearable) — Which suit channels a zone hit contracts (owner, 2026-11-25: "hits in the arms tighten the arms channel, hits in the be…
-- `VrZoneRouter.java` (55L, compile:music-sync*,wearable) — Zone hits (the bHaptics listener on the headset → VrTelemetryReceiver) → what the player's body should feel: (1) the su…
+- `VrZoneRouter.java` (128L, compile:music-sync*,wearable) — Zone hits (the bHaptics listener on the headset → VrTelemetryReceiver) → what the player's body should feel: (1) the su…
 - `VrZoneSink.java` (7L, compile:music-sync*,wearable) — Where a zone hit leaves the network layer (implementation: {@link VrZoneRouter}); receiver thread, keep it short.
 - `VrZones.java` (96L, compile:music-sync*,wearable) — Less fatigue in VR (owner, 1.1.396): while VR drives a row, the resting channels ({@link VrSettings#rests}; by default …
 
@@ -796,11 +796,12 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L23 ## Train screen preview — **canonical method for UI frames**
   - L40 ## Not automatable without hardware
 
-`bhaptics-spy/README.md` (32L)
+`bhaptics-spy/README.md` (38L)
   - L1 # XEMS bHaptics listener (`com.bhaptics.player` look-alike) — personal research tool
   - L14 ## Use (the owner: install once, then only play)
   - L22 ## Build / test
   - L28 ## Files
+  - L33 ## Finding the tablet (1.2)
 
 `bodytech/HANDOFF.md` (36L)
   - L1 # Bodytech — състояние (1.1.345-ai)
@@ -1090,7 +1091,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L950 ## 22. Owner's answers on the tests (1.1.571)
   - L970 ## 23. Efficiency ≠ load: liberal (owner, 1.1.572)
 
-`docs/xems-bhaptics-research.md` (76L)
+`docs/xems-bhaptics-research.md` (98L)
   - L1 # bHaptics ecosystem as a source of hit ZONES (research, 2026-11-25 — nothing built yet)
   - L6 ## How a Quest game talks to bHaptics (read from `bhaptics/tact-android`, `libs/bhaptics_manager.aar`)
   - L22 ## Idea (NOT built)
@@ -1099,6 +1100,9 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L38 ## Update 2026-11-25 — phase 1 built (owner accepted the licence risk, private use only)
   - L44 ## First recording — The Thrill of the Fight (Quest 3, 2026-11-25, code 5YFKJNHUHH, `com.fyian.TheThrillOfTheFight`)
   - L64 ## 1.1.579-ai — zone hits reach the tablet (owner's spec, 2026-11-25)
+  - L77 ## 1.1.580-ai — the Mastogo panel shows and tests the VR hits (owner: "I feel nothing, nothing moves")
+  - L86 ## No added delay (owner, 2026-11-26: "we cannot wait — that is absurd") — 1.1.581-ai
+  - L94 ### In VR the ramp is out (owner, 2026-11-26, 1.1.582-ai)
 
 `docs/xems-bluetens.md` (124L)
   - L1 # Bluetens — protocol and the XEMS module plan

@@ -316,10 +316,10 @@ public final class VrPanel {
             lp.width = w;
             levelFill.setLayoutParams(lp);
         }
-        counts.setText(VrDrive.isLinked()
+        counts.setText((VrDrive.isLinked()
                 ? "✓ " + VrDrive.hitsPassed() + tr(" удара минаха", " hits passed") + "   ⊘ " + VrDrive.hitsDropped()
                         + tr(" отрязани", " dropped")
-                : "");
+                : "") + (VrDrive.isLinked() || VrZoneRouter.taken > 0 ? "\n" + VrZoneRouter.status() : ""));
     }
 
     /** One line under the title: the state and, when needed, the next step. */

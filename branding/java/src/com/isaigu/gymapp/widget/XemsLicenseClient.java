@@ -272,88 +272,325 @@ public final class XemsLicenseClient {
         }, "xems-update").start();
     }
 
-    static final long AUTO_CHECK_MS = 12L * 60 * 60 * 1000;
+    /** The automatic check: once per 24 h (owner, 2026-11-26). */
+    static final long AUTO_CHECK_MS = 24L * 60 * 60 * 1000;
     static final String K_UPDATE_CHECKED = "update_checked";
     static final String K_UPDATE_SKIPPED = "update_skipped";
-    private static volatile boolean autoAsked;
+    /** A mandatory update found by a check stays pending here until the app is that version (or newer). */
+    static final String K_MAND_CODE = "mand_code";
+    static final String K_MAND_NAME = "mand_name";
+    static final String K_MAND_URL = "mand_url";
+    static final String K_MAND_SHA = "mand_sha";
+    static final String K_MAND_NOTES = "mand_notes";
+    private static volatile boolean forcing;
 
     /**
-     * On app start: at most once per 12 h (and once per process), ask the server for a newer
-     * XEMS and offer it in a dialog. Nothing happens without a server. "По-късно" skips that
-     * version unless it is mandatory.
+     * Every time the main screen is built (app start, back to it): (1) a mandatory update found earlier and not yet
+     * installed is put in front of the user again — a dialog that cannot be closed; (2) at most once per 24 h the server
+     * is asked for a newer XEMS (the licence answer already says whether there is one: no request of its own when there
+     * is nothing new); a found mandatory update is remembered and forced, an optional one is offered ("По-късно"
+     * skips that version). While the screen stays open the check repeats every 24 h. Nothing happens without a server.
      */
     public static void autoCheck(final android.app.Activity a) {
         try {
-            if (autoAsked || a == null || !serverConfigured()) {
+            if (a == null) {
                 return;
             }
-            autoAsked = true;
+            enforce(a);
+            if (!serverConfigured()) {
+                return;
+            }
             final android.content.SharedPreferences p = XemsLicense.prefs();
             long now = System.currentTimeMillis();
             long last = p.getLong(K_UPDATE_CHECKED, 0);
             if (last > 0 && last <= now && now - last < AUTO_CHECK_MS) {
+                scheduleRecheck(a, AUTO_CHECK_MS - (now - last));
                 return;
             }
-            // The licence answer (≤ 1 / day) already says whether a newer XEMS exists: ask for the
-            // details only then — no request of its own when there is nothing new.
             long knownAt = p.getLong(K_LATEST_AT, 0);
             if (knownAt > 0 && knownAt <= now && now - knownAt < 2 * XemsLicense.REFRESH_MS
                     && p.getInt(K_LATEST, 0) <= appCode(a)) {
                 return;
             }
-            checkUpdate(a.getApplicationContext(), new UpdateDone() {
-                @Override
-                public void done(final Update u, String error) {
-                    if (error != null) {
-                        return;
-                    }
-                    p.edit().putLong(K_UPDATE_CHECKED, System.currentTimeMillis()).apply();
-                    if (u == null || a.isFinishing()) {
-                        return;
-                    }
-                    if (!u.mandatory && p.getInt(K_UPDATE_SKIPPED, 0) == u.versionCode) {
-                        return;
-                    }
-                    offer(a, u);
-                }
-            });
+            checkUpdate(a.getApplicationContext(), new AutoDone(a));
+            scheduleRecheck(a, AUTO_CHECK_MS);
         } catch (Throwable ignored) {
         }
     }
 
-    static void offer(final android.app.Activity a, final Update u) {
+    private static void scheduleRecheck(android.app.Activity a, long delayMs) {
+        main.removeCallbacksAndMessages(RECHECK_TOKEN);
+        main.postAtTime(new Recheck(new java.lang.ref.WeakReference<android.app.Activity>(a)),
+                RECHECK_TOKEN, android.os.SystemClock.uptimeMillis() + Math.max(60000L, delayMs));
+    }
+
+    private static final Object RECHECK_TOKEN = new Object();
+
+    static final class Recheck implements Runnable {
+        private final java.lang.ref.WeakReference<android.app.Activity> ref;
+
+        Recheck(java.lang.ref.WeakReference<android.app.Activity> ref) {
+            this.ref = ref;
+        }
+
+        @Override
+        public void run() {
+            android.app.Activity a = ref.get();
+            if (a != null && !a.isFinishing()) {
+                XemsLicense.prefs().edit().putLong(K_UPDATE_CHECKED, 0).apply();    // 24 h are over
+                autoCheck(a);
+            }
+        }
+    }
+
+    static final class AutoDone implements UpdateDone {
+        private final android.app.Activity a;
+
+        AutoDone(android.app.Activity a) {
+            this.a = a;
+        }
+
+        @Override
+        public void done(Update u, String error) {
+            if (error != null) {
+                return;                                       // offline: tried again at the next screen
+            }
+            android.content.SharedPreferences p = XemsLicense.prefs();
+            p.edit().putLong(K_UPDATE_CHECKED, System.currentTimeMillis()).apply();
+            if (u == null) {
+                clearMandatory(p);
+                return;
+            }
+            if (u.mandatory) {
+                rememberMandatory(p, u);
+            } else {
+                clearMandatory(p);                            // it is not mandatory any more
+            }
+            if (a.isFinishing()) {
+                return;
+            }
+            if (!u.mandatory && p.getInt(K_UPDATE_SKIPPED, 0) == u.versionCode) {
+                return;
+            }
+            offer(a, u, false);
+        }
+    }
+
+    private static void rememberMandatory(android.content.SharedPreferences p, Update u) {
+        p.edit().putInt(K_MAND_CODE, u.versionCode).putString(K_MAND_NAME, u.versionName).putString(K_MAND_URL, u.url)
+                .putString(K_MAND_SHA, u.sha256).putString(K_MAND_NOTES, u.notes).apply();
+    }
+
+    private static void clearMandatory(android.content.SharedPreferences p) {
+        p.edit().remove(K_MAND_CODE).remove(K_MAND_NAME).remove(K_MAND_URL).remove(K_MAND_SHA).remove(K_MAND_NOTES).apply();
+    }
+
+    /** A mandatory update found earlier and still not installed: the dialog again, no network needed. */
+    static void enforce(android.app.Activity a) {
         try {
-            String msg = "Налична е версия " + u.versionName + "."
-                    + (u.notes.length() > 0 ? "\n\n" + u.notes : "");
+            android.content.SharedPreferences p = XemsLicense.prefs();
+            int need = p.getInt(K_MAND_CODE, 0);
+            if (need == 0) {
+                return;
+            }
+            if (need <= appCode(a)) {
+                clearMandatory(p);
+                return;
+            }
+            Update u = new Update();
+            u.versionCode = need;
+            u.versionName = p.getString(K_MAND_NAME, "");
+            u.url = p.getString(K_MAND_URL, "");
+            u.sha256 = p.getString(K_MAND_SHA, "");
+            u.notes = p.getString(K_MAND_NOTES, "");
+            u.mandatory = true;
+            if (u.url.startsWith("https://") && !a.isFinishing()) {
+                offer(a, u, false);
+            }
+        } catch (Throwable ignored) {
+        }
+    }
+
+    /**
+     * Settings → "Check for Update": asks the server now, whatever the 24 h say, and offers whatever is newer (a version
+     * skipped with "По-късно" too). {@code status} shows what is happening.
+     */
+    public static void manualCheck(final android.app.Activity a, final android.widget.TextView status) {
+        try {
+            status.setText("Проверявам…");
+            if (!serverConfigured()) {
+                status.setText("Няма сървър за обновления.");
+                return;
+            }
+            checkUpdate(a.getApplicationContext(), new ManualDone(a, status));
+        } catch (Throwable t) {
+            status.setText("Проверката не успя.");
+        }
+    }
+
+    static final class ManualDone implements UpdateDone {
+        private final android.app.Activity a;
+        private final android.widget.TextView status;
+
+        ManualDone(android.app.Activity a, android.widget.TextView status) {
+            this.a = a;
+            this.status = status;
+        }
+
+        @Override
+        public void done(Update u, String error) {
+            android.content.SharedPreferences p = XemsLicense.prefs();
+            if (error != null) {
+                status.setText("Няма връзка със сървъра — провери интернета и опитай пак.");
+                return;
+            }
+            p.edit().putLong(K_UPDATE_CHECKED, System.currentTimeMillis()).apply();
+            if (u == null) {
+                clearMandatory(p);
+                status.setText("Имаш последната версия: " + appName(a) + ".");
+                return;
+            }
+            if (u.mandatory) {
+                rememberMandatory(p, u);
+            }
+            status.setText("Налична е версия " + u.versionName + (u.mandatory ? " (задължителна)" : "") + ".");
+            if (!a.isFinishing()) {
+                offer(a, u, true);
+            }
+        }
+    }
+
+    public static String appName(Context c) {
+        try {
+            return c.getPackageManager().getPackageInfo(c.getPackageName(), 0).versionName;
+        } catch (Throwable t) {
+            return "";
+        }
+    }
+
+    static void offer(final android.app.Activity a, final Update u, final boolean manual) {
+        try {
+            if (u.mandatory && forcing) {
+                return;                                       // the one dialog is already there
+            }
+            String msg = (u.mandatory ? "Задължително обновление. Приложението не може да се ползва, докато не го инсталираш.\n\n" : "")
+                    + "Налична е версия " + u.versionName + "." + (u.notes.length() > 0 ? "\n\n" + u.notes : "");
             android.app.AlertDialog.Builder b = new android.app.AlertDialog.Builder(a)
-                    .setTitle("Ново обновление")
+                    .setTitle(u.mandatory ? "Задължително обновление" : "Ново обновление")
                     .setMessage(msg)
                     .setCancelable(!u.mandatory)
-                    .setPositiveButton("Изтегли и инсталирай", new android.content.DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(android.content.DialogInterface d, int w) {
-                            android.widget.Toast.makeText(a, "Изтегляне…", android.widget.Toast.LENGTH_SHORT).show();
-                            downloadAndInstall(a.getApplicationContext(), u, new Done() {
-                                @Override
-                                public void done(boolean ok, String m) {
-                                    if (!ok) {
-                                        android.widget.Toast.makeText(a, "Неуспешно: " + m,
-                                                android.widget.Toast.LENGTH_LONG).show();
-                                    }
-                                }
-                            });
-                        }
-                    });
+                    .setPositiveButton("Изтегли и инсталирай", new OfferGo(a, u));
             if (!u.mandatory) {
-                b.setNegativeButton("По-късно", new android.content.DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(android.content.DialogInterface d, int w) {
-                        XemsLicense.prefs().edit().putInt(K_UPDATE_SKIPPED, u.versionCode).apply();
-                    }
-                });
+                b.setNegativeButton("По-късно", new OfferLater(u, manual));
+            } else {
+                forcing = true;
             }
-            b.show();
+            android.app.AlertDialog d = b.create();
+            d.setCanceledOnTouchOutside(!u.mandatory);
+            if (u.mandatory) {
+                d.setOnDismissListener(new ForceWatch());
+            }
+            d.show();
         } catch (Throwable ignored) {
+            forcing = false;
+        }
+    }
+
+    static final class ForceWatch implements android.content.DialogInterface.OnDismissListener {
+        @Override
+        public void onDismiss(android.content.DialogInterface d) {
+            forcing = false;
+        }
+    }
+
+    static final class OfferLater implements android.content.DialogInterface.OnClickListener {
+        private final Update u;
+        private final boolean manual;
+
+        OfferLater(Update u, boolean manual) {
+            this.u = u;
+            this.manual = manual;
+        }
+
+        @Override
+        public void onClick(android.content.DialogInterface d, int w) {
+            if (!manual) {
+                XemsLicense.prefs().edit().putInt(K_UPDATE_SKIPPED, u.versionCode).apply();
+            }
+        }
+    }
+
+    /** "Изтегли и инсталирай": a progress dialog (a mandatory one cannot be closed) → the system installer. */
+    static final class OfferGo implements android.content.DialogInterface.OnClickListener {
+        private final android.app.Activity a;
+        private final Update u;
+
+        OfferGo(android.app.Activity a, Update u) {
+            this.a = a;
+            this.u = u;
+        }
+
+        @Override
+        public void onClick(android.content.DialogInterface d, int w) {
+            android.app.AlertDialog prog = new android.app.AlertDialog.Builder(a)
+                    .setTitle("Изтегляне…")
+                    .setMessage("Версия " + u.versionName + " се изтегля. Не затваряй приложението.")
+                    .setCancelable(!u.mandatory)
+                    .create();
+            prog.show();
+            downloadAndInstall(a.getApplicationContext(), u, new GoDone(a, u, prog));
+        }
+    }
+
+    static final class GoDone implements Done {
+        private final android.app.Activity a;
+        private final Update u;
+        private final android.app.AlertDialog prog;
+
+        GoDone(android.app.Activity a, Update u, android.app.AlertDialog prog) {
+            this.a = a;
+            this.u = u;
+            this.prog = prog;
+        }
+
+        @Override
+        public void done(boolean ok, String m) {
+            try {
+                prog.dismiss();
+            } catch (Throwable ignored) {
+            }
+            if (a.isFinishing()) {
+                return;
+            }
+            if (ok) {
+                if (u.mandatory) {
+                    // the system installer is open; if it was cancelled the dialog is here again at once
+                    offerRetry(a, u, "Инсталирането е в системния екран. Ако си го отказал, натисни „Опитай пак“.");
+                }
+                return;
+            }
+            if (u.mandatory) {
+                offerRetry(a, u, "Не стана (" + m + "). Провери интернета и опитай пак.");
+            } else {
+                android.widget.Toast.makeText(a, "Неуспешно: " + m, android.widget.Toast.LENGTH_LONG).show();
+            }
+        }
+    }
+
+    static void offerRetry(final android.app.Activity a, final Update u, String message) {
+        try {
+            forcing = true;
+            android.app.AlertDialog d = new android.app.AlertDialog.Builder(a)
+                    .setTitle("Задължително обновление")
+                    .setMessage(message)
+                    .setCancelable(false)
+                    .setPositiveButton("Опитай пак", new OfferGo(a, u))
+                    .create();
+            d.setCanceledOnTouchOutside(false);
+            d.setOnDismissListener(new ForceWatch());
+            d.show();
+        } catch (Throwable ignored) {
+            forcing = false;
         }
     }
 

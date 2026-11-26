@@ -3,12 +3,12 @@
 .source "XemsLicenseClient.java"
 
 # interfaces
-.implements Landroid/content/DialogInterface$OnClickListener;
+.implements Ljava/lang/Runnable;
 
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/isaigu/gymapp/widget/XemsLicenseClient;->offer(Landroid/app/Activity;Lcom/isaigu/gymapp/widget/XemsLicenseClient$Update;)V
+    value = Lcom/isaigu/gymapp/widget/XemsLicenseClient;->postUpdate(Lcom/isaigu/gymapp/widget/XemsLicenseClient$UpdateDone;Lcom/isaigu/gymapp/widget/XemsLicenseClient$Update;Ljava/lang/String;)V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -18,12 +18,16 @@
 
 
 # instance fields
+.field final synthetic val$cb:Lcom/isaigu/gymapp/widget/XemsLicenseClient$UpdateDone;
+
+.field final synthetic val$err:Ljava/lang/String;
+
 .field final synthetic val$u:Lcom/isaigu/gymapp/widget/XemsLicenseClient$Update;
 
 
 # direct methods
-.method constructor <init>(Lcom/isaigu/gymapp/widget/XemsLicenseClient$Update;)V
-    .registers 2
+.method constructor <init>(Lcom/isaigu/gymapp/widget/XemsLicenseClient$UpdateDone;Lcom/isaigu/gymapp/widget/XemsLicenseClient$Update;Ljava/lang/String;)V
+    .registers 4
     .annotation system Ldalvik/annotation/Signature;
         value = {
             "()V"
@@ -31,8 +35,12 @@
     .end annotation
 
     .prologue
-    .line 348
-    iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$6;->val$u:Lcom/isaigu/gymapp/widget/XemsLicenseClient$Update;
+    .line 925
+    iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$6;->val$cb:Lcom/isaigu/gymapp/widget/XemsLicenseClient$UpdateDone;
+
+    iput-object p2, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$6;->val$u:Lcom/isaigu/gymapp/widget/XemsLicenseClient$Update;
+
+    iput-object p3, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$6;->val$err:Ljava/lang/String;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -41,31 +49,19 @@
 
 
 # virtual methods
-.method public onClick(Landroid/content/DialogInterface;I)V
-    .registers 6
+.method public run()V
+    .registers 4
 
     .prologue
-    .line 351
-    invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLicense;->prefs()Landroid/content/SharedPreferences;
+    .line 928
+    iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$6;->val$cb:Lcom/isaigu/gymapp/widget/XemsLicenseClient$UpdateDone;
 
-    move-result-object v0
+    iget-object v1, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$6;->val$u:Lcom/isaigu/gymapp/widget/XemsLicenseClient$Update;
 
-    invoke-interface {v0}, Landroid/content/SharedPreferences;->edit()Landroid/content/SharedPreferences$Editor;
+    iget-object v2, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$6;->val$err:Ljava/lang/String;
 
-    move-result-object v0
+    invoke-interface {v0, v1, v2}, Lcom/isaigu/gymapp/widget/XemsLicenseClient$UpdateDone;->done(Lcom/isaigu/gymapp/widget/XemsLicenseClient$Update;Ljava/lang/String;)V
 
-    const-string v1, "update_skipped"
-
-    iget-object v2, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$6;->val$u:Lcom/isaigu/gymapp/widget/XemsLicenseClient$Update;
-
-    iget v2, v2, Lcom/isaigu/gymapp/widget/XemsLicenseClient$Update;->versionCode:I
-
-    invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences$Editor;->putInt(Ljava/lang/String;I)Landroid/content/SharedPreferences$Editor;
-
-    move-result-object v0
-
-    invoke-interface {v0}, Landroid/content/SharedPreferences$Editor;->apply()V
-
-    .line 352
+    .line 929
     return-void
 .end method

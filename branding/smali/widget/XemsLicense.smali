@@ -180,12 +180,12 @@
     sput-object v0, Lcom/isaigu/gymapp/widget/XemsLicense;->arms:Ljava/lang/String;
 
     .line 84
-    const/high16 v0, 0x40a00000    # 5.0f
+    const/high16 v0, 0x41200000    # 10.0f
 
     sput v0, Lcom/isaigu/gymapp/widget/XemsLicense;->armsDiv:F
 
     .line 86
-    const/high16 v0, 0x3f800000    # 1.0f
+    const/high16 v0, 0x40000000    # 2.0f
 
     sput v0, Lcom/isaigu/gymapp/widget/XemsLicense;->calfDiv:F
 
@@ -1471,9 +1471,9 @@
     .registers 10
 
     .prologue
-    const-wide/16 v8, 0x0
-
     const/high16 v7, 0x3f800000    # 1.0f
+
+    const-wide/16 v8, 0x0
 
     .line 348
     sget-object v0, Lcom/isaigu/gymapp/widget/XemsLicense;->app:Landroid/content/Context;
@@ -1718,7 +1718,7 @@
     .line 369
     const-string v0, "arms_div_v2"
 
-    const/high16 v1, 0x40a00000    # 5.0f
+    const/high16 v1, 0x41200000    # 10.0f
 
     invoke-interface {v6, v0, v1}, Landroid/content/SharedPreferences;->getFloat(Ljava/lang/String;F)F
 
@@ -1729,7 +1729,9 @@
     .line 370
     const-string v0, "calf_div"
 
-    invoke-interface {v6, v0, v7}, Landroid/content/SharedPreferences;->getFloat(Ljava/lang/String;F)F
+    const/high16 v1, 0x40000000    # 2.0f
+
+    invoke-interface {v6, v0, v1}, Landroid/content/SharedPreferences;->getFloat(Ljava/lang/String;F)F
 
     move-result v0
 
@@ -1744,7 +1746,7 @@
 
     move-result v0
 
-    if-eqz v0, :cond_116
+    if-eqz v0, :cond_118
 
     .line 372
     sput v7, Lcom/isaigu/gymapp/widget/XemsLicense;->armsDiv:F
@@ -1774,7 +1776,7 @@
     sput-object v0, Lcom/isaigu/gymapp/widget/XemsLicense;->arms:Ljava/lang/String;
 
     .line 376
-    :cond_116
+    :cond_118
     const/4 v0, 0x1
 
     sput-boolean v0, Lcom/isaigu/gymapp/widget/XemsLicense;->loaded:Z

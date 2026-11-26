@@ -3,12 +3,12 @@
 .source "XemsLicenseClient.java"
 
 # interfaces
-.implements Landroid/content/DialogInterface$OnClickListener;
+.implements Ljava/lang/Runnable;
 
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/isaigu/gymapp/widget/XemsLicenseClient;->offer(Landroid/app/Activity;Lcom/isaigu/gymapp/widget/XemsLicenseClient$Update;)V
+    value = Lcom/isaigu/gymapp/widget/XemsLicenseClient;->post(Lcom/isaigu/gymapp/widget/XemsLicenseClient$Done;ZLjava/lang/String;)V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -18,14 +18,16 @@
 
 
 # instance fields
-.field final synthetic val$a:Landroid/app/Activity;
+.field final synthetic val$cb:Lcom/isaigu/gymapp/widget/XemsLicenseClient$Done;
 
-.field final synthetic val$u:Lcom/isaigu/gymapp/widget/XemsLicenseClient$Update;
+.field final synthetic val$msg:Ljava/lang/String;
+
+.field final synthetic val$ok:Z
 
 
 # direct methods
-.method constructor <init>(Landroid/app/Activity;Lcom/isaigu/gymapp/widget/XemsLicenseClient$Update;)V
-    .registers 3
+.method constructor <init>(Lcom/isaigu/gymapp/widget/XemsLicenseClient$Done;ZLjava/lang/String;)V
+    .registers 4
     .annotation system Ldalvik/annotation/Signature;
         value = {
             "()V"
@@ -33,10 +35,12 @@
     .end annotation
 
     .prologue
-    .line 332
-    iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$5;->val$a:Landroid/app/Activity;
+    .line 913
+    iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$5;->val$cb:Lcom/isaigu/gymapp/widget/XemsLicenseClient$Done;
 
-    iput-object p2, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$5;->val$u:Lcom/isaigu/gymapp/widget/XemsLicenseClient$Update;
+    iput-boolean p2, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$5;->val$ok:Z
+
+    iput-object p3, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$5;->val$msg:Ljava/lang/String;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -45,38 +49,19 @@
 
 
 # virtual methods
-.method public onClick(Landroid/content/DialogInterface;I)V
-    .registers 6
+.method public run()V
+    .registers 4
 
     .prologue
-    .line 335
-    iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$5;->val$a:Landroid/app/Activity;
+    .line 916
+    iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$5;->val$cb:Lcom/isaigu/gymapp/widget/XemsLicenseClient$Done;
 
-    const-string v1, "\u0418\u0437\u0442\u0435\u0433\u043b\u044f\u043d\u0435\u2026"
+    iget-boolean v1, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$5;->val$ok:Z
 
-    const/4 v2, 0x0
+    iget-object v2, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$5;->val$msg:Ljava/lang/String;
 
-    invoke-static {v0, v1, v2}, Landroid/widget/Toast;->makeText(Landroid/content/Context;Ljava/lang/CharSequence;I)Landroid/widget/Toast;
+    invoke-interface {v0, v1, v2}, Lcom/isaigu/gymapp/widget/XemsLicenseClient$Done;->done(ZLjava/lang/String;)V
 
-    move-result-object v0
-
-    invoke-virtual {v0}, Landroid/widget/Toast;->show()V
-
-    .line 336
-    iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$5;->val$a:Landroid/app/Activity;
-
-    invoke-virtual {v0}, Landroid/app/Activity;->getApplicationContext()Landroid/content/Context;
-
-    move-result-object v0
-
-    iget-object v1, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$5;->val$u:Lcom/isaigu/gymapp/widget/XemsLicenseClient$Update;
-
-    new-instance v2, Lcom/isaigu/gymapp/widget/XemsLicenseClient$5$1;
-
-    invoke-direct {v2, p0}, Lcom/isaigu/gymapp/widget/XemsLicenseClient$5$1;-><init>(Lcom/isaigu/gymapp/widget/XemsLicenseClient$5;)V
-
-    invoke-static {v0, v1, v2}, Lcom/isaigu/gymapp/widget/XemsLicenseClient;->downloadAndInstall(Landroid/content/Context;Lcom/isaigu/gymapp/widget/XemsLicenseClient$Update;Lcom/isaigu/gymapp/widget/XemsLicenseClient$Done;)V
-
-    .line 345
+    .line 917
     return-void
 .end method

@@ -6,7 +6,7 @@
 # static fields
 .field private static final ARMS_CHANNEL_INDEX:I = 0x4
 
-.field private static final ARMS_DIV_DEFAULT:F = 5.0f
+.field private static final ARMS_DIV_DEFAULT:F = 10.0f
 
 .field private static final ARMS_LOW_RATIO:F = 0.5f
 
@@ -94,7 +94,7 @@
 
     .prologue
     .line 186
-    const/high16 v0, 0x40a00000    # 5.0f
+    const/high16 v0, 0x41200000    # 10.0f
 
     .line 188
     :try_start_2
@@ -371,33 +371,36 @@
     .registers 3
 
     .prologue
-    const/high16 v0, 0x3f800000    # 1.0f
+    const/high16 v2, 0x3f800000    # 1.0f
 
     .line 38
-    const/high16 v1, 0x3f800000    # 1.0f
+    const/high16 v0, 0x3f800000    # 1.0f
 
     :try_start_4
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLicense;->calfDivider()F
 
-    move-result v2
-
-    invoke-static {v1, v2}, Ljava/lang/Math;->max(FF)F
-    :try_end_b
-    .catch Ljava/lang/Throwable; {:try_start_4 .. :try_end_b} :catch_e
-
     move-result v1
 
-    div-float/2addr v0, v1
+    invoke-static {v0, v1}, Ljava/lang/Math;->max(FF)F
+    :try_end_b
+    .catch Ljava/lang/Throwable; {:try_start_4 .. :try_end_b} :catch_f
+
+    move-result v0
+
+    div-float v0, v2, v0
 
     .line 40
-    :goto_d
+    :goto_e
     return v0
 
     .line 39
-    :catch_e
-    move-exception v1
+    :catch_f
+    move-exception v0
 
-    goto :goto_d
+    .line 40
+    const/high16 v0, 0x3f000000    # 0.5f
+
+    goto :goto_e
 .end method
 
 .method public static faceFactor(I)F

@@ -21,8 +21,8 @@ public final class ChannelStrengthScale {
     private static final int ARMS_PW_LOW = 150;
     private static final int ARMS_PW_HIGH = 400;
     private static final float ARMS_LOW_RATIO = 0.5f;
-    /** The default D (÷5 at 400 µs); Settings → Arms sets another. */
-    private static final float ARMS_DIV_DEFAULT = 5f;
+    /** The default D (÷10 at 400 µs, = 1.1.584); Settings sets another. */
+    private static final float ARMS_DIV_DEFAULT = 10f;
 
     /** buwei4 (calves) — index 3 in PartStrenthBean.buwei */
     private static final int CALF_CHANNEL_INDEX = 3;
@@ -32,12 +32,12 @@ public final class ChannelStrengthScale {
      * the calf goes out at this share of its slider, so one point on the slider is half a suit unit — a finer
      * step and a little lower overall. Not in face mode (there every channel is a face site).
      */
-    /** The calf's share of its slider = 1 / the calf divider of Settings → Calves (default ÷1: a point = a suit unit). */
+    /** The calf's share of its slider = 1 / the calf divider of Settings (default ÷2: a point = half a suit unit). */
     public static float calfFactor() {
         try {
             return 1f / Math.max(1f, com.isaigu.gymapp.widget.XemsLicense.calfDivider());
         } catch (Throwable t) {
-            return 1f;
+            return 0.5f;
         }
     }
 
@@ -165,7 +165,7 @@ public final class ChannelStrengthScale {
 
     /**
      * 1/divider for this pulse width: ÷D at 400 µs … ÷D/2 at 150 µs, linear, never below ÷1 (owner, 2026-11-26: D is the
-     * Settings slider — ÷1 is "1:1", ÷5 default, ÷10 the finest). Not chosen / admin setup = the default.
+     * Settings slider — ÷1 is "1:1", ÷10 default, ÷20 the finest). Not chosen / admin setup = the default.
      */
     public static float armsFactor(int pwUs) {
         return 1f / armsDivider(pwUs);

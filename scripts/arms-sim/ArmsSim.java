@@ -13,6 +13,10 @@ public class ArmsSim {
     }
 
     public static void main(String[] a) {
+        near("default D=10 @400", ChannelStrengthScale.armsDivider(400), 10f);      // = 1.1.584, nothing changes by default
+        near("default D=10 @150", ChannelStrengthScale.armsDivider(150), 5f);
+        near("default D=10 @100", ChannelStrengthScale.armsDivider(100), 4f);
+        near("default calf", ChannelStrengthScale.calfFactor(), 0.5f);
         XemsLicense.arms = 5f;
         near("D=5 @400", ChannelStrengthScale.armsDivider(400), 5f);
         near("D=5 @150", ChannelStrengthScale.armsDivider(150), 2.5f);

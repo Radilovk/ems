@@ -133,14 +133,30 @@ public final class XemsLocalSection {
                     15, true), matchWrap(a, 16));
             TextView explain = text(a, tr("Плъзгач вдясно = 100%: ръцете и прасците получават колкото всички други канали. "
                     + "По-наляво = по-слабо: на 50% същото число на плъзгача им дава половината от силата, която "
-                    + "получават другите. Ръцете са много чувствителни — затова са на 20%.",
+                    + "получават другите. Ръцете са много чувствителни — затова са на 10%, прасците на 50%.",
                     "Slider at the right = 100%: the arms and calves get what every other channel gets. Further "
                     + "left = weaker: at 50% the same number on the slider gives them half of what the others get. "
-                    + "The arms are very sensitive — hence 20%."), 12, false);
+                    + "The arms are very sensitive — hence 10%, the calves 50%."), 12, false);
             explain.setTextColor(0xFFB0B0B0);
             card.addView(explain, matchWrap(a, 2));
             addDivider(a, card, DivSlider.ARMS);
             addDivider(a, card, DivSlider.CALF);
+        }
+
+        {
+            // Version and "Check for Update": any tablet with internet can fetch any update by hand (owner, 2026-11-26)
+            card.addView(text(a, tr("Версия и обновления", "Version and updates"), 15, true), matchWrap(a, 16));
+            TextView ver = text(a, tr("Версия: ", "Version: ") + XemsLicenseClient.appName(a)
+                    + tr(" · задължителните обновления се проверяват веднъж на 24 часа и се инсталират задължително.",
+                            " · mandatory updates are checked once per 24 h and must be installed."), 12, false);
+            ver.setTextColor(0xFFB0B0B0);
+            card.addView(ver, matchWrap(a, 2));
+            final TextView upStatus = text(a, "", 13, false);
+            upStatus.setTextColor(0xFFFFFFFF);
+            Button check = button(a, "Check for Update", 0xFF1E88E5);
+            check.setOnClickListener(new CheckUpdate(a, upStatus));
+            card.addView(check, matchWrap(a, 8));
+            card.addView(upStatus, matchWrap(a, 4));
         }
 
         if (setup) {
@@ -157,6 +173,21 @@ public final class XemsLocalSection {
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         cardLp.topMargin = dp(a, 16);
         parent.addView(card, cardLp);
+    }
+
+    static final class CheckUpdate implements View.OnClickListener {
+        private final Activity a;
+        private final TextView status;
+
+        CheckUpdate(Activity a, TextView status) {
+            this.a = a;
+            this.status = status;
+        }
+
+        @Override
+        public void onClick(View v) {
+            XemsLicenseClient.manualCheck(a, status);
+        }
     }
 
     static String fmt(float v) {

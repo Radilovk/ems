@@ -11,3 +11,6 @@ band-app/preview/out/
 *.keystore
 *.jks
 scripts/voice-sim/vosk/
+
+# WiEMS account secret (generated at build from WIEMS_ACCT_* secrets; never committed)
+wiems/app/src/bg/xems/wiems/AcctSecret.java

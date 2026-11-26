@@ -558,7 +558,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `XemsLocalAvatar.java` (1084L, compile:xems-local) — Client photo: picked from the gallery, cropped square, 320 px JPEG in the app's files (files/avatars).
 - `XemsLocalConsent.java` (499L, compile:xems-local) — The client's informed consent and declaration, signed with a finger on the tablet (owner, 1.1.530 — docs/xems-consent.m…
 - `XemsLocalGate.java` (220L, compile:xems-local) — Hidden doors of the tablet build.
-- `XemsLocalSection.java` (341L, compile:xems-local) — Settings card "Tablet and data": the mode (admin setup / user), the profile key, the suits, the arms channel (the arms …
+- `XemsLocalSection.java` (344L, compile:xems-local) — Settings card "Tablet and data": the mode (admin setup / user), the profile key, the suits, the arms channel (the arms …
 - `XemsLocalStore.java` (1218L, compile:xems-local) — Local-only data layer: users, programs, training history and suits stay on the tablet.
 - `XemsLocalUserForm.java` (1046L, compile:xems-local) — New / edit client form — one screen, mostly taps: name, sex, age / height / weight wheels, phone; goal, fitness and con…
 - `XemsModuleInfo.java` (599L, compile:music-sync*) — The "i" of every XEMS module: what it is, what it gives (value first), how to work with it.
@@ -1428,7 +1428,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L204 ## Сила и експлозивност · процедура
   - L213 ## 50+ · процедура
 
-`docs/xems-pulse-control.md` (224L)
+`docs/xems-pulse-control.md` (228L)
   - L1 # Пулс модул: управление на импулсите по пулса (v1.1.59, задържане в зона от 1.1.270)
   - L8 ## Граници
   - L18 ## Решение (всяка секунда) — задържане в зона (1.1.270)
@@ -1445,7 +1445,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L149 ## Циферблат: „i“ и ↻ (v1.1.70)
   - L173 ## Баланс на каналите по ширина на импулса (`ChannelStrengthScale.balance`)
   - L199 ## 1.1.570 — the ladder without the strength (owner, 2026-11-25)
-  - L207 ## 1.1.586 — arms and calves: one step slider each, ÷20 … 1:1 (owner, 2026-11-26)
+  - L207 ## 1.1.586–587 — arms and calves: one strength slider each, 5 … 100 % of the other channels (owner, 2026-11-26)
 
 `docs/xems-safety-limits.md` (46L)
   - L1 # Absolute limits of the impulse (owner, 1.1.323-ai)

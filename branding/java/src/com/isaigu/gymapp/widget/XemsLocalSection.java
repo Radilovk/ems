@@ -19,7 +19,7 @@ import android.widget.Toast;
 
 /**
  * Settings card "Tablet and data": the mode (admin setup / user), the profile key, the suits, the arms channel
- * (the arms and calves step sliders, ÷20 … 1:1 — in user mode too), export / import of the tablet's data and the one-way
+ * (the arms and calves strength sliders, 5 … 100 % of the other channels — in user mode too), export / import of the tablet's data and the one-way
  * "Finish setup".
  */
 public final class XemsLocalSection {
@@ -128,14 +128,15 @@ public final class XemsLocalSection {
         card.addView(row, matchWrap(a, 0));
 
         {
-            // Arms and calves: how big one step of the slider is, as a divider (owner, 2026-11-26). Right = the full step.
-            card.addView(text(a, tr("Ръце и прасци — стъпка на силата", "Arms and calves — strength step"), 15, true),
-                    matchWrap(a, 16));
-            TextView explain = text(a, tr("Плъзгач вдясно = 1:1 (една точка е цяла единица, като при другите канали). "
-                    + "Към средата и наляво стъпката става по-малка: ÷5 значи пет пъти по-фина. При по-тесен импулс "
-                    + "намалението е по-малко (същият наклон).", "Slider at the right = 1:1 (a point is a whole unit, like "
-                    + "the other channels). Towards the left the step gets finer: ÷5 is five times finer. A narrower "
-                    + "pulse is reduced less (the same slope)."), 12, false);
+            // Arms and calves: how strong they are next to every other channel (owner, 2026-11-26). Right = the same.
+            card.addView(text(a, tr("Ръце и прасци — сила спрямо другите канали", "Arms and calves — strength next to the other channels"),
+                    15, true), matchWrap(a, 16));
+            TextView explain = text(a, tr("Плъзгач вдясно = 100%: ръцете и прасците получават колкото всички други канали. "
+                    + "По-наляво = по-слабо: на 50% същото число на плъзгача им дава половината от силата, която "
+                    + "получават другите. Ръцете са много чувствителни — затова са на 20%.",
+                    "Slider at the right = 100%: the arms and calves get what every other channel gets. Further "
+                    + "left = weaker: at 50% the same number on the slider gives them half of what the others get. "
+                    + "The arms are very sensitive — hence 20%."), 12, false);
             explain.setTextColor(0xFFB0B0B0);
             card.addView(explain, matchWrap(a, 2));
             addDivider(a, card, DivSlider.ARMS);
@@ -163,16 +164,17 @@ public final class XemsLocalSection {
         return r == (int) r ? String.valueOf((int) r) : String.valueOf(r).replace('.', ',');
     }
 
-    /** The slider's dividers, weakest (finest step) first; the last is ÷1 = 1:1. */
-    static final float[] ARMS_DIVS = {20f, 15f, 12f, 10f, 9f, 8f, 7f, 6f, 5f, 4f, 3f, 2f, 1.5f, 1f};
-    static final float[] CALF_DIVS = {5f, 4f, 3f, 2.5f, 2f, 1.5f, 1f};
+    /** The slider's stops, % of what the other channels get; weakest first, the last is 100% = 1:1. */
+    static final int[] ARMS_PCT = {5, 8, 10, 12, 15, 20, 25, 30, 40, 50, 60, 75, 100};
+    static final int[] CALF_PCT = {20, 25, 33, 40, 50, 60, 75, 100};
 
     private static void addDivider(Activity a, LinearLayout card, int kind) {
-        float[] divs = kind == DivSlider.ARMS ? ARMS_DIVS : CALF_DIVS;
+        int[] pcts = kind == DivSlider.ARMS ? ARMS_PCT : CALF_PCT;
         float cur = kind == DivSlider.ARMS ? XemsLicense.armsDivider() : XemsLicense.calfDivider();
+        float curPct = 100f / Math.max(1f, cur);
         int at = 0;
-        for (int i = 0; i < divs.length; i++) {
-            if (Math.abs(divs[i] - cur) < Math.abs(divs[at] - cur)) {
+        for (int i = 0; i < pcts.length; i++) {
+            if (Math.abs(pcts[i] - curPct) < Math.abs(pcts[at] - curPct)) {
                 at = i;
             }
         }
@@ -180,43 +182,44 @@ public final class XemsLocalSection {
         TextView readout = text(a, "", 13, false);
         readout.setTextColor(0xFFFFFFFF);
         android.widget.SeekBar bar = new android.widget.SeekBar(a);
-        bar.setMax(divs.length - 1);
+        bar.setMax(pcts.length - 1);
         bar.setProgress(at);
         card.addView(bar, matchWrap(a, 4));
         card.addView(readout, matchWrap(a, 2));
-        DivSlider ds = new DivSlider(kind, divs, readout);
+        DivSlider ds = new DivSlider(kind, pcts, readout);
         ds.show(at);
         bar.setOnSeekBarChangeListener(ds);
     }
 
-    /** Slider → saved divider + the line under it: ÷D, the share of a normal step, and what each width gets. */
+    /** Slider → saved divider (100 / %) + the line under it: the share of the others' strength, and by width. */
     static final class DivSlider implements android.widget.SeekBar.OnSeekBarChangeListener {
         static final int ARMS = 0, CALF = 1;
         private final int kind;
-        private final float[] divs;
+        private final int[] pcts;
         private final TextView readout;
 
-        DivSlider(int kind, float[] divs, TextView readout) {
+        DivSlider(int kind, int[] pcts, TextView readout) {
             this.kind = kind;
-            this.divs = divs;
+            this.pcts = pcts;
             this.readout = readout;
         }
 
         void show(int i) {
-            float d = divs[Math.max(0, Math.min(divs.length - 1, i))];
-            if (d <= 1f) {
-                readout.setText(tr("1:1 — като другите канали", "1:1 — like the other channels"));
+            int p = pcts[Math.max(0, Math.min(pcts.length - 1, i))];
+            if (p >= 100) {
+                readout.setText(tr("100% — колкото всички други канали", "100% — the same as every other channel"));
                 return;
             }
-            String line = "÷" + fmt(d) + tr(" · стъпка ", " · step ") + fmt(100f / d) + tr(" % от нормалната", " % of a normal one");
+            String line = p + tr("% от силата на другите канали", "% of the strength the other channels get");
             if (kind == ARMS) {
-                int[] pws = {100, 150, 250, 400};
-                StringBuilder b = new StringBuilder();
-                for (int k = 0; k < pws.length; k++) {
-                    b.append(k == 0 ? "" : " · ").append(pws[k]).append(" µs ÷")
-                            .append(fmt(com.isaigu.gymapp.train.utils.ChannelStrengthScale.armsDivider(pws[k], d)));
+                int[] pws = {400, 250, 150, 100};
+                StringBuilder b = new StringBuilder(tr("широк импулс 400 µs: ", "wide pulse 400 µs: ")).append(p).append('%');
+                for (int k = 1; k < pws.length; k++) {
+                    float share = 100f / com.isaigu.gymapp.train.utils.ChannelStrengthScale.armsDivider(pws[k], 100f / p);
+                    b.append(" · ").append(pws[k]).append(" µs: ").append(Math.min(100, Math.round(share))).append('%');
                 }
-                line += "\n" + b;
+                line += "\n" + b + tr("\nПо-тесният импулс носи по-малко заряд, затова ръцете получават по-голям дял.",
+                        "\nA narrower pulse carries less charge, so the arms get a bigger share.");
             }
             readout.setText(line);
         }
@@ -225,7 +228,7 @@ public final class XemsLocalSection {
         public void onProgressChanged(android.widget.SeekBar bar, int progress, boolean fromUser) {
             show(progress);
             if (fromUser) {
-                float d = divs[progress];
+                float d = 100f / pcts[progress];
                 if (kind == ARMS) {
                     XemsLicense.setArmsDivider(d);
                 } else {

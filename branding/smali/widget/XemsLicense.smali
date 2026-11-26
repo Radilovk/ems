@@ -20,7 +20,7 @@
 
 .field static final K_ARMS:Ljava/lang/String; = "arms"
 
-.field static final K_ARMS_DIV:Ljava/lang/String; = "arms_div"
+.field static final K_ARMS_DIV:Ljava/lang/String; = "arms_div_v2"
 
 .field static final K_CHECKED:Ljava/lang/String; = "checked"
 
@@ -176,7 +176,7 @@
     sput-object v0, Lcom/isaigu/gymapp/widget/XemsLicense;->arms:Ljava/lang/String;
 
     .line 84
-    const/high16 v0, 0x41200000    # 10.0f
+    const/high16 v0, 0x40a00000    # 5.0f
 
     sput v0, Lcom/isaigu/gymapp/widget/XemsLicense;->armsDiv:F
 
@@ -1695,9 +1695,9 @@
     sput-object v0, Lcom/isaigu/gymapp/widget/XemsLicense;->arms:Ljava/lang/String;
 
     .line 356
-    const-string v0, "arms_div"
+    const-string v0, "arms_div_v2"
 
-    const/high16 v1, 0x41200000    # 10.0f
+    const/high16 v1, 0x40a00000    # 5.0f
 
     invoke-interface {v6, v0, v1}, Landroid/content/SharedPreferences;->getFloat(Ljava/lang/String;F)F
 
@@ -1868,7 +1868,7 @@
 
     move-result-object v0
 
-    const-string v1, "arms_div"
+    const-string v1, "arms_div_v2"
 
     invoke-interface {v0, v1, p0}, Landroid/content/SharedPreferences$Editor;->putFloat(Ljava/lang/String;F)Landroid/content/SharedPreferences$Editor;
 

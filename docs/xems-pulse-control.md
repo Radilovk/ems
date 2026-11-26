@@ -203,3 +203,16 @@ Hz, двоен импулс), −s импулс, +s пауза, начало н�
 trimmed) → a longer pause (×1.5, ×2). The strength, the width (µs) and a shorter impulse are never levers; when the
 rungs are spent the cap (+12) stops the output as before. Given back in the reverse order. Same order as Auto and
 the AI training (`docs/xems-auto-mode-spec.md` §21). Test: `scripts/ai-sim/run.sh` (PULSE …: first lever freq_down).
+
+## 1.1.585 — the arms and calves step twice as big, 1:1 back in Settings (owner, 2026-11-26)
+- **Arms:** the default divider D falls from 10 to **5**: ÷5 at 400 µs, ÷2.5 at 150 µs, ÷2 at 100 µs, linear
+  (before: ÷10 / ÷5 / ÷4). One slider point = 0.2…0.4 of a suit unit. Stored as the new pref `arms_div_v2` (an old
+  saved divider no longer undoes the doubling).
+- **Calves:** `CALF_FACTOR` 0.5 → **1** (one point = one suit unit).
+- **Settings → "Tablet and data" → Arms** is back (as before 1.1.567): "Намален импулс" or **1:1** (the arms channel at
+  normal strength, no divider) and the divider D, typed freely (1–100). Not chosen = reduced (a tablet in admin setup
+  or with the licence's `arms_full` is no longer 1:1 by itself — only the owner's choice makes it 1:1).
+- **Face mode keeps its own gentle ÷10 scale** (`ChannelStrengthScale.faceFactor`, ÷4 at 100 µs) — the new arms
+  default does not touch it.
+- AI energy model: the arms count what they are sent, so the legs + glutes share of `all 10 channels` is 49 %
+  (the sim's check is `> 0.45`, was `> 0.5`).

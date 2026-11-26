@@ -451,7 +451,7 @@ public class AiSim {
         double kHalf = channels("all, 30 % (half of tolerated)", all, 30, 85, 350);
         double kLow = channels("all, 60 %, 5 Hz (massage)", all, 60, 5, 250);
         check(kAll > kLegs && kLegs > kArms, "more / bigger muscles must cost more");
-        check(kLegs > 0.5 * kAll, "legs + glutes hold most of the muscle mass");
+        check(kLegs > 0.45 * kAll, "legs + glutes hold most of the muscle mass");   // 0.5 until 1.1.585: the arms now get ÷5 (not ÷10) at 400 µs, so they carry more of the 10 channels
         check(kHalf < kAll && kLow < kHalf, "lower strength / frequency must cost less");
         pauseChecks();
         System.out.println(failures == 0 ? "ALL CHECKS PASSED" : failures + " CHECK(S) FAILED");

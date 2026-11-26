@@ -373,13 +373,17 @@
 
     .line 76
     :cond_10a
-    const-string v0, "arms_full"
+    const-string v0, "full"
 
-    invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsLicense;->hasFeature(Ljava/lang/String;)Z
+    invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLicense;->armsMode()Ljava/lang/String;
+
+    move-result-object v1
+
+    invoke-virtual {v0, v1}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v0
 
-    if-eqz v0, :cond_124
+    if-eqz v0, :cond_128
 
     .line 77
     const-string v0, "\u2713 \u0420\u044a\u0446\u0435 1:1"
@@ -402,7 +406,7 @@
     invoke-virtual {v4, v0}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
     .line 80
-    :cond_124
+    :cond_128
     new-instance v0, Landroid/widget/HorizontalScrollView;
 
     invoke-direct {v0, p0}, Landroid/widget/HorizontalScrollView;-><init>(Landroid/content/Context;)V
@@ -1732,13 +1736,17 @@
     move-result-object v1
 
     .line 285
-    const-string v0, "arms_full"
+    const-string v0, "full"
 
-    invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsLicense;->hasFeature(Ljava/lang/String;)Z
+    invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLicense;->armsMode()Ljava/lang/String;
+
+    move-result-object v2
+
+    invoke-virtual {v0, v2}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v0
 
-    if-eqz v0, :cond_3e
+    if-eqz v0, :cond_42
 
     .line 286
     const-string v0, " \u00b7 \u0440\u044a\u0446\u0435\u0442\u0435 \u0441 \u043d\u043e\u0440\u043c\u0430\u043b\u043d\u0430 \u0441\u0438\u043b\u0430 (\u0441\u0442\u044a\u043f\u043a\u0430 1:1)"
@@ -1750,18 +1758,18 @@
     move-result-object v0
 
     .line 287
-    :goto_14
+    :goto_18
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLicense;->isPending()Z
 
     move-result v2
 
-    if-eqz v2, :cond_41
+    if-eqz v2, :cond_45
 
     invoke-virtual {v1}, Ljava/lang/String;->length()I
 
     move-result v2
 
-    if-nez v2, :cond_41
+    if-nez v2, :cond_45
 
     .line 288
     new-instance v0, Ljava/lang/StringBuilder;
@@ -1794,24 +1802,24 @@
     move-result-object v0
 
     .line 303
-    :goto_3d
+    :goto_41
     return-object v0
 
     .line 286
-    :cond_3e
+    :cond_42
     const-string v0, ""
 
-    goto :goto_14
+    goto :goto_18
 
     .line 293
-    :cond_41
+    :cond_45
     const-string v2, "server"
 
     invoke-virtual {v2, v1}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v1
 
-    if-eqz v1, :cond_100
+    if-eqz v1, :cond_104
 
     .line 294
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLicense;->expiresS()J
@@ -1828,7 +1836,7 @@
 
     cmp-long v1, v2, v6
 
-    if-nez v1, :cond_ca
+    if-nez v1, :cond_ce
 
     const-string v1, "\u0431\u0435\u0437 \u0441\u0440\u043e\u043a"
 
@@ -1839,7 +1847,7 @@
     move-result-object v1
 
     .line 298
-    :goto_5f
+    :goto_63
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLicense;->graceDaysLeft()I
 
     move-result v3
@@ -1853,7 +1861,7 @@
 
     move-result v2
 
-    if-lez v2, :cond_fa
+    if-lez v2, :cond_fe
 
     new-instance v2, Ljava/lang/StringBuilder;
 
@@ -1885,7 +1893,7 @@
 
     move-result-object v2
 
-    :goto_8d
+    :goto_91
     invoke-virtual {v5, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     move-result-object v2
@@ -1895,7 +1903,7 @@
     move-result-object v2
 
     .line 300
-    if-ltz v3, :cond_fd
+    if-ltz v3, :cond_101
 
     new-instance v1, Ljava/lang/StringBuilder;
 
@@ -1933,7 +1941,7 @@
 
     move-result-object v1
 
-    :goto_bc
+    :goto_c0
     invoke-virtual {v2, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     move-result-object v1
@@ -1946,10 +1954,10 @@
 
     move-result-object v0
 
-    goto/16 :goto_3d
+    goto/16 :goto_41
 
     .line 297
-    :cond_ca
+    :cond_ce
     new-instance v1, Ljava/lang/StringBuilder;
 
     invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
@@ -1994,22 +2002,22 @@
 
     move-result-object v1
 
-    goto/16 :goto_5f
+    goto/16 :goto_63
 
     .line 299
-    :cond_fa
+    :cond_fe
     const-string v2, ""
 
-    goto :goto_8d
+    goto :goto_91
 
     .line 300
-    :cond_fd
+    :cond_101
     const-string v1, ""
 
-    goto :goto_bc
+    goto :goto_c0
 
     .line 303
-    :cond_100
+    :cond_104
     const-string v0, "\u0422\u0440\u0435\u043d\u0438\u0440\u043e\u0432\u043a\u0430 \u0431\u0435\u0437 \u0434\u043e\u043f\u044a\u043b\u043d\u0438\u0442\u0435\u043b\u043d\u0438\u0442\u0435 \u043c\u043e\u0434\u0443\u043b\u0438. \u0412\u044a\u0432\u0435\u0434\u0438 \u043a\u043b\u044e\u0447, \u0437\u0430 \u0434\u0430 \u0433\u0438 \u043e\u0442\u043a\u043b\u044e\u0447\u0438\u0448."
 
     const-string v1, "Training without the add-on modules. Enter a key to unlock them."
@@ -2018,7 +2026,7 @@
 
     move-result-object v0
 
-    goto/16 :goto_3d
+    goto/16 :goto_41
 .end method
 
 .method static statusTitle()Ljava/lang/String;

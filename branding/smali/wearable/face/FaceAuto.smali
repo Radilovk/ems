@@ -241,7 +241,7 @@
 
     move-result v1
 
-    invoke-static {v1}, Lcom/isaigu/gymapp/train/utils/ChannelStrengthScale;->armsFactor(I)F
+    invoke-static {v1}, Lcom/isaigu/gymapp/train/utils/ChannelStrengthScale;->faceFactor(I)F
 
     move-result v1
 

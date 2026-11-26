@@ -359,7 +359,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `SoftRamp.java` (561L, compile:music-sync*,softramp) — Soft rise / fall of the impulse, done by the tablet: the suit ignores the ramp bytes of the work-params PDU, so the str…
 
 **train/utils/** (`branding/java/src/com/isaigu/gymapp/train/utils/`)
-- `ChannelStrengthScale.java` (179L, compile:channel-scale,music-sync*) — Encode-time correction for per-channel impulse strength sent over BLE.
+- `ChannelStrengthScale.java` (200L, compile:channel-scale,music-sync*) — Encode-time correction for per-channel impulse strength sent over BLE.
 - `MasterStrengthControl.java` (346L, compile:music-sync*) — External control channel for master impulse strength (MA / circle slider).
 - `MusicAutoTune.java` (348L, compile:music-sync*) — Picks music-sync settings from a track's own envelope so the impulse follows how the body reads it: separate hits versu…
 - `MusicDiagLog.java` (151L, compile:music-sync*) — Persistent diagnostic log for music player and uncaught crashes.
@@ -556,7 +556,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `XemsLocalAvatar.java` (1084L, compile:xems-local) — Client photo: picked from the gallery, cropped square, 320 px JPEG in the app's files (files/avatars).
 - `XemsLocalConsent.java` (499L, compile:xems-local) — The client's informed consent and declaration, signed with a finger on the tablet (owner, 1.1.530 — docs/xems-consent.m…
 - `XemsLocalGate.java` (220L, compile:xems-local) — Hidden doors of the tablet build.
-- `XemsLocalSection.java` (241L, compile:xems-local) — Settings card "Tablet and data": the mode (admin setup / user), the profile key, the suits (the arms channel is no sett…
+- `XemsLocalSection.java` (354L, compile:xems-local) — Settings card "Tablet and data": the mode (admin setup / user), the profile key, the suits, the arms channel (reduced /…
 - `XemsLocalStore.java` (1218L, compile:xems-local) — Local-only data layer: users, programs, training history and suits stay on the tablet.
 - `XemsLocalUserForm.java` (1046L, compile:xems-local) — New / edit client form — one screen, mostly taps: name, sex, age / height / weight wheels, phone; goal, fitness and con…
 - `XemsModuleInfo.java` (599L, compile:music-sync*) — The "i" of every XEMS module: what it is, what it gives (value first), how to work with it.
@@ -1426,7 +1426,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L204 ## Сила и експлозивност · процедура
   - L213 ## 50+ · процедура
 
-`docs/xems-pulse-control.md` (206L)
+`docs/xems-pulse-control.md` (219L)
   - L1 # Пулс модул: управление на импулсите по пулса (v1.1.59, задържане в зона от 1.1.270)
   - L8 ## Граници
   - L18 ## Решение (всяка секунда) — задържане в зона (1.1.270)
@@ -1443,6 +1443,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L149 ## Циферблат: „i“ и ↻ (v1.1.70)
   - L173 ## Баланс на каналите по ширина на импулса (`ChannelStrengthScale.balance`)
   - L199 ## 1.1.570 — the ladder without the strength (owner, 2026-11-25)
+  - L207 ## 1.1.585 — the arms and calves step twice as big, 1:1 back in Settings (owner, 2026-11-26)
 
 `docs/xems-safety-limits.md` (46L)
   - L1 # Absolute limits of the impulse (owner, 1.1.323-ai)

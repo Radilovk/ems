@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 663
+    .line 838
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 664
+    .line 839
     iput-boolean p1, p0, Lcom/isaigu/gymapp/ai/AiWizard$HealthDone;->none:Z
 
-    .line 665
+    .line 840
     return-void
 .end method
 
@@ -44,25 +44,25 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 669
+    .line 844
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsUi;->haptic(Landroid/view/View;)V
 
-    .line 670
+    .line 845
     iget-boolean v0, p0, Lcom/isaigu/gymapp/ai/AiWizard$HealthDone;->none:Z
 
     if-eqz v0, :cond_12
 
-    .line 671
+    .line 846
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoSession;->getInput()Lcom/isaigu/gymapp/ai/AutoModel$Input;
 
     move-result-object v0
 
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/AiCoach;->clearHealth(Lcom/isaigu/gymapp/ai/AutoModel$Input;)V
 
-    .line 672
+    .line 847
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiTrain;->changed()V
 
-    .line 674
+    .line 849
     :cond_12
     # getter for: Lcom/isaigu/gymapp/ai/AiWizard;->healthDlg:Landroid/app/Dialog;
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiWizard;->access$100()Landroid/app/Dialog;
@@ -71,7 +71,7 @@
 
     if-eqz v0, :cond_1f
 
-    .line 675
+    .line 850
     # getter for: Lcom/isaigu/gymapp/ai/AiWizard;->healthDlg:Landroid/app/Dialog;
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiWizard;->access$100()Landroid/app/Dialog;
 
@@ -79,15 +79,15 @@
 
     invoke-virtual {v0}, Landroid/app/Dialog;->dismiss()V
 
-    .line 677
+    .line 852
     :cond_1f
     # setter for: Lcom/isaigu/gymapp/ai/AiWizard;->healthDlg:Landroid/app/Dialog;
     invoke-static {v1}, Lcom/isaigu/gymapp/ai/AiWizard;->access$102(Landroid/app/Dialog;)Landroid/app/Dialog;
 
-    .line 678
+    .line 853
     # setter for: Lcom/isaigu/gymapp/ai/AiWizard;->healthBox:Landroid/widget/LinearLayout;
     invoke-static {v1}, Lcom/isaigu/gymapp/ai/AiWizard;->access$202(Landroid/widget/LinearLayout;)Landroid/widget/LinearLayout;
 
-    .line 679
+    .line 854
     return-void
 .end method

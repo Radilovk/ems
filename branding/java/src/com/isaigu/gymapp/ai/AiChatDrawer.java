@@ -42,7 +42,7 @@ public final class AiChatDrawer {
     private static Dialog dialog;
     private static LinearLayout content;
     private static EditText field;
-    private static TextView sendBtn;
+    private static TalkButton sendBtn;
     private static String typed = "";
 
     public static boolean isOpen() {
@@ -205,9 +205,10 @@ public final class AiChatDrawer {
         f.setOnEditorActionListener(new Key());
         f.addTextChangedListener(new Typed());
         row.addView(f, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
-        TextView b = XemsUi.button(c, typed.trim().length() > 0 ? "➤" : "🎤", XemsUi.ACCENT_BTN);
+        TalkButton b = new TalkButton(c);
+        b.setSend(typed.trim().length() > 0);
         b.setOnClickListener(new Send());
-        LinearLayout.LayoutParams bp = new LinearLayout.LayoutParams(XemsUi.dp(c, 52), XemsUi.dp(c, 52));
+        LinearLayout.LayoutParams bp = new LinearLayout.LayoutParams(XemsUi.dp(c, 56), XemsUi.dp(c, 56));
         bp.leftMargin = XemsUi.dp(c, 8);
         row.addView(b, bp);
         col.addView(row, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
@@ -217,7 +218,7 @@ public final class AiChatDrawer {
     }
 
     /** One message: a bubble; the AI's "✓ …" (a change done) is an entry of its own in the middle. */
-    private static View bubble(Context c, AiCoach.Turn t) {
+    static View bubble(Context c, AiCoach.Turn t) {
         if (t.ai && t.text.startsWith("✓")) {
             TextView v = XemsUi.text(c, t.text, 13, XemsUi.GO_TEXT, true);
             v.setGravity(Gravity.CENTER);
@@ -251,7 +252,7 @@ public final class AiChatDrawer {
         return m;
     }
 
-    private static LinearLayout.LayoutParams bubbleParams(Context c, AiCoach.Turn t) {
+    static LinearLayout.LayoutParams bubbleParams(Context c, AiCoach.Turn t) {
         boolean action = t.ai && t.text.startsWith("✓");
         LinearLayout.LayoutParams p = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -391,7 +392,7 @@ public final class AiChatDrawer {
         public void afterTextChanged(Editable s) {
             touched();
             if (sendBtn != null) {
-                sendBtn.setText(s != null && s.toString().trim().length() > 0 ? "➤" : "🎤");
+                sendBtn.setSend(s != null && s.toString().trim().length() > 0);
             }
         }
     }

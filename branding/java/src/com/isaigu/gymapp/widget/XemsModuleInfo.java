@@ -37,6 +37,10 @@ public final class XemsModuleInfo {
         String tagline;
         String[] value;
         String[] how;
+        /** "Lead — rest" lines: what the module stands on (AI only for now), shown under "Какво ти дава". */
+        String[] science;
+        /** "Прочети още": {title, paragraph, paragraph…} blocks, folded under the science lines. */
+        String[][] more;
     }
 
     static Entry entry(String id) {
@@ -150,8 +154,8 @@ public final class XemsModuleInfo {
             e.glyph = "AI";
             e.tint = XemsUi.ORANGE;
             e.name = tr("AI тренировка", "AI session");
-            e.tagline = tr("Умна сесия, която се нагласява по пулса и умората в реално време",
-                    "A smart session that adapts to heart rate and fatigue in real time");
+            e.tagline = tr("AI треньор с наука зад гърба си — съставя тренировката и я води по пулса и умората в реално време",
+                    "An AI coach with science behind it — it writes the session and leads it by heart rate and fatigue in real time");
             e.value = new String[] {
                 tr("Води тренировката сама — всяка секунда следи пулса и умората на мускулите и решава честотата, паузите и почивките; силата е твоя.",
                         "Leads the session — every second it watches heart rate and muscle fatigue and sets the frequency, pauses and rests; the strength is yours."),
@@ -166,16 +170,68 @@ public final class XemsModuleInfo {
                         "Works solo too — the client can train without a trainer next to them, with stricter limits."),
             };
             e.how = new String[] {
-                tr("Докосни „AI тренировка“ и избери цел и продължителност.", "Tap AI session and pick a goal and duration."),
-                tr("Потвърди клиента и здравето („Без противопоказания, добре е днес“).",
-                        "Confirm the client and their health (\"No contraindications, feeling well today\")."),
-                tr("Пулс в покой — 30 секунди с гривната на ръката.", "Resting heart rate — 30 seconds with the band on the wrist."),
-                tr("Прегледай плана и нагласи силата по скалата на усещането (0–10).",
-                        "Review the plan and set the strength on the feel scale (0–10)."),
-                tr("„Старт“ — AI води; ти можеш да паузираш, да намалиш или да спреш по всяко време.",
-                        "Start — the AI leads; you can pause, reduce or stop at any time."),
+                tr("Докосни „AI тренировка“. Три стъпки: клиентът и здравето, целта и видът, нещо специално за днес.",
+                        "Tap AI session. Three steps: the client and health, the goal and kind, anything special today."),
+                tr("Профилът и здравето се взимат от картона на клиента — питат се само за гост.",
+                        "The profile and health come from the client's card — only a guest is asked."),
+                tr("Натисни „Създай тренировката“ — чак тогава AI съставя плана и насоките; до тогава нищо не се изпраща.",
+                        "Tap Create the session — only then does the AI write the plan and guidance; nothing is sent before."),
+                tr("Прегледай плана и насоките, поговори с AI в чата („по-леко“, „повече корем“) и натисни „Старт“.",
+                        "Review the plan and guidance, talk to the AI in the chat (\"lighter\", \"more abs\") and tap Start."),
+                tr("По време на тренировката: сила ± по скалата на усещането (0–10), пауза, „Окей тренер, …“ по глас.",
+                        "During the session: strength ± on the feel scale (0–10), pause, \"Okay trainer, …\" by voice."),
                 tr("„Затвори“ приключва сесията и отваря отчета в клиентския картон.",
                         "Close ends the session and opens the report in the client's card."),
+            };
+            e.science = new String[] {
+                tr("Физиология на мускулната контракция — честотата определя как отговаря мускулът: от единични потрепвания до слята устойчива контракция. Връзката между честота, сила и умора е описана в научната литература (Kesar & Binder-Macleod 2006; Gregory и др. 2007).",
+                        "Muscle physiology — the frequency decides how the muscle answers: from single twitches to a fused steady contraction. The relation between frequency, force and fatigue is described in the literature (Kesar & Binder-Macleod 2006; Gregory et al. 2007)."),
+                tr("Умора при електростимулация — токът задейства едни и същи двигателни единици, едновременно и без ротация, затова уморява по-бързо от волевото усилие (Gregory & Bickel 2005; Bickel и др. 2011).",
+                        "Fatigue in electrical stimulation — the current fires the same motor units, together and without rotation, so it tires sooner than voluntary effort (Gregory & Bickel 2005; Bickel et al. 2011)."),
+                tr("Енергетика и възстановяване — фосфокреатин, гликолиза и кислороден дълг след тренировката (Haseler и др. 1999; Gondin и др. 2010).",
+                        "Energetics and recovery — phosphocreatine, glycolysis and the oxygen debt after the session (Haseler et al. 1999; Gondin et al. 2010)."),
+                tr("Ширина на импулса и дълбочина на въздействието — как параметрите на тока стигат до по-дълбоките влакна при поносим ток (Maffiuletti 2010).",
+                        "Pulse width and depth — how the current's parameters reach the deeper fibres at a tolerable current (Maffiuletti 2010)."),
+                tr("Практика и безопасност на WB-EMS — международни препоръки за ефективна и безопасна тренировка и за почивката между тренировките (Kemmler и др. 2016, 2023; Teschler и др. 2016).",
+                        "WB-EMS practice and safety — international recommendations for effective and safe training and for the rest between sessions (Kemmler et al. 2016, 2023; Teschler et al. 2016)."),
+                tr("Нашият алгоритъм и опит — върху тази основа е изграден собствен прецизен алгоритъм, обогатен с треньорската практика на автора на XEMS и проверяван върху записани тренировки. AI е помощник на треньора — преценката и отговорността остават негови.",
+                        "Our algorithm and experience — on this basis we built our own precise algorithm, enriched by the XEMS author's coaching practice and checked on recorded sessions. The AI is the trainer's assistant — the judgement and the responsibility stay with the trainer."),
+            };
+            e.more = new String[][] {
+                {tr("Честота и мускулна сила", "Frequency and muscle force"),
+                    tr("При ниски честоти мускулът отговаря с единични потрепвания и се отпуска между тях; с повишаване на честотата потрепванията се сумират, после се сливат в устойчива контракция, а при високи честоти силата достига почти максимума си. Затова загряването, дренирането, разпускането и силовата работа използват различни честотни области.",
+                            "At low frequencies the muscle answers with single twitches and relaxes between them; as the frequency rises the twitches sum, then fuse into a steady contraction, and at high frequencies the force approaches its maximum. So warm-up, drainage, cool-down and strength work use different frequency ranges."),
+                    tr("Високата честота дава по-голяма сила, но и по-бърза умора — проводимостта отслабва и метаболитите се натрупват по-бързо. Тези зависимости са изследвани и описани в литературата и са основата на избора на честота във всеки план.",
+                            "A higher frequency gives more force but also faster fatigue — conduction weakens and metabolites build up sooner. These relations are studied and described in the literature and are the basis for the frequency choice in every plan.")},
+                {tr("Умора и възстановяване", "Fatigue and recovery"),
+                    tr("При волево движение тялото редува двигателните единици; при електростимулация работят едни и същи, в едни и същи места и едновременно. Затова същата сила уморява повече и мускулът има нужда от паузи, в които се възстановява запасът му от фосфокреатин — процес с известно време на възстановяване, по-кратко при тренирани хора.",
+                            "In voluntary movement the body rotates its motor units; in electrical stimulation the same ones work, in the same places, at the same time. So the same force tires more and the muscle needs pauses in which its phosphocreatine store recovers — a process with a known recovery time, shorter in trained people."),
+                    tr("Планът взема предвид подготовката на човека и избира почивките така, че умората да остава в поносими за него граници.",
+                            "The plan takes the person's fitness into account and chooses the rests so that fatigue stays within limits he or she can bear.")},
+                {tr("Ширина на импулса", "Pulse width"),
+                    tr("По-широкият импулс достига по-дълбоки влакна при по-нисък ток, но висока честота с широк импулс е неприятна и може да боли. Затова широчината и честотата се подбират заедно и се пазят в безопасни граници.",
+                            "A wider pulse reaches deeper fibres at a lower current, but a high rate with a wide pulse is unpleasant and can hurt. So width and frequency are chosen together and kept within safe limits.")},
+                {tr("Енергия и калории", "Energy and calories"),
+                    tr("Мускулът харчи енергия по време на стимулацията и „връща дълга“ след нея: бърза част (фосфокреатин и кислороден дефицит — минути) и по-бавна гликолитична част (лактат, гликоген — десетки минути). Силната работа оставя траен ефект; слабата и кратката — почти не.",
+                            "The muscle spends energy during stimulation and pays the debt back after it: a fast part (phosphocreatine and the oxygen deficit — minutes) and a slower glycolytic part (lactate, glycogen — tens of minutes). Hard work leaves a lasting effect; light and short work hardly any."),
+                    tr("Затова изчисляваме и енергията след тренировката, не само по време на нея.",
+                            "So we count the energy after the session too, not only during it.")},
+                {tr("Между тренировките", "Between sessions"),
+                    tr("След тежка WB-EMS тренировка креатинкиназата в кръвта достига връх на 2–4 ден и при непривикнали може да е много висока. Международните препоръки са почивка между тренировките, ясно по-леки първи тренировки, умерена продължителност, сила по усещане и достатъчно вода. Планът ги спазва и отчита и измереното възстановяване на клиента.",
+                            "After a hard WB-EMS session blood creatine kinase peaks on day 2–4 and can be very high in the unaccustomed. The international recommendations are rest between sessions, clearly lighter first sessions, a moderate duration, strength by feel and plenty of fluid. The plan follows them and also uses the client's measured recovery.")},
+                {tr("Пулс", "Heart rate"),
+                    tr("Натоварването се оценява по пулса спрямо резервния пулс на човека. Пулсът в покой се измерва достатъчно дълго за надеждност. Изометричните контракции вдигат пулса и през пресорния рефлекс, затова при висока сила той леко завишава — това е известно и се отчита.",
+                            "Load is judged by the pulse against the person's heart-rate reserve. The resting pulse is measured long enough to be reliable. Isometric contractions raise the pulse through the pressor reflex too, so at high strength it reads a little high — this is known and accounted for.")},
+                {tr("Как работят AI и алгоритъмът", "How the AI and the algorithm work together"),
+                    tr("Планът, границите за безопасност, умората и стъпките на силата се смятат на таблета от нашия собствен алгоритъм. Езиковият модел чете какво казваш или пишеш (здраве, оплаквания, предпочитания), обяснява и избира измежду безопасни варианти — отговорът му се проверява и никога не излиза от допустимото.",
+                            "The plan, the safety limits, the fatigue and the strength steps are computed on the tablet by our own algorithm. The language model reads what you say or write (health, complaints, preferences), explains and chooses among safe options — its answer is checked and never leaves what is allowed."),
+                    tr("Пауза и стоп работят веднага на таблета, без връзка. Където няма публикувани данни, използваме собствени оценки, проверявани върху записани тренировки.",
+                            "Pause and stop work at once on the tablet, with no connection. Where there is no published data we use our own estimates, checked on recorded sessions.")},
+                {tr("Литература", "References"),
+                    tr("Kemmler W. и др. (2016, обновени 2023) — препоръки за ефективна и безопасна WB-EMS. Maffiuletti N.A. (2010) — физиологични и методични съображения за NMES. Teschler M., Kemmler W. и др. (2016) — много висока креатинкиназа след WB-EMS.",
+                            "Kemmler W. et al. (2016, updated 2023) — recommendations for effective and safe WB-EMS. Maffiuletti N.A. (2010) — physiological and methodological considerations for NMES. Teschler M., Kemmler W. et al. (2016) — very high creatine kinase after WB-EMS."),
+                    tr("Kesar & Binder-Macleod (2006) и Gregory и др. (2007) — честота, ширина на импулса, въртящ момент и умора. Gregory & Bickel (2005); Bickel, Gregory, Dean (2011) — набиране на двигателни единици при електростимулация. Haseler, Hogan, Richardson (1999) — възстановяване на фосфокреатина. Gondin и др. (2010) — честота, ширина и метаболитна цена.",
+                            "Kesar & Binder-Macleod (2006) and Gregory et al. (2007) — frequency, pulse width, torque and fatigue. Gregory & Bickel (2005); Bickel, Gregory, Dean (2011) — motor-unit recruitment in electrical stimulation. Haseler, Hogan, Richardson (1999) — phosphocreatine recovery. Gondin et al. (2010) — frequency, width and metabolic cost.")},
             };
         } else if (VR.equals(id)) {
             e.glyph = "VR";
@@ -278,6 +334,23 @@ public final class XemsModuleInfo {
         }
         s.body.addView(values);
 
+        if (e.science != null) {
+            s.body.addView(XemsUi.label(a, tr("На какво се основава", "What it stands on")), XemsUi.matchWrap(a, 22));
+            LinearLayout sci = XemsUi.vertical(a);
+            for (int i = 0; i < e.science.length; i++) {
+                sci.addView(valueRow(a, e.science[i], XemsUi.ACCENT), XemsUi.matchWrap(a, i == 0 ? 0 : 8));
+            }
+            s.body.addView(sci);
+            if (e.more != null) {
+                LinearLayout more = moreBlock(a, e.more);
+                more.setVisibility(View.GONE);
+                TextView toggle = XemsUi.button(a, tr("Прочети още  ▾", "Read more  ▾"), XemsUi.GHOST);
+                toggle.setOnClickListener(new Toggle(more));
+                s.body.addView(toggle, XemsUi.matchWrap(a, 12));
+                s.body.addView(more, XemsUi.matchWrap(a, 4));
+            }
+        }
+
         if (on) {
             // how to work with it (only when it is unlocked)
             s.body.addView(XemsUi.label(a, tr("Как се работи", "How to use it")), XemsUi.matchWrap(a, 22));
@@ -304,6 +377,44 @@ public final class XemsModuleInfo {
         s.dialog.show();
         XemsUi.fitHeight(a, s, 0.9f);
         stagger(s.body);
+    }
+
+    /** The folded "Прочети още": a titled card per block, its paragraphs under the title. */
+    private static LinearLayout moreBlock(Activity a, String[][] blocks) {
+        LinearLayout all = XemsUi.vertical(a);
+        for (int i = 0; i < blocks.length; i++) {
+            LinearLayout card = XemsUi.vertical(a);
+            int pad = XemsUi.dp(a, 14);
+            card.setPadding(pad, pad, pad, XemsUi.dp(a, 12));
+            card.setBackgroundDrawable(XemsUi.rounded(XemsUi.SURFACE, XemsUi.dp(a, 14), XemsUi.STROKE, XemsUi.dp(a, 1)));
+            card.addView(XemsUi.text(a, blocks[i][0], 16, XemsUi.ACCENT, true));
+            for (int j = 1; j < blocks[i].length; j++) {
+                TextView t = XemsUi.text(a, blocks[i][j], 14, XemsUi.TEXT, false);
+                t.setLineSpacing(0, 1.2f);
+                card.addView(t, XemsUi.matchWrap(a, j == 1 ? 6 : 8));
+            }
+            all.addView(card, XemsUi.matchWrap(a, i == 0 ? 0 : 10));
+        }
+        return all;
+    }
+
+    /** "Прочети още ▾ / Скрий ▴". */
+    static final class Toggle implements View.OnClickListener {
+        final View target;
+
+        Toggle(View target) {
+            this.target = target;
+        }
+
+        @Override
+        public void onClick(View v) {
+            XemsUi.haptic(v);
+            boolean show = target.getVisibility() != View.VISIBLE;
+            target.setVisibility(show ? View.VISIBLE : View.GONE);
+            if (v instanceof TextView) {
+                ((TextView) v).setText(show ? tr("Скрий  ▴", "Hide  ▴") : tr("Прочети още  ▾", "Read more  ▾"));
+            }
+        }
     }
 
     /** "Lead — rest": a tinted check, the lead in bold. */

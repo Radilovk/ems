@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 716
+    .line 902
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 717
+    .line 903
     iput p1, p0, Lcom/isaigu/gymapp/ai/AiWizard$NumOpen;->which:I
 
-    .line 718
+    .line 904
     return-void
 .end method
 
@@ -42,10 +42,10 @@
     .registers 4
 
     .prologue
-    .line 722
+    .line 908
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsUi;->haptic(Landroid/view/View;)V
 
-    .line 723
+    .line 909
     invoke-static {p1}, Lcom/isaigu/gymapp/ai/AiTrain;->activity(Landroid/view/View;)Landroid/app/Activity;
 
     move-result-object v0
@@ -54,6 +54,6 @@
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/ai/AiWizard;->openPad(Landroid/app/Activity;I)V
 
-    .line 724
+    .line 910
     return-void
 .end method

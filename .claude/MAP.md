@@ -119,7 +119,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/compile-interval-timer-java.sh` (103L, build:L113[BETA_MUSIC,SKIP_JAVA_RECOMPILE]) — Compile interval timer + block program classes from Java to smali.
 - `scripts/compile-music-sync-java.sh` (220L, build:L103[BETA_MUSIC,SKIP_JAVA_RECOMPILE]) — Compile BETA music-sync classes from Java to smali (avoids hand-written branch bugs).
 - `scripts/compile-softramp-java.sh` (44L, build:L83[SKIP_JAVA_RECOMPILE]) — Compile train/model/SoftRamp.java (the tablet-side ramp + the safety guard hook) to branding/smali/softramp/
-- `scripts/compile-wearable-java.sh` (309L, build:L118[BETA_MUSIC,SKIP_JAVA_RECOMPILE]) — Compile the wearable bridge + band UI, the Smart Session and the automatic mode (ai package) from Java to smali.
+- `scripts/compile-wearable-java.sh` (310L, build:L118[BETA_MUSIC,SKIP_JAVA_RECOMPILE]) — Compile the wearable bridge + band UI, the Smart Session and the automatic mode (ai package) from Java to smali.
 - `scripts/compile-xems-license-java.sh` (61L, build:L80[SKIP_JAVA_RECOMPILE]) — Compile XemsLicense*.java to branding/smali/widget/
 - `scripts/compile-xems-local-java.sh` (86L, build:L127[BETA_MUSIC,SKIP_JAVA_RECOMPILE]) — Compile XemsLocal*.java to branding/smali/widget/
 - `scripts/design-apply.sh` (96L) — Sync studio → validate → apply train design → optional APK build
@@ -246,7 +246,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 **ai/** (`branding/java/src/com/isaigu/gymapp/ai/`)
 - `AiAnnounce.java` (124L, compile:music-sync*,wearable) — The AI training says its steps aloud (owner, 1.1.548): the warm-up, the main part, each new exercise, the recovery, the…
 - `AiBrief.java` (760L, compile:music-sync*,wearable) — The AI layer over the automatic mode's planner (owner, 1.1.534 — docs/xems-ai-brief.md).
-- `AiChatDrawer.java` (418L, compile:music-sync*,wearable) — The AI's chat during the session (owner, 1.1.543 — docs/xems-ai-coach.md): a panel on the right side, like a messenger …
+- `AiChatDrawer.java` (419L, compile:music-sync*,wearable) — The AI's chat during the session (owner, 1.1.543 — docs/xems-ai-coach.md): a panel on the right side, like a messenger …
 - `AiCoach.java` (756L, compile:music-sync*,wearable) — The AI coach of the Smart Session (owner, 1.1.535 — docs/xems-ai-coach.md).
 - `AiCoachBar.java` (142L, compile:music-sync*,wearable) — The AI during the session (owner, 1.1.543 — docs/xems-ai-coach.md): one thin line above the dock, the training screen s…
 - `AiCoachUi.java` (645L, compile:music-sync*,wearable) — The AI coach on screen (owner, 1.1.535 — docs/xems-ai-coach.md).
@@ -267,12 +267,12 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `AiSetupSheet.java` (80L, compile:music-sync*,wearable) — The AI training's preparation (owner, 1.1.543 — docs/xems-ai-coach.md): a temporary window over the training screen tha…
 - `AiSpeak.java` (152L, compile:music-sync*,wearable) — What the tablet says aloud — natural Bulgarian sentences, never symbols (owner, 1.1.551: "no colons, no needless signs …
 - `AiText.java` (181L, compile:music-sync*,wearable) — Bulgarian-first UI text for the Smart Session (English when the system language is not bg).
-- `AiTrain.java` (1643L, compile:music-sync*,wearable) — The AI training (owner, 1.1.537 — docs/xems-ai-coach.md): the automatic mode's ready programs, engine and limits, with …
+- `AiTrain.java` (1661L, compile:music-sync*,wearable) — The AI training (owner, 1.1.537 — docs/xems-ai-coach.md): the automatic mode's ready programs, engine and limits, with …
 - `AiUi.java` (2121L, compile:music-sync*,wearable) — Smart Session UI: sidebar "AI" button → full-screen card with a 3-step setup (goal and client · plan · calibration; the…
 - `AiViews.java` (318L, compile:music-sync*,wearable) — Canvas-drawn widgets for the Smart Session UI (no resources needed).
 - `AiVoiceCmd.java` (617L, compile:music-sync*,wearable) — Spoken commands during an AI training (owner, 1.1.539): "намали краката", "увеличи малко ръцете", "по-дълга пауза", "па…
 - `AiVoiceGate.java` (146L, compile:music-sync*,wearable) — What heard speech may cost an AI call (owner, 1.1.554: "extremely economical in requests and AI").
-- `AiWizard.java` (800L, compile:music-sync*,wearable) — The AI training's preparation — ONE screen (owner, 1.1.544: "real use"; docs/xems-ai-coach.md).
+- `AiWizard.java` (1000L, compile:music-sync*,wearable) — The AI training's preparation — ONE screen (owner, 1.1.544: "real use"; docs/xems-ai-coach.md).
 - `AiWorkout.java` (252L, compile:music-sync*,wearable) — The AI's own workout (owner, 1.1.538 — docs/xems-ai-coach.md): not a template — the model writes the exercises (dumbbel…
 - `AutoBeep.java` (149L, compile:music-sync*,wearable) — The start signal of an automatic session (owner, 1.1.270): every start waits 3 s — three short beeps, one per second, a…
 - `AutoBoard.java` (253L, compile:music-sync*,wearable) — The Auto live board built into the training screen (owner, 1.1.278): while an automatic session runs, the training list…
@@ -310,6 +310,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `ProgramInfo.java` (238L, compile:music-sync*,wearable) — The ⓘ of a ready program card in Auto (owner, 1.1.516 — docs/xems-program-info.md): what this training or procedure is …
 - `PulseAdvice.java` (552L, compile:music-sync*,wearable) — Recommended impulses for the manual mode's four modes (Основен · Мускули · Кардио · Масаж) from the client's profile an…
 - `SafeLimits.java` (202L, compile:music-sync*,wearable) — Absolute limits of the impulse — every mode, every path to the suit (owner, 1.1.323; docs/xems-safety-limits.md).
+- `TalkButton.java` (93L, compile:music-sync*,wearable) — The round button beside the chat's line (owner, 2026-11-25: "the symbol is ugly and I do not understand it").
 - `VoiceInput.java` (180L, compile:music-sync*,wearable) — The 🎤 of the AI training (owner, 1.1.537): Android's own speech input — the same Google voice typing the keyboard's mic…
 - `VoiceSettings.java` (272L, compile:music-sync*,wearable) — Settings → "Гласово управление" (owner, 1.1.543): teaching the tablet "тренер" is done once per tablet, so it lives her…
 - `WakeListener.java` (1320L, compile:music-sync*,wearable) — Hands-free "Тренер, …" for the AI training (owner, 1.1.541 — docs/xems-ai-coach.md), built the way voice assistants are…
@@ -555,7 +556,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `XemsLocalSection.java` (241L, compile:xems-local) — Settings card "Tablet and data": the mode (admin setup / user), the profile key, the suits (the arms channel is no sett…
 - `XemsLocalStore.java` (1218L, compile:xems-local) — Local-only data layer: users, programs, training history and suits stay on the tablet.
 - `XemsLocalUserForm.java` (1046L, compile:xems-local) — New / edit client form — one screen, mostly taps: name, sex, age / height / weight wheels, phone; goal, fitness and con…
-- `XemsModuleInfo.java` (488L, compile:music-sync*) — The "i" of every XEMS module: what it is, what it gives (value first), how to work with it.
+- `XemsModuleInfo.java` (599L, compile:music-sync*) — The "i" of every XEMS module: what it is, what it gives (value first), how to work with it.
 - `XemsNav.java` (1569L, compile:music-sync*) — Main navigation (v1.1.64).
 - `XemsPanel.java` (394L, compile:music-sync*) — The right control panel, redrawn: ■ Stop — square, top ▶ Start / ❚❚ — tall + — tall − — tall ⚙ Master — square, bottom …
 - `XemsSearch.java` (225L, compile:music-sync*,xems-local) — Client-list search (Потребители tab, the training picker).
@@ -602,7 +603,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `server/src/admin.js` (717L) — admin panel HTML/JS (licenses, suits/MAC, APK releases)
 - `server/src/aibrief.js` (425L) — The AI layer over the training algorithm (docs/xems-ai-brief.md): the trainer's free text (or speech) about a client
 - `server/src/aicoach.js` (514L) — The AI coach of the Smart Session (owner, 1.1.535 — docs/xems-ai-coach.md): a short dialogue with the trainer /
-- `server/src/airoute.js` (91L) — Which model and how much thinking each AI call gets (owner, 1.1.556: "maximum adequacy — a cheap model only for the
+- `server/src/airoute.js` (98L) — Which model and how much thinking each AI call gets (owner, 1.1.556: "maximum adequacy — a cheap model only for the
 - `server/src/card.js` (99L) — Shareable client card: validation of what the tablet sends, the link id, and the page itself.
 - `server/src/catalog.js` (39L) — Каталог на модули и функции — източник на истина за абонаменти.
 - `server/src/cert.js` (37L) — Trainer certificates (branding/certificate/index.html, served at /cert): the trainer types the name and downloads a
@@ -624,7 +625,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `server/src/vrlog.js` (69L) — The VR game's leg recordings (owner 2026-11-10: "the legs in the game are bad — record, find the cause"): the game
 - `server/src/wiemsapp.js` (80L) — "1.21 22" → {name, code}; null when it is not that.
 - `server/test/aibrief.test.js` (129L) — 
-- `server/test/aicoach.test.js` (330L) — 
+- `server/test/aicoach.test.js` (334L) — 
 - `server/test/card.test.js` (109L) — 
 - `server/test/catalog.test.js` (29L) — 
 - `server/test/cert.test.js` (45L) — 
@@ -982,7 +983,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L36 ## Server
   - L45 ## Tests
 
-`docs/xems-ai-coach.md` (522L)
+`docs/xems-ai-coach.md` (555L)
   - L1 # AI coach — the Smart Session with a dialogue (owner, 1.1.535)
   - L86 ## Flow (Smart Session tile)
   - L107 ## Who decides what
@@ -1017,6 +1018,8 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L485 ## 1.1.577 — what was useful in two older branches
   - L498 ## 1.1.577 — server cost check (Cloudflare / Azure / Gemini)
   - L508 ## 1.1.578 — "it reacts to random words": found with the offline sim, fixed
+  - L523 ## 1.1.581 — the AI setup: a wizard, a button, a chat under the answer, the science in the "i"
+  - L550 ## 1.1.582 — the AI's "i": sources, not our algorithm (owner)
 
 `docs/xems-ai-session-implementation.md` (230L)
   - L1 # XEMS AI (Smart Session) — реализация v1.1.58-ai

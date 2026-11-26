@@ -18,21 +18,21 @@
 
 
 # instance fields
-.field final btn:Landroid/widget/TextView;
+.field final btn:Lcom/isaigu/gymapp/ai/TalkButton;
 
 
 # direct methods
-.method constructor <init>(Landroid/widget/TextView;)V
+.method constructor <init>(Lcom/isaigu/gymapp/ai/TalkButton;)V
     .registers 2
 
     .prologue
-    .line 767
+    .line 963
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 768
-    iput-object p1, p0, Lcom/isaigu/gymapp/ai/AiWizard$Draft;->btn:Landroid/widget/TextView;
+    .line 964
+    iput-object p1, p0, Lcom/isaigu/gymapp/ai/AiWizard$Draft;->btn:Lcom/isaigu/gymapp/ai/TalkButton;
 
-    .line 769
+    .line 965
     return-void
 .end method
 
@@ -42,8 +42,8 @@
     .registers 4
 
     .prologue
-    .line 781
-    if-eqz p1, :cond_1c
+    .line 977
+    if-eqz p1, :cond_1b
 
     invoke-interface {p1}, Landroid/text/Editable;->toString()Ljava/lang/String;
 
@@ -52,8 +52,8 @@
     :goto_6
     sput-object v0, Lcom/isaigu/gymapp/ai/AiTrain;->draft:Ljava/lang/String;
 
-    .line 782
-    iget-object v1, p0, Lcom/isaigu/gymapp/ai/AiWizard$Draft;->btn:Landroid/widget/TextView;
+    .line 978
+    iget-object v1, p0, Lcom/isaigu/gymapp/ai/AiWizard$Draft;->btn:Lcom/isaigu/gymapp/ai/TalkButton;
 
     sget-object v0, Lcom/isaigu/gymapp/ai/AiTrain;->draft:Ljava/lang/String;
 
@@ -65,34 +65,34 @@
 
     move-result v0
 
-    if-lez v0, :cond_1f
+    if-lez v0, :cond_1e
 
-    const-string v0, "\u27a4"
+    const/4 v0, 0x1
 
-    :goto_18
-    invoke-virtual {v1, v0}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
+    :goto_17
+    invoke-virtual {v1, v0}, Lcom/isaigu/gymapp/ai/TalkButton;->setSend(Z)V
 
-    .line 783
+    .line 979
     return-void
 
-    .line 781
-    :cond_1c
+    .line 977
+    :cond_1b
     const-string v0, ""
 
     goto :goto_6
 
-    .line 782
-    :cond_1f
-    const-string v0, "\ud83c\udfa4"
+    .line 978
+    :cond_1e
+    const/4 v0, 0x0
 
-    goto :goto_18
+    goto :goto_17
 .end method
 
 .method public beforeTextChanged(Ljava/lang/CharSequence;III)V
     .registers 5
 
     .prologue
-    .line 773
+    .line 969
     return-void
 .end method
 
@@ -100,6 +100,6 @@
     .registers 5
 
     .prologue
-    .line 777
+    .line 973
     return-void
 .end method

@@ -125,10 +125,8 @@ public final class AiTrain {
         pending = null;
         seq++;
         AutoSession.buildPlan();                       // the plan is there at once (the algorithm)
-        AiSetupSheet.open(a);                          // the preparation: one screen of its own, gone at ▶ Старт
-        if (!AutoSession.isGuest()) {
-            retuneNow(a);                              // a known client: the AI tunes it while the trainer looks
-        }
+        AiSetupSheet.open(a);                          // the preparation: three steps, then "Създай" (owner, 2026-11-25:
+                                                       // the AI is asked once, on that button — never on opening or a tap)
     }
 
     /**
@@ -1302,7 +1300,7 @@ public final class AiTrain {
         changed();
     }
 
-    /** Any choice changed: the plan follows at once (the algorithm), the AI re-tunes it a moment later. */
+    /** Any choice changed: the plan follows at once (the algorithm); the AI is asked only at "Създай". */
     static void changed() {
         Input in = AutoSession.getInput();
         if (!free && (in.programId == null || AutoCatalog.get(in.programId) == null)) {
@@ -1315,8 +1313,6 @@ public final class AiTrain {
             freePlan = null;
         }
         rebuild();
-        View r = AutoSession.getPanelRoot();
-        retuneLater(r != null ? r.getContext() : retuneCtx);
     }
 
     static void retuneLater(Context c) {
@@ -1340,8 +1336,8 @@ public final class AiTrain {
         if (!free) {
             AutoSession.buildPlan();
         }
-        send(c, AiText.t("Нагласи тренировката за този клиент и дай препоръките.",
-                "Tune the session for this client and give the advice."), false, true);
+        send(c, AiText.t("Състави тренировката за този клиент и дай препоръките.",
+                "Write the session for this client and give the advice."), false, true);
     }
 
     static final class Retune implements Runnable {
@@ -1366,6 +1362,24 @@ public final class AiTrain {
         send(c, text.trim(), false, true);
     }
 
+    /** "✦ Създай тренировката": the one moment the AI is asked at setup; the chat and the plan come after it. */
+    static void create(Context c) {
+        if (busy) {
+            return;
+        }
+        AiWizard.page = AiWizard.RESULT;
+        tune(c);
+    }
+
+    /** Words (typed on a step, or spoken) wait in the line of step 3. */
+    static void addToDraft(String text) {
+        if (text == null || text.trim().length() == 0) {
+            return;
+        }
+        draft = (draft.trim().length() > 0 ? draft.trim() + ", " : "") + text.trim();
+        rebuild();
+    }
+
     /** ✦ Нагласи: the plan from the intake, the first word to the AI (the line's text, else "tune it"). */
     static void tune(Context c) {
         Input in = AutoSession.getInput();
@@ -1382,8 +1396,8 @@ public final class AiTrain {
         if (extra.length() > 0) {
             send(c, extra, false, false);
         } else {
-            send(c, AiText.t("Нагласи тренировката за този клиент и дай препоръките.",
-                    "Tune the session for this client and give the advice."), false, true);
+            send(c, AiText.t("Състави тренировката за този клиент и дай препоръките.",
+                    "Write the session for this client and give the advice."), false, true);
         }
     }
 
@@ -1516,6 +1530,10 @@ public final class AiTrain {
         @Override
         public void onText(String text) {
             if (!live) {
+                if (AiWizard.page < AiWizard.RESULT) {
+                    addToDraft(text);                      // before "Създай" nothing goes to the AI: the words wait in the line
+                    return;
+                }
                 say(c, text, true);
                 return;
             }

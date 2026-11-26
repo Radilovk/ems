@@ -77,6 +77,8 @@ public class SimCoachAll {
         Ui.tap(Ui.root(a), "AI тренировка");
         Ui.real(1000);
         if (free) {
+            Ui.tap(Ui.windows().get(Ui.windows().size() - 1), "Напред");      // step 2 (1.1.581 wizard)
+            Ui.idle(300);
             Ui.tap(Ui.windows().get(Ui.windows().size() - 1), "AI я съставя");
             Ui.real(400);
             Class<?> tr = Class.forName("com.isaigu.gymapp.ai.AiTrain");
@@ -91,8 +93,14 @@ public class SimCoachAll {
             busy.set(null, false);
             java.lang.reflect.Method rb = tr.getDeclaredMethod("rebuild");
             rb.setAccessible(true);
+            // the answer is in: to the result page (the AI is asked only at "Създай"; here the answer is injected)
+            java.lang.reflect.Field pg = Class.forName("com.isaigu.gymapp.ai.AiWizard").getDeclaredField("page");
+            pg.setAccessible(true);
+            pg.setInt(null, 3);
             rb.invoke(null);
             Ui.idle(300);
+        } else {
+            Ui.createAi();
         }
         Ui.tap(Ui.windows().get(Ui.windows().size() - 1), "Старт");
         Voice.ttsReady();

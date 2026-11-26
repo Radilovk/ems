@@ -225,7 +225,11 @@ test('route: Lite only for plain commands; the coach thinks, more with health or
   assert.equal(route('coach', { text: 'защо 85 херца', context: {} }).think, 'medium');
   assert.equal(route('coach', { text: 'нагласи я', context: { cond: ['knees'] } }).think, 'medium');
   assert.equal(route('coach', { text: 'нагласи я', context: {} }).think, 'low');
-  assert.equal(route('workout').think, 'medium');
+  // 2026-11-26: a plain workout (no health on record, no symptom) is fast and thinks low; health keeps medium
+  assert.equal(route('workout').think, 'low');
+  assert.equal(route('workout').fast, true);
+  assert.equal(route('workout', { input: { cond: ['knees'] } }).think, 'medium');
+  assert.equal(route('workout', { input: { cond: ['knees'] } }).fast, undefined);
   assert.equal(route('brief', { text: 'има диабет' }).think, 'medium');
   for (const t of ['боли ме кръста', 'не ми е добре', 'имам пейсмейкър', 'бременна съм', 'how does EMS work']) {
     assert.ok(careful(t), t);

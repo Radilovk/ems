@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 370
+    .line 371
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,7 +34,7 @@
     .registers 6
 
     .prologue
-    .line 373
+    .line 374
     const/4 v0, 0x4
 
     if-eq p2, v0, :cond_d
@@ -49,7 +49,7 @@
 
     if-ne v0, v1, :cond_27
 
-    .line 374
+    .line 375
     :cond_d
     invoke-virtual {p1}, Landroid/widget/TextView;->getContext()Landroid/content/Context;
 
@@ -73,20 +73,20 @@
     # invokes: Lcom/isaigu/gymapp/ai/AiChatDrawer;->fire(Landroid/content/Context;Ljava/lang/String;)V
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/ai/AiChatDrawer;->access$300(Landroid/content/Context;Ljava/lang/String;)V
 
-    .line 375
+    .line 376
     const/4 v0, 0x1
 
-    .line 377
+    .line 378
     :goto_23
     return v0
 
-    .line 374
+    .line 375
     :cond_24
     const-string v0, ""
 
     goto :goto_1f
 
-    .line 377
+    .line 378
     :cond_27
     const/4 v0, 0x0
 

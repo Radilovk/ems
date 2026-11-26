@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 789
+    .line 985
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 790
+    .line 986
     iput-object p1, p0, Lcom/isaigu/gymapp/ai/AiWizard$Phrase;->phrase:Ljava/lang/String;
 
-    .line 791
+    .line 987
     return-void
 .end method
 
@@ -42,10 +42,27 @@
     .registers 5
 
     .prologue
-    .line 795
+    .line 991
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsUi;->haptic(Landroid/view/View;)V
 
-    .line 796
+    .line 992
+    sget v0, Lcom/isaigu/gymapp/ai/AiWizard;->page:I
+
+    const/4 v1, 0x3
+
+    if-ge v0, v1, :cond_e
+
+    .line 993
+    iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiWizard$Phrase;->phrase:Ljava/lang/String;
+
+    invoke-static {v0}, Lcom/isaigu/gymapp/ai/AiTrain;->addToDraft(Ljava/lang/String;)V
+
+    .line 997
+    :goto_d
+    return-void
+
+    .line 996
+    :cond_e
     invoke-virtual {p1}, Landroid/view/View;->getContext()Landroid/content/Context;
 
     move-result-object v0
@@ -56,6 +73,5 @@
 
     invoke-static {v0, v1, v2}, Lcom/isaigu/gymapp/ai/AiTrain;->say(Landroid/content/Context;Ljava/lang/String;Z)V
 
-    .line 797
-    return-void
+    goto :goto_d
 .end method

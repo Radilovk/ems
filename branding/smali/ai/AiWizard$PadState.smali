@@ -27,20 +27,20 @@
     .registers 4
 
     .prologue
-    .line 530
+    .line 705
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 528
+    .line 703
     const-string v0, ""
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/AiWizard$PadState;->typed:Ljava/lang/String;
 
-    .line 531
+    .line 706
     iput p1, p0, Lcom/isaigu/gymapp/ai/AiWizard$PadState;->which:I
 
-    .line 532
+    .line 707
     iput-object p2, p0, Lcom/isaigu/gymapp/ai/AiWizard$PadState;->view:Landroid/widget/TextView;
 
-    .line 533
+    .line 708
     return-void
 .end method

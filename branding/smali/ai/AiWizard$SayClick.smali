@@ -26,28 +26,28 @@
     .registers 2
 
     .prologue
-    .line 731
+    .line 917
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 732
+    .line 918
     iput-object p1, p0, Lcom/isaigu/gymapp/ai/AiWizard$SayClick;->f:Landroid/widget/EditText;
 
-    .line 733
+    .line 919
     return-void
 .end method
 
 
 # virtual methods
 .method public onClick(Landroid/view/View;)V
-    .registers 5
+    .registers 6
 
     .prologue
-    const/4 v2, 0x0
+    const/4 v3, 0x0
 
-    .line 737
+    .line 923
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsUi;->haptic(Landroid/view/View;)V
 
-    .line 738
+    .line 924
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiWizard$SayClick;->f:Landroid/widget/EditText;
 
     invoke-virtual {v0}, Landroid/widget/EditText;->getText()Landroid/text/Editable;
@@ -70,7 +70,7 @@
 
     move-result-object v0
 
-    .line 739
+    .line 925
     :goto_1a
     invoke-virtual {v0}, Ljava/lang/String;->length()I
 
@@ -78,35 +78,55 @@
 
     if-nez v1, :cond_2c
 
-    .line 740
+    .line 926
     new-instance v0, Lcom/isaigu/gymapp/ai/AiTrain$Mic;
 
-    invoke-direct {v0, v2}, Lcom/isaigu/gymapp/ai/AiTrain$Mic;-><init>(Z)V
+    invoke-direct {v0, v3}, Lcom/isaigu/gymapp/ai/AiTrain$Mic;-><init>(Z)V
 
     invoke-virtual {v0, p1}, Lcom/isaigu/gymapp/ai/AiTrain$Mic;->onClick(Landroid/view/View;)V
 
-    .line 745
+    .line 936
     :goto_28
     return-void
 
-    .line 738
+    .line 924
     :cond_29
     const-string v0, ""
 
     goto :goto_1a
 
-    .line 743
+    .line 929
     :cond_2c
+    sget v1, Lcom/isaigu/gymapp/ai/AiWizard;->page:I
+
+    const/4 v2, 0x3
+
+    if-ge v1, v2, :cond_3b
+
+    .line 930
+    sput-object v0, Lcom/isaigu/gymapp/ai/AiTrain;->draft:Ljava/lang/String;
+
+    .line 931
+    invoke-virtual {p1}, Landroid/view/View;->getContext()Landroid/content/Context;
+
+    move-result-object v0
+
+    invoke-static {v0}, Lcom/isaigu/gymapp/ai/AiTrain;->create(Landroid/content/Context;)V
+
+    goto :goto_28
+
+    .line 934
+    :cond_3b
     const-string v1, ""
 
     sput-object v1, Lcom/isaigu/gymapp/ai/AiTrain;->draft:Ljava/lang/String;
 
-    .line 744
+    .line 935
     invoke-virtual {p1}, Landroid/view/View;->getContext()Landroid/content/Context;
 
     move-result-object v1
 
-    invoke-static {v1, v0, v2}, Lcom/isaigu/gymapp/ai/AiTrain;->say(Landroid/content/Context;Ljava/lang/String;Z)V
+    invoke-static {v1, v0, v3}, Lcom/isaigu/gymapp/ai/AiTrain;->say(Landroid/content/Context;Ljava/lang/String;Z)V
 
     goto :goto_28
 .end method

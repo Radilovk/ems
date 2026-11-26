@@ -519,3 +519,36 @@ it, the warm-up runs softer by design); "s" read aloud as a letter → "секу
   look-alike recording cured it but dropped the hits to 61 %, so it is not shipped.
 - **Why "several times" can still happen:** a missed word is now written to the diag log ("word not taken: d / limit /
   loud …") — send it. `run-wake.sh` needs `espeak-ng` (here: the pip `espeakng-loader` library with a small CLI shim).
+
+## 1.1.581 — the AI setup: a wizard, a button, a chat under the answer, the science in the "i"
+- **Owner:** the setup is slow and badly organised; goal / kind / health must not stay on screen once set; no
+  automatic generation (it started on opening); the line to write goes under the chat; "Нагласено от AI" is a bad
+  word; the round dictation button is ugly and unclear; the info must show the science the AI stands on.
+- **Wizard** (`AiWizard`, `page`): 1/3 **Кой тренира днес?** (client, a guest's EMS experience, health) → 2/3 **Какво ще
+  тренираме?** (goal, kind, ready program or "AI я съставя"; the algorithm's plan beside it) → 3/3 **Нещо специално за
+  днес?** (one line / 🎤 / chips + "✦ Създай тренировката"). Back always; one primary button bottom right.
+- **The AI is asked once — on "Създай"** (`AiTrain.create` → `tune`). Gone: the call on opening for a known client and
+  the 2.5 s re-tune after every tap (`changed` / `retuneLater`) — the cause of the "extremely slow" setup (a call per
+  tap, each with the planning prompt, and `busy` blocking the next). On a step the chips / 🎤 / ➤ only fill the line
+  (➤ = create with these words).
+- **Result page:** left the chat (messages, one-tap answers, the line **under** it), right the plan and the AI's
+  guidance as one card per item (Упражнения · Натоварване · … · Преди · По време · След), **▶ Старт**, "Промени
+  избора". Goal / kind / health are not on it.
+- **Words:** "AI съставя тренировката…", "Създадено от AI треньора" (never "нагласено").
+- **Talk button** (`TalkButton`, drawn, not emoji): empty line = an outlined microphone; text = a green disc with a
+  paper plane. In the wizard and in the session's chat drawer.
+- **Server speed (publish the Worker):** plain setup coach turns (nothing on record, no symptom) and plain workouts use
+  the fast Flash with low thinking (`airoute.js`); health keeps the newest Flash, medium thinking.
+- **The "i" of the AI** (`XemsModuleInfo`): "На какво се основава" (6 lines: frequency physiology, fatigue model, why EMS
+  tires sooner, absolute limits, rest between sessions, the author's practice) and a folded **Прочети още** (frequency &
+  force curve, the fatigue equation and its anchor, pulse width, energy during / after, between sessions, heart rate,
+  how the AI and the algorithm share the work, references). Everything is from `docs/xems-ems-physiology.md` and
+  `docs/xems-safety-limits.md`; own estimates are said to be own.
+- Tests: `tools/ui-shot` `ShotsAi` (steps, result, busy, the info sheet); `tools/app-sim` taps the wizard (`Ui.createAi`);
+  `SimCoachAll` "ready" has 4 FAILs that were there before this change (locked ready programs, 1.1.569–571 vs the test).
+
+## 1.1.582 — the AI's "i": sources, not our algorithm (owner)
+- The info sheet names **what the AI stands on** — the physiology, electrostimulation and WB-EMS literature
+  (Kemmler, Maffiuletti, Teschler, Kesar & Binder-Macleod, Gregory, Bickel, Haseler, Gondin) — and says only that on this
+  basis we built **our own precise algorithm**, with the author's coaching practice. No equations, constants or limits
+  are shown. The numeric detail stays in `docs/xems-ems-physiology.md` / `xems-safety-limits.md` (not in the app).

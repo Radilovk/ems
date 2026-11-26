@@ -11,6 +11,8 @@ import java.util.*;
  */
 public class WakeSim {
     static int checks, fails;
+    /** The wake phrase (-Dphrase="окей тренер"; default the old single word). */
+    static final String P = System.getProperty("phrase", "тренер");
     static File dir;
 
     static void check(boolean ok, String what) {
@@ -101,28 +103,39 @@ public class WakeSim {
         int[][] ex = {{150, 50}, {140, 46}, {162, 54}};
         for (int[] e : ex) {
             w.record();
-            short[] word = trim(say("тренер", e[0], e[1]));
+            short[] word = trim(say(P, e[0], e[1]));
             feed(w, cat(noise(8000, 0), word, noise(9000, 0)));
         }
         check(w.ready(), "3 examples recorded (" + w.examples() + ")");
         // the look-alike once (owner: "тренировка" is another word)
         if (!"0".equals(System.getProperty("contrast", "1"))) {
             w.recordContrast();
-            feed(w, cat(noise(8000, 0), trim(say("тренировка", 150, 50)), noise(9000, 0)));
+            feed(w, cat(noise(8000, 0), trim(say(P.replace("тренер", "тренировка"), 150, 50)), noise(9000, 0)));
             check(w.hasContrast(), "the look-alike recorded");
+        }
+        // the second look-alike (1.1.578): the same word with another word in front ("добре тренер")
+        if (P.startsWith("окей ") && "1".equals(System.getProperty("contrast2", "0"))) {
+            w.recordContrast();
+            feed(w, cat(noise(8000, 0), trim(say("добре " + P.substring(5), 150, 50)), noise(9000, 0)));
         }
         System.out.println("threshold " + w.threshold() + ", examples spread " + w.spreadOfExamples());
         // ---- phrases: true = must fire (once, inside the "тренер" part), false = must not
         Object[][] cases = {
-                {"тренер", true}, {"тренер увеличи краката", true}, {"тренер пауза", true}, {"тренер стоп", true},
+                {P, true}, {P + " увеличи краката", true}, {P + " пауза", true}, {P + " стоп", true},
                 {"увеличи краката", false}, {"треньорът каза", false}, {"трамвай", false}, {"три", false},
                 {"тенис", false}, {"френски", false}, {"течение", false}, {"пауза", false}, {"стоп", false},
                 {"старт", false}, {"интересно", false},
                 // owner: "тренировка" is another word — "тренер" alone unlocks; the words that begin with the same sounds
                 {"тренировка", false}, {"тренирам", false}, {"тренираме", false}, {"треньорка", false},
                 {"днес имаме тренировка", false}, {"хайде на тренировка", false},
+                // ordinary talk in a hall (the owner: "it reacts to random words")
+                {"окей", false}, {"окей добре", false}, {"окей гугъл", false}, {"добре тренер", false},
+                {"ела насам", false}, {"колко е часът", false}, {"още едно повторение", false}, {"не мога повече", false},
+                {"малко по-силно", false}, {"къде е водата", false}, {"хайде да започваме", false}, {"добър ден на всички", false},
         };
-        int tp = 0, fn = 0, fp = 0, tn = 0;
+        int tp = 0, fn = 0, fp = 0, tn = 0, prefixWakes = 0;
+        List<Integer> dPos = new ArrayList<>(), dNeg = new ArrayList<>();
+        Map<String, Integer> negMin = new TreeMap<>();
         double[] noises = {0, 200, 500};
         int[][] voices = {{155, 52}, {145, 48}, {150, 50}};
         for (double nz : noises) {
@@ -132,13 +145,21 @@ public class WakeSim {
                     boolean want = (Boolean) c[1];
                     short[] sp = trim(say(text, v[0], v[1]));
                     // "Тренер, увеличи краката": a short breath after the wake word in half of the cases
-                    if (want && text.contains(" ") && rnd.nextBoolean()) {
-                        String rest = text.substring(text.indexOf(' ') + 1);
-                        sp = cat(trim(say("тренер", v[0], v[1])), noise(3200, 0), trim(say(rest, v[0], v[1])));
+                    if (want && text.length() > P.length() && rnd.nextBoolean()) {
+                        String rest = text.substring(P.length() + 1);
+                        sp = cat(trim(say(P, v[0], v[1])), noise(3200, 0), trim(say(rest, v[0], v[1])));
                     }
                     short[] a = add(cat(noise(12000, 0), sp, noise(12000, 0)), nz);
                     List<Integer> at = feed(w, a);
                     boolean fired = !at.isEmpty();
+                    if (w.lastD < 1000000) {                  // the distance of this phrase's word (hits and rejects)
+                        (want ? dPos : dNeg).add(w.lastD);
+                        if (!want) negMin.merge(text, w.lastD, Math::min);
+                    }
+                    if (!want && text.startsWith("добре ")) {   // a known limit: another word before the same "тренер"
+                        if (fired) prefixWakes++;
+                        continue;
+                    }
                     if (want && fired) tp++;
                     else if (want) fn++;
                     else if (fired) fp++;
@@ -154,6 +175,11 @@ public class WakeSim {
             }
         }
         int pos = tp + fn, neg = fp + tn;
+        Collections.sort(dPos);
+        System.out.println("distance of the wake word: median " + dPos.get(dPos.size() / 2) + ", p90 " + dPos.get(dPos.size() * 9 / 10) + ", max " + dPos.get(dPos.size() - 1)
+                + "; closest other words (min d): " + negMin.entrySet().stream().sorted(Map.Entry.comparingByValue()).limit(6)
+                .map(e -> e.getKey() + "=" + e.getValue()).collect(java.util.stream.Collectors.joining(", ")));
+        System.out.println("known limit — \"добре тренер\" (another word in front of the same word) wakes " + prefixWakes + " of 9");
         System.out.println("wake: hits " + tp + "/" + pos + ", false wakes " + fp + "/" + neg);
         check(tp >= pos * 0.85, "≥ 85 % of the wake words heard (" + tp + "/" + pos + ")");
         check(fp <= neg * 0.03, "≤ 3 % false wakes (" + fp + "/" + neg + ")");
@@ -163,7 +189,7 @@ public class WakeSim {
         check(w.loud > 0, "the examples' loudness is known");
         int quietWakes = 0, softHits = 0;
         for (int[] v : voices) {
-            short[] word = trim(say("тренер", v[0], v[1]));
+            short[] word = trim(say(P, v[0], v[1]));
             if (!feed(w, add(cat(noise(12000, 0), scale(word, 0.1), noise(12000, 0)), 30)).isEmpty()) quietWakes++;
             if (!feed(w, add(cat(noise(12000, 0), scale(word, 0.6), noise(12000, 0)), 30)).isEmpty()) softHits++;
         }
@@ -171,6 +197,18 @@ public class WakeSim {
                 + " (last loudness " + w.lastLoud + ")");
         check(quietWakes == 0, "a far, quiet \"тренер\" never wakes");
         check(softHits >= 2, "a little quieter still wakes");
+        // ---- the setup's own quality check: three DIFFERENT words are not one phrase (the limit stays capped, the setup asks again)
+        WakeWord bad = new WakeWord();
+        feed(bad, noise(16000, 0));
+        String[] other = {P, "пауза", "увеличи краката"};
+        for (String o : other) {
+            bad.record();
+            feed(bad, cat(noise(8000, 0), trim(say(o, 150, 50)), noise(9000, 0)));
+        }
+        System.out.println("three different words: spread " + bad.spreadOfExamples() + ", limit " + bad.threshold());
+        check(bad.spreadOfExamples() > WakeWord.WIDE_SPREAD, "different words are flagged as differing (" + bad.spreadOfExamples() + ")");
+        check(bad.threshold() <= WakeWord.THR_CAP, "the limit never passes the cap (" + bad.threshold() + ")");
+        check(w.spreadOfExamples() <= WakeWord.WIDE_SPREAD, "the real examples are not flagged (" + w.spreadOfExamples() + ")");
         // ---- storage round trip
         WakeWord w2 = new WakeWord();
         check(w2.load(w.save()) && w2.ready() && w2.threshold() == w.threshold() && w2.hasContrast() == w.hasContrast()

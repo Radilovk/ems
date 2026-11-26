@@ -219,18 +219,18 @@
     .registers 9
 
     .prologue
-    const/4 v2, 0x3
+    const/4 v1, 0x3
 
     const/high16 v8, 0x40c00000    # 6.0f
 
     const/high16 v7, 0x3f800000    # 1.0f
 
-    const/4 v1, 0x0
+    const/4 v3, 0x0
 
     .line 191
     sget v0, Lcom/isaigu/gymapp/ai/WakeSetup;->step:I
 
-    if-ge v0, v2, :cond_ad
+    if-ge v0, v1, :cond_ad
 
     .line 192
     sget-object v0, Lcom/isaigu/gymapp/ai/WakeListener;->SPOTTER:Lcom/isaigu/gymapp/ai/WakeWord;
@@ -240,40 +240,68 @@
     .line 193
     sget-object v0, Lcom/isaigu/gymapp/ai/WakeSetup;->head:Landroid/widget/TextView;
 
-    const-string v2, "\u041a\u0430\u0436\u0438 \u201e\u041e\u043a\u0435\u0439 \u0442\u0440\u0435\u043d\u0435\u0440\u201c"
+    const-string v1, "\u041a\u0430\u0436\u0438 \u201e\u041e\u043a\u0435\u0439 \u0442\u0440\u0435\u043d\u0435\u0440\u201c"
 
-    const-string v3, "Say \u201c\u041e\u043a\u0435\u0439 \u0442\u0440\u0435\u043d\u0435\u0440\u201d"
+    const-string v2, "Say \u201c\u041e\u043a\u0435\u0439 \u0442\u0440\u0435\u043d\u0435\u0440\u201d"
 
-    invoke-static {v2, v3}, Lcom/isaigu/gymapp/ai/AiText;->t(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+    invoke-static {v1, v2}, Lcom/isaigu/gymapp/ai/AiText;->t(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
-    move-result-object v2
+    move-result-object v1
 
-    invoke-virtual {v0, v2}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
+    invoke-virtual {v0, v1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
     .line 194
     sget-object v0, Lcom/isaigu/gymapp/ai/WakeSetup;->sub:Landroid/widget/TextView;
+
+    new-instance v1, Ljava/lang/StringBuilder;
+
+    invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v2, "\u041f\u0430\u0443\u0437\u0430, \u043f\u043e\u0441\u043b\u0435 \u0444\u0440\u0430\u0437\u0430\u0442\u0430 \u0441\u0430\u043c\u0430 \u2014 "
+
+    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v1
+
+    sget v2, Lcom/isaigu/gymapp/ai/WakeSetup;->step:I
+
+    add-int/lit8 v2, v2, 0x1
+
+    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    move-result-object v1
+
+    const-string v2, " \u043e\u0442 3"
+
+    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v1
+
+    invoke-virtual {v1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v1
 
     new-instance v2, Ljava/lang/StringBuilder;
 
     invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
 
-    const-string v3, "\u041f\u0430\u0443\u0437\u0430, \u043f\u043e\u0441\u043b\u0435 \u0444\u0440\u0430\u0437\u0430\u0442\u0430 \u0441\u0430\u043c\u0430 \u2014 "
+    const-string v4, "A pause, then the phrase alone \u2014 "
 
-    invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v2
-
-    sget v3, Lcom/isaigu/gymapp/ai/WakeSetup;->step:I
-
-    add-int/lit8 v3, v3, 0x1
-
-    invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+    invoke-virtual {v2, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     move-result-object v2
 
-    const-string v3, " \u043e\u0442 3"
+    sget v4, Lcom/isaigu/gymapp/ai/WakeSetup;->step:I
 
-    invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    add-int/lit8 v4, v4, 0x1
+
+    invoke-virtual {v2, v4}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    move-result-object v2
+
+    const-string v4, " of 3"
+
+    invoke-virtual {v2, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     move-result-object v2
 
@@ -281,83 +309,55 @@
 
     move-result-object v2
 
-    new-instance v3, Ljava/lang/StringBuilder;
+    invoke-static {v1, v2}, Lcom/isaigu/gymapp/ai/AiText;->t(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
-    invoke-direct {v3}, Ljava/lang/StringBuilder;-><init>()V
+    move-result-object v1
 
-    const-string v4, "A pause, then the phrase alone \u2014 "
+    invoke-virtual {v0, v1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    invoke-virtual {v3, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v3
-
-    sget v4, Lcom/isaigu/gymapp/ai/WakeSetup;->step:I
-
-    add-int/lit8 v4, v4, 0x1
-
-    invoke-virtual {v3, v4}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
-
-    move-result-object v3
-
-    const-string v4, " of 3"
-
-    invoke-virtual {v3, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v3
-
-    invoke-virtual {v3}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
-
-    move-result-object v3
-
-    invoke-static {v2, v3}, Lcom/isaigu/gymapp/ai/AiText;->t(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object v2
-
-    invoke-virtual {v0, v2}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
-
-    .line 209
+    .line 213
     :goto_5f
     sget-object v0, Lcom/isaigu/gymapp/ai/WakeSetup;->dots:Landroid/widget/LinearLayout;
 
     invoke-virtual {v0}, Landroid/widget/LinearLayout;->removeAllViews()V
 
-    move v3, v1
+    move v2, v3
 
-    .line 210
+    .line 214
     :goto_65
     const/4 v0, 0x4
 
-    if-ge v3, v0, :cond_134
+    if-ge v2, v0, :cond_139
 
-    .line 211
+    .line 215
     new-instance v4, Landroid/view/View;
 
     sget-object v0, Lcom/isaigu/gymapp/ai/WakeSetup;->host:Landroid/app/Activity;
 
     invoke-direct {v4, v0}, Landroid/view/View;-><init>(Landroid/content/Context;)V
 
-    .line 212
+    .line 216
     sget v0, Lcom/isaigu/gymapp/ai/WakeSetup;->step:I
 
-    if-ge v3, v0, :cond_12c
+    if-ge v2, v0, :cond_131
 
     sget v0, Lcom/isaigu/gymapp/widget/XemsUi;->GO:I
 
     :goto_75
-    sget-object v2, Lcom/isaigu/gymapp/ai/WakeSetup;->host:Landroid/app/Activity;
+    sget-object v1, Lcom/isaigu/gymapp/ai/WakeSetup;->host:Landroid/app/Activity;
 
-    invoke-static {v2, v8}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
+    invoke-static {v1, v8}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
 
-    move-result v2
+    move-result v1
 
-    int-to-float v5, v2
+    int-to-float v5, v1
 
-    .line 213
-    sget v2, Lcom/isaigu/gymapp/ai/WakeSetup;->step:I
+    .line 217
+    sget v1, Lcom/isaigu/gymapp/ai/WakeSetup;->step:I
 
-    if-ne v3, v2, :cond_130
+    if-ne v2, v1, :cond_135
 
-    sget v2, Lcom/isaigu/gymapp/widget/XemsUi;->GO:I
+    sget v1, Lcom/isaigu/gymapp/widget/XemsUi;->GO:I
 
     :goto_82
     sget-object v6, Lcom/isaigu/gymapp/ai/WakeSetup;->host:Landroid/app/Activity;
@@ -366,44 +366,44 @@
 
     move-result v6
 
-    .line 212
-    invoke-static {v0, v5, v2, v6}, Lcom/isaigu/gymapp/widget/XemsUi;->rounded(IFII)Landroid/graphics/drawable/GradientDrawable;
+    .line 216
+    invoke-static {v0, v5, v1, v6}, Lcom/isaigu/gymapp/widget/XemsUi;->rounded(IFII)Landroid/graphics/drawable/GradientDrawable;
 
     move-result-object v0
 
     invoke-virtual {v4, v0}, Landroid/view/View;->setBackgroundDrawable(Landroid/graphics/drawable/Drawable;)V
 
-    .line 214
+    .line 218
     new-instance v0, Landroid/widget/LinearLayout$LayoutParams;
 
-    sget-object v2, Lcom/isaigu/gymapp/ai/WakeSetup;->host:Landroid/app/Activity;
+    sget-object v1, Lcom/isaigu/gymapp/ai/WakeSetup;->host:Landroid/app/Activity;
 
     const/high16 v5, 0x41200000    # 10.0f
 
-    invoke-static {v2, v5}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
+    invoke-static {v1, v5}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
 
-    move-result v2
+    move-result v1
 
-    invoke-direct {v0, v1, v2, v7}, Landroid/widget/LinearLayout$LayoutParams;-><init>(IIF)V
+    invoke-direct {v0, v3, v1, v7}, Landroid/widget/LinearLayout$LayoutParams;-><init>(IIF)V
 
-    .line 215
-    sget-object v2, Lcom/isaigu/gymapp/ai/WakeSetup;->host:Landroid/app/Activity;
+    .line 219
+    sget-object v1, Lcom/isaigu/gymapp/ai/WakeSetup;->host:Landroid/app/Activity;
 
-    invoke-static {v2, v8}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
+    invoke-static {v1, v8}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
 
-    move-result v2
+    move-result v1
 
-    iput v2, v0, Landroid/widget/LinearLayout$LayoutParams;->rightMargin:I
+    iput v1, v0, Landroid/widget/LinearLayout$LayoutParams;->rightMargin:I
 
-    .line 216
-    sget-object v2, Lcom/isaigu/gymapp/ai/WakeSetup;->dots:Landroid/widget/LinearLayout;
+    .line 220
+    sget-object v1, Lcom/isaigu/gymapp/ai/WakeSetup;->dots:Landroid/widget/LinearLayout;
 
-    invoke-virtual {v2, v4, v0}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
+    invoke-virtual {v1, v4, v0}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 210
-    add-int/lit8 v0, v3, 0x1
+    .line 214
+    add-int/lit8 v0, v2, 0x1
 
-    move v3, v0
+    move v2, v0
 
     goto :goto_65
 
@@ -411,7 +411,7 @@
     :cond_ad
     sget v0, Lcom/isaigu/gymapp/ai/WakeSetup;->step:I
 
-    if-ne v0, v2, :cond_d1
+    if-ne v0, v1, :cond_d1
 
     .line 197
     sget-object v0, Lcom/isaigu/gymapp/ai/WakeListener;->SPOTTER:Lcom/isaigu/gymapp/ai/WakeWord;
@@ -421,107 +421,117 @@
     .line 198
     sget-object v0, Lcom/isaigu/gymapp/ai/WakeSetup;->head:Landroid/widget/TextView;
 
-    const-string v2, "\u0421\u0435\u0433\u0430 \u043a\u0430\u0436\u0438 \u201e\u041e\u043a\u0435\u0439 \u0442\u0440\u0435\u043d\u0438\u0440\u043e\u0432\u043a\u0430\u201c"
+    const-string v1, "\u0421\u0435\u0433\u0430 \u043a\u0430\u0436\u0438 \u201e\u041e\u043a\u0435\u0439 \u0442\u0440\u0435\u043d\u0438\u0440\u043e\u0432\u043a\u0430\u201c"
 
-    const-string v3, "Now say \u201c\u041e\u043a\u0435\u0439 \u0442\u0440\u0435\u043d\u0438\u0440\u043e\u0432\u043a\u0430\u201d"
+    const-string v2, "Now say \u201c\u041e\u043a\u0435\u0439 \u0442\u0440\u0435\u043d\u0438\u0440\u043e\u0432\u043a\u0430\u201d"
 
-    invoke-static {v2, v3}, Lcom/isaigu/gymapp/ai/AiText;->t(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+    invoke-static {v1, v2}, Lcom/isaigu/gymapp/ai/AiText;->t(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
-    move-result-object v2
+    move-result-object v1
 
-    invoke-virtual {v0, v2}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
+    invoke-virtual {v0, v1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
     .line 199
     sget-object v0, Lcom/isaigu/gymapp/ai/WakeSetup;->sub:Landroid/widget/TextView;
 
-    const-string v2, "\u0414\u0440\u0443\u0433\u0430 \u0434\u0443\u043c\u0430 \u2014 \u0437\u0430 \u0434\u0430 \u043d\u0435 \u044f \u0431\u044a\u0440\u043a\u0430 \u0441 \u201e\u041e\u043a\u0435\u0439 \u0442\u0440\u0435\u043d\u0435\u0440\u201c"
+    const-string v1, "\u0414\u0440\u0443\u0433\u0430 \u0434\u0443\u043c\u0430 \u2014 \u0437\u0430 \u0434\u0430 \u043d\u0435 \u044f \u0431\u044a\u0440\u043a\u0430 \u0441 \u201e\u041e\u043a\u0435\u0439 \u0442\u0440\u0435\u043d\u0435\u0440\u201c"
 
-    const-string v3, "Another word \u2014 so it never takes it for \u201c\u041e\u043a\u0435\u0439 \u0442\u0440\u0435\u043d\u0435\u0440\u201d"
+    const-string v2, "Another word \u2014 so it never takes it for \u201c\u041e\u043a\u0435\u0439 \u0442\u0440\u0435\u043d\u0435\u0440\u201d"
 
-    invoke-static {v2, v3}, Lcom/isaigu/gymapp/ai/AiText;->t(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+    invoke-static {v1, v2}, Lcom/isaigu/gymapp/ai/AiText;->t(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
-    move-result-object v2
+    move-result-object v1
 
-    invoke-virtual {v0, v2}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
+    invoke-virtual {v0, v1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
     goto :goto_5f
 
     .line 201
     :cond_d1
-    sget-object v0, Lcom/isaigu/gymapp/ai/WakeSetup;->host:Landroid/app/Activity;
-
-    invoke-static {v0}, Lcom/isaigu/gymapp/ai/WakeListener;->saveExamples(Landroid/content/Context;)V
-
-    .line 202
     sget-object v0, Lcom/isaigu/gymapp/ai/WakeListener;->SPOTTER:Lcom/isaigu/gymapp/ai/WakeWord;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/ai/WakeWord;->spreadOfExamples()I
 
     move-result v0
 
-    .line 203
-    sget-object v2, Lcom/isaigu/gymapp/ai/WakeListener;->SPOTTER:Lcom/isaigu/gymapp/ai/WakeWord;
+    .line 202
+    const/16 v1, 0x3e8
 
-    invoke-virtual {v2}, Lcom/isaigu/gymapp/ai/WakeWord;->threshold()I
-
-    move-result v2
-
-    if-le v0, v2, :cond_105
+    if-le v0, v1, :cond_104
 
     const/4 v0, 0x1
 
+    move v1, v0
+
+    .line 203
+    :goto_dd
+    if-eqz v1, :cond_106
+
     .line 204
-    :goto_e5
-    sget-object v3, Lcom/isaigu/gymapp/ai/WakeSetup;->head:Landroid/widget/TextView;
+    sget-object v0, Lcom/isaigu/gymapp/ai/WakeSetup;->host:Landroid/app/Activity;
 
-    if-eqz v0, :cond_107
+    invoke-static {v0}, Lcom/isaigu/gymapp/ai/WakeListener;->reloadExamples(Landroid/content/Context;)V
 
-    const-string v2, "\u0417\u0430\u043f\u0438\u0441\u0438\u0442\u0435 \u0441\u0435 \u0440\u0430\u0437\u043b\u0438\u0447\u0430\u0432\u0430\u0442"
+    .line 208
+    :goto_e4
+    sget-object v2, Lcom/isaigu/gymapp/ai/WakeSetup;->head:Landroid/widget/TextView;
+
+    if-eqz v1, :cond_10c
+
+    const-string v0, "\u0417\u0430\u043f\u0438\u0441\u0438\u0442\u0435 \u0441\u0435 \u0440\u0430\u0437\u043b\u0438\u0447\u0430\u0432\u0430\u0442"
 
     const-string v4, "The recordings differ"
 
-    invoke-static {v2, v4}, Lcom/isaigu/gymapp/ai/AiText;->t(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object v2
-
-    :goto_f1
-    invoke-virtual {v3, v2}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
-
-    .line 205
-    sget-object v2, Lcom/isaigu/gymapp/ai/WakeSetup;->sub:Landroid/widget/TextView;
-
-    if-eqz v0, :cond_123
-
-    const-string v0, "\u041a\u0430\u0436\u0438 \u0444\u0440\u0430\u0437\u0430\u0442\u0430 \u043f\u043e-\u0435\u0434\u043d\u0430\u043a\u0432\u043e \u2014 \u201e\u041e\u0442\u043d\u0430\u0447\u0430\u043b\u043e\u201c."
-
-    const-string v3, "Say the phrase more alike \u2014 \u201cStart over\u201d."
-
-    invoke-static {v0, v3}, Lcom/isaigu/gymapp/ai/AiText;->t(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+    invoke-static {v0, v4}, Lcom/isaigu/gymapp/ai/AiText;->t(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v0
 
-    :goto_100
+    :goto_f0
+    invoke-virtual {v2, v0}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
+
+    .line 209
+    sget-object v2, Lcom/isaigu/gymapp/ai/WakeSetup;->sub:Landroid/widget/TextView;
+
+    if-eqz v1, :cond_128
+
+    const-string v0, "\u041a\u0430\u0436\u0438 \u0444\u0440\u0430\u0437\u0430\u0442\u0430 \u043f\u043e-\u0435\u0434\u043d\u0430\u043a\u0432\u043e \u2014 \u201e\u041e\u0442\u043d\u0430\u0447\u0430\u043b\u043e\u201c."
+
+    const-string v1, "Say the phrase more alike \u2014 \u201cStart over\u201d."
+
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/ai/AiText;->t(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
+
+    :goto_ff
     invoke-virtual {v2, v0}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
     goto/16 :goto_5f
 
-    :cond_105
-    move v0, v1
+    :cond_104
+    move v1, v3
 
-    .line 203
-    goto :goto_e5
+    .line 202
+    goto :goto_dd
 
-    .line 204
-    :cond_107
-    new-instance v2, Ljava/lang/StringBuilder;
+    .line 206
+    :cond_106
+    sget-object v0, Lcom/isaigu/gymapp/ai/WakeSetup;->host:Landroid/app/Activity;
 
-    invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
+    invoke-static {v0}, Lcom/isaigu/gymapp/ai/WakeListener;->saveExamples(Landroid/content/Context;)V
+
+    goto :goto_e4
+
+    .line 208
+    :cond_10c
+    new-instance v0, Ljava/lang/StringBuilder;
+
+    invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
 
     const-string v4, "\u2713  "
 
-    invoke-virtual {v2, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    invoke-virtual {v0, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    move-result-object v2
+    move-result-object v0
 
     const-string v4, "\u0413\u043e\u0442\u043e\u0432\u043e"
 
@@ -531,42 +541,42 @@
 
     move-result-object v4
 
-    invoke-virtual {v2, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v2
-
-    invoke-virtual {v2}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
-
-    move-result-object v2
-
-    goto :goto_f1
-
-    .line 206
-    :cond_123
-    const-string v0, "\u041a\u0430\u0437\u0432\u0430\u0439 \u201e\u041e\u043a\u0435\u0439 \u0442\u0440\u0435\u043d\u0435\u0440, \u2026\u201c \u2014 \u043d\u0430\u043f\u0440. \u201e\u041e\u043a\u0435\u0439 \u0442\u0440\u0435\u043d\u0435\u0440, \u0443\u0432\u0435\u043b\u0438\u0447\u0438 \u043a\u0440\u0430\u043a\u0430\u0442\u0430\u201c, \u201e\u041e\u043a\u0435\u0439 \u0442\u0440\u0435\u043d\u0435\u0440, \u043f\u0430\u0443\u0437\u0430\u201c."
-
-    const-string v3, "Say \u201cOkay trainer, \u2026\u201d \u2014 e.g. \u201cOkay trainer, raise the legs\u201d, \u201cOkay trainer, pause\u201d."
-
-    invoke-static {v0, v3}, Lcom/isaigu/gymapp/ai/AiText;->t(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+    invoke-virtual {v0, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     move-result-object v0
 
-    goto :goto_100
+    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
-    .line 212
-    :cond_12c
+    move-result-object v0
+
+    goto :goto_f0
+
+    .line 210
+    :cond_128
+    const-string v0, "\u041a\u0430\u0437\u0432\u0430\u0439 \u201e\u041e\u043a\u0435\u0439 \u0442\u0440\u0435\u043d\u0435\u0440, \u2026\u201c \u2014 \u043d\u0430\u043f\u0440. \u201e\u041e\u043a\u0435\u0439 \u0442\u0440\u0435\u043d\u0435\u0440, \u0443\u0432\u0435\u043b\u0438\u0447\u0438 \u043a\u0440\u0430\u043a\u0430\u0442\u0430\u201c, \u201e\u041e\u043a\u0435\u0439 \u0442\u0440\u0435\u043d\u0435\u0440, \u043f\u0430\u0443\u0437\u0430\u201c."
+
+    const-string v1, "Say \u201cOkay trainer, \u2026\u201d \u2014 e.g. \u201cOkay trainer, raise the legs\u201d, \u201cOkay trainer, pause\u201d."
+
+    invoke-static {v0, v1}, Lcom/isaigu/gymapp/ai/AiText;->t(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
+
+    goto :goto_ff
+
+    .line 216
+    :cond_131
     sget v0, Lcom/isaigu/gymapp/widget/XemsUi;->SURFACE:I
 
     goto/16 :goto_75
 
-    .line 213
-    :cond_130
-    sget v2, Lcom/isaigu/gymapp/widget/XemsUi;->STROKE:I
+    .line 217
+    :cond_135
+    sget v1, Lcom/isaigu/gymapp/widget/XemsUi;->STROKE:I
 
     goto/16 :goto_82
 
-    .line 218
-    :cond_134
+    .line 222
+    :cond_139
     return-void
 .end method
 

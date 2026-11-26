@@ -504,3 +504,18 @@ it, the warm-up runs softer by design); "s" read aloud as a letter → "секу
   (`test/sweep.test.js`).
 - **Where real money can go:** Gemini tokens (per-device 12 / min and per-licence 600 / day limits, no money cap and
   the tokens used are not logged) and Azure characters past the free tier. Not done: a token log + a daily ceiling.
+
+## 1.1.578 — "it reacts to random words": found with the offline sim, fixed
+- **Owner:** the tablet wakes on ordinary words. **Cause (measured, `scripts/voice-sim/run-wake.sh`, espeak voices ×
+  3 noises, 12 everyday phrases added):** my 1.1.574 "repeat" path — a word up to 1.6 × the limit, twice within 10 s,
+  woke it — let any two different near words through: 13 / 153 false wakes, against 0 / 153 without it. It also ignored
+  the loudness gate (a quiet word woke it).
+- **Now:** the repeat path and the "more willing" sensitivity are **removed**; sensitivity only goes down after a wake
+  for nothing (false-alarm words are learned). The limit is capped (`THR_CAP` 1700; it was 3.3 × the examples'
+  own spread, unlimited), and the setup's quality check now works (`WIDE_SPREAD` 1000 — before it compared the worst pair
+  with a limit 3.3 × larger, so it never fired): recordings that are not one phrase are **not kept** and the setup says
+  so; the earlier ones stay. Sim: "окей тренер" 34/36 heard, 0/252 false; three different words → flagged.
+- **Known limit:** another word in front of the same "тренер" ("добре тренер") wakes it (9 of 9 in the sim); a second
+  look-alike recording cured it but dropped the hits to 61 %, so it is not shipped.
+- **Why "several times" can still happen:** a missed word is now written to the diag log ("word not taken: d / limit /
+  loud …") — send it. `run-wake.sh` needs `espeak-ng` (here: the pip `espeakng-loader` library with a small CLI shim).

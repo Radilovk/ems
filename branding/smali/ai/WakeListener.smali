@@ -2834,7 +2834,7 @@
 
     const v1, 0x3f333333    # 0.7f
 
-    const v2, 0x3fb33333    # 1.4f
+    const/high16 v2, 0x3f800000    # 1.0f
 
     const-string v3, "xems_wake"
 
@@ -2920,13 +2920,13 @@
     move-result-object v0
 
     invoke-virtual {v1, v0}, Lcom/isaigu/gymapp/ai/WakeWord;->load([B)Z
-    :try_end_77
-    .catch Ljava/lang/Throwable; {:try_start_a .. :try_end_77} :catch_78
+    :try_end_76
+    .catch Ljava/lang/Throwable; {:try_start_a .. :try_end_76} :catch_77
 
     goto :goto_6
 
     .line 112
-    :catch_78
+    :catch_77
     move-exception v0
 
     .line 113
@@ -3677,7 +3677,7 @@
 
     const v1, 0x3f333333    # 0.7f
 
-    const v2, 0x3fb33333    # 1.4f
+    const/high16 v2, 0x3f800000    # 1.0f
 
     const-string v3, "xems_wake"
 
@@ -3729,7 +3729,7 @@
 
     move-result v1
 
-    if-lez v1, :cond_5b
+    if-lez v1, :cond_5a
 
     const-string v1, "ok-trener"
 
@@ -3753,7 +3753,7 @@
 
     move-result v1
 
-    if-eqz v1, :cond_5b
+    if-eqz v1, :cond_5a
 
     .line 164
     sget-object v1, Lcom/isaigu/gymapp/ai/WakeListener;->SPOTTER:Lcom/isaigu/gymapp/ai/WakeWord;
@@ -3763,16 +3763,16 @@
     move-result-object v0
 
     invoke-virtual {v1, v0}, Lcom/isaigu/gymapp/ai/WakeWord;->load([B)Z
-    :try_end_5b
-    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_5b} :catch_5c
+    :try_end_5a
+    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_5a} :catch_5b
 
     .line 169
-    :cond_5b
-    :goto_5b
+    :cond_5a
+    :goto_5a
     return-void
 
     .line 166
-    :catch_5c
+    :catch_5b
     move-exception v0
 
     .line 167
@@ -3798,7 +3798,7 @@
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/wearable/WearableBleDiagLog;->log(Ljava/lang/String;Ljava/lang/String;)V
 
-    goto :goto_5b
+    goto :goto_5a
 .end method
 
 .method static saveExamples(Landroid/content/Context;)V

@@ -10,18 +10,19 @@ package com.isaigu.gymapp.train.utils;
  * threshold ∝ 1 + c/PW, c = the zone's effective chronaxie = 100 + 500·(type I fibre share) + 300·(tissue depth);
  * slow-fibre, deep zones fade more as the pulse narrows. The corrections are normalised to the zone that
  * fades most, so a channel is only ever lowered, never raised above what the trainer set.
- * Calves: × {@link #CALF_FACTOR} on top of the balance (a finer step, like the arms' divider).
+ * Calves: × {@link #calfFactor()} on top of the balance (a finer step, like the arms' divider).
  */
 public final class ChannelStrengthScale {
 
     /** buwei5 (arms) — index 4 in PartStrenthBean.buwei */
     private static final int ARMS_CHANNEL_INDEX = 4;
 
-    /** Divider anchors: ÷ARMS_DIV_LOW at ARMS_PW_LOW µs, ÷ARMS_DIV_HIGH at ARMS_PW_HIGH µs. */
+    /** Divider anchors: ÷D at ARMS_PW_HIGH µs, ÷D × ARMS_LOW_RATIO at ARMS_PW_LOW µs, linear and beyond (min ÷1). */
     private static final int ARMS_PW_LOW = 150;
     private static final int ARMS_PW_HIGH = 400;
-    private static final float ARMS_DIV_LOW = 5f;
-    private static final float ARMS_DIV_HIGH = 5f;     // default; Settings → Arms can set another (÷D at 400 µs, ÷D/2 at 150 µs)
+    private static final float ARMS_LOW_RATIO = 0.5f;
+    /** The default D (÷5 at 400 µs); Settings → Arms sets another. */
+    private static final float ARMS_DIV_DEFAULT = 5f;
 
     /** buwei4 (calves) — index 3 in PartStrenthBean.buwei */
     private static final int CALF_CHANNEL_INDEX = 3;
@@ -31,7 +32,14 @@ public final class ChannelStrengthScale {
      * the calf goes out at this share of its slider, so one point on the slider is half a suit unit — a finer
      * step and a little lower overall. Not in face mode (there every channel is a face site).
      */
-    public static final float CALF_FACTOR = 1f;     // 1.1.585 (owner): the calf step 2x bigger than at 0.5 — one point = one suit unit
+    /** The calf's share of its slider = 1 / the calf divider of Settings → Calves (default ÷1: a point = a suit unit). */
+    public static float calfFactor() {
+        try {
+            return 1f / Math.max(1f, com.isaigu.gymapp.widget.XemsLicense.calfDivider());
+        } catch (Throwable t) {
+            return 1f;
+        }
+    }
 
     /** Balance reference: the width at which the trainer's proportions are set (training 350–400 µs). */
     private static final int BAL_REF_PW = 375;
@@ -87,14 +95,14 @@ public final class ChannelStrengthScale {
             return sent;
         }
         if (channelIndex == CALF_CHANNEL_INDEX) {
-            return Math.round(encodedValue * balance(channelIndex, currentPulseWidth) * CALF_FACTOR);
+            return Math.round(encodedValue * balance(channelIndex, currentPulseWidth) * calfFactor());
         }
         return encodedValue * balance(channelIndex, currentPulseWidth);
     }
 
     /** What the suit gets from one point of this channel's slider beyond the balance: the calves' share, else 1. */
     public static float sentShare(int channelIndex) {
-        return !face && channelIndex == CALF_CHANNEL_INDEX ? CALF_FACTOR : 1f;
+        return !face && channelIndex == CALF_CHANNEL_INDEX ? calfFactor() : 1f;
     }
 
     /**
@@ -156,17 +164,10 @@ public final class ChannelStrengthScale {
     }
 
     /**
-     * 1/divider for this pulse width, or 1 (normal strength) when Settings → Arms is "1:1" (owner, 2026-11-26: "the 1:1
-     * must exist freely in the settings"). Anything else — also a tablet in admin setup or with no choice made — is
-     * reduced: ÷D at 400 µs … ÷D/2 at 150 µs, D = Settings (default 5; 1.1.585, twice the 1.1.567 step).
+     * 1/divider for this pulse width: ÷D at 400 µs … ÷D/2 at 150 µs, linear, never below ÷1 (owner, 2026-11-26: D is the
+     * Settings slider — ÷1 is "1:1", ÷5 default, ÷10 the finest). Not chosen / admin setup = the default.
      */
     public static float armsFactor(int pwUs) {
-        try {
-            if ("full".equals(com.isaigu.gymapp.widget.XemsLicense.armsMode())) {
-                return 1f;
-            }
-        } catch (Throwable ignored) {
-        }
         return 1f / armsDivider(pwUs);
     }
 
@@ -182,7 +183,7 @@ public final class ChannelStrengthScale {
 
     /** ÷D at 400 µs, ÷D/2 at 150 µs, linear (D from Settings → Arms, default 5). */
     public static float armsDivider(int pwUs) {
-        float top = ARMS_DIV_HIGH;
+        float top = ARMS_DIV_DEFAULT;
         try {
             top = com.isaigu.gymapp.widget.XemsLicense.armsDivider();
         } catch (Throwable ignored) {
@@ -192,7 +193,7 @@ public final class ChannelStrengthScale {
 
     /** The same for a given divider at 400 µs. */
     public static float armsDivider(int pwUs, float top) {
-        float low = top * ARMS_DIV_LOW / ARMS_DIV_HIGH;
+        float low = top * ARMS_LOW_RATIO;
         float d = low + (pwUs - ARMS_PW_LOW) * (top - low) / (ARMS_PW_HIGH - ARMS_PW_LOW);
         return d < 1f ? 1f : d;
     }

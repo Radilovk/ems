@@ -73,7 +73,7 @@ public final class XemsLicenseSection {
             lp.rightMargin = XemsUi.dp(a, 6);
             chips.addView(chip, lp);
         }
-        if ("full".equals(XemsLicense.armsMode())) {
+        if (XemsLicense.armsDivider() <= 1f) {
             TextView chip = XemsUi.chip(a, tr("✓ Ръце 1:1", "✓ Arms 1:1"), true, XemsUi.AMBER);
             chips.addView(chip);
         }
@@ -282,7 +282,7 @@ public final class XemsLicenseSection {
 
     static String statusDetail() {
         String src = XemsLicense.source();
-        String arms = "full".equals(XemsLicense.armsMode())
+        String arms = XemsLicense.armsDivider() <= 1f
                 ? tr(" · ръцете с нормална сила (стъпка 1:1)", " · arms at normal strength (step 1:1)") : "";
         if (XemsLicense.isPending() && src.length() == 0) {
             return tr("Въведи админ паролата в полето отдолу — таблетът се отключва веднага "

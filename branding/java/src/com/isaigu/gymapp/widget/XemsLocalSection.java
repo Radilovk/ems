@@ -19,7 +19,7 @@ import android.widget.Toast;
 
 /**
  * Settings card "Tablet and data": the mode (admin setup / user), the profile key, the suits, the arms channel
- * (reduced / 1:1 and the divider — in user mode too), export / import of the tablet's data and the one-way
+ * (the arms and calves step sliders, ÷20 … 1:1 — in user mode too), export / import of the tablet's data and the one-way
  * "Finish setup".
  */
 public final class XemsLocalSection {
@@ -128,49 +128,18 @@ public final class XemsLocalSection {
         card.addView(row, matchWrap(a, 0));
 
         {
-            // The arms channel of this tablet, admin and user mode alike (owner): reduced impulse or 1:1 + the divider
-            String arms = XemsLicense.armsMode();
-            TextView armsLabel = text(a, tr("Ръце", "Arms"), 15, true);
-            card.addView(armsLabel, matchWrap(a, 16));
-            TextView armsHint = text(a, "full".equals(arms)
-                    ? tr("1:1 — каналът за ръцете с нормална сила, като другите.", "1:1 — the arms channel at normal strength, like the others.")
-                    : "reduced".equals(arms)
-                    ? armsReducedText(XemsLicense.armsDivider())
-                    : tr("Не е избрано — решава ключът. Избери и остава за таблета.",
-                            "Not chosen — the key decides. Choose and it stays for this tablet."), 12, false);
-            armsHint.setTextColor(0xFFB0B0B0);
-            card.addView(armsHint, matchWrap(a, 2));
-            LinearLayout armsRow = new LinearLayout(a);
-            armsRow.setOrientation(LinearLayout.HORIZONTAL);
-            Button reduced = button(a, ("reduced".equals(arms) ? "✓ " : "") + tr("Намален импулс", "Reduced impulse"),
-                    "reduced".equals(arms) ? 0xFF43A047 : 0xFF3A3A3A);
-            reduced.setOnClickListener(new ArmsPick(a, root, "reduced"));
-            armsRow.addView(reduced, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
-            Button full = button(a, ("full".equals(arms) ? "✓ " : "") + "1:1",
-                    "full".equals(arms) ? 0xFF43A047 : 0xFF3A3A3A);
-            full.setOnClickListener(new ArmsPick(a, root, "full"));
-            LinearLayout.LayoutParams fp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
-            fp.leftMargin = dp(a, 8);
-            armsRow.addView(full, fp);
-            card.addView(armsRow, matchWrap(a, 8));
-            if ("reduced".equals(arms)) {
-                // The divider at 400 µs, typed freely; 150 µs gets half of it, linear in between.
-                LinearLayout divRow = new LinearLayout(a);
-                divRow.setOrientation(LinearLayout.HORIZONTAL);
-                divRow.setGravity(Gravity.CENTER_VERTICAL);
-                divRow.addView(text(a, tr("Намаление при 400 µs:  ÷", "Reduction at 400 µs:  ÷"), 14, false));
-                android.widget.EditText div = new android.widget.EditText(a);
-                div.setInputType(android.text.InputType.TYPE_CLASS_NUMBER
-                        | android.text.InputType.TYPE_NUMBER_FLAG_DECIMAL);
-                div.setSingleLine(true);
-                div.setTextColor(Color.WHITE);
-                div.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
-                div.setText(fmt(XemsLicense.armsDivider()));
-                div.setSelectAllOnFocus(true);
-                div.addTextChangedListener(new ArmsDivWatch(armsHint));
-                divRow.addView(div, new LinearLayout.LayoutParams(dp(a, 110), ViewGroup.LayoutParams.WRAP_CONTENT));
-                card.addView(divRow, matchWrap(a, 8));
-            }
+            // Arms and calves: how big one step of the slider is, as a divider (owner, 2026-11-26). Right = the full step.
+            card.addView(text(a, tr("Ръце и прасци — стъпка на силата", "Arms and calves — strength step"), 15, true),
+                    matchWrap(a, 16));
+            TextView explain = text(a, tr("Плъзгач вдясно = 1:1 (една точка е цяла единица, като при другите канали). "
+                    + "Към средата и наляво стъпката става по-малка: ÷5 значи пет пъти по-фина. При по-тесен импулс "
+                    + "намалението е по-малко (същият наклон).", "Slider at the right = 1:1 (a point is a whole unit, like "
+                    + "the other channels). Towards the left the step gets finer: ÷5 is five times finer. A narrower "
+                    + "pulse is reduced less (the same slope)."), 12, false);
+            explain.setTextColor(0xFFB0B0B0);
+            card.addView(explain, matchWrap(a, 2));
+            addDivider(a, card, DivSlider.ARMS);
+            addDivider(a, card, DivSlider.CALF);
         }
 
         if (setup) {
@@ -189,70 +158,88 @@ public final class XemsLocalSection {
         parent.addView(card, cardLp);
     }
 
-    /** "÷D at 400 µs … ÷D/2 at 150 µs" with the share of the strength the arms get at each width. */
-    static String armsReducedText(float top) {
-        int[] pws = {400, 350, 250, 150};
-        StringBuilder bg = new StringBuilder();
-        StringBuilder en = new StringBuilder();
-        for (int i = 0; i < pws.length; i++) {
-            float d = com.isaigu.gymapp.train.utils.ChannelStrengthScale.armsDivider(pws[i], top);
-            String part = pws[i] + " µs ÷" + fmt(d) + " (" + fmt(100f / d) + " %)";
-            bg.append(i == 0 ? "" : " · ").append(part);
-            en.append(i == 0 ? "" : " · ").append(part);
-        }
-        return tr("Намален импулс — ръцете следват ширината на импулса: " + bg + ". Линейно между тях.",
-                "Reduced impulse — the arms follow the pulse width: " + en + ". Linear in between.");
-    }
-
     static String fmt(float v) {
         float r = Math.round(v * 10f) / 10f;
         return r == (int) r ? String.valueOf((int) r) : String.valueOf(r).replace('.', ',');
     }
 
-    /** Typing the divider: saved as it is typed (1–100), the line above recalculated. */
-    static final class ArmsDivWatch implements android.text.TextWatcher {
-        private final TextView hint;
+    /** The slider's dividers, weakest (finest step) first; the last is ÷1 = 1:1. */
+    static final float[] ARMS_DIVS = {20f, 15f, 12f, 10f, 9f, 8f, 7f, 6f, 5f, 4f, 3f, 2f, 1.5f, 1f};
+    static final float[] CALF_DIVS = {5f, 4f, 3f, 2.5f, 2f, 1.5f, 1f};
 
-        ArmsDivWatch(TextView hint) {
-            this.hint = hint;
-        }
-
-        @Override
-        public void beforeTextChanged(CharSequence s, int st, int c, int af) {
-        }
-
-        @Override
-        public void onTextChanged(CharSequence s, int st, int b, int c) {
-        }
-
-        @Override
-        public void afterTextChanged(android.text.Editable e) {
-            try {
-                float v = Float.parseFloat(e.toString().trim().replace(',', '.'));
-                if (v >= 1f && v <= 100f) {
-                    XemsLicense.setArmsDivider(v);
-                    hint.setText(armsReducedText(v));
-                }
-            } catch (Throwable ignored) {
+    private static void addDivider(Activity a, LinearLayout card, int kind) {
+        float[] divs = kind == DivSlider.ARMS ? ARMS_DIVS : CALF_DIVS;
+        float cur = kind == DivSlider.ARMS ? XemsLicense.armsDivider() : XemsLicense.calfDivider();
+        int at = 0;
+        for (int i = 0; i < divs.length; i++) {
+            if (Math.abs(divs[i] - cur) < Math.abs(divs[at] - cur)) {
+                at = i;
             }
         }
+        card.addView(text(a, kind == DivSlider.ARMS ? tr("Ръце", "Arms") : tr("Прасци", "Calves"), 14, true), matchWrap(a, 12));
+        TextView readout = text(a, "", 13, false);
+        readout.setTextColor(0xFFFFFFFF);
+        android.widget.SeekBar bar = new android.widget.SeekBar(a);
+        bar.setMax(divs.length - 1);
+        bar.setProgress(at);
+        card.addView(bar, matchWrap(a, 4));
+        card.addView(readout, matchWrap(a, 2));
+        DivSlider ds = new DivSlider(kind, divs, readout);
+        ds.show(at);
+        bar.setOnSeekBarChangeListener(ds);
     }
 
-    static final class ArmsPick implements View.OnClickListener {
-        private final Activity a;
-        private final View root;
-        private final String mode;
+    /** Slider → saved divider + the line under it: ÷D, the share of a normal step, and what each width gets. */
+    static final class DivSlider implements android.widget.SeekBar.OnSeekBarChangeListener {
+        static final int ARMS = 0, CALF = 1;
+        private final int kind;
+        private final float[] divs;
+        private final TextView readout;
 
-        ArmsPick(Activity a, View root, String mode) {
-            this.a = a;
-            this.root = root;
-            this.mode = mode;
+        DivSlider(int kind, float[] divs, TextView readout) {
+            this.kind = kind;
+            this.divs = divs;
+            this.readout = readout;
+        }
+
+        void show(int i) {
+            float d = divs[Math.max(0, Math.min(divs.length - 1, i))];
+            if (d <= 1f) {
+                readout.setText(tr("1:1 — като другите канали", "1:1 — like the other channels"));
+                return;
+            }
+            String line = "÷" + fmt(d) + tr(" · стъпка ", " · step ") + fmt(100f / d) + tr(" % от нормалната", " % of a normal one");
+            if (kind == ARMS) {
+                int[] pws = {100, 150, 250, 400};
+                StringBuilder b = new StringBuilder();
+                for (int k = 0; k < pws.length; k++) {
+                    b.append(k == 0 ? "" : " · ").append(pws[k]).append(" µs ÷")
+                            .append(fmt(com.isaigu.gymapp.train.utils.ChannelStrengthScale.armsDivider(pws[k], d)));
+                }
+                line += "\n" + b;
+            }
+            readout.setText(line);
         }
 
         @Override
-        public void onClick(View v) {
-            XemsLicense.setArmsMode(mode);
-            build(a, root);
+        public void onProgressChanged(android.widget.SeekBar bar, int progress, boolean fromUser) {
+            show(progress);
+            if (fromUser) {
+                float d = divs[progress];
+                if (kind == ARMS) {
+                    XemsLicense.setArmsDivider(d);
+                } else {
+                    XemsLicense.setCalfDivider(d);
+                }
+            }
+        }
+
+        @Override
+        public void onStartTrackingTouch(android.widget.SeekBar bar) {
+        }
+
+        @Override
+        public void onStopTrackingTouch(android.widget.SeekBar bar) {
         }
     }
 

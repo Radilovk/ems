@@ -5,7 +5,7 @@ public final class ChannelStrengthScale {
     private ChannelStrengthScale() {}
 
     public static float armsFactor(int pwUs) {
-        float d = 2.5f + (pwUs - 150) * 2.5f / 250f;      // the default D = 5 (÷5 at 400 µs, ÷2.5 at 150 µs; 1.1.585)
+        float d = 5f + (pwUs - 150) * 5f / 250f;          // the default D = 10 (÷10 at 400 µs, ÷5 at 150 µs)
         return 1f / (d < 1f ? 1f : d);
     }
 
@@ -13,8 +13,8 @@ public final class ChannelStrengthScale {
         return 1f;
     }
 
-    /** The calves' share of their slider (the real class's CALF_FACTOR: 1 since 1.1.585). */
+    /** The calves go out at half of their slider (the default calf divider ÷2). */
     public static float sentShare(int ch) {
-        return 1f;
+        return ch == 3 ? 0.5f : 1f;
     }
 }

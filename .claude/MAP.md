@@ -98,7 +98,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/apply-wearable-bridge.py` (503L, build:L120[BETA_MUSIC]) — Notify wearable sync: config modal + floating HR dial (interval-timer style).
 - `scripts/apply-wearable-permissions.py` (90L, build:L121[BETA_MUSIC]) — At MainActivity startup ask only for what the suit needs, in one request (wearable/XemsAccess) — the vendor's own stora…
 - `scripts/apply-xems-nav.py` (91L, build:L129[BETA_MUSIC]) — XEMS navigation (v1.1.64): page tabs → ☰ menu top-left, bottom bar → module tiles.
-- `scripts/arms-sim/ArmsSim.java` (43L) — The arms / calf step as the owner specified it (2026-11-26): ÷D at 400 µs, ÷D/2 at 150 µs, linear; ÷1 = 1:1.
+- `scripts/arms-sim/ArmsSim.java` (47L) — The arms / calf step as the owner specified it (2026-11-26): ÷D at 400 µs, ÷D/2 at 150 µs, linear; ÷1 = 1:1.
 - `scripts/arms-sim/run.sh` (8L) — The arms / calf divider as the owner specified it, on the REAL ChannelStrengthScale (stubbed settings).
 - `scripts/ble-sim/band.py` (163L) — Xiaomi Band 8 (FE95 / protobuf V1) simulator — independent of the XEMS Java code. Protocol mirrored from Gadgetbridge X…
 - `scripts/ble-sim/run-dual.sh` (25L) — Two bands (Settings → Band → second band): the same simulated Band 9/10 as the client's band (ROLE=hr) and as
@@ -551,14 +551,14 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `XemsIcon.java` (297L, compile:music-sync*) — Line icons drawn in code (one stroke weight, rounded caps) so the menu and the control panel look like one family and s…
 - `XemsLang.java` (114L, compile:music-sync*,xems-license,xems-local) — The app's own language (Settings → language: "bg" / "en", prefs setting_share/language), not the tablet's system langua…
 - `XemsLicense.java` (449L, compile:music-sync,xems-license) — Which XEMS modules this installation may use.
-- `XemsLicenseClient.java` (696L, compile:music-sync,xems-license) — Talks to the XEMS license / update server (HTTPS, JSON).
+- `XemsLicenseClient.java` (933L, compile:music-sync,xems-license) — Talks to the XEMS license / update server (HTTPS, JSON).
 - `XemsLicenseSection.java` (391L, compile:music-sync*) — Settings → "Access & license": what is unlocked, the user key, this device's id (for support / the server) and the upda…
 - `XemsLicenseToken.java` (319L, compile:music-sync,xems-license) — License token issued by the XEMS license server (no Android classes: unit-testable).
 - `XemsLocalApi.java` (223L, compile:xems-local) — The tablet as the app's backend: ApiMgr's calls for customers, programs and training history land here; nothing goes to…
 - `XemsLocalAvatar.java` (1084L, compile:xems-local) — Client photo: picked from the gallery, cropped square, 320 px JPEG in the app's files (files/avatars).
 - `XemsLocalConsent.java` (499L, compile:xems-local) — The client's informed consent and declaration, signed with a finger on the tablet (owner, 1.1.530 — docs/xems-consent.m…
 - `XemsLocalGate.java` (220L, compile:xems-local) — Hidden doors of the tablet build.
-- `XemsLocalSection.java` (344L, compile:xems-local) — Settings card "Tablet and data": the mode (admin setup / user), the profile key, the suits, the arms channel (the arms …
+- `XemsLocalSection.java` (376L, compile:xems-local) — Settings card "Tablet and data": the mode (admin setup / user), the profile key, the suits, the arms channel (the arms …
 - `XemsLocalStore.java` (1218L, compile:xems-local) — Local-only data layer: users, programs, training history and suits stay on the tablet.
 - `XemsLocalUserForm.java` (1046L, compile:xems-local) — New / edit client form — one screen, mostly taps: name, sex, age / height / weight wheels, phone; goal, fitness and con…
 - `XemsModuleInfo.java` (599L, compile:music-sync*) — The "i" of every XEMS module: what it is, what it gives (value first), how to work with it.
@@ -1267,7 +1267,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L157 ## 1.1.445 — ring ± with muscles marked: same as the chip slide
   - L164 ## 1.1.449 — every muscle marked from a 0 start, the suit's link on the board
 
-`docs/xems-license-api.md` (209L)
+`docs/xems-license-api.md` (226L)
   - L1 # XEMS — лиценз, отключване на модули и обновяване (клиент v1.1.85)
   - L5 ## Модули
   - L24 ## Настройка на таблет (админ) и потребителски режим
@@ -1282,6 +1282,8 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L181 ## Жетон (подписан от сървъра)
   - L197 ## Какво остава за сървъра
   - L204 ## Проверки (без Android)
+  - L210 ## Обновяване на таблета (1.1.588-ai, owner 2026-11-26)
+  - L220 ### Какво вижда заключен таблет в Настройки (owner, 2026-11-26, 1.1.589-ai)
 
 `docs/xems-mastogo.md` (233L)
   - L1 # MASTOGO H-024B (DOMAS / PNrelief) — BLE protocol
@@ -1428,7 +1430,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L204 ## Сила и експлозивност · процедура
   - L213 ## 50+ · процедура
 
-`docs/xems-pulse-control.md` (228L)
+`docs/xems-pulse-control.md` (223L)
   - L1 # Пулс модул: управление на импулсите по пулса (v1.1.59, задържане в зона от 1.1.270)
   - L8 ## Граници
   - L18 ## Решение (всяка секунда) — задържане в зона (1.1.270)
@@ -1445,7 +1447,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L149 ## Циферблат: „i“ и ↻ (v1.1.70)
   - L173 ## Баланс на каналите по ширина на импулса (`ChannelStrengthScale.balance`)
   - L199 ## 1.1.570 — the ladder without the strength (owner, 2026-11-25)
-  - L207 ## 1.1.586–587 — arms and calves: one strength slider each, 5 … 100 % of the other channels (owner, 2026-11-26)
+  - L207 ## 1.1.588 — arms and calves: one strength slider each, % of the other channels (owner, 2026-11-26)
 
 `docs/xems-safety-limits.md` (46L)
   - L1 # Absolute limits of the impulse (owner, 1.1.323-ai)

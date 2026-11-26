@@ -81,9 +81,9 @@ public final class XemsLicense {
     private static volatile boolean setup;
     private static volatile String arms = "";
     /** Arms divider at 400 µs (the reduced mode); it scales with the pulse width, half of it at 150 µs. */
-    private static volatile float armsDiv = 5f;
+    private static volatile float armsDiv = 10f;
     static final String K_CALF_DIV = "calf_div";
-    private static volatile float calfDiv = 1f;
+    private static volatile float calfDiv = 2f;
     static final String K_ARMS_DIV = "arms_div_v2";   // 1.1.585: the default fell from ÷10 to ÷5 (owner: the step 2x bigger)
     private static volatile Set<String> ems = new HashSet<String>();
 
@@ -128,12 +128,12 @@ public final class XemsLicense {
         return arms;
     }
 
-    /** Reduced arms: the divider at 400 µs (default 5); 150 µs gets half of it, linear in between. */
+    /** Arms: the divider at 400 µs (default 10; Settings slider 5 … 100 %); 150 µs gets half of it, linear in between. */
     public static float armsDivider() {
         return armsDiv;
     }
 
-    /** Calves: one divider for the whole slider (no width gradient), default ÷1 (a point = a suit unit). */
+    /** Calves: one divider for the whole slider (no width gradient), default ÷2 (Settings slider 20 … 100 %). */
     public static float calfDivider() {
         return calfDiv;
     }
@@ -366,8 +366,8 @@ public final class XemsLicense {
         }
         setup = "setup".equals(phase);
         arms = p.getString(K_ARMS, "");
-        armsDiv = p.getFloat(K_ARMS_DIV, 5f);
-        calfDiv = p.getFloat(K_CALF_DIV, 1f);
+        armsDiv = p.getFloat(K_ARMS_DIV, 10f);
+        calfDiv = p.getFloat(K_CALF_DIV, 2f);
         if ("full".equals(arms)) {                       // the old "1:1" choice is now just ÷1 on the slider
             armsDiv = 1f;
             p.edit().putFloat(K_ARMS_DIV, 1f).remove(K_ARMS).apply();

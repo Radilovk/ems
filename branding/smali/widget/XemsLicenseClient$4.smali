@@ -3,12 +3,12 @@
 .source "XemsLicenseClient.java"
 
 # interfaces
-.implements Lcom/isaigu/gymapp/widget/XemsLicenseClient$UpdateDone;
+.implements Ljava/lang/Runnable;
 
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/isaigu/gymapp/widget/XemsLicenseClient;->autoCheck(Landroid/app/Activity;)V
+    value = Lcom/isaigu/gymapp/widget/XemsLicenseClient;->downloadAndInstall(Landroid/content/Context;Lcom/isaigu/gymapp/widget/XemsLicenseClient$Update;Lcom/isaigu/gymapp/widget/XemsLicenseClient$Done;)V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -18,14 +18,16 @@
 
 
 # instance fields
-.field final synthetic val$a:Landroid/app/Activity;
+.field final synthetic val$c:Landroid/content/Context;
 
-.field final synthetic val$p:Landroid/content/SharedPreferences;
+.field final synthetic val$cb:Lcom/isaigu/gymapp/widget/XemsLicenseClient$Done;
+
+.field final synthetic val$u:Lcom/isaigu/gymapp/widget/XemsLicenseClient$Update;
 
 
 # direct methods
-.method constructor <init>(Landroid/content/SharedPreferences;Landroid/app/Activity;)V
-    .registers 3
+.method constructor <init>(Landroid/content/Context;Lcom/isaigu/gymapp/widget/XemsLicenseClient$Update;Lcom/isaigu/gymapp/widget/XemsLicenseClient$Done;)V
+    .registers 4
     .annotation system Ldalvik/annotation/Signature;
         value = {
             "()V"
@@ -33,10 +35,12 @@
     .end annotation
 
     .prologue
-    .line 304
-    iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$4;->val$p:Landroid/content/SharedPreferences;
+    .line 599
+    iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$4;->val$c:Landroid/content/Context;
 
-    iput-object p2, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$4;->val$a:Landroid/app/Activity;
+    iput-object p2, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$4;->val$u:Lcom/isaigu/gymapp/widget/XemsLicenseClient$Update;
+
+    iput-object p3, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$4;->val$cb:Lcom/isaigu/gymapp/widget/XemsLicenseClient$Done;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -45,73 +49,185 @@
 
 
 # virtual methods
-.method public done(Lcom/isaigu/gymapp/widget/XemsLicenseClient$Update;Ljava/lang/String;)V
-    .registers 7
+.method public run()V
+    .registers 9
 
     .prologue
-    .line 307
-    if-eqz p2, :cond_3
+    const/4 v7, 0x0
 
-    .line 318
-    :cond_2
-    :goto_2
+    .line 602
+    new-instance v1, Ljava/io/File;
+
+    iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$4;->val$c:Landroid/content/Context;
+
+    invoke-virtual {v0}, Landroid/content/Context;->getCacheDir()Ljava/io/File;
+
+    move-result-object v0
+
+    const-string v2, "xems-update.apk"
+
+    invoke-direct {v1, v0, v2}, Ljava/io/File;-><init>(Ljava/io/File;Ljava/lang/String;)V
+
+    .line 604
+    :try_start_e
+    new-instance v0, Ljava/net/URL;
+
+    iget-object v2, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$4;->val$u:Lcom/isaigu/gymapp/widget/XemsLicenseClient$Update;
+
+    iget-object v2, v2, Lcom/isaigu/gymapp/widget/XemsLicenseClient$Update;->url:Ljava/lang/String;
+
+    invoke-direct {v0, v2}, Ljava/net/URL;-><init>(Ljava/lang/String;)V
+
+    invoke-virtual {v0}, Ljava/net/URL;->openConnection()Ljava/net/URLConnection;
+
+    move-result-object v0
+
+    check-cast v0, Ljava/net/HttpURLConnection;
+
+    .line 605
+    const/16 v2, 0x2710
+
+    invoke-virtual {v0, v2}, Ljava/net/HttpURLConnection;->setConnectTimeout(I)V
+
+    .line 606
+    const v2, 0xea60
+
+    invoke-virtual {v0, v2}, Ljava/net/HttpURLConnection;->setReadTimeout(I)V
+
+    .line 607
+    const-string v2, "SHA-256"
+
+    invoke-static {v2}, Ljava/security/MessageDigest;->getInstance(Ljava/lang/String;)Ljava/security/MessageDigest;
+
+    move-result-object v2
+
+    .line 608
+    invoke-virtual {v0}, Ljava/net/HttpURLConnection;->getInputStream()Ljava/io/InputStream;
+
+    move-result-object v0
+
+    .line 609
+    new-instance v3, Ljava/io/FileOutputStream;
+
+    invoke-direct {v3, v1}, Ljava/io/FileOutputStream;-><init>(Ljava/io/File;)V
+
+    .line 610
+    const/high16 v4, 0x10000
+
+    new-array v4, v4, [B
+
+    .line 612
+    :goto_3b
+    invoke-virtual {v0, v4}, Ljava/io/InputStream;->read([B)I
+
+    move-result v5
+
+    if-lez v5, :cond_56
+
+    .line 613
+    const/4 v6, 0x0
+
+    invoke-virtual {v3, v4, v6, v5}, Ljava/io/OutputStream;->write([BII)V
+
+    .line 614
+    const/4 v6, 0x0
+
+    invoke-virtual {v2, v4, v6, v5}, Ljava/security/MessageDigest;->update([BII)V
+    :try_end_49
+    .catch Ljava/lang/Throwable; {:try_start_e .. :try_end_49} :catch_4a
+
+    goto :goto_3b
+
+    .line 625
+    :catch_4a
+    move-exception v0
+
+    .line 626
+    invoke-virtual {v1}, Ljava/io/File;->delete()Z
+
+    .line 627
+    iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$4;->val$cb:Lcom/isaigu/gymapp/widget/XemsLicenseClient$Done;
+
+    const-string v1, "download_failed"
+
+    # invokes: Lcom/isaigu/gymapp/widget/XemsLicenseClient;->post(Lcom/isaigu/gymapp/widget/XemsLicenseClient$Done;ZLjava/lang/String;)V
+    invoke-static {v0, v7, v1}, Lcom/isaigu/gymapp/widget/XemsLicenseClient;->access$000(Lcom/isaigu/gymapp/widget/XemsLicenseClient$Done;ZLjava/lang/String;)V
+
+    .line 629
+    :goto_55
     return-void
 
-    .line 310
-    :cond_3
-    iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$4;->val$p:Landroid/content/SharedPreferences;
+    .line 616
+    :cond_56
+    :try_start_56
+    invoke-virtual {v3}, Ljava/io/OutputStream;->close()V
 
-    invoke-interface {v0}, Landroid/content/SharedPreferences;->edit()Landroid/content/SharedPreferences$Editor;
+    .line 617
+    invoke-virtual {v0}, Ljava/io/InputStream;->close()V
 
-    move-result-object v0
-
-    const-string v1, "update_checked"
-
-    invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
-
-    move-result-wide v2
-
-    invoke-interface {v0, v1, v2, v3}, Landroid/content/SharedPreferences$Editor;->putLong(Ljava/lang/String;J)Landroid/content/SharedPreferences$Editor;
+    .line 618
+    invoke-virtual {v2}, Ljava/security/MessageDigest;->digest()[B
 
     move-result-object v0
 
-    invoke-interface {v0}, Landroid/content/SharedPreferences$Editor;->apply()V
+    invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsLicenseClient;->hex([B)Ljava/lang/String;
 
-    .line 311
-    if-eqz p1, :cond_2
+    move-result-object v0
 
-    iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$4;->val$a:Landroid/app/Activity;
+    .line 619
+    iget-object v2, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$4;->val$u:Lcom/isaigu/gymapp/widget/XemsLicenseClient$Update;
 
-    invoke-virtual {v0}, Landroid/app/Activity;->isFinishing()Z
+    iget-object v2, v2, Lcom/isaigu/gymapp/widget/XemsLicenseClient$Update;->sha256:Ljava/lang/String;
+
+    invoke-virtual {v2}, Ljava/lang/String;->length()I
+
+    move-result v2
+
+    if-lez v2, :cond_84
+
+    iget-object v2, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$4;->val$u:Lcom/isaigu/gymapp/widget/XemsLicenseClient$Update;
+
+    iget-object v2, v2, Lcom/isaigu/gymapp/widget/XemsLicenseClient$Update;->sha256:Ljava/lang/String;
+
+    invoke-virtual {v2, v0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v0
 
-    if-nez v0, :cond_2
+    if-nez v0, :cond_84
 
-    .line 314
-    iget-boolean v0, p1, Lcom/isaigu/gymapp/widget/XemsLicenseClient$Update;->mandatory:Z
+    .line 620
+    invoke-virtual {v1}, Ljava/io/File;->delete()Z
 
-    if-nez v0, :cond_31
-
-    iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$4;->val$p:Landroid/content/SharedPreferences;
-
-    const-string v1, "update_skipped"
+    .line 621
+    iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$4;->val$cb:Lcom/isaigu/gymapp/widget/XemsLicenseClient$Done;
 
     const/4 v2, 0x0
 
-    invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences;->getInt(Ljava/lang/String;I)I
+    const-string v3, "bad_checksum"
 
-    move-result v0
+    # invokes: Lcom/isaigu/gymapp/widget/XemsLicenseClient;->post(Lcom/isaigu/gymapp/widget/XemsLicenseClient$Done;ZLjava/lang/String;)V
+    invoke-static {v0, v2, v3}, Lcom/isaigu/gymapp/widget/XemsLicenseClient;->access$000(Lcom/isaigu/gymapp/widget/XemsLicenseClient$Done;ZLjava/lang/String;)V
 
-    iget v1, p1, Lcom/isaigu/gymapp/widget/XemsLicenseClient$Update;->versionCode:I
+    goto :goto_55
 
-    if-eq v0, v1, :cond_2
+    .line 624
+    :cond_84
+    # getter for: Lcom/isaigu/gymapp/widget/XemsLicenseClient;->main:Landroid/os/Handler;
+    invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLicenseClient;->access$200()Landroid/os/Handler;
 
-    .line 317
-    :cond_31
-    iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$4;->val$a:Landroid/app/Activity;
+    move-result-object v0
 
-    invoke-static {v0, p1}, Lcom/isaigu/gymapp/widget/XemsLicenseClient;->offer(Landroid/app/Activity;Lcom/isaigu/gymapp/widget/XemsLicenseClient$Update;)V
+    new-instance v2, Lcom/isaigu/gymapp/widget/XemsLicenseClient$Install;
 
-    goto :goto_2
+    iget-object v3, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$4;->val$c:Landroid/content/Context;
+
+    iget-object v4, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$4;->val$cb:Lcom/isaigu/gymapp/widget/XemsLicenseClient$Done;
+
+    invoke-direct {v2, v3, v1, v4}, Lcom/isaigu/gymapp/widget/XemsLicenseClient$Install;-><init>(Landroid/content/Context;Ljava/io/File;Lcom/isaigu/gymapp/widget/XemsLicenseClient$Done;)V
+
+    invoke-virtual {v0, v2}, Landroid/os/Handler;->post(Ljava/lang/Runnable;)Z
+    :try_end_94
+    .catch Ljava/lang/Throwable; {:try_start_56 .. :try_end_94} :catch_4a
+
+    goto :goto_55
 .end method

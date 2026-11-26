@@ -80,29 +80,32 @@ public final class XemsLocalSection {
         mode.setTextColor(setup ? 0xFFFFB74D : 0xFF81C784);
         card.addView(mode, matchWrap(a, 4));
 
-        int paired = XemsLocalStore.pairedCount(a);
-        int server = XemsLicense.allowedEms() != null ? XemsLicense.allowedEms().size() : 0;
-        String key = XemsLicense.key();
-        String profile = key == null || key.length() == 0
-                ? tr("Профил: няма ключ (въведи го в „Достъп и лиценз“).",
-                     "Profile: no key (enter it under Access and licence).")
-                : tr("Профил: ключ …", "Profile: key …") + key.substring(Math.max(0, key.length() - 4));
-        TextView info = text(a, profile + "\n"
-                + tr("Костюми: ", "Suits: ") + paired + tr(" сдвоени на таблета, ", " paired on this tablet, ")
-                + server + tr(" от сървъра.", " from the server."), 13, false);
-        info.setTextColor(0xFFB0B0B0);
-        card.addView(info, matchWrap(a, 8));
+        if (setup) {                                    // a locked tablet shows nothing of the profile and the suits
+            int paired = XemsLocalStore.pairedCount(a);
+            int server = XemsLicense.allowedEms() != null ? XemsLicense.allowedEms().size() : 0;
+            String key = XemsLicense.key();
+            String profile = key == null || key.length() == 0
+                    ? tr("Профил: няма ключ (въведи го в „Достъп и лиценз“).",
+                         "Profile: no key (enter it under Access and licence).")
+                    : tr("Профил: ключ …", "Profile: key …") + key.substring(Math.max(0, key.length() - 4));
+            TextView info = text(a, profile + "\n"
+                    + tr("Костюми: ", "Suits: ") + paired + tr(" сдвоени на таблета, ", " paired on this tablet, ")
+                    + server + tr(" от сървъра.", " from the server."), 13, false);
+            info.setTextColor(0xFFB0B0B0);
+            card.addView(info, matchWrap(a, 8));
+
+        }
 
         LinearLayout row = new LinearLayout(a);
         row.setOrientation(LinearLayout.HORIZONTAL);
-        Button exportBtn = button(a, tr("Експорт", "Export"), 0xFF43A047);
-        exportBtn.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                startExport(a);
-            }
-        });
-        row.addView(exportBtn, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
-        if (setup) {
+        if (setup) {                                    // data export / import: the admin's setup only (owner, 2026-11-26)
+            Button exportBtn = button(a, tr("Експорт", "Export"), 0xFF43A047);
+            exportBtn.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    startExport(a);
+                }
+            });
+            row.addView(exportBtn, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
             Button importBtn = button(a, tr("Импорт", "Import"), 0xFF43A047);
             importBtn.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
@@ -121,9 +124,7 @@ public final class XemsLocalSection {
                             "Checking the server… reopen Settings in a moment."), Toast.LENGTH_LONG).show();
                 }
             });
-            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
-            lp.leftMargin = dp(a, 8);
-            row.addView(refreshBtn, lp);
+            row.addView(refreshBtn, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
         }
         card.addView(row, matchWrap(a, 0));
 
@@ -133,14 +134,30 @@ public final class XemsLocalSection {
                     15, true), matchWrap(a, 16));
             TextView explain = text(a, tr("Плъзгач вдясно = 100%: ръцете и прасците получават колкото всички други канали. "
                     + "По-наляво = по-слабо: на 50% същото число на плъзгача им дава половината от силата, която "
-                    + "получават другите. Ръцете са много чувствителни — затова са на 20%.",
+                    + "получават другите. Ръцете са много чувствителни — затова са на 10%, прасците на 50%.",
                     "Slider at the right = 100%: the arms and calves get what every other channel gets. Further "
                     + "left = weaker: at 50% the same number on the slider gives them half of what the others get. "
-                    + "The arms are very sensitive — hence 20%."), 12, false);
+                    + "The arms are very sensitive — hence 10%, the calves 50%."), 12, false);
             explain.setTextColor(0xFFB0B0B0);
             card.addView(explain, matchWrap(a, 2));
             addDivider(a, card, DivSlider.ARMS);
             addDivider(a, card, DivSlider.CALF);
+        }
+
+        {
+            // Version and "Check for Update": any tablet with internet can fetch any update by hand (owner, 2026-11-26)
+            card.addView(text(a, tr("Версия и обновления", "Version and updates"), 15, true), matchWrap(a, 16));
+            TextView ver = text(a, tr("Версия: ", "Version: ") + XemsLicenseClient.appName(a)
+                    + tr(" · задължителните обновления се проверяват веднъж на 24 часа и се инсталират задължително.",
+                            " · mandatory updates are checked once per 24 h and must be installed."), 12, false);
+            ver.setTextColor(0xFFB0B0B0);
+            card.addView(ver, matchWrap(a, 2));
+            final TextView upStatus = text(a, "", 13, false);
+            upStatus.setTextColor(0xFFFFFFFF);
+            Button check = button(a, "Check for Update", 0xFF1E88E5);
+            check.setOnClickListener(new CheckUpdate(a, upStatus));
+            card.addView(check, matchWrap(a, 8));
+            card.addView(upStatus, matchWrap(a, 4));
         }
 
         if (setup) {
@@ -157,6 +174,21 @@ public final class XemsLocalSection {
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         cardLp.topMargin = dp(a, 16);
         parent.addView(card, cardLp);
+    }
+
+    static final class CheckUpdate implements View.OnClickListener {
+        private final Activity a;
+        private final TextView status;
+
+        CheckUpdate(Activity a, TextView status) {
+            this.a = a;
+            this.status = status;
+        }
+
+        @Override
+        public void onClick(View v) {
+            XemsLicenseClient.manualCheck(a, status);
+        }
     }
 
     static String fmt(float v) {

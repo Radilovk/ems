@@ -80,29 +80,32 @@ public final class XemsLocalSection {
         mode.setTextColor(setup ? 0xFFFFB74D : 0xFF81C784);
         card.addView(mode, matchWrap(a, 4));
 
-        int paired = XemsLocalStore.pairedCount(a);
-        int server = XemsLicense.allowedEms() != null ? XemsLicense.allowedEms().size() : 0;
-        String key = XemsLicense.key();
-        String profile = key == null || key.length() == 0
-                ? tr("Профил: няма ключ (въведи го в „Достъп и лиценз“).",
-                     "Profile: no key (enter it under Access and licence).")
-                : tr("Профил: ключ …", "Profile: key …") + key.substring(Math.max(0, key.length() - 4));
-        TextView info = text(a, profile + "\n"
-                + tr("Костюми: ", "Suits: ") + paired + tr(" сдвоени на таблета, ", " paired on this tablet, ")
-                + server + tr(" от сървъра.", " from the server."), 13, false);
-        info.setTextColor(0xFFB0B0B0);
-        card.addView(info, matchWrap(a, 8));
+        if (setup) {                                    // a locked tablet shows nothing of the profile and the suits
+            int paired = XemsLocalStore.pairedCount(a);
+            int server = XemsLicense.allowedEms() != null ? XemsLicense.allowedEms().size() : 0;
+            String key = XemsLicense.key();
+            String profile = key == null || key.length() == 0
+                    ? tr("Профил: няма ключ (въведи го в „Достъп и лиценз“).",
+                         "Profile: no key (enter it under Access and licence).")
+                    : tr("Профил: ключ …", "Profile: key …") + key.substring(Math.max(0, key.length() - 4));
+            TextView info = text(a, profile + "\n"
+                    + tr("Костюми: ", "Suits: ") + paired + tr(" сдвоени на таблета, ", " paired on this tablet, ")
+                    + server + tr(" от сървъра.", " from the server."), 13, false);
+            info.setTextColor(0xFFB0B0B0);
+            card.addView(info, matchWrap(a, 8));
+
+        }
 
         LinearLayout row = new LinearLayout(a);
         row.setOrientation(LinearLayout.HORIZONTAL);
-        Button exportBtn = button(a, tr("Експорт", "Export"), 0xFF43A047);
-        exportBtn.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                startExport(a);
-            }
-        });
-        row.addView(exportBtn, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
-        if (setup) {
+        if (setup) {                                    // data export / import: the admin's setup only (owner, 2026-11-26)
+            Button exportBtn = button(a, tr("Експорт", "Export"), 0xFF43A047);
+            exportBtn.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    startExport(a);
+                }
+            });
+            row.addView(exportBtn, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
             Button importBtn = button(a, tr("Импорт", "Import"), 0xFF43A047);
             importBtn.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
@@ -121,9 +124,7 @@ public final class XemsLocalSection {
                             "Checking the server… reopen Settings in a moment."), Toast.LENGTH_LONG).show();
                 }
             });
-            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
-            lp.leftMargin = dp(a, 8);
-            row.addView(refreshBtn, lp);
+            row.addView(refreshBtn, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
         }
         card.addView(row, matchWrap(a, 0));
 

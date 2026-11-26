@@ -558,7 +558,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `XemsLocalAvatar.java` (1084L, compile:xems-local) — Client photo: picked from the gallery, cropped square, 320 px JPEG in the app's files (files/avatars).
 - `XemsLocalConsent.java` (499L, compile:xems-local) — The client's informed consent and declaration, signed with a finger on the tablet (owner, 1.1.530 — docs/xems-consent.m…
 - `XemsLocalGate.java` (220L, compile:xems-local) — Hidden doors of the tablet build.
-- `XemsLocalSection.java` (375L, compile:xems-local) — Settings card "Tablet and data": the mode (admin setup / user), the profile key, the suits, the arms channel (the arms …
+- `XemsLocalSection.java` (376L, compile:xems-local) — Settings card "Tablet and data": the mode (admin setup / user), the profile key, the suits, the arms channel (the arms …
 - `XemsLocalStore.java` (1218L, compile:xems-local) — Local-only data layer: users, programs, training history and suits stay on the tablet.
 - `XemsLocalUserForm.java` (1046L, compile:xems-local) — New / edit client form — one screen, mostly taps: name, sex, age / height / weight wheels, phone; goal, fitness and con…
 - `XemsModuleInfo.java` (599L, compile:music-sync*) — The "i" of every XEMS module: what it is, what it gives (value first), how to work with it.
@@ -1267,7 +1267,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L157 ## 1.1.445 — ring ± with muscles marked: same as the chip slide
   - L164 ## 1.1.449 — every muscle marked from a 0 start, the suit's link on the board
 
-`docs/xems-license-api.md` (219L)
+`docs/xems-license-api.md` (226L)
   - L1 # XEMS — лиценз, отключване на модули и обновяване (клиент v1.1.85)
   - L5 ## Модули
   - L24 ## Настройка на таблет (админ) и потребителски режим
@@ -1283,6 +1283,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L197 ## Какво остава за сървъра
   - L204 ## Проверки (без Android)
   - L210 ## Обновяване на таблета (1.1.588-ai, owner 2026-11-26)
+  - L220 ### Какво вижда заключен таблет в Настройки (owner, 2026-11-26, 1.1.589-ai)
 
 `docs/xems-mastogo.md` (233L)
   - L1 # MASTOGO H-024B (DOMAS / PNrelief) — BLE protocol

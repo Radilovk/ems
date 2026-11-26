@@ -33,7 +33,7 @@
     .end annotation
 
     .prologue
-    .line 290
+    .line 291
     iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLocalSection$5;->val$a:Landroid/app/Activity;
 
     iput-object p2, p0, Lcom/isaigu/gymapp/widget/XemsLocalSection$5;->val$root:Landroid/view/View;
@@ -49,10 +49,10 @@
     .registers 6
 
     .prologue
-    .line 292
+    .line 293
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLocalStore;->finishSetup()V
 
-    .line 293
+    .line 294
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalSection$5;->val$a:Landroid/app/Activity;
 
     const-string v1, "\u041d\u0430\u0441\u0442\u0440\u043e\u0439\u043a\u0430\u0442\u0430 \u0435 \u0437\u0430\u0432\u044a\u0440\u0448\u0435\u043d\u0430"
@@ -72,13 +72,13 @@
 
     invoke-virtual {v0}, Landroid/widget/Toast;->show()V
 
-    .line 294
+    .line 295
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalSection$5;->val$a:Landroid/app/Activity;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/widget/XemsLocalSection$5;->val$root:Landroid/view/View;
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/widget/XemsLocalSection;->attach(Landroid/app/Activity;Landroid/view/View;)V
 
-    .line 295
+    .line 296
     return-void
 .end method

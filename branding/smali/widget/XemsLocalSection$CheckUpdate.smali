@@ -28,16 +28,16 @@
     .registers 3
 
     .prologue
-    .line 182
+    .line 183
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 183
+    .line 184
     iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLocalSection$CheckUpdate;->a:Landroid/app/Activity;
 
-    .line 184
+    .line 185
     iput-object p2, p0, Lcom/isaigu/gymapp/widget/XemsLocalSection$CheckUpdate;->status:Landroid/widget/TextView;
 
-    .line 185
+    .line 186
     return-void
 .end method
 
@@ -47,13 +47,13 @@
     .registers 4
 
     .prologue
-    .line 189
+    .line 190
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalSection$CheckUpdate;->a:Landroid/app/Activity;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/widget/XemsLocalSection$CheckUpdate;->status:Landroid/widget/TextView;
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/widget/XemsLicenseClient;->manualCheck(Landroid/app/Activity;Landroid/widget/TextView;)V
 
-    .line 190
+    .line 191
     return-void
 .end method

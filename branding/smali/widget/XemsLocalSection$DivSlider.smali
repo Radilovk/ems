@@ -36,19 +36,19 @@
     .registers 4
 
     .prologue
-    .line 232
+    .line 233
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 233
+    .line 234
     iput p1, p0, Lcom/isaigu/gymapp/widget/XemsLocalSection$DivSlider;->kind:I
 
-    .line 234
+    .line 235
     iput-object p2, p0, Lcom/isaigu/gymapp/widget/XemsLocalSection$DivSlider;->pcts:[I
 
-    .line 235
+    .line 236
     iput-object p3, p0, Lcom/isaigu/gymapp/widget/XemsLocalSection$DivSlider;->readout:Landroid/widget/TextView;
 
-    .line 236
+    .line 237
     return-void
 .end method
 
@@ -58,13 +58,13 @@
     .registers 6
 
     .prologue
-    .line 260
+    .line 261
     invoke-virtual {p0, p2}, Lcom/isaigu/gymapp/widget/XemsLocalSection$DivSlider;->show(I)V
 
-    .line 261
+    .line 262
     if-eqz p3, :cond_14
 
-    .line 262
+    .line 263
     const/high16 v0, 0x42c80000    # 100.0f
 
     iget-object v1, p0, Lcom/isaigu/gymapp/widget/XemsLocalSection$DivSlider;->pcts:[I
@@ -75,20 +75,20 @@
 
     div-float/2addr v0, v1
 
-    .line 263
+    .line 264
     iget v1, p0, Lcom/isaigu/gymapp/widget/XemsLocalSection$DivSlider;->kind:I
 
     if-nez v1, :cond_15
 
-    .line 264
+    .line 265
     invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsLicense;->setArmsDivider(F)V
 
-    .line 269
+    .line 270
     :cond_14
     :goto_14
     return-void
 
-    .line 266
+    .line 267
     :cond_15
     invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsLicense;->setCalfDivider(F)V
 
@@ -99,7 +99,7 @@
     .registers 2
 
     .prologue
-    .line 273
+    .line 274
     return-void
 .end method
 
@@ -107,7 +107,7 @@
     .registers 2
 
     .prologue
-    .line 277
+    .line 278
     return-void
 .end method
 
@@ -121,7 +121,7 @@
 
     const/high16 v8, 0x42c80000    # 100.0f
 
-    .line 239
+    .line 240
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalSection$DivSlider;->pcts:[I
 
     const/4 v1, 0x0
@@ -142,10 +142,10 @@
 
     aget v2, v0, v1
 
-    .line 240
+    .line 241
     if-lt v2, v10, :cond_28
 
-    .line 241
+    .line 242
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalSection$DivSlider;->readout:Landroid/widget/TextView;
 
     const-string v1, "100% \u2014 \u043a\u043e\u043b\u043a\u043e\u0442\u043e \u0432\u0441\u0438\u0447\u043a\u0438 \u0434\u0440\u0443\u0433\u0438 \u043a\u0430\u043d\u0430\u043b\u0438"
@@ -159,11 +159,11 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 256
+    .line 257
     :goto_27
     return-void
 
-    .line 244
+    .line 245
     :cond_28
     new-instance v0, Ljava/lang/StringBuilder;
 
@@ -190,19 +190,19 @@
 
     move-result-object v1
 
-    .line 245
+    .line 246
     iget v0, p0, Lcom/isaigu/gymapp/widget/XemsLocalSection$DivSlider;->kind:I
 
     if-nez v0, :cond_bd
 
-    .line 246
+    .line 247
     const/4 v0, 0x4
 
     new-array v3, v0, [I
 
     fill-array-data v3, :array_c0
 
-    .line 247
+    .line 248
     new-instance v0, Ljava/lang/StringBuilder;
 
     const-string v4, "\u0448\u0438\u0440\u043e\u043a \u0438\u043c\u043f\u0443\u043b\u0441 400 \u00b5s: "
@@ -224,7 +224,7 @@
 
     move-result-object v4
 
-    .line 248
+    .line 249
     const/4 v0, 0x1
 
     :goto_61
@@ -232,7 +232,7 @@
 
     if-ge v0, v5, :cond_93
 
-    .line 249
+    .line 250
     aget v5, v3, v0
 
     int-to-float v6, v2
@@ -245,7 +245,7 @@
 
     div-float v5, v8, v5
 
-    .line 250
+    .line 251
     const-string v6, " \u00b7 "
 
     invoke-virtual {v4, v6}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
@@ -278,12 +278,12 @@
 
     invoke-virtual {v5, v9}, Ljava/lang/StringBuilder;->append(C)Ljava/lang/StringBuilder;
 
-    .line 248
+    .line 249
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_61
 
-    .line 252
+    .line 253
     :cond_93
     new-instance v0, Ljava/lang/StringBuilder;
 
@@ -320,7 +320,7 @@
 
     move-result-object v0
 
-    .line 255
+    .line 256
     :goto_b6
     iget-object v1, p0, Lcom/isaigu/gymapp/widget/XemsLocalSection$DivSlider;->readout:Landroid/widget/TextView;
 
@@ -333,7 +333,7 @@
 
     goto :goto_b6
 
-    .line 246
+    .line 247
     nop
 
     :array_c0

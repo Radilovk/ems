@@ -19,7 +19,11 @@
 
 .field how:[Ljava/lang/String;
 
+.field more:[[Ljava/lang/String;
+
 .field name:Ljava/lang/String;
+
+.field science:[Ljava/lang/String;
 
 .field tagline:Ljava/lang/String;
 
@@ -33,7 +37,7 @@
     .registers 1
 
     .prologue
-    .line 26
+    .line 33
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void

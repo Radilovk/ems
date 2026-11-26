@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 682
+    .line 857
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,16 +34,16 @@
     .registers 3
 
     .prologue
-    .line 685
+    .line 860
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsUi;->haptic(Landroid/view/View;)V
 
-    .line 686
+    .line 861
     invoke-static {p1}, Lcom/isaigu/gymapp/ai/AiTrain;->activity(Landroid/view/View;)Landroid/app/Activity;
 
     move-result-object v0
 
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/AiWizard;->openHealth(Landroid/app/Activity;)V
 
-    .line 687
+    .line 862
     return-void
 .end method

@@ -75,7 +75,12 @@ export function route(kind, body = {}) {
   // live: only symptoms think more (a "why" is answered well on low, and sooner); planning: physiology too
   const risky = live ? symptom(body?.text) : careful(body?.text) || careful(last);
   if (kind === 'command') return { lite: true, think: 'minimal', max: 800, why: 'command' };
-  if (kind === 'workout') return { lite: false, think: 'medium', max: 6000, why: 'plan' };
+  if (kind === 'workout') {
+    // a whole workout: thinking more only when health or physiology is in it; a plain one on the fast Flash, low thinking
+    const careful = risky || hasConditions(body);
+    return careful ? { lite: false, think: 'medium', max: 6000, why: 'plan' }
+      : { lite: false, fast: true, think: 'low', max: 6000, why: 'plan-fast' };
+  }
   if (kind === 'brief') {
     return risky || hasConditions(body)
       ? { lite: false, think: 'medium', max: 3000, why: 'careful' }
@@ -86,5 +91,7 @@ export function route(kind, body = {}) {
   if (risky || (!live && hasConditions(body))) return { lite: false, think: 'medium', max, why: 'careful' };
   // a plain live reply (an exercise, "уморих се", a "why"): the fast Flash (GEMINI_FAST_MODEL) — ai-smoke 1.1.565:
   // 2–3 s and steady, the newest Flash 3–10 s; health keeps the newest one, thinking more
-  return { lite: false, fast: live, think: 'low', max, why: live ? 'fast' : 'coach' };
+  // the setup's advice for a client with nothing on record is as plain: the fast Flash too (owner, 2026-11-26: "the AI
+  // sets the training up extremely slowly"); conditions or a symptom keep the newest Flash with more thinking
+  return { lite: false, fast: true, think: 'low', max, why: live ? 'fast' : 'coach' };
 }

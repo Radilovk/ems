@@ -21,6 +21,19 @@ public final class Ui {
 
     public static final int W = 1280, H = 800;
 
+    /**
+     * The AI wizard (1.1.581): Напред, Напред, Създай тренировката — the AI is asked only on that button (no network here:
+     * the answer is "no connection", the plan stays) — then ▶ Старт is on the screen.
+     */
+    public static void createAi() throws Exception {
+        for (String t : new String[] {"Напред", "Напред", "Създай тренировката"}) {
+            tap(windows().get(windows().size() - 1), t);
+            idle(300);
+        }
+        real(2500);
+        idle(500);
+    }
+
     public static void idle(long ms) {
         // in steps, so periodic tasks (every 100 ms … 1 s) run as on the tablet
         long step = Math.min(100, ms);

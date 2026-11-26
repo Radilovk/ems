@@ -28,16 +28,16 @@
     .registers 3
 
     .prologue
-    .line 540
+    .line 715
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 541
+    .line 716
     iput-object p1, p0, Lcom/isaigu/gymapp/ai/AiWizard$PadKey;->st:Lcom/isaigu/gymapp/ai/AiWizard$PadState;
 
-    .line 542
+    .line 717
     iput-object p2, p0, Lcom/isaigu/gymapp/ai/AiWizard$PadKey;->key:Ljava/lang/String;
 
-    .line 543
+    .line 718
     return-void
 .end method
 
@@ -47,10 +47,10 @@
     .registers 6
 
     .prologue
-    .line 547
+    .line 722
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsUi;->haptic(Landroid/view/View;)V
 
-    .line 548
+    .line 723
     const-string v0, "\u2713"
 
     iget-object v1, p0, Lcom/isaigu/gymapp/ai/AiWizard$PadKey;->key:Ljava/lang/String;
@@ -61,7 +61,7 @@
 
     if-eqz v0, :cond_38
 
-    .line 549
+    .line 724
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiWizard$PadKey;->st:Lcom/isaigu/gymapp/ai/AiWizard$PadState;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/ai/AiWizard$PadState;->typed:Ljava/lang/String;
@@ -72,7 +72,7 @@
 
     if-lez v0, :cond_26
 
-    .line 550
+    .line 725
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiWizard$PadKey;->st:Lcom/isaigu/gymapp/ai/AiWizard$PadState;
 
     iget v0, v0, Lcom/isaigu/gymapp/ai/AiWizard$PadState;->which:I
@@ -87,7 +87,7 @@
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/ai/AiTrain;->setNum(II)V
 
-    .line 552
+    .line 727
     :cond_26
     # getter for: Lcom/isaigu/gymapp/ai/AiWizard;->pad:Landroid/app/Dialog;
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiWizard;->access$000()Landroid/app/Dialog;
@@ -96,7 +96,7 @@
 
     if-eqz v0, :cond_37
 
-    .line 553
+    .line 728
     # getter for: Lcom/isaigu/gymapp/ai/AiWizard;->pad:Landroid/app/Dialog;
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiWizard;->access$000()Landroid/app/Dialog;
 
@@ -104,18 +104,18 @@
 
     invoke-virtual {v0}, Landroid/app/Dialog;->dismiss()V
 
-    .line 554
+    .line 729
     const/4 v0, 0x0
 
     # setter for: Lcom/isaigu/gymapp/ai/AiWizard;->pad:Landroid/app/Dialog;
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/AiWizard;->access$002(Landroid/app/Dialog;)Landroid/app/Dialog;
 
-    .line 565
+    .line 740
     :cond_37
     :goto_37
     return-void
 
-    .line 558
+    .line 733
     :cond_38
     const-string v0, "\u232b"
 
@@ -127,7 +127,7 @@
 
     if-eqz v0, :cond_85
 
-    .line 559
+    .line 734
     iget-object v1, p0, Lcom/isaigu/gymapp/ai/AiWizard$PadKey;->st:Lcom/isaigu/gymapp/ai/AiWizard$PadState;
 
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiWizard$PadKey;->st:Lcom/isaigu/gymapp/ai/AiWizard$PadState;
@@ -163,7 +163,7 @@
     :goto_61
     iput-object v0, v1, Lcom/isaigu/gymapp/ai/AiWizard$PadState;->typed:Ljava/lang/String;
 
-    .line 563
+    .line 738
     :cond_63
     :goto_63
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiWizard$PadKey;->st:Lcom/isaigu/gymapp/ai/AiWizard$PadState;
@@ -187,7 +187,7 @@
     :goto_75
     invoke-virtual {v1, v0}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 564
+    .line 739
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiWizard$PadKey;->st:Lcom/isaigu/gymapp/ai/AiWizard$PadState;
 
     iget-object v0, v0, Lcom/isaigu/gymapp/ai/AiWizard$PadState;->view:Landroid/widget/TextView;
@@ -198,13 +198,13 @@
 
     goto :goto_37
 
-    .line 559
+    .line 734
     :cond_82
     const-string v0, ""
 
     goto :goto_61
 
-    .line 560
+    .line 735
     :cond_85
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiWizard$PadKey;->st:Lcom/isaigu/gymapp/ai/AiWizard$PadState;
 
@@ -218,7 +218,7 @@
 
     if-ge v0, v1, :cond_63
 
-    .line 561
+    .line 736
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiWizard$PadKey;->st:Lcom/isaigu/gymapp/ai/AiWizard$PadState;
 
     new-instance v1, Ljava/lang/StringBuilder;
@@ -247,7 +247,7 @@
 
     goto :goto_63
 
-    .line 563
+    .line 738
     :cond_ac
     const-string v0, "\u2014"
 

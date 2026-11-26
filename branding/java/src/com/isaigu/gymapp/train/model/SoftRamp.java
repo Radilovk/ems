@@ -112,6 +112,7 @@ public final class SoftRamp {
         if (s == null) {
             return;
         }
+        b = vrHit(b);                                               // VR: a zone hit's own frequency / depth
         com.isaigu.gymapp.wearable.SafeGuard.enforce(item, b);      // never out of the limits, whoever set it
         if (held(item, b, parts, workLength)) {
             return;
@@ -288,6 +289,26 @@ public final class SoftRamp {
      * no rise, no fall and no soft start — a hit taken is felt at once. The absolute limits (SafeGuard) stay.
      */
     public static volatile boolean vrNoRamp;
+
+    /** While a VR zone hit runs: the owner's frequency / depth for it (0 = the row's own); else the bean itself. */
+    static ProgramDataBean vrHit(ProgramDataBean b) {
+        if (!vrNoRamp || b == null) {
+            return b;
+        }
+        int hz = com.isaigu.gymapp.wearable.vr.VrHitParams.hzNow();
+        int w = com.isaigu.gymapp.wearable.vr.VrHitParams.widthNow();
+        if (hz <= 0 && w <= 0) {
+            return b;
+        }
+        ProgramDataBean c = copy(b);
+        if (hz > 0) {
+            c.hz = hz;
+        }
+        if (w > 0) {
+            c.pulseWidth = w;
+        }
+        return c;
+    }
 
     static int[] rampMs(TrainItem item, ProgramDataBean b) {
         if (vrNoRamp) {

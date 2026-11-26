@@ -12,13 +12,9 @@ import com.isaigu.gymapp.wearable.mastogo.MastogoScreen;
  * Receiver thread writes, the drive's main-thread tick reads. Pure state + two calls out.
  */
 public final class VrZoneRouter implements VrZoneSink {
-    /** The Mastogo link takes ~4 beats a second (docs/xems-mastogo.md): hits closer than this share one. */
-    static final long MASTOGO_GAP_NS = 250000000L;
-
     private static final VrZoneFocus FOCUS = new VrZoneFocus(VrSettings.CHANNELS);
     /** Hits taken since the link came up (VrPanel / the log read them). */
     static volatile int taken;
-    private static volatile long lastMastogoNs;
     /** For the panels: every zone hit that arrived, the last one in words, when. */
     static volatile int received;
     static volatile long lastNs;
@@ -94,8 +90,8 @@ public final class VrZoneRouter implements VrZoneSink {
             lastNs = System.nanoTime();
             return;
         }
-        int level = h.maxLevel();
-        if (level <= 0) {
+        int level = h.maxLevel() * VrHitSettings.pct() / 100;      // the owner's "hit strength"
+        if (h.maxLevel() <= 0 || level <= 0) {
             return;
         }
         taken++;
@@ -105,13 +101,12 @@ public final class VrZoneRouter implements VrZoneSink {
         lastNs = now;
         if (mask != 0) {
             long dur = Math.max(VrPulses.MIN_PULSE_NS, h.durationMs * 1000000L);
-            FOCUS.add(mask, now + dur);
+            long fall = VrSettings.smoothness() * 6L * 1000000L;       // the channels stay while the fall runs
+            FOCUS.add(mask, now + dur + fall);
+            VrHitParams.untilNs = Math.max(VrHitParams.untilNs, now + dur + fall);   // frequency / depth of the hit
             VrHapticRouter.PULSES.pulse(VrWire.HAND_BOTH, level / 100f, dur / 1000L, false, false, now);
         }
-        if (now - lastMastogoNs >= MASTOGO_GAP_NS) {
-            lastMastogoNs = now;
-            MastogoScreen.vrHit(now);
-        }
+        MastogoScreen.vrHit(now);                       // every hit, no limit per second (owner)
     }
 
     /** Channels with a zone hit still running at {@code nowNs} (bit = partsDisabled index); 0 = none. */

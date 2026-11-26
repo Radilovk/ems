@@ -55,6 +55,7 @@ public final class VrDrive {
     static void setContext(Context c) {
         context = c != null ? c.getApplicationContext() : null;
         VrSettings.load(context);
+        VrHitSettings.load(context);
     }
 
     /** VrPanel changed a setting (main thread): apply it at once if VR is driving a row. */
@@ -205,19 +206,16 @@ public final class VrDrive {
         slewLevel = 0f;
     }
 
-    /** MusicSync.limitRise: rise limited by the smoothness setting, falls pass at once (hits cut off cleanly). */
+    /** VR shape: no rise limit at all (owner: never ramp up in VR); the fall follows the "Спадане" setting. */
     private static int limitRise(int level) {
         long now = SystemClock.elapsedRealtime();
         long dt = slewLastMs == 0L ? TICK_MS : now - slewLastMs;
         slewLastMs = now;
-        int riseMs = VrSettings.smoothness() * RISE_TIME_MAX_MS / 100;
-        if (VrZoneRouter.focusAt(System.nanoTime()) != 0) {
-            riseMs = 0;                                 // a hit taken is felt at once, not ramped over the smoothness
-        }
-        if (riseMs > 0 && level > slewLevel) {
-            slewLevel = Math.min(level, slewLevel + 100f * Math.max(1L, dt) / riseMs);
+        int fallMs = VrSettings.smoothness() * RISE_TIME_MAX_MS / 100;      // the VR sheet's "Спадане"
+        if (fallMs > 0 && level < slewLevel) {
+            slewLevel = Math.max(level, slewLevel - 100f * Math.max(1L, dt) / fallMs);   // ramp DOWN only
         } else {
-            slewLevel = level;
+            slewLevel = level;                          // ramp UP never (owner, 2026-11-26): a hit is felt at once
         }
         int limited = Math.round(slewLevel);
         return level > 0 && limited < 1 ? 1 : limited;

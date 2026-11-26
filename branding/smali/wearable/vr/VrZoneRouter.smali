@@ -9,10 +9,6 @@
 # static fields
 .field private static final FOCUS:Lcom/isaigu/gymapp/wearable/vr/VrZoneFocus;
 
-.field static final MASTOGO_GAP_NS:J = 0xee6b280L
-
-.field private static volatile lastMastogoNs:J
-
 .field static volatile lastNs:J
 
 .field static volatile lastText:Ljava/lang/String;
@@ -33,7 +29,7 @@
     .prologue
     const-wide/16 v2, -0x1
 
-    .line 18
+    .line 15
     new-instance v0, Lcom/isaigu/gymapp/wearable/vr/VrZoneFocus;
 
     const/16 v1, 0xa
@@ -42,15 +38,15 @@
 
     sput-object v0, Lcom/isaigu/gymapp/wearable/vr/VrZoneRouter;->FOCUS:Lcom/isaigu/gymapp/wearable/vr/VrZoneFocus;
 
-    .line 25
+    .line 21
     const-string v0, ""
 
     sput-object v0, Lcom/isaigu/gymapp/wearable/vr/VrZoneRouter;->lastText:Ljava/lang/String;
 
-    .line 27
+    .line 23
     sput-wide v2, Lcom/isaigu/gymapp/wearable/vr/VrZoneRouter;->wifiMs:J
 
-    .line 28
+    .line 24
     sput-wide v2, Lcom/isaigu/gymapp/wearable/vr/VrZoneRouter;->unitMs:J
 
     return-void
@@ -74,10 +70,10 @@
 
     const/4 v0, 0x0
 
-    .line 44
+    .line 40
     if-nez p0, :cond_d
 
-    .line 45
+    .line 41
     const-string v0, "\u0431\u0435\u0437 \u043a\u0430\u043d\u0430\u043b"
 
     const-string v1, "no channel"
@@ -86,11 +82,11 @@
 
     move-result-object v0
 
-    .line 57
+    .line 53
     :goto_c
     return-object v0
 
-    .line 47
+    .line 43
     :cond_d
     const/16 v1, 0xa
 
@@ -134,7 +130,7 @@
 
     const-string v4, "calf"
 
-    .line 48
+    .line 44
     invoke-static {v3, v4}, Lcom/isaigu/gymapp/widget/XemsLang;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v3
@@ -171,7 +167,7 @@
 
     const-string v4, "back"
 
-    .line 49
+    .line 45
     invoke-static {v3, v4}, Lcom/isaigu/gymapp/widget/XemsLang;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v3
@@ -208,32 +204,32 @@
 
     const-string v4, "back thigh"
 
-    .line 50
+    .line 46
     invoke-static {v3, v4}, Lcom/isaigu/gymapp/widget/XemsLang;->tr(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v3
 
     aput-object v3, v2, v1
 
-    .line 51
+    .line 47
     new-instance v3, Ljava/lang/StringBuilder;
 
     invoke-direct {v3}, Ljava/lang/StringBuilder;-><init>()V
 
-    .line 52
+    .line 48
     :goto_84
     array-length v1, v2
 
     if-ge v0, v1, :cond_a3
 
-    .line 53
+    .line 49
     shl-int v1, v5, v0
 
     and-int/2addr v1, p0
 
     if-eqz v1, :cond_9d
 
-    .line 54
+    .line 50
     invoke-virtual {v3}, Ljava/lang/StringBuilder;->length()I
 
     move-result v1
@@ -251,19 +247,19 @@
 
     invoke-virtual {v1, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 52
+    .line 48
     :cond_9d
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_84
 
-    .line 54
+    .line 50
     :cond_a0
     const-string v1, ""
 
     goto :goto_94
 
-    .line 57
+    .line 53
     :cond_a3
     invoke-virtual {v3}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
@@ -276,7 +272,7 @@
     .registers 4
 
     .prologue
-    .line 119
+    .line 114
     sget-object v0, Lcom/isaigu/gymapp/wearable/vr/VrZoneRouter;->FOCUS:Lcom/isaigu/gymapp/wearable/vr/VrZoneFocus;
 
     invoke-virtual {v0, p0, p1}, Lcom/isaigu/gymapp/wearable/vr/VrZoneFocus;->at(J)I
@@ -290,10 +286,10 @@
     .registers 3
 
     .prologue
-    .line 31
+    .line 27
     packed-switch p0, :pswitch_data_4c
 
-    .line 39
+    .line 35
     const-string v0, "\u0434\u0440\u0443\u0433\u043e"
 
     const-string v1, "other"
@@ -305,7 +301,7 @@
     :goto_b
     return-object v0
 
-    .line 32
+    .line 28
     :pswitch_c
     const-string v0, "\u043b\u044f\u0432\u0430 \u0440\u044a\u043a\u0430 (\u0442\u0432\u043e\u0439 \u0443\u0434\u0430\u0440)"
 
@@ -317,7 +313,7 @@
 
     goto :goto_b
 
-    .line 33
+    .line 29
     :pswitch_15
     const-string v0, "\u0434\u044f\u0441\u043d\u0430 \u0440\u044a\u043a\u0430 (\u0442\u0432\u043e\u0439 \u0443\u0434\u0430\u0440)"
 
@@ -329,7 +325,7 @@
 
     goto :goto_b
 
-    .line 34
+    .line 30
     :pswitch_1e
     const-string v0, "\u0442\u044f\u043b\u043e \u043e\u0442\u043f\u0440\u0435\u0434"
 
@@ -341,7 +337,7 @@
 
     goto :goto_b
 
-    .line 35
+    .line 31
     :pswitch_27
     const-string v0, "\u0433\u0440\u044a\u0431"
 
@@ -353,7 +349,7 @@
 
     goto :goto_b
 
-    .line 36
+    .line 32
     :pswitch_30
     const-string v0, "\u0433\u043b\u0430\u0432\u0430"
 
@@ -365,7 +361,7 @@
 
     goto :goto_b
 
-    .line 37
+    .line 33
     :pswitch_39
     const-string v0, "\u043b\u044f\u0432\u0430 \u043f\u0440\u0435\u0434\u043c\u0438\u0448\u043d\u0438\u0446\u0430"
 
@@ -377,7 +373,7 @@
 
     goto :goto_b
 
-    .line 38
+    .line 34
     :pswitch_42
     const-string v0, "\u0434\u044f\u0441\u043d\u0430 \u043f\u0440\u0435\u0434\u043c\u0438\u0448\u043d\u0438\u0446\u0430"
 
@@ -389,7 +385,7 @@
 
     goto :goto_b
 
-    .line 31
+    .line 27
     nop
 
     :pswitch_data_4c
@@ -410,18 +406,18 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 123
+    .line 118
     sget-object v0, Lcom/isaigu/gymapp/wearable/vr/VrZoneRouter;->FOCUS:Lcom/isaigu/gymapp/wearable/vr/VrZoneFocus;
 
     invoke-virtual {v0}, Lcom/isaigu/gymapp/wearable/vr/VrZoneFocus;->clear()V
 
-    .line 124
+    .line 119
     sput v1, Lcom/isaigu/gymapp/wearable/vr/VrZoneRouter;->taken:I
 
-    .line 125
+    .line 120
     sput v1, Lcom/isaigu/gymapp/wearable/vr/VrZoneRouter;->received:I
 
-    .line 126
+    .line 121
     return-void
 .end method
 
@@ -429,10 +425,10 @@
     .registers 2
 
     .prologue
-    .line 76
+    .line 72
     sput-wide p0, Lcom/isaigu/gymapp/wearable/vr/VrZoneRouter;->unitMs:J
 
-    .line 77
+    .line 73
     return-void
 .end method
 
@@ -442,14 +438,14 @@
     .prologue
     const-wide/16 v6, 0x0
 
-    .line 62
+    .line 58
     invoke-static {}, Lcom/isaigu/gymapp/wearable/vr/VrDrive;->isLinked()Z
 
     move-result v0
 
     if-eqz v0, :cond_b2
 
-    .line 63
+    .line 59
     const-string v0, "\u0428\u043b\u0435\u043c: \u0441\u0432\u044a\u0440\u0437\u0430\u043d"
 
     const-string v1, "Headset: linked"
@@ -458,7 +454,7 @@
 
     move-result-object v0
 
-    .line 67
+    .line 63
     :goto_10
     sget-object v1, Lcom/isaigu/gymapp/wearable/vr/VrZoneRouter;->lastText:Ljava/lang/String;
 
@@ -476,7 +472,7 @@
 
     move-result-object v1
 
-    .line 69
+    .line 65
     :goto_20
     new-instance v2, Ljava/lang/StringBuilder;
 
@@ -532,7 +528,7 @@
 
     move-result-object v1
 
-    .line 71
+    .line 67
     sget-wide v2, Lcom/isaigu/gymapp/wearable/vr/VrZoneRouter;->wifiMs:J
 
     cmp-long v0, v2, v6
@@ -576,7 +572,7 @@
 
     move-result-object v1
 
-    .line 72
+    .line 68
     sget-wide v2, Lcom/isaigu/gymapp/wearable/vr/VrZoneRouter;->unitMs:J
 
     cmp-long v0, v2, v6
@@ -624,10 +620,10 @@
 
     move-result-object v0
 
-    .line 69
+    .line 65
     return-object v0
 
-    .line 64
+    .line 60
     :cond_b2
     invoke-static {}, Lcom/isaigu/gymapp/wearable/vr/VrBridge;->isListening()Z
 
@@ -635,7 +631,7 @@
 
     if-eqz v0, :cond_c2
 
-    .line 65
+    .line 61
     const-string v0, "\u0428\u043b\u0435\u043c: \u043d\u044f\u043c\u0430 \u0432\u0440\u044a\u0437\u043a\u0430 (\u0441\u043b\u0443\u0448\u0430\u0442\u0435\u043b\u044f\u0442 \u043e\u0449\u0435 \u043d\u0435 \u043c\u0435 \u0435 \u043d\u0430\u043c\u0435\u0440\u0438\u043b)"
 
     const-string v1, "Headset: not linked yet"
@@ -646,7 +642,7 @@
 
     goto/16 :goto_10
 
-    .line 66
+    .line 62
     :cond_c2
     const-string v0, "\u0428\u043b\u0435\u043c: \u043d\u0435 \u0441\u043b\u0443\u0448\u0430\u043c (\u043e\u0442\u0432\u043e\u0440\u0438 \u0442\u0440\u0435\u043d\u0438\u0440\u043e\u0432\u044a\u0447\u0435\u043d \u0438\u043b\u0438 Mastogo \u0435\u043a\u0440\u0430\u043d)"
 
@@ -658,7 +654,7 @@
 
     goto/16 :goto_10
 
-    .line 68
+    .line 64
     :cond_cc
     new-instance v1, Ljava/lang/StringBuilder;
 
@@ -714,13 +710,13 @@
 
     goto/16 :goto_20
 
-    .line 71
+    .line 67
     :cond_102
     const-string v0, ""
 
     goto/16 :goto_7e
 
-    .line 72
+    .line 68
     :cond_106
     const-string v0, ""
 
@@ -733,27 +729,27 @@
     .prologue
     const/16 v2, 0x64
 
-    .line 81
+    .line 77
     const/16 v0, 0x14
 
     new-array v3, v0, [I
 
-    .line 82
+    .line 78
     const/16 v0, 0xd
 
     aput v2, v3, v0
 
-    .line 83
+    .line 79
     const/16 v0, 0x10
 
     aput v2, v3, v0
 
-    .line 84
+    .line 80
     const/16 v0, 0x11
 
     aput v2, v3, v0
 
-    .line 85
+    .line 81
     new-instance v7, Lcom/isaigu/gymapp/wearable/vr/VrZoneRouter;
 
     invoke-direct {v7}, Lcom/isaigu/gymapp/wearable/vr/VrZoneRouter;-><init>()V
@@ -772,28 +768,28 @@
 
     invoke-virtual {v7, v0}, Lcom/isaigu/gymapp/wearable/vr/VrZoneRouter;->onVrZoneHit(Lcom/isaigu/gymapp/wearable/vr/VrZoneHit;)V
 
-    .line 86
+    .line 82
     return-void
 .end method
 
 
 # virtual methods
 .method public onVrZoneHit(Lcom/isaigu/gymapp/wearable/vr/VrZoneHit;)V
-    .registers 14
+    .registers 16
 
     .prologue
-    const-wide/32 v10, 0xf4240
-
     const/4 v6, 0x0
 
-    .line 90
+    const-wide/32 v12, 0xf4240
+
+    .line 86
     sget v0, Lcom/isaigu/gymapp/wearable/vr/VrZoneRouter;->received:I
 
     add-int/lit8 v0, v0, 0x1
 
     sput v0, Lcom/isaigu/gymapp/wearable/vr/VrZoneRouter;->received:I
 
-    .line 91
+    .line 87
     iget-wide v0, p1, Lcom/isaigu/gymapp/wearable/vr/VrZoneHit;->latencyNs:J
 
     const-wide/16 v2, 0x0
@@ -804,12 +800,12 @@
 
     iget-wide v0, p1, Lcom/isaigu/gymapp/wearable/vr/VrZoneHit;->latencyNs:J
 
-    div-long/2addr v0, v10
+    div-long/2addr v0, v12
 
     :goto_15
     sput-wide v0, Lcom/isaigu/gymapp/wearable/vr/VrZoneRouter;->wifiMs:J
 
-    .line 92
+    .line 88
     iget v0, p1, Lcom/isaigu/gymapp/wearable/vr/VrZoneHit;->region:I
 
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/vr/VrZoneMap;->taken(I)Z
@@ -818,7 +814,7 @@
 
     if-nez v0, :cond_31
 
-    .line 93
+    .line 89
     iget v0, p1, Lcom/isaigu/gymapp/wearable/vr/VrZoneHit;->region:I
 
     invoke-static {v0}, Lcom/isaigu/gymapp/wearable/vr/VrZoneRouter;->regionName(I)Ljava/lang/String;
@@ -827,46 +823,60 @@
 
     sput-object v0, Lcom/isaigu/gymapp/wearable/vr/VrZoneRouter;->lastText:Ljava/lang/String;
 
-    .line 94
+    .line 90
     invoke-static {}, Ljava/lang/System;->nanoTime()J
 
     move-result-wide v0
 
     sput-wide v0, Lcom/isaigu/gymapp/wearable/vr/VrZoneRouter;->lastNs:J
 
-    .line 115
+    .line 110
     :cond_2d
     :goto_2d
     return-void
 
-    .line 91
+    .line 87
     :cond_2e
     const-wide/16 v0, -0x1
 
     goto :goto_15
 
-    .line 97
+    .line 93
     :cond_31
     invoke-virtual {p1}, Lcom/isaigu/gymapp/wearable/vr/VrZoneHit;->maxLevel()I
 
     move-result v0
 
-    .line 98
+    invoke-static {}, Lcom/isaigu/gymapp/wearable/vr/VrHitSettings;->pct()I
+
+    move-result v1
+
+    mul-int/2addr v0, v1
+
+    div-int/lit8 v0, v0, 0x64
+
+    .line 94
+    invoke-virtual {p1}, Lcom/isaigu/gymapp/wearable/vr/VrZoneHit;->maxLevel()I
+
+    move-result v1
+
+    if-lez v1, :cond_2d
+
     if-lez v0, :cond_2d
 
-    .line 101
+    .line 97
     sget v1, Lcom/isaigu/gymapp/wearable/vr/VrZoneRouter;->taken:I
 
     add-int/lit8 v1, v1, 0x1
 
     sput v1, Lcom/isaigu/gymapp/wearable/vr/VrZoneRouter;->taken:I
 
-    .line 102
+    .line 98
     invoke-static {}, Ljava/lang/System;->nanoTime()J
 
     move-result-wide v8
 
-    .line 103
+    .line 99
     iget v1, p1, Lcom/isaigu/gymapp/wearable/vr/VrZoneHit;->region:I
 
     iget-object v2, p1, Lcom/isaigu/gymapp/wearable/vr/VrZoneHit;->levels:[I
@@ -875,7 +885,7 @@
 
     move-result v1
 
-    .line 104
+    .line 100
     new-instance v2, Ljava/lang/StringBuilder;
 
     invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
@@ -916,33 +926,61 @@
 
     sput-object v2, Lcom/isaigu/gymapp/wearable/vr/VrZoneRouter;->lastText:Ljava/lang/String;
 
-    .line 105
+    .line 101
     sput-wide v8, Lcom/isaigu/gymapp/wearable/vr/VrZoneRouter;->lastNs:J
 
-    .line 106
-    if-eqz v1, :cond_97
+    .line 102
+    if-eqz v1, :cond_b9
 
-    .line 107
+    .line 103
     const-wide/32 v2, 0x7270e00
 
     iget v4, p1, Lcom/isaigu/gymapp/wearable/vr/VrZoneHit;->durationMs:I
 
     int-to-long v4, v4
 
-    mul-long/2addr v4, v10
+    mul-long/2addr v4, v12
 
     invoke-static {v2, v3, v4, v5}, Ljava/lang/Math;->max(JJ)J
 
     move-result-wide v4
 
-    .line 108
-    sget-object v2, Lcom/isaigu/gymapp/wearable/vr/VrZoneRouter;->FOCUS:Lcom/isaigu/gymapp/wearable/vr/VrZoneFocus;
+    .line 104
+    invoke-static {}, Lcom/isaigu/gymapp/wearable/vr/VrSettings;->smoothness()I
+
+    move-result v2
+
+    int-to-long v2, v2
+
+    const-wide/16 v10, 0x6
+
+    mul-long/2addr v2, v10
+
+    mul-long/2addr v2, v12
+
+    .line 105
+    sget-object v7, Lcom/isaigu/gymapp/wearable/vr/VrZoneRouter;->FOCUS:Lcom/isaigu/gymapp/wearable/vr/VrZoneFocus;
 
     add-long v10, v8, v4
 
-    invoke-virtual {v2, v1, v10, v11}, Lcom/isaigu/gymapp/wearable/vr/VrZoneFocus;->add(IJ)V
+    add-long/2addr v10, v2
 
-    .line 109
+    invoke-virtual {v7, v1, v10, v11}, Lcom/isaigu/gymapp/wearable/vr/VrZoneFocus;->add(IJ)V
+
+    .line 106
+    sget-wide v10, Lcom/isaigu/gymapp/wearable/vr/VrHitParams;->untilNs:J
+
+    add-long v12, v8, v4
+
+    add-long/2addr v2, v12
+
+    invoke-static {v10, v11, v2, v3}, Ljava/lang/Math;->max(JJ)J
+
+    move-result-wide v2
+
+    sput-wide v2, Lcom/isaigu/gymapp/wearable/vr/VrHitParams;->untilNs:J
+
+    .line 107
     sget-object v1, Lcom/isaigu/gymapp/wearable/vr/VrHapticRouter;->PULSES:Lcom/isaigu/gymapp/wearable/vr/VrPulses;
 
     const/4 v2, 0x3
@@ -961,23 +999,9 @@
 
     invoke-virtual/range {v1 .. v9}, Lcom/isaigu/gymapp/wearable/vr/VrPulses;->pulse(IFJZZJ)V
 
-    .line 111
-    :cond_97
-    sget-wide v0, Lcom/isaigu/gymapp/wearable/vr/VrZoneRouter;->lastMastogoNs:J
-
-    sub-long v0, v8, v0
-
-    const-wide/32 v2, 0xee6b280
-
-    cmp-long v0, v0, v2
-
-    if-ltz v0, :cond_2d
-
-    .line 112
-    sput-wide v8, Lcom/isaigu/gymapp/wearable/vr/VrZoneRouter;->lastMastogoNs:J
-
-    .line 113
+    .line 109
+    :cond_b9
     invoke-static {v8, v9}, Lcom/isaigu/gymapp/wearable/mastogo/MastogoScreen;->vrHit(J)V
 
-    goto :goto_2d
+    goto/16 :goto_2d
 .end method

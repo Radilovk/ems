@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 454
+    .line 465
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 455
+    .line 466
     iput p1, p0, Lcom/isaigu/gymapp/wearable/vr/VrPanel$Chip;->channel:I
 
-    .line 456
+    .line 467
     return-void
 .end method
 
@@ -42,10 +42,10 @@
     .registers 5
 
     .prologue
-    .line 460
+    .line 471
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsUi;->haptic(Landroid/view/View;)V
 
-    .line 461
+    .line 472
     invoke-virtual {p1}, Landroid/view/View;->getContext()Landroid/content/Context;
 
     move-result-object v1
@@ -65,14 +65,14 @@
     :goto_12
     invoke-static {v1, v2, v0}, Lcom/isaigu/gymapp/wearable/vr/VrSettings;->setRests(Landroid/content/Context;IZ)V
 
-    .line 462
+    .line 473
     # invokes: Lcom/isaigu/gymapp/wearable/vr/VrPanel;->fillFeel()V
     invoke-static {}, Lcom/isaigu/gymapp/wearable/vr/VrPanel;->access$900()V
 
-    .line 463
+    .line 474
     return-void
 
-    .line 461
+    .line 472
     :cond_19
     const/4 v0, 0x0
 

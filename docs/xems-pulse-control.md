@@ -204,6 +204,15 @@ trimmed) → a longer pause (×1.5, ×2). The strength, the width (µs) and a sh
 rungs are spent the cap (+12) stops the output as before. Given back in the reverse order. Same order as Auto and
 the AI training (`docs/xems-auto-mode-spec.md` §21). Test: `scripts/ai-sim/run.sh` (PULSE …: first lever freq_down).
 
+## 1.1.590 — arms and calves never above their share (owner, 2026-11-27)
+Owner: "the impulses on the arms come too strong, their absolute strength must be lower than the body's" — not a ramp
+problem. Cause: the arms / calves byte was **rounded to the nearest** suit unit, so at ÷10 the arms got a whole unit already
+at 5 % (= 20 % share instead of 10 %, a hard contraction at low strength); at 150 µs (÷5) already at 3 %. Now
+`ChannelStrengthScale.scaleOutput` **floors** both: the suit never gets more than the set share (÷10: 0 below 10 %, 1 at
+10–19 %, 3 at 30 %). The suit cannot send less than one unit per channel, so a lower share = the first unit later.
+Settings sliders reach lower: arms 3 · 4 · 5 · 6 · 8 · **10** … 100 %, calves 10 · 15 · 20 … 100 %.
+Bodytech (`armsExact`) and the face scale are unchanged. Test: `bash scripts/arms-sim/run.sh` (no value above the share).
+
 ## 1.1.588 — arms and calves: one strength slider each, % of the other channels (owner, 2026-11-26)
 **Settings → "Tablet and data" → "Ръце и прасци — сила спрямо другите канали"**: two sliders, shown as a share of what
 the other channels get (not as a divider; stored as D = 100 / %). **Defaults = 1.1.584, nothing changes until the slider is

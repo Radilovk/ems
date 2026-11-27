@@ -197,8 +197,8 @@ public final class XemsLocalSection {
     }
 
     /** The slider's stops, % of what the other channels get; weakest first, the last is 100% = 1:1. */
-    static final int[] ARMS_PCT = {5, 8, 10, 12, 15, 20, 25, 30, 40, 50, 60, 75, 100};
-    static final int[] CALF_PCT = {20, 25, 33, 40, 50, 60, 75, 100};
+    static final int[] ARMS_PCT = {3, 4, 5, 6, 8, 10, 12, 15, 20, 25, 30, 40, 50, 60, 75, 100};
+    static final int[] CALF_PCT = {10, 15, 20, 25, 33, 40, 50, 60, 75, 100};
 
     private static void addDivider(Activity a, LinearLayout card, int kind) {
         int[] pcts = kind == DivSlider.ARMS ? ARMS_PCT : CALF_PCT;

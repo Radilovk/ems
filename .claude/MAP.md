@@ -98,7 +98,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/apply-wearable-bridge.py` (503L, build:L120[BETA_MUSIC]) — Notify wearable sync: config modal + floating HR dial (interval-timer style).
 - `scripts/apply-wearable-permissions.py` (90L, build:L121[BETA_MUSIC]) — At MainActivity startup ask only for what the suit needs, in one request (wearable/XemsAccess) — the vendor's own stora…
 - `scripts/apply-xems-nav.py` (91L, build:L129[BETA_MUSIC]) — XEMS navigation (v1.1.64): page tabs → ☰ menu top-left, bottom bar → module tiles.
-- `scripts/arms-sim/ArmsSim.java` (47L) — The arms / calf step as the owner specified it (2026-11-26): ÷D at 400 µs, ÷D/2 at 150 µs, linear; ÷1 = 1:1.
+- `scripts/arms-sim/ArmsSim.java` (69L) — The arms / calf step as the owner specified it (2026-11-26): ÷D at 400 µs, ÷D/2 at 150 µs, linear; ÷1 = 1:1.
 - `scripts/arms-sim/run.sh` (8L) — The arms / calf divider as the owner specified it, on the REAL ChannelStrengthScale (stubbed settings).
 - `scripts/ble-sim/band.py` (163L) — Xiaomi Band 8 (FE95 / protobuf V1) simulator — independent of the XEMS Java code. Protocol mirrored from Gadgetbridge X…
 - `scripts/ble-sim/run-dual.sh` (25L) — Two bands (Settings → Band → second band): the same simulated Band 9/10 as the client's band (ROLE=hr) and as
@@ -361,7 +361,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `SoftRamp.java` (561L, compile:music-sync*,softramp) — Soft rise / fall of the impulse, done by the tablet: the suit ignores the ramp bytes of the work-params PDU, so the str…
 
 **train/utils/** (`branding/java/src/com/isaigu/gymapp/train/utils/`)
-- `ChannelStrengthScale.java` (201L, compile:channel-scale,music-sync*) — Encode-time correction for per-channel impulse strength sent over BLE.
+- `ChannelStrengthScale.java` (204L, compile:channel-scale,music-sync*) — Encode-time correction for per-channel impulse strength sent over BLE.
 - `MasterStrengthControl.java` (346L, compile:music-sync*) — External control channel for master impulse strength (MA / circle slider).
 - `MusicAutoTune.java` (348L, compile:music-sync*) — Picks music-sync settings from a track's own envelope so the impulse follows how the body reads it: separate hits versu…
 - `MusicDiagLog.java` (151L, compile:music-sync*) — Persistent diagnostic log for music player and uncaught crashes.
@@ -1430,7 +1430,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L204 ## Сила и експлозивност · процедура
   - L213 ## 50+ · процедура
 
-`docs/xems-pulse-control.md` (223L)
+`docs/xems-pulse-control.md` (232L)
   - L1 # Пулс модул: управление на импулсите по пулса (v1.1.59, задържане в зона от 1.1.270)
   - L8 ## Граници
   - L18 ## Решение (всяка секунда) — задържане в зона (1.1.270)
@@ -1447,7 +1447,8 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L149 ## Циферблат: „i“ и ↻ (v1.1.70)
   - L173 ## Баланс на каналите по ширина на импулса (`ChannelStrengthScale.balance`)
   - L199 ## 1.1.570 — the ladder without the strength (owner, 2026-11-25)
-  - L207 ## 1.1.588 — arms and calves: one strength slider each, % of the other channels (owner, 2026-11-26)
+  - L207 ## 1.1.590 — arms and calves never above their share (owner, 2026-11-27)
+  - L216 ## 1.1.588 — arms and calves: one strength slider each, % of the other channels (owner, 2026-11-26)
 
 `docs/xems-safety-limits.md` (46L)
   - L1 # Absolute limits of the impulse (owner, 1.1.323-ai)

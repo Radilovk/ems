@@ -30,7 +30,7 @@
 
     .prologue
     .line 200
-    const/16 v0, 0xd
+    const/16 v0, 0x10
 
     new-array v0, v0, [I
 
@@ -39,11 +39,11 @@
     sput-object v0, Lcom/isaigu/gymapp/widget/XemsLocalSection;->ARMS_PCT:[I
 
     .line 201
-    const/16 v0, 0x8
+    const/16 v0, 0xa
 
     new-array v0, v0, [I
 
-    fill-array-data v0, :array_32
+    fill-array-data v0, :array_38
 
     sput-object v0, Lcom/isaigu/gymapp/widget/XemsLocalSection;->CALF_PCT:[I
 
@@ -54,7 +54,10 @@
 
     :array_14
     .array-data 4
+        0x3
+        0x4
         0x5
+        0x6
         0x8
         0xa
         0xc
@@ -70,8 +73,10 @@
     .end array-data
 
     .line 201
-    :array_32
+    :array_38
     .array-data 4
+        0xa
+        0xf
         0x14
         0x19
         0x21

@@ -40,6 +40,28 @@ public class ArmsSim {
         near("calf ÷1", ChannelStrengthScale.calfFactor(), 1f);
         XemsLicense.calf = 2f;
         near("calf ÷2", ChannelStrengthScale.calfFactor(), 0.5f);
+        // never above the share (1.1.590): a whole suit unit only once the share reaches it, not at half
+        XemsLicense.arms = 10f;
+        XemsLicense.calf = 2f;
+        ChannelStrengthScale.setPulseWidth(400);
+        near("arms 5 % @÷10 → 0", ChannelStrengthScale.scaleOutput(4, 5f), 0f);
+        near("arms 9 % @÷10 → 0", ChannelStrengthScale.scaleOutput(4, 9f), 0f);
+        near("arms 10 % @÷10 → 1", ChannelStrengthScale.scaleOutput(4, 10f), 1f);
+        near("arms 19 % @÷10 → 1", ChannelStrengthScale.scaleOutput(4, 19f), 1f);
+        near("arms 30 % @÷10 → 3", ChannelStrengthScale.scaleOutput(4, 30f), 3f);
+        ChannelStrengthScale.setPulseWidth(150);
+        near("arms 3 % @150 ÷5 → 0", ChannelStrengthScale.scaleOutput(4, 3f), 0f);
+        near("arms 5 % @150 ÷5 → 1", ChannelStrengthScale.scaleOutput(4, 5f), 1f);
+        ChannelStrengthScale.setPulseWidth(375);
+        near("calf 1 % ÷2 → 0", ChannelStrengthScale.scaleOutput(3, 1f), 0f);
+        near("calf 3 % ÷2 → 1", ChannelStrengthScale.scaleOutput(3, 3f), 1f);
+        ChannelStrengthScale.setPulseWidth(400);
+        for (int v = 0; v <= 100; v++) {
+            if (ChannelStrengthScale.scaleOutput(4, v) > v / 10f + 1e-3f) {
+                fails++;
+                System.out.println("FAIL arms above share at " + v);
+            }
+        }
         System.out.println(fails == 0 ? "ARMS SIM OK" : fails + " FAILED");
         System.exit(fails == 0 ? 0 : 1);
     }

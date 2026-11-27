@@ -186,6 +186,9 @@ public final class WakeWord {
         float ON_DB = 12, QUIET_DB = 6, OFF_DB = 8, LOUD_DB = 18;
         int PRE_Q = 20, POST_Q = 22, MINLEN = 16, MAXLEN = 250, REC_POST_Q = 45;
         static final int NH = 150, SETTLE = 40;
+        /** A taught phrase: ≥ 0.4 s and ≥ 40 dB absolute (speech ~ 60–75 dB, a quiet room 20–35 dB). */
+        static final int REC_MIN_LEN = 40;
+        static final float REC_MIN_DB = 40;
         final float[] hist = new float[NH];
         int nh, hi;
         boolean lenient;
@@ -200,6 +203,8 @@ public final class WakeWord {
         int w0, w1;
         float wPeak;
         boolean skipped;
+        /** Recording only: no word may start before this frame (the ack beep, the tap on the button, our own click). */
+        int hold;
 
         boolean frame(float[] bands, float edb) {
             if (t < SETTLE) {
@@ -239,7 +244,7 @@ public final class WakeWord {
                 }
             }
             if (state == 0) {
-                above = edb > floorDb + (lenient ? onDb - 3 : onDb) ? above + 1 : 0;
+                above = t >= hold && edb > floorDb + (lenient ? onDb - 3 : onDb) ? above + 1 : 0;
                 if (above >= 3 && t - qEnd <= 30) {
                     state = 1;
                     long b = Math.min(qEnd - 2, t - 5);
@@ -262,7 +267,11 @@ public final class WakeWord {
                     above = 0;
                     int e = lastAct + 3;
                     int len = e - s0;
-                    if (len >= MINLEN && len <= MAXLEN && peak > floorDb + (lenient ? loudDb - 6 : loudDb)) {
+                    // a taught example is a spoken phrase: long enough and really loud — a room's hiss, a tap, a click or
+                    // a breath is relatively "loud" against a silent floor, but is none of that (owner, 1.1.590:
+                    // "left silent, it still counts it as spoken")
+                    boolean spoken = !lenient || (len >= REC_MIN_LEN && peak >= REC_MIN_DB);
+                    if (spoken && len >= MINLEN && len <= MAXLEN && peak > floorDb + (lenient ? loudDb - 6 : loudDb)) {
                         w0 = s0;
                         w1 = e;
                         wPeak = peak;
@@ -453,12 +462,14 @@ public final class WakeWord {
 
     /** The next word is an example of "тренер". */
     public void record() {
+        finder.hold = finder.t + 35;
         recording = true;
         recordingNeg = false;
     }
 
     /** The next word is the look-alike ("тренировка"): it teaches the spotter what NOT to wake on. */
     public void recordContrast() {
+        finder.hold = finder.t + 35;
         recording = true;
         recordingNeg = true;
     }

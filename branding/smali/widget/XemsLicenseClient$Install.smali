@@ -30,19 +30,19 @@
     .registers 4
 
     .prologue
-    .line 638
+    .line 643
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 639
+    .line 644
     iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$Install;->c:Landroid/content/Context;
 
-    .line 640
+    .line 645
     iput-object p2, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$Install;->f:Ljava/io/File;
 
-    .line 641
+    .line 646
     iput-object p3, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$Install;->cb:Lcom/isaigu/gymapp/widget/XemsLicenseClient$Done;
 
-    .line 642
+    .line 647
     return-void
 .end method
 
@@ -52,7 +52,7 @@
     .registers 4
 
     .prologue
-    .line 647
+    .line 652
     :try_start_0
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$Install;->c:Landroid/content/Context;
 
@@ -62,7 +62,7 @@
 
     iget-object v2, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$Install;->c:Landroid/content/Context;
 
-    .line 648
+    .line 653
     invoke-virtual {v2}, Landroid/content/Context;->getPackageName()Ljava/lang/String;
 
     move-result-object v2
@@ -83,39 +83,39 @@
 
     iget-object v2, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$Install;->f:Ljava/io/File;
 
-    .line 647
+    .line 652
     invoke-static {v0, v1, v2}, Landroid/support/v4/content/FileProvider;->getUriForFile(Landroid/content/Context;Ljava/lang/String;Ljava/io/File;)Landroid/net/Uri;
 
     move-result-object v0
 
-    .line 649
+    .line 654
     new-instance v1, Landroid/content/Intent;
 
     const-string v2, "android.intent.action.VIEW"
 
     invoke-direct {v1, v2}, Landroid/content/Intent;-><init>(Ljava/lang/String;)V
 
-    .line 650
+    .line 655
     const-string v2, "application/vnd.android.package-archive"
 
     invoke-virtual {v1, v0, v2}, Landroid/content/Intent;->setDataAndType(Landroid/net/Uri;Ljava/lang/String;)Landroid/content/Intent;
 
-    .line 651
+    .line 656
     const v0, 0x10000001
 
     invoke-virtual {v1, v0}, Landroid/content/Intent;->addFlags(I)Landroid/content/Intent;
 
-    .line 652
+    .line 657
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$Install;->c:Landroid/content/Context;
 
     invoke-virtual {v0, v1}, Landroid/content/Context;->startActivity(Landroid/content/Intent;)V
 
-    .line 653
+    .line 658
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$Install;->cb:Lcom/isaigu/gymapp/widget/XemsLicenseClient$Done;
 
     if-eqz v0, :cond_44
 
-    .line 654
+    .line 659
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$Install;->cb:Lcom/isaigu/gymapp/widget/XemsLicenseClient$Done;
 
     const/4 v1, 0x1
@@ -126,21 +126,21 @@
     :try_end_44
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_44} :catch_45
 
-    .line 661
+    .line 666
     :cond_44
     :goto_44
     return-void
 
-    .line 656
+    .line 661
     :catch_45
     move-exception v0
 
-    .line 657
+    .line 662
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$Install;->cb:Lcom/isaigu/gymapp/widget/XemsLicenseClient$Done;
 
     if-eqz v0, :cond_44
 
-    .line 658
+    .line 663
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$Install;->cb:Lcom/isaigu/gymapp/widget/XemsLicenseClient$Done;
 
     const/4 v1, 0x0

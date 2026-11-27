@@ -35,7 +35,7 @@
     .end annotation
 
     .prologue
-    .line 599
+    .line 604
     iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$4;->val$c:Landroid/content/Context;
 
     iput-object p2, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$4;->val$u:Lcom/isaigu/gymapp/widget/XemsLicenseClient$Update;
@@ -55,7 +55,7 @@
     .prologue
     const/4 v7, 0x0
 
-    .line 602
+    .line 607
     new-instance v1, Ljava/io/File;
 
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$4;->val$c:Landroid/content/Context;
@@ -68,7 +68,7 @@
 
     invoke-direct {v1, v0, v2}, Ljava/io/File;-><init>(Ljava/io/File;Ljava/lang/String;)V
 
-    .line 604
+    .line 609
     :try_start_e
     new-instance v0, Ljava/net/URL;
 
@@ -84,39 +84,39 @@
 
     check-cast v0, Ljava/net/HttpURLConnection;
 
-    .line 605
+    .line 610
     const/16 v2, 0x2710
 
     invoke-virtual {v0, v2}, Ljava/net/HttpURLConnection;->setConnectTimeout(I)V
 
-    .line 606
+    .line 611
     const v2, 0xea60
 
     invoke-virtual {v0, v2}, Ljava/net/HttpURLConnection;->setReadTimeout(I)V
 
-    .line 607
+    .line 612
     const-string v2, "SHA-256"
 
     invoke-static {v2}, Ljava/security/MessageDigest;->getInstance(Ljava/lang/String;)Ljava/security/MessageDigest;
 
     move-result-object v2
 
-    .line 608
+    .line 613
     invoke-virtual {v0}, Ljava/net/HttpURLConnection;->getInputStream()Ljava/io/InputStream;
 
     move-result-object v0
 
-    .line 609
+    .line 614
     new-instance v3, Ljava/io/FileOutputStream;
 
     invoke-direct {v3, v1}, Ljava/io/FileOutputStream;-><init>(Ljava/io/File;)V
 
-    .line 610
+    .line 615
     const/high16 v4, 0x10000
 
     new-array v4, v4, [B
 
-    .line 612
+    .line 617
     :goto_3b
     invoke-virtual {v0, v4}, Ljava/io/InputStream;->read([B)I
 
@@ -124,12 +124,12 @@
 
     if-lez v5, :cond_56
 
-    .line 613
+    .line 618
     const/4 v6, 0x0
 
     invoke-virtual {v3, v4, v6, v5}, Ljava/io/OutputStream;->write([BII)V
 
-    .line 614
+    .line 619
     const/4 v6, 0x0
 
     invoke-virtual {v2, v4, v6, v5}, Ljava/security/MessageDigest;->update([BII)V
@@ -138,14 +138,14 @@
 
     goto :goto_3b
 
-    .line 625
+    .line 630
     :catch_4a
     move-exception v0
 
-    .line 626
+    .line 631
     invoke-virtual {v1}, Ljava/io/File;->delete()Z
 
-    .line 627
+    .line 632
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$4;->val$cb:Lcom/isaigu/gymapp/widget/XemsLicenseClient$Done;
 
     const-string v1, "download_failed"
@@ -153,19 +153,19 @@
     # invokes: Lcom/isaigu/gymapp/widget/XemsLicenseClient;->post(Lcom/isaigu/gymapp/widget/XemsLicenseClient$Done;ZLjava/lang/String;)V
     invoke-static {v0, v7, v1}, Lcom/isaigu/gymapp/widget/XemsLicenseClient;->access$000(Lcom/isaigu/gymapp/widget/XemsLicenseClient$Done;ZLjava/lang/String;)V
 
-    .line 629
+    .line 634
     :goto_55
     return-void
 
-    .line 616
+    .line 621
     :cond_56
     :try_start_56
     invoke-virtual {v3}, Ljava/io/OutputStream;->close()V
 
-    .line 617
+    .line 622
     invoke-virtual {v0}, Ljava/io/InputStream;->close()V
 
-    .line 618
+    .line 623
     invoke-virtual {v2}, Ljava/security/MessageDigest;->digest()[B
 
     move-result-object v0
@@ -174,7 +174,7 @@
 
     move-result-object v0
 
-    .line 619
+    .line 624
     iget-object v2, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$4;->val$u:Lcom/isaigu/gymapp/widget/XemsLicenseClient$Update;
 
     iget-object v2, v2, Lcom/isaigu/gymapp/widget/XemsLicenseClient$Update;->sha256:Ljava/lang/String;
@@ -195,10 +195,10 @@
 
     if-nez v0, :cond_84
 
-    .line 620
+    .line 625
     invoke-virtual {v1}, Ljava/io/File;->delete()Z
 
-    .line 621
+    .line 626
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$4;->val$cb:Lcom/isaigu/gymapp/widget/XemsLicenseClient$Done;
 
     const/4 v2, 0x0
@@ -210,7 +210,7 @@
 
     goto :goto_55
 
-    .line 624
+    .line 629
     :cond_84
     # getter for: Lcom/isaigu/gymapp/widget/XemsLicenseClient;->main:Landroid/os/Handler;
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLicenseClient;->access$200()Landroid/os/Handler;

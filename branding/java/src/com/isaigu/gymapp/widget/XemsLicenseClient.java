@@ -276,6 +276,8 @@ public final class XemsLicenseClient {
     static final long AUTO_CHECK_MS = 24L * 60 * 60 * 1000;
     static final String K_UPDATE_CHECKED = "update_checked";
     static final String K_UPDATE_SKIPPED = "update_skipped";
+    /** The app version the last automatic check ran on (a new version checks at its first start). */
+    static final String K_CHECKED_CODE = "update_checked_code";
     /** A mandatory update found by a check stays pending here until the app is that version (or newer). */
     static final String K_MAND_CODE = "mand_code";
     static final String K_MAND_NAME = "mand_name";
@@ -303,13 +305,15 @@ public final class XemsLicenseClient {
             final android.content.SharedPreferences p = XemsLicense.prefs();
             long now = System.currentTimeMillis();
             long last = p.getLong(K_UPDATE_CHECKED, 0);
-            if (last > 0 && last <= now && now - last < AUTO_CHECK_MS) {
+            int code = appCode(a);
+            // 1.1.590 (owner, 2026-11-27: "the mandatory version was not offered even after a restart"): the first
+            // start of a version asks at once, whatever the 24 h say; so does a licence answer that names a newer
+            // XEMS. The licence answer saying "nothing newer" no longer skips the check: it is up to a day old, so a
+            // release published after it stayed hidden for up to 48 h. The update answer is edge-cached (no D1 read).
+            boolean firstOfVersion = p.getInt(K_CHECKED_CODE, 0) != code;
+            boolean licenceSaysNewer = p.getInt(K_LATEST, 0) > code;
+            if (!firstOfVersion && !licenceSaysNewer && last > 0 && last <= now && now - last < AUTO_CHECK_MS) {
                 scheduleRecheck(a, AUTO_CHECK_MS - (now - last));
-                return;
-            }
-            long knownAt = p.getLong(K_LATEST_AT, 0);
-            if (knownAt > 0 && knownAt <= now && now - knownAt < 2 * XemsLicense.REFRESH_MS
-                    && p.getInt(K_LATEST, 0) <= appCode(a)) {
                 return;
             }
             checkUpdate(a.getApplicationContext(), new AutoDone(a));
@@ -356,7 +360,8 @@ public final class XemsLicenseClient {
                 return;                                       // offline: tried again at the next screen
             }
             android.content.SharedPreferences p = XemsLicense.prefs();
-            p.edit().putLong(K_UPDATE_CHECKED, System.currentTimeMillis()).apply();
+            p.edit().putLong(K_UPDATE_CHECKED, System.currentTimeMillis()).putInt(K_CHECKED_CODE, appCode(a))
+                    .putInt(K_LATEST, 0).apply();                 // the licence hint is used up
             if (u == null) {
                 clearMandatory(p);
                 return;

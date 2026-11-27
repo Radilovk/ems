@@ -44,13 +44,13 @@
     .end annotation
 
     .prologue
-    .line 332
+    .line 336
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 333
+    .line 337
     iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$Recheck;->ref:Ljava/lang/ref/WeakReference;
 
-    .line 334
+    .line 338
     return-void
 .end method
 
@@ -60,7 +60,7 @@
     .registers 7
 
     .prologue
-    .line 338
+    .line 342
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$Recheck;->ref:Ljava/lang/ref/WeakReference;
 
     invoke-virtual {v0}, Ljava/lang/ref/WeakReference;->get()Ljava/lang/Object;
@@ -69,7 +69,7 @@
 
     check-cast v0, Landroid/app/Activity;
 
-    .line 339
+    .line 343
     if-eqz v0, :cond_26
 
     invoke-virtual {v0}, Landroid/app/Activity;->isFinishing()Z
@@ -78,7 +78,7 @@
 
     if-nez v1, :cond_26
 
-    .line 340
+    .line 344
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLicense;->prefs()Landroid/content/SharedPreferences;
 
     move-result-object v1
@@ -97,10 +97,10 @@
 
     invoke-interface {v1}, Landroid/content/SharedPreferences$Editor;->apply()V
 
-    .line 341
+    .line 345
     invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsLicenseClient;->autoCheck(Landroid/app/Activity;)V
 
-    .line 343
+    .line 347
     :cond_26
     return-void
 .end method

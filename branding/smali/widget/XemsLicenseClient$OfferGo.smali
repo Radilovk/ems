@@ -28,16 +28,16 @@
     .registers 3
 
     .prologue
-    .line 528
+    .line 533
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 529
+    .line 534
     iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$OfferGo;->a:Landroid/app/Activity;
 
-    .line 530
+    .line 535
     iput-object p2, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$OfferGo;->u:Lcom/isaigu/gymapp/widget/XemsLicenseClient$Update;
 
-    .line 531
+    .line 536
     return-void
 .end method
 
@@ -47,7 +47,7 @@
     .registers 9
 
     .prologue
-    .line 535
+    .line 540
     new-instance v0, Landroid/app/AlertDialog$Builder;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$OfferGo;->a:Landroid/app/Activity;
@@ -56,7 +56,7 @@
 
     const-string v1, "\u0418\u0437\u0442\u0435\u0433\u043b\u044f\u043d\u0435\u2026"
 
-    .line 536
+    .line 541
     invoke-virtual {v0, v1}, Landroid/app/AlertDialog$Builder;->setTitle(Ljava/lang/CharSequence;)Landroid/app/AlertDialog$Builder;
 
     move-result-object v0
@@ -89,7 +89,7 @@
 
     move-result-object v1
 
-    .line 537
+    .line 542
     invoke-virtual {v0, v1}, Landroid/app/AlertDialog$Builder;->setMessage(Ljava/lang/CharSequence;)Landroid/app/AlertDialog$Builder;
 
     move-result-object v1
@@ -102,21 +102,21 @@
 
     const/4 v0, 0x1
 
-    .line 538
+    .line 543
     :goto_35
     invoke-virtual {v1, v0}, Landroid/app/AlertDialog$Builder;->setCancelable(Z)Landroid/app/AlertDialog$Builder;
 
     move-result-object v0
 
-    .line 539
+    .line 544
     invoke-virtual {v0}, Landroid/app/AlertDialog$Builder;->create()Landroid/app/AlertDialog;
 
     move-result-object v0
 
-    .line 540
+    .line 545
     invoke-virtual {v0}, Landroid/app/AlertDialog;->show()V
 
-    .line 541
+    .line 546
     iget-object v1, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$OfferGo;->a:Landroid/app/Activity;
 
     invoke-virtual {v1}, Landroid/app/Activity;->getApplicationContext()Landroid/content/Context;
@@ -135,10 +135,10 @@
 
     invoke-static {v1, v2, v3}, Lcom/isaigu/gymapp/widget/XemsLicenseClient;->downloadAndInstall(Landroid/content/Context;Lcom/isaigu/gymapp/widget/XemsLicenseClient$Update;Lcom/isaigu/gymapp/widget/XemsLicenseClient$Done;)V
 
-    .line 542
+    .line 547
     return-void
 
-    .line 537
+    .line 542
     :cond_55
     const/4 v0, 0x0
 

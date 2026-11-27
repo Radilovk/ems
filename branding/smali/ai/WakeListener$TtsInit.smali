@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 1180
+    .line 1403
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -36,7 +36,7 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 1184
+    .line 1407
     if-nez p1, :cond_40
 
     :try_start_3
@@ -47,7 +47,7 @@
 
     if-eqz v0, :cond_40
 
-    .line 1185
+    .line 1408
     # getter for: Lcom/isaigu/gymapp/ai/WakeListener;->tts:Landroid/speech/tts/TextToSpeech;
     invoke-static {}, Lcom/isaigu/gymapp/ai/WakeListener;->access$2000()Landroid/speech/tts/TextToSpeech;
 
@@ -72,7 +72,7 @@
 
     move-result v0
 
-    .line 1186
+    .line 1409
     const/4 v2, -0x1
 
     if-eq v0, v2, :cond_64
@@ -87,7 +87,7 @@
     # setter for: Lcom/isaigu/gymapp/ai/WakeListener;->ttsOk:Z
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/WakeListener;->access$1902(Z)Z
 
-    .line 1187
+    .line 1410
     # getter for: Lcom/isaigu/gymapp/ai/WakeListener;->tts:Landroid/speech/tts/TextToSpeech;
     invoke-static {}, Lcom/isaigu/gymapp/ai/WakeListener;->access$2000()Landroid/speech/tts/TextToSpeech;
 
@@ -97,10 +97,10 @@
 
     invoke-virtual {v0, v2}, Landroid/speech/tts/TextToSpeech;->setSpeechRate(F)I
 
-    .line 1188
+    .line 1411
     invoke-static {}, Lcom/isaigu/gymapp/ai/WakeListener;->bestVoice()V
 
-    .line 1189
+    .line 1412
     # getter for: Lcom/isaigu/gymapp/ai/WakeListener;->tts:Landroid/speech/tts/TextToSpeech;
     invoke-static {}, Lcom/isaigu/gymapp/ai/WakeListener;->access$2000()Landroid/speech/tts/TextToSpeech;
 
@@ -112,7 +112,7 @@
     :try_end_40
     .catch Ljava/lang/Throwable; {:try_start_3 .. :try_end_40} :catch_66
 
-    .line 1194
+    .line 1417
     :cond_40
     :goto_40
     const-string v1, "wake"
@@ -147,10 +147,10 @@
 
     invoke-static {v1, v0}, Lcom/isaigu/gymapp/wearable/WearableBleDiagLog;->log(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 1195
+    .line 1418
     return-void
 
-    .line 1185
+    .line 1408
     :cond_61
     :try_start_61
     sget-object v0, Ljava/util/Locale;->US:Ljava/util/Locale;
@@ -162,20 +162,20 @@
     :cond_64
     move v0, v1
 
-    .line 1186
+    .line 1409
     goto :goto_27
 
-    .line 1191
+    .line 1414
     :catch_66
     move-exception v0
 
-    .line 1192
+    .line 1415
     # setter for: Lcom/isaigu/gymapp/ai/WakeListener;->ttsOk:Z
     invoke-static {v1}, Lcom/isaigu/gymapp/ai/WakeListener;->access$1902(Z)Z
 
     goto :goto_40
 
-    .line 1194
+    .line 1417
     :cond_6b
     const-string v0, "none \u2014 tones only"
 

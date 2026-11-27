@@ -226,7 +226,11 @@ public final class WakeListener {
             return;
         }
         micRun = true;
-        state = "";
+        if (ear == 0 && pendingEar == 0) {
+            state = "";
+        }
+        // with the cloud ear the spotter only suspects; without it, it alone decides (strict)
+        SPOTTER.loose = ctx != null && CloudEar.usable(ctx) ? WakeWord.LOOSE : 1f;
         micThread = new Thread(new Mic(++micGen), "xems-wake");
         micThread.start();
     }
@@ -364,10 +368,29 @@ public final class WakeListener {
                         }
                         fails = 0;
                         boolean woke = false;
+                        if (pendingEar != 0) {
+                            earBegin(pendingEar);                // a window: the command goes to the cloud ear
+                            pendingEar = 0;
+                        }
                         for (int i = 0; i < n; i++) {
                             int a = buf[i] < 0 ? -buf[i] : buf[i];
                             if (a > peak) {
                                 peak = a;
+                            }
+                            RAW[rawAt] = buf[i];
+                            rawAt = (rawAt + 1) % RAW.length;
+                            if (rawFill < RAW.length) {
+                                rawFill++;
+                            }
+                            if (ear != 0) {
+                                SPOTTER.push(buf[i]);            // the room's floor stays current; no wakes meanwhile
+                                SPOTTER.miss = null;
+                                if (earSample(buf[i])) {
+                                    earDone();
+                                    woke = true;
+                                    break;
+                                }
+                                continue;
                             }
                             int ev = SPOTTER.push(buf[i]);
                             if (ev == WakeWord.NONE) {
@@ -381,6 +404,15 @@ public final class WakeListener {
                             WakeSetup.Sink sink = setup;
                             if (sink != null) {
                                 MAIN.post(new SetupEvent(sink, ev));
+                            } else if (ev == WakeWord.WAKE && on && SPOTTER.loose > 1f) {
+                                // a suspicion: what was said (and what follows) goes to the cloud ear, which decides
+                                if (CloudEar.take()) {
+                                    WearableBleDiagLog.log("wake", "suspected d=" + SPOTTER.lastD + " limit="
+                                            + SPOTTER.threshold() + " → the cloud ear");
+                                    earBegin(1);
+                                } else {
+                                    WearableBleDiagLog.log("wake", "suspicion dropped: too many this minute");
+                                }
                             } else if (ev == WakeWord.WAKE && on) {
                                 micRun = false;              // the command window takes the microphone
                                 MAIN.post(new Wake());
@@ -441,6 +473,14 @@ public final class WakeListener {
                 }
             } finally {
                 level = 0;
+                if (ear != 0 && gen == micGen) {
+                    int m = ear;                              // stopped while listening: nothing heard
+                    ear = 0;
+                    cap = null;
+                    if (m == 2) {
+                        MAIN.post(new Heard("", 2));
+                    }
+                }
                 if (ar != null) {
                     try {
                         ar.stop();
@@ -450,6 +490,181 @@ public final class WakeListener {
                 }
             }
         }
+    }
+
+    // ================================================================ the cloud ear (1.1.592, CloudEar)
+
+    /** The last 2 s of the microphone: a suspected phrase is sent from its beginning. */
+    static final short[] RAW = new short[CloudEar.RATE * 2];
+    static int rawAt, rawFill;
+    /** 0 off; 1 the suspected phrase and what follows it; 2 a window (the command after the phrase alone). */
+    static volatile int ear;
+    static volatile int pendingEar;
+    static short[] cap;
+    static int capN, capBlockN, capBlocks, capQuiet, capVoiced, capSkip, capPre;
+    static double capSum;
+    static float capPeakDb;
+
+    /** Mic thread: starts listening for the cloud ear. */
+    static void earBegin(int mode) {
+        cap = new short[CloudEar.MAX];
+        capN = 0;
+        capBlockN = 0;
+        capBlocks = 0;
+        capSum = 0;
+        capQuiet = 0;
+        capVoiced = 0;
+        capPeakDb = 0;
+        capPre = 0;
+        capSkip = 0;
+        if (mode == 1) {
+            int pre = Math.min(rawFill, RAW.length);       // the phrase itself: the spotter heard it up to now
+            for (int k = 0; k < pre; k++) {
+                cap[capN++] = RAW[(rawAt - pre + k + RAW.length) % RAW.length];
+            }
+            capPre = capN;
+            capVoiced = 1;
+        } else {
+            capSkip = CloudEar.RATE * 35 / 100;            // our own "speak now" sound is not the command
+        }
+        ear = mode;
+    }
+
+    /** Mic thread: one sample; true when the listening is over (a pause after speech, nothing said, the limit). */
+    static boolean earSample(short s) {
+        if (capSkip > 0) {
+            capSkip--;
+            return false;
+        }
+        cap[capN++] = s;
+        capSum += (double) s * s;
+        if (++capBlockN >= CloudEar.RATE / 10) {           // every 100 ms
+            float db = (float) (10 * Math.log10(capSum / capBlockN + 1));
+            capPeakDb = Math.max(capPeakDb, db);
+            float floor = SPOTTER.floorDb();
+            if (db > floor + 14) {
+                capVoiced++;
+                capQuiet = 0;
+            } else if (db < Math.max(floor + 9, capPeakDb - 24)) {
+                capQuiet++;
+            } else {
+                capQuiet = 0;
+            }
+            capSum = 0;
+            capBlockN = 0;
+            capBlocks++;
+            if (ear == 2 && capVoiced == 0 && capBlocks >= 40) {
+                return true;                                // a window: nothing said in 4 s
+            }
+            if (capVoiced > 0 && capQuiet >= 9 && capN - capPre >= CloudEar.RATE / 2) {
+                return true;                                // 0.9 s of quiet after speech: the phrase is over
+            }
+        }
+        return capN >= cap.length;
+    }
+
+    /** Mic thread: the listening is over — the microphone stops, the words go to the server. */
+    static void earDone() {
+        int mode = ear;
+        ear = 0;
+        micRun = false;
+        short[] a = cap;
+        int n = capN;
+        cap = null;
+        if (mode == 2 && capVoiced == 0) {
+            MAIN.post(new Heard("", 2));                    // nothing said: no request
+            return;
+        }
+        if (mode == 1) {
+            MAIN.post(new Thinking());
+        }
+        new Thread(new Hear(a, n, mode), "xems-ear").start();
+    }
+
+    static final class Thinking implements Runnable {
+        @Override
+        public void run() {
+            if (on && !window) {
+                state = "listening";
+                AiTrain.voiceState();
+            }
+        }
+    }
+
+    static final class Hear implements Runnable {
+        final short[] a;
+        final int n;
+        final int mode;
+
+        Hear(short[] a, int n, int mode) {
+            this.a = a;
+            this.n = n;
+            this.mode = mode;
+        }
+
+        @Override
+        public void run() {
+            MAIN.post(new Heard(CloudEar.hear(a, n), mode));
+        }
+    }
+
+    static final class Heard implements Runnable {
+        final String text;
+        final int mode;
+
+        Heard(String text, int mode) {
+            this.text = text;
+            this.mode = mode;
+        }
+
+        @Override
+        public void run() {
+            heard(text, mode);
+        }
+    }
+
+    /** The server's words: the wake phrase and its command, a false suspicion, or a window's command. */
+    static void heard(String text, int mode) {
+        if (!on) {
+            return;
+        }
+        if (mode == 2) {
+            if (!window) {
+                return;
+            }
+            ArrayList<String> r = new ArrayList<String>();
+            r.add(text == null ? "" : text);
+            commandHeard(r);                                  // "" → the closed sound, back to "окей тренер"
+            return;
+        }
+        String cmd = text == null ? null : AiVoiceCmd.afterWake(text);
+        if (cmd == null) {
+            state = "";
+            AiTrain.voiceState();
+            if (text == null && SPOTTER.lastD <= SPOTTER.threshold() && !window && !speaking()) {
+                // no answer from the server, but the spotter alone is sure: the old way (the system's recognizer)
+                WearableBleDiagLog.log("wake", "cloud ear silent — the spotter was sure: the old window");
+                followUp = false;
+                openWindow();
+                return;
+            }
+            WearableBleDiagLog.log("wake", text == null ? "cloud ear: no answer" : "not the wake phrase: \"" + text + "\"");
+            MAIN.postDelayed(new MicAgain(), 100);
+            return;
+        }
+        WearableBleDiagLog.log("wake", "окей тренер (cloud) d=" + SPOTTER.lastD + " limit=" + SPOTTER.threshold());
+        followUp = false;
+        followUps = 0;
+        if (cmd.length() == 0 || AiVoiceCmd.onlyWakeFragment(cmd)) {
+            openWindow();                                     // the phrase alone: "speak now", the command next
+            return;
+        }
+        window = true;                                        // the phrase and its command in one breath
+        state = "command";
+        AiTrain.voiceState();
+        ArrayList<String> r = new ArrayList<String>();
+        r.add(cmd);
+        commandHeard(r);
     }
 
     static final class MicAgain implements Runnable {
@@ -504,6 +719,14 @@ public final class WakeListener {
         window = true;
         state = "listening";
         AiTrain.voiceState();
+        if (ctx != null && CloudEar.usable(ctx) && permitted(null, false)) {
+            // the cloud ear (1.1.592): our microphone, the server writes it down — no Google / Huawei recognizer
+            micStop();
+            chime();
+            pendingEar = 2;
+            micStart();
+            return;
+        }
         // owner, 1.1.561: no window that asks to "try again" (a tap the trainer cannot make) — Google's recognizer in
         // the background, the board shows 🎙; nothing heard → it simply closes. The system dialog (1.1.555) only on a
         // tablet without a background recognizer (Huawei without Google).

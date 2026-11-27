@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 418
+    .line 423
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 419
+    .line 424
     iput-object p1, p0, Lcom/isaigu/gymapp/ai/CloudVoice$Done;->id:Ljava/lang/String;
 
-    .line 420
+    .line 425
     return-void
 .end method
 
@@ -42,21 +42,21 @@
     .registers 3
 
     .prologue
-    .line 424
+    .line 429
     # getter for: Lcom/isaigu/gymapp/ai/CloudVoice;->fallback:Lcom/isaigu/gymapp/ai/CloudVoice$Fallback;
     invoke-static {}, Lcom/isaigu/gymapp/ai/CloudVoice;->access$500()Lcom/isaigu/gymapp/ai/CloudVoice$Fallback;
 
     move-result-object v0
 
-    .line 425
+    .line 430
     if-eqz v0, :cond_b
 
-    .line 426
+    .line 431
     iget-object v1, p0, Lcom/isaigu/gymapp/ai/CloudVoice$Done;->id:Ljava/lang/String;
 
     invoke-interface {v0, v1}, Lcom/isaigu/gymapp/ai/CloudVoice$Fallback;->done(Ljava/lang/String;)V
 
-    .line 428
+    .line 433
     :cond_b
     return-void
 .end method

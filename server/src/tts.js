@@ -10,11 +10,30 @@ export const STOP_SHARE = 0.95;
 /** 24 kHz, 16-bit, mono: what the tablet's AudioTrack plays as it arrives. */
 export const TTS_FORMAT = 'raw-24khz-16bit-mono-pcm';
 
+/**
+ * Google's Chirp 3 HD (owner, 1.1.592: "use the HD Chirp voices, with a choice"): generative, the most natural
+ * Bulgarian. The owner's picks from the narrator app (Radilovk/tts: Charon, Kore, Aoede, Orus first; the starred male
+ * Gemini voices Enceladus, Iapetus). Key: GOOGLE_TTS_KEY, else GEMINI_API_KEY (an AI Studio key works when the
+ * project has Cloud Text-to-Speech on). Free: 1M characters a month; the server stops at 95 % and speaks the same
+ * phrase with Microsoft's voice instead.
+ */
+export const CHIRP_VOICES = ['Charon', 'Orus', 'Enceladus', 'Iapetus', 'Kore', 'Aoede'].map((n) => `bg-BG-Chirp3-HD-${n}`);
+export const GOOGLE_FREE_CHARS = 1000000;
+
 /** Voices the tablet may ask for (Bulgarian, or multilingual ones that speak it). */
 export const TTS_VOICES = [
   'bg-BG-KalinaNeural', 'bg-BG-BorislavNeural', 'en-US-AvaMultilingualNeural', 'en-US-AndrewMultilingualNeural',
-  'de-DE-SeraphinaMultilingualNeural', 'de-DE-FlorianMultilingualNeural',
+  'de-DE-SeraphinaMultilingualNeural', 'de-DE-FlorianMultilingualNeural', ...CHIRP_VOICES,
 ];
+
+export function isChirp(voice) {
+  return typeof voice === 'string' && voice.includes('-Chirp3-HD-');
+}
+
+/** Microsoft's voice of the same gender: what a Chirp phrase falls back to (no key, the month's quota, an error). */
+export function azureTwin(voice) {
+  return /-(Charon|Orus|Enceladus|Iapetus)$/.test(voice) ? 'bg-BG-BorislavNeural' : 'bg-BG-KalinaNeural';
+}
 export const TTS_DEFAULT_VOICE = 'bg-BG-KalinaNeural';
 
 export function pickVoice(asked, env = {}) {
@@ -72,9 +91,10 @@ export async function usedChars(env, ts = Date.now()) {
  * The month's characters so far + n would stay under the stop line? Counts them when so. D1 row
  * `tts:chars:<month>` in rate_limits (count = characters).
  */
-export async function takeChars(env, n, ts = Date.now()) {
-  const key = `tts:chars:${monthKey(ts)}`;
-  const limit = Math.floor((Number(env.TTS_FREE_CHARS) || FREE_CHARS) * STOP_SHARE);
+export async function takeChars(env, n, ts = Date.now(), google = false) {
+  const key = `tts:${google ? 'gchars' : 'chars'}:${monthKey(ts)}`;
+  const free = google ? Number(env.GOOGLE_TTS_FREE_CHARS) || GOOGLE_FREE_CHARS : Number(env.TTS_FREE_CHARS) || FREE_CHARS;
+  const limit = Math.floor(free * STOP_SHARE);
   const row = await env.DB.prepare('SELECT count FROM rate_limits WHERE key = ?').bind(key).first();
   const used = row ? Number(row.count) || 0 : 0;
   if (used + n > limit) return { ok: false, used, limit };
@@ -101,4 +121,49 @@ export async function azureSpeak(env, text, voice, fetchImpl = fetch, rate = 'no
     },
     body: ssml(text, voice, rate),
   });
+}
+
+/** The trainer's tempo as Google's speakingRate (the same steps as the SSML prosody). */
+export const GOOGLE_RATES = { slow: 0.88, normal: 1, fast: 1.12 };
+
+export function googleKey(env) {
+  return String(env.GOOGLE_TTS_KEY || env.GEMINI_API_KEY || '').trim();
+}
+
+/** WAV → its raw PCM (the 'data' chunk; Google's LINEAR16 answer carries a header). */
+export function wavData(bytes) {
+  const tag = (o) => String.fromCharCode(bytes[o], bytes[o + 1], bytes[o + 2], bytes[o + 3]);
+  if (bytes.length < 12 || tag(0) !== 'RIFF') return bytes;
+  const v = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+  let o = 12;
+  while (o + 8 <= bytes.length) {
+    const n = v.getUint32(o + 4, true);
+    if (tag(o) === 'data') return bytes.subarray(o + 8, Math.min(bytes.length, o + 8 + n));
+    o += 8 + n + (n & 1);
+  }
+  return bytes.subarray(44);
+}
+
+/** Chirp 3 HD: one phrase → raw 24 kHz 16-bit mono PCM (the same as Azure's stream). Throws on any failure. */
+export async function googleSpeak(env, text, voice, fetchImpl = fetch, rate = 'normal') {
+  const key = googleKey(env);
+  if (!key) throw new Error('no_google_key');
+  const res = await fetchImpl(`https://texttospeech.googleapis.com/v1/text:synthesize?key=${encodeURIComponent(key)}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'User-Agent': 'xems-license' },
+    body: JSON.stringify({
+      input: { text },
+      voice: { languageCode: 'bg-BG', name: voice },
+      audioConfig: { audioEncoding: 'LINEAR16', sampleRateHertz: 24000, speakingRate: GOOGLE_RATES[pickRate(rate)] },
+    }),
+  });
+  if (!res.ok) throw new Error(`google ${res.status}`);
+  const j = await res.json().catch(() => null);
+  if (!j?.audioContent) throw new Error('google no audio');
+  const bin = atob(j.audioContent);
+  const out = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+  const pcm = wavData(out);
+  if (pcm.length < 2400) throw new Error('google short audio');   // < 50 ms: nothing was said
+  return pcm;
 }

@@ -65,3 +65,35 @@ test('tempo: slow / fast as a prosody rate, anything else normal', () => {
   assert.equal(pickRate('fast'), 'fast');
   assert.equal(pickRate('toString'), 'normal');
 });
+
+import { isChirp, azureTwin, googleSpeak, wavData, CHIRP_VOICES, TTS_VOICES as ALL_VOICES } from '../src/tts.js';
+
+test('chirp: the owner\'s picks are offered, each has a Microsoft stand-in of its gender', () => {
+  assert.ok(CHIRP_VOICES.every((v) => ALL_VOICES.includes(v) && isChirp(v)));
+  assert.equal(pickVoice('bg-BG-Chirp3-HD-Charon'), 'bg-BG-Chirp3-HD-Charon');
+  assert.equal(pickVoice('bg-BG-Chirp3-HD-Nope'), 'bg-BG-KalinaNeural');
+  assert.equal(azureTwin('bg-BG-Chirp3-HD-Charon'), 'bg-BG-BorislavNeural');
+  assert.equal(azureTwin('bg-BG-Chirp3-HD-Kore'), 'bg-BG-KalinaNeural');
+  assert.equal(isChirp('bg-BG-KalinaNeural'), false);
+});
+
+test('chirp: Google\'s WAV answer → raw PCM; the key, voice and tempo sent; no key throws', async () => {
+  const pcm = new Uint8Array(4800).fill(7);
+  const head = new Uint8Array(44);
+  head.set([82, 73, 70, 70], 0); head.set([87, 65, 86, 69], 8); head.set([102, 109, 116, 32], 12);
+  new DataView(head.buffer).setUint32(16, 16, true);
+  head.set([100, 97, 116, 97], 36); new DataView(head.buffer).setUint32(40, pcm.length, true);
+  const wavBytes = new Uint8Array(44 + pcm.length); wavBytes.set(head); wavBytes.set(pcm, 44);
+  assert.equal(wavData(wavBytes).length, 4800);
+  let url, body;
+  const fake = async (u, o) => { url = u; body = JSON.parse(o.body);
+    return new Response(JSON.stringify({ audioContent: Buffer.from(wavBytes).toString('base64') })); };
+  const out = await googleSpeak({ GEMINI_API_KEY: 'g' }, 'Сила 46', 'bg-BG-Chirp3-HD-Kore', fake, 'fast');
+  assert.equal(out.length, 4800);
+  assert.match(url, /texttospeech\.googleapis\.com\/v1\/text:synthesize\?key=g$/);
+  assert.equal(body.voice.name, 'bg-BG-Chirp3-HD-Kore');
+  assert.equal(body.audioConfig.sampleRateHertz, 24000);
+  assert.equal(body.audioConfig.speakingRate, 1.12);
+  await assert.rejects(googleSpeak({}, 'x', 'bg-BG-Chirp3-HD-Kore', fake));
+  await assert.rejects(googleSpeak({ GOOGLE_TTS_KEY: 'k' }, 'x', 'bg-BG-Chirp3-HD-Kore', async () => new Response('', { status: 403 })));
+});

@@ -16,7 +16,9 @@ import { handleVrlogPut, handleVrlogGet } from './vrlog.js';
 import { handleCertIssue } from './cert.js';
 import { brief, BRIEF_MAX_BYTES } from './aibrief.js';
 import { coach, workout, command, liveTurn } from './aicoach.js';
-import { cleanText, pickVoice, pickRate, cacheKey, takeChars, usedChars, azureSpeak, FREE_CHARS, STOP_SHARE } from './tts.js';
+import { decodeAudio, secondsOf, takeSeconds, azureHear, STT_MAX_BYTES } from './stt.js';
+import { cleanText, pickVoice, pickRate, cacheKey, takeChars, usedChars, azureSpeak, FREE_CHARS, STOP_SHARE, isChirp, azureTwin,
+  googleSpeak, googleKey } from './tts.js';
 import certHtml from '../../branding/certificate/index.html';
 import { handleWiemsUpdate, handleWiemsApk, handleWiemsSeen } from './wiemsapp.js';
 import {
@@ -97,6 +99,9 @@ export default {
       }
       if (path === '/v1/tts' && request.method === 'POST') {
         return handleTts(request, env, ctx);
+      }
+      if (path === '/v1/stt' && request.method === 'POST') {
+        return handleStt(request, env);
       }
       if (path === '/v1/card' && request.method === 'POST') {
         return handleCardPut(request, env);
@@ -432,11 +437,29 @@ async function handleTts(request, env, ctx) {
   if (!allowHit(`tts:dev:${deviceId}`, LIMITS.ttsPerMinutePerDevice, 60, now())) {
     return json({ ok: false, error: 'rate_limit', message: 'Too many requests' }, 429);
   }
+  // Chirp 3 HD (Google): the whole phrase at once (no streaming); any failure → the same words by Microsoft's voice
+  let voiceUsed = voice;
+  if (isChirp(voice)) {
+    const g = googleKey(env) ? await takeChars(env, text.length, Date.now(), true) : { ok: false };
+    if (g.ok) {
+      try {
+        const pcm = await googleSpeak(env, text, voice, fetch, rate);
+        ctx?.waitUntil?.(cache.put(key, new Response(pcm.slice(), {
+          headers: { 'Content-Type': 'audio/L16; rate=24000', 'Cache-Control': 'public, max-age=31536000' },
+        })).catch(() => {}));
+        return new Response(pcm, { headers: { 'Content-Type': 'audio/L16; rate=24000', 'X-Tts': 'google', 'X-Voice': voice,
+          'X-Tts-Used': String(g.used), 'X-Tts-Limit': String(g.limit) } });
+      } catch (e) {
+        console.warn('chirp', String(e?.message || e).slice(0, 80));
+      }
+    }
+    voiceUsed = azureTwin(voice);
+  }
   const quota = await takeChars(env, text.length);
   if (!quota.ok) return json({ ok: false, error: 'tts_quota', used: quota.used, limit: quota.limit }, 429);
   let res;
   try {
-    res = await azureSpeak(env, text, voice, fetch, rate);
+    res = await azureSpeak(env, text, voiceUsed, fetch, rate);
   } catch (e) {
     return json({ ok: false, error: 'tts_unavailable', message: String(e?.message || e).slice(0, 80) }, 503);
   }
@@ -444,12 +467,46 @@ async function handleTts(request, env, ctx) {
     return json({ ok: false, error: 'tts_unavailable', message: `azure ${res.status}` }, 503);
   }
   // to the tablet as it comes, and a copy into the cache (a year: the same words, the same sound)
+  // a Chirp phrase said by Microsoft's stand-in is not kept under the Chirp voice (the next time Google says it)
+  if (voiceUsed !== voice) {
+    return new Response(res.body, { headers: { 'Content-Type': 'audio/L16; rate=24000', 'X-Tts': 'azure', 'X-Voice': voiceUsed,
+      'X-Tts-Used': String(quota.used), 'X-Tts-Limit': String(quota.limit) } });
+  }
   const [toTablet, toCache] = res.body.tee();
   ctx?.waitUntil?.(cache.put(key, new Response(toCache, {
     headers: { 'Content-Type': 'audio/L16; rate=24000', 'Cache-Control': 'public, max-age=31536000' },
   })).catch(() => {}));
   return new Response(toTablet, { headers: { 'Content-Type': 'audio/L16; rate=24000', 'X-Tts': 'azure', 'X-Voice': voice,
     'X-Tts-Used': String(quota.used), 'X-Tts-Limit': String(quota.limit) } });
+}
+
+/**
+ * The trainer's words as text (src/stt.js): POST {token, device_id, audio: base64 16 kHz 16-bit mono PCM} →
+ * {ok, text}. 429 stt_quota near the month's free audio: the tablet uses the system recognizer.
+ */
+async function handleStt(request, env) {
+  const body = await readJsonBody(request, Math.ceil(STT_MAX_BYTES / 3) * 4 + 4096);
+  if (!body) return err('unknown', 'Invalid JSON body');
+  const deviceId = normDevice(body.device_id);
+  const tokenBody = parseTokenBody(body.token);
+  const licId = tokenBody?.lic;
+  if (!licId || !deviceId || normDevice(tokenBody.dev) !== deviceId) return err('unknown', 'Invalid token');
+  if (!(await verifyToken(env.LICENSE_PRIVATE_KEY, body.token))) return err('unknown', 'Invalid token');
+  const pcm = decodeAudio(body.audio);
+  if (!pcm) return err('bad_request', 'audio');
+  if (!allowHit(`stt:dev:${deviceId}`, LIMITS.sttPerMinutePerDevice, 60, now())) {
+    return json({ ok: false, error: 'rate_limit', message: 'Too many requests' }, 429);
+  }
+  const quota = await takeSeconds(env, secondsOf(pcm));
+  if (!quota.ok) return json({ ok: false, error: 'stt_quota', used: quota.used, limit: quota.limit }, 429);
+  let r;
+  try {
+    r = await azureHear(env, pcm, fetch);
+  } catch (e) {
+    return json({ ok: false, error: 'stt_unavailable', message: String(e?.message || e).slice(0, 80) }, 503);
+  }
+  if (!r.ok) return json({ ok: false, error: 'stt_unavailable', message: `azure ${r.status}` }, 503);
+  return json({ ok: true, text: r.text, used: quota.used, limit: quota.limit });
 }
 
 /** The AI layer over the planner (docs/xems-ai-brief.md): the trainer's text → a validated patch of its inputs. */

@@ -14,6 +14,8 @@ export const LIMITS = {
   briefPerDayPerLicense: 600,
   // the coach's voice (src/tts.js): a phrase a few seconds long; the cache answers repeats without counting
   ttsPerMinutePerDevice: 40,
+  // the trainer's words as text (src/stt.js): one suspected "окей тренер" + its command, a few seconds each
+  sttPerMinutePerDevice: 20,
   cardFindPerMinutePerIp: 20,
   profilePerMinutePerIp: 10,
   inboxPerMinutePerDevice: 6,

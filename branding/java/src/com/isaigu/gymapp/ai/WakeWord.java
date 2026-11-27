@@ -24,8 +24,13 @@ public final class WakeWord {
     static final int DEFAULT_THR = 1400;
     /** The widest limit ever (WakeSim: the wake phrase 700–1500, the closest ordinary words 1480+; speech 'добре тренер' 1165). */
     public static final int THR_CAP = 1700;
-    /** Examples further apart than this (worst pair) are not one phrase: the setup asks again (WakeSim's own: ~550). */
-    public static final int WIDE_SPREAD = 1000;
+    /**
+     * Examples further apart than this (worst pair) are not one phrase: the setup asks again. espeak's own spread is
+     * ~550, but a live voice says "окей тренер" far less evenly (owner, 1.1.589: "the recordings differ, however I say
+     * it") — 1000 rejected real speech. The limit itself stays capped (THR_CAP), so a looser check lets no random word
+     * through; it only throws out what is clearly not one phrase (a cough, another word: 2500+).
+     */
+    public static final int WIDE_SPREAD = 2200;
 
     public static final int NONE = 0, WAKE = 1, RECORDED = 2, SKIPPED = 3;
 

@@ -552,3 +552,12 @@ it, the warm-up runs softer by design); "s" read aloud as a letter → "секу
   (Kemmler, Maffiuletti, Teschler, Kesar & Binder-Macleod, Gregory, Bickel, Haseler, Gondin) — and says only that on this
   basis we built **our own precise algorithm**, with the author's coaching practice. No equations, constants or limits
   are shown. The numeric detail stays in `docs/xems-ems-physiology.md` / `xems-safety-limits.md` (not in the app).
+
+## 1.1.590–591 — the wake setup: a live voice is accepted, silence is not
+- **Owner:** "the recordings differ, however I say it" and "left silent, it still counts as spoken".
+- **Differ:** `WIDE_SPREAD` 1000 was set from espeak (~550); a live voice is far more uneven → 2200 (the limit stays capped by
+  `THR_CAP`). Every setup logs `wake: setup: spread=… kept/REJECTED` — read it to tune the number.
+- **Silence counted:** while recording, the finder is lenient and relative to a (silent) floor, so the app's own ✓ beep
+  after each recording was taken as the next word (reproduced offline). Now a recording needs ≥ 0.4 s and ≥ 40 dB absolute
+  (`REC_MIN_LEN`, `REC_MIN_DB`) and nothing may start in the first 0.35 s after `record()` (`Finder.hold`). A too quiet
+  or too short sound gives "Не те чух ясно".

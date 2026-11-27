@@ -17,6 +17,10 @@
 # static fields
 .field static final NH:I = 0x96
 
+.field static final REC_MIN_DB:F = 40.0f
+
+.field static final REC_MIN_LEN:I = 0x28
+
 .field static final SETTLE:I = 0x28
 
 
@@ -46,6 +50,8 @@
 .field hi:I
 
 .field final hist:[F
+
+.field hold:I
 
 .field lastAct:I
 
@@ -128,14 +134,14 @@
 
     iput v0, p0, Lcom/isaigu/gymapp/ai/WakeWord$Finder;->REC_POST_Q:I
 
-    .line 189
+    .line 192
     const/16 v0, 0x96
 
     new-array v0, v0, [F
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/WakeWord$Finder;->hist:[F
 
-    .line 192
+    .line 195
     const/16 v0, 0x12c
 
     const/16 v1, 0x1b
@@ -154,14 +160,14 @@
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/WakeWord$Finder;->ring:[[F
 
-    .line 193
+    .line 196
     const/16 v0, 0x1a
 
     new-array v0, v0, [F
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/WakeWord$Finder;->noise:[F
 
-    .line 197
+    .line 200
     const-wide/16 v0, -0x3e8
 
     iput-wide v0, p0, Lcom/isaigu/gymapp/ai/WakeWord$Finder;->qEnd:J
@@ -173,7 +179,7 @@
     .registers 4
 
     .prologue
-    .line 340
+    .line 349
     const/16 v0, -0x7f
 
     const/16 v1, 0x7f
@@ -201,28 +207,28 @@
     .registers 14
 
     .prologue
-    .line 205
+    .line 210
     iget v0, p0, Lcom/isaigu/gymapp/ai/WakeWord$Finder;->t:I
 
     const/16 v1, 0x28
 
     if-ge v0, v1, :cond_e
 
-    .line 206
+    .line 211
     iget v0, p0, Lcom/isaigu/gymapp/ai/WakeWord$Finder;->t:I
 
     add-int/lit8 v0, v0, 0x1
 
     iput v0, p0, Lcom/isaigu/gymapp/ai/WakeWord$Finder;->t:I
 
-    .line 207
+    .line 212
     const/4 v0, 0x0
 
-    .line 287
+    .line 296
     :goto_d
     return v0
 
-    .line 209
+    .line 214
     :cond_e
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/WakeWord$Finder;->ring:[[F
 
@@ -232,7 +238,7 @@
 
     aget-object v0, v0, v1
 
-    .line 210
+    .line 215
     const/4 v1, 0x0
 
     const/4 v2, 0x0
@@ -241,25 +247,25 @@
 
     invoke-static {p1, v1, v0, v2, v3}, Ljava/lang/System;->arraycopy(Ljava/lang/Object;ILjava/lang/Object;II)V
 
-    .line 211
+    .line 216
     const/16 v1, 0x1a
 
     aput p2, v0, v1
 
-    .line 212
+    .line 217
     const/4 v2, 0x0
 
-    .line 213
+    .line 218
     iget v0, p0, Lcom/isaigu/gymapp/ai/WakeWord$Finder;->t:I
 
     const/16 v1, 0x28
 
     if-ne v0, v1, :cond_33
 
-    .line 214
+    .line 219
     iput p2, p0, Lcom/isaigu/gymapp/ai/WakeWord$Finder;->floorDb:F
 
-    .line 215
+    .line 220
     const/4 v0, 0x0
 
     iget-object v1, p0, Lcom/isaigu/gymapp/ai/WakeWord$Finder;->noise:[F
@@ -270,7 +276,7 @@
 
     invoke-static {p1, v0, v1, v3, v4}, Ljava/lang/System;->arraycopy(Ljava/lang/Object;ILjava/lang/Object;II)V
 
-    .line 217
+    .line 222
     :cond_33
     iget v0, p0, Lcom/isaigu/gymapp/ai/WakeWord$Finder;->ON_DB:F
 
@@ -284,7 +290,7 @@
 
     move-result v1
 
-    .line 218
+    .line 223
     iget v0, p0, Lcom/isaigu/gymapp/ai/WakeWord$Finder;->state:I
 
     if-nez v0, :cond_e8
@@ -304,7 +310,7 @@
     :goto_4d
     iput v0, p0, Lcom/isaigu/gymapp/ai/WakeWord$Finder;->loudRun:I
 
-    .line 219
+    .line 224
     iget v0, p0, Lcom/isaigu/gymapp/ai/WakeWord$Finder;->state:I
 
     const/4 v3, 0x2
@@ -335,7 +341,7 @@
 
     if-gez v0, :cond_93
 
-    .line 220
+    .line 225
     :cond_6b
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/WakeWord$Finder;->hist:[F
 
@@ -343,7 +349,7 @@
 
     aput p2, v0, v1
 
-    .line 221
+    .line 226
     iget v0, p0, Lcom/isaigu/gymapp/ai/WakeWord$Finder;->hi:I
 
     add-int/lit8 v0, v0, 0x1
@@ -352,21 +358,21 @@
 
     iput v0, p0, Lcom/isaigu/gymapp/ai/WakeWord$Finder;->hi:I
 
-    .line 222
+    .line 227
     iget v0, p0, Lcom/isaigu/gymapp/ai/WakeWord$Finder;->nh:I
 
     const/16 v1, 0x96
 
     if-ge v0, v1, :cond_85
 
-    .line 223
+    .line 228
     iget v0, p0, Lcom/isaigu/gymapp/ai/WakeWord$Finder;->nh:I
 
     add-int/lit8 v0, v0, 0x1
 
     iput v0, p0, Lcom/isaigu/gymapp/ai/WakeWord$Finder;->nh:I
 
-    .line 225
+    .line 230
     :cond_85
     iget v0, p0, Lcom/isaigu/gymapp/ai/WakeWord$Finder;->nh:I
 
@@ -374,7 +380,7 @@
 
     if-ge v0, v1, :cond_eb
 
-    .line 226
+    .line 231
     iget v0, p0, Lcom/isaigu/gymapp/ai/WakeWord$Finder;->floorDb:F
 
     invoke-static {v0, p2}, Ljava/lang/Math;->min(FF)F
@@ -383,7 +389,7 @@
 
     iput v0, p0, Lcom/isaigu/gymapp/ai/WakeWord$Finder;->floorDb:F
 
-    .line 231
+    .line 236
     :cond_93
     :goto_93
     iget v0, p0, Lcom/isaigu/gymapp/ai/WakeWord$Finder;->QUIET_DB:F
@@ -398,7 +404,7 @@
 
     move-result v0
 
-    .line 232
+    .line 237
     iget v1, p0, Lcom/isaigu/gymapp/ai/WakeWord$Finder;->ON_DB:F
 
     iget v3, p0, Lcom/isaigu/gymapp/ai/WakeWord$Finder;->spread:F
@@ -411,7 +417,7 @@
 
     move-result v1
 
-    .line 233
+    .line 238
     iget v3, p0, Lcom/isaigu/gymapp/ai/WakeWord$Finder;->OFF_DB:F
 
     iget v4, p0, Lcom/isaigu/gymapp/ai/WakeWord$Finder;->spread:F
@@ -424,7 +430,7 @@
 
     move-result v5
 
-    .line 234
+    .line 239
     iget v3, p0, Lcom/isaigu/gymapp/ai/WakeWord$Finder;->LOUD_DB:F
 
     iget v4, p0, Lcom/isaigu/gymapp/ai/WakeWord$Finder;->spread:F
@@ -437,7 +443,7 @@
 
     move-result v3
 
-    .line 235
+    .line 240
     iget v4, p0, Lcom/isaigu/gymapp/ai/WakeWord$Finder;->floorDb:F
 
     add-float/2addr v0, v4
@@ -448,7 +454,7 @@
 
     const/4 v0, 0x1
 
-    .line 236
+    .line 241
     :goto_c7
     iget v4, p0, Lcom/isaigu/gymapp/ai/WakeWord$Finder;->state:I
 
@@ -458,7 +464,7 @@
 
     if-eqz v0, :cond_f7
 
-    .line 237
+    .line 242
     const/4 v4, 0x0
 
     :goto_cf
@@ -466,7 +472,7 @@
 
     if-ge v4, v6, :cond_f7
 
-    .line 238
+    .line 243
     iget-object v6, p0, Lcom/isaigu/gymapp/ai/WakeWord$Finder;->noise:[F
 
     aget v7, v6, v4
@@ -487,18 +493,18 @@
 
     aput v7, v6, v4
 
-    .line 237
+    .line 242
     add-int/lit8 v4, v4, 0x1
 
     goto :goto_cf
 
-    .line 218
+    .line 223
     :cond_e8
     const/4 v0, 0x0
 
     goto/16 :goto_4d
 
-    .line 227
+    .line 232
     :cond_eb
     iget v0, p0, Lcom/isaigu/gymapp/ai/WakeWord$Finder;->t:I
 
@@ -506,54 +512,60 @@
 
     if-nez v0, :cond_93
 
-    .line 228
+    .line 233
     invoke-virtual {p0}, Lcom/isaigu/gymapp/ai/WakeWord$Finder;->stats()V
 
     goto :goto_93
 
-    .line 235
+    .line 240
     :cond_f5
     const/4 v0, 0x0
 
     goto :goto_c7
 
-    .line 241
+    .line 246
     :cond_f7
     iget v4, p0, Lcom/isaigu/gymapp/ai/WakeWord$Finder;->state:I
 
-    if-nez v4, :cond_164
+    if-nez v4, :cond_16a
 
-    .line 242
+    .line 247
+    iget v3, p0, Lcom/isaigu/gymapp/ai/WakeWord$Finder;->t:I
+
+    iget v4, p0, Lcom/isaigu/gymapp/ai/WakeWord$Finder;->hold:I
+
+    if-lt v3, v4, :cond_168
+
     iget v3, p0, Lcom/isaigu/gymapp/ai/WakeWord$Finder;->floorDb:F
 
     iget-boolean v4, p0, Lcom/isaigu/gymapp/ai/WakeWord$Finder;->lenient:Z
 
-    if-eqz v4, :cond_104
+    if-eqz v4, :cond_10a
 
     const/high16 v4, 0x40400000    # 3.0f
 
     sub-float/2addr v1, v4
 
-    :cond_104
+    :cond_10a
     add-float/2addr v1, v3
 
     cmpl-float v1, p2, v1
 
-    if-lez v1, :cond_162
+    if-lez v1, :cond_168
 
     iget v1, p0, Lcom/isaigu/gymapp/ai/WakeWord$Finder;->above:I
 
     add-int/lit8 v1, v1, 0x1
 
-    :goto_10d
+    :goto_113
     iput v1, p0, Lcom/isaigu/gymapp/ai/WakeWord$Finder;->above:I
 
-    .line 243
+    .line 248
     iget v1, p0, Lcom/isaigu/gymapp/ai/WakeWord$Finder;->above:I
 
     const/4 v3, 0x3
 
-    if-lt v1, v3, :cond_1e0
+    if-lt v1, v3, :cond_1fb
 
     iget v1, p0, Lcom/isaigu/gymapp/ai/WakeWord$Finder;->t:I
 
@@ -567,14 +579,14 @@
 
     cmp-long v1, v4, v6
 
-    if-gtz v1, :cond_1e0
+    if-gtz v1, :cond_1fb
 
-    .line 244
+    .line 249
     const/4 v1, 0x1
 
     iput v1, p0, Lcom/isaigu/gymapp/ai/WakeWord$Finder;->state:I
 
-    .line 245
+    .line 250
     iget-wide v4, p0, Lcom/isaigu/gymapp/ai/WakeWord$Finder;->qEnd:J
 
     const-wide/16 v6, 0x2
@@ -591,7 +603,7 @@
 
     move-result-wide v4
 
-    .line 246
+    .line 251
     const-wide/16 v6, 0x0
 
     invoke-static {v6, v7, v4, v5}, Ljava/lang/Math;->max(JJ)J
@@ -602,40 +614,40 @@
 
     iput v1, p0, Lcom/isaigu/gymapp/ai/WakeWord$Finder;->s0:I
 
-    .line 247
+    .line 252
     iput p2, p0, Lcom/isaigu/gymapp/ai/WakeWord$Finder;->peak:F
 
-    .line 248
+    .line 253
     iget v1, p0, Lcom/isaigu/gymapp/ai/WakeWord$Finder;->t:I
 
     iput v1, p0, Lcom/isaigu/gymapp/ai/WakeWord$Finder;->lastAct:I
 
     move v1, v2
 
-    .line 278
-    :goto_141
-    if-eqz v0, :cond_1fb
+    .line 287
+    :goto_147
+    if-eqz v0, :cond_216
 
-    .line 279
+    .line 288
     iget v0, p0, Lcom/isaigu/gymapp/ai/WakeWord$Finder;->quietRun:I
 
     add-int/lit8 v0, v0, 0x1
 
     iput v0, p0, Lcom/isaigu/gymapp/ai/WakeWord$Finder;->quietRun:I
 
-    .line 280
+    .line 289
     iget v2, p0, Lcom/isaigu/gymapp/ai/WakeWord$Finder;->quietRun:I
 
     iget-boolean v0, p0, Lcom/isaigu/gymapp/ai/WakeWord$Finder;->lenient:Z
 
-    if-eqz v0, :cond_1f7
+    if-eqz v0, :cond_212
 
     const/4 v0, 0x5
 
-    :goto_150
-    if-lt v2, v0, :cond_159
+    :goto_156
+    if-lt v2, v0, :cond_15f
 
-    .line 281
+    .line 290
     iget v0, p0, Lcom/isaigu/gymapp/ai/WakeWord$Finder;->t:I
 
     add-int/lit8 v0, v0, 0x1
@@ -644,9 +656,9 @@
 
     iput-wide v2, p0, Lcom/isaigu/gymapp/ai/WakeWord$Finder;->qEnd:J
 
-    .line 286
-    :cond_159
-    :goto_159
+    .line 295
+    :cond_15f
+    :goto_15f
     iget v0, p0, Lcom/isaigu/gymapp/ai/WakeWord$Finder;->t:I
 
     add-int/lit8 v0, v0, 0x1
@@ -655,24 +667,24 @@
 
     move v0, v1
 
-    .line 287
+    .line 296
     goto/16 :goto_d
 
-    .line 242
-    :cond_162
+    .line 247
+    :cond_168
     const/4 v1, 0x0
 
-    goto :goto_10d
+    goto :goto_113
 
-    .line 250
-    :cond_164
+    .line 255
+    :cond_16a
     iget v1, p0, Lcom/isaigu/gymapp/ai/WakeWord$Finder;->state:I
 
     const/4 v4, 0x1
 
-    if-ne v1, v4, :cond_1e3
+    if-ne v1, v4, :cond_1fe
 
-    .line 251
+    .line 256
     iget v1, p0, Lcom/isaigu/gymapp/ai/WakeWord$Finder;->peak:F
 
     invoke-static {v1, p2}, Ljava/lang/Math;->max(FF)F
@@ -681,7 +693,7 @@
 
     iput v1, p0, Lcom/isaigu/gymapp/ai/WakeWord$Finder;->peak:F
 
-    .line 252
+    .line 257
     iget v1, p0, Lcom/isaigu/gymapp/ai/WakeWord$Finder;->floorDb:F
 
     add-float/2addr v1, v5
@@ -696,26 +708,26 @@
 
     move-result v1
 
-    .line 253
+    .line 258
     cmpl-float v1, p2, v1
 
-    if-lez v1, :cond_185
+    if-lez v1, :cond_18b
 
-    .line 254
+    .line 259
     iget v1, p0, Lcom/isaigu/gymapp/ai/WakeWord$Finder;->t:I
 
     iput v1, p0, Lcom/isaigu/gymapp/ai/WakeWord$Finder;->lastAct:I
 
-    .line 256
-    :cond_185
+    .line 261
+    :cond_18b
     iget-boolean v1, p0, Lcom/isaigu/gymapp/ai/WakeWord$Finder;->lenient:Z
 
-    if-eqz v1, :cond_19d
+    if-eqz v1, :cond_1a3
 
     iget v1, p0, Lcom/isaigu/gymapp/ai/WakeWord$Finder;->REC_POST_Q:I
 
-    .line 257
-    :goto_18b
+    .line 262
+    :goto_191
     iget v4, p0, Lcom/isaigu/gymapp/ai/WakeWord$Finder;->t:I
 
     iget v5, p0, Lcom/isaigu/gymapp/ai/WakeWord$Finder;->s0:I
@@ -726,66 +738,89 @@
 
     add-int/2addr v5, v1
 
-    if-le v4, v5, :cond_1a0
+    if-le v4, v5, :cond_1a6
 
-    .line 258
+    .line 263
     const/4 v1, 0x2
 
     iput v1, p0, Lcom/isaigu/gymapp/ai/WakeWord$Finder;->state:I
 
-    .line 259
+    .line 264
     const/4 v1, 0x1
 
     iput-boolean v1, p0, Lcom/isaigu/gymapp/ai/WakeWord$Finder;->skipped:Z
 
     move v1, v2
 
-    goto :goto_141
+    goto :goto_147
 
-    .line 256
-    :cond_19d
+    .line 261
+    :cond_1a3
     iget v1, p0, Lcom/isaigu/gymapp/ai/WakeWord$Finder;->POST_Q:I
 
-    goto :goto_18b
+    goto :goto_191
 
-    .line 260
-    :cond_1a0
+    .line 265
+    :cond_1a6
     iget v4, p0, Lcom/isaigu/gymapp/ai/WakeWord$Finder;->t:I
 
     iget v5, p0, Lcom/isaigu/gymapp/ai/WakeWord$Finder;->lastAct:I
 
     sub-int/2addr v4, v5
 
-    if-lt v4, v1, :cond_1e0
+    if-lt v4, v1, :cond_1fb
 
-    .line 261
+    .line 266
     const/4 v1, 0x0
 
     iput v1, p0, Lcom/isaigu/gymapp/ai/WakeWord$Finder;->state:I
 
-    .line 262
+    .line 267
     const/4 v1, 0x0
 
     iput v1, p0, Lcom/isaigu/gymapp/ai/WakeWord$Finder;->above:I
 
-    .line 263
+    .line 268
     iget v1, p0, Lcom/isaigu/gymapp/ai/WakeWord$Finder;->lastAct:I
 
     add-int/lit8 v4, v1, 0x3
 
-    .line 264
+    .line 269
     iget v1, p0, Lcom/isaigu/gymapp/ai/WakeWord$Finder;->s0:I
 
-    sub-int v1, v4, v1
+    sub-int v5, v4, v1
 
-    .line 265
-    iget v5, p0, Lcom/isaigu/gymapp/ai/WakeWord$Finder;->MINLEN:I
+    .line 273
+    iget-boolean v1, p0, Lcom/isaigu/gymapp/ai/WakeWord$Finder;->lenient:Z
 
-    if-lt v1, v5, :cond_1dd
+    if-eqz v1, :cond_1cb
 
-    iget v5, p0, Lcom/isaigu/gymapp/ai/WakeWord$Finder;->MAXLEN:I
+    const/16 v1, 0x28
 
-    if-gt v1, v5, :cond_1dd
+    if-lt v5, v1, :cond_1f4
+
+    iget v1, p0, Lcom/isaigu/gymapp/ai/WakeWord$Finder;->peak:F
+
+    const/high16 v6, 0x42200000    # 40.0f
+
+    cmpl-float v1, v1, v6
+
+    if-ltz v1, :cond_1f4
+
+    :cond_1cb
+    const/4 v1, 0x1
+
+    .line 274
+    :goto_1cc
+    if-eqz v1, :cond_1f8
+
+    iget v1, p0, Lcom/isaigu/gymapp/ai/WakeWord$Finder;->MINLEN:I
+
+    if-lt v5, v1, :cond_1f8
+
+    iget v1, p0, Lcom/isaigu/gymapp/ai/WakeWord$Finder;->MAXLEN:I
+
+    if-gt v5, v1, :cond_1f8
 
     iget v5, p0, Lcom/isaigu/gymapp/ai/WakeWord$Finder;->peak:F
 
@@ -793,106 +828,112 @@
 
     iget-boolean v1, p0, Lcom/isaigu/gymapp/ai/WakeWord$Finder;->lenient:Z
 
-    if-eqz v1, :cond_1db
+    if-eqz v1, :cond_1f6
 
     const/high16 v1, 0x40c00000    # 6.0f
 
     sub-float v1, v3, v1
 
-    :goto_1c9
+    :goto_1e2
     add-float/2addr v1, v6
 
     cmpl-float v1, v5, v1
 
-    if-lez v1, :cond_1dd
+    if-lez v1, :cond_1f8
 
-    .line 266
+    .line 275
     iget v1, p0, Lcom/isaigu/gymapp/ai/WakeWord$Finder;->s0:I
 
     iput v1, p0, Lcom/isaigu/gymapp/ai/WakeWord$Finder;->w0:I
 
-    .line 267
+    .line 276
     iput v4, p0, Lcom/isaigu/gymapp/ai/WakeWord$Finder;->w1:I
 
-    .line 268
+    .line 277
     iget v1, p0, Lcom/isaigu/gymapp/ai/WakeWord$Finder;->peak:F
 
     iput v1, p0, Lcom/isaigu/gymapp/ai/WakeWord$Finder;->wPeak:F
 
-    .line 269
+    .line 278
     const/4 v1, 0x1
 
-    goto/16 :goto_141
+    goto/16 :goto_147
 
-    :cond_1db
+    .line 273
+    :cond_1f4
+    const/4 v1, 0x0
+
+    goto :goto_1cc
+
+    :cond_1f6
     move v1, v3
 
-    .line 265
-    goto :goto_1c9
+    .line 274
+    goto :goto_1e2
 
-    .line 271
-    :cond_1dd
+    .line 280
+    :cond_1f8
     const/4 v1, 0x1
 
     iput-boolean v1, p0, Lcom/isaigu/gymapp/ai/WakeWord$Finder;->skipped:Z
 
-    :cond_1e0
-    :goto_1e0
+    :cond_1fb
+    :goto_1fb
     move v1, v2
 
-    goto/16 :goto_141
+    goto/16 :goto_147
 
-    .line 274
-    :cond_1e3
+    .line 283
+    :cond_1fe
     iget v1, p0, Lcom/isaigu/gymapp/ai/WakeWord$Finder;->state:I
 
     const/4 v3, 0x2
 
-    if-ne v1, v3, :cond_1e0
+    if-ne v1, v3, :cond_1fb
 
-    if-eqz v0, :cond_1e0
+    if-eqz v0, :cond_1fb
 
     iget v1, p0, Lcom/isaigu/gymapp/ai/WakeWord$Finder;->quietRun:I
 
     iget v3, p0, Lcom/isaigu/gymapp/ai/WakeWord$Finder;->POST_Q:I
 
-    if-lt v1, v3, :cond_1e0
+    if-lt v1, v3, :cond_1fb
 
-    .line 275
+    .line 284
     const/4 v1, 0x0
 
     iput v1, p0, Lcom/isaigu/gymapp/ai/WakeWord$Finder;->state:I
 
-    .line 276
+    .line 285
     const/4 v1, 0x0
 
     iput v1, p0, Lcom/isaigu/gymapp/ai/WakeWord$Finder;->above:I
 
-    goto :goto_1e0
+    goto :goto_1fb
 
-    .line 280
-    :cond_1f7
+    .line 289
+    :cond_212
     iget v0, p0, Lcom/isaigu/gymapp/ai/WakeWord$Finder;->PRE_Q:I
 
-    goto/16 :goto_150
+    goto/16 :goto_156
 
-    .line 284
-    :cond_1fb
+    .line 293
+    :cond_216
     const/4 v0, 0x0
 
     iput v0, p0, Lcom/isaigu/gymapp/ai/WakeWord$Finder;->quietRun:I
 
-    goto/16 :goto_159
+    goto/16 :goto_15f
 .end method
 
 .method span(Lcom/isaigu/gymapp/ai/WakeWord$Word;Lcom/isaigu/gymapp/ai/WakeWord$Front;IIF)V
     .registers 22
 
     .prologue
-    .line 300
+    .line 309
     sub-int v10, p4, p3
 
-    .line 301
+    .line 310
     const/16 v2, 0x80
 
     add-int/lit8 v3, v10, 0x1
@@ -903,7 +944,7 @@
 
     move-result v11
 
-    .line 302
+    .line 311
     const/16 v2, 0xd
 
     filled-new-array {v11, v2}, [I
@@ -918,7 +959,7 @@
 
     check-cast v2, [[F
 
-    .line 303
+    .line 312
     const/16 v3, 0x1a
 
     filled-new-array {v11, v3}, [I
@@ -933,15 +974,15 @@
 
     check-cast v3, [[F
 
-    .line 304
+    .line 313
     const/4 v8, 0x0
 
-    .line 305
+    .line 314
     const/16 v4, 0xd
 
     new-array v12, v4, [F
 
-    .line 306
+    .line 315
     const/4 v4, 0x0
 
     move v9, v4
@@ -949,7 +990,7 @@
     :goto_2f
     if-ge v9, v11, :cond_98
 
-    .line 307
+    .line 316
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/isaigu/gymapp/ai/WakeWord$Finder;->ring:[[F
@@ -962,7 +1003,7 @@
 
     aget-object v5, v4, v5
 
-    .line 308
+    .line 317
     mul-int/lit8 v4, v9, 0x2
 
     add-int/lit8 v4, v4, 0x1
@@ -983,7 +1024,7 @@
 
     aget-object v4, v4, v6
 
-    .line 309
+    .line 318
     :goto_51
     const/4 v6, 0x0
 
@@ -994,7 +1035,7 @@
 
     if-ge v7, v6, :cond_82
 
-    .line 310
+    .line 319
     aget v6, v5, v7
 
     aget v13, v4, v7
@@ -1017,7 +1058,7 @@
 
     sub-float/2addr v6, v13
 
-    .line 311
+    .line 320
     aget-object v13, v3, v9
 
     const/4 v14, 0x0
@@ -1029,7 +1070,7 @@
     :goto_70
     aput v6, v13, v7
 
-    .line 312
+    .line 321
     aget-object v6, v3, v9
 
     aget v6, v6, v7
@@ -1038,7 +1079,7 @@
 
     move-result v8
 
-    .line 309
+    .line 318
     add-int/lit8 v6, v7, 0x1
 
     move v7, v6
@@ -1048,16 +1089,16 @@
     :cond_7e
     move-object v4, v5
 
-    .line 308
+    .line 317
     goto :goto_51
 
-    .line 311
+    .line 320
     :cond_80
     const/4 v6, 0x0
 
     goto :goto_70
 
-    .line 314
+    .line 323
     :cond_82
     aget-object v6, v2, v9
 
@@ -1079,14 +1120,14 @@
 
     aput v4, v6, v7
 
-    .line 306
+    .line 315
     add-int/lit8 v4, v9, 0x1
 
     move v9, v4
 
     goto :goto_2f
 
-    .line 316
+    .line 325
     :cond_98
     const v4, 0x3a83126f    # 0.001f
 
@@ -1096,7 +1137,7 @@
 
     add-float v8, v4, v5
 
-    .line 317
+    .line 326
     const/4 v4, 0x0
 
     move v7, v4
@@ -1104,7 +1145,7 @@
     :goto_a2
     if-ge v7, v11, :cond_eb
 
-    .line 318
+    .line 327
     const/4 v4, 0x0
 
     :goto_a5
@@ -1112,7 +1153,7 @@
 
     if-ge v4, v5, :cond_bb
 
-    .line 319
+    .line 328
     aget-object v5, v3, v7
 
     aget-object v6, v3, v7
@@ -1131,12 +1172,12 @@
 
     aput v6, v5, v4
 
-    .line 318
+    .line 327
     add-int/lit8 v4, v4, 0x1
 
     goto :goto_a5
 
-    .line 321
+    .line 330
     :cond_bb
     const/4 v4, 0x0
 
@@ -1147,10 +1188,10 @@
 
     if-ge v6, v4, :cond_e7
 
-    .line 322
+    .line 331
     const/4 v5, 0x0
 
-    .line 323
+    .line 332
     const/4 v4, 0x0
 
     :goto_c3
@@ -1158,7 +1199,7 @@
 
     if-ge v4, v9, :cond_d8
 
-    .line 324
+    .line 333
     move-object/from16 v0, p2
 
     iget-object v9, v0, Lcom/isaigu/gymapp/ai/WakeWord$Front;->dct:[[F
@@ -1175,18 +1216,18 @@
 
     add-float/2addr v5, v9
 
-    .line 323
+    .line 332
     add-int/lit8 v4, v4, 0x1
 
     goto :goto_c3
 
-    .line 326
+    .line 335
     :cond_d8
     aget-object v4, v2, v7
 
     aput v5, v4, v6
 
-    .line 327
+    .line 336
     aget v4, v12, v6
 
     int-to-float v9, v11
@@ -1197,14 +1238,14 @@
 
     aput v4, v12, v6
 
-    .line 321
+    .line 330
     add-int/lit8 v4, v6, 0x1
 
     move v6, v4
 
     goto :goto_bd
 
-    .line 317
+    .line 326
     :cond_e7
     add-int/lit8 v4, v7, 0x1
 
@@ -1212,7 +1253,7 @@
 
     goto :goto_a2
 
-    .line 330
+    .line 339
     :cond_eb
     const/4 v3, 0x0
 
@@ -1221,7 +1262,7 @@
     :goto_ed
     if-ge v4, v11, :cond_12a
 
-    .line 331
+    .line 340
     const/4 v3, 0x0
 
     :goto_f0
@@ -1229,7 +1270,7 @@
 
     if-ge v3, v5, :cond_10d
 
-    .line 332
+    .line 341
     move-object/from16 v0, p1
 
     iget-object v5, v0, Lcom/isaigu/gymapp/ai/WakeWord$Word;->f:[[B
@@ -1254,12 +1295,12 @@
 
     aput-byte v6, v5, v3
 
-    .line 331
+    .line 340
     add-int/lit8 v3, v3, 0x1
 
     goto :goto_f0
 
-    .line 334
+    .line 343
     :cond_10d
     move-object/from16 v0, p1
 
@@ -1287,20 +1328,20 @@
 
     aput-byte v6, v3, v5
 
-    .line 330
+    .line 339
     add-int/lit8 v3, v4, 0x1
 
     move v4, v3
 
     goto :goto_ed
 
-    .line 336
+    .line 345
     :cond_12a
     move-object/from16 v0, p1
 
     iput v11, v0, Lcom/isaigu/gymapp/ai/WakeWord$Word;->n:I
 
-    .line 337
+    .line 346
     return-void
 .end method
 
@@ -1310,22 +1351,22 @@
     .prologue
     const/4 v3, 0x0
 
-    .line 291
+    .line 300
     iget v0, p0, Lcom/isaigu/gymapp/ai/WakeWord$Finder;->nh:I
 
     new-array v0, v0, [F
 
-    .line 292
+    .line 301
     iget-object v1, p0, Lcom/isaigu/gymapp/ai/WakeWord$Finder;->hist:[F
 
     iget v2, p0, Lcom/isaigu/gymapp/ai/WakeWord$Finder;->nh:I
 
     invoke-static {v1, v3, v0, v3, v2}, Ljava/lang/System;->arraycopy(Ljava/lang/Object;ILjava/lang/Object;II)V
 
-    .line 293
+    .line 302
     invoke-static {v0}, Ljava/util/Arrays;->sort([F)V
 
-    .line 294
+    .line 303
     iget v1, p0, Lcom/isaigu/gymapp/ai/WakeWord$Finder;->nh:I
 
     div-int/lit8 v1, v1, 0x2
@@ -1334,7 +1375,7 @@
 
     iput v1, p0, Lcom/isaigu/gymapp/ai/WakeWord$Finder;->floorDb:F
 
-    .line 295
+    .line 304
     const/high16 v1, 0x41200000    # 10.0f
 
     iget v2, p0, Lcom/isaigu/gymapp/ai/WakeWord$Finder;->nh:I
@@ -1355,6 +1396,6 @@
 
     iput v0, p0, Lcom/isaigu/gymapp/ai/WakeWord$Finder;->spread:F
 
-    .line 296
+    .line 305
     return-void
 .end method

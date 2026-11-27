@@ -76,7 +76,12 @@ public final class CloudVoice {
             {"bg-BG-KalinaNeural", "Калина", "Kalina", "f"}, {"bg-BG-BorislavNeural", "Борислав", "Borislav", "m"},
             {"en-US-AvaMultilingualNeural", "Ава", "Ava", "f"}, {"en-US-AndrewMultilingualNeural", "Андрю", "Andrew", "m"},
             {"de-DE-SeraphinaMultilingualNeural", "Серафина", "Seraphina", "f"},
-            {"de-DE-FlorianMultilingualNeural", "Флориан", "Florian", "m"}};
+            {"de-DE-FlorianMultilingualNeural", "Флориан", "Florian", "m"},
+            // Google Chirp 3 HD (owner, 1.1.592): the most natural Bulgarian; the owner's picks from the narrator app
+            {"bg-BG-Chirp3-HD-Charon", "Харон HD", "Charon HD", "m"}, {"bg-BG-Chirp3-HD-Kore", "Кора HD", "Kore HD", "f"},
+            {"bg-BG-Chirp3-HD-Orus", "Орус HD", "Orus HD", "m"}, {"bg-BG-Chirp3-HD-Aoede", "Аойда HD", "Aoede HD", "f"},
+            {"bg-BG-Chirp3-HD-Enceladus", "Енцелад HD", "Enceladus HD", "m"},
+            {"bg-BG-Chirp3-HD-Iapetus", "Япет HD", "Iapetus HD", "m"}};
     public static final String[] RATES = {"slow", "normal", "fast"};
 
     public static String voice(Context c) {

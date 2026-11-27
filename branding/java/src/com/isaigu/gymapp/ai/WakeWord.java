@@ -32,6 +32,14 @@ public final class WakeWord {
      */
     public static final int WIDE_SPREAD = 2200;
 
+    /**
+     * The first stage of two (owner, 1.1.592: "it must work the first time"): with the cloud ear on (CloudEar), the
+     * spotter only suspects "окей тренер" — a limit this much wider, no look-alike margin — and the words heard are
+     * written down by the server, which decides. 1 = the spotter alone decides (no server).
+     */
+    public static final float LOOSE = 1.45f;
+    public volatile float loose = 1f;
+
     public static final int NONE = 0, WAKE = 1, RECORDED = 2, SKIPPED = 3;
 
     /** One word as matched: n frames × DIM int8. */
@@ -448,6 +456,11 @@ public final class WakeWord {
         return LOUD_MARGIN + Math.max(0f, sens - 1f) * 30f;
     }
 
+    /** The room's level now (dB, the finder's floor): the cloud ear tells speech from quiet by it. */
+    public float floorDb() {
+        return finder.floorDb;
+    }
+
     public boolean ready() {
         return tpl.size() >= MAXT;
     }
@@ -523,7 +536,7 @@ public final class WakeWord {
             }
             if (!was && ready()) {
                 boolean loudOk = loudEnough(finder.wPeak);
-                if (loudOk && accept(w, 1f)) {
+                if (loudOk && accept(w, loose)) {
                     wakeFrame = finder.w1;
                     woke(w);
                     return WAKE;
@@ -540,7 +553,7 @@ public final class WakeWord {
             if (len >= (int) (tl * 0.8f) && len <= (int) (tl * 1.3f)) {
                 Word w = new Word();
                 finder.span(w, front, finder.s0, finder.t, finder.peak);
-                if (loudEnough(finder.peak) && accept(w, 1f)) {
+                if (loudEnough(finder.peak) && accept(w, loose)) {
                     fired = true;
                     wakeFrame = finder.t;
                     woke(w);
@@ -593,6 +606,9 @@ public final class WakeWord {
         int d = match(w);
         if (d > (int) (threshold() * factor)) {
             return false;
+        }
+        if (factor > 1f) {
+            return true;                              // a suspicion only: the cloud reads the words and decides
         }
         for (Word f : falseNeg) {
             if (dtw(w, f, INF) < d) {

@@ -211,6 +211,7 @@ WEARABLE_JAVA=(
   "${JAVA_SRC}/com/isaigu/gymapp/ai/AiVoiceGate.java"
   "${JAVA_SRC}/com/isaigu/gymapp/ai/WakeListener.java"
   "${JAVA_SRC}/com/isaigu/gymapp/ai/CloudVoice.java"
+  "${JAVA_SRC}/com/isaigu/gymapp/ai/CloudEar.java"
   "${JAVA_SRC}/com/isaigu/gymapp/ai/Earcon.java"
   "${JAVA_SRC}/com/isaigu/gymapp/ai/AiLive.java"
   "${JAVA_SRC}/com/isaigu/gymapp/ai/WakeWord.java"

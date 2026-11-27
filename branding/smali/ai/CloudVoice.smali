@@ -67,10 +67,10 @@
 
 # direct methods
 .method static constructor <clinit>()V
-    .registers 8
+    .registers 9
 
     .prologue
-    const/4 v3, 0x4
+    const/4 v8, 0x4
 
     const/4 v7, 0x3
 
@@ -99,11 +99,11 @@
     sput-object v0, Lcom/isaigu/gymapp/ai/CloudVoice;->QUEUE:Ljava/util/LinkedList;
 
     .line 75
-    const/4 v0, 0x6
+    const/16 v0, 0xc
 
     new-array v0, v0, [[Ljava/lang/String;
 
-    new-array v1, v3, [Ljava/lang/String;
+    new-array v1, v8, [Ljava/lang/String;
 
     const-string v2, "bg-BG-KalinaNeural"
 
@@ -123,7 +123,7 @@
 
     aput-object v1, v0, v4
 
-    new-array v1, v3, [Ljava/lang/String;
+    new-array v1, v8, [Ljava/lang/String;
 
     const-string v2, "bg-BG-BorislavNeural"
 
@@ -143,7 +143,7 @@
 
     aput-object v1, v0, v5
 
-    new-array v1, v3, [Ljava/lang/String;
+    new-array v1, v8, [Ljava/lang/String;
 
     const-string v2, "en-US-AvaMultilingualNeural"
 
@@ -163,7 +163,7 @@
 
     aput-object v1, v0, v6
 
-    new-array v1, v3, [Ljava/lang/String;
+    new-array v1, v8, [Ljava/lang/String;
 
     const-string v2, "en-US-AndrewMultilingualNeural"
 
@@ -183,7 +183,7 @@
 
     aput-object v1, v0, v7
 
-    new-array v1, v3, [Ljava/lang/String;
+    new-array v1, v8, [Ljava/lang/String;
 
     const-string v2, "de-DE-SeraphinaMultilingualNeural"
 
@@ -201,11 +201,11 @@
 
     aput-object v2, v1, v7
 
-    aput-object v1, v0, v3
+    aput-object v1, v0, v8
 
     const/4 v1, 0x5
 
-    new-array v2, v3, [Ljava/lang/String;
+    new-array v2, v8, [Ljava/lang/String;
 
     const-string v3, "de-DE-FlorianMultilingualNeural"
 
@@ -225,9 +225,141 @@
 
     aput-object v2, v0, v1
 
+    const/4 v1, 0x6
+
+    new-array v2, v8, [Ljava/lang/String;
+
+    const-string v3, "bg-BG-Chirp3-HD-Charon"
+
+    aput-object v3, v2, v4
+
+    const-string v3, "\u0425\u0430\u0440\u043e\u043d HD"
+
+    aput-object v3, v2, v5
+
+    const-string v3, "Charon HD"
+
+    aput-object v3, v2, v6
+
+    const-string v3, "m"
+
+    aput-object v3, v2, v7
+
+    aput-object v2, v0, v1
+
+    const/4 v1, 0x7
+
+    new-array v2, v8, [Ljava/lang/String;
+
+    const-string v3, "bg-BG-Chirp3-HD-Kore"
+
+    aput-object v3, v2, v4
+
+    const-string v3, "\u041a\u043e\u0440\u0430 HD"
+
+    aput-object v3, v2, v5
+
+    const-string v3, "Kore HD"
+
+    aput-object v3, v2, v6
+
+    const-string v3, "f"
+
+    aput-object v3, v2, v7
+
+    aput-object v2, v0, v1
+
+    const/16 v1, 0x8
+
+    new-array v2, v8, [Ljava/lang/String;
+
+    const-string v3, "bg-BG-Chirp3-HD-Orus"
+
+    aput-object v3, v2, v4
+
+    const-string v3, "\u041e\u0440\u0443\u0441 HD"
+
+    aput-object v3, v2, v5
+
+    const-string v3, "Orus HD"
+
+    aput-object v3, v2, v6
+
+    const-string v3, "m"
+
+    aput-object v3, v2, v7
+
+    aput-object v2, v0, v1
+
+    const/16 v1, 0x9
+
+    new-array v2, v8, [Ljava/lang/String;
+
+    const-string v3, "bg-BG-Chirp3-HD-Aoede"
+
+    aput-object v3, v2, v4
+
+    const-string v3, "\u0410\u043e\u0439\u0434\u0430 HD"
+
+    aput-object v3, v2, v5
+
+    const-string v3, "Aoede HD"
+
+    aput-object v3, v2, v6
+
+    const-string v3, "f"
+
+    aput-object v3, v2, v7
+
+    aput-object v2, v0, v1
+
+    const/16 v1, 0xa
+
+    new-array v2, v8, [Ljava/lang/String;
+
+    const-string v3, "bg-BG-Chirp3-HD-Enceladus"
+
+    aput-object v3, v2, v4
+
+    const-string v3, "\u0415\u043d\u0446\u0435\u043b\u0430\u0434 HD"
+
+    aput-object v3, v2, v5
+
+    const-string v3, "Enceladus HD"
+
+    aput-object v3, v2, v6
+
+    const-string v3, "m"
+
+    aput-object v3, v2, v7
+
+    aput-object v2, v0, v1
+
+    const/16 v1, 0xb
+
+    new-array v2, v8, [Ljava/lang/String;
+
+    const-string v3, "bg-BG-Chirp3-HD-Iapetus"
+
+    aput-object v3, v2, v4
+
+    const-string v3, "\u042f\u043f\u0435\u0442 HD"
+
+    aput-object v3, v2, v5
+
+    const-string v3, "Iapetus HD"
+
+    aput-object v3, v2, v6
+
+    const-string v3, "m"
+
+    aput-object v3, v2, v7
+
+    aput-object v2, v0, v1
+
     sput-object v0, Lcom/isaigu/gymapp/ai/CloudVoice;->VOICES:[[Ljava/lang/String;
 
-    .line 80
+    .line 85
     new-array v0, v7, [Ljava/lang/String;
 
     const-string v1, "slow"
@@ -321,7 +453,7 @@
     .registers 2
 
     .prologue
-    .line 167
+    .line 172
     const-class v1, Lcom/isaigu/gymapp/ai/CloudVoice;
 
     monitor-enter v1
@@ -370,7 +502,7 @@
     .registers 5
 
     .prologue
-    .line 91
+    .line 96
     invoke-static {p0}, Lcom/isaigu/gymapp/ai/CloudVoice;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
 
     move-result-object v0
@@ -379,28 +511,28 @@
 
     move-result-object v0
 
-    .line 92
+    .line 97
     if-eqz p1, :cond_f
 
-    .line 93
+    .line 98
     const-string v1, "pick"
 
     invoke-interface {v0, v1, p1}, Landroid/content/SharedPreferences$Editor;->putString(Ljava/lang/String;Ljava/lang/String;)Landroid/content/SharedPreferences$Editor;
 
-    .line 95
+    .line 100
     :cond_f
     if-eqz p2, :cond_16
 
-    .line 96
+    .line 101
     const-string v1, "rate"
 
     invoke-interface {v0, v1, p2}, Landroid/content/SharedPreferences$Editor;->putString(Ljava/lang/String;Ljava/lang/String;)Landroid/content/SharedPreferences$Editor;
 
-    .line 98
+    .line 103
     :cond_16
     invoke-interface {v0}, Landroid/content/SharedPreferences$Editor;->apply()V
 
-    .line 99
+    .line 104
     return-void
 .end method
 
@@ -408,7 +540,7 @@
     .registers 7
 
     .prologue
-    .line 349
+    .line 354
     new-instance v0, Ljava/io/File;
 
     sget-object v1, Lcom/isaigu/gymapp/ai/CloudVoice;->app:Landroid/content/Context;
@@ -421,10 +553,10 @@
 
     invoke-direct {v0, v1, v2}, Ljava/io/File;-><init>(Ljava/io/File;Ljava/lang/String;)V
 
-    .line 350
+    .line 355
     invoke-virtual {v0}, Ljava/io/File;->mkdirs()Z
 
-    .line 351
+    .line 356
     new-instance v1, Ljava/io/File;
 
     new-instance v2, Ljava/lang/StringBuilder;
@@ -494,7 +626,7 @@
     .prologue
     const/4 v0, 0x0
 
-    .line 356
+    .line 361
     :try_start_1
     const-string v1, "SHA-1"
 
@@ -512,18 +644,18 @@
 
     move-result-object v1
 
-    .line 357
+    .line 362
     new-instance v2, Ljava/lang/StringBuilder;
 
     invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
 
-    .line 358
+    .line 363
     :goto_16
     const/16 v3, 0xc
 
     if-ge v0, v3, :cond_34
 
-    .line 359
+    .line 364
     const-string v3, "%02x"
 
     const/4 v4, 0x1
@@ -548,12 +680,12 @@
 
     invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 358
+    .line 363
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_16
 
-    .line 361
+    .line 366
     :cond_34
     invoke-virtual {v2}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
     :try_end_37
@@ -561,15 +693,15 @@
 
     move-result-object v0
 
-    .line 363
+    .line 368
     :goto_38
     return-object v0
 
-    .line 362
+    .line 367
     :catch_39
     move-exception v0
 
-    .line 363
+    .line 368
     invoke-virtual {p0}, Ljava/lang/String;->hashCode()I
 
     move-result v0
@@ -585,7 +717,7 @@
     .registers 4
 
     .prologue
-    .line 433
+    .line 438
     new-instance v0, Ljava/io/File;
 
     invoke-virtual {p0}, Landroid/content/Context;->getFilesDir()Ljava/io/File;
@@ -600,7 +732,7 @@
 
     move-result-object v0
 
-    .line 434
+    .line 439
     if-nez v0, :cond_13
 
     const/4 v0, 0x0
@@ -618,7 +750,7 @@
     .registers 4
 
     .prologue
-    .line 107
+    .line 112
     invoke-static {p0}, Lcom/isaigu/gymapp/ai/CloudVoice;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
 
     move-result-object v0
@@ -638,7 +770,7 @@
     .registers 3
 
     .prologue
-    .line 117
+    .line 122
     new-instance v0, Ljava/text/SimpleDateFormat;
 
     const-string v1, "yyyy-MM"
@@ -647,7 +779,7 @@
 
     invoke-direct {v0, v1, v2}, Ljava/text/SimpleDateFormat;-><init>(Ljava/lang/String;Ljava/util/Locale;)V
 
-    .line 118
+    .line 123
     const-string v1, "UTC"
 
     invoke-static {v1}, Ljava/util/TimeZone;->getTimeZone(Ljava/lang/String;)Ljava/util/TimeZone;
@@ -656,7 +788,7 @@
 
     invoke-virtual {v0, v1}, Ljava/text/SimpleDateFormat;->setTimeZone(Ljava/util/TimeZone;)V
 
-    .line 119
+    .line 124
     new-instance v1, Ljava/util/Date;
 
     invoke-direct {v1}, Ljava/util/Date;-><init>()V
@@ -672,12 +804,12 @@
     .registers 6
 
     .prologue
-    .line 111
+    .line 116
     if-ltz p1, :cond_25
 
     if-lez p2, :cond_25
 
-    .line 112
+    .line 117
     invoke-static {p0}, Lcom/isaigu/gymapp/ai/CloudVoice;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
 
     move-result-object v0
@@ -710,7 +842,7 @@
 
     invoke-interface {v0}, Landroid/content/SharedPreferences$Editor;->apply()V
 
-    .line 114
+    .line 119
     :cond_25
     return-void
 .end method
@@ -730,21 +862,21 @@
 
     const/4 v1, 0x0
 
-    .line 232
+    .line 237
     sget-object v2, Lcom/isaigu/gymapp/ai/CloudVoice;->app:Landroid/content/Context;
 
     invoke-static {v2}, Lcom/isaigu/gymapp/ai/CloudVoice;->voice(Landroid/content/Context;)Ljava/lang/String;
 
     move-result-object v2
 
-    .line 233
+    .line 238
     sget-object v3, Lcom/isaigu/gymapp/ai/CloudVoice;->app:Landroid/content/Context;
 
     invoke-static {v3}, Lcom/isaigu/gymapp/ai/CloudVoice;->rate(Landroid/content/Context;)Ljava/lang/String;
 
     move-result-object v3
 
-    .line 234
+    .line 239
     new-instance v4, Ljava/lang/StringBuilder;
 
     invoke-direct {v4}, Ljava/lang/StringBuilder;-><init>()V
@@ -773,7 +905,7 @@
 
     move-result-object v4
 
-    .line 235
+    .line 240
     invoke-virtual {v4}, Ljava/io/File;->length()J
 
     move-result-wide v6
@@ -782,12 +914,12 @@
 
     if-lez v5, :cond_56
 
-    .line 236
+    .line 241
     new-instance v2, Ljava/io/FileInputStream;
 
     invoke-direct {v2, v4}, Ljava/io/FileInputStream;-><init>(Ljava/io/File;)V
 
-    .line 238
+    .line 243
     :try_start_3a
     invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
 
@@ -795,7 +927,7 @@
 
     invoke-virtual {v4, v6, v7}, Ljava/io/File;->setLastModified(J)Z
 
-    .line 239
+    .line 244
     const/4 v3, 0x0
 
     invoke-static {v2, p0, v3}, Lcom/isaigu/gymapp/ai/CloudVoice;->stream(Ljava/io/InputStream;Lcom/isaigu/gymapp/ai/CloudVoice$Item;Ljava/io/FileOutputStream;)J
@@ -808,13 +940,13 @@
 
     if-lez v3, :cond_4f
 
-    .line 241
+    .line 246
     :goto_4a
     invoke-virtual {v2}, Ljava/io/InputStream;->close()V
 
     move v1, v0
 
-    .line 287
+    .line 292
     :cond_4e
     :goto_4e
     return v1
@@ -822,19 +954,19 @@
     :cond_4f
     move v0, v1
 
-    .line 239
+    .line 244
     goto :goto_4a
 
-    .line 241
+    .line 246
     :catchall_51
     move-exception v0
 
     invoke-virtual {v2}, Ljava/io/InputStream;->close()V
 
-    .line 242
+    .line 247
     throw v0
 
-    .line 244
+    .line 249
     :cond_56
     sget-object v5, Lcom/isaigu/gymapp/ai/CloudVoice;->app:Landroid/content/Context;
 
@@ -844,12 +976,12 @@
 
     if-eqz v5, :cond_4e
 
-    .line 247
+    .line 252
     invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
 
     move-result-wide v6
 
-    .line 248
+    .line 253
     sget-object v5, Lcom/isaigu/gymapp/ai/CloudVoice;->app:Landroid/content/Context;
 
     iget-object v8, p0, Lcom/isaigu/gymapp/ai/CloudVoice$Item;->text:Ljava/lang/String;
@@ -860,21 +992,21 @@
 
     move-result-object v2
 
-    .line 249
+    .line 254
     if-eqz v2, :cond_4e
 
-    .line 253
+    .line 258
     :try_start_6e
     invoke-virtual {v2}, Ljava/net/HttpURLConnection;->getResponseCode()I
 
     move-result v3
 
-    .line 254
+    .line 259
     const/16 v5, 0x1ad
 
     if-ne v3, v5, :cond_8b
 
-    .line 255
+    .line 260
     invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
 
     move-result-wide v4
@@ -885,7 +1017,7 @@
 
     sput-wide v4, Lcom/isaigu/gymapp/ai/CloudVoice;->quotaUntil:J
 
-    .line 256
+    .line 261
     const-string v0, "voice"
 
     const-string v3, "the month\'s free characters are used: the tablet\'s voice for now"
@@ -894,18 +1026,18 @@
     :try_end_87
     .catchall {:try_start_6e .. :try_end_87} :catchall_15d
 
-    .line 289
+    .line 294
     invoke-virtual {v2}, Ljava/net/HttpURLConnection;->disconnect()V
 
     goto :goto_4e
 
-    .line 259
+    .line 264
     :cond_8b
     const/16 v5, 0xc8
 
     if-eq v3, v5, :cond_ab
 
-    .line 260
+    .line 265
     :try_start_8f
     const-string v0, "voice"
 
@@ -931,12 +1063,12 @@
     :try_end_a7
     .catchall {:try_start_8f .. :try_end_a7} :catchall_15d
 
-    .line 289
+    .line 294
     invoke-virtual {v2}, Ljava/net/HttpURLConnection;->disconnect()V
 
     goto :goto_4e
 
-    .line 264
+    .line 269
     :cond_ab
     :try_start_ab
     const-string v3, "X-Tts-Used"
@@ -945,19 +1077,19 @@
 
     move-result-object v3
 
-    .line 265
+    .line 270
     const-string v5, "X-Tts-Limit"
 
     invoke-virtual {v2, v5}, Ljava/net/HttpURLConnection;->getHeaderField(Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v5
 
-    .line 266
+    .line 271
     if-eqz v3, :cond_d0
 
     if-eqz v5, :cond_d0
 
-    .line 267
+    .line 272
     sget-object v8, Lcom/isaigu/gymapp/ai/CloudVoice;->app:Landroid/content/Context;
 
     invoke-virtual {v3}, Ljava/lang/String;->trim()Ljava/lang/String;
@@ -981,7 +1113,7 @@
     .catch Ljava/lang/RuntimeException; {:try_start_ab .. :try_end_d0} :catch_168
     .catchall {:try_start_ab .. :try_end_d0} :catchall_15d
 
-    .line 271
+    .line 276
     :cond_d0
     :goto_d0
     :try_start_d0
@@ -1011,14 +1143,14 @@
 
     invoke-direct {v3, v5}, Ljava/io/File;-><init>(Ljava/lang/String;)V
 
-    .line 272
+    .line 277
     new-instance v5, Ljava/io/FileOutputStream;
 
     invoke-direct {v5, v3}, Ljava/io/FileOutputStream;-><init>(Ljava/io/File;)V
     :try_end_f1
     .catchall {:try_start_d0 .. :try_end_f1} :catchall_15d
 
-    .line 275
+    .line 280
     :try_start_f1
     invoke-virtual {v2}, Ljava/net/HttpURLConnection;->getInputStream()Ljava/io/InputStream;
 
@@ -1030,11 +1162,11 @@
 
     move-result-wide v8
 
-    .line 277
+    .line 282
     :try_start_f9
     invoke-virtual {v5}, Ljava/io/FileOutputStream;->close()V
 
-    .line 279
+    .line 284
     cmp-long v5, v8, v12
 
     if-lez v5, :cond_162
@@ -1045,13 +1177,13 @@
 
     if-ne v5, v10, :cond_162
 
-    .line 280
+    .line 285
     invoke-virtual {v3, v4}, Ljava/io/File;->renameTo(Ljava/io/File;)Z
 
-    .line 281
+    .line 286
     invoke-static {}, Lcom/isaigu/gymapp/ai/CloudVoice;->prune()V
 
-    .line 285
+    .line 290
     :goto_10c
     const-string v3, "voice"
 
@@ -1097,7 +1229,7 @@
 
     iget-object v5, p0, Lcom/isaigu/gymapp/ai/CloudVoice$Item;->text:Ljava/lang/String;
 
-    .line 286
+    .line 291
     invoke-virtual {v5}, Ljava/lang/String;->length()I
 
     move-result v5
@@ -1116,47 +1248,47 @@
 
     move-result-object v4
 
-    .line 285
+    .line 290
     invoke-static {v3, v4}, Lcom/isaigu/gymapp/wearable/WearableBleDiagLog;->log(Ljava/lang/String;Ljava/lang/String;)V
     :try_end_14e
     .catchall {:try_start_f9 .. :try_end_14e} :catchall_15d
 
-    .line 287
+    .line 292
     cmp-long v3, v8, v12
 
     if-lez v3, :cond_166
 
-    .line 289
+    .line 294
     :goto_152
     invoke-virtual {v2}, Ljava/net/HttpURLConnection;->disconnect()V
 
     move v1, v0
 
-    .line 287
+    .line 292
     goto/16 :goto_4e
 
-    .line 277
+    .line 282
     :catchall_158
     move-exception v0
 
     :try_start_159
     invoke-virtual {v5}, Ljava/io/FileOutputStream;->close()V
 
-    .line 278
+    .line 283
     throw v0
     :try_end_15d
     .catchall {:try_start_159 .. :try_end_15d} :catchall_15d
 
-    .line 289
+    .line 294
     :catchall_15d
     move-exception v0
 
     invoke-virtual {v2}, Ljava/net/HttpURLConnection;->disconnect()V
 
-    .line 290
+    .line 295
     throw v0
 
-    .line 283
+    .line 288
     :cond_162
     :try_start_162
     invoke-virtual {v3}, Ljava/io/File;->delete()Z
@@ -1168,10 +1300,10 @@
     :cond_166
     move v0, v1
 
-    .line 287
+    .line 292
     goto :goto_152
 
-    .line 269
+    .line 274
     :catch_168
     move-exception v3
 
@@ -1182,7 +1314,7 @@
     .registers 3
 
     .prologue
-    .line 438
+    .line 443
     const-string v0, "xems_voice"
 
     const/4 v1, 0x0
@@ -1200,14 +1332,14 @@
     .prologue
     const/4 v2, 0x1
 
-    .line 133
+    .line 138
     invoke-virtual {p0}, Landroid/content/Context;->getApplicationContext()Landroid/content/Context;
 
     move-result-object v0
 
     sput-object v0, Lcom/isaigu/gymapp/ai/CloudVoice;->app:Landroid/content/Context;
 
-    .line 134
+    .line 139
     const-string v0, "device"
 
     sget-object v1, Lcom/isaigu/gymapp/ai/CloudVoice;->app:Landroid/content/Context;
@@ -1222,25 +1354,25 @@
 
     if-eqz v0, :cond_1e
 
-    .line 135
+    .line 140
     invoke-static {}, Lcom/isaigu/gymapp/ai/CloudVoice;->stop()V
 
-    .line 136
+    .line 141
     const-string v0, "xems-preview"
 
     invoke-interface {p2, p1, v0, v2}, Lcom/isaigu/gymapp/ai/CloudVoice$Fallback;->sayLocal(Ljava/lang/String;Ljava/lang/String;Z)V
 
-    .line 141
+    .line 146
     :goto_1d
     return-void
 
-    .line 139
+    .line 144
     :cond_1e
     const-wide/16 v0, 0x0
 
     sput-wide v0, Lcom/isaigu/gymapp/ai/CloudVoice;->quotaUntil:J
 
-    .line 140
+    .line 145
     const-string v0, "xems-preview"
 
     invoke-static {p0, p1, v0, v2, p2}, Lcom/isaigu/gymapp/ai/CloudVoice;->speak(Landroid/content/Context;Ljava/lang/String;Ljava/lang/String;ZLcom/isaigu/gymapp/ai/CloudVoice$Fallback;)V
@@ -1254,7 +1386,7 @@
     .prologue
     const/4 v0, 0x0
 
-    .line 369
+    .line 374
     new-instance v1, Ljava/io/File;
 
     sget-object v2, Lcom/isaigu/gymapp/ai/CloudVoice;->app:Landroid/content/Context;
@@ -1271,18 +1403,18 @@
 
     move-result-object v4
 
-    .line 370
+    .line 375
     if-nez v4, :cond_15
 
-    .line 388
+    .line 393
     :cond_14
     return-void
 
-    .line 373
+    .line 378
     :cond_15
     const-wide/16 v2, 0x0
 
-    .line 374
+    .line 379
     array-length v5, v4
 
     move v1, v0
@@ -1292,19 +1424,19 @@
 
     aget-object v6, v4, v1
 
-    .line 375
+    .line 380
     invoke-virtual {v6}, Ljava/io/File;->length()J
 
     move-result-wide v6
 
     add-long/2addr v2, v6
 
-    .line 374
+    .line 379
     add-int/lit8 v1, v1, 0x1
 
     goto :goto_19
 
-    .line 377
+    .line 382
     :cond_25
     const-wide/32 v6, 0x3200000
 
@@ -1312,14 +1444,14 @@
 
     if-lez v1, :cond_14
 
-    .line 380
+    .line 385
     new-instance v1, Lcom/isaigu/gymapp/ai/CloudVoice$ByAge;
 
     invoke-direct {v1}, Lcom/isaigu/gymapp/ai/CloudVoice$ByAge;-><init>()V
 
     invoke-static {v4, v1}, Ljava/util/Arrays;->sort([Ljava/lang/Object;Ljava/util/Comparator;)V
 
-    .line 381
+    .line 386
     array-length v1, v4
 
     :goto_35
@@ -1327,24 +1459,24 @@
 
     aget-object v5, v4, v0
 
-    .line 382
+    .line 387
     const-wide/32 v6, 0x2800000
 
     cmp-long v6, v2, v6
 
     if-lez v6, :cond_14
 
-    .line 385
+    .line 390
     invoke-virtual {v5}, Ljava/io/File;->length()J
 
     move-result-wide v6
 
     sub-long/2addr v2, v6
 
-    .line 386
+    .line 391
     invoke-virtual {v5}, Ljava/io/File;->delete()Z
 
-    .line 381
+    .line 386
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_35
@@ -1354,7 +1486,7 @@
     .registers 4
 
     .prologue
-    .line 87
+    .line 92
     invoke-static {p0}, Lcom/isaigu/gymapp/ai/CloudVoice;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
 
     move-result-object v0
@@ -1374,10 +1506,10 @@
     .registers 1
 
     .prologue
-    .line 145
+    .line 150
     sput-boolean p0, Lcom/isaigu/gymapp/ai/CloudVoice;->off:Z
 
-    .line 146
+    .line 151
     return-void
 .end method
 
@@ -1385,7 +1517,7 @@
     .registers 10
 
     .prologue
-    .line 149
+    .line 154
     const-class v1, Lcom/isaigu/gymapp/ai/CloudVoice;
 
     monitor-enter v1
@@ -1407,14 +1539,14 @@
 
     if-nez v0, :cond_13
 
-    .line 163
+    .line 168
     :cond_11
     :goto_11
     monitor-exit v1
 
     return-void
 
-    .line 152
+    .line 157
     :cond_13
     :try_start_13
     invoke-virtual {p0}, Landroid/content/Context;->getApplicationContext()Landroid/content/Context;
@@ -1423,16 +1555,16 @@
 
     sput-object v0, Lcom/isaigu/gymapp/ai/CloudVoice;->app:Landroid/content/Context;
 
-    .line 153
+    .line 158
     sput-object p4, Lcom/isaigu/gymapp/ai/CloudVoice;->fallback:Lcom/isaigu/gymapp/ai/CloudVoice$Fallback;
 
-    .line 154
+    .line 159
     if-eqz p3, :cond_20
 
-    .line 155
+    .line 160
     invoke-static {}, Lcom/isaigu/gymapp/ai/CloudVoice;->stopNow()V
 
-    .line 157
+    .line 162
     :cond_20
     sget-object v0, Lcom/isaigu/gymapp/ai/CloudVoice;->QUEUE:Ljava/util/LinkedList;
 
@@ -1448,12 +1580,12 @@
 
     invoke-virtual {v0, v2}, Ljava/util/LinkedList;->add(Ljava/lang/Object;)Z
 
-    .line 158
+    .line 163
     const-class v0, Lcom/isaigu/gymapp/ai/CloudVoice;
 
     invoke-virtual {v0}, Ljava/lang/Object;->notifyAll()V
 
-    .line 159
+    .line 164
     sget-object v0, Lcom/isaigu/gymapp/ai/CloudVoice;->worker:Ljava/lang/Thread;
 
     if-eqz v0, :cond_41
@@ -1466,7 +1598,7 @@
 
     if-nez v0, :cond_11
 
-    .line 160
+    .line 165
     :cond_41
     new-instance v0, Ljava/lang/Thread;
 
@@ -1480,7 +1612,7 @@
 
     sput-object v0, Lcom/isaigu/gymapp/ai/CloudVoice;->worker:Ljava/lang/Thread;
 
-    .line 161
+    .line 166
     sget-object v0, Lcom/isaigu/gymapp/ai/CloudVoice;->worker:Ljava/lang/Thread;
 
     invoke-virtual {v0}, Ljava/lang/Thread;->start()V
@@ -1489,7 +1621,7 @@
 
     goto :goto_11
 
-    .line 149
+    .line 154
     :catchall_55
     move-exception v0
 
@@ -1502,7 +1634,7 @@
     .registers 2
 
     .prologue
-    .line 174
+    .line 179
     const-class v0, Lcom/isaigu/gymapp/ai/CloudVoice;
 
     monitor-enter v0
@@ -1512,12 +1644,12 @@
     :try_end_6
     .catchall {:try_start_3 .. :try_end_6} :catchall_8
 
-    .line 175
+    .line 180
     monitor-exit v0
 
     return-void
 
-    .line 174
+    .line 179
     :catchall_8
     move-exception v1
 
@@ -1530,39 +1662,39 @@
     .registers 1
 
     .prologue
-    .line 178
+    .line 183
     sget v0, Lcom/isaigu/gymapp/ai/CloudVoice;->gen:I
 
     add-int/lit8 v0, v0, 0x1
 
     sput v0, Lcom/isaigu/gymapp/ai/CloudVoice;->gen:I
 
-    .line 179
+    .line 184
     sget-object v0, Lcom/isaigu/gymapp/ai/CloudVoice;->QUEUE:Ljava/util/LinkedList;
 
     invoke-virtual {v0}, Ljava/util/LinkedList;->clear()V
 
-    .line 180
+    .line 185
     sget-object v0, Lcom/isaigu/gymapp/ai/CloudVoice;->track:Landroid/media/AudioTrack;
 
-    .line 181
+    .line 186
     if-eqz v0, :cond_15
 
-    .line 183
+    .line 188
     :try_start_f
     invoke-virtual {v0}, Landroid/media/AudioTrack;->pause()V
 
-    .line 184
+    .line 189
     invoke-virtual {v0}, Landroid/media/AudioTrack;->flush()V
     :try_end_15
     .catch Ljava/lang/Throwable; {:try_start_f .. :try_end_15} :catch_16
 
-    .line 188
+    .line 193
     :cond_15
     :goto_15
     return-void
 
-    .line 185
+    .line 190
     :catch_16
     move-exception v0
 
@@ -1578,7 +1710,7 @@
     .end annotation
 
     .prologue
-    .line 295
+    .line 300
     const/16 v0, 0x5dc0
 
     const/4 v1, 0x4
@@ -1589,7 +1721,7 @@
 
     move-result v5
 
-    .line 296
+    .line 301
     new-instance v0, Landroid/media/AudioTrack;
 
     const/4 v1, 0x3
@@ -1602,7 +1734,7 @@
 
     const/16 v6, 0x5dc0
 
-    .line 297
+    .line 302
     invoke-static {v5, v6}, Ljava/lang/Math;->max(II)I
 
     move-result v5
@@ -1611,30 +1743,30 @@
 
     invoke-direct/range {v0 .. v6}, Landroid/media/AudioTrack;-><init>(IIIIII)V
 
-    .line 298
+    .line 303
     sput-object v0, Lcom/isaigu/gymapp/ai/CloudVoice;->track:Landroid/media/AudioTrack;
 
-    .line 299
+    .line 304
     const-wide/16 v6, 0x0
 
-    .line 300
+    .line 305
     const/4 v3, 0x0
 
-    .line 301
+    .line 306
     const/4 v2, 0x0
 
-    .line 303
+    .line 308
     const/16 v1, 0x12c0
 
     :try_start_21
     new-array v8, v1, [B
 
-    .line 305
+    .line 310
     const/4 v1, 0x0
 
     move v5, v1
 
-    .line 306
+    .line 311
     :cond_25
     :goto_25
     iget v1, p1, Lcom/isaigu/gymapp/ai/CloudVoice$Item;->gen:I
@@ -1665,21 +1797,21 @@
 
     if-lez v1, :cond_68
 
-    .line 307
+    .line 312
     if-eqz v2, :cond_43
 
-    .line 308
+    .line 313
     const/4 v2, 0x0
 
     aput-byte v3, v8, v2
 
-    .line 309
+    .line 314
     add-int/lit8 v1, v1, 0x1
 
-    .line 310
+    .line 315
     const/4 v2, 0x0
 
-    .line 312
+    .line 317
     :cond_43
     and-int/lit8 v4, v1, 0x1
 
@@ -1687,51 +1819,51 @@
 
     if-ne v4, v9, :cond_4f
 
-    .line 313
+    .line 318
     add-int/lit8 v2, v1, -0x1
 
     aget-byte v3, v8, v2
 
-    .line 314
+    .line 319
     const/4 v2, 0x1
 
-    .line 315
+    .line 320
     add-int/lit8 v1, v1, -0x1
 
-    .line 317
+    .line 322
     :cond_4f
     if-eqz p2, :cond_55
 
-    .line 318
+    .line 323
     const/4 v4, 0x0
 
     invoke-virtual {p2, v8, v4, v1}, Ljava/io/FileOutputStream;->write([BII)V
 
-    .line 320
+    .line 325
     :cond_55
     const/4 v4, 0x0
 
     invoke-virtual {v0, v8, v4, v1}, Landroid/media/AudioTrack;->write([BII)I
 
-    .line 321
+    .line 326
     int-to-long v10, v1
 
     add-long/2addr v6, v10
 
-    .line 322
+    .line 327
     if-nez v5, :cond_25
 
-    .line 323
+    .line 328
     invoke-virtual {v0}, Landroid/media/AudioTrack;->play()V
 
-    .line 324
+    .line 329
     const/4 v1, 0x1
 
     move v5, v1
 
     goto :goto_25
 
-    .line 306
+    .line 311
     :cond_63
     const/4 v1, 0x0
 
@@ -1744,13 +1876,13 @@
 
     goto :goto_33
 
-    .line 328
+    .line 333
     :cond_68
     const-wide/16 v2, 0x2
 
     div-long v2, v6, v2
 
-    .line 329
+    .line 334
     invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
 
     move-result-wide v4
@@ -1769,7 +1901,7 @@
 
     add-long/2addr v4, v8
 
-    .line 330
+    .line 335
     :goto_7a
     iget v1, p1, Lcom/isaigu/gymapp/ai/CloudVoice$Item;->gen:I
 
@@ -1785,7 +1917,7 @@
 
     if-gez v1, :cond_97
 
-    .line 331
+    .line 336
     invoke-virtual {v0}, Landroid/media/AudioTrack;->getPlaybackHeadPosition()I
     :try_end_8b
     .catchall {:try_start_21 .. :try_end_8b} :catchall_a7
@@ -1798,31 +1930,31 @@
 
     and-long/2addr v8, v10
 
-    .line 332
+    .line 337
     cmp-long v1, v8, v2
 
     if-ltz v1, :cond_a1
 
-    .line 339
+    .line 344
     :cond_97
     const/4 v1, 0x0
 
     sput-object v1, Lcom/isaigu/gymapp/ai/CloudVoice;->track:Landroid/media/AudioTrack;
 
-    .line 341
+    .line 346
     :try_start_9a
     invoke-virtual {v0}, Landroid/media/AudioTrack;->stop()V
     :try_end_9d
     .catch Ljava/lang/Throwable; {:try_start_9a .. :try_end_9d} :catch_b2
 
-    .line 344
+    .line 349
     :goto_9d
     invoke-virtual {v0}, Landroid/media/AudioTrack;->release()V
 
-    .line 337
+    .line 342
     return-wide v6
 
-    .line 335
+    .line 340
     :cond_a1
     const-wide/16 v8, 0x28
 
@@ -1833,7 +1965,7 @@
 
     goto :goto_7a
 
-    .line 339
+    .line 344
     :catchall_a7
     move-exception v1
 
@@ -1841,20 +1973,20 @@
 
     sput-object v2, Lcom/isaigu/gymapp/ai/CloudVoice;->track:Landroid/media/AudioTrack;
 
-    .line 341
+    .line 346
     :try_start_ab
     invoke-virtual {v0}, Landroid/media/AudioTrack;->stop()V
     :try_end_ae
     .catch Ljava/lang/Throwable; {:try_start_ab .. :try_end_ae} :catch_b4
 
-    .line 344
+    .line 349
     :goto_ae
     invoke-virtual {v0}, Landroid/media/AudioTrack;->release()V
 
-    .line 345
+    .line 350
     throw v1
 
-    .line 342
+    .line 347
     :catch_b2
     move-exception v1
 
@@ -1870,21 +2002,21 @@
     .registers 5
 
     .prologue
-    .line 124
+    .line 129
     if-eqz p0, :cond_c
 
     sget-object v0, Lcom/isaigu/gymapp/ai/CloudVoice;->app:Landroid/content/Context;
 
     if-nez v0, :cond_c
 
-    .line 125
+    .line 130
     invoke-virtual {p0}, Landroid/content/Context;->getApplicationContext()Landroid/content/Context;
 
     move-result-object v0
 
     sput-object v0, Lcom/isaigu/gymapp/ai/CloudVoice;->app:Landroid/content/Context;
 
-    .line 127
+    .line 132
     :cond_c
     sget-boolean v0, Lcom/isaigu/gymapp/ai/CloudVoice;->off:Z
 
@@ -1914,7 +2046,7 @@
 
     sget-object v1, Lcom/isaigu/gymapp/ai/CloudVoice;->app:Landroid/content/Context;
 
-    .line 128
+    .line 133
     invoke-static {v1}, Lcom/isaigu/gymapp/ai/CloudVoice;->voice(Landroid/content/Context;)Ljava/lang/String;
 
     move-result-object v1
@@ -1927,11 +2059,11 @@
 
     const/4 v0, 0x1
 
-    .line 127
+    .line 132
     :goto_33
     return v0
 
-    .line 128
+    .line 133
     :cond_34
     const/4 v0, 0x0
 
@@ -1944,7 +2076,7 @@
     .prologue
     const/4 v0, -0x1
 
-    .line 103
+    .line 108
     invoke-static {p0}, Lcom/isaigu/gymapp/ai/CloudVoice;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
 
     move-result-object v1
@@ -1985,7 +2117,7 @@
     .registers 4
 
     .prologue
-    .line 83
+    .line 88
     invoke-static {p0}, Lcom/isaigu/gymapp/ai/CloudVoice;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
 
     move-result-object v0

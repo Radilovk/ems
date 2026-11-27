@@ -561,3 +561,25 @@ it, the warm-up runs softer by design); "s" read aloud as a letter → "секу
   after each recording was taken as the next word (reproduced offline). Now a recording needs ≥ 0.4 s and ≥ 40 dB absolute
   (`REC_MIN_LEN`, `REC_MIN_DB`) and nothing may start in the first 0.35 s after `record()` (`Finder.hold`). A too quiet
   or too short sound gives "Не те чух ясно".
+
+## 1.1.592 — the cloud ear: "окей тренер" in two stages; Chirp 3 HD voices
+- **Owner:** "окей тренер" does not work the first time; on Huawei nothing listens and nothing is sent as text; look at
+  how the best assistants do it.
+- **How they do it:** a small always-on detector on the device that is tuned to *never miss* (it may err), and a big
+  speech model that checks the words before anything happens (Alexa / Google: on-device first stage, cloud
+  verification). Our DTW spotter from 3 recordings cannot be both sensitive and sure; the cloud can.
+- **Now** (`ai/CloudEar`, `WakeListener` "the cloud ear", server `/v1/stt` → `src/stt.js`): with a server and licence,
+  the spotter only *suspects* (`WakeWord.LOOSE` 1.45 × the limit, no look-alike margin; the loudness gate stays). The
+  last 2 s of the microphone + everything said until 0.9 s of quiet (≤ 7.5 s) go to the server, which has Azure
+  (bg-BG, the same key as the voice) write them down. `AiVoiceCmd.afterWake` decides: "окей треньор, пауза" → the
+  command at once; the phrase alone → "speak now" and the next words go the same way (the window, and every dialogue
+  follow-up, use our own microphone — no Google / Huawei recognizer); no "тренер" in the text → nothing happens.
+- **Limits / cost:** ≤ 10 suspicions a minute per tablet, 20 requests a minute per device on the server, Azure F0's
+  5 audio hours a month (stops at 95 %, `stt:sec:<month>`), never charged. Used up / no server / an error → the
+  spotter alone decides (strict), as before; a server error with a sure spotter match opens the old window.
+- **Chirp 3 HD** (`src/tts.js`): Google's generative voices as six more choices in "Глас на треньора" — Харон, Кора,
+  Орус, Аойда, Енцелад, Япет HD (the owner's picks in Radilovk/tts). Key `GOOGLE_TTS_KEY` (else `GEMINI_API_KEY`),
+  1M free characters a month (stops at 95 %, `tts:gchars:<month>`); no key, the quota or an error → the same words by
+  Microsoft's voice of the same gender (not cached under the HD voice). Checked live: all six, ~0.55 s a phrase.
+- **To ship:** deploy the Worker; `wrangler secret put GOOGLE_TTS_KEY` (the AI Studio key — its project has Cloud
+  Text-to-Speech on; Google Speech-to-Text is not, hence Azure for the ear).

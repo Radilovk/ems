@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 748
+    .line 811
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,10 +34,10 @@
     .registers 1
 
     .prologue
-    .line 751
+    .line 814
     # invokes: Lcom/isaigu/gymapp/ai/WakeListener;->begin()V
     invoke-static {}, Lcom/isaigu/gymapp/ai/WakeListener;->access$900()V
 
-    .line 752
+    .line 815
     return-void
 .end method

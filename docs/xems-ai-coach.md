@@ -583,3 +583,14 @@ it, the warm-up runs softer by design); "s" read aloud as a letter → "секу
   Microsoft's voice of the same gender (not cached under the HD voice). Checked live: all six, ~0.55 s a phrase.
 - **To ship:** deploy the Worker; `wrangler secret put GOOGLE_TTS_KEY` (the AI Studio key — its project has Cloud
   Text-to-Speech on; Google Speech-to-Text is not, hence Azure for the ear).
+
+## 1.1.594 — the microphone hears the voice, not the hall
+- **Owner:** in a loud room Claude's app understands every word; ours shows the level meter full and hears nothing.
+- **Cause:** the spotter read `VOICE_RECOGNITION` — by Android's definition the raw room, no noise suppression; music
+  and the hall filled the meter, and a word never stood 12 dB above that floor, so nothing was ever taken.
+- **Now** (`WakeListener.SOURCES`, `effects`): `VOICE_COMMUNICATION` first — the phone call's path that voice apps
+  use: the device's noise suppression, echo cancelling (the tablet's own music and voice taken out) and, with several
+  microphones, beamforming. `NoiseSuppressor` + `AcousticEchoCanceler` are also attached to whatever source opens
+  (logged: "mic source N effects: …"); no AGC (it would pump noise up in a pause and shift the learned loudness).
+  The kept source moved to a new pref (`src594`). **Teach "Окей тренер" once more** — the examples were recorded on
+  the raw source and sound different through the suppression.

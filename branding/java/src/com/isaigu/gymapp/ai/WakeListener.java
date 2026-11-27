@@ -253,8 +253,16 @@ public final class WakeListener {
     /** The microphone opened but gives only silence (another app holds it, a source that records nothing). */
     static volatile boolean silent;
     /** Huawei & co.: VOICE_RECOGNITION can open fine and give zeros, so the sources are tried in turn. */
-    static final int[] SOURCES = {MediaRecorder.AudioSource.VOICE_RECOGNITION, MediaRecorder.AudioSource.MIC,
-            MediaRecorder.AudioSource.CAMCORDER, MediaRecorder.AudioSource.DEFAULT};
+    /**
+     * VOICE_COMMUNICATION first (owner, 1.1.594: "in a loud room Claude's app hears me, ours shows the meter full and
+     * hears nothing"): it is the phone call's path — the device's own noise suppression, its echo cancelling (the music
+     * and the voice the tablet itself plays are taken out) and, on phones with several microphones, their beamforming
+     * towards the speaker. That is how voice apps hear in noise. VOICE_RECOGNITION gives the raw room by design.
+     */
+    static final int[] SOURCES = {MediaRecorder.AudioSource.VOICE_COMMUNICATION, MediaRecorder.AudioSource.VOICE_RECOGNITION,
+            MediaRecorder.AudioSource.MIC, MediaRecorder.AudioSource.CAMCORDER, MediaRecorder.AudioSource.DEFAULT};
+    /** The kept source's pref (a new key: the order of SOURCES changed in 1.1.594). */
+    static final String SRC_KEY = "src594";
     /** The source that last gave sound (kept per tablet). */
     private static int srcIdx = -1;
     /** Below this peak (of 32767) for SILENT_MS the source counts as dead: a room is never digitally silent. */
@@ -274,7 +282,7 @@ public final class WakeListener {
             try {
                 if (ctx != null) {
                     srcIdx = Math.max(0, Math.min(SOURCES.length - 1,
-                            ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getInt("src", 0)));
+                            ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getInt(SRC_KEY, 0)));
                 }
             } catch (Throwable ignored) {
             }
@@ -286,8 +294,8 @@ public final class WakeListener {
         if (idx == srcIdx && ctx != null) {
             try {
                 SharedPreferences sp = ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
-                if (sp.getInt("src", -1) != idx) {
-                    sp.edit().putInt("src", idx).apply();
+                if (sp.getInt(SRC_KEY, -1) != idx) {
+                    sp.edit().putInt(SRC_KEY, idx).apply();
                 }
             } catch (Throwable ignored) {
             }
@@ -305,22 +313,87 @@ public final class WakeListener {
                 ar.release();
                 return null;
             }
+            effects(ar, source);
             ar.startRecording();
             if (ar.getRecordingState() != AudioRecord.RECORDSTATE_RECORDING) {
                 WearableBleDiagLog.log("wake", "mic source " + source + ": does not record (busy?)");
-                ar.release();
+                close(ar);
                 return null;
             }
             return ar;
         } catch (Throwable t) {
             WearableBleDiagLog.log("wake", "mic source " + source + ": " + t);
-            if (ar != null) {
-                try {
-                    ar.release();
-                } catch (Throwable ignored) {
+            close(ar);
+            return null;
+        }
+    }
+
+    private static android.media.audiofx.NoiseSuppressor ns;
+    private static android.media.audiofx.AcousticEchoCanceler aec;
+
+    /**
+     * The device's own noise suppression and echo cancelling on this recording, where it has them (any source; on
+     * VOICE_COMMUNICATION most phones apply them anyway). No automatic gain: it would pump the hall's noise up in a
+     * pause and change the loudness the examples were learned at.
+     */
+    static void effects(AudioRecord ar, int source) {
+        releaseEffects();
+        StringBuilder on = new StringBuilder();
+        try {
+            if (android.media.audiofx.NoiseSuppressor.isAvailable()) {
+                ns = android.media.audiofx.NoiseSuppressor.create(ar.getAudioSessionId());
+                if (ns != null) {
+                    ns.setEnabled(true);
+                    on.append(" noise-suppression");
                 }
             }
-            return null;
+        } catch (Throwable t) {
+            ns = null;
+        }
+        try {
+            if (android.media.audiofx.AcousticEchoCanceler.isAvailable()) {
+                aec = android.media.audiofx.AcousticEchoCanceler.create(ar.getAudioSessionId());
+                if (aec != null) {
+                    aec.setEnabled(true);
+                    on.append(" echo-cancel");
+                }
+            }
+        } catch (Throwable t) {
+            aec = null;
+        }
+        WearableBleDiagLog.log("wake", "mic source " + source + " effects:" + (on.length() == 0 ? " none" : on.toString()));
+    }
+
+    static void releaseEffects() {
+        try {
+            if (ns != null) {
+                ns.release();
+            }
+        } catch (Throwable ignored) {
+        }
+        try {
+            if (aec != null) {
+                aec.release();
+            }
+        } catch (Throwable ignored) {
+        }
+        ns = null;
+        aec = null;
+    }
+
+    /** Stops a recording and frees it with its effects. */
+    static void close(AudioRecord ar) {
+        if (ar == null) {
+            return;
+        }
+        try {
+            ar.stop();
+        } catch (Throwable ignored) {
+        }
+        releaseEffects();
+        try {
+            ar.release();
+        } catch (Throwable ignored) {
         }
     }
 
@@ -447,11 +520,7 @@ public final class WakeListener {
                     if (!dead) {
                         break;                               // stopped (or woke): this source stays
                     }
-                    try {
-                        ar.stop();
-                    } catch (Throwable ignored) {
-                    }
-                    ar.release();
+                    close(ar);
                     ar = null;
                     tried++;
                     idx = (idx + 1) % SOURCES.length;
@@ -481,13 +550,7 @@ public final class WakeListener {
                         MAIN.post(new Heard("", 2));
                     }
                 }
-                if (ar != null) {
-                    try {
-                        ar.stop();
-                    } catch (Throwable ignored) {
-                    }
-                    ar.release();
-                }
+                close(ar);
             }
         }
     }

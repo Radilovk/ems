@@ -26,39 +26,39 @@
     .registers 2
 
     .prologue
-    .line 353
+    .line 349
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 354
+    .line 350
     iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$AutoDone;->a:Landroid/app/Activity;
 
-    .line 355
+    .line 351
     return-void
 .end method
 
 
 # virtual methods
 .method public done(Lcom/isaigu/gymapp/widget/XemsLicenseClient$Update;Ljava/lang/String;)V
-    .registers 10
+    .registers 9
 
     .prologue
-    const/4 v6, 0x0
+    const/4 v3, 0x0
 
-    .line 359
+    .line 355
     if-eqz p2, :cond_4
 
-    .line 381
+    .line 376
     :cond_3
     :goto_3
     return-void
 
-    .line 362
+    .line 358
     :cond_4
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLicense;->prefs()Landroid/content/SharedPreferences;
 
     move-result-object v0
 
-    .line 363
+    .line 359
     invoke-interface {v0}, Landroid/content/SharedPreferences;->edit()Landroid/content/SharedPreferences$Editor;
 
     move-result-object v1
@@ -73,48 +73,29 @@
 
     move-result-object v1
 
-    const-string v2, "update_checked_code"
-
-    iget-object v3, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$AutoDone;->a:Landroid/app/Activity;
-
-    invoke-static {v3}, Lcom/isaigu/gymapp/widget/XemsLicenseClient;->appCode(Landroid/content/Context;)I
-
-    move-result v3
-
-    invoke-interface {v1, v2, v3}, Landroid/content/SharedPreferences$Editor;->putInt(Ljava/lang/String;I)Landroid/content/SharedPreferences$Editor;
-
-    move-result-object v1
-
-    const-string v2, "app_latest"
-
-    .line 364
-    invoke-interface {v1, v2, v6}, Landroid/content/SharedPreferences$Editor;->putInt(Ljava/lang/String;I)Landroid/content/SharedPreferences$Editor;
-
-    move-result-object v1
-
     invoke-interface {v1}, Landroid/content/SharedPreferences$Editor;->apply()V
 
-    .line 365
-    if-nez p1, :cond_31
+    .line 360
+    if-nez p1, :cond_1f
 
-    .line 366
+    .line 361
     # invokes: Lcom/isaigu/gymapp/widget/XemsLicenseClient;->clearMandatory(Landroid/content/SharedPreferences;)V
     invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsLicenseClient;->access$600(Landroid/content/SharedPreferences;)V
 
     goto :goto_3
 
-    .line 369
-    :cond_31
+    .line 364
+    :cond_1f
     iget-boolean v1, p1, Lcom/isaigu/gymapp/widget/XemsLicenseClient$Update;->mandatory:Z
 
-    if-eqz v1, :cond_54
+    if-eqz v1, :cond_42
 
-    .line 370
+    .line 365
     # invokes: Lcom/isaigu/gymapp/widget/XemsLicenseClient;->rememberMandatory(Landroid/content/SharedPreferences;Lcom/isaigu/gymapp/widget/XemsLicenseClient$Update;)V
     invoke-static {v0, p1}, Lcom/isaigu/gymapp/widget/XemsLicenseClient;->access$700(Landroid/content/SharedPreferences;Lcom/isaigu/gymapp/widget/XemsLicenseClient$Update;)V
 
-    .line 374
-    :goto_38
+    .line 369
+    :goto_26
     iget-object v1, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$AutoDone;->a:Landroid/app/Activity;
 
     invoke-virtual {v1}, Landroid/app/Activity;->isFinishing()Z
@@ -123,14 +104,14 @@
 
     if-nez v1, :cond_3
 
-    .line 377
+    .line 372
     iget-boolean v1, p1, Lcom/isaigu/gymapp/widget/XemsLicenseClient$Update;->mandatory:Z
 
-    if-nez v1, :cond_4e
+    if-nez v1, :cond_3c
 
     const-string v1, "update_skipped"
 
-    invoke-interface {v0, v1, v6}, Landroid/content/SharedPreferences;->getInt(Ljava/lang/String;I)I
+    invoke-interface {v0, v1, v3}, Landroid/content/SharedPreferences;->getInt(Ljava/lang/String;I)I
 
     move-result v0
 
@@ -138,18 +119,18 @@
 
     if-eq v0, v1, :cond_3
 
-    .line 380
-    :cond_4e
+    .line 375
+    :cond_3c
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$AutoDone;->a:Landroid/app/Activity;
 
-    invoke-static {v0, p1, v6}, Lcom/isaigu/gymapp/widget/XemsLicenseClient;->offer(Landroid/app/Activity;Lcom/isaigu/gymapp/widget/XemsLicenseClient$Update;Z)V
+    invoke-static {v0, p1, v3}, Lcom/isaigu/gymapp/widget/XemsLicenseClient;->offer(Landroid/app/Activity;Lcom/isaigu/gymapp/widget/XemsLicenseClient$Update;Z)V
 
     goto :goto_3
 
-    .line 372
-    :cond_54
+    .line 367
+    :cond_42
     # invokes: Lcom/isaigu/gymapp/widget/XemsLicenseClient;->clearMandatory(Landroid/content/SharedPreferences;)V
     invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsLicenseClient;->access$600(Landroid/content/SharedPreferences;)V
 
-    goto :goto_38
+    goto :goto_26
 .end method

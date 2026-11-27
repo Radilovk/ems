@@ -28,16 +28,16 @@
     .registers 3
 
     .prologue
-    .line 515
+    .line 510
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 516
+    .line 511
     iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$OfferLater;->u:Lcom/isaigu/gymapp/widget/XemsLicenseClient$Update;
 
-    .line 517
+    .line 512
     iput-boolean p2, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$OfferLater;->manual:Z
 
-    .line 518
+    .line 513
     return-void
 .end method
 
@@ -47,12 +47,12 @@
     .registers 6
 
     .prologue
-    .line 522
+    .line 517
     iget-boolean v0, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$OfferLater;->manual:Z
 
     if-nez v0, :cond_19
 
-    .line 523
+    .line 518
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLicense;->prefs()Landroid/content/SharedPreferences;
 
     move-result-object v0
@@ -73,7 +73,7 @@
 
     invoke-interface {v0}, Landroid/content/SharedPreferences$Editor;->apply()V
 
-    .line 525
+    .line 520
     :cond_19
     return-void
 .end method

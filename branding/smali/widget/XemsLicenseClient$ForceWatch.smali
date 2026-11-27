@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 504
+    .line 499
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,12 +34,12 @@
     .registers 3
 
     .prologue
-    .line 507
+    .line 502
     const/4 v0, 0x0
 
     # setter for: Lcom/isaigu/gymapp/widget/XemsLicenseClient;->forcing:Z
     invoke-static {v0}, Lcom/isaigu/gymapp/widget/XemsLicenseClient;->access$802(Z)Z
 
-    .line 508
+    .line 503
     return-void
 .end method

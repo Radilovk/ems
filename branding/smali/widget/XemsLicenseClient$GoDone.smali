@@ -30,19 +30,19 @@
     .registers 4
 
     .prologue
-    .line 555
+    .line 550
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 556
+    .line 551
     iput-object p1, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$GoDone;->a:Landroid/app/Activity;
 
-    .line 557
+    .line 552
     iput-object p2, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$GoDone;->u:Lcom/isaigu/gymapp/widget/XemsLicenseClient$Update;
 
-    .line 558
+    .line 553
     iput-object p3, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$GoDone;->prog:Landroid/app/AlertDialog;
 
-    .line 559
+    .line 554
     return-void
 .end method
 
@@ -52,7 +52,7 @@
     .registers 7
 
     .prologue
-    .line 564
+    .line 559
     :try_start_0
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$GoDone;->prog:Landroid/app/AlertDialog;
 
@@ -60,7 +60,7 @@
     :try_end_5
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_5} :catch_65
 
-    .line 567
+    .line 562
     :goto_5
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$GoDone;->a:Landroid/app/Activity;
 
@@ -70,23 +70,23 @@
 
     if-eqz v0, :cond_e
 
-    .line 582
+    .line 577
     :cond_d
     :goto_d
     return-void
 
-    .line 570
+    .line 565
     :cond_e
     if-eqz p1, :cond_20
 
-    .line 571
+    .line 566
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$GoDone;->u:Lcom/isaigu/gymapp/widget/XemsLicenseClient$Update;
 
     iget-boolean v0, v0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$Update;->mandatory:Z
 
     if-eqz v0, :cond_d
 
-    .line 573
+    .line 568
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$GoDone;->a:Landroid/app/Activity;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$GoDone;->u:Lcom/isaigu/gymapp/widget/XemsLicenseClient$Update;
@@ -97,7 +97,7 @@
 
     goto :goto_d
 
-    .line 577
+    .line 572
     :cond_20
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$GoDone;->u:Lcom/isaigu/gymapp/widget/XemsLicenseClient$Update;
 
@@ -105,7 +105,7 @@
 
     if-eqz v0, :cond_47
 
-    .line 578
+    .line 573
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$GoDone;->a:Landroid/app/Activity;
 
     iget-object v1, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$GoDone;->u:Lcom/isaigu/gymapp/widget/XemsLicenseClient$Update;
@@ -138,7 +138,7 @@
 
     goto :goto_d
 
-    .line 580
+    .line 575
     :cond_47
     iget-object v0, p0, Lcom/isaigu/gymapp/widget/XemsLicenseClient$GoDone;->a:Landroid/app/Activity;
 
@@ -170,7 +170,7 @@
 
     goto :goto_d
 
-    .line 565
+    .line 560
     :catch_65
     move-exception v0
 

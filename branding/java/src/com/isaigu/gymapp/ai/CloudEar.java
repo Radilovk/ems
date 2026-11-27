@@ -116,6 +116,7 @@ public final class CloudEar {
                     + (System.currentTimeMillis() - t0) + " ms");
             return text;
         } catch (Throwable t) {
+            offUntil = System.currentTimeMillis() + 2 * 60000L;   // no network: the old way for 2 min, then again
             WearableBleDiagLog.log("wake", "cloud ear: " + t);
             return null;
         } finally {

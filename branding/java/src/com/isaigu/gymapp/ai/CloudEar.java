@@ -101,7 +101,9 @@ public final class CloudEar {
                 return null;
             }
             if (code != 200) {
-                if (code == 503 || code == 401 || code == 403) {
+                if (code == 404) {
+                    offUntil = System.currentTimeMillis() + 6 * 3600000L;   // a server without /v1/stt yet: as before
+                } else if (code == 503 || code == 401 || code == 403) {
                     offUntil = System.currentTimeMillis() + 10 * 60000L;
                 }
                 WearableBleDiagLog.log("wake", "cloud ear: HTTP " + code + " " + resp.substring(0, Math.min(80, resp.length())));

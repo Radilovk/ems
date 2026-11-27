@@ -82,28 +82,28 @@
 
     invoke-virtual {v2}, Ljava/lang/String;->length()I
     :try_end_1c
-    .catch Ljava/lang/Throwable; {:try_start_7 .. :try_end_1c} :catch_1db
-    .catchall {:try_start_7 .. :try_end_1c} :catchall_208
+    .catch Ljava/lang/Throwable; {:try_start_7 .. :try_end_1c} :catch_238
+    .catchall {:try_start_7 .. :try_end_1c} :catchall_216
 
     move-result v7
 
     if-nez v7, :cond_26
 
-    .line 123
+    .line 125
     :cond_1f
     if-eqz v1, :cond_24
 
-    .line 125
+    .line 127
     :try_start_21
     invoke-virtual {v3}, Ljava/net/HttpURLConnection;->disconnect()V
     :try_end_24
-    .catch Ljava/lang/Throwable; {:try_start_21 .. :try_end_24} :catch_211
+    .catch Ljava/lang/Throwable; {:try_start_21 .. :try_end_24} :catch_21f
 
     :cond_24
     :goto_24
     move-object v0, v1
 
-    .line 121
+    .line 123
     :goto_25
     return-object v0
 
@@ -272,8 +272,8 @@
 
     check-cast v0, Ljava/net/HttpURLConnection;
     :try_end_b8
-    .catch Ljava/lang/Throwable; {:try_start_26 .. :try_end_b8} :catch_1db
-    .catchall {:try_start_26 .. :try_end_b8} :catchall_208
+    .catch Ljava/lang/Throwable; {:try_start_26 .. :try_end_b8} :catch_238
+    .catchall {:try_start_26 .. :try_end_b8} :catchall_216
 
     .line 87
     :try_start_b8
@@ -373,17 +373,17 @@
 
     invoke-static {v2, v3}, Lcom/isaigu/gymapp/wearable/WearableBleDiagLog;->log(Ljava/lang/String;Ljava/lang/String;)V
     :try_end_112
-    .catch Ljava/lang/Throwable; {:try_start_b8 .. :try_end_112} :catch_22a
-    .catchall {:try_start_b8 .. :try_end_112} :catchall_223
-
-    .line 123
-    if-eqz v0, :cond_117
+    .catch Ljava/lang/Throwable; {:try_start_b8 .. :try_end_112} :catch_181
+    .catchall {:try_start_b8 .. :try_end_112} :catchall_231
 
     .line 125
+    if-eqz v0, :cond_117
+
+    .line 127
     :try_start_114
     invoke-virtual {v0}, Ljava/net/HttpURLConnection;->disconnect()V
     :try_end_117
-    .catch Ljava/lang/Throwable; {:try_start_114 .. :try_end_117} :catch_214
+    .catch Ljava/lang/Throwable; {:try_start_114 .. :try_end_117} :catch_222
 
     :cond_117
     :goto_117
@@ -405,35 +405,27 @@
     :cond_11f
     const/16 v7, 0xc8
 
-    if-eq v6, v7, :cond_172
+    if-eq v6, v7, :cond_1ad
 
     .line 104
-    const/16 v3, 0x1f7
+    const/16 v3, 0x194
 
-    if-eq v6, v3, :cond_12f
-
-    const/16 v3, 0x191
-
-    if-eq v6, v3, :cond_12f
-
-    const/16 v3, 0x193
-
-    if-ne v6, v3, :cond_139
+    if-ne v6, v3, :cond_16a
 
     .line 105
-    :cond_12f
     invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
 
     move-result-wide v4
 
-    const-wide/32 v8, 0x927c0
+    const-wide/32 v8, 0x1499700
 
     add-long/2addr v4, v8
 
     sput-wide v4, Lcom/isaigu/gymapp/ai/CloudEar;->offUntil:J
 
-    .line 107
-    :cond_139
+    .line 109
+    :cond_131
+    :goto_131
     const-string v3, "wake"
 
     new-instance v4, Ljava/lang/StringBuilder;
@@ -481,64 +473,156 @@
     move-result-object v2
 
     invoke-static {v3, v2}, Lcom/isaigu/gymapp/wearable/WearableBleDiagLog;->log(Ljava/lang/String;Ljava/lang/String;)V
-    :try_end_16a
-    .catch Ljava/lang/Throwable; {:try_start_11a .. :try_end_16a} :catch_22a
-    .catchall {:try_start_11a .. :try_end_16a} :catchall_223
-
-    .line 123
-    if-eqz v0, :cond_16f
+    :try_end_162
+    .catch Ljava/lang/Throwable; {:try_start_11a .. :try_end_162} :catch_181
+    .catchall {:try_start_11a .. :try_end_162} :catchall_231
 
     .line 125
-    :try_start_16c
-    invoke-virtual {v0}, Ljava/net/HttpURLConnection;->disconnect()V
-    :try_end_16f
-    .catch Ljava/lang/Throwable; {:try_start_16c .. :try_end_16f} :catch_217
+    if-eqz v0, :cond_167
 
-    :cond_16f
-    :goto_16f
+    .line 127
+    :try_start_164
+    invoke-virtual {v0}, Ljava/net/HttpURLConnection;->disconnect()V
+    :try_end_167
+    .catch Ljava/lang/Throwable; {:try_start_164 .. :try_end_167} :catch_225
+
+    :cond_167
+    :goto_167
     move-object v0, v1
 
-    .line 108
+    .line 110
     goto/16 :goto_25
 
-    .line 110
-    :cond_172
-    :try_start_172
+    .line 106
+    :cond_16a
+    const/16 v3, 0x1f7
+
+    if-eq v6, v3, :cond_176
+
+    const/16 v3, 0x191
+
+    if-eq v6, v3, :cond_176
+
+    const/16 v3, 0x193
+
+    if-ne v6, v3, :cond_131
+
+    .line 107
+    :cond_176
+    :try_start_176
+    invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
+
+    move-result-wide v4
+
+    const-wide/32 v8, 0x927c0
+
+    add-long/2addr v4, v8
+
+    sput-wide v4, Lcom/isaigu/gymapp/ai/CloudEar;->offUntil:J
+    :try_end_180
+    .catch Ljava/lang/Throwable; {:try_start_176 .. :try_end_180} :catch_181
+    .catchall {:try_start_176 .. :try_end_180} :catchall_231
+
+    goto :goto_131
+
+    .line 120
+    :catch_181
+    move-exception v2
+
+    move-object v3, v0
+
+    .line 121
+    :goto_183
+    :try_start_183
+    invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
+
+    move-result-wide v4
+
+    const-wide/32 v6, 0x1d4c0
+
+    add-long/2addr v4, v6
+
+    sput-wide v4, Lcom/isaigu/gymapp/ai/CloudEar;->offUntil:J
+
+    .line 122
+    const-string v0, "wake"
+
+    new-instance v4, Ljava/lang/StringBuilder;
+
+    invoke-direct {v4}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v5, "cloud ear: "
+
+    invoke-virtual {v4, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v4
+
+    invoke-virtual {v4, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/Object;)Ljava/lang/StringBuilder;
+
+    move-result-object v2
+
+    invoke-virtual {v2}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v2
+
+    invoke-static {v0, v2}, Lcom/isaigu/gymapp/wearable/WearableBleDiagLog;->log(Ljava/lang/String;Ljava/lang/String;)V
+    :try_end_1a5
+    .catchall {:try_start_183 .. :try_end_1a5} :catchall_235
+
+    .line 125
+    if-eqz v3, :cond_1aa
+
+    .line 127
+    :try_start_1a7
+    invoke-virtual {v3}, Ljava/net/HttpURLConnection;->disconnect()V
+    :try_end_1aa
+    .catch Ljava/lang/Throwable; {:try_start_1a7 .. :try_end_1aa} :catch_22c
+
+    :cond_1aa
+    :goto_1aa
+    move-object v0, v1
+
+    .line 123
+    goto/16 :goto_25
+
+    .line 112
+    :cond_1ad
+    :try_start_1ad
     new-instance v6, Lorg/json/JSONObject;
 
     invoke-direct {v6, v2}, Lorg/json/JSONObject;-><init>(Ljava/lang/String;)V
 
-    .line 111
+    .line 113
     const-string v2, "ok"
 
     invoke-virtual {v6, v2}, Lorg/json/JSONObject;->optBoolean(Ljava/lang/String;)Z
-    :try_end_17c
-    .catch Ljava/lang/Throwable; {:try_start_172 .. :try_end_17c} :catch_22a
-    .catchall {:try_start_172 .. :try_end_17c} :catchall_223
+    :try_end_1b7
+    .catch Ljava/lang/Throwable; {:try_start_1ad .. :try_end_1b7} :catch_181
+    .catchall {:try_start_1ad .. :try_end_1b7} :catchall_231
 
     move-result v2
 
-    if-nez v2, :cond_187
-
-    .line 123
-    if-eqz v0, :cond_184
+    if-nez v2, :cond_1c2
 
     .line 125
-    :try_start_181
-    invoke-virtual {v0}, Ljava/net/HttpURLConnection;->disconnect()V
-    :try_end_184
-    .catch Ljava/lang/Throwable; {:try_start_181 .. :try_end_184} :catch_21a
+    if-eqz v0, :cond_1bf
 
-    :cond_184
-    :goto_184
+    .line 127
+    :try_start_1bc
+    invoke-virtual {v0}, Ljava/net/HttpURLConnection;->disconnect()V
+    :try_end_1bf
+    .catch Ljava/lang/Throwable; {:try_start_1bc .. :try_end_1bf} :catch_228
+
+    :cond_1bf
+    :goto_1bf
     move-object v0, v1
 
-    .line 112
+    .line 114
     goto/16 :goto_25
 
-    .line 114
-    :cond_187
-    :try_start_187
+    .line 116
+    :cond_1c2
+    :try_start_1c2
     const-string v2, "text"
 
     const-string v7, ""
@@ -551,7 +635,7 @@
 
     move-result-object v2
 
-    .line 115
+    .line 117
     const-string v6, "wake"
 
     new-instance v7, Ljava/lang/StringBuilder;
@@ -594,7 +678,7 @@
 
     move-result-object v3
 
-    .line 116
+    .line 118
     invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
 
     move-result-wide v8
@@ -615,172 +699,112 @@
 
     move-result-object v3
 
-    .line 115
+    .line 117
     invoke-static {v6, v3}, Lcom/isaigu/gymapp/wearable/WearableBleDiagLog;->log(Ljava/lang/String;Ljava/lang/String;)V
-    :try_end_1d3
-    .catch Ljava/lang/Throwable; {:try_start_187 .. :try_end_1d3} :catch_22a
-    .catchall {:try_start_187 .. :try_end_1d3} :catchall_223
-
-    .line 123
-    if-eqz v0, :cond_1d8
+    :try_end_20e
+    .catch Ljava/lang/Throwable; {:try_start_1c2 .. :try_end_20e} :catch_181
+    .catchall {:try_start_1c2 .. :try_end_20e} :catchall_231
 
     .line 125
-    :try_start_1d5
-    invoke-virtual {v0}, Ljava/net/HttpURLConnection;->disconnect()V
-    :try_end_1d8
-    .catch Ljava/lang/Throwable; {:try_start_1d5 .. :try_end_1d8} :catch_21d
+    if-eqz v0, :cond_213
 
-    :cond_1d8
-    :goto_1d8
+    .line 127
+    :try_start_210
+    invoke-virtual {v0}, Ljava/net/HttpURLConnection;->disconnect()V
+    :try_end_213
+    .catch Ljava/lang/Throwable; {:try_start_210 .. :try_end_213} :catch_22a
+
+    :cond_213
+    :goto_213
     move-object v0, v2
 
-    .line 117
-    goto/16 :goto_25
-
-    .line 118
-    :catch_1db
-    move-exception v0
-
-    move-object v2, v0
-
-    move-object v3, v1
-
     .line 119
-    :goto_1de
-    :try_start_1de
-    invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
-
-    move-result-wide v4
-
-    const-wide/32 v6, 0x1d4c0
-
-    add-long/2addr v4, v6
-
-    sput-wide v4, Lcom/isaigu/gymapp/ai/CloudEar;->offUntil:J
-
-    .line 120
-    const-string v0, "wake"
-
-    new-instance v4, Ljava/lang/StringBuilder;
-
-    invoke-direct {v4}, Ljava/lang/StringBuilder;-><init>()V
-
-    const-string v5, "cloud ear: "
-
-    invoke-virtual {v4, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v4
-
-    invoke-virtual {v4, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/Object;)Ljava/lang/StringBuilder;
-
-    move-result-object v2
-
-    invoke-virtual {v2}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
-
-    move-result-object v2
-
-    invoke-static {v0, v2}, Lcom/isaigu/gymapp/wearable/WearableBleDiagLog;->log(Ljava/lang/String;Ljava/lang/String;)V
-    :try_end_200
-    .catchall {:try_start_1de .. :try_end_200} :catchall_227
-
-    .line 123
-    if-eqz v3, :cond_205
-
-    .line 125
-    :try_start_202
-    invoke-virtual {v3}, Ljava/net/HttpURLConnection;->disconnect()V
-    :try_end_205
-    .catch Ljava/lang/Throwable; {:try_start_202 .. :try_end_205} :catch_21f
-
-    :cond_205
-    :goto_205
-    move-object v0, v1
-
-    .line 121
     goto/16 :goto_25
 
-    .line 123
-    :catchall_208
+    .line 125
+    :catchall_216
     move-exception v0
 
     move-object v2, v0
 
     move-object v3, v1
 
-    :goto_20b
-    if-eqz v3, :cond_210
+    :goto_219
+    if-eqz v3, :cond_21e
 
-    .line 125
-    :try_start_20d
+    .line 127
+    :try_start_21b
     invoke-virtual {v3}, Ljava/net/HttpURLConnection;->disconnect()V
-    :try_end_210
-    .catch Ljava/lang/Throwable; {:try_start_20d .. :try_end_210} :catch_221
+    :try_end_21e
+    .catch Ljava/lang/Throwable; {:try_start_21b .. :try_end_21e} :catch_22f
 
-    .line 129
-    :cond_210
-    :goto_210
+    .line 131
+    :cond_21e
+    :goto_21e
     throw v2
 
-    .line 126
-    :catch_211
+    .line 128
+    :catch_21f
     move-exception v0
 
     goto/16 :goto_24
 
-    :catch_214
+    :catch_222
     move-exception v0
 
     goto/16 :goto_117
 
-    :catch_217
+    :catch_225
     move-exception v0
 
-    goto/16 :goto_16f
+    goto/16 :goto_167
 
-    :catch_21a
+    :catch_228
     move-exception v0
 
-    goto/16 :goto_184
+    goto :goto_1bf
 
-    :catch_21d
+    :catch_22a
     move-exception v0
 
-    goto :goto_1d8
+    goto :goto_213
 
-    :catch_21f
+    :catch_22c
     move-exception v0
 
-    goto :goto_205
+    goto/16 :goto_1aa
 
-    :catch_221
+    :catch_22f
     move-exception v0
 
-    goto :goto_210
+    goto :goto_21e
 
-    .line 123
-    :catchall_223
+    .line 125
+    :catchall_231
     move-exception v1
 
     move-object v2, v1
 
     move-object v3, v0
 
-    goto :goto_20b
+    goto :goto_219
 
-    :catchall_227
+    :catchall_235
     move-exception v0
 
     move-object v2, v0
 
-    goto :goto_20b
+    goto :goto_219
 
-    .line 118
-    :catch_22a
-    move-exception v2
+    .line 120
+    :catch_238
+    move-exception v0
 
-    move-object v3, v0
+    move-object v2, v0
 
-    goto :goto_1de
+    move-object v3, v1
+
+    goto/16 :goto_183
 .end method
 
 .method static nextMonth()J
@@ -791,7 +815,7 @@
 
     const/4 v2, 0x0
 
-    .line 147
+    .line 149
     const-string v0, "UTC"
 
     invoke-static {v0}, Ljava/util/TimeZone;->getTimeZone(Ljava/lang/String;)Ljava/util/TimeZone;
@@ -802,27 +826,27 @@
 
     move-result-object v0
 
-    .line 148
+    .line 150
     const/4 v1, 0x5
 
     invoke-virtual {v0, v1, v3}, Ljava/util/Calendar;->set(II)V
 
-    .line 149
+    .line 151
     const/16 v1, 0xb
 
     invoke-virtual {v0, v1, v2}, Ljava/util/Calendar;->set(II)V
 
-    .line 150
+    .line 152
     const/16 v1, 0xc
 
     invoke-virtual {v0, v1, v2}, Ljava/util/Calendar;->set(II)V
 
-    .line 151
+    .line 153
     const/4 v1, 0x2
 
     invoke-virtual {v0, v1, v3}, Ljava/util/Calendar;->add(II)V
 
-    .line 152
+    .line 154
     invoke-virtual {v0}, Ljava/util/Calendar;->getTimeInMillis()J
 
     move-result-wide v0
@@ -839,28 +863,28 @@
     .end annotation
 
     .prologue
-    .line 133
+    .line 135
     if-nez p0, :cond_5
 
-    .line 134
+    .line 136
     const-string v0, ""
 
-    .line 143
+    .line 145
     :goto_4
     return-object v0
 
-    .line 136
+    .line 138
     :cond_5
     new-instance v0, Ljava/io/ByteArrayOutputStream;
 
     invoke-direct {v0}, Ljava/io/ByteArrayOutputStream;-><init>()V
 
-    .line 137
+    .line 139
     const/16 v1, 0x800
 
     new-array v1, v1, [B
 
-    .line 139
+    .line 141
     :goto_e
     invoke-virtual {p0, v1}, Ljava/io/InputStream;->read([B)I
 
@@ -868,18 +892,18 @@
 
     if-lez v2, :cond_19
 
-    .line 140
+    .line 142
     const/4 v3, 0x0
 
     invoke-virtual {v0, v1, v3, v2}, Ljava/io/ByteArrayOutputStream;->write([BII)V
 
     goto :goto_e
 
-    .line 142
+    .line 144
     :cond_19
     invoke-virtual {p0}, Ljava/io/InputStream;->close()V
 
-    .line 143
+    .line 145
     const-string v1, "UTF-8"
 
     invoke-virtual {v0, v1}, Ljava/io/ByteArrayOutputStream;->toString(Ljava/lang/String;)Ljava/lang/String;

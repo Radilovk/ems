@@ -200,6 +200,8 @@ public final class WakeWord {
         final float[] hist = new float[NH];
         int nh, hi;
         boolean lenient;
+        /** The cloud ear decides (1.1.595): a word may start nearer the hall's level — a voice across the room. */
+        boolean eager;
         final float[][] ring = new float[RING][NMEL + 1];
         final float[] noise = new float[NMEL];
         int t;
@@ -252,7 +254,7 @@ public final class WakeWord {
                 }
             }
             if (state == 0) {
-                above = t >= hold && edb > floorDb + (lenient ? onDb - 3 : onDb) ? above + 1 : 0;
+                above = t >= hold && edb > floorDb + (lenient ? onDb - 3 : eager ? onDb - 4 : onDb) ? above + 1 : 0;
                 if (above >= 3 && t - qEnd <= 30) {
                     state = 1;
                     long b = Math.min(qEnd - 2, t - 5);
@@ -448,7 +450,9 @@ public final class WakeWord {
 
     boolean loudEnough(float peak) {
         lastLoud = peak;
-        return loud <= 0 || lastLoud >= loud - loudMargin();
+        // with the cloud ear no loudness gate (owner 1.1.595: "in a session it hears nothing"): the examples are said at
+        // the tablet, the commands from across the hall, 10–15 dB quieter — the gate refused every one of them
+        return loose > 1f || loud <= 0 || lastLoud >= loud - loudMargin();
     }
 
     /** A tablet where it needed repeats (sens up) hears quieter words too; one that fired for nothing (sens down) less. */
@@ -508,6 +512,7 @@ public final class WakeWord {
             return NONE;
         }
         finder.lenient = recording;
+        finder.eager = loose > 1f;
         boolean closed = finder.frame(bands, edb[0]);
         if (finder.skipped) {
             finder.skipped = false;

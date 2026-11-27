@@ -2456,7 +2456,7 @@
     move-result v3
 
     .line 608
-    const/high16 v4, 0x41600000    # 14.0f
+    const/high16 v4, 0x41000000    # 8.0f
 
     add-float/2addr v4, v3
 
@@ -2545,7 +2545,7 @@
 
     .line 611
     :cond_90
-    const/high16 v4, 0x41100000    # 9.0f
+    const/high16 v4, 0x40a00000    # 5.0f
 
     add-float/2addr v3, v4
 

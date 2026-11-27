@@ -16,7 +16,7 @@ import { handleVrlogPut, handleVrlogGet } from './vrlog.js';
 import { handleCertIssue } from './cert.js';
 import { brief, BRIEF_MAX_BYTES } from './aibrief.js';
 import { coach, workout, command, liveTurn } from './aicoach.js';
-import { decodeAudio, secondsOf, takeSeconds, azureHear, STT_MAX_BYTES } from './stt.js';
+import { decodeAudio, secondsOf, takeSeconds, azureHear, STT_MAX_BYTES, STT_RATE, peakOf, logStt } from './stt.js';
 import { cleanText, pickVoice, pickRate, cacheKey, takeChars, usedChars, azureSpeak, FREE_CHARS, STOP_SHARE, isChirp, azureTwin,
   googleSpeak, googleKey } from './tts.js';
 import certHtml from '../../branding/certificate/index.html';
@@ -102,6 +102,9 @@ export default {
       }
       if (path === '/v1/stt' && request.method === 'POST') {
         return handleStt(request, env);
+      }
+      if (path === '/v1/stt/selftest' && request.method === 'GET') {
+        return handleSttSelftest(request, env);
       }
       if (path === '/v1/card' && request.method === 'POST') {
         return handleCardPut(request, env);
@@ -498,15 +501,47 @@ async function handleStt(request, env) {
     return json({ ok: false, error: 'rate_limit', message: 'Too many requests' }, 429);
   }
   const quota = await takeSeconds(env, secondsOf(pcm));
-  if (!quota.ok) return json({ ok: false, error: 'stt_quota', used: quota.used, limit: quota.limit }, 429);
+  const row = { device: deviceId, seconds: Math.round(pcm.length / (STT_RATE * 2) * 10) / 10, peak: peakOf(pcm) };
+  if (!quota.ok) {
+    await logStt(env, { ...row, status: 'quota' });
+    return json({ ok: false, error: 'stt_quota', used: quota.used, limit: quota.limit }, 429);
+  }
+  const t0 = Date.now();
   let r;
   try {
     r = await azureHear(env, pcm, fetch);
   } catch (e) {
+    await logStt(env, { ...row, status: 'error', text: String(e?.message || e), ms: Date.now() - t0 });
     return json({ ok: false, error: 'stt_unavailable', message: String(e?.message || e).slice(0, 80) }, 503);
   }
+  await logStt(env, { ...row, status: r.ok ? (r.text ? 'text' : 'nothing') : `azure ${r.status} ${r.why || ''}`.trim(),
+    text: r.text || '', ms: Date.now() - t0 });
   if (!r.ok) return json({ ok: false, error: 'stt_unavailable', message: `azure ${r.status}` }, 503);
   return json({ ok: true, text: r.text, used: quota.used, limit: quota.limit });
+}
+
+/**
+ * The cloud ear checked end to end without a tablet: Microsoft's voice says "Окей треньор, пауза" (16 kHz) and the same
+ * Azure speech-to-text the tablets use writes it down. GET → {ok, text, ms}. 3 a minute (it spends a few seconds of the
+ * month's free audio and ~20 characters of the voice).
+ */
+async function handleSttSelftest(request, env) {
+  const ip = request.headers.get('cf-connecting-ip') || 'x';
+  if (!allowHit(`stt:selftest:${ip}`, 3, 60, now())) return json({ ok: false, error: 'rate_limit' }, 429);
+  const phrase = 'Окей треньор, пауза.';
+  try {
+    const res = await azureSpeak(env, phrase, 'bg-BG-BorislavNeural', fetch, 'normal', 'raw-16khz-16bit-mono-pcm');
+    if (!res.ok) return json({ ok: false, error: `tts ${res.status}` }, 503);
+    const pcm = new Uint8Array(await res.arrayBuffer());
+    const t0 = Date.now();
+    const r = await azureHear(env, pcm, fetch);
+    await logStt(env, { device: 'selftest', seconds: Math.round(pcm.length / 3200) / 10, peak: peakOf(pcm),
+      status: r.ok ? (r.text ? 'text' : 'nothing') : `azure ${r.status} ${r.why || ''}`.trim(), text: r.text || '',
+      ms: Date.now() - t0 });
+    return json({ ok: r.ok, said: phrase, text: r.text || '', status: r.status || 200, ms: Date.now() - t0 });
+  } catch (e) {
+    return json({ ok: false, error: String(e?.message || e).slice(0, 120) }, 503);
+  }
 }
 
 /** The AI layer over the planner (docs/xems-ai-brief.md): the trainer's text → a validated patch of its inputs. */

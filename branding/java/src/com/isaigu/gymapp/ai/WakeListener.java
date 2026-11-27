@@ -605,10 +605,10 @@ public final class WakeListener {
             float db = (float) (10 * Math.log10(capSum / capBlockN + 1));
             capPeakDb = Math.max(capPeakDb, db);
             float floor = SPOTTER.floorDb();
-            if (db > floor + 14) {
+            if (db > floor + 8) {                          // a voice across the hall is only a few dB over it
                 capVoiced++;
                 capQuiet = 0;
-            } else if (db < Math.max(floor + 9, capPeakDb - 24)) {
+            } else if (db < Math.max(floor + 5, capPeakDb - 24)) {
                 capQuiet++;
             } else {
                 capQuiet = 0;

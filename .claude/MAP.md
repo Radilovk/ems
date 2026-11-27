@@ -318,7 +318,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `VoiceSettings.java` (272L, compile:music-sync*,wearable) — Settings → "Гласово управление" (owner, 1.1.543): teaching the tablet "тренер" is done once per tablet, so it lives her…
 - `WakeListener.java` (1606L, compile:music-sync*,wearable) — Hands-free "Тренер, …" for the AI training (owner, 1.1.541 — docs/xems-ai-coach.md), built the way voice assistants are…
 - `WakeSetup.java` (279L, compile:music-sync*,wearable) — Teaching the tablet "тренер" (owner, 1.1.541): 3 recordings of the wake word, then "тренировка" once — the look-alike i…
-- `WakeWord.java` (740L, compile:music-sync*,wearable) — The wake word "тренер" on the tablet (owner, 1.1.541 — docs/xems-ai-coach.md): a small always-on keyword spotter that u…
+- `WakeWord.java` (745L, compile:music-sync*,wearable) — The wake word "тренер" on the tablet (owner, 1.1.541 — docs/xems-ai-coach.md): a small always-on keyword spotter that u…
 - `Workout.java` (603L, compile:music-sync*,wearable) — A workout is an impulse map: a line of blocks.
 - `WorkoutStore.java` (270L, compile:music-sync*,wearable) — The studio's own workouts on this tablet (files/xems_workouts.json) plus the ready programs ({@link Workout#presets}).
 - `WorkoutsUi.java` (1728L, compile:music-sync*,wearable) — "Тренировки" (main menu): ready maps and the studio's own.
@@ -618,13 +618,13 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `server/src/ems.js` (136L) — MAC адреси, които влизат в жетона (активни + чакащи дистанционно сдвояване).
 - `server/src/exercises.js` (89L) — The picker groups the admin may give an exercise ('' = the library's own).
 - `server/src/history.js` (77L) — A training id is its start time in ms: digits only, else null.
-- `server/src/index.js` (1565L) — Worker entry: routes /v1/license/activate|refresh, /v1/app/update, releases, admin API, rate limits
+- `server/src/index.js` (1600L) — Worker entry: routes /v1/license/activate|refresh, /v1/app/update, releases, admin API, rate limits
 - `server/src/limits.js` (38L) — Caps and rate-limit settings — stay safe on Workers free tier.
 - `server/src/measures.js` (110L) — The client's scale measurements: the tablet sends each weigh-in's compact result (no impedances, no name);
 - `server/src/plans.js` (28L) — Plan presets → mods / feat arrays (applied at license creation).
 - `server/src/profile.js` (118L) — Client profiles from the booking PWA → the studio's tablets (validation, studio code, cheap limiter).
 - `server/src/report.js` (145L) — The client's copy of the tablet's training report (branding/report/session-report.html): the same page,
-- `server/src/stt.js` (91L) — At most 8 s of 16-bit mono 16 kHz audio in one request (the phrase + a command).
+- `server/src/stt.js` (113L) — At most 8 s of 16-bit mono 16 kHz audio in one request (the phrase + a command).
 - `server/src/sweep.js` (21L) — Nightly sweep (wrangler.toml crons): the tables that only grow.
 - `server/src/tts.js` (170L) — 24 kHz, 16-bit, mono: what the tablet's AudioTrack plays as it arrives.
 - `server/src/units.js` (165L) — Units without a license — the XBody unit's XEMS mod (xbody/overlay/opt/xems/bin/xems-net). The unit calls only
@@ -671,6 +671,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `server/migrations/0016_vr_logs.sql` (12L) — 
 - `server/migrations/0017_wiems_seen.sql` (15L) — 
 - `server/migrations/0018_certificates.sql` (11L) — 
+- `server/migrations/0019_stt_log.sql` (15L) — 
 - `server/scripts/ai-smoke.mjs` (115L) — A real call to Gemini with the server's own prompts and schemas (CI, the GEMINI_API_KEY secret): proves the key,
 - `server/scripts/seed-release.sh` (25L) — Register current APK as a release on the license server.
 
@@ -991,7 +992,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L36 ## Server
   - L45 ## Tests
 
-`docs/xems-ai-coach.md` (597L)
+`docs/xems-ai-coach.md` (608L)
   - L1 # AI coach — the Smart Session with a dialogue (owner, 1.1.535)
   - L86 ## Flow (Smart Session tile)
   - L107 ## Who decides what
@@ -1031,6 +1032,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L556 ## 1.1.590–591 — the wake setup: a live voice is accepted, silence is not
   - L565 ## 1.1.592 — the cloud ear: "окей тренер" in two stages; Chirp 3 HD voices
   - L587 ## 1.1.594 — the microphone hears the voice, not the hall
+  - L598 ## 1.1.595 — heard from across the hall; the cloud ear's log on the server
 
 `docs/xems-ai-session-implementation.md` (230L)
   - L1 # XEMS AI (Smart Session) — реализация v1.1.58-ai

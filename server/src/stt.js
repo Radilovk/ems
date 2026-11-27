@@ -88,3 +88,25 @@ export async function azureHear(env, pcm, fetchImpl = fetch, lang = 'bg-BG') {
       || j.RecognitionStatus === 'BabbleTimeout') return { ok: true, text: '' };
   return { ok: false, status: 502, why: String(j.RecognitionStatus || '') };
 }
+
+/** The loudest sample (0..32767) — a log row tells a silent microphone from a voice. */
+export function peakOf(pcm) {
+  const v = new DataView(pcm.buffer, pcm.byteOffset, pcm.byteLength);
+  let p = 0;
+  for (let i = 0; i + 1 < pcm.length; i += 2) p = Math.max(p, Math.abs(v.getInt16(i, true)));
+  return p;
+}
+
+/** One row of the cloud ear's log (best effort, never fails the request); prunes rows older than 14 days. */
+export async function logStt(env, row, ts = Date.now()) {
+  try {
+    await env.DB.prepare('INSERT INTO stt_log (ts, device, seconds, peak, status, text, ms) VALUES (?, ?, ?, ?, ?, ?, ?)')
+      .bind(Math.floor(ts / 1000), String(row.device || '').slice(0, 40), Number(row.seconds) || 0, Number(row.peak) || 0,
+        String(row.status || '').slice(0, 40), String(row.text || '').slice(0, 300), Number(row.ms) || 0).run();
+    if (Math.random() < 0.05) {
+      await env.DB.prepare('DELETE FROM stt_log WHERE ts < ?').bind(Math.floor(ts / 1000) - 14 * 86400).run();
+    }
+  } catch {
+    // the log table not migrated yet: the request still works
+  }
+}

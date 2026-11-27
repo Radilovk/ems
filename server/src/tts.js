@@ -108,7 +108,7 @@ export async function takeChars(env, n, ts = Date.now(), google = false) {
 }
 
 /** Azure's answer for one phrase (a streaming Response). Throws on a missing key. */
-export async function azureSpeak(env, text, voice, fetchImpl = fetch, rate = 'normal') {
+export async function azureSpeak(env, text, voice, fetchImpl = fetch, rate = 'normal', format = TTS_FORMAT) {
   if (!env.AZURE_SPEECH_KEY) throw new Error('no_tts_key');
   const region = String(env.AZURE_SPEECH_REGION || 'germanywestcentral').replace(/[^a-z0-9]/g, '');
   return fetchImpl(`https://${region}.tts.speech.microsoft.com/cognitiveservices/v1`, {
@@ -116,7 +116,7 @@ export async function azureSpeak(env, text, voice, fetchImpl = fetch, rate = 'no
     headers: {
       'Ocp-Apim-Subscription-Key': String(env.AZURE_SPEECH_KEY).trim(),
       'Content-Type': 'application/ssml+xml',
-      'X-Microsoft-OutputFormat': TTS_FORMAT,
+      'X-Microsoft-OutputFormat': format,
       'User-Agent': 'xems-license',
     },
     body: ssml(text, voice, rate),

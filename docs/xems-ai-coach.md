@@ -594,3 +594,14 @@ it, the warm-up runs softer by design); "s" read aloud as a letter → "секу
   (logged: "mic source N effects: …"); no AGC (it would pump noise up in a pause and shift the learned loudness).
   The kept source moved to a new pref (`src594`). **Teach "Окей тренер" once more** — the examples were recorded on
   the raw source and sound different through the suppression.
+
+## 1.1.595 — heard from across the hall; the cloud ear's log on the server
+- **Owner:** the teaching works now, but in a session it hears no voice at all.
+- **Checked end to end from here:** `GET /v1/stt/selftest` (Microsoft's voice says "Окей треньор, пауза" at 16 kHz → the
+  same Azure path) → "Окей, треньор, пауза." in ~1 s: the server side works. The tablet had sent 17 s of audio.
+- **Cause on the tablet:** two gates made for the spotter alone. The loudness gate refused any word more than 10 dB
+  quieter than the examples — taught at the tablet, said from across the hall (10–15 dB quieter): every command
+  refused. The word's start had to stand 12 dB over the hall. With the cloud ear (it decides) there is no loudness
+  gate and a word may start 4 dB nearer the hall's level (`Finder.eager`); the window counts a voice at floor + 8 dB.
+- **Log** (`stt_log`, migration 0019): every `/v1/stt` request — device, seconds, peak sample, Azure's status and text,
+  ms; 14 days. `npx wrangler d1 execute xems-license --remote --command "SELECT * FROM stt_log ORDER BY id DESC LIMIT 20"`.

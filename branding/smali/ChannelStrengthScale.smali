@@ -93,10 +93,10 @@
     .registers 3
 
     .prologue
-    .line 189
+    .line 186
     const/high16 v0, 0x41200000    # 10.0f
 
-    .line 191
+    .line 188
     :try_start_2
     invoke-static {}, Lcom/isaigu/gymapp/widget/XemsLicense;->armsDivider()F
     :try_end_5
@@ -104,7 +104,7 @@
 
     move-result v0
 
-    .line 194
+    .line 191
     :goto_6
     invoke-static {p0, v0}, Lcom/isaigu/gymapp/train/utils/ChannelStrengthScale;->armsDivider(IF)F
 
@@ -112,7 +112,7 @@
 
     return v0
 
-    .line 192
+    .line 189
     :catch_b
     move-exception v1
 
@@ -125,12 +125,12 @@
     .prologue
     const/high16 v0, 0x3f800000    # 1.0f
 
-    .line 199
+    .line 196
     const/high16 v1, 0x3f000000    # 0.5f
 
     mul-float/2addr v1, p1
 
-    .line 200
+    .line 197
     add-int/lit16 v2, p0, -0x96
 
     int-to-float v2, v2
@@ -145,7 +145,7 @@
 
     add-float/2addr v1, v2
 
-    .line 201
+    .line 198
     cmpg-float v2, v1, v0
 
     if-gez v2, :cond_14
@@ -163,7 +163,7 @@
     .registers 5
 
     .prologue
-    .line 157
+    .line 154
     const-class v1, Lcom/isaigu/gymapp/train/utils/ChannelStrengthScale;
 
     monitor-enter v1
@@ -175,7 +175,7 @@
 
     sget v0, Lcom/isaigu/gymapp/train/utils/ChannelStrengthScale;->lastArmsExact:F
 
-    .line 158
+    .line 155
     :goto_9
     if-lez p1, :cond_1b
 
@@ -183,7 +183,7 @@
 
     if-eq p1, v2, :cond_1b
 
-    .line 159
+    .line 156
     invoke-static {p1}, Lcom/isaigu/gymapp/train/utils/ChannelStrengthScale;->armsScale(I)F
 
     move-result v2
@@ -200,13 +200,13 @@
 
     div-float/2addr v0, v2
 
-    .line 161
+    .line 158
     :cond_1b
     monitor-exit v1
 
     return v0
 
-    .line 157
+    .line 154
     :cond_1d
     int-to-float v0, p0
 
@@ -224,7 +224,7 @@
     .registers 1
 
     .prologue
-    .line 166
+    .line 163
     sget v0, Lcom/isaigu/gymapp/train/utils/ChannelStrengthScale;->currentPulseWidth:I
 
     invoke-static {v0}, Lcom/isaigu/gymapp/train/utils/ChannelStrengthScale;->armsFactor(I)F
@@ -238,7 +238,7 @@
     .registers 3
 
     .prologue
-    .line 174
+    .line 171
     const/high16 v0, 0x3f800000    # 1.0f
 
     invoke-static {p0}, Lcom/isaigu/gymapp/train/utils/ChannelStrengthScale;->armsDivider(I)F
@@ -254,7 +254,7 @@
     .registers 2
 
     .prologue
-    .line 179
+    .line 176
     sget-boolean v0, Lcom/isaigu/gymapp/train/utils/ChannelStrengthScale;->face:Z
 
     if-eqz v0, :cond_9
@@ -284,7 +284,7 @@
 
     const/4 v2, 0x0
 
-    .line 116
+    .line 113
     sget-boolean v0, Lcom/isaigu/gymapp/train/utils/ChannelStrengthScale;->face:Z
 
     if-nez v0, :cond_13
@@ -304,11 +304,11 @@
     :cond_13
     move v0, v3
 
-    .line 125
+    .line 122
     :goto_14
     return v0
 
-    .line 120
+    .line 117
     :cond_15
     const/4 v0, 0x0
 
@@ -321,10 +321,10 @@
 
     if-ge v0, v4, :cond_2d
 
-    .line 121
+    .line 118
     if-eq v0, v5, :cond_2a
 
-    .line 122
+    .line 119
     sget-object v4, Lcom/isaigu/gymapp/train/utils/ChannelStrengthScale;->CHRONAXIE:[F
 
     aget v4, v4, v0
@@ -337,13 +337,13 @@
 
     move-result v1
 
-    .line 120
+    .line 117
     :cond_2a
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_17
 
-    .line 125
+    .line 122
     :cond_2d
     cmpl-float v0, v1, v2
 
@@ -407,7 +407,7 @@
     .registers 3
 
     .prologue
-    .line 184
+    .line 181
     const/high16 v0, 0x3f800000    # 1.0f
 
     const/high16 v1, 0x41200000    # 10.0f
@@ -427,7 +427,7 @@
     .prologue
     const/high16 v2, 0x3f800000    # 1.0f
 
-    .line 142
+    .line 139
     int-to-float v0, p1
 
     div-float v0, p0, v0
@@ -459,7 +459,7 @@
     .registers 5
 
     .prologue
-    .line 146
+    .line 143
     const-class v1, Lcom/isaigu/gymapp/train/utils/ChannelStrengthScale;
 
     monitor-enter v1
@@ -467,20 +467,20 @@
     :try_start_3
     sput p0, Lcom/isaigu/gymapp/train/utils/ChannelStrengthScale;->lastArmsByte:I
 
-    .line 147
+    .line 144
     sput p1, Lcom/isaigu/gymapp/train/utils/ChannelStrengthScale;->lastArmsExact:F
 
-    .line 148
+    .line 145
     sput p2, Lcom/isaigu/gymapp/train/utils/ChannelStrengthScale;->lastArmsPw:I
     :try_end_9
     .catchall {:try_start_3 .. :try_end_9} :catchall_b
 
-    .line 149
+    .line 146
     monitor-exit v1
 
     return-void
 
-    .line 146
+    .line 143
     :catchall_b
     move-exception v0
 
@@ -490,19 +490,17 @@
 .end method
 
 .method public static scaleOutput(IF)F
-    .registers 6
+    .registers 5
 
     .prologue
     const/4 v1, 0x4
 
-    const v2, 0x38d1b717    # 1.0E-4f
-
     .line 87
     sget-boolean v0, Lcom/isaigu/gymapp/train/utils/ChannelStrengthScale;->face:Z
 
-    if-eqz v0, :cond_17
+    if-eqz v0, :cond_14
 
-    if-eq p0, v1, :cond_17
+    if-eq p0, v1, :cond_14
 
     .line 88
     sget v0, Lcom/isaigu/gymapp/train/utils/ChannelStrengthScale;->currentPulseWidth:I
@@ -519,15 +517,15 @@
 
     int-to-float v0, v0
 
-    .line 103
-    :goto_16
+    .line 100
+    :goto_13
     return v0
 
     .line 90
-    :cond_17
-    if-ne p0, v1, :cond_2f
+    :cond_14
+    if-ne p0, v1, :cond_28
 
-    .line 94
+    .line 92
     sget v0, Lcom/isaigu/gymapp/train/utils/ChannelStrengthScale;->currentPulseWidth:I
 
     invoke-static {v0}, Lcom/isaigu/gymapp/train/utils/ChannelStrengthScale;->armsScale(I)F
@@ -536,34 +534,28 @@
 
     mul-float/2addr v0, p1
 
-    .line 95
-    add-float v1, v0, v2
+    .line 93
+    invoke-static {v0}, Ljava/lang/Math;->round(F)I
 
-    float-to-double v2, v1
+    move-result v1
 
-    invoke-static {v2, v3}, Ljava/lang/Math;->floor(D)D
-
-    move-result-wide v2
-
-    double-to-int v1, v2
-
-    .line 96
+    .line 94
     sget v2, Lcom/isaigu/gymapp/train/utils/ChannelStrengthScale;->currentPulseWidth:I
 
     invoke-static {v1, v0, v2}, Lcom/isaigu/gymapp/train/utils/ChannelStrengthScale;->rememberArms(IFI)V
 
-    .line 97
+    .line 95
     int-to-float v0, v1
 
-    goto :goto_16
+    goto :goto_13
 
-    .line 99
-    :cond_2f
+    .line 97
+    :cond_28
     const/4 v0, 0x3
 
-    if-ne p0, v0, :cond_46
+    if-ne p0, v0, :cond_3d
 
-    .line 101
+    .line 98
     sget v0, Lcom/isaigu/gymapp/train/utils/ChannelStrengthScale;->currentPulseWidth:I
 
     invoke-static {p0, v0}, Lcom/isaigu/gymapp/train/utils/ChannelStrengthScale;->balance(II)F
@@ -578,20 +570,16 @@
 
     mul-float/2addr v0, v1
 
-    add-float/2addr v0, v2
+    invoke-static {v0}, Ljava/lang/Math;->round(F)I
 
-    float-to-double v0, v0
+    move-result v0
 
-    invoke-static {v0, v1}, Ljava/lang/Math;->floor(D)D
+    int-to-float v0, v0
 
-    move-result-wide v0
+    goto :goto_13
 
-    double-to-float v0, v0
-
-    goto :goto_16
-
-    .line 103
-    :cond_46
+    .line 100
+    :cond_3d
     sget v0, Lcom/isaigu/gymapp/train/utils/ChannelStrengthScale;->currentPulseWidth:I
 
     invoke-static {p0, v0}, Lcom/isaigu/gymapp/train/utils/ChannelStrengthScale;->balance(II)F
@@ -600,14 +588,14 @@
 
     mul-float/2addr v0, p1
 
-    goto :goto_16
+    goto :goto_13
 .end method
 
 .method public static sentShare(I)F
     .registers 2
 
     .prologue
-    .line 108
+    .line 105
     sget-boolean v0, Lcom/isaigu/gymapp/train/utils/ChannelStrengthScale;->face:Z
 
     if-nez v0, :cond_c
@@ -655,7 +643,7 @@
     .registers 5
 
     .prologue
-    .line 130
+    .line 127
     int-to-float v0, p1
 
     invoke-static {p0, p2}, Lcom/isaigu/gymapp/train/utils/ChannelStrengthScale;->balance(II)F
@@ -673,12 +661,12 @@
     .prologue
     const/16 v0, 0x64
 
-    .line 135
+    .line 132
     invoke-static {p0, p2}, Lcom/isaigu/gymapp/train/utils/ChannelStrengthScale;->balance(II)F
 
     move-result v1
 
-    .line 136
+    .line 133
     const/4 v2, 0x0
 
     cmpl-float v2, v1, v2
@@ -692,7 +680,7 @@
 
     move-result v1
 
-    .line 137
+    .line 134
     if-gez v1, :cond_14
 
     const/4 v0, 0x0

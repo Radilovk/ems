@@ -88,17 +88,14 @@ public final class ChannelStrengthScale {
             return Math.round(encodedValue * faceFactor(currentPulseWidth));
         }
         if (channelIndex == ARMS_CHANNEL_INDEX) {
-            // down, never to the nearest (owner, 2026-11-27: "their absolute strength must be lower"): rounding gave
-            // the arms a whole suit unit at half of it (÷10: 1 unit already at 5 % = twice the set share, a hard
-            // contraction at low strength); now the arms never get more than their share of the other channels
+            // to the nearest step, not down: at ÷10 the arms have only ~10 steps and flooring cost up to a whole one
             float exact = encodedValue * armsScale(currentPulseWidth);
-            int sent = (int) Math.floor(exact + 1e-4f);
+            int sent = Math.round(exact);
             rememberArms(sent, exact, currentPulseWidth);
             return sent;
         }
         if (channelIndex == CALF_CHANNEL_INDEX) {
-            // down as the arms: never above the calves' share
-            return (float) Math.floor(encodedValue * balance(channelIndex, currentPulseWidth) * calfFactor() + 1e-4f);
+            return Math.round(encodedValue * balance(channelIndex, currentPulseWidth) * calfFactor());
         }
         return encodedValue * balance(channelIndex, currentPulseWidth);
     }

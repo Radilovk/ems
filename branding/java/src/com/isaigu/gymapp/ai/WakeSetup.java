@@ -200,6 +200,8 @@ public final class WakeSetup {
         } else {
             int spread = WakeListener.SPOTTER.spreadOfExamples();
             boolean wide = spread > WakeWord.WIDE_SPREAD;     // not one phrase (a cough, a noise, another word): not kept
+            com.isaigu.gymapp.wearable.WearableBleDiagLog.log("wake", "setup: spread=" + spread + " limit="
+                    + WakeWord.WIDE_SPREAD + (wide ? " REJECTED" : " kept"));
             if (wide) {
                 WakeListener.reloadExamples(host);            // the earlier recordings, if any, stay
             } else {

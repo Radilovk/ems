@@ -22,6 +22,14 @@ def main() -> int:
     DEST.parent.mkdir(parents=True, exist_ok=True)
     shutil.copy2(SRC, DEST)
     print(f"kws pack shipped ({SRC.stat().st_size // 1024} KB)")
+    # the owner's voice, already trained (scripts/voice-kws/run-owner.sh): the default until a tablet learns its own
+    own = SRC.parent / "kws-owner.bin"
+    if own.exists():
+        if own.read_bytes()[:4] != b"KWS\x01":
+            print("apply-kws-pack: kws-owner.bin is not a KWS model", file=sys.stderr)
+            return 1
+        shutil.copy2(own, DEST.parent / "kws-owner.bin")
+        print(f"kws owner model shipped ({own.stat().st_size // 1024} KB)")
     return 0
 
 

@@ -54,7 +54,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/apply-hz-controls.py` (1119L, build:L63) — Hz indicator + shared slider/master controls for frequency during training.
 - `scripts/apply-impulse-display.py` (42L, build:L60) — Show impulse strength as percent instead of milliamps on the training screen.
 - `scripts/apply-interval-timer.py` (701L, build:L115[BETA_MUSIC]) — Interval timer: master button, draggable dial overlay, training sync hooks (settings sheet is Java/XemsUi).
-- `scripts/apply-kws-pack.py` (30L, build:L126[BETA_MUSIC]) — Ship the personal wake word's pack: branding/voice/kws-pack.bin → assets/xems/kws-pack.bin (ai/WakeSetup trains the tra…
+- `scripts/apply-kws-pack.py` (38L, build:L126[BETA_MUSIC]) — Ship the personal wake word's pack: branding/voice/kws-pack.bin → assets/xems/kws-pack.bin (ai/WakeSetup trains the tra…
 - `scripts/apply-lang-keep.py` (72L, build:L142[BETA_MUSIC]) — Keep the app's language (bg / en) after Android puts the system locale back.
 - `scripts/apply-languages.py` (187L, build:L52) — Limit app languages to Bulgarian and English.
 - `scripts/apply-list-theme.py` (46L, build:L55) — Fix connect-dialog list row colors set programmatically in adapters.
@@ -194,11 +194,13 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/verify-vendor-access.py` (62L, build:L192) — Fail the build when app smali reads a field or calls a method it may not reach from its own package.
 - `scripts/verify-wearable-smali.py` (107L, build:L159[BETA_MUSIC]) — Verify wearable bridge smali, xiaomi BLE classes, and train hooks.
 - `scripts/voice/build-voice.sh` (35L) — XEMS voice firmware → voice/xems-voice-sense.uf2 (XIAO nRF52840 Sense) and voice/xems-voice-sense-plus.uf2
+- `scripts/voice-kws/KwsOwner.java` (45L) — A ready model of one trainer's voice, trained here exactly as the tablet would (KwsTrain.train with the app's pack), sh…
 - `scripts/voice-kws/KwsSim.java` (277L) — The personal "тренер" (ai/Kws + ai/KwsTrain) measured with the tablet's own code, the streaming Detector included.
 - `scripts/voice-kws/SetupSim.java` (118L) — Two checks that only a tablet would show otherwise: 1.
 - `scripts/voice-kws/feat.py` (58L) — Log-mel / MFCC features — the same math as WakeWord.Front (16 kHz, 25 ms window, 10 ms hop, 512 FFT, 26 mel 100–7600 Hz…
 - `scripts/voice-kws/proto.py` (331L) — Personal wake word "тренер" — the recipe the tablet will run on its own (prototype + measurement).
 - `scripts/voice-kws/run-kws.sh` (9L) — The personal "тренер" (ai/Kws, ai/KwsTrain) measured on the JVM with the tablet's own code.
+- `scripts/voice-kws/run-owner.sh` (10L) — A ready voice model (the tablet's own recipe) → branding/voice/kws-owner.bin, shipped as the default.
 - `scripts/voice-kws/run-setup.sh` (9L) — The setup's cut and the live detector checked on the JVM. Usage: sh scripts/voice-kws/run-setup.sh <enroll dir with cut…
 - `scripts/voice-sim/DfuSim.java` (92L) — Offline test of the USB update (wearable/voice/VoiceDfu): a simulated Adafruit nRF52 bootloader decodes every frame — S…
 - `scripts/voice-sim/EarEndSim.java` (98L) — The cloud ear's end of speech (ai/EarEnd) on real speech (16 kHz raw PCM files: any Bulgarian phrases, e.g.
@@ -328,7 +330,7 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `TalkButton.java` (93L, compile:music-sync*,wearable) — The round button beside the chat's line (owner, 2026-11-25: "the symbol is ugly and I do not understand it").
 - `VoiceInput.java` (180L, compile:music-sync*,wearable) — The 🎤 of the AI training (owner, 1.1.537): Android's own speech input — the same Google voice typing the keyboard's mic…
 - `VoiceSettings.java` (272L, compile:music-sync*,wearable) — Settings → "Гласово управление" (owner, 1.1.543): teaching the tablet "тренер" is done once per tablet, so it lives her…
-- `WakeListener.java` (1696L, compile:music-sync*,wearable) — Hands-free "Тренер, …" for the AI training (owner, 1.1.541 — docs/xems-ai-coach.md), built the way voice assistants are…
+- `WakeListener.java` (1710L, compile:music-sync*,wearable) — Hands-free "Тренер, …" for the AI training (owner, 1.1.541 — docs/xems-ai-coach.md), built the way voice assistants are…
 - `WakeSetup.java` (395L, compile:music-sync*,wearable) — Teaching the tablet "тренер" (owner, 1.1.541): 3 recordings of the wake word, then "тренировка" once — the look-alike i…
 - `WakeWord.java` (753L, compile:music-sync*,wearable) — The wake word "тренер" on the tablet (owner, 1.1.541 — docs/xems-ai-coach.md): a small always-on keyword spotter that u…
 - `Workout.java` (603L, compile:music-sync*,wearable) — A workout is an impulse map: a line of blocks.
@@ -1609,11 +1611,12 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L59 ## 6. Words
   - L64 ## 7. Checklist before shipping a screen
 
-`docs/xems-voice-kws.md` (33L)
+`docs/xems-voice-kws.md` (39L)
   - L1 # The trainer's own "тренер" — a small model learnt on the tablet (1.1.598)
   - L6 ## How a new trainer is taught (Settings → Гласово управление → "Научи гласа ми", ~40 s)
   - L14 ## The model (`ai/Kws`, `ai/KwsTrain` — pure Java, the same code runs on the JVM)
   - L27 ## Measured (`scripts/voice-kws/run-kws.sh`, the owner's 11 "тренер" cuts, 4 folds, 10 voices only in the test)
+  - L34 ## 1.1.599 — the owner's voice built in
 
 `docs/xems-voice.md` (122L)
   - L1 # XEMS voice — Bulgarian command words on a XIAO nRF52840 Sense (Plus)

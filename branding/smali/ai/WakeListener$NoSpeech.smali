@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 991
+    .line 1005
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -36,7 +36,7 @@
     .prologue
     const/4 v2, 0x0
 
-    .line 994
+    .line 1008
     # getter for: Lcom/isaigu/gymapp/ai/WakeListener;->window:Z
     invoke-static {}, Lcom/isaigu/gymapp/ai/WakeListener;->access$800()Z
 
@@ -51,29 +51,29 @@
 
     if-nez v0, :cond_22
 
-    .line 995
+    .line 1009
     const-string v0, "wake"
 
     const-string v1, "nothing said in the window: closed"
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/WearableBleDiagLog;->log(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 996
+    .line 1010
     invoke-static {v2}, Lcom/isaigu/gymapp/ai/WakeListener;->windowResult(Z)V
 
-    .line 997
+    .line 1011
     # setter for: Lcom/isaigu/gymapp/ai/WakeListener;->followUps:I
     invoke-static {v2}, Lcom/isaigu/gymapp/ai/WakeListener;->access$1202(I)I
 
-    .line 998
+    .line 1012
     invoke-static {}, Lcom/isaigu/gymapp/ai/Earcon;->closed()V
 
-    .line 999
+    .line 1013
     const-wide/16 v0, 0xc8
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/ai/WakeListener;->afterWindow(J)V
 
-    .line 1001
+    .line 1015
     :cond_22
     return-void
 .end method

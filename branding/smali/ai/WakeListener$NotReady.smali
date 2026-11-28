@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 1022
+    .line 1036
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,7 +34,7 @@
     .registers 2
 
     .prologue
-    .line 1025
+    .line 1039
     # getter for: Lcom/isaigu/gymapp/ai/WakeListener;->window:Z
     invoke-static {}, Lcom/isaigu/gymapp/ai/WakeListener;->access$800()Z
 
@@ -49,12 +49,12 @@
 
     if-nez v0, :cond_11
 
-    .line 1026
+    .line 1040
     const-string v0, "not ready in 3000 ms"
 
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/WakeListener;->giveUpBackground(Ljava/lang/String;)V
 
-    .line 1028
+    .line 1042
     :cond_11
     return-void
 .end method

@@ -622,3 +622,15 @@ it, the warm-up runs softer by design); "s" read aloud as a letter → "секу
   36/36 end 0.3–1.4 s after the speech (before: 24 of 36 ran 6–7.5 s — the stt_log failure, reproduced).
 - **Signals:** a short tone the moment it starts listening (`Listening` → `Earcon.again`), then accepted / not
   understood / closed as before. The wake words also take "ренер" / "реньор" (a cut-off head).
+
+## 1.1.597 — "окей тренер" starts Google's listening again; never 100, but 70 / 80 at once
+- **Owner:** Google's recognizer was precise when it listened — the trouble was that it never started; "окей тренер"
+  should only start it. Up to 50 / 70 / 80 % at once is fine, 100 never ("a forbidden command"); "всичко на 70" =
+  the highest channel at 70, every other one follows it.
+- **Listening:** with Google on the tablet (background recognizer or its speech dialog, `WakeListener.nativeEar`) the
+  spotter decides alone (`WakeWord.NATIVE` 1.15 × the limit, the look-alike kept, no loudness gate — commands come
+  from across the hall), the tone sounds when Google is ready, Google hears the command (our microphone released
+  first, `micStop`). The cloud ear (two stages, `/v1/stt`) only on a tablet without Google.
+- **Safety:** `AiVoiceCmd.VOICE_MAX_LEVEL` = 90 replaces the +10 step cap: a spoken / AI command never takes a channel
+  over 90 (a level set higher by hand is kept); "силата / всичко на N" sets the strength so the highest channel is N
+  (`AutoSession.maxShare`, `MapRunner.maxShare`); a bare "100" / "сто" stays the misheard "стоп" → pause.

@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 717
+    .line 720
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,7 +34,7 @@
     .registers 5
 
     .prologue
-    .line 720
+    .line 723
     sget-object v0, Lcom/isaigu/gymapp/ai/WakeListener;->setup:Lcom/isaigu/gymapp/ai/WakeSetup$Sink;
 
     if-nez v0, :cond_14
@@ -45,7 +45,7 @@
 
     if-eqz v0, :cond_14
 
-    .line 721
+    .line 724
     # getter for: Lcom/isaigu/gymapp/ai/WakeListener;->MAIN:Landroid/os/Handler;
     invoke-static {}, Lcom/isaigu/gymapp/ai/WakeListener;->access$400()Landroid/os/Handler;
 
@@ -55,12 +55,12 @@
 
     invoke-virtual {v0, p0, v2, v3}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
 
-    .line 727
+    .line 730
     :cond_13
     :goto_13
     return-void
 
-    .line 724
+    .line 727
     :cond_14
     sget-object v0, Lcom/isaigu/gymapp/ai/WakeListener;->setup:Lcom/isaigu/gymapp/ai/WakeSetup$Sink;
 
@@ -88,7 +88,7 @@
 
     if-nez v0, :cond_13
 
-    .line 725
+    .line 728
     :cond_2c
     invoke-static {}, Lcom/isaigu/gymapp/ai/WakeListener;->micStart()V
 

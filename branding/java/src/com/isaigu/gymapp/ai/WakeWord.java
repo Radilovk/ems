@@ -38,7 +38,11 @@ public final class WakeWord {
      * written down by the server, which decides. 1 = the spotter alone decides (no server).
      */
     public static final float LOOSE = 1.45f;
+    /** With the tablet's own recognizer after it (Google): a little wider than the examples, the look-alike kept. */
+    public static final float NATIVE = 1.15f;
     public volatile float loose = 1f;
+    /** The cloud ear decides (no Google on the tablet): a suspicion, no look-alike margin. */
+    public volatile boolean cloud;
 
     public static final int NONE = 0, WAKE = 1, RECORDED = 2, SKIPPED = 3;
 
@@ -450,8 +454,8 @@ public final class WakeWord {
 
     boolean loudEnough(float peak) {
         lastLoud = peak;
-        // with the cloud ear no loudness gate (owner 1.1.595: "in a session it hears nothing"): the examples are said at
-        // the tablet, the commands from across the hall, 10–15 dB quieter — the gate refused every one of them
+        // no loudness gate once a recognizer checks what follows (owner 1.1.595: "in a session it hears nothing"): the
+        // examples are said at the tablet, the commands from across the hall, 10–15 dB quieter — the gate refused them
         return loose > 1f || loud <= 0 || lastLoud >= loud - loudMargin();
     }
 
@@ -612,7 +616,7 @@ public final class WakeWord {
         if (d > (int) (threshold() * factor)) {
             return false;
         }
-        if (factor > 1f) {
+        if (cloud && factor > 1f) {
             return true;                              // a suspicion only: the cloud reads the words and decides
         }
         for (Word f : falseNeg) {

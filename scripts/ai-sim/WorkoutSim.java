@@ -68,7 +68,12 @@ public class WorkoutSim {
         check("увеличи всичко.".equals(AiVoiceCmd.afterWake("Ренер увеличи всичко.")),
                 "a cut-off head of the wake word still wakes");
         check(AiVoiceCmd.afterWake("Тренира няма нужда от клиент.") == null, "'тренира…' is not the wake word");
-        check(AiVoiceCmd.VOICE_MAX_UP == 10, "a spoken command raises by at most 10 points");
+        for (String all : new String[] {"вдигни всичко на 70%", "всичко на 70", "силата на 70 процента"}) {
+            AiVoiceCmd.Result w = AiVoiceCmd.parse(all);
+            check(w.commands.size() == 1 && "strength".equals(w.commands.get(0).target) && "set".equals(w.commands.get(0).dir)
+                    && w.commands.get(0).value == 70, "'" + all + "' = the highest channel at 70");
+        }
+        check(AiVoiceCmd.VOICE_MAX_LEVEL == 90, "a spoken command never takes a channel over 90 (100 is forbidden)");
         AiVoiceCmd.Result v = AiVoiceCmd.parse("намали импулсите на краката");
         check(v.commands.size() == 1 && v.commands.get(0).target.equals("legs") && v.commands.get(0).dir.equals("down"), "legs down");
         v = AiVoiceCmd.parse("увеличи малко ръцете и корема");

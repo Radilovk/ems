@@ -76,8 +76,11 @@ public final class AiVoiceCmd {
             // the head of the phrase cut off or misheard by the cloud ear (stt_log 1.1.595: "Ренер увеличи всичко")
             "ренер", "реньор"};
 
-    /** The most a spoken / AI command may raise a level, in points (owner, 1.1.596). */
-    public static final int VOICE_MAX_UP = 10;
+    /**
+     * The highest level a spoken / AI command may take a channel to (owner, 1.1.597: "50, 70, 80 % is fine — 100 never,
+     * that is a forbidden command"). A level the trainer set higher by hand is kept.
+     */
+    public static final int VOICE_MAX_LEVEL = 90;
 
     /**
      * A command that is only a number is never a level (owner, 1.1.596: "Окей тренер, стоп" came back as "100" and set
@@ -408,7 +411,7 @@ public final class AiVoiceCmd {
                     }
                 }
             }
-            if (!any && (has(t, "сила", "силата", "интензитет", "тока") || has(t, "увеличи", "намали", "вдигни", "свали", "качи", "дай"))) {
+            if (!any && (has(t, "сила", "силата", "интензитет", "тока", "всичко", "всички") || has(t, "увеличи", "намали", "вдигни", "свали", "качи", "дай"))) {
                 r.commands.add(new Cmd("strength", v));
             }
             if (!r.commands.isEmpty()) {

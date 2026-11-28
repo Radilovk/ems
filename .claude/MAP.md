@@ -193,6 +193,8 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `scripts/verify-vendor-access.py` (62L, build:L191) — Fail the build when app smali reads a field or calls a method it may not reach from its own package.
 - `scripts/verify-wearable-smali.py` (107L, build:L158[BETA_MUSIC]) — Verify wearable bridge smali, xiaomi BLE classes, and train hooks.
 - `scripts/voice/build-voice.sh` (35L) — XEMS voice firmware → voice/xems-voice-sense.uf2 (XIAO nRF52840 Sense) and voice/xems-voice-sense-plus.uf2
+- `scripts/voice-kws/feat.py` (58L) — Log-mel / MFCC features — the same math as WakeWord.Front (16 kHz, 25 ms window, 10 ms hop, 512 FFT, 26 mel 100–7600 Hz…
+- `scripts/voice-kws/proto.py` (331L) — Personal wake word "тренер" — the recipe the tablet will run on its own (prototype + measurement).
 - `scripts/voice-sim/DfuSim.java` (92L) — Offline test of the USB update (wearable/voice/VoiceDfu): a simulated Adafruit nRF52 bootloader decodes every frame — S…
 - `scripts/voice-sim/EarEndSim.java` (98L) — The cloud ear's end of speech (ai/EarEnd) on real speech (16 kHz raw PCM files: any Bulgarian phrases, e.g.
 - `scripts/voice-sim/GateSim.java` (49L) — What heard speech may go to the AI (ai/AiVoiceGate) — the phrases a hall really produces.

@@ -56,6 +56,19 @@ public class WorkoutSim {
             check(m.totalSeconds() <= Workout.RUN_MAX_S, "whole ≤ 35 min");
         }
         // spoken commands, read on the tablet
+        // owner, 1.1.596: "Окей тренер, стоп" came back as "Окей, треньор 100." — a bare number is never a level
+        check("пауза".equals(AiVoiceCmd.bareNumber("100.")) && "пауза".equals(AiVoiceCmd.bareNumber("сто")),
+                "a bare 100 / сто is the misheard 'стоп' → pause");
+        check("".equals(AiVoiceCmd.bareNumber("50")) && "".equals(AiVoiceCmd.bareNumber("на 80 %")),
+                "any other bare number does nothing");
+        check(AiVoiceCmd.bareNumber("силата на 50") == null && AiVoiceCmd.bareNumber("увеличи краката") == null,
+                "a real command is not touched");
+        check("пауза".equals(AiVoiceCmd.afterWake("Окей, треньор, пауза.").replaceAll("[.]", "")),
+                "the cloud ear's text → the command");
+        check("увеличи всичко.".equals(AiVoiceCmd.afterWake("Ренер увеличи всичко.")),
+                "a cut-off head of the wake word still wakes");
+        check(AiVoiceCmd.afterWake("Тренира няма нужда от клиент.") == null, "'тренира…' is not the wake word");
+        check(AiVoiceCmd.VOICE_MAX_UP == 10, "a spoken command raises by at most 10 points");
         AiVoiceCmd.Result v = AiVoiceCmd.parse("намали импулсите на краката");
         check(v.commands.size() == 1 && v.commands.get(0).target.equals("legs") && v.commands.get(0).dir.equals("down"), "legs down");
         v = AiVoiceCmd.parse("увеличи малко ръцете и корема");

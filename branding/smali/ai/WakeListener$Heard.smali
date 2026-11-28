@@ -28,16 +28,16 @@
     .registers 3
 
     .prologue
-    .line 678
+    .line 662
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 679
+    .line 663
     iput-object p1, p0, Lcom/isaigu/gymapp/ai/WakeListener$Heard;->text:Ljava/lang/String;
 
-    .line 680
+    .line 664
     iput p2, p0, Lcom/isaigu/gymapp/ai/WakeListener$Heard;->mode:I
 
-    .line 681
+    .line 665
     return-void
 .end method
 
@@ -47,13 +47,13 @@
     .registers 3
 
     .prologue
-    .line 685
+    .line 669
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/WakeListener$Heard;->text:Ljava/lang/String;
 
     iget v1, p0, Lcom/isaigu/gymapp/ai/WakeListener$Heard;->mode:I
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/ai/WakeListener;->heard(Ljava/lang/String;I)V
 
-    .line 686
+    .line 670
     return-void
 .end method

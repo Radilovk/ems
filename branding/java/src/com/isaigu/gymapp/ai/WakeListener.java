@@ -483,6 +483,7 @@ public final class WakeListener {
                                     WearableBleDiagLog.log("wake", "suspected d=" + SPOTTER.lastD + " limit="
                                             + SPOTTER.threshold() + " → the cloud ear");
                                     earBegin(1);
+                                    MAIN.post(new Listening());   // a short tone: "I am listening" (owner 1.1.596)
                                 } else {
                                     WearableBleDiagLog.log("wake", "suspicion dropped: too many this minute");
                                 }
@@ -564,29 +565,23 @@ public final class WakeListener {
     static volatile int ear;
     static volatile int pendingEar;
     static short[] cap;
-    static int capN, capBlockN, capBlocks, capQuiet, capVoiced, capSkip, capPre;
-    static double capSum;
-    static float capPeakDb;
+    static int capN, capSkip, capPre;
+    static EarEnd capEnd;
 
     /** Mic thread: starts listening for the cloud ear. */
     static void earBegin(int mode) {
         cap = new short[CloudEar.MAX];
         capN = 0;
-        capBlockN = 0;
-        capBlocks = 0;
-        capSum = 0;
-        capQuiet = 0;
-        capVoiced = 0;
-        capPeakDb = 0;
         capPre = 0;
         capSkip = 0;
+        capEnd = new EarEnd(mode);
         if (mode == 1) {
             int pre = Math.min(rawFill, RAW.length);       // the phrase itself: the spotter heard it up to now
             for (int k = 0; k < pre; k++) {
                 cap[capN++] = RAW[(rawAt - pre + k + RAW.length) % RAW.length];
             }
             capPre = capN;
-            capVoiced = 1;
+            capEnd.prime(cap, 0, capPre);                  // the room before the phrase and the voice's peak
         } else {
             capSkip = CloudEar.RATE * 35 / 100;            // our own "speak now" sound is not the command
         }
@@ -600,30 +595,8 @@ public final class WakeListener {
             return false;
         }
         cap[capN++] = s;
-        capSum += (double) s * s;
-        if (++capBlockN >= CloudEar.RATE / 10) {           // every 100 ms
-            float db = (float) (10 * Math.log10(capSum / capBlockN + 1));
-            capPeakDb = Math.max(capPeakDb, db);
-            float floor = SPOTTER.floorDb();
-            if (db > floor + 8) {                          // a voice across the hall is only a few dB over it
-                capVoiced++;
-                capQuiet = 0;
-            } else if (db < Math.max(floor + 5, capPeakDb - 24)) {
-                capQuiet++;
-            } else {
-                capQuiet = 0;
-            }
-            capSum = 0;
-            capBlockN = 0;
-            capBlocks++;
-            if (ear == 2 && capVoiced == 0 && capBlocks >= 40) {
-                return true;                                // a window: nothing said in 4 s
-            }
-            if (capVoiced > 0 && capQuiet >= 9 && capN - capPre >= CloudEar.RATE / 2) {
-                return true;                                // 0.9 s of quiet after speech: the phrase is over
-            }
-        }
-        return capN >= cap.length;
+        capEnd.hint = SPOTTER.floorDb();
+        return capEnd.push(s) || capN >= cap.length;
     }
 
     /** Mic thread: the listening is over — the microphone stops, the words go to the server. */
@@ -634,7 +607,7 @@ public final class WakeListener {
         short[] a = cap;
         int n = capN;
         cap = null;
-        if (mode == 2 && capVoiced == 0) {
+        if (mode == 2 && !capEnd.heardSpeech()) {
             MAIN.post(new Heard("", 2));                    // nothing said: no request
             return;
         }
@@ -642,6 +615,17 @@ public final class WakeListener {
             MAIN.post(new Thinking());
         }
         new Thread(new Hear(a, n, mode), "xems-ear").start();
+    }
+
+    static final class Listening implements Runnable {
+        @Override
+        public void run() {
+            if (on && !window && !speaking()) {
+                Earcon.again();
+                state = "listening";
+                AiTrain.voiceState();
+            }
+        }
     }
 
     static final class Thinking implements Runnable {
@@ -1114,6 +1098,11 @@ public final class WakeListener {
         windowResult(cmd.length() > 0);
         if (AiVoiceCmd.onlyWakeFragment(cmd)) {
             cmd = "";                                      // "окей" alone: the wake phrase's own head
+        }
+        String bare = AiVoiceCmd.bareNumber(cmd);
+        if (bare != null) {
+            WearableBleDiagLog.log("wake", "a bare number \"" + cmd + "\" → \"" + bare + "\" (never a level)");
+            cmd = bare;
         }
         if (cmd.length() == 0) {
             Earcon.closed();

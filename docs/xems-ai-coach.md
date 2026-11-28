@@ -605,3 +605,20 @@ it, the warm-up runs softer by design); "s" read aloud as a letter → "секу
   gate and a word may start 4 dB nearer the hall's level (`Finder.eager`); the window counts a voice at floor + 8 dB.
 - **Log** (`stt_log`, migration 0019): every `/v1/stt` request — device, seconds, peak sample, Azure's status and text,
   ms; 14 days. `npx wrangler d1 execute xems-license --remote --command "SELECT * FROM stt_log ORDER BY id DESC LIMIT 20"`.
+
+## 1.1.596 — never to 100 by voice; the end of speech seen; a tone when it listens
+- **Owner (headset mic):** no signal that it listens; hears wrongly; often nothing at all; "Окей тренер, стоп" set
+  the suit to 100; slow (the local model answered faster).
+- **stt_log (13 real requests):** 7 ran to the 7.5 s limit (the end of speech was never seen); "Окей, треньор 100."
+  (the misheard "стоп"); "Ренер увеличи всичко" (the head cut off, so not taken).
+- **Safety:** a spoken / AI command raises any level by at most `AiVoiceCmd.VOICE_MAX_UP` = 10 points
+  (`AutoSession.maxUp` around `AiTrain.applyCommands`, and the AI workout's `applyMap`); lowering is never limited. A
+  command that is only a number is never a level (`bareNumber`): "100" / "сто" alone = the misheard "стоп" → pause,
+  any other bare number → nothing. Tests in `WorkoutSim`.
+- **End of speech** (`ai/EarEnd`, pure Java): the room = the listening's own quietest 100 ms (primed with the 2 s
+  before it), the voice's peak from the phrase; 0.7 s of unbroken quiet (≤ room + 6 dB or ≥ 12 dB under the peak)
+  ends it; at most 4 s after the spotter (6 s in a window). `sh scripts/voice-sim/run-earend.sh <dir of 16 kHz
+  phrases>`: real Bulgarian speech (Chirp) × quiet / suppressed headset / hiss / music soft→very loud × near / far:
+  36/36 end 0.3–1.4 s after the speech (before: 24 of 36 ran 6–7.5 s — the stt_log failure, reproduced).
+- **Signals:** a short tone the moment it starts listening (`Listening` → `Earcon.again`), then accepted / not
+  understood / closed as before. The wake words also take "ренер" / "реньор" (a cut-off head).

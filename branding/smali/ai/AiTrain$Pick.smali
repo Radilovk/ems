@@ -26,13 +26,13 @@
     .registers 2
 
     .prologue
-    .line 1160
+    .line 1178
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 1161
+    .line 1179
     iput p1, p0, Lcom/isaigu/gymapp/ai/AiTrain$Pick;->which:I
 
-    .line 1162
+    .line 1180
     return-void
 .end method
 
@@ -46,34 +46,34 @@
 
     const/4 v1, 0x0
 
-    .line 1166
+    .line 1184
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoSession;->getInput()Lcom/isaigu/gymapp/ai/AutoModel$Input;
 
     move-result-object v2
 
-    .line 1167
+    .line 1185
     iget v3, p0, Lcom/isaigu/gymapp/ai/AiTrain$Pick;->which:I
 
     packed-switch v3, :pswitch_data_80
 
-    .line 1190
+    .line 1208
     :pswitch_b
     if-nez p1, :cond_7d
 
-    .line 1191
+    .line 1209
     invoke-static {v2}, Lcom/isaigu/gymapp/ai/AiCoach;->clearHealth(Lcom/isaigu/gymapp/ai/AutoModel$Input;)V
 
-    .line 1192
+    .line 1210
     sput-boolean v1, Lcom/isaigu/gymapp/ai/AiTrain;->healthOpen:Z
 
-    .line 1198
+    .line 1216
     :goto_12
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiTrain;->changed()V
 
-    .line 1199
+    .line 1217
     return-void
 
-    .line 1169
+    .line 1187
     :pswitch_16
     if-nez p1, :cond_1d
 
@@ -89,13 +89,13 @@
 
     goto :goto_1a
 
-    .line 1172
+    .line 1190
     :pswitch_20
     invoke-static {v2, p1}, Lcom/isaigu/gymapp/ai/AiCoach;->experience(Lcom/isaigu/gymapp/ai/AutoModel$Input;I)V
 
     goto :goto_12
 
-    .line 1175
+    .line 1193
     :pswitch_24
     invoke-static {}, Lcom/isaigu/gymapp/ai/AutoModel$Goal;->values()[Lcom/isaigu/gymapp/ai/AutoModel$Goal;
 
@@ -115,7 +115,7 @@
 
     iput-object v0, v2, Lcom/isaigu/gymapp/ai/AutoModel$Input;->goal:Lcom/isaigu/gymapp/ai/AutoModel$Goal;
 
-    .line 1176
+    .line 1194
     iget-object v0, v2, Lcom/isaigu/gymapp/ai/AutoModel$Input;->goal:Lcom/isaigu/gymapp/ai/AutoModel$Goal;
 
     iget-object v1, v2, Lcom/isaigu/gymapp/ai/AutoModel$Input;->kind:Lcom/isaigu/gymapp/ai/AutoModel$Kind;
@@ -130,7 +130,7 @@
 
     if-eqz v0, :cond_4d
 
-    .line 1177
+    .line 1195
     iget-object v0, v2, Lcom/isaigu/gymapp/ai/AutoModel$Input;->kind:Lcom/isaigu/gymapp/ai/AutoModel$Kind;
 
     sget-object v1, Lcom/isaigu/gymapp/ai/AutoModel$Kind;->ACTIVE:Lcom/isaigu/gymapp/ai/AutoModel$Kind;
@@ -142,7 +142,7 @@
     :goto_4b
     iput-object v0, v2, Lcom/isaigu/gymapp/ai/AutoModel$Input;->kind:Lcom/isaigu/gymapp/ai/AutoModel$Kind;
 
-    .line 1179
+    .line 1197
     :cond_4d
     iget-object v0, v2, Lcom/isaigu/gymapp/ai/AutoModel$Input;->goal:Lcom/isaigu/gymapp/ai/AutoModel$Goal;
 
@@ -158,20 +158,20 @@
 
     goto :goto_12
 
-    .line 1177
+    .line 1195
     :cond_5a
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoModel$Kind;->ACTIVE:Lcom/isaigu/gymapp/ai/AutoModel$Kind;
 
     goto :goto_4b
 
-    .line 1182
+    .line 1200
     :pswitch_5d
     if-ne p1, v0, :cond_65
 
     :goto_5f
     sput-boolean v0, Lcom/isaigu/gymapp/ai/AiTrain;->free:Z
 
-    .line 1183
+    .line 1201
     const/4 v0, 0x0
 
     sput-object v0, Lcom/isaigu/gymapp/ai/AiTrain;->freePlan:Lcom/isaigu/gymapp/ai/AiWorkout$Plan;
@@ -181,10 +181,10 @@
     :cond_65
     move v0, v1
 
-    .line 1182
+    .line 1200
     goto :goto_5f
 
-    .line 1186
+    .line 1204
     :pswitch_67
     if-nez p1, :cond_7a
 
@@ -193,7 +193,7 @@
     :goto_6b
     iput-object v0, v2, Lcom/isaigu/gymapp/ai/AutoModel$Input;->kind:Lcom/isaigu/gymapp/ai/AutoModel$Kind;
 
-    .line 1187
+    .line 1205
     iget-object v0, v2, Lcom/isaigu/gymapp/ai/AutoModel$Input;->goal:Lcom/isaigu/gymapp/ai/AutoModel$Goal;
 
     iget-object v1, v2, Lcom/isaigu/gymapp/ai/AutoModel$Input;->kind:Lcom/isaigu/gymapp/ai/AutoModel$Kind;
@@ -208,19 +208,19 @@
 
     goto :goto_12
 
-    .line 1186
+    .line 1204
     :cond_7a
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoModel$Kind;->PASSIVE:Lcom/isaigu/gymapp/ai/AutoModel$Kind;
 
     goto :goto_6b
 
-    .line 1194
+    .line 1212
     :cond_7d
     sput-boolean v0, Lcom/isaigu/gymapp/ai/AiTrain;->healthOpen:Z
 
     goto :goto_12
 
-    .line 1167
+    .line 1185
     :pswitch_data_80
     .packed-switch 0x0
         :pswitch_16

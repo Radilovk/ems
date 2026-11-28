@@ -1428,12 +1428,16 @@ public final class AutoSession {
      */
     public static int strengthStep(int dir, boolean small, int by, int set) {
         int lead = -1;
+        int cap = maxUp;
         for (Row r : rows) {
             if (r.block != null) {
                 continue;
             }
             int now = level(r);
             int to = set >= 0 ? set : now + dir * (by > 0 ? by : AiVoiceCmd.step(Math.max(now, 1), small));
+            if (to > now) {
+                to = Math.min(to, now + cap);            // a spoken command never jumps up (owner, 1.1.596)
+            }
             to = Math.max(0, Math.min(100, to));
             setRowStrength(r, to);
             if (lead < 0) {
@@ -1456,6 +1460,12 @@ public final class AutoSession {
     public static int channelStep(int[] chs, String dir, boolean small) {
         return channelStep(chs, dir, small, -1);
     }
+
+    /**
+     * The most one command may raise a level, in points (owner, 1.1.596: "Окей тренер, стоп" was heard as "100" and the
+     * suit went to 100 — a voice must never jump up). AiTrain sets it for spoken / AI commands; 100 = no limit (the UI).
+     */
+    public static volatile int maxUp = 100;
 
     /** @param value "set": the level asked for; up / down: the step's size (−1 = ~10 % of the level now) */
     public static int channelStep(int[] chs, String dir, boolean small, int value) {
@@ -1491,6 +1501,9 @@ public final class AutoSession {
                 to = Math.max(0, value);
             } else {
                 to = now + ("up".equals(dir) ? 1 : -1) * (value > 0 ? value : AiVoiceCmd.step(Math.max(now, 1), small));
+            }
+            if (to > now) {
+                to = Math.min(to, now + maxUp);
             }
             to = Math.max(0, Math.min(100, to));
             if (to > s && s >= 0) {

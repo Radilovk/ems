@@ -59,6 +59,7 @@ public final class VoiceInput {
         }
         pending = cb;
         MAIN.removeCallbacks(CAP);
+        WakeListener.releaseForDialog();               // two recorders: Android gives one of them silence
         try {
             FragmentManager fm = a.getFragmentManager();
             Fragment f = fm.findFragmentByTag(TAG);
@@ -84,6 +85,7 @@ public final class VoiceInput {
             return true;
         } catch (Throwable t) {
             pending = null;
+            WakeListener.dialogClosed();
             WearableBleDiagLog.log("voice", "listen: " + t);
             try {
                 Toast.makeText(a, AiText.t("Няма гласово въвеждане на таблета (Google).",
@@ -155,6 +157,7 @@ public final class VoiceInput {
             MAIN.removeCallbacks(CAP);
             Result cb = pending;
             pending = null;
+            WakeListener.dialogClosed();
             if (cb == null) {
                 return;
             }

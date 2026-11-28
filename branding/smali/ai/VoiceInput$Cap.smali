@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 98
+    .line 100
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -38,7 +38,7 @@
 
     const/4 v2, 0x0
 
-    .line 101
+    .line 103
     # getter for: Lcom/isaigu/gymapp/ai/VoiceInput;->capHost:Ljava/lang/ref/WeakReference;
     invoke-static {}, Lcom/isaigu/gymapp/ai/VoiceInput;->access$000()Ljava/lang/ref/WeakReference;
 
@@ -59,22 +59,22 @@
 
     move-object v1, v0
 
-    .line 102
+    .line 104
     :goto_13
     # getter for: Lcom/isaigu/gymapp/ai/VoiceInput;->capFragment:Landroid/app/Fragment;
     invoke-static {}, Lcom/isaigu/gymapp/ai/VoiceInput;->access$100()Landroid/app/Fragment;
 
     move-result-object v0
 
-    .line 103
+    .line 105
     # setter for: Lcom/isaigu/gymapp/ai/VoiceInput;->capHost:Ljava/lang/ref/WeakReference;
     invoke-static {v2}, Lcom/isaigu/gymapp/ai/VoiceInput;->access$002(Ljava/lang/ref/WeakReference;)Ljava/lang/ref/WeakReference;
 
-    .line 104
+    .line 106
     # setter for: Lcom/isaigu/gymapp/ai/VoiceInput;->capFragment:Landroid/app/Fragment;
     invoke-static {v2}, Lcom/isaigu/gymapp/ai/VoiceInput;->access$102(Landroid/app/Fragment;)Landroid/app/Fragment;
 
-    .line 105
+    .line 107
     if-eqz v1, :cond_27
 
     if-eqz v0, :cond_27
@@ -86,7 +86,7 @@
 
     if-nez v4, :cond_2a
 
-    .line 143
+    .line 145
     :cond_27
     :goto_27
     return-void
@@ -94,10 +94,10 @@
     :cond_28
     move-object v1, v2
 
-    .line 101
+    .line 103
     goto :goto_13
 
-    .line 108
+    .line 110
     :cond_2a
     const-string v4, "voice"
 
@@ -105,10 +105,10 @@
 
     invoke-static {v4, v5}, Lcom/isaigu/gymapp/wearable/WearableBleDiagLog;->log(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 109
+    .line 111
     const/4 v4, 0x0
 
-    .line 113
+    .line 115
     :try_start_32
     const-class v5, Landroid/app/Fragment;
 
@@ -118,19 +118,19 @@
 
     move-result-object v5
 
-    .line 114
+    .line 116
     const/4 v6, 0x1
 
     invoke-virtual {v5, v6}, Ljava/lang/reflect/Field;->setAccessible(Z)V
 
-    .line 115
+    .line 117
     invoke-virtual {v5, v0}, Ljava/lang/reflect/Field;->get(Ljava/lang/Object;)Ljava/lang/Object;
 
     move-result-object v0
 
     check-cast v0, Ljava/lang/String;
 
-    .line 116
+    .line 118
     const-class v5, Landroid/app/Activity;
 
     const-string v6, "mEmbeddedID"
@@ -139,22 +139,22 @@
 
     move-result-object v5
 
-    .line 117
+    .line 119
     const/4 v6, 0x1
 
     invoke-virtual {v5, v6}, Ljava/lang/reflect/Field;->setAccessible(Z)V
 
-    .line 118
+    .line 120
     invoke-virtual {v5, v1}, Ljava/lang/reflect/Field;->get(Ljava/lang/Object;)Ljava/lang/Object;
 
     move-result-object v6
 
-    .line 119
+    .line 121
     invoke-virtual {v5, v1, v0}, Ljava/lang/reflect/Field;->set(Ljava/lang/Object;Ljava/lang/Object;)V
     :try_end_57
     .catch Ljava/lang/Throwable; {:try_start_32 .. :try_end_57} :catch_89
 
-    .line 121
+    .line 123
     const/16 v0, 0x5a1
 
     :try_start_59
@@ -162,7 +162,7 @@
     :try_end_5c
     .catchall {:try_start_59 .. :try_end_5c} :catchall_84
 
-    .line 123
+    .line 125
     :try_start_5c
     invoke-virtual {v5, v1, v6}, Ljava/lang/reflect/Field;->set(Ljava/lang/Object;Ljava/lang/Object;)V
     :try_end_5f
@@ -170,11 +170,11 @@
 
     move v0, v3
 
-    .line 129
+    .line 131
     :goto_60
     if-nez v0, :cond_27
 
-    .line 132
+    .line 134
     :try_start_62
     new-instance v0, Landroid/content/Intent;
 
@@ -184,56 +184,56 @@
 
     invoke-direct {v0, v1, v3}, Landroid/content/Intent;-><init>(Landroid/content/Context;Ljava/lang/Class;)V
 
-    .line 133
+    .line 135
     const/high16 v3, 0x20020000
 
     invoke-virtual {v0, v3}, Landroid/content/Intent;->addFlags(I)Landroid/content/Intent;
 
-    .line 134
+    .line 136
     invoke-virtual {v1, v0}, Landroid/app/Activity;->startActivity(Landroid/content/Intent;)V
     :try_end_73
     .catch Ljava/lang/Throwable; {:try_start_62 .. :try_end_73} :catch_a4
 
-    .line 137
+    .line 139
     :goto_73
     # getter for: Lcom/isaigu/gymapp/ai/VoiceInput;->pending:Lcom/isaigu/gymapp/ai/VoiceInput$Result;
     invoke-static {}, Lcom/isaigu/gymapp/ai/VoiceInput;->access$200()Lcom/isaigu/gymapp/ai/VoiceInput$Result;
 
     move-result-object v0
 
-    .line 138
+    .line 140
     # setter for: Lcom/isaigu/gymapp/ai/VoiceInput;->pending:Lcom/isaigu/gymapp/ai/VoiceInput$Result;
     invoke-static {v2}, Lcom/isaigu/gymapp/ai/VoiceInput;->access$202(Lcom/isaigu/gymapp/ai/VoiceInput$Result;)Lcom/isaigu/gymapp/ai/VoiceInput$Result;
 
-    .line 139
+    .line 141
     instance-of v1, v0, Lcom/isaigu/gymapp/ai/VoiceInput$WantsEmpty;
 
     if-eqz v1, :cond_27
 
-    .line 140
+    .line 142
     const-string v1, ""
 
     invoke-interface {v0, v1}, Lcom/isaigu/gymapp/ai/VoiceInput$Result;->onText(Ljava/lang/String;)V
 
     goto :goto_27
 
-    .line 123
+    .line 125
     :catchall_84
     move-exception v0
 
     :try_start_85
     invoke-virtual {v5, v1, v6}, Ljava/lang/reflect/Field;->set(Ljava/lang/Object;Ljava/lang/Object;)V
 
-    .line 124
+    .line 126
     throw v0
     :try_end_89
     .catch Ljava/lang/Throwable; {:try_start_85 .. :try_end_89} :catch_89
 
-    .line 126
+    .line 128
     :catch_89
     move-exception v0
 
-    .line 127
+    .line 129
     const-string v3, "voice"
 
     new-instance v5, Ljava/lang/StringBuilder;
@@ -260,7 +260,7 @@
 
     goto :goto_60
 
-    .line 135
+    .line 137
     :catch_a4
     move-exception v0
 

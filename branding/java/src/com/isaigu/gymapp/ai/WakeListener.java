@@ -315,15 +315,14 @@ public final class WakeListener {
     static volatile boolean silent;
     /** Huawei & co.: VOICE_RECOGNITION can open fine and give zeros, so the sources are tried in turn. */
     /**
-     * VOICE_COMMUNICATION first (owner, 1.1.594: "in a loud room Claude's app hears me, ours shows the meter full and
-     * hears nothing"): it is the phone call's path — the device's own noise suppression, its echo cancelling (the music
-     * and the voice the tablet itself plays are taken out) and, on phones with several microphones, their beamforming
-     * towards the speaker. That is how voice apps hear in noise. VOICE_RECOGNITION gives the raw room by design.
+     * VOICE_RECOGNITION first again (owner, 1.1.600: "it does not open Google's window, and opened by hand it does not
+     * hear me"): 1.1.594 put VOICE_COMMUNICATION first — Android gives that source (a call) priority and SILENCES every
+     * other app's capture, Google's recognizer included. The device's noise suppression stays attached (effects()).
      */
-    static final int[] SOURCES = {MediaRecorder.AudioSource.VOICE_COMMUNICATION, MediaRecorder.AudioSource.VOICE_RECOGNITION,
-            MediaRecorder.AudioSource.MIC, MediaRecorder.AudioSource.CAMCORDER, MediaRecorder.AudioSource.DEFAULT};
-    /** The kept source's pref (a new key: the order of SOURCES changed in 1.1.594). */
-    static final String SRC_KEY = "src594";
+    static final int[] SOURCES = {MediaRecorder.AudioSource.VOICE_RECOGNITION, MediaRecorder.AudioSource.MIC,
+            MediaRecorder.AudioSource.CAMCORDER, MediaRecorder.AudioSource.DEFAULT};
+    /** The kept source's pref (a new key: the order of SOURCES changed in 1.1.594 and back in 1.1.600). */
+    static final String SRC_KEY = "src600";
     /** The source that last gave sound (kept per tablet). */
     private static int srcIdx = -1;
     /** Below this peak (of 32767) for SILENT_MS the source counts as dead: a room is never digitally silent. */
@@ -796,6 +795,21 @@ public final class WakeListener {
     }
 
     private static Kws.Detector det;
+
+    /** Google's speech window is opening (the chat's 🎤 or after "тренер"): our microphone fully off, or it hears nothing. */
+    static void releaseForDialog() {
+        if (micRun || micThread != null) {
+            WearableBleDiagLog.log("wake", "microphone released for Google's speech window");
+        }
+        micStop();
+    }
+
+    /** Google's speech window closed: the wake word listens again (unless a window of ours goes on). */
+    static void dialogClosed() {
+        if (on && !window && setup == null) {
+            MAIN.postDelayed(new MicAgain(), 400);
+        }
+    }
     /** The audio of the last word the setup recorded (16 kHz), for the trainer's model. */
     static volatile float[] lastClip;
 
@@ -904,9 +918,11 @@ public final class WakeListener {
             warmRecognizer();
         }
         Activity a = host != null ? host.get() : null;
-        if (!Boolean.TRUE.equals(serviceOk) && a != null && !a.isFinishing() && chime() && VoiceInput.listen(a, new DialogCommand(),
+        // owner, 1.1.600: Google's own speech window after "тренер" (precise; the trainer sees that it listens) — with no
+        // time limit of ours (it cut the dictation): Google ends it on the trainer's pause
+        if (a != null && !a.isFinishing() && dialogAvailable() && chime() && VoiceInput.listen(a, new DialogCommand(),
                 followUp ? AiText.t("Слушам…", "Listening…") : AiText.t("Тренер слуша — кажи команда или въпрос",
-                        "The trainer listens — a command or a question"), DIALOG_MS)) {
+                        "The trainer listens — a command or a question"), 0)) {
             return;
         }
         mute(true);

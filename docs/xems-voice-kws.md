@@ -36,3 +36,12 @@ Owner: "send the voice already trained, inside the version". `branding/voice/kws
 `sh scripts/voice-kws/run-owner.sh <enroll dir>` — the tablet's own recipe on the owner's 11 cuts + their other
 speech, with the app's pack) ships as `assets/xems/kws-owner.bin`. `WakeListener.loadKws`: a model the tablet learnt
 (`files/kws-model.bin`) first, else this one — "тренер" works at once; "Научи гласа ми" replaces it per tablet.
+
+## 1.1.600 — Google hears again
+Owner: "тренер" is taken, but Google's window does not open, and opened by hand it does not hear. Cause: 1.1.594 put
+`VOICE_COMMUNICATION` first for our microphone — Android gives a call's source priority and silences every other
+capture, Google's recognizer included. Now: `VOICE_RECOGNITION` first again (noise suppression still attached; kept
+source pref `src600`); `VoiceInput.listen` stops our microphone fully before Google's window opens
+(`WakeListener.releaseForDialog`) and starts it again when it closes (`dialogClosed`); after "тренер" Google's own
+speech window opens (visible, no time limit of ours — the 5 s cap cut the dictation), the background recognizer only
+where no such window exists.

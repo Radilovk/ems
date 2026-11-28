@@ -1158,6 +1158,41 @@ public final class AutoSession {
                 dbl ? (int) Math.round(100 * c.pauseSigma) : 0};
     }
 
+    /** The settings window may open: an automatic / AI session is running (owner, 1.1.601). */
+    public static boolean canShowLive() {
+        return mainKeysOwned() && written != null;
+    }
+
+    /** Pulse width now (µs) and the range the limits allow at the current frequency: {now, min, max, step}. */
+    static int[] widthRange() {
+        AutoEngine.Cmd c = written;
+        if (c == null) {
+            return null;
+        }
+        return new int[] {c.pwUs, AutoLimits.pwMin(plan), AutoLimits.pwMax(c.hz), 10};
+    }
+
+    /**
+     * The trainer's pulse width, in real time: no pause, no restart — the engine rebuilds the running cycle with it
+     * and the rows are written at once (owner, 1.1.601). The limits clamp it; returns the width that was written.
+     */
+    static int setLiveWidth(int us) {
+        if (engine == null || stage != Stage.RUNNING) {
+            return -1;
+        }
+        long now = System.currentTimeMillis();
+        AutoEngine.Cmd c = engine.setSessionWidth(us, now);
+        if (c != null) {
+            lastApplied = c;
+            if (engine.getState() == AutoEngine.State.RUN) {
+                writeRows(c, false);
+            } else {
+                written = c;
+            }
+        }
+        return c != null ? c.pwUs : -1;
+    }
+
     /** −10 % on every row (the "reduce" button; never automatically given back). */
     public static void reduceAll() {
         for (Row r : rows) {

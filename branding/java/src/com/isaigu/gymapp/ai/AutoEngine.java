@@ -100,6 +100,8 @@ public final class AutoEngine {
     private int userOn = -1;
     private int userOff = -1;
     private int userPw = -1;
+    /** The trainer's own pulse width for the whole session (µs, 0 = the program's); the limits still clamp it. */
+    private int sessionPw;
     private boolean doublePulse;
 
     // the impulse in motion (AutoDynamics, spec §13): the set's approach, its history, the recovery's sector
@@ -678,6 +680,21 @@ public final class AutoEngine {
         Cmd c = refresh(now);
         log(now, "user params hz=" + c.hz + " on=" + c.onS + " off=" + c.offS + " pw=" + c.pwUs);
         return c;
+    }
+
+    /**
+     * The pulse width the trainer chose from the settings window (owner, 1.1.601): the one value of the automatic /
+     * AI impulse a person may set at any time, in any phase, while the suit runs — it holds for the whole session
+     * (0 = back to the program's). Hz / ON / OFF stay the program's. L4 / L5 clamp it. Returns the cycle as sent.
+     */
+    public Cmd setSessionWidth(int us, long now) {
+        sessionPw = us <= 0 ? 0 : us;
+        log(now, "session width " + sessionPw);
+        return refresh(now);
+    }
+
+    public int getSessionWidth() {
+        return sessionPw;
     }
 
     /** The running cycle again with the current settings (same start). */
@@ -2594,6 +2611,9 @@ public final class AutoEngine {
         }
         if (tunePwPct != 0) {
             s.pwUs = Math.max(50, (int) Math.round(s.pwUs * (1 + tunePwPct / 100.0)));   // the limits clamp it next
+        }
+        if (sessionPw > 0) {
+            s.pwUs = sessionPw;                 // the trainer's own width wins over the program's and the voice's
         }
         s.rampUpMs = AutoDynamics.ramp(s.rampUpMs, current != null ? current.hz : -1, s.hz, fresh);
         if (s.pauseHz > 0 && s.pauseSigma > 0) {

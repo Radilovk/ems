@@ -378,6 +378,7 @@ public final class AutoLook {
                 t.setCompoundDrawablePadding(XemsUi.dp(c, 8));
                 col.addView(t, XemsUi.matchWrap(c, k == 0 ? 0 : 6));
             }
+            col.setOnClickListener(new ParamClick());     // a tap opens the impulse settings (1.1.601)
             PARAMS.put(info, col);
         }
         int[] p = paramVals;
@@ -403,6 +404,14 @@ public final class AutoLook {
         float a = paramLive ? 1f : 0.55f;
         if (col.getAlpha() != a) {
             col.setAlpha(a);
+        }
+    }
+
+    static final class ParamClick implements View.OnClickListener {
+        @Override
+        public void onClick(View v) {
+            XemsUi.haptic(v);
+            LiveParamSheet.open(v);
         }
     }
 

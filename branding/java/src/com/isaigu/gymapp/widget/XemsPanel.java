@@ -343,6 +343,11 @@ public final class XemsPanel {
                     refresh();
                     return;
                 }
+                // "Главен" during an automatic / AI training: the impulse settings, locked except the width (1.1.601)
+                if (id == ID_MASTER && com.isaigu.gymapp.ai.AutoSession.canShowLive()
+                        && com.isaigu.gymapp.ai.LiveParamSheet.open(root)) {
+                    return;
+                }
                 View target = root.findViewById(id);
                 if (target != null) {
                     target.performClick();

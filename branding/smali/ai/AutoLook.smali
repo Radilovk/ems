@@ -7,7 +7,8 @@
 .annotation system Ldalvik/annotation/MemberClasses;
     value = {
         Lcom/isaigu/gymapp/ai/AutoLook$MainKey;,
-        Lcom/isaigu/gymapp/ai/AutoLook$Block;
+        Lcom/isaigu/gymapp/ai/AutoLook$Block;,
+        Lcom/isaigu/gymapp/ai/AutoLook$ParamClick;
     }
 .end annotation
 
@@ -911,7 +912,7 @@
 
     if-nez v0, :cond_1c
 
-    .line 407
+    .line 408
     :cond_1b
     :goto_1b
     return-void
@@ -977,7 +978,7 @@
 
     move-result-object v4
 
-    if-eq v4, v1, :cond_d7
+    if-eq v4, v1, :cond_df
 
     .line 364
     :cond_4d
@@ -1034,7 +1035,7 @@
     .line 370
     new-array v7, v13, [I
 
-    fill-array-data v7, :array_1bc
+    fill-array-data v7, :array_1c4
 
     move v0, v3
 
@@ -1134,37 +1135,44 @@
 
     .line 381
     :cond_d1
+    new-instance v0, Lcom/isaigu/gymapp/ai/AutoLook$ParamClick;
+
+    invoke-direct {v0}, Lcom/isaigu/gymapp/ai/AutoLook$ParamClick;-><init>()V
+
+    invoke-virtual {v4, v0}, Landroid/widget/LinearLayout;->setOnClickListener(Landroid/view/View$OnClickListener;)V
+
+    .line 382
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoLook;->PARAMS:Ljava/util/Map;
 
     invoke-interface {v0, v1, v4}, Ljava/util/Map;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
 
     move-object v2, v4
 
-    .line 383
-    :cond_d7
+    .line 384
+    :cond_df
     sget-object v1, Lcom/isaigu/gymapp/ai/AutoLook;->paramVals:[I
 
-    .line 384
-    if-eqz v1, :cond_19d
+    .line 385
+    if-eqz v1, :cond_1a5
 
     move v0, v3
 
-    .line 385
-    :goto_dc
+    .line 386
+    :goto_e4
     invoke-virtual {v2}, Landroid/widget/LinearLayout;->getVisibility()I
 
     move-result v4
 
-    if-eq v4, v0, :cond_e5
+    if-eq v4, v0, :cond_ed
 
-    .line 386
+    .line 387
     invoke-virtual {v2, v0}, Landroid/widget/LinearLayout;->setVisibility(I)V
 
-    .line 388
-    :cond_e5
+    .line 389
+    :cond_ed
     if-eqz v1, :cond_1b
 
-    .line 391
+    .line 392
     new-array v6, v13, [Ljava/lang/String;
 
     new-instance v0, Ljava/lang/StringBuilder;
@@ -1253,10 +1261,10 @@
 
     const/4 v4, 0x3
 
-    .line 392
+    .line 393
     aget v0, v1, v13
 
-    if-lez v0, :cond_1a0
+    if-lez v0, :cond_1a8
 
     new-instance v0, Ljava/lang/StringBuilder;
 
@@ -1292,31 +1300,31 @@
 
     move-result-object v0
 
-    :goto_164
+    :goto_16c
     aput-object v0, v6, v4
 
     move v1, v3
 
-    .line 393
-    :goto_167
+    .line 394
+    :goto_16f
     array-length v0, v6
 
-    if-ge v1, v0, :cond_1a5
+    if-ge v1, v0, :cond_1ad
 
     invoke-virtual {v2}, Landroid/widget/LinearLayout;->getChildCount()I
 
     move-result v0
 
-    if-ge v1, v0, :cond_1a5
+    if-ge v1, v0, :cond_1ad
 
-    .line 394
+    .line 395
     invoke-virtual {v2, v1}, Landroid/widget/LinearLayout;->getChildAt(I)Landroid/view/View;
 
     move-result-object v0
 
     check-cast v0, Landroid/widget/TextView;
 
-    .line 395
+    .line 396
     aget-object v4, v6, v1
 
     invoke-virtual {v0}, Landroid/widget/TextView;->getText()Ljava/lang/CharSequence;
@@ -1327,72 +1335,72 @@
 
     move-result v4
 
-    if-nez v4, :cond_187
+    if-nez v4, :cond_18f
 
-    .line 396
+    .line 397
     aget-object v4, v6, v1
 
     invoke-virtual {v0, v4}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 398
-    :cond_187
+    .line 399
+    :cond_18f
     aget-object v4, v6, v1
 
     invoke-virtual {v4}, Ljava/lang/String;->length()I
 
     move-result v4
 
-    if-lez v4, :cond_1a3
+    if-lez v4, :cond_1ab
 
     move v4, v3
 
-    .line 399
-    :goto_190
+    .line 400
+    :goto_198
     invoke-virtual {v0}, Landroid/widget/TextView;->getVisibility()I
 
     move-result v7
 
-    if-eq v7, v4, :cond_199
+    if-eq v7, v4, :cond_1a1
 
-    .line 400
+    .line 401
     invoke-virtual {v0, v4}, Landroid/widget/TextView;->setVisibility(I)V
 
-    .line 393
-    :cond_199
+    .line 394
+    :cond_1a1
     add-int/lit8 v0, v1, 0x1
 
     move v1, v0
 
-    goto :goto_167
+    goto :goto_16f
 
-    :cond_19d
+    :cond_1a5
     move v0, v5
 
-    .line 384
-    goto/16 :goto_dc
+    .line 385
+    goto/16 :goto_e4
 
-    .line 392
-    :cond_1a0
+    .line 393
+    :cond_1a8
     const-string v0, ""
 
-    goto :goto_164
+    goto :goto_16c
 
-    :cond_1a3
+    :cond_1ab
     move v4, v5
 
-    .line 398
-    goto :goto_190
+    .line 399
+    goto :goto_198
 
-    .line 403
-    :cond_1a5
+    .line 404
+    :cond_1ad
     sget-boolean v0, Lcom/isaigu/gymapp/ai/AutoLook;->paramLive:Z
 
-    if-eqz v0, :cond_1b8
+    if-eqz v0, :cond_1c0
 
     const/high16 v0, 0x3f800000    # 1.0f
 
-    .line 404
-    :goto_1ab
+    .line 405
+    :goto_1b3
     invoke-virtual {v2}, Landroid/widget/LinearLayout;->getAlpha()F
 
     move-result v1
@@ -1401,19 +1409,19 @@
 
     if-eqz v1, :cond_1b
 
-    .line 405
+    .line 406
     invoke-virtual {v2, v0}, Landroid/widget/LinearLayout;->setAlpha(F)V
 
     goto/16 :goto_1b
 
-    .line 403
-    :cond_1b8
+    .line 404
+    :cond_1c0
     const v0, 0x3f0ccccd    # 0.55f
 
-    goto :goto_1ab
+    goto :goto_1b3
 
     .line 370
-    :array_1bc
+    :array_1c4
     .array-data 4
         0x0
         0x4
@@ -1797,7 +1805,7 @@
     .registers 8
 
     .prologue
-    .line 410
+    .line 419
     sget-object v0, Lcom/isaigu/gymapp/ai/AutoLook;->SIGNS:Ljava/util/Map;
 
     invoke-interface {v0, p0}, Ljava/util/Map;->get(Ljava/lang/Object;)Ljava/lang/Object;
@@ -1806,7 +1814,7 @@
 
     check-cast v0, Landroid/widget/TextView;
 
-    .line 411
+    .line 420
     new-instance v1, Ljava/lang/StringBuilder;
 
     invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
@@ -1850,15 +1858,15 @@
 
     move-result-object v1
 
-    .line 412
+    .line 421
     if-nez v0, :cond_9e
 
-    .line 413
+    .line 422
     invoke-virtual {p0}, Landroid/widget/LinearLayout;->getContext()Landroid/content/Context;
 
     move-result-object v2
 
-    .line 414
+    .line 423
     const/high16 v0, 0x41500000    # 13.0f
 
     sget v3, Lcom/isaigu/gymapp/widget/XemsUi;->GO_TEXT:I
@@ -1869,27 +1877,27 @@
 
     move-result-object v0
 
-    .line 415
+    .line 424
     const/16 v1, 0x11
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setGravity(I)V
 
-    .line 416
+    .line 425
     const/4 v1, 0x4
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setMaxLines(I)V
 
-    .line 417
+    .line 426
     const/high16 v1, 0x41000000    # 8.0f
 
     invoke-static {v2, v1}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
 
     move-result v1
 
-    .line 418
+    .line 427
     invoke-virtual {v0, v1, v1, v1, v1}, Landroid/widget/TextView;->setPadding(IIII)V
 
-    .line 419
+    .line 428
     sget v1, Lcom/isaigu/gymapp/widget/XemsUi;->GO:I
 
     const/16 v3, 0x26
@@ -1910,7 +1918,7 @@
 
     const/16 v5, 0x99
 
-    .line 420
+    .line 429
     invoke-static {v4, v5}, Lcom/isaigu/gymapp/widget/XemsUi;->alpha(II)I
 
     move-result v4
@@ -1921,14 +1929,14 @@
 
     move-result v5
 
-    .line 419
+    .line 428
     invoke-static {v1, v3, v4, v5}, Lcom/isaigu/gymapp/widget/XemsUi;->rounded(IFII)Landroid/graphics/drawable/GradientDrawable;
 
     move-result-object v1
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setBackgroundDrawable(Landroid/graphics/drawable/Drawable;)V
 
-    .line 421
+    .line 430
     new-instance v1, Landroid/widget/LinearLayout$LayoutParams;
 
     const/4 v3, -0x1
@@ -1937,25 +1945,25 @@
 
     invoke-direct {v1, v3, v4}, Landroid/widget/LinearLayout$LayoutParams;-><init>(II)V
 
-    .line 423
+    .line 432
     const/high16 v3, 0x40800000    # 4.0f
 
     invoke-static {v2, v3}, Lcom/isaigu/gymapp/widget/XemsUi;->dp(Landroid/content/Context;F)I
 
     move-result v2
 
-    .line 424
+    .line 433
     invoke-virtual {v1, v2, v2, v2, v2}, Landroid/widget/LinearLayout$LayoutParams;->setMargins(IIII)V
 
-    .line 425
+    .line 434
     invoke-virtual {p0, v0, v1}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 426
+    .line 435
     sget-object v1, Lcom/isaigu/gymapp/ai/AutoLook;->SIGNS:Ljava/util/Map;
 
     invoke-interface {v1, p0, v0}, Ljava/util/Map;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
 
-    .line 431
+    .line 440
     :cond_91
     :goto_91
     invoke-virtual {v0}, Landroid/widget/TextView;->getParent()Landroid/view/ViewParent;
@@ -1964,20 +1972,20 @@
 
     if-nez v1, :cond_9a
 
-    .line 432
+    .line 441
     invoke-virtual {p0, v0}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
-    .line 434
+    .line 443
     :cond_9a
     return-void
 
-    .line 411
+    .line 420
     :cond_9b
     const-string v1, ""
 
     goto :goto_2c
 
-    .line 427
+    .line 436
     :cond_9e
     invoke-virtual {v0}, Landroid/widget/TextView;->getText()Ljava/lang/CharSequence;
 
@@ -1989,7 +1997,7 @@
 
     if-nez v2, :cond_91
 
-    .line 428
+    .line 437
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
     goto :goto_91

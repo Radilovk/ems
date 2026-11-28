@@ -41,6 +41,8 @@ public final class WakeWord {
     /** With the tablet's own recognizer after it (Google): a little wider than the examples, the look-alike kept. */
     public static final float NATIVE = 1.15f;
     public volatile float loose = 1f;
+    /** The last recorded word: its start / end, in frames before the RECORDED event (the setup cuts its audio). */
+    public int ago0, ago1;
     /** The cloud ear decides (no Google on the tablet): a suspicion, no look-alike margin. */
     public volatile boolean cloud;
 
@@ -530,6 +532,8 @@ public final class WakeWord {
             finder.span(w, front, finder.w0, finder.w1, finder.wPeak);
             if (recording) {
                 recording = false;
+                ago0 = finder.t - finder.w0;            // where the word was, in frames before now (its audio: KWS)
+                ago1 = finder.t - finder.w1;
                 List<Word> into = recordingNeg ? neg : tpl;
                 if (!recordingNeg) {
                     loudSum += finder.wPeak;

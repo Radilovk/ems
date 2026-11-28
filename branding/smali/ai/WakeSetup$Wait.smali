@@ -28,16 +28,16 @@
     .registers 3
 
     .prologue
-    .line 166
+    .line 176
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 167
+    .line 177
     iput-object p1, p0, Lcom/isaigu/gymapp/ai/WakeSetup$Wait;->a:Landroid/app/Activity;
 
-    .line 168
+    .line 178
     iput p2, p0, Lcom/isaigu/gymapp/ai/WakeSetup$Wait;->n:I
 
-    .line 169
+    .line 179
     return-void
 .end method
 
@@ -47,7 +47,7 @@
     .registers 3
 
     .prologue
-    .line 173
+    .line 183
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/WakeSetup$Wait;->a:Landroid/app/Activity;
 
     invoke-virtual {v0}, Landroid/app/Activity;->isFinishing()Z
@@ -56,12 +56,12 @@
 
     if-eqz v0, :cond_9
 
-    .line 181
+    .line 191
     :cond_8
     :goto_8
     return-void
 
-    .line 176
+    .line 186
     :cond_9
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/WakeSetup$Wait;->a:Landroid/app/Activity;
 
@@ -73,14 +73,14 @@
 
     if-eqz v0, :cond_18
 
-    .line 177
+    .line 187
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/WakeSetup$Wait;->a:Landroid/app/Activity;
 
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/WakeSetup;->open(Landroid/app/Activity;)V
 
     goto :goto_8
 
-    .line 178
+    .line 188
     :cond_18
     iget v0, p0, Lcom/isaigu/gymapp/ai/WakeSetup$Wait;->n:I
 
@@ -88,7 +88,7 @@
 
     if-ge v0, v1, :cond_8
 
-    .line 179
+    .line 189
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/WakeSetup$Wait;->a:Landroid/app/Activity;
 
     iget v1, p0, Lcom/isaigu/gymapp/ai/WakeSetup$Wait;->n:I

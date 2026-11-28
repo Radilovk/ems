@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 750
+    .line 830
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,7 +34,7 @@
     .registers 5
 
     .prologue
-    .line 753
+    .line 833
     invoke-static {}, Lcom/isaigu/gymapp/ai/WakeListener;->speaking()Z
 
     move-result v0
@@ -42,13 +42,13 @@
     if-nez v0, :cond_c
 
     # getter for: Lcom/isaigu/gymapp/ai/WakeListener;->window:Z
-    invoke-static {}, Lcom/isaigu/gymapp/ai/WakeListener;->access$700()Z
+    invoke-static {}, Lcom/isaigu/gymapp/ai/WakeListener;->access$800()Z
 
     move-result v0
 
     if-eqz v0, :cond_22
 
-    .line 755
+    .line 835
     :cond_c
     const-string v0, "wake"
 
@@ -56,9 +56,9 @@
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/WearableBleDiagLog;->log(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 756
+    .line 836
     # getter for: Lcom/isaigu/gymapp/ai/WakeListener;->MAIN:Landroid/os/Handler;
-    invoke-static {}, Lcom/isaigu/gymapp/ai/WakeListener;->access$400()Landroid/os/Handler;
+    invoke-static {}, Lcom/isaigu/gymapp/ai/WakeListener;->access$600()Landroid/os/Handler;
 
     move-result-object v0
 
@@ -70,11 +70,11 @@
 
     invoke-virtual {v0, v1, v2, v3}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
 
-    .line 763
+    .line 843
     :goto_21
     return-void
 
-    .line 759
+    .line 839
     :cond_22
     const-string v0, "wake"
 
@@ -118,15 +118,15 @@
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/wearable/WearableBleDiagLog;->log(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 760
+    .line 840
     const/4 v0, 0x0
 
     sput-boolean v0, Lcom/isaigu/gymapp/ai/WakeListener;->followUp:Z
 
-    .line 761
+    .line 841
     invoke-static {}, Lcom/isaigu/gymapp/ai/WakeListener;->micStop()V
 
-    .line 762
+    .line 842
     invoke-static {}, Lcom/isaigu/gymapp/ai/WakeListener;->openWindow()V
 
     goto :goto_21

@@ -26,7 +26,17 @@ public final class WakeSetup {
         void event(int ev);
     }
 
-    static final int STEPS = 4;
+    /**
+     * 1.1.598 (owner: "train the model on my voice, on the tablet"): "Тренер" 8 times, then 4 short phrases of their own
+     * (their other words — "тренировка" among them — are what it must never take), then the tablet learns (Kws).
+     */
+    static final int WORDS = 8;
+    static final String[][] OWN = {{"Тренировка", "Training"}, {"Добре, почивка", "Okay, a rest"},
+            {"Колко време остава", "How much time is left"}, {"Тренирай бавно", "Train slowly"}};
+    static final int STEPS = WORDS + OWN.length;
+    static final java.util.List<float[]> CUTS = new java.util.ArrayList<float[]>();
+    static final java.util.List<float[]> MINE = new java.util.ArrayList<float[]>();
+    static volatile boolean training;
     private static Dialog dialog;
     private static TextView head;
     private static TextView sub;
@@ -66,7 +76,7 @@ public final class WakeSetup {
         d.requestWindowFeature(Window.FEATURE_NO_TITLE);
         LinearLayout box = XemsUi.vertical(a);
         box.setPadding(XemsUi.dp(a, 28), XemsUi.dp(a, 24), XemsUi.dp(a, 28), XemsUi.dp(a, 18));
-        box.addView(XemsUi.text(a, "🎙  " + AiText.t("Научи таблета на „Окей тренер“", "Teach the tablet “Okay trainer”"), 20,
+        box.addView(XemsUi.text(a, "🎙  " + AiText.t("Научи таблета на гласа ти", "Teach the tablet your voice"), 20,
                 XemsUi.TEXT, true));
         box.addView(XemsUi.text(a, AiText.t("Говори както ще говориш в залата: с нормален глас, от мястото, където стоиш.",
                 "Speak as you will in the studio: a normal voice, from where you stand."), 13, XemsUi.MUTED, false),
@@ -182,35 +192,30 @@ public final class WakeSetup {
     }
 
     static void begin() {
+        if (training) {
+            return;
+        }
         WakeListener.SPOTTER.clear();
+        CUTS.clear();
+        MINE.clear();
         step = 0;
         ask();
     }
 
     private static void ask() {
-        if (step < 3) {
+        if (step < WORDS) {
             WakeListener.SPOTTER.record();
-            head.setText(AiText.t("Кажи „Окей тренер“", "Say “Окей тренер”"));
-            sub.setText(AiText.t("Пауза, после фразата сама — " + (step + 1) + " от 3",
-                    "A pause, then the phrase alone — " + (step + 1) + " of 3"));
-        } else if (step == 3) {
+            head.setText(AiText.t("Кажи „Тренер“", "Say “Тренер”"));
+            sub.setText(AiText.t("Пауза, после думата сама — " + (step + 1) + " от " + WORDS,
+                    "A pause, then the word alone — " + (step + 1) + " of " + WORDS));
+        } else if (step < STEPS) {
             WakeListener.SPOTTER.recordContrast();
-            head.setText(AiText.t("Сега кажи „Окей тренировка“", "Now say “Окей тренировка”"));
-            sub.setText(AiText.t("Друга дума — за да не я бърка с „Окей тренер“", "Another word — so it never takes it for “Окей тренер”"));
+            String[] o = OWN[step - WORDS];
+            head.setText("„" + AiText.t(o[0], o[1]) + "“");
+            sub.setText(AiText.t("Сега това — за да не го бърка с „Тренер“ (" + (step - WORDS + 1) + " от " + OWN.length + ")",
+                    "Now this — so it never takes it for “Тренер” (" + (step - WORDS + 1) + " of " + OWN.length + ")"));
         } else {
-            int spread = WakeListener.SPOTTER.spreadOfExamples();
-            boolean wide = spread > WakeWord.WIDE_SPREAD;     // not one phrase (a cough, a noise, another word): not kept
-            com.isaigu.gymapp.wearable.WearableBleDiagLog.log("wake", "setup: spread=" + spread + " limit="
-                    + WakeWord.WIDE_SPREAD + (wide ? " REJECTED" : " kept"));
-            if (wide) {
-                WakeListener.reloadExamples(host);            // the earlier recordings, if any, stay
-            } else {
-                WakeListener.saveExamples(host);
-            }
-            head.setText(wide ? AiText.t("Записите се различават", "The recordings differ") : "✓  " + AiText.t("Готово", "Done"));
-            sub.setText(wide ? AiText.t("Кажи фразата по-еднакво — „Отначало“.", "Say the phrase more alike — “Start over”.")
-                    : AiText.t("Казвай „Окей тренер, …“ — напр. „Окей тренер, увеличи краката“, „Окей тренер, пауза“.",
-                    "Say “Okay trainer, …” — e.g. “Okay trainer, raise the legs”, “Okay trainer, pause”."));
+            learn();
         }
         dots.removeAllViews();
         for (int i = 0; i < STEPS; i++) {
@@ -223,6 +228,101 @@ public final class WakeSetup {
         }
     }
 
+    /** All recorded: the tablet learns the voice on its own thread (~1–3 min), the bar shows how far it is. */
+    static void learn() {
+        training = true;
+        WakeListener.saveExamples(host);                  // the older spotter keeps its last 3, as a fallback
+        head.setText(AiText.t("Уча гласа ти…", "Learning your voice…"));
+        sub.setText(AiText.t("Около минута. Може да затвориш — продължава сам.",
+                "About a minute. You may close this — it goes on by itself."));
+        new Thread(new Learn(host.getApplicationContext(), new java.util.ArrayList<float[]>(CUTS),
+                new java.util.ArrayList<float[]>(MINE)), "xems-kws-train").start();
+    }
+
+    static final class Learn implements Runnable, Kws.Progress {
+        final android.content.Context c;
+        final java.util.List<float[]> cuts, mine;
+        int shown = -1;
+
+        Learn(android.content.Context c, java.util.List<float[]> cuts, java.util.List<float[]> mine) {
+            this.c = c;
+            this.cuts = cuts;
+            this.mine = mine;
+        }
+
+        @Override
+        public void run() {
+            boolean ok = false;
+            long t0 = System.currentTimeMillis();
+            try {
+                android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
+                KwsTrain.Pack pack = KwsTrain.loadPack(c.getAssets().open("xems/kws-pack.bin"));
+                int n = 0;
+                for (float[] m : mine) {
+                    n += m.length + Kws.SR / 5;
+                }
+                float[] own = new float[n];
+                int at = 0;
+                for (float[] m : mine) {
+                    System.arraycopy(m, 0, own, at, m.length);
+                    at += m.length + Kws.SR / 5;
+                }
+                Kws m = KwsTrain.train(cuts, own, pack, System.currentTimeMillis(), this);
+                ok = WakeListener.saveKws(c, m);
+            } catch (Throwable t) {
+                com.isaigu.gymapp.wearable.WearableBleDiagLog.log("wake", "kws train: " + t);
+            }
+            com.isaigu.gymapp.wearable.WearableBleDiagLog.log("wake", "own voice model " + (ok ? "learnt" : "failed") + " in "
+                    + (System.currentTimeMillis() - t0) / 1000 + " s (" + cuts.size() + " words, " + mine.size() + " phrases)");
+            MAIN.post(new Learnt(ok));
+        }
+
+        @Override
+        public void at(float done) {
+            int pct = Math.round(done * 100);
+            if (pct != shown) {
+                shown = pct;
+                MAIN.post(new Shown(pct));
+            }
+        }
+    }
+
+    static final class Shown implements Runnable {
+        final int pct;
+
+        Shown(int pct) {
+            this.pct = pct;
+        }
+
+        @Override
+        public void run() {
+            if (dialog != null && head != null) {
+                head.setText(AiText.t("Уча гласа ти… " + pct + " %", "Learning your voice… " + pct + " %"));
+            }
+        }
+    }
+
+    static final class Learnt implements Runnable {
+        final boolean ok;
+
+        Learnt(boolean ok) {
+            this.ok = ok;
+        }
+
+        @Override
+        public void run() {
+            training = false;
+            AiTrain.voiceState();
+            if (dialog == null || head == null) {
+                return;
+            }
+            head.setText(ok ? "✓  " + AiText.t("Готово", "Done") : AiText.t("Не се получи", "It did not work"));
+            sub.setText(ok ? AiText.t("Казвай „Тренер, …“ — напр. „Тренер, увеличи краката“, „Тренер, пауза“.",
+                    "Say “Trainer, …” — e.g. “Trainer, raise the legs”, “Trainer, pause”.")
+                    : AiText.t("Опитай пак — „Отначало“.", "Try again — “Start over”."));
+        }
+    }
+
     static final class Events implements Sink {
         @Override
         public void event(int ev) {
@@ -230,13 +330,28 @@ public final class WakeSetup {
                 return;
             }
             if (ev == WakeWord.RECORDED) {
+                float[] c = WakeListener.lastClip;
+                int n = c != null ? c.length : 0;
+                boolean word = step < WORDS;
+                // a word is 0.25–1.3 s, a phrase 0.4–2.5 s: anything else was not what was asked (a cough, a tap)
+                if (word ? n < Kws.SR / 4 || n > Kws.SR * 13 / 10 : n < Kws.SR * 2 / 5 || n > Kws.SR * 5 / 2) {
+                    sub.setText(AiText.t("Не го чух ясно — кажи пак, след кратка пауза.",
+                            "Did not hear it clearly — say it again after a short pause."));
+                    if (word) {
+                        WakeListener.SPOTTER.record();
+                    } else {
+                        WakeListener.SPOTTER.recordContrast();
+                    }
+                    return;
+                }
+                (word ? CUTS : MINE).add(c);
                 step++;
                 WakeListener.tone(android.media.ToneGenerator.TONE_PROP_ACK);
                 ask();
             } else if (ev == WakeWord.SKIPPED) {
                 sub.setText(AiText.t("Не те чух ясно — кажи пак, след кратка пауза, малко по-силно.",
                         "Did not hear it clearly — say it again after a short pause, a little louder."));
-                if (step < 3) {
+                if (step < WORDS) {
                     WakeListener.SPOTTER.record();
                 } else {
                     WakeListener.SPOTTER.recordContrast();
@@ -271,6 +386,7 @@ public final class WakeSetup {
             if (step < STEPS) {
                 WakeListener.reloadExamples(host);           // not finished: the earlier examples stay as they were
             }
+            // a training already running finishes on its own (the model is saved, the dialog is gone)
             WakeListener.endSetup(host);
             AiTrain.voiceState();
         }

@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 265
+    .line 380
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -36,57 +36,57 @@
     .prologue
     const/4 v2, 0x0
 
-    .line 268
+    .line 383
     # setter for: Lcom/isaigu/gymapp/ai/WakeSetup;->dialog:Landroid/app/Dialog;
     invoke-static {v2}, Lcom/isaigu/gymapp/ai/WakeSetup;->access$002(Landroid/app/Dialog;)Landroid/app/Dialog;
 
-    .line 269
+    .line 384
     # getter for: Lcom/isaigu/gymapp/ai/WakeSetup;->MAIN:Landroid/os/Handler;
     invoke-static {}, Lcom/isaigu/gymapp/ai/WakeSetup;->access$400()Landroid/os/Handler;
 
     move-result-object v0
 
     # getter for: Lcom/isaigu/gymapp/ai/WakeSetup;->METER:Ljava/lang/Runnable;
-    invoke-static {}, Lcom/isaigu/gymapp/ai/WakeSetup;->access$800()Ljava/lang/Runnable;
+    invoke-static {}, Lcom/isaigu/gymapp/ai/WakeSetup;->access$900()Ljava/lang/Runnable;
 
     move-result-object v1
 
     invoke-virtual {v0, v1}, Landroid/os/Handler;->removeCallbacks(Ljava/lang/Runnable;)V
 
-    .line 270
+    .line 385
     # setter for: Lcom/isaigu/gymapp/ai/WakeSetup;->bar:Landroid/view/View;
     invoke-static {v2}, Lcom/isaigu/gymapp/ai/WakeSetup;->access$102(Landroid/view/View;)Landroid/view/View;
 
-    .line 271
+    .line 386
     # getter for: Lcom/isaigu/gymapp/ai/WakeSetup;->step:I
-    invoke-static {}, Lcom/isaigu/gymapp/ai/WakeSetup;->access$500()I
+    invoke-static {}, Lcom/isaigu/gymapp/ai/WakeSetup;->access$700()I
 
     move-result v0
 
-    const/4 v1, 0x4
+    sget v1, Lcom/isaigu/gymapp/ai/WakeSetup;->STEPS:I
 
-    if-ge v0, v1, :cond_20
+    if-ge v0, v1, :cond_21
 
-    .line 272
+    .line 387
     # getter for: Lcom/isaigu/gymapp/ai/WakeSetup;->host:Landroid/app/Activity;
-    invoke-static {}, Lcom/isaigu/gymapp/ai/WakeSetup;->access$900()Landroid/app/Activity;
+    invoke-static {}, Lcom/isaigu/gymapp/ai/WakeSetup;->access$1000()Landroid/app/Activity;
 
     move-result-object v0
 
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/WakeListener;->reloadExamples(Landroid/content/Context;)V
 
-    .line 274
-    :cond_20
+    .line 390
+    :cond_21
     # getter for: Lcom/isaigu/gymapp/ai/WakeSetup;->host:Landroid/app/Activity;
-    invoke-static {}, Lcom/isaigu/gymapp/ai/WakeSetup;->access$900()Landroid/app/Activity;
+    invoke-static {}, Lcom/isaigu/gymapp/ai/WakeSetup;->access$1000()Landroid/app/Activity;
 
     move-result-object v0
 
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/WakeListener;->endSetup(Landroid/app/Activity;)V
 
-    .line 275
+    .line 391
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiTrain;->voiceState()V
 
-    .line 276
+    .line 392
     return-void
 .end method

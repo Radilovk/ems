@@ -518,9 +518,9 @@
 
     move-result-object v0
 
-    const-string v1, "\u201e\u041e\u043a\u0435\u0439 \u0442\u0440\u0435\u043d\u0435\u0440, \u2026\u201c"
+    const-string v1, "\u201e\u0422\u0440\u0435\u043d\u0435\u0440, \u2026\u201c"
 
-    const-string v8, "\u201cOkay trainer, \u2026\u201d"
+    const-string v8, "\u201cTrainer, \u2026\u201d"
 
     invoke-static {v1, v8}, Lcom/isaigu/gymapp/ai/AiText;->t(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
@@ -699,9 +699,9 @@
     if-eqz v0, :cond_85
 
     .line 115
-    const-string v0, "\u041a\u0430\u0436\u0438 \u201e\u041e\u043a\u0435\u0439 \u0442\u0440\u0435\u043d\u0435\u0440, \u043f\u043e-\u0441\u0438\u043b\u043d\u043e \u043a\u0440\u0430\u043a\u0430\u0442\u0430\u201c, \u201e\u041e\u043a\u0435\u0439 \u0442\u0440\u0435\u043d\u0435\u0440, \u043f\u0430\u0443\u0437\u0430\u201c\u2026 \u0438\u043b\u0438 \u2726 \u0427\u0430\u0442."
+    const-string v0, "\u041a\u0430\u0436\u0438 \u201e\u0422\u0440\u0435\u043d\u0435\u0440, \u043f\u043e-\u0441\u0438\u043b\u043d\u043e \u043a\u0440\u0430\u043a\u0430\u0442\u0430\u201c, \u201e\u0422\u0440\u0435\u043d\u0435\u0440, \u043f\u0430\u0443\u0437\u0430\u201c\u2026 \u0438\u043b\u0438 \u2726 \u0427\u0430\u0442."
 
-    const-string v1, "Say \u201cOkay trainer, raise the legs\u201d, \u201cOkay trainer, pause\u201d\u2026 or \u2726 Chat."
+    const-string v1, "Say \u201cTrainer, raise the legs\u201d, \u201cTrainer, pause\u201d\u2026 or \u2726 Chat."
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/ai/AiText;->t(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 

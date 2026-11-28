@@ -1138,9 +1138,9 @@
 
     move-result-object v3
 
-    const-string v6, "\u201e\u041e\u043a\u0435\u0439 \u0442\u0440\u0435\u043d\u0435\u0440, \u2026\u201c \u0440\u0430\u0431\u043e\u0442\u0438"
+    const-string v6, "\u201e\u0422\u0440\u0435\u043d\u0435\u0440, \u2026\u201c \u0440\u0430\u0431\u043e\u0442\u0438"
 
-    const-string v7, "\u201cOkay trainer, \u2026\u201d is on"
+    const-string v7, "\u201cTrainer, \u2026\u201d is on"
 
     invoke-static {v6, v7}, Lcom/isaigu/gymapp/ai/AiText;->t(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 

@@ -69,7 +69,7 @@ public final class AiCoachBar {
         TextView mic = XemsUi.chip(c, !on ? "🎙  " + AiText.t("изкл.", "off")
                 : speaking ? "🔊  " + AiText.t("Говоря…", "Speaking…")
                 : hearing ? "🎙  " + AiText.t("Слушам…", "Listening…")
-                : "🎙  " + AiText.t("„Окей тренер, …“", "“Okay trainer, …”"), on, hearing || speaking ? XemsUi.AMBER : XemsUi.GO);
+                : "🎙  " + AiText.t("„Тренер, …“", "“Trainer, …”"), on, hearing || speaking ? XemsUi.AMBER : XemsUi.GO);
         mic.setOnClickListener(new Mic());
         mic.setPadding(XemsUi.dp(c, 14), 0, XemsUi.dp(c, 14), 0);
         mic.setIncludeFontPadding(false);
@@ -112,8 +112,8 @@ public final class AiCoachBar {
         }
         // nothing from the preparation here (owner, 1.1.545): only what controls the session now
         return WakeListener.isOn()
-                ? AiText.t("Кажи „Окей тренер, по-силно краката“, „Окей тренер, пауза“… или ✦ Чат.",
-                "Say “Okay trainer, raise the legs”, “Okay trainer, pause”… or ✦ Chat.")
+                ? AiText.t("Кажи „Тренер, по-силно краката“, „Тренер, пауза“… или ✦ Чат.",
+                "Say “Trainer, raise the legs”, “Trainer, pause”… or ✦ Chat.")
                 : AiText.t("✦ Чат — пиши или говори на AI, промените са веднага.",
                 "✦ Chat — write or talk to the AI, changes apply at once.");
     }

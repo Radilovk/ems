@@ -410,9 +410,9 @@ public final class AiTrain {
         go.setOnClickListener(new Act(A_TUNE));
         col3.addView(go, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, XemsUi.dp(c, 60)));
         // 🎙 "Тренер, …": the tablet knows the trainer's word from 3 recordings (+ "тренировка" once)
-        boolean taught = WakeListener.enrolled(c);
-        TextView teach = XemsUi.button(c, taught ? "🎙  " + AiText.t("„Окей тренер“ ✓ · запиши пак", "“Okay trainer” ✓ · record again")
-                : "🎙  " + AiText.t("Научи „Окей тренер“ (30 s)", "Teach “Okay trainer” (30 s)"), taught ? XemsUi.GHOST : XemsUi.SECONDARY);
+        boolean taught = WakeListener.ownVoice(c);
+        TextView teach = XemsUi.button(c, taught ? "🎙  " + AiText.t("Гласът ти ✓ · запиши пак", "Your voice ✓ · record again")
+                : "🎙  " + AiText.t("Научи гласа си (40 s)", "Teach your voice (40 s)"), taught ? XemsUi.GHOST : XemsUi.SECONDARY);
         teach.setOnClickListener(new Act(A_TEACH));
         col3.addView(teach, XemsUi.matchWrap(c, 6));
         TextView x = XemsUi.button(c, AiText.t("Затвори", "Close"), XemsUi.GHOST);

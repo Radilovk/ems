@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 623
+    .line 687
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,7 +34,7 @@
     .registers 2
 
     .prologue
-    .line 626
+    .line 690
     # getter for: Lcom/isaigu/gymapp/ai/WakeListener;->on:Z
     invoke-static {}, Lcom/isaigu/gymapp/ai/WakeListener;->access$500()Z
 
@@ -43,7 +43,7 @@
     if-eqz v0, :cond_1d
 
     # getter for: Lcom/isaigu/gymapp/ai/WakeListener;->window:Z
-    invoke-static {}, Lcom/isaigu/gymapp/ai/WakeListener;->access$700()Z
+    invoke-static {}, Lcom/isaigu/gymapp/ai/WakeListener;->access$800()Z
 
     move-result v0
 
@@ -55,19 +55,19 @@
 
     if-nez v0, :cond_1d
 
-    .line 627
+    .line 691
     invoke-static {}, Lcom/isaigu/gymapp/ai/Earcon;->again()V
 
-    .line 628
+    .line 692
     const-string v0, "listening"
 
     # setter for: Lcom/isaigu/gymapp/ai/WakeListener;->state:Ljava/lang/String;
-    invoke-static {v0}, Lcom/isaigu/gymapp/ai/WakeListener;->access$802(Ljava/lang/String;)Ljava/lang/String;
+    invoke-static {v0}, Lcom/isaigu/gymapp/ai/WakeListener;->access$902(Ljava/lang/String;)Ljava/lang/String;
 
-    .line 629
+    .line 693
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiTrain;->voiceState()V
 
-    .line 631
+    .line 695
     :cond_1d
     return-void
 .end method

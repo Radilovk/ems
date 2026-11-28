@@ -257,7 +257,7 @@
     move-result-object v3
 
     .line 241
-    invoke-static {p0}, Lcom/isaigu/gymapp/ai/WakeListener;->enrolled(Landroid/content/Context;)Z
+    invoke-static {p0}, Lcom/isaigu/gymapp/ai/WakeListener;->ownVoice(Landroid/content/Context;)Z
 
     move-result v4
 
@@ -299,9 +299,9 @@
     invoke-virtual {v3, v0}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
     .line 243
-    const-string v0, "\u0412 AI \u0442\u0440\u0435\u043d\u0438\u0440\u043e\u0432\u043a\u0430 \u0442\u0430\u0431\u043b\u0435\u0442\u044a\u0442 \u0441\u043b\u0443\u0448\u0430 \u0437\u0430 \u201e\u041e\u043a\u0435\u0439 \u0442\u0440\u0435\u043d\u0435\u0440, \u2026\u201c \u2014 \u201e\u041e\u043a\u0435\u0439 \u0442\u0440\u0435\u043d\u0435\u0440, \u043f\u043e-\u0441\u0438\u043b\u043d\u043e \u043a\u0440\u0430\u043a\u0430\u0442\u0430\u201c, \u201e\u041e\u043a\u0435\u0439 \u0442\u0440\u0435\u043d\u0435\u0440, \u043f\u0430\u0443\u0437\u0430\u201c, \u201e\u041e\u043a\u0435\u0439 \u0442\u0440\u0435\u043d\u0435\u0440, \u0441\u0442\u043e\u043f\u201c. \u201e\u041e\u043a\u0435\u0439 \u0442\u0440\u0435\u043d\u0438\u0440\u043e\u0432\u043a\u0430\u201c \u043d\u0435 \u0433\u043e \u0431\u0443\u0434\u0438."
+    const-string v0, "\u0412 AI \u0442\u0440\u0435\u043d\u0438\u0440\u043e\u0432\u043a\u0430 \u0442\u0430\u0431\u043b\u0435\u0442\u044a\u0442 \u0441\u043b\u0443\u0448\u0430 \u0437\u0430 \u201e\u0422\u0440\u0435\u043d\u0435\u0440, \u2026\u201c \u2014 \u201e\u0422\u0440\u0435\u043d\u0435\u0440, \u043f\u043e-\u0441\u0438\u043b\u043d\u043e \u043a\u0440\u0430\u043a\u0430\u0442\u0430\u201c, \u201e\u0422\u0440\u0435\u043d\u0435\u0440, \u043f\u0430\u0443\u0437\u0430\u201c, \u201e\u0422\u0440\u0435\u043d\u0435\u0440, \u0441\u0442\u043e\u043f\u201c. \u0423\u0447\u0438 \u0441\u0435 \u043d\u0430 \u0442\u0432\u043e\u044f \u0433\u043b\u0430\u0441 \u0442\u0443\u043a, \u043d\u0430 \u0442\u0430\u0431\u043b\u0435\u0442\u0430 \u2014 \u043d\u0438\u0449\u043e \u043d\u0435 \u0441\u0435 \u043f\u0440\u0430\u0449\u0430."
 
-    const-string v2, "In an AI training the tablet listens for \u201cOkay trainer, \u2026\u201d \u2014 \u201craise the legs\u201d, \u201cpause\u201d, \u201cstop\u201d. \u201cOkay \u0442\u0440\u0435\u043d\u0438\u0440\u043e\u0432\u043a\u0430\u201d never wakes it."
+    const-string v2, "In an AI training the tablet listens for \u201cTrainer, \u2026\u201d \u2014 \u201craise the legs\u201d, \u201cpause\u201d, \u201cstop\u201d. It learns your voice here, on the tablet \u2014 nothing is sent."
 
     invoke-static {v0, v2}, Lcom/isaigu/gymapp/ai/AiText;->t(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
@@ -462,9 +462,9 @@
 
     .line 250
     :cond_c2
-    const-string v0, "\u041e\u0449\u0435 \u043d\u0435 \u0435 \u043d\u0430\u0443\u0447\u0435\u043d \u2014 \u0440\u0430\u0431\u043e\u0442\u0438 \u0438 \u0442\u0430\u043a\u0430, \u043f\u043e-\u0442\u043e\u0447\u043d\u043e \u0435 \u0441 \u0442\u0432\u043e\u044f \u0433\u043b\u0430\u0441."
+    const-string v0, "\u041e\u0449\u0435 \u043d\u0435 \u0435 \u043d\u0430\u0443\u0447\u0435\u043d \u043d\u0430 \u0433\u043b\u0430\u0441\u0430 \u0442\u0438 \u2014 \u043f\u0440\u043e\u0447\u0435\u0442\u0438 12 \u043a\u0440\u0430\u0442\u043a\u0438 \u0434\u0443\u043c\u0438 (40 \u0441)."
 
-    const-string v2, "Not taught yet \u2014 it works anyway, more exact with your voice."
+    const-string v2, "Not taught your voice yet \u2014 read 12 short words (40 s)."
 
     invoke-static {v0, v2}, Lcom/isaigu/gymapp/ai/AiText;->t(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
@@ -482,9 +482,9 @@
 
     .line 255
     :cond_cf
-    const-string v0, "\u041d\u0430\u0443\u0447\u0438 \u201e\u041e\u043a\u0435\u0439 \u0442\u0440\u0435\u043d\u0435\u0440\u201c  \u00b7  30 \u0441"
+    const-string v0, "\u041d\u0430\u0443\u0447\u0438 \u0433\u043b\u0430\u0441\u0430 \u043c\u0438  \u00b7  40 \u0441"
 
-    const-string v2, "Teach \u201cOkay trainer\u201d  \u00b7  30 s"
+    const-string v2, "Teach my voice  \u00b7  40 s"
 
     invoke-static {v0, v2}, Lcom/isaigu/gymapp/ai/AiText;->t(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 

@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 125
+    .line 135
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,7 +34,7 @@
     .registers 6
 
     .prologue
-    .line 128
+    .line 138
     # getter for: Lcom/isaigu/gymapp/ai/WakeSetup;->dialog:Landroid/app/Dialog;
     invoke-static {}, Lcom/isaigu/gymapp/ai/WakeSetup;->access$000()Landroid/app/Dialog;
 
@@ -49,12 +49,12 @@
 
     if-nez v0, :cond_d
 
-    .line 151
+    .line 161
     :cond_c
     :goto_c
     return-void
 
-    .line 131
+    .line 141
     :cond_d
     const v0, 0x3ca3d70a    # 0.02f
 
@@ -70,7 +70,7 @@
 
     move-result v2
 
-    .line 132
+    .line 142
     # getter for: Lcom/isaigu/gymapp/ai/WakeSetup;->bar:Landroid/view/View;
     invoke-static {}, Lcom/isaigu/gymapp/ai/WakeSetup;->access$100()Landroid/view/View;
 
@@ -82,7 +82,7 @@
 
     check-cast v0, Landroid/widget/LinearLayout$LayoutParams;
 
-    .line 133
+    .line 143
     # getter for: Lcom/isaigu/gymapp/ai/WakeSetup;->meterRest:Landroid/view/View;
     invoke-static {}, Lcom/isaigu/gymapp/ai/WakeSetup;->access$200()Landroid/view/View;
 
@@ -94,7 +94,7 @@
 
     check-cast v1, Landroid/widget/LinearLayout$LayoutParams;
 
-    .line 134
+    .line 144
     iget v3, v0, Landroid/widget/LinearLayout$LayoutParams;->weight:F
 
     sub-float/2addr v3, v2
@@ -109,17 +109,17 @@
 
     if-lez v3, :cond_52
 
-    .line 135
+    .line 145
     iput v2, v0, Landroid/widget/LinearLayout$LayoutParams;->weight:F
 
-    .line 136
+    .line 146
     const/high16 v3, 0x3f800000    # 1.0f
 
     sub-float v2, v3, v2
 
     iput v2, v1, Landroid/widget/LinearLayout$LayoutParams;->weight:F
 
-    .line 137
+    .line 147
     # getter for: Lcom/isaigu/gymapp/ai/WakeSetup;->bar:Landroid/view/View;
     invoke-static {}, Lcom/isaigu/gymapp/ai/WakeSetup;->access$100()Landroid/view/View;
 
@@ -127,7 +127,7 @@
 
     invoke-virtual {v2, v0}, Landroid/view/View;->setLayoutParams(Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 138
+    .line 148
     # getter for: Lcom/isaigu/gymapp/ai/WakeSetup;->meterRest:Landroid/view/View;
     invoke-static {}, Lcom/isaigu/gymapp/ai/WakeSetup;->access$200()Landroid/view/View;
 
@@ -135,11 +135,11 @@
 
     invoke-virtual {v0, v1}, Landroid/view/View;->setLayoutParams(Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 140
+    .line 150
     :cond_52
     sget-boolean v0, Lcom/isaigu/gymapp/ai/WakeListener;->silent:Z
 
-    .line 141
+    .line 151
     if-eqz v0, :cond_81
 
     # getter for: Lcom/isaigu/gymapp/ai/WakeSetup;->micNote:Landroid/widget/TextView;
@@ -153,7 +153,7 @@
 
     if-eqz v1, :cond_81
 
-    .line 142
+    .line 152
     # getter for: Lcom/isaigu/gymapp/ai/WakeSetup;->micNote:Landroid/widget/TextView;
     invoke-static {}, Lcom/isaigu/gymapp/ai/WakeSetup;->access$300()Landroid/widget/TextView;
 
@@ -169,7 +169,7 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 146
+    .line 156
     # getter for: Lcom/isaigu/gymapp/ai/WakeSetup;->micNote:Landroid/widget/TextView;
     invoke-static {}, Lcom/isaigu/gymapp/ai/WakeSetup;->access$300()Landroid/widget/TextView;
 
@@ -179,7 +179,7 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setVisibility(I)V
 
-    .line 150
+    .line 160
     :cond_77
     :goto_77
     # getter for: Lcom/isaigu/gymapp/ai/WakeSetup;->MAIN:Landroid/os/Handler;
@@ -193,7 +193,7 @@
 
     goto :goto_c
 
-    .line 147
+    .line 157
     :cond_81
     if-nez v0, :cond_77
 
@@ -208,7 +208,7 @@
 
     if-nez v0, :cond_77
 
-    .line 148
+    .line 158
     # getter for: Lcom/isaigu/gymapp/ai/WakeSetup;->micNote:Landroid/widget/TextView;
     invoke-static {}, Lcom/isaigu/gymapp/ai/WakeSetup;->access$300()Landroid/widget/TextView;
 

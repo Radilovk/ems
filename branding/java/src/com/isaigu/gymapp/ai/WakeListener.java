@@ -88,9 +88,24 @@ public final class WakeListener {
     }
 
     /** The spotter knows "тренер" (3 recordings) on this tablet. */
+    /** The trainer's own "тренер" model (1.1.598, Kws), learnt on this tablet; null = the older spotter. */
+    static volatile Kws KWS;
+    static final String KWS_FILE = "kws-model.bin";
+
+    /** Something can listen for the wake word: the trainer's model or the older spotter's examples. */
+    static boolean ready() {
+        return KWS != null || SPOTTER.ready();
+    }
+
+    /** The trainer's own voice model is learnt on this tablet (the settings and the AI tab say so). */
+    public static boolean ownVoice(Context c) {
+        load(c);
+        return KWS != null;
+    }
+
     public static boolean enrolled(Context c) {
         load(c);
-        return SPOTTER.ready();
+        return ready();
     }
 
     static void load(Context c) {
@@ -98,10 +113,8 @@ public final class WakeListener {
             return;
         }
         loaded = true;
+        loadKws(c);
         try {
-            if (c.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getBoolean("noBgRec", false)) {
-                serviceOk = false;                         // this tablet's background recognizer never worked
-            }
             SPOTTER.sens = Math.max(WakeWord.SENS_MIN, Math.min(WakeWord.SENS_MAX,
                     c.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getFloat("sens", 1.0f)));
             String hex = c.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getString("tpl", "");
@@ -111,6 +124,37 @@ public final class WakeListener {
             }
         } catch (Throwable t) {
             WearableBleDiagLog.log("wake", "load: " + t);
+        }
+    }
+
+    /** The trainer's model from the tablet's files (none: null). */
+    static void loadKws(Context c) {
+        try {
+            java.io.File f = new java.io.File(c.getFilesDir(), KWS_FILE);
+            if (f.exists()) {
+                byte[] b = new byte[(int) f.length()];
+                java.io.DataInputStream in = new java.io.DataInputStream(new java.io.FileInputStream(f));
+                in.readFully(b);
+                in.close();
+                KWS = Kws.load(b);
+                WearableBleDiagLog.log("wake", "own voice model: " + (KWS != null ? "loaded" : "unreadable"));
+            }
+        } catch (Throwable t) {
+            WearableBleDiagLog.log("wake", "kws load: " + t);
+        }
+    }
+
+    static boolean saveKws(Context c, Kws m) {
+        try {
+            byte[] b = m.save();
+            java.io.FileOutputStream o = new java.io.FileOutputStream(new java.io.File(c.getFilesDir(), KWS_FILE));
+            o.write(b);
+            o.close();
+            KWS = m;
+            return true;
+        } catch (Throwable t) {
+            WearableBleDiagLog.log("wake", "kws save: " + t);
+            return false;
         }
     }
 
@@ -142,7 +186,7 @@ public final class WakeListener {
             micStop();
             return;
         }
-        if (SPOTTER.ready()) {
+        if (ready()) {
             mute(false);
             micStart();
         } else {
@@ -184,7 +228,7 @@ public final class WakeListener {
         followUps = 0;
         initTts();
         warmRecognizer();
-        if (SPOTTER.ready()) {
+        if (ready()) {
             micStart();
         } else {
             mute(true);                                    // fallback: the recognizer listens all the time
@@ -444,6 +488,10 @@ public final class WakeListener {
                         }
                         fails = 0;
                         boolean woke = false;
+                        Kws km = KWS;
+                        if (km != null && (det == null || det.model() != km)) {
+                            det = new Kws.Detector(km);
+                        }
                         if (pendingEar != 0) {
                             earBegin(pendingEar);                // a window: the command goes to the cloud ear
                             pendingEar = 0;
@@ -468,7 +516,23 @@ public final class WakeListener {
                                 }
                                 continue;
                             }
+                            if (km != null && setup == null) {
+                                // the trainer's own model decides (1.1.598); the spotter only keeps the room's level
+                                SPOTTER.push(buf[i]);
+                                SPOTTER.miss = null;
+                                if (on && det.push(buf[i])) {
+                                    WearableBleDiagLog.log("wake", "тренер (own voice model) score=" + det.lastScore);
+                                    micRun = false;
+                                    MAIN.post(new Wake());
+                                    woke = true;
+                                    break;
+                                }
+                                continue;
+                            }
                             int ev = SPOTTER.push(buf[i]);
+                            if (ev == WakeWord.RECORDED) {
+                                lastClip = clip(SPOTTER.ago0, SPOTTER.ago1);   // the word's audio for the model
+                            }
                             if (ev == WakeWord.NONE) {
                                 String miss = SPOTTER.miss;
                                 if (miss != null) {
@@ -562,7 +626,7 @@ public final class WakeListener {
     // ================================================================ the cloud ear (1.1.592, CloudEar)
 
     /** The last 2 s of the microphone: a suspected phrase is sent from its beginning. */
-    static final short[] RAW = new short[CloudEar.RATE * 2];
+    static final short[] RAW = new short[CloudEar.RATE * 3];
     static int rawAt, rawFill;
     /** 0 off; 1 the suspected phrase and what follows it; 2 a window (the command after the phrase alone). */
     static volatile int ear;
@@ -579,7 +643,7 @@ public final class WakeListener {
         capSkip = 0;
         capEnd = new EarEnd(mode);
         if (mode == 1) {
-            int pre = Math.min(rawFill, RAW.length);       // the phrase itself: the spotter heard it up to now
+            int pre = Math.min(rawFill, CloudEar.RATE * 2);  // the phrase itself: the spotter heard it up to now
             for (int k = 0; k < pre; k++) {
                 cap[capN++] = RAW[(rawAt - pre + k + RAW.length) % RAW.length];
             }
@@ -717,6 +781,22 @@ public final class WakeListener {
         commandHeard(r);
     }
 
+    private static Kws.Detector det;
+    /** The audio of the last word the setup recorded (16 kHz), for the trainer's model. */
+    static volatile float[] lastClip;
+
+    /** Mic thread: the word {@code ago0}..{@code ago1} frames back, from the raw ring, 30 ms on each side. */
+    static float[] clip(int ago0, int ago1) {
+        int a = ago0 * WakeWord.HOP + WakeWord.FRAME + 480, b = Math.max(0, ago1 * WakeWord.HOP - 480);
+        a = Math.min(a, rawFill);
+        int n = Math.max(0, a - b);
+        float[] out = new float[n];
+        for (int k = 0; k < n; k++) {
+            out[k] = RAW[((rawAt - a + k) % RAW.length + RAW.length) % RAW.length];
+        }
+        return out;
+    }
+
     static final class MicAgain implements Runnable {
         @Override
         public void run() {
@@ -724,7 +804,7 @@ public final class WakeListener {
                 MAIN.postDelayed(this, 250);               // the coach still talks: the spotter would hear it
                 return;
             }
-            if (setup != null || (on && SPOTTER.ready() && !window)) {
+            if (setup != null || (on && ready() && !window)) {
                 micStart();
             }
         }
@@ -962,21 +1042,13 @@ public final class WakeListener {
             afterWindow(300);
             return;
         }
-        WearableBleDiagLog.log("wake", "background recognizer unusable (" + why + "): the system dialog from now on");
-        serviceOk = false;
-        try {
-            if (ctx != null) {
-                ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().putBoolean("noBgRec", true).apply();
-            }
-        } catch (Throwable ignored) {
-        }
+        // owner, 1.1.598: Google's dialog closed at once / said "не разбрах" / cut the dictation — it is no longer the
+        // way out: the background recognizer is rebuilt and tried again next time (a failure was "for good" before
+        // and left this tablet on the dialog forever: the "noBgRec" pref is ignored now)
+        WearableBleDiagLog.log("wake", "background recognizer failed twice (" + why + "): rebuilt, again next time");
+        bgFails = 0;
         destroyRecognizer();
-        Activity a = host != null ? host.get() : null;
-        if (window && a != null && !a.isFinishing() && chime() && VoiceInput.listen(a, new DialogCommand(),
-                followUp ? AiText.t("Слушам…", "Listening…") : AiText.t("Тренер слуша — кажи команда или въпрос",
-                        "The trainer listens — a command or a question"), DIALOG_MS)) {
-            return;
-        }
+        Earcon.closed();
         afterWindow(500);
     }
 
@@ -1397,7 +1469,7 @@ public final class WakeListener {
         if (!on) {
             return;
         }
-        if (SPOTTER.ready()) {
+        if (ready()) {
             mute(false);
             MAIN.postDelayed(new MicAgain(), delayMs);
         } else {

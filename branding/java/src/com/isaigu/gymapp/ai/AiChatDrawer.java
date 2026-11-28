@@ -130,7 +130,7 @@ public final class AiChatDrawer {
         boolean hearing = WakeListener.state().length() > 0 && !"speaking".equals(WakeListener.state());
         TextView st = XemsUi.text(c, AiTrain.busy ? AiText.t("пише…", "typing…")
                 : hearing ? "🎙 " + AiText.t("слуша…", "listening…")
-                : on ? "🎙 " + AiText.t("„Окей тренер, …“ работи", "“Okay trainer, …” is on")
+                : on ? "🎙 " + AiText.t("„Тренер, …“ работи", "“Trainer, …” is on")
                 : AiText.t("онлайн", "online"), 12, AiTrain.busy || hearing ? XemsUi.AMBER : XemsUi.GO_TEXT, false);
         st.setMaxLines(1);
         who.addView(st);

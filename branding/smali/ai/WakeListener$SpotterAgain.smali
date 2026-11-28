@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 1318
+    .line 1307
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,7 +34,7 @@
     .registers 3
 
     .prologue
-    .line 1321
+    .line 1310
     # getter for: Lcom/isaigu/gymapp/ai/WakeListener;->MAIN:Landroid/os/Handler;
     invoke-static {}, Lcom/isaigu/gymapp/ai/WakeListener;->access$400()Landroid/os/Handler;
 
@@ -47,7 +47,7 @@
 
     invoke-virtual {v0, v1}, Landroid/os/Handler;->removeCallbacks(Ljava/lang/Runnable;)V
 
-    .line 1322
+    .line 1311
     # getter for: Lcom/isaigu/gymapp/ai/WakeListener;->on:Z
     invoke-static {}, Lcom/isaigu/gymapp/ai/WakeListener;->access$500()Z
 
@@ -62,22 +62,22 @@
 
     if-eqz v0, :cond_18
 
-    .line 1328
+    .line 1317
     :cond_17
     :goto_17
     return-void
 
-    .line 1325
+    .line 1314
     :cond_18
     const-string v0, ""
 
     # setter for: Lcom/isaigu/gymapp/ai/WakeListener;->state:Ljava/lang/String;
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/WakeListener;->access$802(Ljava/lang/String;)Ljava/lang/String;
 
-    .line 1326
+    .line 1315
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiTrain;->voiceState()V
 
-    .line 1327
+    .line 1316
     const-wide/16 v0, 0x0
 
     invoke-static {v0, v1}, Lcom/isaigu/gymapp/ai/WakeListener;->afterWindow(J)V

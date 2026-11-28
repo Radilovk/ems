@@ -72,7 +72,27 @@ public final class AiVoiceCmd {
     }
 
     /** How the recognizer may write the wake word (owner: "тренер"; the dictionary form is "треньор"). */
-    static final String[] WAKE = {"тренер", "треньор", "трениор", "трейнър", "trainer", "trener"};
+    static final String[] WAKE = {"тренер", "треньор", "трениор", "трейнър", "trainer", "trener",
+            // the head of the phrase cut off or misheard by the cloud ear (stt_log 1.1.595: "Ренер увеличи всичко")
+            "ренер", "реньор"};
+
+    /** The most a spoken / AI command may raise a level, in points (owner, 1.1.596). */
+    public static final int VOICE_MAX_UP = 10;
+
+    /**
+     * A command that is only a number is never a level (owner, 1.1.596: "Окей тренер, стоп" came back as "100" and set
+     * the suit to 100). "сто" / "100" alone is the misheard "стоп": a pause, the safe side. Other bare numbers: nothing.
+     */
+    public static String bareNumber(String cmd) {
+        String n = cmd == null ? "" : cmd.toLowerCase(Locale.ROOT).replaceAll("[^\\p{L}\\p{N}%]+", " ").trim();
+        if (n.matches("(?:на |до )?(?:100|сто)(?: %| процента)?")) {
+            return "пауза";
+        }
+        if (n.matches("(?:на |до )?\\d{1,3}(?: ?%| процента)?")) {
+            return "";
+        }
+        return null;
+    }
 
     /** "окей" / "okay" alone, with or without a wake word: the head of the wake phrase "окей тренер", no command. */
     public static boolean onlyWakeFragment(String text) {

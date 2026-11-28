@@ -29,13 +29,13 @@
     .registers 2
 
     .prologue
-    .line 1519
+    .line 1537
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 1520
+    .line 1538
     iput-boolean p1, p0, Lcom/isaigu/gymapp/ai/AiTrain$Mic;->live:Z
 
-    .line 1521
+    .line 1539
     return-void
 .end method
 
@@ -45,24 +45,24 @@
     .registers 3
 
     .prologue
-    .line 1525
+    .line 1543
     invoke-static {p1}, Lcom/isaigu/gymapp/widget/XemsUi;->haptic(Landroid/view/View;)V
 
-    .line 1526
+    .line 1544
     invoke-virtual {p1}, Landroid/view/View;->getContext()Landroid/content/Context;
 
     move-result-object v0
 
     iput-object v0, p0, Lcom/isaigu/gymapp/ai/AiTrain$Mic;->c:Landroid/content/Context;
 
-    .line 1527
+    .line 1545
     invoke-static {p1}, Lcom/isaigu/gymapp/ai/AiTrain;->activity(Landroid/view/View;)Landroid/app/Activity;
 
     move-result-object v0
 
     invoke-static {v0, p0}, Lcom/isaigu/gymapp/ai/VoiceInput;->listen(Landroid/app/Activity;Lcom/isaigu/gymapp/ai/VoiceInput$Result;)V
 
-    .line 1528
+    .line 1546
     return-void
 .end method
 
@@ -72,26 +72,26 @@
     .prologue
     const/4 v2, 0x1
 
-    .line 1532
+    .line 1550
     iget-boolean v0, p0, Lcom/isaigu/gymapp/ai/AiTrain$Mic;->live:Z
 
     if-nez v0, :cond_14
 
-    .line 1533
+    .line 1551
     sget v0, Lcom/isaigu/gymapp/ai/AiWizard;->page:I
 
     const/4 v1, 0x3
 
     if-ge v0, v1, :cond_e
 
-    .line 1534
+    .line 1552
     invoke-static {p1}, Lcom/isaigu/gymapp/ai/AiTrain;->addToDraft(Ljava/lang/String;)V
 
-    .line 1542
+    .line 1560
     :goto_d
     return-void
 
-    .line 1537
+    .line 1555
     :cond_e
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiTrain$Mic;->c:Landroid/content/Context;
 
@@ -99,11 +99,11 @@
 
     goto :goto_d
 
-    .line 1540
+    .line 1558
     :cond_14
     invoke-static {p1}, Lcom/isaigu/gymapp/ai/AiCoach;->userSpoke(Ljava/lang/String;)V
 
-    .line 1541
+    .line 1559
     iget-object v0, p0, Lcom/isaigu/gymapp/ai/AiTrain$Mic;->c:Landroid/content/Context;
 
     iget-boolean v1, p0, Lcom/isaigu/gymapp/ai/AiTrain$Mic;->live:Z

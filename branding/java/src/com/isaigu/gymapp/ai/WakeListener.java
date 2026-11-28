@@ -139,6 +139,20 @@ public final class WakeListener {
                 KWS = Kws.load(b);
                 WearableBleDiagLog.log("wake", "own voice model: " + (KWS != null ? "loaded" : "unreadable"));
             }
+            if (KWS == null) {
+                // the owner's voice, trained before the release (owner, 1.1.599): works at once, no setup needed;
+                // "Научи гласа ми" replaces it with this tablet's own trainer
+                java.io.InputStream in = c.getAssets().open("xems/kws-owner.bin");
+                java.io.ByteArrayOutputStream bo = new java.io.ByteArrayOutputStream();
+                byte[] buf = new byte[8192];
+                int n;
+                while ((n = in.read(buf)) > 0) {
+                    bo.write(buf, 0, n);
+                }
+                in.close();
+                KWS = Kws.load(bo.toByteArray());
+                WearableBleDiagLog.log("wake", "the built-in voice model: " + (KWS != null ? "loaded" : "unreadable"));
+            }
         } catch (Throwable t) {
             WearableBleDiagLog.log("wake", "kws load: " + t);
         }

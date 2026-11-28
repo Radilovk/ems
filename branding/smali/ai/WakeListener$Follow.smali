@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 1421
+    .line 1435
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,7 +34,7 @@
     .registers 5
 
     .prologue
-    .line 1424
+    .line 1438
     # getter for: Lcom/isaigu/gymapp/ai/WakeListener;->MAIN:Landroid/os/Handler;
     invoke-static {}, Lcom/isaigu/gymapp/ai/WakeListener;->access$600()Landroid/os/Handler;
 
@@ -47,7 +47,7 @@
 
     invoke-virtual {v0, v1}, Landroid/os/Handler;->removeCallbacks(Ljava/lang/Runnable;)V
 
-    .line 1425
+    .line 1439
     # getter for: Lcom/isaigu/gymapp/ai/WakeListener;->on:Z
     invoke-static {}, Lcom/isaigu/gymapp/ai/WakeListener;->access$500()Z
 
@@ -62,12 +62,12 @@
 
     if-eqz v0, :cond_18
 
-    .line 1435
+    .line 1449
     :cond_17
     :goto_17
     return-void
 
-    .line 1428
+    .line 1442
     :cond_18
     invoke-static {}, Lcom/isaigu/gymapp/ai/WakeListener;->speaking()Z
 
@@ -75,7 +75,7 @@
 
     if-eqz v0, :cond_2c
 
-    .line 1429
+    .line 1443
     # getter for: Lcom/isaigu/gymapp/ai/WakeListener;->MAIN:Landroid/os/Handler;
     invoke-static {}, Lcom/isaigu/gymapp/ai/WakeListener;->access$600()Landroid/os/Handler;
 
@@ -92,16 +92,16 @@
 
     goto :goto_17
 
-    .line 1432
+    .line 1446
     :cond_2c
     invoke-static {}, Lcom/isaigu/gymapp/ai/WakeListener;->micStop()V
 
-    .line 1433
+    .line 1447
     const/4 v0, 0x1
 
     sput-boolean v0, Lcom/isaigu/gymapp/ai/WakeListener;->followUp:Z
 
-    .line 1434
+    .line 1448
     invoke-static {}, Lcom/isaigu/gymapp/ai/WakeListener;->openWindow()V
 
     goto :goto_17

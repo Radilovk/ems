@@ -19,7 +19,7 @@
     .registers 1
 
     .prologue
-    .line 1438
+    .line 1452
     invoke-direct {p0}, Landroid/speech/tts/UtteranceProgressListener;-><init>()V
 
     return-void
@@ -33,7 +33,7 @@
     .prologue
     const-wide/16 v2, 0x1c2
 
-    .line 1445
+    .line 1459
     if-eqz p1, :cond_23
 
     const-string v0, "xems-listen"
@@ -44,7 +44,7 @@
 
     if-eqz v0, :cond_23
 
-    .line 1446
+    .line 1460
     # getter for: Lcom/isaigu/gymapp/ai/WakeListener;->MAIN:Landroid/os/Handler;
     invoke-static {}, Lcom/isaigu/gymapp/ai/WakeListener;->access$600()Landroid/os/Handler;
 
@@ -57,7 +57,7 @@
 
     invoke-virtual {v0, v1}, Landroid/os/Handler;->removeCallbacks(Ljava/lang/Runnable;)V
 
-    .line 1447
+    .line 1461
     # getter for: Lcom/isaigu/gymapp/ai/WakeListener;->MAIN:Landroid/os/Handler;
     invoke-static {}, Lcom/isaigu/gymapp/ai/WakeListener;->access$600()Landroid/os/Handler;
 
@@ -70,12 +70,12 @@
 
     invoke-virtual {v0, v1, v2, v3}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
 
-    .line 1454
+    .line 1468
     :cond_22
     :goto_22
     return-void
 
-    .line 1448
+    .line 1462
     :cond_23
     if-eqz p1, :cond_44
 
@@ -87,7 +87,7 @@
 
     if-eqz v0, :cond_44
 
-    .line 1449
+    .line 1463
     # getter for: Lcom/isaigu/gymapp/ai/WakeListener;->MAIN:Landroid/os/Handler;
     invoke-static {}, Lcom/isaigu/gymapp/ai/WakeListener;->access$600()Landroid/os/Handler;
 
@@ -100,7 +100,7 @@
 
     invoke-virtual {v0, v1}, Landroid/os/Handler;->removeCallbacks(Ljava/lang/Runnable;)V
 
-    .line 1450
+    .line 1464
     # getter for: Lcom/isaigu/gymapp/ai/WakeListener;->MAIN:Landroid/os/Handler;
     invoke-static {}, Lcom/isaigu/gymapp/ai/WakeListener;->access$600()Landroid/os/Handler;
 
@@ -115,7 +115,7 @@
 
     goto :goto_22
 
-    .line 1451
+    .line 1465
     :cond_44
     if-eqz p1, :cond_22
 
@@ -127,7 +127,7 @@
 
     if-eqz v0, :cond_22
 
-    .line 1452
+    .line 1466
     # getter for: Lcom/isaigu/gymapp/ai/WakeListener;->MAIN:Landroid/os/Handler;
     invoke-static {}, Lcom/isaigu/gymapp/ai/WakeListener;->access$600()Landroid/os/Handler;
 
@@ -148,10 +148,10 @@
     .registers 2
 
     .prologue
-    .line 1458
+    .line 1472
     invoke-virtual {p0, p1}, Lcom/isaigu/gymapp/ai/WakeListener$Spoken;->onDone(Ljava/lang/String;)V
 
-    .line 1459
+    .line 1473
     return-void
 .end method
 
@@ -159,6 +159,6 @@
     .registers 2
 
     .prologue
-    .line 1441
+    .line 1455
     return-void
 .end method

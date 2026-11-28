@@ -30,3 +30,9 @@ At the shipped line (between 0.95 and 0.98): quiet 100 %, music 10 dB 92–97 %,
 0.7–3.3 an hour on a 1.5 h stream of other voices over music + people. Limits: the cuts are one session on a phone;
 the tablet's microphone and a real hall are not in the test. `run-setup.sh`: the setup's cut holds the word (11/11),
 the live detector = the training's features.
+
+## 1.1.599 — the owner's voice built in
+Owner: "send the voice already trained, inside the version". `branding/voice/kws-owner.bin` (110 KB, trained by
+`sh scripts/voice-kws/run-owner.sh <enroll dir>` — the tablet's own recipe on the owner's 11 cuts + their other
+speech, with the app's pack) ships as `assets/xems/kws-owner.bin`. `WakeListener.loadKws`: a model the tablet learnt
+(`files/kws-model.bin`) first, else this one — "тренер" works at once; "Научи гласа ми" replaces it per tablet.

@@ -328,9 +328,9 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
 - `PulseAdvice.java` (552L, compile:music-sync*,wearable) — Recommended impulses for the manual mode's four modes (Основен · Мускули · Кардио · Масаж) from the client's profile an…
 - `SafeLimits.java` (202L, compile:music-sync*,wearable) — Absolute limits of the impulse — every mode, every path to the suit (owner, 1.1.323; docs/xems-safety-limits.md).
 - `TalkButton.java` (93L, compile:music-sync*,wearable) — The round button beside the chat's line (owner, 2026-11-25: "the symbol is ugly and I do not understand it").
-- `VoiceInput.java` (180L, compile:music-sync*,wearable) — The 🎤 of the AI training (owner, 1.1.537): Android's own speech input — the same Google voice typing the keyboard's mic…
+- `VoiceInput.java` (183L, compile:music-sync*,wearable) — The 🎤 of the AI training (owner, 1.1.537): Android's own speech input — the same Google voice typing the keyboard's mic…
 - `VoiceSettings.java` (272L, compile:music-sync*,wearable) — Settings → "Гласово управление" (owner, 1.1.543): teaching the tablet "тренер" is done once per tablet, so it lives her…
-- `WakeListener.java` (1710L, compile:music-sync*,wearable) — Hands-free "Тренер, …" for the AI training (owner, 1.1.541 — docs/xems-ai-coach.md), built the way voice assistants are…
+- `WakeListener.java` (1726L, compile:music-sync*,wearable) — Hands-free "Тренер, …" for the AI training (owner, 1.1.541 — docs/xems-ai-coach.md), built the way voice assistants are…
 - `WakeSetup.java` (395L, compile:music-sync*,wearable) — Teaching the tablet "тренер" (owner, 1.1.541): 3 recordings of the wake word, then "тренировка" once — the look-alike i…
 - `WakeWord.java` (753L, compile:music-sync*,wearable) — The wake word "тренер" on the tablet (owner, 1.1.541 — docs/xems-ai-coach.md): a small always-on keyword spotter that u…
 - `Workout.java` (603L, compile:music-sync*,wearable) — A workout is an impulse map: a line of blocks.
@@ -1611,12 +1611,13 @@ build:Ln = called at line n of build-apk.sh (sort by n = pipeline order); [VAR] 
   - L59 ## 6. Words
   - L64 ## 7. Checklist before shipping a screen
 
-`docs/xems-voice-kws.md` (39L)
+`docs/xems-voice-kws.md` (48L)
   - L1 # The trainer's own "тренер" — a small model learnt on the tablet (1.1.598)
   - L6 ## How a new trainer is taught (Settings → Гласово управление → "Научи гласа ми", ~40 s)
   - L14 ## The model (`ai/Kws`, `ai/KwsTrain` — pure Java, the same code runs on the JVM)
   - L27 ## Measured (`scripts/voice-kws/run-kws.sh`, the owner's 11 "тренер" cuts, 4 folds, 10 voices only in the test)
   - L34 ## 1.1.599 — the owner's voice built in
+  - L40 ## 1.1.600 — Google hears again
 
 `docs/xems-voice.md` (122L)
   - L1 # XEMS voice — Bulgarian command words on a XIAO nRF52840 Sense (Plus)

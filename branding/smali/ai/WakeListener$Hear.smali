@@ -30,19 +30,19 @@
     .registers 4
 
     .prologue
-    .line 727
+    .line 726
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 728
+    .line 727
     iput-object p1, p0, Lcom/isaigu/gymapp/ai/WakeListener$Hear;->a:[S
 
-    .line 729
+    .line 728
     iput p2, p0, Lcom/isaigu/gymapp/ai/WakeListener$Hear;->n:I
 
-    .line 730
+    .line 729
     iput p3, p0, Lcom/isaigu/gymapp/ai/WakeListener$Hear;->mode:I
 
-    .line 731
+    .line 730
     return-void
 .end method
 
@@ -52,7 +52,7 @@
     .registers 5
 
     .prologue
-    .line 735
+    .line 734
     # getter for: Lcom/isaigu/gymapp/ai/WakeListener;->MAIN:Landroid/os/Handler;
     invoke-static {}, Lcom/isaigu/gymapp/ai/WakeListener;->access$600()Landroid/os/Handler;
 
@@ -74,6 +74,6 @@
 
     invoke-virtual {v0, v1}, Landroid/os/Handler;->post(Ljava/lang/Runnable;)Z
 
-    .line 736
+    .line 735
     return-void
 .end method

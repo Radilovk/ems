@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 1398
+    .line 1414
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,12 +34,12 @@
     .registers 3
 
     .prologue
-    .line 1417
+    .line 1433
     sget-object v0, Lcom/isaigu/gymapp/ai/WakeListener;->SPOKEN:Lcom/isaigu/gymapp/ai/WakeListener$Spoken;
 
     invoke-virtual {v0, p1}, Lcom/isaigu/gymapp/ai/WakeListener$Spoken;->onDone(Ljava/lang/String;)V
 
-    .line 1418
+    .line 1434
     return-void
 .end method
 
@@ -51,11 +51,11 @@
 
     const/4 v0, 0x0
 
-    .line 1401
+    .line 1417
     # invokes: Lcom/isaigu/gymapp/ai/WakeListener;->initTts()V
     invoke-static {}, Lcom/isaigu/gymapp/ai/WakeListener;->access$1900()V
 
-    .line 1402
+    .line 1418
     # getter for: Lcom/isaigu/gymapp/ai/WakeListener;->ttsOk:Z
     invoke-static {}, Lcom/isaigu/gymapp/ai/WakeListener;->access$2000()Z
 
@@ -70,22 +70,22 @@
 
     if-nez v1, :cond_1d
 
-    .line 1403
+    .line 1419
     :cond_12
     const/16 v0, 0x19
 
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/WakeListener;->tone(I)V
 
-    .line 1404
+    .line 1420
     sget-object v0, Lcom/isaigu/gymapp/ai/WakeListener;->SPOKEN:Lcom/isaigu/gymapp/ai/WakeListener$Spoken;
 
     invoke-virtual {v0, p2}, Lcom/isaigu/gymapp/ai/WakeListener$Spoken;->onDone(Ljava/lang/String;)V
 
-    .line 1413
+    .line 1429
     :goto_1c
     return-void
 
-    .line 1408
+    .line 1424
     :cond_1d
     :try_start_1d
     # getter for: Lcom/isaigu/gymapp/ai/WakeListener;->tts:Landroid/speech/tts/TextToSpeech;
@@ -107,32 +107,32 @@
 
     move-result-object p1
 
-    .line 1409
+    .line 1425
     :cond_2e
     if-eqz p3, :cond_3c
 
     :goto_30
     const/4 v2, 0x0
 
-    .line 1408
+    .line 1424
     invoke-virtual {v1, p1, v0, v2, p2}, Landroid/speech/tts/TextToSpeech;->speak(Ljava/lang/CharSequence;ILandroid/os/Bundle;Ljava/lang/String;)I
     :try_end_34
     .catch Ljava/lang/Throwable; {:try_start_1d .. :try_end_34} :catch_35
 
     goto :goto_1c
 
-    .line 1410
+    .line 1426
     :catch_35
     move-exception v0
 
-    .line 1411
+    .line 1427
     sget-object v0, Lcom/isaigu/gymapp/ai/WakeListener;->SPOKEN:Lcom/isaigu/gymapp/ai/WakeListener$Spoken;
 
     invoke-virtual {v0, p2}, Lcom/isaigu/gymapp/ai/WakeListener$Spoken;->onDone(Ljava/lang/String;)V
 
     goto :goto_1c
 
-    .line 1409
+    .line 1425
     :cond_3c
     const/4 v0, 0x1
 

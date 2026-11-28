@@ -22,7 +22,7 @@
     .registers 1
 
     .prologue
-    .line 620
+    .line 623
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,7 +34,7 @@
     .registers 2
 
     .prologue
-    .line 623
+    .line 626
     # getter for: Lcom/isaigu/gymapp/ai/WakeListener;->on:Z
     invoke-static {}, Lcom/isaigu/gymapp/ai/WakeListener;->access$500()Z
 
@@ -55,19 +55,19 @@
 
     if-nez v0, :cond_1d
 
-    .line 624
+    .line 627
     invoke-static {}, Lcom/isaigu/gymapp/ai/Earcon;->again()V
 
-    .line 625
+    .line 628
     const-string v0, "listening"
 
     # setter for: Lcom/isaigu/gymapp/ai/WakeListener;->state:Ljava/lang/String;
     invoke-static {v0}, Lcom/isaigu/gymapp/ai/WakeListener;->access$802(Ljava/lang/String;)Ljava/lang/String;
 
-    .line 626
+    .line 629
     invoke-static {}, Lcom/isaigu/gymapp/ai/AiTrain;->voiceState()V
 
-    .line 628
+    .line 631
     :cond_1d
     return-void
 .end method

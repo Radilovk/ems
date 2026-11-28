@@ -181,6 +181,20 @@ public final class MapRunner {
         return to;
     }
 
+    /** The leader's highest channel share (0..100): strength × this = its highest channel's level. */
+    static int maxShare() {
+        ProgramDataBean b = bean(leader());
+        int[] z = b != null && b.strenthBean != null ? b.strenthBean.buwei : null;
+        if (z == null) {
+            return 100;
+        }
+        int m = 0;
+        for (int v : z) {
+            m = Math.max(m, Math.max(0, Math.min(100, v)));
+        }
+        return m;
+    }
+
     /** A channel's level (strength × its share) — what its bar shows. */
     static int channelLevel(int ch) {
         ProgramDataBean b = bean(leader());

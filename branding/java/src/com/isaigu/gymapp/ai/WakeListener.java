@@ -229,8 +229,11 @@ public final class WakeListener {
         if (ear == 0 && pendingEar == 0) {
             state = "";
         }
-        // with the cloud ear the spotter only suspects; without it, it alone decides (strict)
-        SPOTTER.loose = ctx != null && CloudEar.usable(ctx) ? WakeWord.LOOSE : 1f;
+        // owner, 1.1.597: "окей тренер" only starts the listening; Google (in the background or its dialog) hears the
+        // command — precise when it listened. The cloud ear only on a tablet without Google (Huawei)
+        boolean nat = nativeEar();
+        SPOTTER.cloud = !nat && ctx != null && CloudEar.usable(ctx);
+        SPOTTER.loose = SPOTTER.cloud ? WakeWord.LOOSE : nat ? WakeWord.NATIVE : 1f;
         micThread = new Thread(new Mic(++micGen), "xems-wake");
         micThread.start();
     }
@@ -477,7 +480,7 @@ public final class WakeListener {
                             WakeSetup.Sink sink = setup;
                             if (sink != null) {
                                 MAIN.post(new SetupEvent(sink, ev));
-                            } else if (ev == WakeWord.WAKE && on && SPOTTER.loose > 1f) {
+                            } else if (ev == WakeWord.WAKE && on && SPOTTER.cloud) {
                                 // a suspicion: what was said (and what follows) goes to the cloud ear, which decides
                                 if (CloudEar.take()) {
                                     WearableBleDiagLog.log("wake", "suspected d=" + SPOTTER.lastD + " limit="
@@ -755,6 +758,7 @@ public final class WakeListener {
             }
             WearableBleDiagLog.log("wake", "тренер d=" + SPOTTER.lastD + " thr=" + SPOTTER.threshold());
             followUp = false;
+            micStop();                                     // our microphone fully released before Google takes it
             openWindow();                                  // the tone sounds when the recognizer is ready
         }
     }
@@ -762,12 +766,37 @@ public final class WakeListener {
     /** The window opened after the tablet's answer (no "тренер" said): stricter on what may go to the AI. */
     static boolean followUp;
 
+    /** Google's recognizer is on this tablet: in the background, or its speech dialog. */
+    static boolean nativeEar() {
+        if (ctx == null) {
+            return false;
+        }
+        if (serviceOk == null) {
+            warmRecognizer();
+        }
+        return Boolean.TRUE.equals(serviceOk) || dialogAvailable();
+    }
+
+    private static Boolean dialog;
+
+    static boolean dialogAvailable() {
+        if (dialog == null && ctx != null) {
+            try {
+                dialog = ctx.getPackageManager().resolveActivity(new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH), 0) != null;
+            } catch (Throwable t) {
+                dialog = false;
+            }
+            WearableBleDiagLog.log("wake", "speech dialog on this tablet: " + dialog);
+        }
+        return Boolean.TRUE.equals(dialog);
+    }
+
     static void openWindow() {
         window = true;
         state = "listening";
         AiTrain.voiceState();
-        if (ctx != null && CloudEar.usable(ctx) && permitted(null, false)) {
-            // the cloud ear (1.1.592): our microphone, the server writes it down — no Google / Huawei recognizer
+        if (!nativeEar() && ctx != null && CloudEar.usable(ctx) && permitted(null, false)) {
+            // no Google on this tablet: the cloud ear (1.1.592) — our microphone, the server writes it down
             micStop();
             chime();
             pendingEar = 2;

@@ -1428,15 +1428,22 @@ public final class AutoSession {
      */
     public static int strengthStep(int dir, boolean small, int by, int set) {
         int lead = -1;
-        int cap = maxUp;
         for (Row r : rows) {
             if (r.block != null) {
                 continue;
             }
             int now = level(r);
-            int to = set >= 0 ? set : now + dir * (by > 0 ? by : AiVoiceCmd.step(Math.max(now, 1), small));
-            if (to > now) {
-                to = Math.min(to, now + cap);            // a spoken command never jumps up (owner, 1.1.596)
+            int ms = maxShare(r);
+            int to;
+            if (set >= 0) {
+                // owner, 1.1.597: "всичко на 70" = the highest channel at 70, every other one follows it
+                to = ms > 0 ? (int) Math.round(Math.min(set, voiceMax) * 100.0 / ms) : set;
+            } else {
+                to = now + dir * (by > 0 ? by : AiVoiceCmd.step(Math.max(now, 1), small));
+            }
+            if (to > now && ms > 0) {
+                // a spoken / AI command never takes the highest channel over voiceMax (never 100)
+                to = Math.min(to, Math.max(now, (int) Math.floor(voiceMax * 100.0 / ms)));
             }
             to = Math.max(0, Math.min(100, to));
             setRowStrength(r, to);
@@ -1462,10 +1469,22 @@ public final class AutoSession {
     }
 
     /**
-     * The most one command may raise a level, in points (owner, 1.1.596: "Окей тренер, стоп" was heard as "100" and the
-     * suit went to 100 — a voice must never jump up). AiTrain sets it for spoken / AI commands; 100 = no limit (the UI).
+     * The highest level a command may take a channel to (owner, 1.1.597: "up to 50, 70, 80 % is fine — never 100, that
+     * is a forbidden command"; 1.1.596: "Окей тренер, стоп" was heard as "100" and the suit went to 100). AiTrain sets
+     * it for spoken / AI commands (AiVoiceCmd.VOICE_MAX_LEVEL); 100 = no limit (the trainer's own hands on the UI).
+     * A level already above it is kept, never lowered by an "up".
      */
-    public static volatile int maxUp = 100;
+    public static volatile int voiceMax = 100;
+
+    /** The row's highest channel share now (0..100): its strength × this = its highest channel's level. */
+    static int maxShare(Row r) {
+        int[] base = stepZones(r, written);
+        int m = 0;
+        for (int i = 0; i < base.length; i++) {
+            m = Math.max(m, Math.max(0, Math.min(100, base[i] + r.zoneOffset[i])));
+        }
+        return m;
+    }
 
     /** @param value "set": the level asked for; up / down: the step's size (−1 = ~10 % of the level now) */
     public static int channelStep(int[] chs, String dir, boolean small, int value) {
@@ -1503,7 +1522,7 @@ public final class AutoSession {
                 to = now + ("up".equals(dir) ? 1 : -1) * (value > 0 ? value : AiVoiceCmd.step(Math.max(now, 1), small));
             }
             if (to > now) {
-                to = Math.min(to, now + maxUp);
+                to = Math.min(to, Math.max(now, voiceMax));
             }
             to = Math.max(0, Math.min(100, to));
             if (to > s && s >= 0) {

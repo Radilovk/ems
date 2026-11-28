@@ -768,14 +768,14 @@ public final class AiTrain {
 
     /** Each command with the relative step (AiVoiceCmd.step): muscles, strength, impulse, pause, Hz, rests, actions. */
     static String applyCommands(AiVoiceCmd.Result vc) {
-        // a spoken or AI command raises a level by at most VOICE_MAX_UP points (owner, 1.1.596: one wrong hearing must
-        // never send the suit to 100); lowering is never limited
-        int before = AutoSession.maxUp;
-        AutoSession.maxUp = AiVoiceCmd.VOICE_MAX_UP;
+        // a spoken or AI command never takes a channel over VOICE_MAX_LEVEL (owner, 1.1.597: never 100); lowering is
+        // never limited
+        int before = AutoSession.voiceMax;
+        AutoSession.voiceMax = AiVoiceCmd.VOICE_MAX_LEVEL;
         try {
             return applyCommandsNow(vc);
         } finally {
-            AutoSession.maxUp = before;
+            AutoSession.voiceMax = before;
         }
     }
 
@@ -958,17 +958,20 @@ public final class AiTrain {
                 int to = "set".equals(c.dir) ? c.value : "off".equals(c.dir) ? 0
                         : now + sign * (c.value > 0 ? c.value : AiVoiceCmd.step(Math.max(now, 1), c.small));
                 if (to > now) {
-                    to = Math.min(to, now + AiVoiceCmd.VOICE_MAX_UP);
+                    to = Math.min(to, Math.max(now, AiVoiceCmd.VOICE_MAX_LEVEL));
                 }
                 int v = MapRunner.setChannels(chs, to);
                 b.append(AiVoiceCmd.name(c.target)).append(' ').append("off".equals(c.dir) ? AiText.t("изкл.", "off") : v + " %")
                         .append(" · ");
             } else if ("strength".equals(c.target)) {
                 int now = MapRunner.strength();
-                int to = "set".equals(c.dir) ? c.value : now + sign * (c.value > 0 ? c.value
-                        : AiVoiceCmd.step(Math.max(now, 1), c.small));
-                if (to > now) {
-                    to = Math.min(to, now + AiVoiceCmd.VOICE_MAX_UP);
+                int ms = MapRunner.maxShare();
+                int to = "set".equals(c.dir)
+                        // "всичко на 70": the highest channel at 70, the others follow (owner, 1.1.597)
+                        ? (ms > 0 ? (int) Math.round(Math.min(c.value, AiVoiceCmd.VOICE_MAX_LEVEL) * 100.0 / ms) : c.value)
+                        : now + sign * (c.value > 0 ? c.value : AiVoiceCmd.step(Math.max(now, 1), c.small));
+                if (to > now && ms > 0) {
+                    to = Math.min(to, Math.max(now, (int) Math.floor(AiVoiceCmd.VOICE_MAX_LEVEL * 100.0 / ms)));
                 }
                 b.append(AiText.t("сила ", "strength ")).append(MapRunner.setStrength(to)).append(" · ");
             } else if ("impulse".equals(c.target)) {
